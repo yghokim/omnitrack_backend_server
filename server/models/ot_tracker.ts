@@ -6,14 +6,16 @@ const otAttributeSchema = new mongoose.Schema({
   serializedConnection: String,
   type: Number,
   required: Boolean,
-  properties: [{key: String, serializedValue: String}]
+  properties: [{key: String, serializedValue: String}],
+  removed: {type: Boolean, default: false}
 });
 
 const otTrackerSchema = new mongoose.Schema({
+  _id: {type: String, unique: true},
   objectId: String,
   name: String,
   color: Number,
-  user: {type:mongoose.Schema.Types.ObjectId, ref: 'OTTracker'},
+  user: {type: String, ref: 'OTUser'},
   attributeLocalKeySeed: Number,
   onShortcut: true,
   attributes: [otAttributeSchema]

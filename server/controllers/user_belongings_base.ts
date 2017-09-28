@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 export default abstract class UserBelongingCtrl extends BaseCtrl {
 
     getAllByUser(userId: String): any {
-        return this.model.find({ 'user._id': mongoose.Types.ObjectId(userId) })
+        return this.model.find({ 'user._id': userId })
     }
 
     getAllByUserOverTimestampQuery = function (userId: String, timestamp: Number): any {
@@ -41,7 +41,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
             if (list != null) {
                 list.map(clientEntry => {
                     new Promise((resolve, reject) => {
-                        this.model.findOneAndUpdate({ _id: mongoose.Types.ObjectId(clientEntry.objectId) },
+                        this.model.findOneAndUpdate({ _id: clientEntry.objectId },
                             {$set: this.convertClientEntryToDbSchema(clientEntry)}, { new: true },
                             (error, doc) => {
                                 if (error) {

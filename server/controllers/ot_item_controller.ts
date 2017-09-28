@@ -13,17 +13,19 @@ export default class OTItemCtrl extends UserBelongingCtrl {
       timestamp: dbEntry.timestamp,
       deviceId: dbEntry.deviceId,
       serializedValueTable: dbEntry.dataTable,
+      removed: dbEntry.removed,
       synchronizedAt: dbEntry.updatedAt
     }
   }
 
   protected convertClientEntryToDbSchema(clientEntry: any) {
     return {
-      tracker: mongoose.Types.ObjectId(clientEntry.objectId),
+      tracker: clientEntry.objectId,
       source: clientEntry.source,
       timestamp: clientEntry.timestamp,
       deviceId: clientEntry.deviceId,
       dataTable: clientEntry.serializedValueTable,
+      removed: clientEntry.removed
     }
   }
 }
