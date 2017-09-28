@@ -6,15 +6,26 @@ export default class OTItemCtrl extends UserBelongingCtrl {
   model = OTItem;
 
   protected convertEntryToOutput(dbEntry: any) {
+    var serverTable = {}
+    if(dbEntry.serializedValueTable != null)
+    {
+      dbEntry.serializedValueTable.forEach(
+        entry=>
+        {
+          serverTable[entry.attributeId] = entry.serializedValue
+        }
+      )
+    }
+    
     return {
       objectId: dbEntry._id,
       trackerObjectId: dbEntry.tracker._id,
       source: dbEntry.source,
       timestamp: dbEntry.timestamp,
       deviceId: dbEntry.deviceId,
-      serializedValueTable: dbEntry.dataTable,
+      serializedValueTable: serverTable,
       removed: dbEntry.removed,
-      synchronizedAt: dbEntry.updatedAt
+      synchronizedAt: dbEntry.updatedAt.getTime()
     }
   }
 

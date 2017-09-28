@@ -23,6 +23,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
                     console.log("server changes:")
                     console.log(results)
                     if (err != null) {
+                        console.log(err)
                         res.status(400).send({ error: err })
                     }
                     else {
