@@ -14,7 +14,7 @@ export default function setRoutes(app) {
   // Items
   router.route('/items/changes').get(itemCtrl.getServerChanges)
   router.route('/items/changes').post(itemCtrl.postLocalChanges)
-
+  router.route('/items/all').get(itemCtrl.getAll)
 /*
   router.route('/items/count').get(catCtrl.count);
   router.route('/cat').post(catCtrl.insert);

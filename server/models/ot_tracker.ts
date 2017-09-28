@@ -19,7 +19,7 @@ const otTrackerSchema = new mongoose.Schema({
   attributeLocalKeySeed: Number,
   onShortcut: true,
   attributes: [otAttributeSchema]
-});
+}, {timestamps: true});
 
 const OTTracker = mongoose.model('OTTracker', otTrackerSchema);
 

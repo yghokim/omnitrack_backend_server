@@ -9,7 +9,7 @@ const otItemSchema = new mongoose.Schema({
   deviceId: String,
   dataTable: [{attributeId: String, serializedValue: String}],
   removed: {type: Boolean, default: false}
-});
+}, {timestamps: true});
 
 const OTItem = mongoose.model('OTItem', otItemSchema);
 

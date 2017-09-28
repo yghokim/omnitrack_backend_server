@@ -19,12 +19,18 @@ export default class OTItemCtrl extends UserBelongingCtrl {
   }
 
   protected convertClientEntryToDbSchema(clientEntry: any) {
+    var clientTable = []
+    if(clientEntry.serializedValueTable!=null)
+    {
+      clientTable = Object.keys(clientEntry.serializedValueTable).map(key=>{ return {attributeId: key, serializedValue: clientEntry.serializedValueTable[key]} })
+    }
+    
     return {
       tracker: clientEntry.objectId,
       source: clientEntry.source,
       timestamp: clientEntry.timestamp,
       deviceId: clientEntry.deviceId,
-      dataTable: clientEntry.serializedValueTable,
+      dataTable: clientTable,
       removed: clientEntry.removed
     }
   }
