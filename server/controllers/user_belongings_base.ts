@@ -17,7 +17,8 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
     getServerChanges = (req, res) => {
         const userId = req.query.user
         if (userId != null) {
-            const timestamp = req.query.timestamp | 0
+            const timestamp = (req.query.timestamp || 0) * 1
+            console.log("query server changes since " + new Date(timestamp))
             this.getAllByUserOverTimestampQuery(userId, timestamp).exec(
                 (err, results) => {
                     console.log("server changes:")
@@ -44,38 +45,46 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
             if (list != null) {
                 console.log("local changes posted.")
                 console.log(list)
-                this.model.collection.bulkWrite(
-                    list.map(element => {
+                if(list.length > 0)
+                {
+                    this.model.collection.bulkWrite(
+                        list.map(element => {
 
-                        const dataInDbSchema = this.convertClientEntryToDbSchema(element)
-                        dataInDbSchema.updatedAt = new Date()
-                        dataInDbSchema.user = userId
+                            const dataInDbSchema = this.convertClientEntryToDbSchema(element)
+                            dataInDbSchema.updatedAt = new Date()
+                            dataInDbSchema.user = userId
 
-                        return {
-                            updateOne: {
-                                filter: {_id: element.objectId}, 
-                                update:{$set: dataInDbSchema}, 
-                                upsert: true
+                            return {
+                                updateOne: {
+                                    filter: {_id: element.objectId}, 
+                                    update:{$set: dataInDbSchema}, 
+                                    upsert: true
+                                }
                             }
                         }
-                    }
-                )).then(
-                    result=>{
-                        console.log(result)
-                        if(result.ok == 1)
-                        {
-                            return this.model.find({_id:{$in: list.map(element=>element.objectId)}}, {updatedAt:1})
-                        }else res.status(500).send({error: "Server error while upserting."})
-                    }
-                ).then(
-                    result=>{
-                        res.status(200).send(
-                            result.map(entry=>{return {id: entry._id, synchronizedAt: entry.synchronizedAt.getTime()}})
-                        )
-                    }
-                )
+                    )).then(
+                        result=>{
+                            console.log(result)
+                            if(result.ok == 1)
+                            {
+                                return this.model.find({_id:{$in: list.map(element=>element.objectId)}}, {updatedAt:1})
+                            }else res.status(500).send({error: "Server error while upserting."})
+                        }
+                    ).then(
+                        result=>{
+                            const mappedResult = result.map(entry=>{return {id: entry._id, synchronizedAt: entry.updatedAt.getTime()}})
+                            console.log(mappedResult)
+                            res.status(200).send(
+                                mappedResult
+                            )
+                        }
+                    ).catch(err=>{
+                        console.log(err)
+                        res.status(500).send({error: "Server error in progress of posting local changes."})
+                    })
+                }
+                else res.status(200).send([])
             }
-            res.status(200).send([{id:"asdfasdf", synchronizedAt: 12324123}])
         }else res.status(400).send({error: "No user id was passed."})
     }
 }

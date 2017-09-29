@@ -7,9 +7,9 @@ export default class OTItemCtrl extends UserBelongingCtrl {
 
   protected convertEntryToOutput(dbEntry: any) {
     var serverTable = {}
-    if(dbEntry.serializedValueTable != null)
+    if(dbEntry.dataTable != null)
     {
-      dbEntry.serializedValueTable.forEach(
+      dbEntry.dataTable.forEach(
         entry=>
         {
           serverTable[entry.attributeId] = entry.serializedValue
@@ -19,7 +19,7 @@ export default class OTItemCtrl extends UserBelongingCtrl {
     
     return {
       objectId: dbEntry._id,
-      trackerObjectId: dbEntry.tracker._id,
+      trackerObjectId: dbEntry.tracker,
       source: dbEntry.source,
       timestamp: dbEntry.timestamp,
       deviceId: dbEntry.deviceId,
@@ -37,7 +37,7 @@ export default class OTItemCtrl extends UserBelongingCtrl {
     }
     
     return {
-      tracker: clientEntry.objectId,
+      tracker: clientEntry.trackerObjectId,
       source: clientEntry.source,
       timestamp: clientEntry.timestamp,
       deviceId: clientEntry.deviceId,
