@@ -18,7 +18,9 @@ const otTrackerSchema = new mongoose.Schema({
   user: {type: String, ref: 'OTUser'},
   attributeLocalKeySeed: Number,
   onShortcut: true,
-  attributes: [otAttributeSchema]
+  attributes: [otAttributeSchema],
+  creationFlags: Object,
+  metadata: Object
 }, {timestamps: true});
 
 const OTTracker = mongoose.model('OTTracker', otTrackerSchema);

@@ -4,6 +4,7 @@ import * as express from 'express';
 import * as morgan from 'morgan';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
+import * as firebaseAdmin from 'firebase-admin';
 
 import setRoutes from './routes';
 
@@ -23,6 +24,9 @@ if (process.env.NODE_ENV === 'test') {
   mongoose.connect(process.env.MONGODB_URI);
 }
 
+const firebaseServiceAccount = require("../../credentials/firebase-cert.json");
+firebaseAdmin.initializeApp({credential: firebaseAdmin.credential.cert(firebaseServiceAccount)})
+
 const db = mongoose.connection;
 (<any>mongoose).Promise = global.Promise;
 
@@ -41,7 +45,5 @@ db.once('open', () => {
       console.log('Angular Full Stack listening on port ' + app.get('port'));
     });
   }
-
 });
-
 export { app };

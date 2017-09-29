@@ -15,7 +15,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
     protected abstract convertClientEntryToDbSchema(clientEntry: any): any
 
     getServerChanges = (req, res) => {
-        const userId = req.query.user
+        const userId = res.locals.user.uid
         if (userId != null) {
             const timestamp = (req.query.timestamp || 0) * 1
             console.log("query server changes since " + new Date(timestamp))
@@ -39,7 +39,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
     }
 
     postLocalChanges = (req, res) => {
-        const userId = req.query.user
+        const userId = res.locals.user.uid
         if (userId != null) {
             const list = req.body
             if (list != null) {
