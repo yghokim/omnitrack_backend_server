@@ -21,8 +21,11 @@ export default function setRoutes(app) {
 
   router.get('/user/roles', firebaseMiddleware.auth, userCtrl.getRoles)
   router.post('/user/role', firebaseMiddleware.auth, userCtrl.postRole)
+  router.put('/user/device', firebaseMiddleware.auth, userCtrl.putDeviceInfo)
   
   router.route('/items/all').get(itemCtrl.getAll)
+
+  router.route('/users/all').get(userCtrl.getAll)
 /*
   router.route('/items/count').get(catCtrl.count);
   router.route('/cat').post(catCtrl.insert);

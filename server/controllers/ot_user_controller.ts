@@ -3,8 +3,9 @@ import * as mongoose from 'mongoose';
 import OTUser from '../models/ot_user';
 import * as firebaseAdmin from 'firebase-admin';
 
-export default class OTUserCtrl {
-    
+export default class OTUserCtrl extends BaseCtrl {
+    model = OTUser
+
     private fetchUserDataToDb(uid: string): Promise<any>{
         console.log("Firebase app:")
         console.log(firebaseAdmin.auth().app.name)
@@ -21,11 +22,7 @@ export default class OTUserCtrl {
                         accountLastSignInTime: userRecord.metadata.lastSignInTime,
                     }}, {upsert: true}).then(
                         result=>{
-                            if(result > 0)
-                            {
-                                return OTUser.findOne({_id:uid})
-                            }
-                            else return null
+                            return OTUser.findOne({_id:uid})
                         }
                     )
                 }
@@ -65,7 +62,6 @@ export default class OTUserCtrl {
     }
 
     postRole = (req, res)=>{
-        try{
             const userId = res.locals.user.uid
             this.getUserOrInsert(userId).then(
                 user=>{
@@ -95,10 +91,62 @@ export default class OTUserCtrl {
                     }
                 }
             )
-        }
-        catch(ex){
-            console.log(ex)
-            res.status(500).send(ex)
-        }
+    }
+
+    getDevices = (req, res)=>{
+        const userId = res.locals.user.uid
+        OTUser.findOne({_id: userId}).then(
+            result=>
+            {
+                if(result==null)
+                {
+                    res.json([])
+                }
+                else res.json(result.devices || [])
+            }
+        ).catch(
+            error=>{
+                console.log(error)
+                res.status(500).send(error)  
+            }
+        )
+    }
+
+    putDeviceInfo = (req, res)=>{
+        const userId = res.locals.user.uid
+        const deviceInfo = req.body
+        this.getUserOrInsert(userId).then(
+            user=>{
+                console.log("insertedUser: ")
+                console.log(user)
+                var updated = false
+                user.devices.forEach(device=>{
+                    if(device.deviceId == deviceInfo.deviceId)
+                    {
+                        device.deviceId = deviceInfo.deviceId
+                        device.instanceId = deviceInfo.instanceId
+                        device.appVersion = deviceInfo.appVersion
+                        device.firstLoginAt = deviceInfo.firstLoginAt
+                        device.os = deviceInfo.os
+                        updated = true
+                    }
+                })
+                if(updated == false)
+                {
+                    user.devices.push(deviceInfo)
+                    user.save(err=>{
+                        console.log(err)
+                        if(err==null)
+                        {
+                            res.json(true)
+                        }
+                        else res.status(500).send({error: "deviceinfo db update failed."})
+                    })
+                }
+                else{
+                    res.json(true)
+                }
+            }
+        )
     }
 }
