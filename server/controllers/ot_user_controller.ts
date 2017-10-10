@@ -150,7 +150,6 @@ export default class OTUserCtrl extends BaseCtrl {
                     })
                 }
                 else{
-                
                     console.log("device local key: " + localKey)
                     res.json({result: "updated", deviceLocalKey: localKey.toString(16)})
                 }
