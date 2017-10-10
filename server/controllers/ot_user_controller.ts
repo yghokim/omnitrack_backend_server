@@ -120,9 +120,11 @@ export default class OTUserCtrl extends BaseCtrl {
                 console.log("insertedUser: ")
                 console.log(user)
                 var updated = false
+                var localKey = null
                 user.devices.forEach(device=>{
                     if(device.deviceId == deviceInfo.deviceId)
                     {
+                        localKey = device.localKey
                         device.deviceId = deviceInfo.deviceId
                         device.instanceId = deviceInfo.instanceId
                         device.appVersion = deviceInfo.appVersion
@@ -133,18 +135,24 @@ export default class OTUserCtrl extends BaseCtrl {
                 })
                 if(updated == false)
                 {
+                    localKey = (user.deviceLocalKeySeed || 0) + 1
+                    deviceInfo.localKey = localKey
+                    user.deviceLocalKeySeed ++
                     user.devices.push(deviceInfo)
                     user.save(err=>{
                         console.log(err)
                         if(err==null)
                         {
-                            res.json(true)
+                            console.log("device local key: " + localKey)
+                            res.json({result: "added", deviceLocalKey: localKey.toString(16)})
                         }
                         else res.status(500).send({error: "deviceinfo db update failed."})
                     })
                 }
                 else{
-                    res.json(true)
+                
+                    console.log("device local key: " + localKey)
+                    res.json({result: "updated", deviceLocalKey: localKey.toString(16)})
                 }
             }
         )
