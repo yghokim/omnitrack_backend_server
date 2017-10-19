@@ -1,6 +1,7 @@
 import BaseCtrl from './base';
 import * as mongoose from 'mongoose';
 import OTUser from '../models/ot_user';
+import OTUserReport from '../models/ot_user_report';
 import * as firebaseAdmin from 'firebase-admin';
 
 export default class OTUserCtrl extends BaseCtrl {
@@ -91,6 +92,28 @@ export default class OTUserCtrl extends BaseCtrl {
                     }
                 }
             )
+    }
+
+    postReport = (req, res)=>{
+        const reportData = req.body
+        const newReport = new OTUserReport({_id: mongoose.Types.ObjectId(), data: reportData})
+        if(reportData.anonymous == true)
+        {
+            console.log("received the anonymized report")
+        }
+        else{
+            console.log("received the de-anonymized report")
+            newReport.user = res.locals.user.uid
+        }
+
+         newReport.save().then(
+                result=>{
+                    res.status(200).send(true)
+                }
+            ).catch(err=>{
+                console.log(err)
+                res.status(500).send({error: err})
+            })
     }
 
     getDevices = (req, res)=>{
