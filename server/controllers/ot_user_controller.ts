@@ -144,38 +144,45 @@ export default class OTUserCtrl extends BaseCtrl {
                 console.log(user)
                 var updated = false
                 var localKey = null
-                user.devices.forEach(device=>{
-                    if(device.deviceId == deviceInfo.deviceId)
-                    {
-                        localKey = device.localKey
-                        device.deviceId = deviceInfo.deviceId
-                        device.instanceId = deviceInfo.instanceId
-                        device.appVersion = deviceInfo.appVersion
-                        device.firstLoginAt = deviceInfo.firstLoginAt
-                        device.os = deviceInfo.os
-                        updated = true
-                    }
-                })
-                if(updated == false)
+                const matchedDevice = user.devices.find(device=> device.deviceId == deviceInfo.deviceId)
+                if(matchedDevice != null)
                 {
+                    console.log("found device with id matches: ")
+                    localKey = matchedDevice.localKey
+                    if(matchedDevice.localKey == null)
+                    {
+                        localKey = (user.deviceLocalKeySeed || 0) + 1
+                        matchedDevice.localKey = localKey
+                        user.deviceLocalKeySeed ++
+                    }
+
+                    matchedDevice.deviceId = deviceInfo.deviceId
+                    matchedDevice.instanceId = deviceInfo.instanceId
+                    matchedDevice.appVersion = deviceInfo.appVersion
+                    matchedDevice.firstLoginAt = deviceInfo.firstLoginAt
+                    matchedDevice.os = deviceInfo.os
+
+                    updated = true
+                }
+                else{
                     localKey = (user.deviceLocalKeySeed || 0) + 1
                     deviceInfo.localKey = localKey
                     user.deviceLocalKeySeed ++
                     user.devices.push(deviceInfo)
-                    user.save(err=>{
-                        console.log(err)
-                        if(err==null)
-                        {
-                            console.log("device local key: " + localKey)
-                            res.json({result: "added", deviceLocalKey: localKey.toString(16)})
-                        }
-                        else res.status(500).send({error: "deviceinfo db update failed."})
-                    })
+
+                    updated = false
                 }
-                else{
-                    console.log("device local key: " + localKey)
-                    res.json({result: "updated", deviceLocalKey: localKey.toString(16)})
-                }
+                console.log("localKey: " + localKey)
+
+                user.save(err=>{
+                    console.log(err)
+                    if(err==null)
+                    {
+                        console.log("device local key: " + localKey)
+                        res.json({result: updated==true? "updated":"added", deviceLocalKey: localKey.toString(16)})
+                    }
+                    else res.status(500).send({error: "deviceinfo db update failed."})
+                }, {upsert: true})
             }
         )
     }
