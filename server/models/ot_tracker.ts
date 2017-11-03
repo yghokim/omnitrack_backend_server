@@ -2,25 +2,30 @@ import * as mongoose from 'mongoose';
 
 const otAttributeSchema = new mongoose.Schema({
   name: String,
-  localKey: Number,
-  serializedConnection: String,
+  localId: String,
+  trackerId: String,
+  connection: Object,
+  fallbackPolicy: Number,
+  fallbackPreset: String,
   type: Number,
-  required: Boolean,
+  isRequired: Boolean,
+  position: Number,
   properties: [{key: String, serializedValue: String}],
-  removed: {type: Boolean, default: false}
+  userCreatedAt: Number
 });
 
 const otTrackerSchema = new mongoose.Schema({
   _id: {type: String, unique: true},
-  objectId: String,
   name: String,
   color: Number,
   user: {type: String, ref: 'OTUser'},
-  attributeLocalKeySeed: Number,
-  onShortcut: true,
+  isBookmarked: true,
+  position: Number,
   attributes: [otAttributeSchema],
-  creationFlags: Object,
-  metadata: Object
+  removedAttributes: [otAttributeSchema],
+  lockedProperties: Object,
+  flags: Object,
+  userCreatedAt: Number
 }, {timestamps: true});
 
 const OTTracker = mongoose.model('OTTracker', otTrackerSchema);
