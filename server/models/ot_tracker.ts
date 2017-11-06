@@ -11,7 +11,7 @@ const otAttributeSchema = new mongoose.Schema({
   type: Number,
   isRequired: Boolean,
   position: Number,
-  properties: [{key: String, serializedValue: String}],
+  properties: [{key: String, sVal: String}],
   userCreatedAt: Number,
   userUpdatedAt: Number
 });
