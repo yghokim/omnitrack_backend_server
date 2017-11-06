@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 
 const otItemSchema = new mongoose.Schema({
-  _id: {type: String, unique: true},
+  objectId: {type: String, unique: true},
   tracker: {type:String, ref: 'OTTracker', required: true},
   user: {type:String, ref: 'OTUser', required: true},
   source: String,

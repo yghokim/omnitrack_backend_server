@@ -10,7 +10,7 @@ const otClientDeviceSchema = new mongoose.Schema({
 })
 
 const otUserSchema = new mongoose.Schema({
-  _id: {type: String, unique: true},
+  objectId: {type: String, unique: true},
   name: String,
   picture: String,
   email: String,

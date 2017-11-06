@@ -18,7 +18,7 @@ export default class OTItemCtrl extends UserBelongingCtrl {
     }
     
     return {
-      objectId: dbEntry._id,
+      objectId: dbEntry.objectId,
       trackerId: dbEntry.tracker,
       source: dbEntry.source,
       timestamp: dbEntry.timestamp,

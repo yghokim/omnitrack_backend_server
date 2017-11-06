@@ -11,7 +11,9 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
     }
 
     public getAllByUserOverTimestampQuery(userId: String, timestamp: number): Promise<Array<any>> {
-        return this.getAllByUser(userId).where('updatedAt').gt(new Date(timestamp)).then(results => results.map(entry => {return this.convertEntryToOutput(entry)}))
+        return this.getAllByUser(userId).where('updatedAt').gt(new Date(timestamp)).then(results => results.map(entry => {
+            return this.convertEntryToOutput(entry)
+        }))
     }
 
     public applyClientChanges(userId: String, clientChangeList: Array<any>): Promise<Array<{id:String, timestamp:number}>>{
@@ -25,7 +27,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
 
                     return {
                         updateOne: {
-                            filter: {_id: element.objectId}, 
+                            filter: {objectId: element.objectId}, 
                             update:{$set: dataInDbSchema}, 
                             upsert: true
                         }
@@ -35,11 +37,11 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
                 result=>{
                     if(result.ok == 1)
                     {
-                        return this.model.find({_id:{$in: clientChangeList.map(element=>element.objectId)}}, {updatedAt:1})
+                        return this.model.find({objectId:{$in: clientChangeList.map(element=>element.objectId)}}, {updatedAt:1})
                     }else throw Error("Server error while upserting.")
                 }
             ).then(
-                result=>result.map(entry=>{return {id: entry._id, synchronizedAt: entry.updatedAt.getTime()}})
+                result=>result.map(entry=>{return {id: entry.objectId, synchronizedAt: entry.updatedAt.getTime()}})
             )
         }
         else return Promise.resolve([])
@@ -100,7 +102,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
 
                             return {
                                 updateOne: {
-                                    filter: {_id: element.objectId}, 
+                                    filter: {objectId: element.objectId}, 
                                     update:{$set: dataInDbSchema}, 
                                     upsert: true
                                 }
@@ -111,12 +113,12 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
                             console.log(result)
                             if(result.ok == 1)
                             {
-                                return this.model.find({_id:{$in: list.map(element=>element.objectId)}}, {updatedAt:1})
+                                return this.model.find({objectId:{$in: list.map(element=>element.objectId)}}, {updatedAt:1})
                             }else res.status(500).send({error: "Server error while upserting."})
                         }
                     ).then(
                         result=>{
-                            const mappedResult = result.map(entry=>{return {id: entry._id, synchronizedAt: entry.updatedAt.getTime()}})
+                            const mappedResult = result.map(entry=>{return {id: entry.objectId, synchronizedAt: entry.updatedAt.getTime()}})
                             console.log(mappedResult)
                             res.status(200).send(
                                 mappedResult

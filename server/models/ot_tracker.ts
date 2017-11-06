@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 
 const otAttributeSchema = new mongoose.Schema({
-  _id: String,
+  objectId: String,
   name: String,
   localId: String,
   trackerId: String,
@@ -17,7 +17,7 @@ const otAttributeSchema = new mongoose.Schema({
 });
 
 const otTrackerSchema = new mongoose.Schema({
-  _id: {type: String, unique: true},
+  objectId: {type: String, unique: true},
   name: String,
   color: Number,
   user: {type: String, ref: 'OTUser'},
