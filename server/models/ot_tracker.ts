@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 
 const otAttributeSchema = new mongoose.Schema({
+  _id: String,
   name: String,
   localId: String,
   trackerId: String,
@@ -11,7 +12,8 @@ const otAttributeSchema = new mongoose.Schema({
   isRequired: Boolean,
   position: Number,
   properties: [{key: String, serializedValue: String}],
-  userCreatedAt: Number
+  userCreatedAt: Number,
+  userUpdatedAt: Number
 });
 
 const otTrackerSchema = new mongoose.Schema({
@@ -19,13 +21,14 @@ const otTrackerSchema = new mongoose.Schema({
   name: String,
   color: Number,
   user: {type: String, ref: 'OTUser'},
-  isBookmarked: true,
+  isBookmarked: {type: Boolean, default: false},
   position: Number,
-  attributes: [otAttributeSchema],
-  removedAttributes: [otAttributeSchema],
-  lockedProperties: Object,
-  flags: Object,
-  userCreatedAt: Number
+  attributes: {type: [otAttributeSchema], default: []},
+  removedAttributes: {type: [otAttributeSchema], default:[]},
+  lockedProperties: {type: Object, default: {}},
+  flags: {type: Object, default: {}},
+  userCreatedAt: Number,
+  userUpdateAt: Number
 }, {timestamps: true});
 
 const OTTracker = mongoose.model('OTTracker', otTrackerSchema);

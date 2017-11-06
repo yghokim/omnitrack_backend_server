@@ -1,6 +1,8 @@
 import * as express from 'express';
 
+import OTSyncCtrl from './controllers/ot_sync_controller';
 import OTItemCtrl from './controllers/ot_item_controller';
+import OTTrackerCtrl from './controllers/ot_tracker_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
 import UserCtrl from './controllers/user';
 import User from './models/user';
@@ -10,14 +12,19 @@ export default function setRoutes(app) {
   const router = express.Router();
 
   const itemCtrl = new OTItemCtrl();
+  const trackerCtrl = new OTTrackerCtrl();
   const userCtrl = new OTUserCtrl();
+  const syncCtrl = new OTSyncCtrl(trackerCtrl, itemCtrl)
 
   const firebaseMiddleware = require('express-firebase-middleware');
 
 
-  // Items
+  // batch
+  router.get('/batch/changes', firebaseMiddleware.auth, syncCtrl.batchGetServerChangesAfter)
+  router.post('/batch/changes', firebaseMiddleware.auth, syncCtrl.batchPostClientChanges)
+  
   router.get('/items/changes', firebaseMiddleware.auth, itemCtrl.getServerChanges)
-  router.post('/items/changes', firebaseMiddleware.auth, itemCtrl.postLocalChanges)
+  router.post('/items/changes', firebaseMiddleware.auth, itemCtrl.postClientChanges)
 
   router.get('/user/roles', firebaseMiddleware.auth, userCtrl.getRoles)
   router.post('/user/role', firebaseMiddleware.auth, userCtrl.postRole)

@@ -8,7 +8,8 @@ const otItemSchema = new mongoose.Schema({
   timestamp: {type:Number, required: true},
   deviceId: String,
   dataTable: [{attributeId: String, serializedValue: String}],
-  removed: {type: Boolean, default: false}
+  removed: {type: Boolean, default: false},
+  userUpdatedAt: Number
 }, {timestamps: true});
 
 const OTItem = mongoose.model('OTItem', otItemSchema);

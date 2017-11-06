@@ -19,12 +19,13 @@ export default class OTItemCtrl extends UserBelongingCtrl {
     
     return {
       objectId: dbEntry._id,
-      trackerObjectId: dbEntry.tracker,
+      trackerId: dbEntry.tracker,
       source: dbEntry.source,
       timestamp: dbEntry.timestamp,
       deviceId: dbEntry.deviceId,
       serializedValueTable: serverTable,
       removed: dbEntry.removed,
+      userUpdateAt: dbEntry.userUpdatedAt,
       synchronizedAt: dbEntry.updatedAt.getTime()
     }
   }
@@ -37,11 +38,12 @@ export default class OTItemCtrl extends UserBelongingCtrl {
     }
     
     return {
-      tracker: clientEntry.trackerObjectId,
+      tracker: clientEntry.trackerId,
       source: clientEntry.source,
       timestamp: clientEntry.timestamp,
       deviceId: clientEntry.deviceId,
       dataTable: clientTable,
+      userUpdatedAt: clientEntry.userUpdatedAt,
       removed: clientEntry.removed
     }
   }
