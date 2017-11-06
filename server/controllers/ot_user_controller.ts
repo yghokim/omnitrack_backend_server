@@ -15,7 +15,7 @@ export default class OTUserCtrl extends BaseCtrl {
                 userRecord=>{
                     console.log("fetched Firebase auth user account:")
                     console.log(userRecord)
-                    return OTUser.update({_id: uid}, {$set: {
+                    return OTUser.update({objectId: uid}, {$set: {
                         name: userRecord.displayName,
                         email: userRecord.email,
                         picture: userRecord.photoURL,
@@ -23,7 +23,7 @@ export default class OTUserCtrl extends BaseCtrl {
                         accountLastSignInTime: userRecord.metadata.lastSignInTime,
                     }}, {upsert: true}).then(
                         result=>{
-                            return OTUser.findOne({_id:uid})
+                            return OTUser.findOne({objectId:uid})
                         }
                     )
                 }
@@ -31,7 +31,7 @@ export default class OTUserCtrl extends BaseCtrl {
     }
 
     private getUserOrInsert(userId: string): Promise<any>{
-        return OTUser.findOne({_id: userId}).then(
+        return OTUser.findOne({objectId: userId}).then(
             result=>
             {
                 if(result==null)
@@ -45,7 +45,7 @@ export default class OTUserCtrl extends BaseCtrl {
 
     getRoles = (req, res) => {
         const userId = res.locals.user.uid
-        OTUser.findOne({_id: userId}).then(
+        OTUser.findOne({objectId: userId}).then(
             result=>
             {
                 if(result==null)
@@ -96,7 +96,7 @@ export default class OTUserCtrl extends BaseCtrl {
 
     postReport = (req, res)=>{
         const reportData = req.body
-        const newReport = new OTUserReport({_id: mongoose.Types.ObjectId(), data: reportData})
+        const newReport = new OTUserReport({objectId: mongoose.Types.ObjectId(), data: reportData})
         if(reportData.anonymous == true)
         {
             console.log("received the anonymized report")
@@ -118,7 +118,7 @@ export default class OTUserCtrl extends BaseCtrl {
 
     getDevices = (req, res)=>{
         const userId = res.locals.user.uid
-        OTUser.findOne({_id: userId}).then(
+        OTUser.findOne({objectId: userId}).then(
             result=>
             {
                 if(result==null)
