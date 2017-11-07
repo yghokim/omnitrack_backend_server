@@ -1,10 +1,11 @@
 import OTTrackerCtrl from './ot_tracker_controller';
+import OTTriggerCtrl from './ot_trigger_controller';
 import OTItemCtrl from './ot_item_controller';
 import UserBelongingCtrl from './user_belongings_base';
 
 export default class OTSyncCtrl {
 
-    constructor(private trackerCtrl: OTTrackerCtrl, private itemCtrl: OTItemCtrl){
+    constructor(private trackerCtrl: OTTrackerCtrl, private triggerCtrl: OTTriggerCtrl, private itemCtrl: OTItemCtrl){
 
     }
 
@@ -26,7 +27,7 @@ export default class OTSyncCtrl {
                     controller = this.trackerCtrl
                     break
                     case "TRIGGER":
-                    //TODO
+                    controller = this.triggerCtrl
                     break
                     case "ITEM":
                     controller = this.itemCtrl
@@ -35,7 +36,7 @@ export default class OTSyncCtrl {
     
                 if(controller!=null)
                 {
-                    return controller.getAllByUserOverTimestampQuery(userId, entry.timestamp).then(l=> { return {type:entry.type, list: l}})
+                    return controller.getAllByUserOverTimestampQuery(userId, entry.timestamp).then(l=> { console.log(l); return {type:entry.type, list: l}})
                 }else return Promise.resolve({type: entry.type, list: []})
             })
         ).then(
@@ -65,6 +66,8 @@ export default class OTSyncCtrl {
             const userId = res.locals.user.uid
             const clientChangeList: Array<{type:string, rows: Array<any>}> = req.body
 
+            console.log("received client changes:")
+            console.log(clientChangeList)
             Promise.all(clientChangeList.map(
                 entry=>{
                     var controller: UserBelongingCtrl
@@ -73,7 +76,7 @@ export default class OTSyncCtrl {
                         controller = this.trackerCtrl
                         break
                         case "TRIGGER":
-                        
+                        controller = this.triggerCtrl
                         break
                         case "ITEM":
                         controller = this.itemCtrl
@@ -88,6 +91,8 @@ export default class OTSyncCtrl {
                 }
             )
         ).then(results=>{
+            console.log("bulk result: ")
+            console.log(results)
             return results.reduce(function(map, obj) {
                 map[obj.type] = obj.rows
                 return map

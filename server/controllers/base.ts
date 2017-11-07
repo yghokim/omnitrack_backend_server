@@ -35,7 +35,7 @@ abstract class BaseCtrl {
 
   // Get by id
   get = (req, res) => {
-    this.model.findOne({ objectId: req.params.id }, (err, obj) => {
+    this.model.findOne({ _id: req.params.id }, (err, obj) => {
       if (err) { return console.error(err); }
       res.json(obj);
     });
@@ -43,7 +43,7 @@ abstract class BaseCtrl {
 
   // Update by id
   update = (req, res) => {
-    this.model.findOneAndUpdate({ objectId: req.params.id }, req.body, (err) => {
+    this.model.findOneAndUpdate({ _id: req.params.id }, req.body, (err) => {
       if (err) { return console.error(err); }
       res.sendStatus(200);
     });
@@ -51,10 +51,22 @@ abstract class BaseCtrl {
 
   // Delete by id
   delete = (req, res) => {
-    this.model.findOneAndRemove({ objectId: req.params.id }, (err) => {
+    this.model.findOneAndRemove({ _id: req.params.id }, (err) => {
       if (err) { return console.error(err); }
       res.sendStatus(200);
     });
+  }
+
+  destroy = (req, res) => {
+    this.model.remove({}, err=>{
+      if(err){
+        console.log(err)
+        res.sendStatus(500);
+      }
+      else{
+        res.status(200).send({result: "destroyed all data rows in " + this.model + "."})
+      }
+    })
   }
 }
 

@@ -3,6 +3,7 @@ import * as express from 'express';
 import OTSyncCtrl from './controllers/ot_sync_controller';
 import OTItemCtrl from './controllers/ot_item_controller';
 import OTTrackerCtrl from './controllers/ot_tracker_controller';
+import OTTriggerCtrl from './controllers/ot_trigger_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
 import UserCtrl from './controllers/user';
 import User from './models/user';
@@ -13,8 +14,9 @@ export default function setRoutes(app) {
 
   const itemCtrl = new OTItemCtrl();
   const trackerCtrl = new OTTrackerCtrl();
+  const triggerCtrl = new OTTriggerCtrl();
   const userCtrl = new OTUserCtrl();
-  const syncCtrl = new OTSyncCtrl(trackerCtrl, itemCtrl)
+  const syncCtrl = new OTSyncCtrl(trackerCtrl, triggerCtrl, itemCtrl)
 
   const firebaseMiddleware = require('express-firebase-middleware');
 
@@ -32,8 +34,13 @@ export default function setRoutes(app) {
   router.post('/user/report', firebaseMiddleware.auth, userCtrl.postReport)
   
   router.route('/items/all').get(itemCtrl.getAll)
-
   router.route('/users/all').get(userCtrl.getAll)
+  router.route('/trackers/all').get(trackerCtrl.getAll)  
+  router.route('/triggers/all').get(triggerCtrl.getAll)
+
+  router.route('/trackers/destroy').get(trackerCtrl.destroy)
+  router.route('/items/destroy').get(itemCtrl.destroy)
+  router.route('/triggers/destroy').get(triggerCtrl.destroy)
 /*
   router.route('/items/count').get(catCtrl.count);
   router.route('/cat').post(catCtrl.insert);

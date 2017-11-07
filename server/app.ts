@@ -5,6 +5,7 @@ import * as morgan from 'morgan';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
 import * as firebaseAdmin from 'firebase-admin';
+import ServerCtrl from './controllers/ot_server_controller'
 
 import setRoutes from './routes';
 
@@ -33,6 +34,9 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
   console.log('Connected to MongoDB');
+
+  const serverController = new ServerCtrl()
+  serverController.initialize()
 
   setRoutes(app);
 

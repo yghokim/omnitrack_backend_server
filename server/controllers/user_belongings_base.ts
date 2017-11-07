@@ -2,9 +2,27 @@ import BaseCtrl from './base';
 import * as mongoose from 'mongoose';
 export default abstract class UserBelongingCtrl extends BaseCtrl {
 
-    protected abstract convertEntryToOutput(dbEntry: any): any
-    
-    protected abstract convertClientEntryToDbSchema(clientEntry: any): any
+    protected convertEntryToOutput(dbEntry: any): any {
+        const obj = JSON.parse(JSON.stringify(dbEntry))
+  
+        obj.objectId = obj._id.toString()
+        delete obj._id
+  
+        obj.synchronizedAt = dbEntry.updatedAt.getTime()
+  
+        return obj
+      }
+      
+      protected convertClientEntryToDbSchema(clientEntry: any): any {
+        const obj = JSON.parse(JSON.stringify(clientEntry))
+         
+        delete obj.synchronizedAt
+  
+        obj._id  = obj.objectId.toString()
+        delete obj.objectId
+  
+        return obj
+      }
 
     getAllByUser(userId: String): any {
         return this.model.find({ 'user': userId })
@@ -25,9 +43,12 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
                     dataInDbSchema.updatedAt = new Date()
                     dataInDbSchema.user = userId
 
+                    console.log("db schema:")
+                    console.log(dataInDbSchema)
+
                     return {
                         updateOne: {
-                            filter: {objectId: element.objectId}, 
+                            filter: {_id: element.objectId}, 
                             update:{$set: dataInDbSchema}, 
                             upsert: true
                         }
@@ -35,13 +56,21 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
                 }
             )).then(
                 result=>{
+                    console.log("bulkwrite result: ")
+                    console.log(result)
+                    console.log(result.hasWriteErrors())
+                    console.log(result.getWriteErrors())
+                    result.getWriteErrors().forEach(error=>{
+                        console.log(error.toJSON())
+                    })
+                    console.log("ok: " + result.ok + ", nIn: " + result.nInserted + ", nUp: " + result.nUpserted + ", nMatched: " + result.nMatched )
                     if(result.ok == 1)
                     {
-                        return this.model.find({objectId:{$in: clientChangeList.map(element=>element.objectId)}}, {updatedAt:1})
+                        return this.model.find({_id:{$in: clientChangeList.map(element=>element.objectId)}}, {updatedAt:1})
                     }else throw Error("Server error while upserting.")
                 }
             ).then(
-                result=>result.map(entry=>{return {id: entry.objectId, synchronizedAt: entry.updatedAt.getTime()}})
+                result=>result.map(entry=>{ console.log("haha"); console.log(entry);  return {id: entry._id, synchronizedAt: entry.updatedAt.getTime()}})
             )
         }
         else return Promise.resolve([])
@@ -102,7 +131,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
 
                             return {
                                 updateOne: {
-                                    filter: {objectId: element.objectId}, 
+                                    filter: {_id: element._id}, 
                                     update:{$set: dataInDbSchema}, 
                                     upsert: true
                                 }
@@ -113,12 +142,12 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
                             console.log(result)
                             if(result.ok == 1)
                             {
-                                return this.model.find({objectId:{$in: list.map(element=>element.objectId)}}, {updatedAt:1})
+                                return this.model.find({_id:{$in: list.map(element=>element.objectId)}}, {updatedAt:1})
                             }else res.status(500).send({error: "Server error while upserting."})
                         }
                     ).then(
                         result=>{
-                            const mappedResult = result.map(entry=>{return {id: entry.objectId, synchronizedAt: entry.updatedAt.getTime()}})
+                            const mappedResult = result.map(entry=>{return {id: entry._id, synchronizedAt: entry.updatedAt.getTime()}})
                             console.log(mappedResult)
                             res.status(200).send(
                                 mappedResult
