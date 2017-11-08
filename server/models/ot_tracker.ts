@@ -10,7 +10,8 @@ const otAttributeSchema = new mongoose.Schema({
   fallbackPreset: String,
   type: Number,
   isRequired: Boolean,
-  position: Number,
+  isHidden: {type: Boolean, default: false},
+  isInTrashcan: {type: Boolean, default: false},
   properties: [{key: String, sVal: String}],
   userCreatedAt: Number,
   userUpdatedAt: Number
@@ -24,7 +25,6 @@ const otTrackerSchema = new mongoose.Schema({
   isBookmarked: {type: Boolean, default: false},
   position: Number,
   attributes: {type: [otAttributeSchema], default: []},
-  removedAttributes: {type: [otAttributeSchema], default:[]},
   lockedProperties: {type: Object, default: {}},
   flags: {type: Object, default: {}},
   userCreatedAt: Number,
