@@ -1,5 +1,6 @@
 import BaseCtrl from './base';
 import * as mongoose from 'mongoose';
+import { Request, Response } from 'express';
 export default abstract class UserBelongingCtrl extends BaseCtrl {
 
     protected convertEntryToOutput(dbEntry: any): any {
@@ -76,7 +77,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
         else return Promise.resolve([])
     }
 
-    getServerChanges = (req, res) => {
+    getServerChanges = (req:Request, res: Response) => {
         const userId = res.locals.user.uid
         if (userId != null) {
             const timestamp = (req.query.timestamp || 0) * 1
@@ -100,7 +101,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
         }
     }
 
-    postClientChanges = (req, res) => {
+    postClientChanges = (req:Request, res: Response) => {
         const userId = res.locals.user.uid
         if (userId != null) {
             const list = req.body

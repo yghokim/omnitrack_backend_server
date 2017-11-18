@@ -7,6 +7,7 @@ import OTTriggerCtrl from './controllers/ot_trigger_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
 import UserCtrl from './controllers/user';
 import User from './models/user';
+import BinaryStorageCtrl from './controllers/binary_storage_controller';
 
 export default function setRoutes(app) {
 
@@ -17,8 +18,10 @@ export default function setRoutes(app) {
   const triggerCtrl = new OTTriggerCtrl();
   const userCtrl = new OTUserCtrl();
   const syncCtrl = new OTSyncCtrl(trackerCtrl, triggerCtrl, itemCtrl)
+  const storageCtrl = new BinaryStorageCtrl()
 
   const firebaseMiddleware = require('express-firebase-middleware');
+  
 
 
   // batch
@@ -41,6 +44,10 @@ export default function setRoutes(app) {
   router.route('/trackers/destroy').get(trackerCtrl.destroy)
   router.route('/items/destroy').get(itemCtrl.destroy)
   router.route('/triggers/destroy').get(triggerCtrl.destroy)
+
+  //binary upload
+  router.post('/upload/item_media/:trackerId/:itemId/:attrLocalId', firebaseMiddleware.auth, storageCtrl.uploadAttributeMedia)
+
 /*
   router.route('/items/count').get(catCtrl.count);
   router.route('/cat').post(catCtrl.insert);
