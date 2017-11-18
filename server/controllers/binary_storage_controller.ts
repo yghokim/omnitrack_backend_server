@@ -44,8 +44,9 @@ export default class BinaryStorageCtrl{
                     res.status(500).send({error: err})
                 }
                 else{
-                    const finalPath = this.makeFinalFileDirectoryPath(userId, trackerId, itemId) + "/" + req.file["finalName"]
-                    fs.move(req.file.path, finalPath)
+
+                    const prefix = this.makeFinalFileDirectoryPath(userId, trackerId, itemId) + "/"
+                    fs.move(req.file.path, prefix + req.file["finalName"])
                     .then(()=>
                         {
                             const newMedia = {
@@ -56,7 +57,8 @@ export default class BinaryStorageCtrl{
                                 fileIdentifier: fileIdentifier,
                                 mimeType: req.file.mimetype,
                                 originalFileSize: req.file.size,
-                                originalFileName: req.file["finalName"]
+                                originalFileName: req.file["finalName"],
+
                             }
                             //TODO postprocess files
                             
@@ -68,15 +70,36 @@ export default class BinaryStorageCtrl{
                                     item: itemId, 
                                     fileIdentifier: fileIdentifier
                                 },
-                                newMedia, {upsert: true}
-                            ).then(findUpdateResult=>{
-                                console.log(findUpdateResult)
-                                res.status(200).send({result:"success"})
-                            })
-                            .catch(err=>{
-                                console.log(err)
-                                res.status(500).send({error: err})
-                            })
+                                newMedia, {upsert: true},
+                                (err, beforeUpdated)=>{
+                                    if(err){
+                                        console.log(err)
+                                        res.status(500).send({error: err})
+                                    }
+                                    else{
+                                        console.log(beforeUpdated)
+                                        const removalPromises = []
+                                        removalPromises.push(fs.remove(prefix + beforeUpdated.value.originalFileName).catch(err=>false))
+                                        if(beforeUpdated.value.processedFileNames)
+                                        {
+                                            beforeUpdated.value.processedFileNames.forEach(element => {
+                                                removalPromises.push(
+                                                    fs.remove(element.fileName).catch(err=>false)
+                                                )
+                                            });
+                                        }
+                                        
+                                        Promise.all(removalPromises).then(
+                                            result=>{
+                                                res.status(200).send({result:"success"})
+                                            }
+                                        ).catch(err=>{
+                                            console.log(err)
+                                            res.status(200).send({result:"success"})
+                                        })
+                                    }
+                                }
+                            )
                     })
                     .catch(err=>{
                         console.log(err)
