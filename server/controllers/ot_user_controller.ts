@@ -52,7 +52,7 @@ export default class OTUserCtrl extends BaseCtrl {
                 {
                     res.json([])
                 }
-                else res.json(result.activatedRoles || [])
+                else res.json(result["activatedRoles"] || [])
             }
         ).catch(
             error=>{
@@ -103,7 +103,7 @@ export default class OTUserCtrl extends BaseCtrl {
         }
         else{
             console.log("received the de-anonymized report")
-            newReport.user = res.locals.user.uid
+            newReport["user"] = res.locals.user.uid
         }
 
          newReport.save().then(
@@ -125,7 +125,7 @@ export default class OTUserCtrl extends BaseCtrl {
                 {
                     res.json([])
                 }
-                else res.json(result.devices || [])
+                else res.json(result["devices"] || [])
             }
         ).catch(
             error=>{

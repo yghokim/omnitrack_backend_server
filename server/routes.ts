@@ -45,9 +45,10 @@ export default function setRoutes(app) {
   router.route('/items/destroy').get(itemCtrl.destroy)
   router.route('/triggers/destroy').get(triggerCtrl.destroy)
 
-  //binary upload
-  router.post('/upload/item_media/:trackerId/:itemId/:attrLocalId', firebaseMiddleware.auth, storageCtrl.uploadAttributeMedia)
-
+  //binary
+  router.post('/upload/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier', firebaseMiddleware.auth, storageCtrl.uploadItemMedia)
+  router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', firebaseMiddleware.auth, storageCtrl.downloadItemMedia)
+  
 /*
   router.route('/items/count').get(catCtrl.count);
   router.route('/cat').post(catCtrl.insert);

@@ -3,7 +3,11 @@ import OTItem from '../models/ot_item';
 
 export default class ServerCtrl{
   initialize(){
-    OTItem.collection.dropIndex("objectId_1")
-    OTTracker.collection.dropIndex("objectId_1")
+    try{
+      OTItem.collection.dropIndex("objectId_1")
+      OTTracker.collection.dropIndex("objectId_1")
+    }catch(err){
+      
+    }
   }
 }
