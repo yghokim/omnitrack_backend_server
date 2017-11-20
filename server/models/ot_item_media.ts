@@ -9,7 +9,9 @@ const otItemMediaSchema = new mongoose.Schema({
   fileIdentifier: {type: String, index: true},
   originalFileSize: Number,
   originalFileName: String,
-  processedFileNames: {type: [{processingType: String, fileName: String}], default: []}
+  processedFileNames: Object,
+  isInProcessing: {type: Boolean, default: false, index: true},
+  isProcessed: {type: Boolean, default: false, index: true}
 }, {timestamps: true});
 
 const OTItemMedia = mongoose.model('OTItemMedia', otItemMediaSchema);

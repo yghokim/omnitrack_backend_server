@@ -5,7 +5,8 @@ import * as morgan from 'morgan';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
 import * as firebaseAdmin from 'firebase-admin';
-import ServerCtrl from './controllers/ot_server_controller'
+import * as Agenda from 'agenda';
+import OmniTrackModule from './modules/omnitrack.module';
 
 import setRoutes from './routes';
 
@@ -35,8 +36,8 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
   console.log('Connected to MongoDB');
 
-  const serverController = new ServerCtrl()
-  serverController.initialize()
+  app.set("omnitrack", new OmniTrackModule(app))
+  app.get("omnitrack").bootstrap()
 
   setRoutes(app);
 
@@ -50,4 +51,5 @@ db.once('open', () => {
     });
   }
 });
+
 export { app };
