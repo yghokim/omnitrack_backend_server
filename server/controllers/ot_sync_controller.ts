@@ -2,6 +2,7 @@ import OTTrackerCtrl from './ot_tracker_controller';
 import OTTriggerCtrl from './ot_trigger_controller';
 import OTItemCtrl from './ot_item_controller';
 import UserBelongingCtrl from './user_belongings_base';
+import C from "../server_consts";
 
 export default class OTSyncCtrl {
 
@@ -14,6 +15,7 @@ export default class OTSyncCtrl {
         const userId = res.locals.user.uid
         const typeCount = req.query.types.length
         const queryList = Array<{type: string, timestamp: number}>()
+
         for(var i = 0; i<typeCount; i++)
         {
             queryList.push({type: req.query.types[i].toString(), timestamp: req.query.timestamps[i]*1})
@@ -23,20 +25,20 @@ export default class OTSyncCtrl {
             queryList.map(entry=>{
                 var controller: UserBelongingCtrl
                 switch(entry.type.toUpperCase()){
-                    case "TRACKER":
+                    case C.SYNC_TYPE_TRACKER:
                     controller = this.trackerCtrl
                     break
-                    case "TRIGGER":
+                    case C.SYNC_TYPE_TRIGGER:
                     controller = this.triggerCtrl
                     break
-                    case "ITEM":
+                    case C.SYNC_TYPE_ITEM:
                     controller = this.itemCtrl
                     break
                 }
     
                 if(controller!=null)
-                {
-                    return controller.getAllByUserOverTimestampQuery(userId, entry.timestamp).then(l=> { console.log(l); return {type:entry.type, list: l}})
+              {
+                    return controller.getAllByUserOverTimestampQuery(userId, entry.timestamp).then(l=> { return {type:entry.type, list: l}})
                 }else return Promise.resolve({type: entry.type, list: []})
             })
         ).then(
@@ -50,7 +52,6 @@ export default class OTSyncCtrl {
         ).then(
             result=>
             {
-                console.log(result)
                 res.status(200).send(result)
             }
         )
@@ -72,13 +73,13 @@ export default class OTSyncCtrl {
                 entry=>{
                     var controller: UserBelongingCtrl
                     switch(entry.type.toUpperCase()){
-                        case "TRACKER":
+                        case C.SYNC_TYPE_TRACKER:
                         controller = this.trackerCtrl
                         break
-                        case "TRIGGER":
+                        case C.SYNC_TYPE_TRIGGER:
                         controller = this.triggerCtrl
                         break
-                        case "ITEM":
+                        case C.SYNC_TYPE_ITEM:
                         controller = this.itemCtrl
                         break
                     }

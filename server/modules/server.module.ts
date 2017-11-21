@@ -1,16 +1,20 @@
 import OTTracker from '../models/ot_tracker';
 import OTItem from '../models/ot_item';
 import OTItemMedia from '../models/ot_item_media';
+import OTUser from '../models/ot_user';
 import { Express } from 'express';
 import * as path from 'path';
 import * as Agenda from 'agenda';
 import * as easyimage from "easyimage";
+import C from "../server_consts"
+import { SyncInfo, PushOptions } from '../modules/push.module'
+import app from '../app'
 
 export default class ServerModule {
 
   readonly agenda: Agenda
 
-  constructor(private app: any) {
+  constructor() {
     this.agenda = this.newAgendaBase()
   }
 
@@ -23,20 +27,27 @@ export default class ServerModule {
     }
 
     this.agenda.on('ready', () => {
+      this.defineItemMediaPostProcessAgenda()
+      this.defineSynchronizationPushAgenda()
 
-      this.agenda.define("postprocess_item_media", (job, done) => {
-        const mediaDbId = job.attrs.data.mediaDbId
-        if (mediaDbId != null) {
-          OTItemMedia.collection.findOne({ _id: mediaDbId }).then(entry => {
-            const location = this.makeItemMediaFileDirectoryPath(entry.user, entry.tracker, entry.item)
-            if (entry.mimeType.startsWith("image")) {
-              easyimage.thumbnail({
-                src: path.resolve(location, entry.originalFileName),
-                dst: path.resolve(location, "thumb_retina_" + entry.originalFileName),
-                width: 300,
-                height: 300,
-              })
-              .then((file)=>{
+      this.agenda.start()
+    })
+  }
+
+  private defineItemMediaPostProcessAgenda() {
+    this.agenda.define(C.TASK_POSTPROCESS_ITEM_MEDIA, (job, done) => {
+      const mediaDbId = job.attrs.data.mediaDbId
+      if (mediaDbId != null) {
+        OTItemMedia.collection.findOne({ _id: mediaDbId }).then(entry => {
+          const location = this.makeItemMediaFileDirectoryPath(entry.user, entry.tracker, entry.item)
+          if (entry.mimeType.startsWith("image")) {
+            easyimage.thumbnail({
+              src: path.resolve(location, entry.originalFileName),
+              dst: path.resolve(location, "thumb_retina_" + entry.originalFileName),
+              width: 300,
+              height: 300,
+            })
+              .then((file) => {
                 return easyimage.thumbnail({
                   src: path.resolve(location, entry.originalFileName),
                   dst: path.resolve(location, "thumb_" + entry.originalFileName),
@@ -56,31 +67,51 @@ export default class ServerModule {
                     done()
                   })
               })
-            } else {
-              //another mime types
-            }
-          })
-        }else {
-          done()
-        }
+          } else {
+            //another mime types
+          }
         })
-    this.agenda.start()
-  })
-}
-
-  private newAgendaBase(): Agenda {
-  var mongoDbUri: string
-  if (process.env.NODE_ENV === 'test') {
-    mongoDbUri = process.env.MONGODB_TEST_URI
-  } else {
-    mongoDbUri = process.env.MONGODB_URI
+      } else {
+        done()
+      }
+    })
   }
 
-  return new Agenda({ db: { address: mongoDbUri } })
-}
+  private newAgendaBase(): Agenda {
+    var mongoDbUri: string
+    if (process.env.NODE_ENV === 'test') {
+      mongoDbUri = process.env.MONGODB_TEST_URI
+    } else {
+      mongoDbUri = process.env.MONGODB_URI
+    }
+
+    return new Agenda({ db: { address: mongoDbUri } })
+  }
 
 
-makeItemMediaFileDirectoryPath(userId: string, trackerId: string, itemId: string): string {
-  return "storage/uploads/users/" + userId + "/" + trackerId + "/" + itemId
-}
+  makeItemMediaFileDirectoryPath(userId: string, trackerId: string, itemId: string): string {
+    return "storage/uploads/users/" + userId + "/" + trackerId + "/" + itemId
+  }
+
+  private defineSynchronizationPushAgenda(){
+    this.agenda.define(C.TASK_POSTPROCESS_ITEM_MEDIA, (job, done)=>{
+      console.log("start sending synchronization job..")
+      const userId = job.attrs.data.userId
+      const options = job.attrs.data.options
+      const syncInfo = job.attrs.data.syncInfo
+      
+      app.pushModule().sendSyncDataMessageToUser(userId, syncInfo, options).then(arr=>{
+        console.log(arr)
+        done()
+      }).catch((err)=>{
+        console.log(err)
+        done(new Error("push error"))
+      })
+    })
+  }
+
+  registerSynchronizationPush(userId: string, syncInfo: SyncInfo, options: PushOptions = {excludeDeviceIds: []}){
+    console.log("send synchronization push - " + userId)
+    this.agenda.now(C.TASK_PUSH_SYNCHRONIZATION, {userId: userId, syncInfo: syncInfo, options: options})
+  }
 }

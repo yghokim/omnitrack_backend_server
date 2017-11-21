@@ -6,6 +6,7 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import OTItemMedia from '../models/ot_item_media';
 import * as app from '../app';
+import C from '../server_consts'
 
 export default class BinaryStorageCtrl {
 
@@ -86,20 +87,20 @@ export default class BinaryStorageCtrl {
 
                       Promise.all(removalPromises).then(
                         result => {
-                          req.app.get("omnitrack").serverModule.agenda.now('postprocess_item_media', { mediaDbId: beforeUpdated.value._id }, function (err, jobs) {
+                          req.app.get("omnitrack").serverModule.agenda.now(C.TASK_POSTPROCESS_ITEM_MEDIA, { mediaDbId: beforeUpdated.value._id }, function (err, jobs) {
 
                           });
                           res.status(200).send({ result: "success", overwritten: true })
                         }
                       ).catch(err => {
                         console.log(err)
-                        req.app.get("omnitrack").serverModule.agenda.now('postprocess_item_media', { mediaDbId: beforeUpdated.value._id }, function (err, jobs) {
+                        req.app.get("omnitrack").serverModule.agenda.now(C.TASK_POSTPROCESS_ITEM_MEDIA, { mediaDbId: beforeUpdated.value._id }, function (err, jobs) {
                         
                         });
                         res.status(200).send({ result: "success", overwritten: true })
                       })
                     } else {
-                      req.app.get("omnitrack").serverModule.agenda.now('postprocess_item_media', { mediaDbId: beforeUpdated.lastErrorObject.upserted }, function (err, jobs) {
+                      req.app.get("omnitrack").serverModule.agenda.now(C.TASK_POSTPROCESS_ITEM_MEDIA, { mediaDbId: beforeUpdated.lastErrorObject.upserted }, function (err, jobs) {
 
                       });
                       res.status(200).send({ result: "success", overwritten: false })

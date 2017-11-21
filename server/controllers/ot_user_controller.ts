@@ -5,185 +5,189 @@ import OTUserReport from '../models/ot_user_report';
 import * as firebaseAdmin from 'firebase-admin';
 
 export default class OTUserCtrl extends BaseCtrl {
-    model = OTUser
+  model = OTUser
 
-    private fetchUserDataToDb(uid: string): Promise<any>{
-        console.log("Firebase app:")
-        console.log(firebaseAdmin.auth().app.name)
-        return firebaseAdmin.auth().getUser(uid)
-            .then(
-                userRecord=>{
-                    console.log("fetched Firebase auth user account:")
-                    console.log(userRecord)
-                    return OTUser.update({_id: uid}, {$set: {
-                        name: userRecord.displayName,
-                        email: userRecord.email,
-                        picture: userRecord.photoURL,
-                        accountCreationTime: userRecord.metadata.creationTime,
-                        accountLastSignInTime: userRecord.metadata.lastSignInTime,
-                    }}, {upsert: true}).then(
-                        result=>{
-                            return OTUser.findOne({_id:uid})
-                        }
-                    )
-                }
-            )
-    }
+  private fetchUserDataToDb(uid: string): Promise<any> {
+    console.log("Firebase app:")
+    console.log(firebaseAdmin.auth().app.name)
+    return firebaseAdmin.auth().getUser(uid)
+      .then(
+      userRecord => {
+        console.log("fetched Firebase auth user account:")
+        console.log(userRecord)
+        return OTUser.update({ _id: uid }, {
+          $set: {
+            name: userRecord.displayName,
+            email: userRecord.email,
+            picture: userRecord.photoURL,
+            accountCreationTime: userRecord.metadata.creationTime,
+            accountLastSignInTime: userRecord.metadata.lastSignInTime,
+          }
+        }, { upsert: true }).then(
+          result => {
+            return OTUser.findOne({ _id: uid })
+          }
+          )
+      }
+      )
+  }
 
-    private getUserOrInsert(userId: string): Promise<any>{
-      return OTUser.findOne({_id: userId}).then(
-            result=>
-            {
-                if(result==null)
-                {
-                    return this.fetchUserDataToDb(userId)
-                }
-                else return Promise.resolve(result)
+  private getUserOrInsert(userId: string): Promise<{user: any, inserted: boolean}> {
+    return OTUser.findOne({ _id: userId }).then(
+      result => {
+        if (result == null) {
+          return this.fetchUserDataToDb(userId).then(user=>{return {user: user, inserted: true}})
+        }
+        else return Promise.resolve({user: result, inserted: false})
+      }
+    )
+  }
+
+  getRoles = (req, res) => {
+    const userId = res.locals.user.uid
+    OTUser.findOne({ _id: userId }).then(
+      result => {
+        if (result == null) {
+          res.json([])
+        }
+        else res.json(result["activatedRoles"] || [])
+      }
+    ).catch(
+      error => {
+        console.log(error)
+        res.status(500).send(error)
+      }
+      )
+  }
+
+  postRole = (req, res) => {
+    const userId = res.locals.user.uid
+    this.getUserOrInsert(userId).then(
+      userResult => {
+        const user = userResult.user
+        const newRole = req.body
+        if (newRole != null) {
+          var updated = false
+          user.activatedRoles.forEach(role => {
+            if (role.role == newRole.role) {
+              role.isConsentApproved = newRole.isConsentApproved
+              role.information = newRole.information
+              updated = true
             }
-        )
-    }
-
-    getRoles = (req, res) => {
-        const userId = res.locals.user.uid
-        OTUser.findOne({_id: userId}).then(
-            result=>
-            {
-                if(result==null)
-                {
-                    res.json([])
-                }
-                else res.json(result["activatedRoles"] || [])
-            }
-        ).catch(
-            error=>{
-                console.log(error)
-                res.status(500).send(error)  
-            }
-        )
-    }
-
-    postRole = (req, res)=>{
-            const userId = res.locals.user.uid
-            this.getUserOrInsert(userId).then(
-                user=>{
-                    const newRole = req.body
-                    if(newRole!=null)
-                    {
-                        var updated = false
-                        user.activatedRoles.forEach(role=>{
-                            if(role.role == newRole.role)
-                            {
-                                role.isConsentApproved = newRole.isConsentApproved
-                                role.information = newRole.information
-                                updated = true
-                            }
-                        })
-                        if(updated == false)
-                        {
-                            user.activatedRoles.push(newRole)
-                        }
-                        user.save().then(
-                            result=>{
-                                res.status(200).send(true)
-                            }
-                        ).catch(err=>{
-                            res.status(500).send({error: err})
-                        })
+          })
+          if (updated == false) {
+            user.activatedRoles.push(newRole)
+          }
+          user.save().then(
+            result => {
+              if(updated == false)
+              {
+                //new user role
+                req.app["omnitrack"].fireUserPolicyModule.processOnNewUserRole(userId, newRole.role)
+                  .then(
+                    ()=>{
+                      res.status(200).send(true)
                     }
-                }
-            )
-    }
-
-    postReport = (req, res)=>{
-        const reportData = req.body
-        const newReport = new OTUserReport({_id: mongoose.Types.ObjectId(), data: reportData})
-        if(reportData.anonymous == true)
-        {
-            console.log("received the anonymized report")
+                  )
+              }
+              else res.status(200).send(true)
+            }
+          ).catch(err => {
+            res.status(500).send({ error: err })
+          })
         }
         else{
-            console.log("received the de-anonymized report")
-            newReport["user"] = res.locals.user.uid
+          res.status(500).send("No role was passed.")
         }
+      }
+    )
+  }
 
-         newReport.save().then(
-                result=>{
-                    res.status(200).send(true)
-                }
-            ).catch(err=>{
-                console.log(err)
-                res.status(500).send({error: err})
-            })
+  postReport = (req, res) => {
+    const reportData = req.body
+    const newReport = new OTUserReport({ _id: mongoose.Types.ObjectId(), data: reportData })
+    if (reportData.anonymous == true) {
+      console.log("received the anonymized report")
+    }
+    else {
+      console.log("received the de-anonymized report")
+      newReport["user"] = res.locals.user.uid
     }
 
-    getDevices = (req, res)=>{
-        const userId = res.locals.user.uid
-        OTUser.findOne({_id: userId}).then(
-            result=>
-            {
-                if(result==null)
-                {
-                    res.json([])
-                }
-                else res.json(result["devices"] || [])
-            }
-        ).catch(
-            error=>{
-                console.log(error)
-                res.status(500).send(error)  
-            }
-        )
-    }
+    newReport.save().then(
+      result => {
+        res.status(200).send(true)
+      }
+    ).catch(err => {
+      console.log(err)
+      res.status(500).send({ error: err })
+    })
+  }
 
-    putDeviceInfo = (req, res)=>{
-        const userId = res.locals.user.uid
-        const deviceInfo = req.body
-        this.getUserOrInsert(userId).then(
-            user=>{
-                console.log("insertedUser: ")
-                console.log(user)
-                var updated = false
-                var localKey = null
-                const matchedDevice = user.devices.find(device=> device.deviceId == deviceInfo.deviceId)
-                if(matchedDevice != null)
-                {
-                    console.log("found device with id matches: ")
-                    localKey = matchedDevice.localKey
-                    if(matchedDevice.localKey == null)
-                    {
-                        localKey = (user.deviceLocalKeySeed || 0) + 1
-                        matchedDevice.localKey = localKey
-                        user.deviceLocalKeySeed ++
-                    }
+  getDevices = (req, res) => {
+    const userId = res.locals.user.uid
+    OTUser.findOne({ _id: userId }).then(
+      result => {
+        if (result == null) {
+          res.json([])
+        }
+        else res.json(result["devices"] || [])
+      }
+    ).catch(
+      error => {
+        console.log(error)
+        res.status(500).send(error)
+      }
+      )
+  }
 
-                    matchedDevice.deviceId = deviceInfo.deviceId
-                    matchedDevice.instanceId = deviceInfo.instanceId
-                    matchedDevice.appVersion = deviceInfo.appVersion
-                    matchedDevice.firstLoginAt = deviceInfo.firstLoginAt
-                    matchedDevice.os = deviceInfo.os
+  putDeviceInfo = (req, res) => {
+    const userId = res.locals.user.uid
+    const deviceInfo = req.body
+    this.getUserOrInsert(userId).then(
+      userResult => {
+        const user = userResult.user
+        console.log("insertedUser: ")
+        console.log(user)
+        var updated = false
+        var localKey = null
+        const matchedDevice = user.devices.find(device => device.deviceId == deviceInfo.deviceId)
+        if (matchedDevice != null) {
+          console.log("found device with id matches: ")
+          localKey = matchedDevice.localKey
+          if (matchedDevice.localKey == null) {
+            localKey = (user.deviceLocalKeySeed || 0) + 1
+            matchedDevice.localKey = localKey
+            user.deviceLocalKeySeed++
+          }
 
-                    updated = true
-                }
-                else{
-                    localKey = (user.deviceLocalKeySeed || 0) + 1
-                    deviceInfo.localKey = localKey
-                    user.deviceLocalKeySeed ++
-                    user.devices.push(deviceInfo)
+          matchedDevice.deviceId = deviceInfo.deviceId
+          matchedDevice.instanceId = deviceInfo.instanceId
+          matchedDevice.appVersion = deviceInfo.appVersion
+          matchedDevice.firstLoginAt = deviceInfo.firstLoginAt
+          matchedDevice.os = deviceInfo.os
 
-                    updated = false
-                }
-                console.log("localKey: " + localKey)
+          updated = true
+        }
+        else {
+          localKey = (user.deviceLocalKeySeed || 0) + 1
+          deviceInfo.localKey = localKey
+          user.deviceLocalKeySeed++
+          user.devices.push(deviceInfo)
 
-                user.save(err=>{
-                    console.log(err)
-                    if(err==null)
-                    {
-                        console.log("device local key: " + localKey)
-                        res.json({result: updated==true? "updated":"added", deviceLocalKey: localKey.toString(16)})
-                    }
-                    else res.status(500).send({error: "deviceinfo db update failed."})
-                }, {upsert: true})
-            }
-        )
-    }
+          updated = false
+        }
+        console.log("localKey: " + localKey)
+
+        user.save(err => {
+          console.log(err)
+          if (err == null) {
+            console.log("device local key: " + localKey)
+            res.json({ result: updated == true ? "updated" : "added", deviceLocalKey: localKey.toString(16) })
+          }
+          else res.status(500).send({ error: "deviceinfo db update failed." })
+        }, { upsert: true })
+      }
+    )
+  }
 }

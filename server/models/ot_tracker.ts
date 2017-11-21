@@ -28,7 +28,8 @@ const otTrackerSchema = new mongoose.Schema({
   lockedProperties: {type: Object, default: {}},
   flags: {type: Object, default: {}},
   userCreatedAt: Number,
-  userUpdateAt: Number
+  userUpdateAt: Number,
+  removed: {type: Boolean, default: false}
 }, {timestamps: true});
 
 const OTTracker = mongoose.model('OTTracker', otTrackerSchema);

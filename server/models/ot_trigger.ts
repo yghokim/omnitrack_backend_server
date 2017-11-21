@@ -3,17 +3,21 @@ import * as mongoose from 'mongoose';
 const otTriggerSchema = new mongoose.Schema({
   _id: {type: String, unique: true},
   user: {type: String, ref: 'OTUser', required: false},
-  alias: String,
-  position: Number,
-  conditionType: Number,
-  actionType: Number,
+  alias: {type: String, default: ""},
+  position: {type: Number, default: 0},
+  conditionType: {type: Number, default: 0},
+  actionType: {type: Number, default: 0},
   action: Object,
   condition: Object,
+  script: String,
+  checkScript: {type: Boolean, default: false},
   lastTriggeredTime: Number,
   trackers: [{type: String, ref: 'OTTracker'}],
   userCreatedAt: Number,
   userUpdatedAt: Number,
-  lockedProperties: {type: Object, default: {}}
+  lockedProperties: {type: Object, default: {}},
+  isOn: {type: Boolean, default: false},
+  removed: {type: Boolean, default: false}
 }, {timestamps: true});
 
 const OTTrigger = mongoose.model('OTTrigger', otTriggerSchema);

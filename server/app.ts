@@ -7,10 +7,12 @@ import * as path from 'path';
 import * as firebaseAdmin from 'firebase-admin';
 import * as Agenda from 'agenda';
 import OmniTrackModule from './modules/omnitrack.module';
+import { AppWrapper } from './modules/app.interface';
 
 import setRoutes from './routes';
 
 const app = express();
+const appWrapper = new AppWrapper(app)
 dotenv.load({ path: '.env' });
 app.set('port', (process.env.PORT || 3000));
 
@@ -26,7 +28,7 @@ if (process.env.NODE_ENV === 'test') {
   mongoose.connect(process.env.MONGODB_URI);
 }
 
-const firebaseServiceAccount = require("../../credentials/firebase-cert.json");
+const firebaseServiceAccount = require(path.resolve(__dirname, "../../../credentials/firebase-cert.json"));
 firebaseAdmin.initializeApp({credential: firebaseAdmin.credential.cert(firebaseServiceAccount)})
 
 const db = mongoose.connection;
@@ -52,4 +54,5 @@ db.once('open', () => {
   }
 });
 
-export { app };
+export { app }
+export default appWrapper

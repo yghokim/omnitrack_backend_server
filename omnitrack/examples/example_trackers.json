@@ -1,0 +1,157 @@
+{
+  "trackers": [
+    {
+      "removed": false,
+      "user": "%{OWNER_0}%",
+      "position": 0,
+      "name": "Coffee",
+      "color": -567979,
+      "attributes": [
+        {
+          "objectId": "%{ATTRIBUTE_0}%",
+          "localId": "%{ATTRIBUTE_LOCAL_0}%",
+          "type": 1,
+          "trackerId": "%{TRACKER_0}%",
+          "name": "Drank at",
+          "isRequired": true,
+          "position": 0,
+          "fallbackPolicy": 1,
+          "fallbackPreset": null,
+          "connection": null,
+          "properties": [
+            {
+              "key": "granularity",
+              "sVal": "1"
+            }
+          ],
+          "isInTrashcan": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "%{ATTRIBUTE_1}%",
+          "localId": "%{ATTRIBUTE_LOCAL_1}%",
+          "type": 7,
+          "trackerId": "%{TRACKER_0}%",
+          "name": "Caffeine",
+          "isRequired": false,
+          "position": 1,
+          "fallbackPolicy": 1,
+          "fallbackPreset": null,
+          "connection": null,
+          "properties": [
+            {
+              "key": "options",
+              "sVal": "{\"b\":\"Likert\",\"c\":\"Level5\",\"d\":1,\"e\":3,\"f\":\"Very mild\",\"g\":\"\",\"h\":\"Very strong\",\"i\":true}"
+            }
+          ],
+          "isInTrashcan": false,
+          "isHidden": false
+        }
+      ],
+      "isBookmarked": true,
+      "objectId": "%{TRACKER_0}%"
+    },
+    {
+      "removed": false,
+      "user": "%{OWNER_0}%",
+      "position": 1,
+      "name": "Daily Diary",
+      "color": -21735,
+      "attributes": [
+        {
+          "objectId": "%{ATTRIBUTE_2}%",
+          "localId": "%{ATTRIBUTE_LOCAL_2}%",
+          "type": 1,
+          "trackerId": "%{TRACKER_1}%",
+          "name": "Date",
+          "isRequired": true,
+          "position": 0,
+          "fallbackPolicy": 1,
+          "fallbackPreset": null,
+          "connection": null,
+          "properties": [
+            {
+              "key": "granularity",
+              "sVal": "0"
+            }
+          ],
+          "isInTrashcan": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "%{ATTRIBUTE_3}%",
+          "localId": "%{ATTRIBUTE_LOCAL_3}%",
+          "type": 6,
+          "trackerId": "%{TRACKER_1}%",
+          "name": "Moods",
+          "isRequired": false,
+          "position": 1,
+          "fallbackPolicy": 0,
+          "fallbackPreset": null,
+          "connection": null,
+          "properties": [
+            {
+              "key": "multiSelection",
+              "sVal": "true"
+            },
+            {
+              "key": "entries",
+              "sVal": "{\"seed\":5,\"entries\":[{\"id\":0,\"val\":\"Happy\"},{\"id\":1,\"val\":\"Sad\"},{\"id\":2,\"val\":\"Pleasant\"},{\"id\":3,\"val\":\"Lonely\"},{\"id\":4,\"val\":\"Depressed\"}]}"
+            }
+          ],
+          "isInTrashcan": false,
+          "isHidden": false
+        },
+        {
+          "objectId": "%{ATTRIBUTE_4}%",
+          "localId": "%{ATTRIBUTE_LOCAL_4}%",
+          "type": 4,
+          "trackerId": "%{TRACKER_1}%",
+          "name": "Note",
+          "isRequired": false,
+          "position": 2,
+          "fallbackPolicy": 0,
+          "fallbackPreset": null,
+          "connection": null,
+          "properties": [],
+          "isInTrashcan": false,
+          "isHidden": false
+        }
+      ],
+      "isBookmarked": false,
+      "objectId": "%{TRACKER_1}%"
+    }
+  ],
+  "triggers": [],
+  "serviceCodes": [],
+  "placeHolderDict": {
+    "user": "%{OWNER_0}%",
+    "trackers": [
+      "%{TRACKER_0}%",
+      "%{TRACKER_1}%"
+    ],
+    "triggers": [],
+    "attributes": [
+      {
+        "id": "%{ATTRIBUTE_0}%",
+        "localId": "%{ATTRIBUTE_LOCAL_0}%"
+      },
+      {
+        "id": "%{ATTRIBUTE_1}%",
+        "localId": "%{ATTRIBUTE_LOCAL_1}%"
+      },
+      {
+        "id": "%{ATTRIBUTE_2}%",
+        "localId": "%{ATTRIBUTE_LOCAL_2}%"
+      },
+      {
+        "id": "%{ATTRIBUTE_3}%",
+        "localId": "%{ATTRIBUTE_LOCAL_3}%"
+      },
+      {
+        "id": "%{ATTRIBUTE_4}%",
+        "localId": "%{ATTRIBUTE_LOCAL_4}%"
+      }
+    ]
+  }
+}

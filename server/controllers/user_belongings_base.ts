@@ -1,29 +1,8 @@
 import BaseCtrl from './base';
 import * as mongoose from 'mongoose';
 import { Request, Response } from 'express';
+import { ModelConverter } from '../../omnitrack/core/model_converter';
 export default abstract class UserBelongingCtrl extends BaseCtrl {
-
-    protected convertEntryToOutput(dbEntry: any): any {
-        const obj = JSON.parse(JSON.stringify(dbEntry))
-  
-        obj.objectId = obj._id.toString()
-        delete obj._id
-  
-        obj.synchronizedAt = dbEntry.updatedAt.getTime()
-  
-        return obj
-      }
-      
-      protected convertClientEntryToDbSchema(clientEntry: any): any {
-        const obj = JSON.parse(JSON.stringify(clientEntry))
-         
-        delete obj.synchronizedAt
-  
-        obj._id  = obj.objectId.toString()
-        delete obj.objectId
-  
-        return obj
-      }
 
     getAllByUser(userId: String): any {
         return this.model.find({ 'user': userId })
@@ -31,7 +10,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
 
     public getAllByUserOverTimestampQuery(userId: String, timestamp: number): Promise<Array<any>> {
         return this.getAllByUser(userId).where('updatedAt').gt(new Date(timestamp)).then(results => results.map(entry => {
-            return this.convertEntryToOutput(entry)
+            return ModelConverter.convertDbToClientFormat(entry)
         }))
     }
 
@@ -40,7 +19,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
         {
             return this.model.collection.bulkWrite(
                 clientChangeList.map(element => {
-                    const dataInDbSchema = this.convertClientEntryToDbSchema(element)
+                    const dataInDbSchema = ModelConverter.convertClientToDbFormat(element)
                     dataInDbSchema.updatedAt = new Date()
                     dataInDbSchema.user = userId
 
@@ -126,7 +105,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
                     this.model.collection.bulkWrite(
                         list.map(element => {
 
-                            const dataInDbSchema = this.convertClientEntryToDbSchema(element)
+                            const dataInDbSchema = ModelConverter.convertClientToDbFormat(element)
                             dataInDbSchema.updatedAt = new Date()
                             dataInDbSchema.user = userId
 

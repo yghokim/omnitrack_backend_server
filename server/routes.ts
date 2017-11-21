@@ -7,6 +7,7 @@ import OTTriggerCtrl from './controllers/ot_trigger_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
 import UserCtrl from './controllers/user';
 import User from './models/user';
+import AdminCtrl from './controllers/admin_controller';
 import BinaryStorageCtrl from './controllers/binary_storage_controller';
 
 export default function setRoutes(app) {
@@ -19,10 +20,18 @@ export default function setRoutes(app) {
   const userCtrl = new OTUserCtrl();
   const syncCtrl = new OTSyncCtrl(trackerCtrl, triggerCtrl, itemCtrl)
   const storageCtrl = new BinaryStorageCtrl()
+  const adminCtrl = new AdminCtrl()
 
   const firebaseMiddleware = require('express-firebase-middleware');
   
 
+  //admin
+  router.route('/admin/package/extract').get(adminCtrl.extractPredefinedPackage)
+  router.route('/admin/package/inject/:userId/:packageName?').get(adminCtrl.injectPackageToUser)
+  
+  router.route('/admin/trigger/attach_tracker/:triggerId').get(adminCtrl.attachTrackerToTrigger)
+  router.route('/admin/trigger/set_switch/:triggerId/:isOn').get(adminCtrl.setTriggerSwitch)
+  router.route('/admin/tracker/remove/:trackerId').get(adminCtrl.removeTracker)
 
   // batch
   router.get('/batch/changes', firebaseMiddleware.auth, syncCtrl.batchGetServerChangesAfter)
@@ -48,6 +57,8 @@ export default function setRoutes(app) {
   //binary
   router.post('/upload/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier', firebaseMiddleware.auth, storageCtrl.uploadItemMedia)
   router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', firebaseMiddleware.auth, storageCtrl.downloadItemMedia)
+
+
   
 /*
   router.route('/items/count').get(catCtrl.count);
