@@ -139,15 +139,7 @@ export default class OmniTrackModule{
 
       Promise.all(promises).then((results)=>{
         console.log(results)
-        this.pushModule.sendSyncDataMessageToUser(userId, syncTypes).then(
-          ()=>{
-          }
-        ).catch(
-          err=>{
-            console.log(err)
-          }
-        )
-
+        this.serverModule.registerMessageDataPush(userId, this.pushModule.makeSyncMessageFromTypes(syncTypes))
         resolve()
       })
       .catch(err=>{

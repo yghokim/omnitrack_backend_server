@@ -35,13 +35,23 @@ export default class PushModule {
    * @returns Promise with sent device ids 
    */
   sendDataMessageToUser(userId: string, messageData: MessageData, options: PushOptions = { excludeDeviceIds: [] }): Promise<Array<string>> {
+    return this.sendDataPayloadMessageToUser(userId, messageData.toMessagingPayloadJson(), options)
+  }
+
+  /**
+   * 
+   * @param userId 
+   * @param options
+   * @returns Promise with sent device ids 
+   */
+  sendDataPayloadMessageToUser(userId: string, messagePayload: any, options: PushOptions = { excludeDeviceIds: [] }): Promise<Array<string>> {
     return this.getInstanceIds(userId, options)
       .then(instanceIds => {
         if (instanceIds.length > 0) {
           console.log("send notification to " + instanceIds)
 
           //send notification to instanceIds
-          return admin.messaging().sendToDevice(instanceIds, { data: messageData.toMessagingPayloadJson() }).then(
+          return admin.messaging().sendToDevice(instanceIds, { data: messagePayload }).then(
             response => {
               console.log(response)
               return response.results.map(device => device.messageId)
@@ -58,7 +68,15 @@ export default class PushModule {
   }
 
   sendSyncDataMessageToUser(userId: string, syncTypes: Array<string>, options: PushOptions={ excludeDeviceIds: [] }): Promise<Array<string>> {
-    return this.sendDataMessageToUser(userId, new SyncInfo(syncTypes.map(t=>{return {type:t}})), options)
+    return this.sendDataMessageToUser(userId, this.makeSyncMessageFromTypes(syncTypes), options)
+  }
+
+  makeFullSyncMessageData(): MessageData{
+    return new SyncInfo([C.SYNC_TYPE_TRACKER, C.SYNC_TYPE_TRIGGER, C.SYNC_TYPE_ITEM].map(t=>{return {type:t}}))
+  }
+
+  makeSyncMessageFromTypes(syncTypes: Array<string>): MessageData{
+    return new SyncInfo(syncTypes.map(t=>{return {type:t}}))
   }
 
   sendFullSyncDataMessageToUser(userId: string, options: PushOptions={ excludeDeviceIds: [] }): Promise<Array<string>>{
@@ -68,7 +86,7 @@ export default class PushModule {
         console.log("send notification to " + instanceIds)
 
         //send notification to instanceIds
-        return admin.messaging().sendToDevice(instanceIds, { data: new SyncInfo([C.SYNC_TYPE_TRACKER, C.SYNC_TYPE_TRIGGER, C.SYNC_TYPE_ITEM].map(t=>{return {type:t}})).toMessagingPayloadJson() }).then(
+        return admin.messaging().sendToDevice(instanceIds, { data: this.makeFullSyncMessageData().toMessagingPayloadJson() }).then(
           response => {
             console.log(response)
             return response.results.map(device => device.messageId)

@@ -3,6 +3,7 @@ import OTTriggerCtrl from './ot_trigger_controller';
 import OTItemCtrl from './ot_item_controller';
 import UserBelongingCtrl from './user_belongings_base';
 import C from "../server_consts";
+import app from '../app';
 
 export default class OTSyncCtrl {
 
@@ -94,6 +95,10 @@ export default class OTSyncCtrl {
         ).then(results=>{
             console.log("bulk result: ")
             console.log(results)
+            const changedTypes = results.filter(r=>r.rows.length > 0).map(r=>r.type)
+            app.pushModule().sendSyncDataMessageToUser(userId, changedTypes, {excludeDeviceIds: [res.locals.deviceId]})
+              .then().catch()
+              
             return results.reduce(function(map, obj) {
                 map[obj.type] = obj.rows
                 return map

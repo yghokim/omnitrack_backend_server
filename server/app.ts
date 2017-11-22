@@ -22,17 +22,19 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(morgan('dev'));
 
+const clientKeys: Array<{key:string, package:string, alias:string}> = require(path.join(__dirname, "../../../credentials/client-keys.json"));
+
+const firebaseServiceAccount = require(path.join(__dirname, "../../../credentials/firebase-cert.json"));
+firebaseAdmin.initializeApp({credential: firebaseAdmin.credential.cert(firebaseServiceAccount)});
+
+(<any>mongoose).Promise = global.Promise;
 if (process.env.NODE_ENV === 'test') {
-  mongoose.connect(process.env.MONGODB_TEST_URI);
+  mongoose.connect(process.env.MONGODB_TEST_URI, {useMongoClient: true});
 } else {
-  mongoose.connect(process.env.MONGODB_URI);
+  mongoose.connect(process.env.MONGODB_URI, {useMongoClient: true});
 }
 
-const firebaseServiceAccount = require(path.resolve(__dirname, "../../../credentials/firebase-cert.json"));
-firebaseAdmin.initializeApp({credential: firebaseAdmin.credential.cert(firebaseServiceAccount)})
-
 const db = mongoose.connection;
-(<any>mongoose).Promise = global.Promise;
 
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
@@ -54,5 +56,5 @@ db.once('open', () => {
   }
 });
 
-export { app }
+export { app, clientKeys }
 export default appWrapper

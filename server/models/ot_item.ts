@@ -7,7 +7,7 @@ const otItemSchema = new mongoose.Schema({
   source: String,
   timestamp: {type:Number, required: true},
   deviceId: String,
-  dataTable: [{attrLocalId: String, sVal: String}],
+  dataTable: [{_id:false, attrLocalId: String, sVal: String}],
   removed: {type: Boolean, default: false},
   userUpdatedAt: Number
 }, {timestamps: true});

@@ -1,9 +1,11 @@
 import * as mongoose from 'mongoose';
 import OTTrigger from '../models/ot_trigger';
 import UserBelongingCtrl from './user_belongings_base';
+import C from '../server_consts'
 
 export default class OTTriggerCtrl extends UserBelongingCtrl {
   model = OTTrigger;
+  syncType = C.SYNC_TYPE_TRIGGER
 
   attachTracker = (req, res) => {
     const userId = res.locals.user.uid

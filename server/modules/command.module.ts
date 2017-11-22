@@ -20,7 +20,7 @@ export default class CommandModule {
         if(changed)
         {
           console.log("the " + syncType + " variable " + variableName + " was changed.")
-          app.pushModule().sendSyncDataMessageToUser(old["user"], [syncType])
+          app.serverModule().registerMessageDataPush(old["user"], app.pushModule().makeSyncMessageFromTypes([syncType]))
         }
         else{
           console.log("inserted the same value. skip.")
@@ -60,7 +60,7 @@ export default class CommandModule {
             trigger["userUpdatedAt"] = Date.now()
             console.log("attached tracker to trigger.")
             return trigger.save().then(doc => {
-              app.serverModule().registerSynchronizationPush(trigger["user"], new SyncInfo([{type: C.SYNC_TYPE_TRIGGER}]))
+              app.serverModule().registerMessageDataPush(trigger["user"], app.pushModule().makeSyncMessageFromTypes([C.SYNC_TYPE_TRIGGER]))
               return true
             })
           }
@@ -93,13 +93,7 @@ export default class CommandModule {
           console.log(removed)
           if(removed != null)
           {
-            app.pushModule().sendSyncDataMessageToUser(removed["user"], [syncType]).then(
-              result=>{
-             
-              }
-            ).catch(err=>{
-              console.log(err)
-            })
+            app.serverModule().registerMessageDataPush(removed["user"], app.pushModule().makeSyncMessageFromTypes([syncType]))
           }
 
           return removed != null

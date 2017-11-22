@@ -7,7 +7,7 @@ import * as path from 'path';
 import * as Agenda from 'agenda';
 import * as easyimage from "easyimage";
 import C from "../server_consts"
-import { SyncInfo, PushOptions } from '../modules/push.module'
+import { SyncInfo, PushOptions, MessageData } from '../modules/push.module'
 import app from '../app'
 
 export default class ServerModule {
@@ -28,7 +28,7 @@ export default class ServerModule {
 
     this.agenda.on('ready', () => {
       this.defineItemMediaPostProcessAgenda()
-      this.defineSynchronizationPushAgenda()
+      this.defineDataMessagePushAgenda()
 
       this.agenda.start()
     })
@@ -93,14 +93,14 @@ export default class ServerModule {
     return "storage/uploads/users/" + userId + "/" + trackerId + "/" + itemId
   }
 
-  private defineSynchronizationPushAgenda(){
-    this.agenda.define(C.TASK_POSTPROCESS_ITEM_MEDIA, (job, done)=>{
+  private defineDataMessagePushAgenda(){
+    this.agenda.define(C.TASK_PUSH_DATA, (job, done)=>{
       console.log("start sending synchronization job..")
       const userId = job.attrs.data.userId
       const options = job.attrs.data.options
-      const syncInfo = job.attrs.data.syncInfo
-      
-      app.pushModule().sendSyncDataMessageToUser(userId, syncInfo, options).then(arr=>{
+      const messagePayload = job.attrs.data.messagePayload
+    
+      app.pushModule().sendDataPayloadMessageToUser(userId, messagePayload, options).then(arr=>{
         console.log(arr)
         done()
       }).catch((err)=>{
@@ -110,8 +110,15 @@ export default class ServerModule {
     })
   }
 
-  registerSynchronizationPush(userId: string, syncInfo: SyncInfo, options: PushOptions = {excludeDeviceIds: []}){
+  registerMessageDataPush(userId: string, messageData: MessageData, options: PushOptions = {excludeDeviceIds: []}){
     console.log("send synchronization push - " + userId)
-    this.agenda.now(C.TASK_PUSH_SYNCHRONIZATION, {userId: userId, syncInfo: syncInfo, options: options})
+    this.agenda.now(C.TASK_PUSH_DATA, {userId: userId, messagePayload: messageData.toMessagingPayloadJson(), options: options}, (err)=>{
+      if(err){
+
+      }
+      else{
+        console.log("sent push messages successfully.")
+      }
+    })
   }
 }

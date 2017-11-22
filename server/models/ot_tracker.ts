@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 
 const otAttributeSchema = new mongoose.Schema({
-  _id: String,
+  objectId: String, //this object id is not used as an index in server. it is only used in client.
   name: String,
   localId: String,
   trackerId: String,
@@ -12,10 +12,10 @@ const otAttributeSchema = new mongoose.Schema({
   isRequired: Boolean,
   isHidden: {type: Boolean, default: false},
   isInTrashcan: {type: Boolean, default: false},
-  properties: [{key: String, sVal: String}],
+  properties: [{_id: false, key: String, sVal: String}],
   userCreatedAt: Number,
   userUpdatedAt: Number
-});
+}, {_id: false});
 
 const otTrackerSchema = new mongoose.Schema({
   _id: {type: String, unique: true},

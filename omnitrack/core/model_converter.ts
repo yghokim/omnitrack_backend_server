@@ -22,6 +22,7 @@ export class ModelConverter{
           {
             obj.attributes.forEach(attribute=>
               {
+                delete attribute._id
                 delete attribute.userCreatedAt
                 delete attribute.userUpdatedAt
               }
