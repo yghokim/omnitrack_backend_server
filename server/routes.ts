@@ -76,9 +76,9 @@ export default function setRoutes(app) {
   router.get('/items/changes', assertSignedInMiddleware, itemCtrl.getServerChanges)
   router.post('/items/changes', assertSignedInMiddleware, itemCtrl.postClientChanges)
 
-  router.get('/user/roles', assertSignedInMiddleware, userCtrl.getRoles)
+  router.get('/user/roles', firebaseMiddleware.auth, userCtrl.getRoles)
   router.post('/user/role', assertSignedInMiddleware, userCtrl.postRole)
-  router.put('/user/device', assertSignedInMiddleware, userCtrl.putDeviceInfo)
+  router.put('/user/device', firebaseMiddleware.auth, userCtrl.putDeviceInfo)
   router.post('/user/report', assertSignedInMiddleware, userCtrl.postReport)
 
   router.route('/items/all').get(itemCtrl.getAll)
