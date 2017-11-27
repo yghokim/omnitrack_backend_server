@@ -37,7 +37,7 @@ export default class AdminCtrl {
     if (packageName != null) {
       switch (packageName) {
         case "example":
-          return fs.readJson(path.resolve(__dirname,"../../../../omnitrack/examples/example_trackers.json"))
+          return fs.readJson(path.resolve(__dirname, "../../../../omnitrack/examples/example_trackers.json"))
             .then(
             pack => {
               return app.omnitrackModule().injectPackage(userId, pack)
@@ -51,7 +51,22 @@ export default class AdminCtrl {
               res.status(500).send(err)
             }
             )
-        
+        case "diary":
+          return fs.readJson(path.resolve(__dirname, "../../../../omnitrack/examples/diary_study_template.json"))
+            .then(
+            pack => {
+              return app.omnitrackModule().injectPackage(userId, pack)
+            }
+            ).then(
+            () => {
+              res.status(200).send(true)
+            }
+            ).catch(
+            err => {
+              res.status(500).send(err)
+            }
+            )
+
       }
     }
   }
@@ -82,16 +97,16 @@ export default class AdminCtrl {
       })
   }
 
-  removeTracker = (req, res) =>{
+  removeTracker = (req, res) => {
     const trackerId = req.params.trackerId
     app.commandModule().removeTracker(trackerId, true).then(
-      removedNow=>{
+      removedNow => {
         res.status(200).send(removedNow)
       }
     ).catch(
-      err=>{
+      err => {
         res.status(500).send(err)
       }
-    )
+      )
   }
 }

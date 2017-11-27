@@ -128,21 +128,24 @@ export default class OmniTrackModule{
       const syncTypes = []
       if(pack.trackers.length > 0)
       {
+        console.log("inject " + pack.trackers.length + " trackers to user.")
         syncTypes.push(C.SYNC_TYPE_TRACKER)
         promises.push(OTTracker.insertMany(pack.trackers.map(tr => ModelConverter.convertClientToDbFormat(tr))))
       }
       if(pack.triggers.length > 0)
       {
+        console.log("inject " + pack.triggers.length + " triggers to user.")
         syncTypes.push(C.SYNC_TYPE_TRIGGER)
-        promises.push(OTTrigger.insertMany(pack.triggers.map(tr => ModelConverter.convertDbToClientFormat(tr))))
+        promises.push(OTTrigger.insertMany(pack.triggers.map(tr => ModelConverter.convertClientToDbFormat(tr))))
       }
 
       Promise.all(promises).then((results)=>{
-        console.log(results)
+        console.log("all trackers and triggers was injected to user database.")
         this.serverModule.registerMessageDataPush(userId, this.pushModule.makeSyncMessageFromTypes(syncTypes))
         resolve()
       })
-      .catch(err=>{
+        .catch(err=>{
+          console.log(err)
         reject(err)
       })
     })
