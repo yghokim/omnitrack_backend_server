@@ -1,6 +1,12 @@
+import { Model } from "mongoose";
+
 abstract class BaseCtrl {
 
   abstract model: any;
+
+  protected preprocessBeforeInsertToDb(singleQueryObject: any): any{
+    return singleQueryObject
+  }
 
   // Get all
   getAll = (req, res) => {
@@ -20,7 +26,7 @@ abstract class BaseCtrl {
 
   // Insert
   insert = (req, res) => {
-    const obj = new this.model(req.body);
+    const obj = new this.model(this.preprocessBeforeInsertToDb(req.body));
     obj.save((err, item) => {
       // 11000 is the code for duplicate key error
       if (err && err.code === 11000) {

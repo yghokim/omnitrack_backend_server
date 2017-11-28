@@ -5,6 +5,7 @@ import OTItemCtrl from './controllers/ot_item_controller';
 import OTTrackerCtrl from './controllers/ot_tracker_controller';
 import OTTriggerCtrl from './controllers/ot_trigger_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
+import OTUsageLogCtrl from './controllers/ot_usage_log_controller';
 import UserCtrl from './controllers/user';
 import OTUser from './models/ot_user';
 import User from './models/user';
@@ -21,13 +22,14 @@ export default function setRoutes(app) {
   const trackerCtrl = new OTTrackerCtrl();
   const triggerCtrl = new OTTriggerCtrl();
   const userCtrl = new OTUserCtrl();
+  const usageLogCtrl = new OTUsageLogCtrl();
   const syncCtrl = new OTSyncCtrl(trackerCtrl, triggerCtrl, itemCtrl)
   const storageCtrl = new BinaryStorageCtrl()
   const adminCtrl = new AdminCtrl()
 
   const firebaseMiddleware = require('express-firebase-middleware');
 
-  const omnitrackAuthMiddleware = (req: Request, res, next) => {
+  const omnitrackDeviceCheckMiddleware = (req: Request, res, next) => {
     const deviceId = req.get("OTDeviceId")
     const fingerPrint = req.get("OTFingerPrint")
     const packageName = req.get("OTPackageName")
@@ -59,7 +61,7 @@ export default function setRoutes(app) {
     else next()
   }
 
-  const assertSignedInMiddleware = [firebaseMiddleware.auth, omnitrackAuthMiddleware]
+  const assertSignedInMiddleware = [firebaseMiddleware.auth, omnitrackDeviceCheckMiddleware]
 
   //admin
   router.route('/admin/package/extract').get(adminCtrl.extractPredefinedPackage)
@@ -68,6 +70,8 @@ export default function setRoutes(app) {
   router.route('/admin/trigger/attach_tracker/:triggerId').get(adminCtrl.attachTrackerToTrigger)
   router.route('/admin/trigger/set_switch/:triggerId/:isOn').get(adminCtrl.setTriggerSwitch)
   router.route('/admin/tracker/remove/:trackerId').get(adminCtrl.removeTracker)
+
+  router.post('/usage_logs/batch/insert', omnitrackDeviceCheckMiddleware, usageLogCtrl.insertMany)
 
   // batch
   router.get('/batch/changes', assertSignedInMiddleware, syncCtrl.batchGetServerChangesAfter)
@@ -85,6 +89,8 @@ export default function setRoutes(app) {
   router.route('/users/all').get(userCtrl.getAll)
   router.route('/trackers/all').get(trackerCtrl.getAll)
   router.route('/triggers/all').get(triggerCtrl.getAll)
+
+  router.route('/usage/logs/').get(usageLogCtrl.getAll)
 
   router.route('/trackers/destroy').get(trackerCtrl.destroy)
   router.route('/items/destroy').get(itemCtrl.destroy)
