@@ -14,7 +14,7 @@ export default class OTUsageLogCtrl extends BaseCtrl {
 
   //Insert many
   insertMany = (req, res) => {
-    const list: Array<any> = req.body.map(b=>this.preprocessBeforeInsertToDb(b))
+    const list: Array<any> = req.body.map(b=>this.preprocessBeforeInsertToDb(JSON.parse(b)))
     this.model.insertMany(list, (err, docs)=>{
       if(err)
       {

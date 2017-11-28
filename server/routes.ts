@@ -42,7 +42,8 @@ export default function setRoutes(app) {
       res.status(404).send(new Error("The client is not certificated in the server."))
     }
     else if (deviceId != null) {
-      console.log(res.locals.user)
+      if(res.locals.user)
+      {
       OTUser.collection.findOne({ _id: res.locals.user.uid, "devices.deviceId": deviceId }).then(
         user => {
           if (user != null) {
@@ -57,6 +58,9 @@ export default function setRoutes(app) {
             console.log(err)
             res.status(500).send(err)
         })
+      }else{
+        next()
+      }
     }
     else next()
   }
