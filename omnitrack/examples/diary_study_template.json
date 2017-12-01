@@ -102,7 +102,7 @@
           "properties": [
             {
               "key": "options",
-              "sVal": "{\"allowIntermediate\":true,\"leftLabel\":\"\",\"leftMost\":1,\"middleLabel\":\"\",\"rightLabel\":\"\",\"rightMost\":7,\"starLevels\":\"Level10\",\"type\":\"Likert\"}"
+              "sVal": "{\"type\":1,\"stars\":7,\"left\":1,\"right\":7,\"leftLabel\":\"\",\"midLabel\":\"\",\"rightLabel\":\"\",\"fractional\":true}"
             }
           ],
           "isInTrashcan": false,

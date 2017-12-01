@@ -4,28 +4,26 @@ import C from '../server_consts';
 
 export default class PushModule {
 
-  private getInstanceIds(userId: String, options: PushOptions): Promise<Array<string>> {
-    return OTUser.findById(userId, "devices").then(user => {
-      console.log("send push data to user - " + user._id)
-      const instanceIds = []
-      const devices = user["devices"]
-      if (devices != null) {
-        const excludes = options.excludeDeviceIds
-        if (excludes != null) {
-          devices.forEach(device => {
-            if (!excludes.includes(device.deviceId)) {
-              instanceIds.push(device.instanceId)
-            }
-          })
-        } else {
-          devices.forEach(device => {
-            instanceIds.push(device.instanceId)
-          })
-        }
+  private getInstanceIds(userId: string | string[], options: PushOptions): Promise<Array<string>> {
+    const pipe: Array<any> = [
+      {$match: { _id: (userId instanceof Array)? {$in: userId} : userId }},
+      {$unwind: "$devices"}
+    ]
 
-        return instanceIds
+    if(options.excludeDeviceIds != null && options.excludeDeviceIds.length > 0)
+    {
+      pipe.push({$match: {"devices.deviceId": {$nin: options.excludeDeviceIds}}})
+    }
+    
+    pipe.push({$project: { instanceId: "$devices.instanceId" }})
+
+    return OTUser.aggregate(pipe).then(
+      result=>
+      { 
+        console.log(result)
+        return result.map(r=>r["instanceId"])
       }
-    })
+    )
   }
 
   /**
@@ -34,7 +32,7 @@ export default class PushModule {
    * @param options
    * @returns Promise with sent device ids 
    */
-  sendDataMessageToUser(userId: string, messageData: MessageData, options: PushOptions = { excludeDeviceIds: [] }): Promise<Array<string>> {
+  sendDataMessageToUser(userId: string | string[], messageData: MessageData, options: PushOptions = { excludeDeviceIds: [] }): Promise<Array<string>> {
     return this.sendDataPayloadMessageToUser(userId, messageData.toMessagingPayloadJson(), options)
   }
 
@@ -44,7 +42,7 @@ export default class PushModule {
    * @param options
    * @returns Promise with sent device ids 
    */
-  sendDataPayloadMessageToUser(userId: string, messagePayload: any, options: PushOptions = { excludeDeviceIds: [] }): Promise<Array<string>> {
+  sendDataPayloadMessageToUser(userId: string | string[], messagePayload: any, options: PushOptions = { excludeDeviceIds: [] }): Promise<Array<string>> {
     return this.getInstanceIds(userId, options)
       .then(instanceIds => {
         if (instanceIds.length > 0) {
@@ -67,7 +65,7 @@ export default class PushModule {
       })
   }
 
-  sendSyncDataMessageToUser(userId: string, syncTypes: Array<string>, options: PushOptions={ excludeDeviceIds: [] }): Promise<Array<string>> {
+  sendSyncDataMessageToUser(userId: string|string[], syncTypes: Array<string>, options: PushOptions={ excludeDeviceIds: [] }): Promise<Array<string>> {
     return this.sendDataMessageToUser(userId, this.makeSyncMessageFromTypes(syncTypes), options)
   }
 
@@ -79,7 +77,7 @@ export default class PushModule {
     return new SyncInfo(syncTypes.map(t=>{return {type:t}}))
   }
 
-  sendFullSyncDataMessageToUser(userId: string, options: PushOptions={ excludeDeviceIds: [] }): Promise<Array<string>>{
+  sendFullSyncDataMessageToUser(userId: string|string[], options: PushOptions={ excludeDeviceIds: [] }): Promise<Array<string>>{
     return this.getInstanceIds(userId, options)
     .then(instanceIds => {
       if (instanceIds.length > 0) {

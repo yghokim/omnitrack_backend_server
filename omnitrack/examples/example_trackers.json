@@ -41,7 +41,7 @@
           "properties": [
             {
               "key": "options",
-              "sVal": "{\"b\":\"Likert\",\"c\":\"Level5\",\"d\":1,\"e\":3,\"f\":\"Very mild\",\"g\":\"\",\"h\":\"Very strong\",\"i\":true}"
+              "sVal": "{\"type\":1,\"stars\":5,\"left\":1,\"right\":3,\"leftLabel\":\"very mild\",\"midLabel\":\"\",\"rightLabel\":\"very strong\",\"fractional\":true}"
             }
           ],
           "isInTrashcan": false,

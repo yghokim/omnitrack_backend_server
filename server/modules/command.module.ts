@@ -1,5 +1,6 @@
 import OTTrigger from '../models/ot_trigger'
 import OTTracker from '../models/ot_tracker'
+import AttributeManager from '../../omnitrack/core/attributes/attribute.manager'
 import { SyncInfo } from '../modules/push.module'
 import PushModule from '../modules/push.module'
 import C from '../server_consts'
@@ -111,5 +112,156 @@ export default class CommandModule {
   removeTrigger(triggerId, permanent: boolean = false, validUserId: string = null): Promise<boolean>{
     return this.removeUserChild(OTTrigger, triggerId, C.SYNC_TYPE_TRIGGER, permanent, validUserId)
   }
+
+  setAttributePropertySerializedValue(trackerFilter: any, attributeFilter: any,  propertyKey: string, newSerializedValue: string, validUserId: string = null ): Promise<boolean>{
+    //const where = {_id: trackerId, "attributes.localId": attributeLocalId, "attributes.properties.key": propertyKey }
+    if(validUserId != null) trackerFilter["user"] = validUserId   
+    return OTTracker.aggregate([
+      {$match: trackerFilter},
+      {$unwind: "$attributes"},
+      {$match: attributeFilter},
+      {$project: {_id:1, user:1,  attrId:"$attributes._id", attrType: "$attributes.type", attrLocalId: "$attributes.localId", properties: "$attributes.properties" }}])
+    .then(aggregated =>{
+      const bulkWriteCommands = []
+      const notifiedUsers = []
+      aggregated.forEach(row =>{
+        const matchProperty = row.properties.find(p=>p.key == propertyKey)
+        if(matchProperty)
+        {
+          if(matchProperty.sVal != newSerializedValue)
+          {
+            matchProperty.sVal = newSerializedValue
+            bulkWriteCommands.push({
+              updateOne: { 
+                filter: {_id: row._id, "attributes.localId": row.attrLocalId},
+                update: { $set: {
+                  "attributes.$.properties": row.properties,
+                  updatedAt: new Date()
+                  }
+                },
+                upsert: false
+              }
+            })
+            notifiedUsers.push(row.user)
+          }
+        }else{
+          bulkWriteCommands.push({
+            updateOne: {
+              filter: {_id: row._id, "attributes.localId": row.attrLocalId},
+              update: {
+                $push: {"attributes.$.properties": {key: propertyKey, sVal: newSerializedValue}},
+                $set: {updatedAt: new Date()}
+              },
+              upsert: false
+            }
+          })
+          notifiedUsers.push(row.user)
+        }
+      })
+      console.log("aggregation count: " + aggregated.length)
+      console.log("bulkWrite command count : " + bulkWriteCommands.length)
+      if(bulkWriteCommands.length>0)
+      {
+        return OTTracker.collection.bulkWrite(bulkWriteCommands).then(
+          writeResult=>{
+            console.log(writeResult.toJSON() )
+            writeResult.toJSON().writeErrors.forEach(err=>{console.log(err.toJSON())})
+            if(writeResult.ok == 1 && writeResult.toJSON().writeErrors.length == 0)
+            {
+              const notifiedUsersUnique = notifiedUsers.filter((u, i)=>{return notifiedUsers.indexOf(u) == i })
+              console.log("send change notification to:")
+              console.log(notifiedUsersUnique)
+              app.serverModule().registerMessageDataPush(notifiedUsersUnique, app.pushModule().makeSyncMessageFromTypes([C.SYNC_TYPE_TRACKER]))
+
+              return true
+            }
+            else return false
+          }
+        )
+      }else{
+        return false
+      }
+    })
+  }
+
+  getAttributeType(trackerId: string, attributeLocalId: string, validUserId?: string): Promise<number>{
+    const trackerFilter = {_id: trackerId}
+    if(validUserId)
+    {
+      trackerFilter["user"] = validUserId
+    }
+    
+    return OTTracker.aggregate([
+      {$match: trackerFilter},
+      {$unwind: "$attributes"},
+      {$match: {"attributes.localId": attributeLocalId}},
+      {$project: {type: "$attributes.type"}}
+    ]).then(result=>{
+      if(result.length > 0)
+      {
+         return result[0]["type"]  
+      }
+      else return null
+    })
+  }
+
+  setAttributePropertyRawValue(args:{trackerId?: string, attributeLocalId?: string, attributeType?: number, propertyKey: string, newValue: any, validUserId?: string}): Promise<boolean>{
+    
+    var attributeTypePromise: Promise<number>
+    if(args.attributeType){
+      //when we already know the type
+      attributeTypePromise = Promise.resolve(args.attributeType)
+    }
+    else{
+      if(args.attributeLocalId==null || args.trackerId==null)
+      {
+        throw new Error("If attribute type is not specified, both attributeLocalId and trackerId must be specified.")
+      }
+      else{
+        attributeTypePromise = this.getAttributeType(args.trackerId, args.attributeLocalId, args.validUserId)
+      }
+    }
+
+    return attributeTypePromise.then(type=>{
+      const where = {"attributes.type": type, "attributes.properties.key": args.propertyKey }
+      if(args.trackerId)
+      {
+        where["_id"] = args.trackerId
+      }
+      if(args.attributeLocalId)
+      {
+        where["attributes.localId"] = args.attributeLocalId
+      }
+      const serialized = AttributeManager.getHelper(type).getPropertyHelper(args.propertyKey).serializePropertyValue(args.newValue)
+      console.log("put serialized property value : " + serialized)
+      return this.setAttributePropertySerializedValue(where, args.propertyKey, serialized, args.validUserId)
+    })
+  }
+  
+  
+  getAttributePropertyValue(trackerId:string, attributeLocalId: string, propertyKey: string, validUserId: string = null): Promise<any>{
+    const where = {_id: trackerId, "attributes.localId": attributeLocalId, "attributes.properties.key": propertyKey }
+    if(validUserId != null) where["user"] = validUserId  
+    
+    return OTTracker.aggregate(
+      [
+        {$match: {_id: trackerId}},
+        {$unwind: "$attributes"},
+        {$match: {"attributes.localId": attributeLocalId}},
+        {$unwind: "$attributes.properties"},
+        {$match: {"attributes.properties.key": propertyKey}},
+        {$project: {type: "$attributes.type", serialized: "$attributes.properties.sVal"}}
+      ]).then(result=>{
+        if(result.length > 0)
+        {
+          const serialized = result[0]["serialized"]
+          if(serialized)
+          {
+            return AttributeManager.getHelper(result[0]["type"]).getPropertyHelper(propertyKey).deserializePropertyValue(serialized)
+          }else return null 
+        }else return null
+      })
+  }
+
   
 }

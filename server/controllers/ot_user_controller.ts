@@ -80,8 +80,9 @@ export default class OTUserCtrl extends BaseCtrl {
           }
           user.save().then(
             result => {
-              if(updated == false)
+              if(updated == false || userResult.inserted == true)
               {
+                console.log("insert new log")
                 //new user role
                 req.app["omnitrack"].fireUserPolicyModule.processOnNewUserRole(userId, newRole.role)
                   .then(

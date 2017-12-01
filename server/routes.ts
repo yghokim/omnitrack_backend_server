@@ -75,6 +75,10 @@ export default function setRoutes(app) {
   router.route('/admin/trigger/set_switch/:triggerId/:isOn').get(adminCtrl.setTriggerSwitch)
   router.route('/admin/tracker/remove/:trackerId').get(adminCtrl.removeTracker)
 
+  router.route("/admin/tracker/attribute/property/get/:trackerId/:attributeLocalId/:propertyKey").get(adminCtrl.getAttributePropertyValue)
+
+  router.route("/admin/tracker/attribute/property/set/:propertyKey").get(adminCtrl.setAttributePropertySerializedValue)
+
   router.post('/usage_logs/batch/insert', omnitrackDeviceCheckMiddleware, usageLogCtrl.insertMany)
 
   // batch

@@ -109,4 +109,60 @@ export default class AdminCtrl {
       }
       )
   }
+
+  getAttributePropertyValue = (req, res)=>{
+    const trackerId = req.params.trackerId
+    const attributeLocalId = req.params.attributeLocalId
+    const propertyKey = req.params.propertyKey
+    app.commandModule().getAttributePropertyValue(trackerId, attributeLocalId, propertyKey).then(
+      result=>
+      res.status(200).send(result)
+    )
+    .catch(err=>{
+      console.log(err)
+      res.status(500).send(err)
+    })
+  }
+
+  setAttributePropertySerializedValue = (req, res)=>{
+    const trackerId = req.query.trackerId
+    const attributeLocalId = req.query.attributeLocalId
+    const attributeType = req.query.attributeType
+    const propertyKey = req.params.propertyKey
+    const serializedValue = req.query.serializedValue
+    const attributeName = req.query.attributeName
+
+    const trackerFilter = {}
+    const attributeFilter = {}
+    if(trackerId)
+    {
+      trackerFilter["_id"] = trackerId
+    }
+
+    if(attributeLocalId)
+    {
+      attributeFilter["attributes.localId"] = attributeLocalId
+    }
+
+    if(attributeType)
+    {
+      attributeFilter["attributes.type"] = Number(attributeType)
+    }
+
+    if(attributeName)
+    {
+      attributeFilter["attributes.name"] = attributeName
+    }
+    
+    app.commandModule().setAttributePropertySerializedValue(trackerFilter, attributeFilter, propertyKey, serializedValue).then(
+      result=>{
+        res.status(200).send(result)
+      }
+    ).catch(err=>
+      {
+        res.status(500).send(err)
+      }
+    )
+    
+  }
 }

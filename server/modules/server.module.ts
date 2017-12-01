@@ -110,7 +110,7 @@ export default class ServerModule {
     })
   }
 
-  registerMessageDataPush(userId: string, messageData: MessageData, options: PushOptions = {excludeDeviceIds: []}){
+  registerMessageDataPush(userId: string|string[], messageData: MessageData, options: PushOptions = {excludeDeviceIds: []}){
     console.log("send synchronization push - " + userId)
     this.agenda.now(C.TASK_PUSH_DATA, {userId: userId, messagePayload: messageData.toMessagingPayloadJson(), options: options}, (err)=>{
       if(err){
