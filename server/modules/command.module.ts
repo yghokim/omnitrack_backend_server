@@ -124,7 +124,7 @@ export default class CommandModule {
     .then(aggregated =>{
       const bulkWriteCommands = []
       const notifiedUsers = []
-      aggregated.forEach(row =>{
+      aggregated.forEach((row: any) =>{
         const matchProperty = row.properties.find(p=>p.key == propertyKey)
         if(matchProperty)
         {
@@ -163,7 +163,7 @@ export default class CommandModule {
       if(bulkWriteCommands.length>0)
       {
         return OTTracker.collection.bulkWrite(bulkWriteCommands).then(
-          writeResult=>{
+          (writeResult: any)=>{
             console.log(writeResult.toJSON() )
             writeResult.toJSON().writeErrors.forEach(err=>{console.log(err.toJSON())})
             if(writeResult.ok == 1 && writeResult.toJSON().writeErrors.length == 0)

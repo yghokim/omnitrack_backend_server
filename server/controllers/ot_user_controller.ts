@@ -10,35 +10,41 @@ export default class OTUserCtrl extends BaseCtrl {
   private fetchUserDataToDb(uid: string): Promise<any> {
     console.log("Firebase app:")
     console.log(firebaseAdmin.auth().app.name)
-    return firebaseAdmin.auth().getUser(uid)
-      .then(
-      userRecord => {
-        console.log("fetched Firebase auth user account:")
-        console.log(userRecord)
-        return OTUser.update({ _id: uid }, {
-          $set: {
-            name: userRecord.displayName,
-            email: userRecord.email,
-            picture: userRecord.photoURL,
-            accountCreationTime: userRecord.metadata.creationTime,
-            accountLastSignInTime: userRecord.metadata.lastSignInTime,
-          }
-        }, { upsert: true }).then(
-          result => {
-            return OTUser.findOne({ _id: uid })
+
+    var generate = require("adjective-adjective-animal");
+
+    return generate({ adjectives: 2, format: "Title" }).then(
+      generatedName => {
+        return firebaseAdmin.auth().getUser(uid)
+          .then(
+          userRecord => {
+            console.log("fetched Firebase auth user account:")
+            console.log(userRecord)
+            return OTUser.update({ _id: uid }, {
+              $set: {
+                name: generatedName,
+                email: userRecord.email,
+                picture: userRecord.photoURL,
+                accountCreationTime: userRecord.metadata.creationTime,
+                accountLastSignInTime: userRecord.metadata.lastSignInTime,
+              }
+            }, { upsert: true }).then(
+              result => {
+                return OTUser.findOne({ _id: uid })
+              }
+              )
           }
           )
-      }
-      )
+      })
   }
 
-  private getUserOrInsert(userId: string): Promise<{user: any, inserted: boolean}> {
+  private getUserOrInsert(userId: string): Promise<{ user: any, inserted: boolean }> {
     return OTUser.findOne({ _id: userId }).then(
       result => {
         if (result == null) {
-          return this.fetchUserDataToDb(userId).then(user=>{return {user: user, inserted: true}})
+          return this.fetchUserDataToDb(userId).then(user => { return { user: user, inserted: true } })
         }
-        else return Promise.resolve({user: result, inserted: false})
+        else return Promise.resolve({ user: result, inserted: false })
       }
     )
   }
@@ -80,15 +86,14 @@ export default class OTUserCtrl extends BaseCtrl {
           }
           user.save().then(
             result => {
-              if(updated == false || userResult.inserted == true)
-              {
+              if (updated == false || userResult.inserted == true) {
                 console.log("insert new log")
                 //new user role
                 req.app["omnitrack"].fireUserPolicyModule.processOnNewUserRole(userId, newRole.role)
                   .then(
-                    ()=>{
-                      res.status(200).send(true)
-                    }
+                  () => {
+                    res.status(200).send(true)
+                  }
                   )
               }
               else res.status(200).send(true)
@@ -97,7 +102,7 @@ export default class OTUserCtrl extends BaseCtrl {
             res.status(500).send({ error: err })
           })
         }
-        else{
+        else {
           res.status(500).send("No role was passed.")
         }
       }
@@ -184,7 +189,11 @@ export default class OTUserCtrl extends BaseCtrl {
           console.log(err)
           if (err == null) {
             console.log("device local key: " + localKey)
-            res.json({ result: updated == true ? "updated" : "added", deviceLocalKey: localKey.toString(16) })
+            res.json({ 
+              result: updated == true ? "updated" : "added", 
+              deviceLocalKey: localKey.toString(16),
+              payloads: {email: user.email, name: user.name, picture: user.picture}
+          })
           }
           else res.status(500).send({ error: "deviceinfo db update failed." })
         }, { upsert: true })
