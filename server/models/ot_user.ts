@@ -2,7 +2,6 @@ import * as mongoose from 'mongoose';
 
 const otClientDeviceSchema = new mongoose.Schema({
   localKey: {type: String, required: true},
-  applicationId: {type: String, required: true},
   deviceId: {type: String, required: true},
   instanceId: {type: String, required: true},
   os: String,

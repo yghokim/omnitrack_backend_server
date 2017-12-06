@@ -33,8 +33,11 @@ export default function setRoutes(app) {
     const deviceId = req.get("OTDeviceId")
     const fingerPrint = req.get("OTFingerPrint")
     const packageName = req.get("OTPackageName")
-    console.log("device id : " + deviceId + ", fingerPrint: " + fingerPrint + ", packageName: " + packageName)
-    
+    const role = req.get("OTRole")
+    console.log("role:" + role + ", device id : " + deviceId + ", fingerPrint: " + fingerPrint + ", packageName: " + packageName)
+
+    res.locals["roleName"] = role
+
     if(clientKeys.find(k=>{ return k.key == fingerPrint && k.package == packageName }) == null)
     {
       console.log(clientKeys)
@@ -74,6 +77,9 @@ export default function setRoutes(app) {
   router.route('/admin/trigger/attach_tracker/:triggerId').get(adminCtrl.attachTrackerToTrigger)
   router.route('/admin/trigger/set_switch/:triggerId/:isOn').get(adminCtrl.setTriggerSwitch)
   router.route('/admin/tracker/remove/:trackerId').get(adminCtrl.removeTracker)
+  router.route('/admin/user/remove/:userId').get(adminCtrl.removeUser)
+
+  router.route("/admin/user/migrate").get(adminCtrl.migrateUserTrackingData)
 
   router.route("/admin/tracker/attribute/property/get/:trackerId/:attributeLocalId/:propertyKey").get(adminCtrl.getAttributePropertyValue)
 

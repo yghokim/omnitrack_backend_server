@@ -1,5 +1,6 @@
 import OTTrigger from '../models/ot_trigger'
 import OTTracker from '../models/ot_tracker'
+import OTUser from '../models/ot_user'
 import AttributeManager from '../../omnitrack/core/attributes/attribute.manager'
 import { SyncInfo } from '../modules/push.module'
 import PushModule from '../modules/push.module'
@@ -81,6 +82,12 @@ export default class CommandModule {
 
   setTrackerVariable(trackerId: string, variableName: string, value: any, validUserId: string = null): Promise<boolean>{
     return this.setUserChildVariable(OTTracker, trackerId, variableName, value, C.SYNC_TYPE_TRACKER, validUserId)
+  }
+
+  removeUser(userId, removeAllSiblings: boolean=false, removeAllData: boolean = false): Promise<boolean>{
+    return OTUser.findOneAndRemove({_id: userId}).then(result=>{
+      return true
+    })
   }
 
   removeUserChild(model: Model<any>, objectId:string, syncType: string, permanent: boolean = false, validUserId: string = null): Promise<boolean>{

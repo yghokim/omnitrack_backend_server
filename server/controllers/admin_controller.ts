@@ -1,4 +1,5 @@
-
+import OTUser from '../models/ot_user';
+import OTItem from '../models/ot_item';
 import OTTracker from '../models/ot_tracker';
 import OTTrigger from '../models/ot_trigger';
 import { ModelConverter } from '../../omnitrack/core/model_converter';
@@ -8,6 +9,19 @@ import PredefinedPackage from '../../omnitrack/core/predefined_package';
 import app from '../app';
 
 export default class AdminCtrl {
+
+  migrateUserTrackingData = (req, res) =>{
+    const fromUserId = req.query["from"]
+    const toUserId = req.query["to"]
+    Promise.all([
+      OTItem, OTTracker, OTTrigger
+    ].map(model => {return model.update({user: fromUserId}, {$set: {user: toUserId}}, {multi: true})}))
+      .then(results=>{
+        console.log(results)
+        res.sendStatus(200)
+      })
+  }
+
   extractPredefinedPackage = (req, res) => {
     const trackerIds = req.query["trackerIds"]
     const triggerIds = req.query["triggerIds"]
@@ -108,6 +122,19 @@ export default class AdminCtrl {
         res.status(500).send(err)
       }
       )
+  }
+
+  removeUser = (req, res)=>{
+    const userId = req.params.userId
+    app.commandModule().removeUser(userId, false, false).then(
+      removed=>{
+        res.status(200).send(removed)
+      }
+    ).catch(
+      err=>{
+        res.status(500).send(err)
+      }
+    )
   }
 
   getAttributePropertyValue = (req, res)=>{

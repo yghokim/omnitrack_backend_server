@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 import OTUser from '../models/ot_user';
 import OTUserReport from '../models/ot_user_report';
 import * as firebaseAdmin from 'firebase-admin';
+import app from '../app';
 
 export default class OTUserCtrl extends BaseCtrl {
   model = OTUser
@@ -13,7 +14,7 @@ export default class OTUserCtrl extends BaseCtrl {
 
     var generate = require("adjective-adjective-animal");
 
-    return generate({ adjectives: 2, format: "Title" }).then(
+    return generate({ adjectives: 2, format: "title" }).then(
       generatedName => {
         return firebaseAdmin.auth().getUser(uid)
           .then(
@@ -42,7 +43,12 @@ export default class OTUserCtrl extends BaseCtrl {
     return OTUser.findOne({ _id: userId }).then(
       result => {
         if (result == null) {
-          return this.fetchUserDataToDb(userId).then(user => { return { user: user, inserted: true } })
+          return this.fetchUserDataToDb(userId)
+            .then(user => { return { user: user, inserted: true } })
+            .catch(ex=>{
+              console.log(ex)
+              return Promise.reject(ex)
+            })
         }
         else return Promise.resolve({ user: result, inserted: false })
       }
@@ -87,9 +93,9 @@ export default class OTUserCtrl extends BaseCtrl {
           user.save().then(
             result => {
               if (updated == false || userResult.inserted == true) {
-                console.log("insert new log")
+                console.log("insert new role")
                 //new user role
-                req.app["omnitrack"].fireUserPolicyModule.processOnNewUserRole(userId, newRole.role)
+                app.omnitrackModule().firstUserPolicyModule.processOnNewUserRole(userId, newRole.role)
                   .then(
                   () => {
                     res.status(200).send(true)
@@ -99,6 +105,7 @@ export default class OTUserCtrl extends BaseCtrl {
               else res.status(200).send(true)
             }
           ).catch(err => {
+            console.log(err)
             res.status(500).send({ error: err })
           })
         }
@@ -150,6 +157,8 @@ export default class OTUserCtrl extends BaseCtrl {
   putDeviceInfo = (req, res) => {
     const userId = res.locals.user.uid
     const deviceInfo = req.body
+    console.log('deviceInfo: ')
+    console.log(deviceInfo)
     this.getUserOrInsert(userId).then(
       userResult => {
         const user = userResult.user
@@ -188,11 +197,18 @@ export default class OTUserCtrl extends BaseCtrl {
         user.save(err => {
           console.log(err)
           if (err == null) {
+
+            const role = user.activatedRoles.find(role=>role.role == (res.locals.role || req.get("OTRole")))
+            console.log(
+              "role of this client: "
+            )
+            console.log(res.locals.role)
+            console.log(role)
             console.log("device local key: " + localKey)
             res.json({ 
               result: updated == true ? "updated" : "added", 
               deviceLocalKey: localKey.toString(16),
-              payloads: {email: user.email, name: user.name, picture: user.picture}
+              payloads: {email: user.email, name: user.name, picture: user.picture, updatedAt: user.updatedAt.getTime(), consentApproved: (role!=null? role.isConsentApproved : false).toString()}
           })
           }
           else res.status(500).send({ error: "deviceinfo db update failed." })
