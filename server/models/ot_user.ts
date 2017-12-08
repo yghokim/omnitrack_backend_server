@@ -12,6 +12,7 @@ const otClientDeviceSchema = new mongoose.Schema({
 const otUserSchema = new mongoose.Schema({
   _id: {type: String, unique: true},
   name: String,
+  nameUpdatedAt: {type: Date, default: Date.now},
   picture: String,
   email: String,
   accountCreationTime: Date,

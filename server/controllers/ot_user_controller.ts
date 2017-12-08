@@ -2,6 +2,7 @@ import BaseCtrl from './base';
 import * as mongoose from 'mongoose';
 import OTUser from '../models/ot_user';
 import OTUserReport from '../models/ot_user_report';
+import InformationUpdateResult from '../../omnitrack/core/information_update_result';
 import * as firebaseAdmin from 'firebase-admin';
 import app from '../app';
 
@@ -28,6 +29,7 @@ export default class OTUserCtrl extends BaseCtrl {
                 picture: userRecord.photoURL,
                 accountCreationTime: userRecord.metadata.creationTime,
                 accountLastSignInTime: userRecord.metadata.lastSignInTime,
+                nameUpdatedAt: Date.now()
               }
             }, { upsert: true }).then(
               result => {
@@ -45,7 +47,7 @@ export default class OTUserCtrl extends BaseCtrl {
         if (result == null) {
           return this.fetchUserDataToDb(userId)
             .then(user => { return { user: user, inserted: true } })
-            .catch(ex=>{
+            .catch(ex => {
               console.log(ex)
               return Promise.reject(ex)
             })
@@ -137,6 +139,46 @@ export default class OTUserCtrl extends BaseCtrl {
     })
   }
 
+  putUserName = (req, res) => {
+    const userId = res.locals.user.uid
+    const name = req.body.value
+    const timestamp = req.body.timestamp
+    OTUser.findOne({ _id: userId }).then(
+      (result: any) => {
+        if (result) {
+          if(result.name != name)
+          {
+            if((result.nameUpdatedAt||new Date(0)).getTime() < timestamp)
+            {
+              result.name = name
+              result.nameUpdatedAt = Date.now()
+              result.save(err=>{
+                if(err)
+                {
+                  console.log(err)
+                  res.status(500).send(err)
+                }
+                else res.json(<InformationUpdateResult>{success: true, finalValue: result.name, payloads:new Map([["updatedAt", result.nameUpdatedAt.getTime().toString()]])})
+              })
+            }
+            else{
+              res.json(<InformationUpdateResult>{success: false, finalValue: result.name, payloads:new Map([["updatedAt", result.nameUpdatedAt.getTime().toString()]])})
+            }
+          }
+          else{
+            res.json(<InformationUpdateResult>{success: false})
+          }
+        }
+        else {
+          res.json(<InformationUpdateResult>{success: false, payloads:new Map([["reason", "No such user"]])})
+        }
+      }
+    ).catch(err=>{
+      console.log(err)
+      res.status(500).send(err)
+    })
+  }
+
   getDevices = (req, res) => {
     const userId = res.locals.user.uid
     OTUser.findOne({ _id: userId }).then(
@@ -198,18 +240,24 @@ export default class OTUserCtrl extends BaseCtrl {
           console.log(err)
           if (err == null) {
 
-            const role = user.activatedRoles.find(role=>role.role == (res.locals.role || req.get("OTRole")))
+            const role = user.activatedRoles.find(role => role.role == (res.locals.role || req.get("OTRole")))
             console.log(
               "role of this client: "
             )
             console.log(res.locals.role)
             console.log(role)
             console.log("device local key: " + localKey)
-            res.json({ 
-              result: updated == true ? "updated" : "added", 
+            res.json({
+              result: updated == true ? "updated" : "added",
               deviceLocalKey: localKey.toString(16),
-              payloads: {email: user.email, name: user.name, picture: user.picture, updatedAt: user.updatedAt.getTime(), consentApproved: (role!=null? role.isConsentApproved : false).toString()}
-          })
+              payloads: { 
+                email: user.email, 
+                name: user.name, 
+                nameUpdatedAt: user.nameUpdatedAt.getTime(), 
+                picture: user.picture, 
+                updatedAt: user.updatedAt.getTime(), 
+                consentApproved: (role != null ? role.isConsentApproved : false).toString() }
+            })
           }
           else res.status(500).send({ error: "deviceinfo db update failed." })
         }, { upsert: true })
