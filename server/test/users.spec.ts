@@ -1,9 +1,10 @@
 import * as chai from 'chai';
 import * as chaiHttp from 'chai-http';
 
-process.env.NODE_ENV = 'test';
-import { app } from '../app';
+import { app, env } from '../app';
 import User from '../models/user';
+
+env.node_env = 'test';
 
 const should = chai.use(chaiHttp).should();
 

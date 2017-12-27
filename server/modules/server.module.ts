@@ -8,6 +8,7 @@ import * as Agenda from 'agenda';
 import * as easyimage from "easyimage";
 import C from "../server_consts"
 import { SyncInfo, PushOptions, MessageData } from '../modules/push.module'
+import { env } from '../app'
 import app from '../app'
 
 export default class ServerModule {
@@ -79,10 +80,10 @@ export default class ServerModule {
 
   private newAgendaBase(): Agenda {
     var mongoDbUri: string
-    if (process.env.NODE_ENV === 'test') {
-      mongoDbUri = process.env.MONGODB_TEST_URI
+    if (env.node_env === 'test') {
+      mongoDbUri = env.mongodb_test_uri
     } else {
-      mongoDbUri = process.env.MONGODB_URI
+      mongoDbUri = env.mongodb_uri
     }
 
     return new Agenda({ db: { address: mongoDbUri } })

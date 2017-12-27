@@ -14,9 +14,8 @@ import BinaryStorageCtrl from './controllers/binary_storage_controller';
 import { Request } from 'express';
 import { Error } from 'mongoose';
 import { clientKeys } from "./app";
-export default function setRoutes(app) {
 
-  const router = express.Router();
+const router = express.Router();
 
   const itemCtrl = new OTItemCtrl();
   const trackerCtrl = new OTTrackerCtrl();
@@ -134,7 +133,4 @@ export default function setRoutes(app) {
   //router.route('/user/:id').delete(userCtrl.delete);
 
 
-  // Apply the routes to our application with the prefix /api
-  app.use('/api', router);
-
-}
+  export default router;
