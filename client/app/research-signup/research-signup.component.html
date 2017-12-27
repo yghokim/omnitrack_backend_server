@@ -1,0 +1,46 @@
+<div class="container">
+
+  <div class="card floating narrow">
+    <div class="card-header header-main">
+      Sign Up as a Researcher
+    </div>
+    <div class="card-block">
+      <form [formGroup]="registerForm" (ngSubmit)="register()">
+        <div class="form-group">
+          <label class="small" for="inputEmail">Email address</label>
+          <input formControlName="email" type="email" [ngClass]="setClassEmail()" class="form-control" id="inputEmail" aria-describedby="emailHelp"
+            placeholder="Enter email">
+          <!--<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>-->
+        </div>
+
+        <div formGroupName="matchingPassword">
+          <div class="form-group">
+            <label class="small" for="inputPassword">Password</label>
+            <input formControlName="password" type="password" class="form-control" [ngClass]="setClassPassword()"
+              id="inputPassword" placeholder="Password">
+          </div>
+
+          <label class="small" for="inputConfirmPassword">Confirm Password</label>
+          <input formControlName="confirmPassword" type="password" class="form-control" [ngClass]="setClassConfirmPassword()"
+            id="inputConfirmPassword" placeholder="Password">
+        </div>
+        <hr>
+
+        <div class="form-group">
+          <label class="small" for="inputAlias">Alias</label>
+          <input formControlName="alias" type="text" class="form-control" id="inputAlias" placeholder="Enter alias or nickname">
+          <small id="aliasHelp" class="form-text text-muted">You shall communicate with other researchers using the alias.</small>
+        </div>
+
+        <hr>
+        <div class="card-body">
+          <button type="submit" [disabled]="!registerForm.valid" class="btn btn-primary btn-lg btn-block">Submit</button>
+        </div>
+      </form>
+
+      <p></p>
+      <a [routerLink]="['/research/login']" class="card-link">I already have a researcher account.</a>
+      
+    </div>
+  </div>
+</div>

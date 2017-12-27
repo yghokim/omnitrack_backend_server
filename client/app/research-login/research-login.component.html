@@ -1,0 +1,27 @@
+<div class="container">
+
+  <div class="card floating narrow">
+    <div class="card-header header-main">
+      Sign In
+    </div>
+    <div class="card-block">
+      <form [formGroup]="registerForm" (ngSubmit)="authorize()">
+        <div class="form-group">
+          <label class="small" for="inputEmail">Email address</label>
+          <input formControlName="email" type="email" class="form-control form-control-lg" id="inputEmail" aria-describedby="emailHelp"
+            placeholder="Enter email">
+          <!--<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>-->
+        </div>
+        <div class="form-group">
+          <label class="small" for="inputPassword">Password</label>
+          <input formControlName="password" type="password" class="form-control form-control-lg" id="inputPassword" placeholder="Password">
+        </div>
+        <hr>
+        
+        <button type="submit" class="btn btn-primary btn-lg btn-block" [disabled]="!registerForm.valid">Sign In as a Researcher</button>
+      </form>
+      <p class="card-text"></p>
+      <a [routerLink]="['/research/signup']" class="card-link">Create a Researcher Account</a>
+    </div>
+  </div>
+</div>
