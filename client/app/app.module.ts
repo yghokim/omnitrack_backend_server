@@ -25,18 +25,19 @@ import { ResearcherAuthService } from './services/researcher.auth.service';
 import { ResearchDashboardComponent } from './research-dashboard/research-dashboard.component';
 import { ResearcherAuthGuardSecure } from './services/researcher.auth.guard.secure';
 import { ResearcherAuthGuardMain } from './services/researcher.auth.guard.main';
+import { ResearchApiService } from './services/research-api.service';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    CatsComponent,
+    //CatsComponent,
     AboutComponent,
-    RegisterComponent,
-    LoginComponent,
-    LogoutComponent,
-    AccountComponent,
-    AdminComponent,
+    //RegisterComponent,
+    //LoginComponent,
+    //LogoutComponent,
+    //AccountComponent,
+    //AdminComponent,
     NotFoundComponent,
     ResearchMainComponent,
     ResearchLoginComponent,
@@ -54,9 +55,10 @@ import { ResearcherAuthGuardMain } from './services/researcher.auth.guard.main';
     ResearcherAuthGuardSecure,
     ResearcherAuthGuardMain,
     ResearcherAuthService,
-    AuthService,
+    ResearchApiService
+    /*AuthService,
     CatService,
-    UserService
+    UserService*/
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent]

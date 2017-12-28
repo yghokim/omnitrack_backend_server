@@ -1,3 +1,53 @@
-<p>
-  research-dashboard works!
-</p>
+<div class="header">
+      <div class="content">
+        <div class="logo_container">
+            <img class="logo" src="/assets/omnitrack_research_kit_logo.svg">
+        </div>
+        <div class="heading_container">
+            <div class="dropdown experiment" ngbDropdown *ngIf="api.selectedExperimentId">
+                <button class="btn btn-secondary dropdown-toggle" ngbDropdownToggle type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  {{api.selectedExperiment.name}}
+                </button>
+                <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="dropdownMenuButton">
+                  <a class="dropdown-item" (click)="onExperimentSelected(exp.id)" *ngFor="let exp of experimentInfos">{{exp.name}}</a>
+                </div>
+              </div>
+        </div>
+        <div class="profile_container">
+          <div class="sign_in" *ngIf="!authService.isSignedIn()">
+              <button class="btn btn-primary" (click)="goToSignIn()">Sign In</button>
+          </div>
+          <div class="signed_in_profile" *ngIf="authService.isSignedIn()">
+            <div class="information">
+              <div class="name small font-weight-bold">
+                {{authService.currentResearcher.alias}}
+              </div>
+              <div class="email small font-weight-light">
+                {{authService.currentResearcher.email}}
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" (click)="signOut()">Sign Out</button>
+          </div>
+        </div>
+      <!--<div class="header-border"></div>-->
+    </div>
+  </div>
+<div id="research_dashboard_wrapper" *ngIf="!isLoadingSelectedExperiment">
+<div id="research_column_sidebar">
+    <div class="nav nav-pills flex-column">
+      <div class="small nav-link nav-subtitle">Analytics</div>
+      <a class="nav-link active" href="#">Overview</a>
+      <a class="nav-link" href="#">Self-Tracking Data</a>
+      <a class="nav-link" href="#">Participants</a>
+
+      <div class="small nav-link nav-subtitle">Design</div>
+      <a class="nav-link" href="#">Groups</a>
+      <a class="nav-link" href="#">Tracking Experiences</a>
+      <a class="nav-link" href="#">Invitations</a>
+    </div>
+</div>
+<div id="research_column_main" class="container-fluid">
+  Outlet
+  <router-outlet></router-outlet>
+</div>
+</div>

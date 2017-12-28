@@ -1,8 +1,12 @@
 import * as jwt from 'jsonwebtoken';
+import * as uuid from 'uuid';
 import OTResearcher from '../models/ot_researcher';
+
+import OTExperiment from '../models/ot_experiment';
 import OTResearcherToken from '../models/ot_researcher_token';
 import OTResearcherClient from '../models/ot_researcher_client';
 import { env } from '../app';
+import OTExperimentCtrl from './ot_experiment_controller';
 
 
 export default class OTResearchAuthCtrl {
@@ -32,6 +36,18 @@ export default class OTResearchAuthCtrl {
     }, env.jwt_secret);
   }
 
+  private generateExampleExperiments(researcherId, cb) {
+    const experiment = new OTExperiment({
+      name: "Diary Study On Personal Productivity",
+      manager: researcherId
+    }).save((err, experiment) => {
+      if (err != null) {
+        console.log(err)
+        cb(err, null)
+      } else cb(null, [experiment])
+    })
+  }
+
   registerResearcher = (req, res) => {
 
     console.log("try register researcher.")
@@ -57,20 +73,32 @@ export default class OTResearchAuthCtrl {
           else {
             console.log("hash the password.")
             this.hashPassword(password, (err, hashedPassword) => {
-              const newResearcher = new OTResearcher({
-                email: email,
-                hashed_password: hashedPassword,
-                alias: alias
-              })
-              newResearcher.save().catch(err => {
-                res.status(500).send({ error: err })
-              }).then(
-                researcher => {
-                  res.status(200).send({
-                    token: this.generateJWTToken(researcher)
-                  })
+
+              const researcherId = uuid.v1()
+              this.generateExampleExperiments(researcherId, (err, experiments) => {
+                if (err != null) {
+                  res.status(500).send(err)
                 }
-                )
+                else {
+                  const newResearcher = new OTResearcher({
+                    _id: researcherId,
+                    email: email,
+                    hashed_password: hashedPassword,
+                    alias: alias,
+                    experiments: experiments.map(exp=>exp._id)
+                  })
+                  newResearcher.save().catch(err => {
+                      res.status(500).send({ error: err })
+                    })
+                    .then(
+                    researcher => {
+                      console.log(researcher)
+                      res.status(200).send({
+                        token: this.generateJWTToken(researcher)
+                      })
+                    })
+                }
+              })
             })
           }
         })
@@ -80,7 +108,7 @@ export default class OTResearchAuthCtrl {
 
   authenticate = (req, res) => {
     const grant_type = req.body.grant_type
-    switch (grant_type||'password') {
+    switch (grant_type || 'password') {
       case 'password':
         console.log("password grant type.")
         const email = req.body.username

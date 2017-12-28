@@ -23,6 +23,10 @@ export class ResearcherAuthService {
     }
   }
 
+  token(): string{
+    return localStorage.getItem('omnitrack_researcher_token')
+  }
+
   isSignedIn(): boolean{
     const token = localStorage.getItem('omnitrack_researcher_token');
     return (token && this.jwtHelper.isTokenExpired(token) == false)
@@ -52,6 +56,7 @@ export class ResearcherAuthService {
   signOut(): Observable<any>{
     return Observable.defer(()=>{
       localStorage.removeItem("omnitrack_researcher_token")
+      this.currentResearcher = { uid: '', email: '', alias: '' };
       return Observable.of(true)
     })
   }

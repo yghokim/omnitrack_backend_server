@@ -30,11 +30,12 @@ const routes: Routes = [
     ]
   },
   
+  /*
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
   { path: 'logout', component: LogoutComponent },
   { path: 'account', component: AccountComponent},
-  { path: 'admin', component: AdminComponent, canActivate: [AuthGuardAdmin] },
+  { path: 'admin', component: AdminComponent, canActivate: [AuthGuardAdmin] },*/
   { path: 'notfound', component: NotFoundComponent },
   { path: '**', redirectTo: '/notfound' },
 ];

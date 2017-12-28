@@ -8,8 +8,7 @@ const otResearcherSchema = new mongoose.Schema({
   hashed_password: { type: String, required: true },
   password_reset_token: { type: String, unique: true },
   reset_token_expires: Date,
-
-  experiments: [{experiment:{type:String, ref: 'OTExperiment'}, permission: String}]
+  experiments: {type: [{type:String, ref: 'OTExperiment'}], default: []}
 }, {timestamps: true});
 
 const OTResearcher = mongoose.model('OTResearcher', otResearcherSchema);

@@ -23,7 +23,7 @@ export class ResearchSignupComponent implements OnInit {
 
   alias = new FormControl('', [Validators.required]);
 
-  constructor(private formBuilder: FormBuilder, private authService: ResearcherAuthService) { }
+  constructor(private formBuilder: FormBuilder, private authService: ResearcherAuthService, private router: Router) { }
 
   ngOnInit() {
     this.registerForm = this.formBuilder.group({
@@ -55,7 +55,7 @@ export class ResearchSignupComponent implements OnInit {
     }
     this.authService.register(credential).subscribe(
       res=>{
-        console.log(res)
+        this.router.navigate(['/research'])
       }
     )
   }
