@@ -6,9 +6,9 @@ import * as mongoose from 'mongoose';
 import * as path from 'path';
 import * as firebaseAdmin from 'firebase-admin';
 import * as Agenda from 'agenda';
+import env from './env';
 import OmniTrackModule from './modules/omnitrack.module';
 import { AppWrapper } from './modules/app.interface';
-import env from '../credentials/environment';
 
 import apiRouter from './router_api';
 import researchRouter from './router_research';
@@ -63,5 +63,5 @@ db.once('open', () => {
   }
 });
 
-export { app, clientKeys, env }
+export { app, clientKeys}
 export default appWrapper

@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { env } from './app';
+import env from './env';
 import OTResearcher from './models/ot_researcher';
 import OTResearchAuthCtrl from './controllers/ot_research_auth_controller';
 import AdminCtrl from "./controllers/admin_controller";

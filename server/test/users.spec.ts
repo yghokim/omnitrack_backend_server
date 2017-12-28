@@ -1,7 +1,8 @@
 import * as chai from 'chai';
 import * as chaiHttp from 'chai-http';
 
-import { app, env } from '../app';
+import env from '../env';
+import { app, } from '../app';
 import User from '../models/user';
 
 env.node_env = 'test';

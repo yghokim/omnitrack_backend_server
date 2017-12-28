@@ -8,7 +8,7 @@ import * as Agenda from 'agenda';
 import * as easyimage from "easyimage";
 import C from "../server_consts"
 import { SyncInfo, PushOptions, MessageData } from '../modules/push.module'
-import { env } from '../app'
+import env from '../env'
 import app from '../app'
 
 export default class ServerModule {
