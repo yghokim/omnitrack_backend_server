@@ -26,6 +26,13 @@ import { ResearchDashboardComponent } from './research-dashboard/research-dashbo
 import { ResearcherAuthGuardSecure } from './services/researcher.auth.guard.secure';
 import { ResearcherAuthGuardMain } from './services/researcher.auth.guard.main';
 import { ResearchApiService } from './services/research-api.service';
+import { ExperimentOverviewComponent } from './experiment-overview/experiment-overview.component';
+import { ExperimentParticipantsComponent } from './experiment-participants/experiment-participants.component';
+import { ExperimentGroupsComponent } from './experiment-groups/experiment-groups.component';
+import { ExperimentOmniTrackComponent } from './experiment-omni-track/experiment-omni-track.component';
+import { ExperimentInvitationsComponent } from './experiment-invitations/experiment-invitations.component';
+import { ExperimentSettingsComponent } from './experiment-settings/experiment-settings.component';
+import { ExperimentDataComponent } from './experiment-data/experiment-data.component';
 
 
 @NgModule({
@@ -43,7 +50,14 @@ import { ResearchApiService } from './services/research-api.service';
     ResearchLoginComponent,
     ResearchSignupComponent,
     ResearchFrameComponent,
-    ResearchDashboardComponent
+    ResearchDashboardComponent,
+    ExperimentOverviewComponent,
+    ExperimentParticipantsComponent,
+    ExperimentGroupsComponent,
+    ExperimentOmniTrackComponent,
+    ExperimentInvitationsComponent,
+    ExperimentSettingsComponent,
+    ExperimentDataComponent
   ],
   imports: [
     NgbModule.forRoot(),

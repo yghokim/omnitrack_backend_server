@@ -75,6 +75,7 @@ export default class OTResearchAuthCtrl {
             this.hashPassword(password, (err, hashedPassword) => {
 
               const researcherId = uuid.v1()
+              console.log("generate example experiments with researcher id: " + researcherId)
               this.generateExampleExperiments(researcherId, (err, experiments) => {
                 if (err != null) {
                   res.status(500).send(err)

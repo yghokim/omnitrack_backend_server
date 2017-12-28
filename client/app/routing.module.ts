@@ -18,6 +18,13 @@ import { ResearchFrameComponent } from './research-frame/research-frame.componen
 import { ResearcherAuthGuardMain } from './services/researcher.auth.guard.main';
 import { ResearchDashboardComponent } from './research-dashboard/research-dashboard.component';
 import { ResearcherAuthGuardSecure } from './services/researcher.auth.guard.secure';
+import { ExperimentOverviewComponent } from './experiment-overview/experiment-overview.component';
+import { ExperimentDataComponent } from './experiment-data/experiment-data.component';
+import { ExperimentParticipantsComponent } from './experiment-participants/experiment-participants.component';
+import { ExperimentGroupsComponent } from './experiment-groups/experiment-groups.component';
+import { ExperimentOmniTrackComponent } from './experiment-omni-track/experiment-omni-track.component';
+import { ExperimentInvitationsComponent } from './experiment-invitations/experiment-invitations.component';
+import { ExperimentSettingsComponent } from './experiment-settings/experiment-settings.component';
 
 const routes: Routes = [
   { path: '', component: AboutComponent },
@@ -25,6 +32,18 @@ const routes: Routes = [
     children: [
       { path: '', component: ResearchMainComponent, canActivate: [ResearcherAuthGuardMain]},
       { path: 'dashboard', component: ResearchDashboardComponent, canActivate: [ResearcherAuthGuardSecure] },
+      { path: 'dashboard/:experimentId', component: ResearchDashboardComponent, canActivate: [ResearcherAuthGuardSecure],
+        children: [
+          { path: '', redirectTo: 'overview', pathMatch: "full"},
+          { path: 'overview', component: ExperimentOverviewComponent, data:{title: 'Overview'}},
+          { path: 'tracking-data', component: ExperimentDataComponent, data: {title: 'Tracking Data'}},
+          { path: 'participants', component: ExperimentParticipantsComponent, data: {title: 'Participants'}},
+          { path: 'groups', component: ExperimentGroupsComponent, data: {title: 'Groups'}},
+          { path: 'omnitrack', component: ExperimentOmniTrackComponent, data: {title: 'OmniTrack'}},
+          { path: 'invitations', component: ExperimentInvitationsComponent, data: {title: 'Invitations'}},
+          { path: 'settings', component: ExperimentSettingsComponent, data: {title: 'Settings'}}
+        ]
+      },
       { path: 'signup', component: ResearchSignupComponent, canActivate: [ResearcherAuthGuardMain] },
       { path: 'login', component: ResearchLoginComponent, canActivate: [ResearcherAuthGuardMain] },
     ]

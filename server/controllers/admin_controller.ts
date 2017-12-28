@@ -3,6 +3,7 @@ import OTItem from '../models/ot_item';
 import OTTracker from '../models/ot_tracker';
 import OTTrigger from '../models/ot_trigger';
 import OTResearcher from '../models/ot_researcher';
+import OTExperiment from '../models/ot_researcher';
 import { ModelConverter } from '../../omnitrack/core/model_converter';
 import * as fs from 'fs-extra';
 import * as path from 'path';
@@ -18,7 +19,15 @@ export default class AdminCtrl {
         res.sendStatus(500)
       }
       else{
-        res.status(200).send(true)
+        OTExperiment.remove({}, (err2)=>{
+          if(err2 != null)
+          {
+            res.sendStatus(500)
+          }
+          else{
+            res.status(200).send(true)
+          }
+        })
       }
     })
   }

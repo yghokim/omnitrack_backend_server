@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ResearcherAuthService } from '../services/researcher.auth.service';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { ResearchApiService } from '../services/research-api.service';
 import ExperimentInfo from '../models/experiment-info';
 
@@ -13,23 +13,80 @@ export class ResearchDashboardComponent implements OnInit {
 
   isLoadingSelectedExperiment: boolean = true
   isLoadingExperiments: boolean = true
+
+  headerTitle
+
   experimentInfos: Array<ExperimentInfo> = []
+
+  dashboardNavigationGroups = [
+    {
+      name: "Analytics",
+      menus: [
+        { name: "Overview", key: "overview" },
+        {
+          name: "Self-Tracking Data",
+          key: "tracking-data"
+        },
+        {
+          name: "Participants",
+          key: "participants"
+        }
+      ]
+    },
+    {
+      name: "Design",
+      menus: [
+        {
+          name: "Groups",
+          key: "groups"
+        },
+        {
+          name: "OmniTrack",
+          key: "omnitrack"
+        }
+      ]
+    },
+    {
+      name: "Settings",
+      menus: [
+        {
+          name: "Invitations",
+          key: "invitations"
+        },
+        {
+          name: "Experiment Settings",
+          key: "settings"
+        }
+      ]
+    }
+
+  ]
 
   constructor(
     private api: ResearchApiService,
     private authService: ResearcherAuthService,
     private router: Router,
-    private activatedRoute: ActivatedRoute) { }
+    private activatedRoute: ActivatedRoute) {
+    this.router.events.filter(ev => ev instanceof NavigationEnd)
+      .map(_ => this.router.routerState.root)
+      .map(route => {
+        while (route.firstChild) route = route.firstChild
+        return route
+      })
+      .flatMap(route => route.data)
+      .subscribe(data => {
+        this.headerTitle = data["title"]
+      })
+  }
 
   ngOnInit() {
     //init experiment infos
-
-    this.activatedRoute.queryParamMap.subscribe(queryParamMap=>{
-      const paramExpId = queryParamMap["params"].exp_id
+    this.activatedRoute.paramMap.subscribe(paramMap => {
+      const paramExpId = paramMap.get("experimentId")
       if (paramExpId) {
         console.log("mount an experiment : " + paramExpId)
         localStorage.setItem("selectedExperiment", paramExpId)
-        this.api.setSelectedExperimentId(paramExpId).subscribe((exp)=>{
+        this.api.setSelectedExperimentId(paramExpId).subscribe((exp) => {
           this.isLoadingSelectedExperiment = false
         })
       }
@@ -42,12 +99,13 @@ export class ResearchDashboardComponent implements OnInit {
             if (this.experimentInfos.findIndex(exp => exp.id == selectedId) == -1) {
               selectedId = this.experimentInfos[0].id
             }
-            this.router.navigate(['research/dashboard'], { queryParams: { exp_id: selectedId } })
+            this.router.navigate(['research/dashboard', selectedId])
           }
         })
       }
     })
 
+    console.log("load experiments of user")
     this.api.getExperimentInfos().subscribe(experiments => {
       console.log("experiments were loaded.")
       this.isLoadingExperiments = false
@@ -55,9 +113,12 @@ export class ResearchDashboardComponent implements OnInit {
     })
   }
 
+  getSelectedMenuTitle() {
+  }
+
   onExperimentSelected(id) {
     this.isLoadingSelectedExperiment = true
-    this.api.setSelectedExperimentId(id).subscribe((exp)=>{
+    this.api.setSelectedExperimentId(id).subscribe((exp) => {
       this.isLoadingSelectedExperiment = false
     })
   }
