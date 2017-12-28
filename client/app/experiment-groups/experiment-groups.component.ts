@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ResearchApiService } from '../services/research-api.service';
 
 @Component({
   selector: 'app-experiment-groups',
@@ -7,9 +8,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ExperimentGroupsComponent implements OnInit {
 
-  constructor() { }
+  constructor(private api: ResearchApiService) { }
 
   ngOnInit() {
   }
+  
+  onAddNewGroupClicked(){
 
+  }
 }

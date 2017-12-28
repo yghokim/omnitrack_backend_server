@@ -26,6 +26,7 @@ router.post('/auth/register', researchAuthCtrl.registerResearcher)
 
 router.get('/experiments/all', tokenAuth, experimentCtrl.getExperimentInformationsOfResearcher)
 router.get('/experiments/:experimentId', tokenAuth, experimentCtrl.getExperiment)
+router.get('/experiments/manager/:experimentId', tokenAuth, experimentCtrl.getManagerInfo)
 
 //debuging
 router.get('/debug/clear_researchers', adminCtrl.clearResearchers)

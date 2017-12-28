@@ -1,0 +1,47 @@
+@import "../../styles.scss";
+
+.card.add-new-group{
+  cursor: pointer;
+  vertical-align: middle;
+  .card-block{
+    height: 100%;
+    text-align: center;
+    font-size: 1em;
+  }
+
+  &:hover{
+    background: $color_pointed;
+  }
+}
+
+.participant-group-card{
+  min-width: 300px;
+  
+  margin-right: 1em;
+  margin-bottom: 1em;
+
+  .center{
+    display:flex;
+    align-content: center;
+    .content{
+      align-self: center;
+      width: 100%;
+    }
+  }
+
+  th:first-child, td:first-child{
+    padding-left: 0;
+  }
+  th:last-child, td:last-child{
+    padding-right: 0;
+  }
+
+  th:first-of-type, td:first-of-type{
+    border-top: hidden;
+  }
+}
+
+.participant-group-card-list{
+  display: flex;
+  flex-wrap: wrap;
+}

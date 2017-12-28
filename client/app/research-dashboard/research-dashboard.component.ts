@@ -15,6 +15,7 @@ export class ResearchDashboardComponent implements OnInit {
   isLoadingExperiments: boolean = true
 
   headerTitle
+  selectedExperimentName
 
   experimentInfos: Array<ExperimentInfo> = []
 
@@ -86,9 +87,7 @@ export class ResearchDashboardComponent implements OnInit {
       if (paramExpId) {
         console.log("mount an experiment : " + paramExpId)
         localStorage.setItem("selectedExperiment", paramExpId)
-        this.api.setSelectedExperimentId(paramExpId).subscribe((exp) => {
-          this.isLoadingSelectedExperiment = false
-        })
+        this.onExperimentSelected(paramExpId)
       }
       else {
         this.api.getExperimentInfos().subscribe(experiments => {
@@ -119,6 +118,7 @@ export class ResearchDashboardComponent implements OnInit {
   onExperimentSelected(id) {
     this.isLoadingSelectedExperiment = true
     this.api.setSelectedExperimentId(id).subscribe((exp) => {
+      this.selectedExperimentName = exp.name
       this.isLoadingSelectedExperiment = false
     })
   }

@@ -1,6 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 $color_accent: #d43861;
-$color_pointed: #0594c4;
+$color_pointed: #2cbbbb;
 
 html{
   min-height: 100%;
@@ -27,6 +27,44 @@ body {
   
   &.narrow{
     width: 500px;
+  }
+}
+
+.card-inverse{
+  background: #575757;
+  color: #efefef;  
+}
+
+.card-header{
+  background: inherit;
+}
+
+.card-sm{
+  .card-header{
+    padding: .5rem 0.8rem;
+  }
+
+  .card-block{
+    font-size: 0.8em;
+    padding: 0.9rem;
+  }
+}
+
+.card-main{
+  border-radius: 0px;
+  .card-header{
+    background: inherit;
+    font-weight: light;
+    color: #757575;
+  }
+
+  table.table{
+    th:first-child, td:first-child{
+      padding-left: 1.25em;
+    }
+    th:last-child, td:last-child{
+      padding-right: 1.25em;
+    }
   }
 }
 

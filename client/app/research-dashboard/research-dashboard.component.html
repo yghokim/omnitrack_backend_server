@@ -7,7 +7,7 @@
       <div class="dropdown experiment" ngbDropdown *ngIf="api.selectedExperimentId">
         <button class="btn btn-secondary dropdown-toggle" ngbDropdownToggle type="button" id="dropdownMenuButton" data-toggle="dropdown"
           aria-haspopup="true" aria-expanded="false">
-          {{api.selectedExperiment.name}}
+          {{selectedExperimentName}}
         </button>
         <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="dropdownMenuButton">
           <a class="dropdown-item small" (click)="onExperimentSelected(exp.id)" *ngFor="let exp of experimentInfos">{{exp.name}}</a>
