@@ -1,5 +1,6 @@
 import * as jwt from 'jsonwebtoken';
 import * as uuid from 'uuid';
+import * as path from "path";
 import OTResearcher from '../models/ot_researcher';
 
 import OTExperiment from '../models/ot_experiment';
@@ -40,7 +41,16 @@ export default class OTResearchAuthCtrl {
     const experiment = new OTExperiment({
       name: "Diary Study On Personal Productivity",
       manager: researcherId
-    }).save((err, experiment) => {
+    })
+
+    const trackingPackage = {
+      name: "Diaries and Reminders",
+      data: require(path.join(__dirname, "../../../../omnitrack/examples/diary_study_template.json"))
+    }
+    experiment["trackingPackages"].push(trackingPackage)
+    experiment["groups"][0].trackingPackageKey = experiment["trackingPackages"][0].key
+    
+    experiment.save((err, experiment) => {
       if (err != null) {
         console.log(err)
         cb(err, null)
