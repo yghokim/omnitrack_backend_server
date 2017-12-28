@@ -29,10 +29,12 @@ import { ResearchApiService } from './services/research-api.service';
 import { ExperimentOverviewComponent } from './experiment-overview/experiment-overview.component';
 import { ExperimentParticipantsComponent } from './experiment-participants/experiment-participants.component';
 import { ExperimentGroupsComponent } from './experiment-groups/experiment-groups.component';
-import { ExperimentOmniTrackComponent } from './experiment-omni-track/experiment-omni-track.component';
+import { ExperimentOmniTrackComponent } from './experiment-omnitrack/experiment-omnitrack.component';
 import { ExperimentInvitationsComponent } from './experiment-invitations/experiment-invitations.component';
 import { ExperimentSettingsComponent } from './experiment-settings/experiment-settings.component';
 import { ExperimentDataComponent } from './experiment-data/experiment-data.component';
+import { OmniTrackPackageListComponent } from './research/omnitrack/omnitrack-package-list.component';
+import { OmniTrackPackageEditComponent } from './research/omnitrack/omnitrack-package-edit.component';
 
 
 @NgModule({
@@ -57,7 +59,9 @@ import { ExperimentDataComponent } from './experiment-data/experiment-data.compo
     ExperimentOmniTrackComponent,
     ExperimentInvitationsComponent,
     ExperimentSettingsComponent,
-    ExperimentDataComponent
+    ExperimentDataComponent,
+    OmniTrackPackageListComponent,
+    OmniTrackPackageEditComponent
   ],
   imports: [
     NgbModule.forRoot(),

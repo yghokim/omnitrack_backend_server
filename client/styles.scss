@@ -21,6 +21,88 @@ body {
   margin-bottom: 15px;
 }
 
+.list-flex-wrap{
+  display: flex;
+  flex-wrap: wrap;
+  .card{
+    margin-right: 1em;
+    margin-bottom: 1em;
+  }
+}
+
+.no-margin-bottom{
+  margin-bottom: 0;
+}
+
+.no-horizontal-padding{
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.container-vertical-padding{
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+.flex-container{
+  display: flex;
+  & > .flex-element{
+    align-self: center;
+  }
+}
+
+.flex-container.flex-stretch{
+  justify-content: space-between;
+}
+
+.btn.btn-link-medium{
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.9em;
+
+  &:hover, &:active{
+    background: rgba(0,0,0,0.1);
+    border-radius: 0.1rem;
+    text-decoration: none;
+  }
+}
+
+small.info-text{
+  color: #575757;
+  font-weight: bold;
+}
+
+.card.card-component{
+  border: 1px solid #cecece;
+  box-shadow: none;
+}
+
+.card.card-add-new{
+  cursor: pointer;
+  vertical-align: middle;
+
+  background: transparent;
+  border: 3px dotted #afafaf;
+  box-shadow: none;
+
+  .card-block{
+    height: 100%;
+    text-align: center;
+  }
+  .center{
+    display:flex;
+    align-content: center;
+    .content{
+      align-self: center;
+      width: 100%;
+    }
+  }
+
+  &:hover{
+    background: $color_pointed;
+  }
+}
+
 .card{
   border: hidden;
   box-shadow: 0px 3px 6px rgba(0,0,0,0.1);
@@ -57,7 +139,9 @@ body {
     font-weight: light;
     color: #757575;
   }
+}
 
+.card{  
   table.table{
     th:first-child, td:first-child{
       padding-left: 1.25em;
@@ -65,6 +149,32 @@ body {
     th:last-child, td:last-child{
       padding-right: 1.25em;
     }
+  }
+}
+
+.card-sm{  
+  table.table{
+    th:first-child, td:first-child{
+      padding-left: 0.9em;
+    }
+    th:last-child, td:last-child{
+      padding-right: 0.9em;
+    }
+  }
+}
+
+table.table.no-horizontal-padding{
+  th:first-child, td:first-child{
+    padding-left: 0em !important;
+  }
+  th:last-child, td:last-child{
+    padding-right: 0em !important;
+  }
+}
+
+table.table.no-borders{
+  td, th{
+    border: hidden;
   }
 }
 

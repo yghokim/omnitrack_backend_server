@@ -22,9 +22,11 @@ import { ExperimentOverviewComponent } from './experiment-overview/experiment-ov
 import { ExperimentDataComponent } from './experiment-data/experiment-data.component';
 import { ExperimentParticipantsComponent } from './experiment-participants/experiment-participants.component';
 import { ExperimentGroupsComponent } from './experiment-groups/experiment-groups.component';
-import { ExperimentOmniTrackComponent } from './experiment-omni-track/experiment-omni-track.component';
+import { ExperimentOmniTrackComponent } from './experiment-omnitrack/experiment-omnitrack.component';
 import { ExperimentInvitationsComponent } from './experiment-invitations/experiment-invitations.component';
 import { ExperimentSettingsComponent } from './experiment-settings/experiment-settings.component';
+import { OmniTrackPackageListComponent } from './research/omnitrack/omnitrack-package-list.component';
+import { OmniTrackPackageEditComponent } from './research/omnitrack/omnitrack-package-edit.component';
 
 const routes: Routes = [
   { path: '', component: AboutComponent },
@@ -39,9 +41,16 @@ const routes: Routes = [
           { path: 'tracking-data', component: ExperimentDataComponent, data: {title: 'Tracking Data'}},
           { path: 'participants', component: ExperimentParticipantsComponent, data: {title: 'Participants'}},
           { path: 'groups', component: ExperimentGroupsComponent, data: {title: 'Groups'}},
-          { path: 'omnitrack', component: ExperimentOmniTrackComponent, data: {title: 'OmniTrack'}},
           { path: 'invitations', component: ExperimentInvitationsComponent, data: {title: 'Invitations'}},
-          { path: 'settings', component: ExperimentSettingsComponent, data: {title: 'Settings'}}
+          { path: 'settings', component: ExperimentSettingsComponent, data: {title: 'Settings'}},
+          { path: 'omnitrack', component: ExperimentOmniTrackComponent, data: {title: 'OmniTrack'},
+            children: [
+              { path: '', redirectTo: 'packages', pathMatch: 'full'},
+              { path: 'packages', component: OmniTrackPackageListComponent, data: {title: "OmniTrack Packages"} },
+              { path: 'packages/:packageKey', component: OmniTrackPackageEditComponent, data: {title: "Edit Tracking Package"} }
+            ]
+          },
+          
         ]
       },
       { path: 'signup', component: ResearchSignupComponent, canActivate: [ResearcherAuthGuardMain] },

@@ -3,21 +3,18 @@ import { ResearchApiService } from '../services/research-api.service';
 import { ExperimentService } from '../services/experiment.service';
 
 @Component({
-  selector: 'app-experiment-groups',
-  templateUrl: './experiment-groups.component.html',
-  styleUrls: ['./experiment-groups.component.scss']
+  selector: 'app-experiment-omnitrack',
+  templateUrl: './experiment-omnitrack.component.html',
+  styleUrls: ['./experiment-omnitrack.component.scss']
 })
-export class ExperimentGroupsComponent implements OnInit {
+export class ExperimentOmniTrackComponent implements OnInit {
 
   private experimentService: ExperimentService
   constructor(private api: ResearchApiService) {
     this.experimentService = api.selectedExperimentService()
-  }
+   }
 
   ngOnInit() {
   }
-  
-  onAddNewGroupClicked(){
 
-  }
 }

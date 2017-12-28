@@ -42,4 +42,16 @@ export class ExperimentService {
     }
     return this._loadManagerInfoQuery
   }
+
+  getOmniTrackPackages(): Observable<Array<any>>{
+    return this.getExperiment().map(exp=>{
+      return exp.trackingPackages
+    })
+  }
+
+  getOmniTrackPackage(key: string): Observable<any>{
+    return this.getOmniTrackPackages().map(list=>{
+      return list.find(l=>l.key == key)
+    })
+  }
 }

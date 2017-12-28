@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ExperimentOmniTrackComponent } from './experiment-omni-track.component';
+import { ExperimentOmniTrackComponent } from './experiment-omnitrack.component';
 
 describe('ExperimentOmniTrackComponent', () => {
   let component: ExperimentOmniTrackComponent;
