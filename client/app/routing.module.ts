@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AppComponent } from './app.component';
-import { AboutComponent } from './about/about.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 
 import { AuthGuardAdmin } from './services/auth-guard-admin.service';
@@ -23,7 +22,7 @@ import { OmniTrackPackageListComponent } from './research/omnitrack/omnitrack-pa
 import { OmniTrackPackageEditComponent } from './research/omnitrack/omnitrack-package-edit.component';
 
 const routes: Routes = [
-  { path: '', component: AboutComponent },
+  { path: '', redirectTo: 'research', pathMatch: 'full' },
   { path: 'research', component: ResearchFrameComponent,
     children: [
       { path: '', component: ResearchMainComponent, canActivate: [ResearcherAuthGuardMain]},
