@@ -5,6 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/publishReplay';
 import ExperimentInfo from '../models/experiment-info';
 import { ExperimentService } from './experiment.service';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Injectable()
 export class ResearchApiService {
@@ -16,7 +17,8 @@ export class ResearchApiService {
 
   private experimentInfoQuery: Observable<Array<ExperimentInfo>> = null
 
-  private _experimentService: ExperimentService = null
+  public readonly selectedExperimentService = new BehaviorSubject<ExperimentService>(null)
+
   constructor(private http: Http, private authService: ResearcherAuthService) { }
 
   getExperimentInfos(): Observable<Array<ExperimentInfo>> {
@@ -40,23 +42,13 @@ export class ResearchApiService {
     return this.selectedExperimentId
   }
 
-  
-  selectedExperimentService(): ExperimentService{
-    if(this._experimentService==null)
-    {
-      this._experimentService = new ExperimentService(this.selectedExperimentId, this.http, this.authService, this)
-    }
-    return this._experimentService
-  }
-
   setSelectedExperimentId(id: string): Observable<any> {
-    return Observable.defer(() => {
-      if (this.selectedExperimentId != id) {
+    if (this.selectedExperimentId != id) {
         this.selectedExperimentId = id
-        this._experimentService = null
-      }
-      return Observable.of(this.selectedExperimentService())
-    }).flatMap(expService=>expService.reloadExperiment())
+        this.selectedExperimentService.next(new ExperimentService(this.selectedExperimentId, this.http, this.authService, this))
+    }
+    
+    return this.selectedExperimentService.flatMap(expService=> expService.reloadExperiment())
   }
 
 

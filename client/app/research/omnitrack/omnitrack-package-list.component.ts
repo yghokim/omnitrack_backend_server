@@ -10,14 +10,31 @@ import { ExperimentService } from '../../services/experiment.service';
 export class OmniTrackPackageListComponent implements OnInit {
 
   private experimentService: ExperimentService
+  private packages: Array<any>
   constructor(private api: ResearchApiService) {
-    this.experimentService = api.selectedExperimentService()
   }
 
   ngOnInit() {
-    this.experimentService.getOmniTrackPackages().subscribe(packages=>{
+    this.api.selectedExperimentService.flatMap(expService=>expService.getOmniTrackPackages()).subscribe(packages=>{
+      this.packages = packages
       console.log(packages)
     })
+  }
+
+  getTrackerColorString(tracker: any): string{
+    const colorInt = tracker.color
+    if(colorInt)
+    {
+      const alpha = (colorInt  >> 24) & 0xFF
+      const red = (colorInt  >> 16) & 0xFF
+      const green = (colorInt >> 8) & 0xFF
+      const blue = (colorInt) & 0xFF
+      return "rgba(" + red +"," + green +"," + blue + "," + (alpha/255) +")"
+    }else return "transparent"
+  }
+
+  findTrackerName(pack, trackerId){
+    return pack.data.trackers.find(tracker => tracker.objectId == trackerId).name
   }
 
   onAddNewPackageClicked(){

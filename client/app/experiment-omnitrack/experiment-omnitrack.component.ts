@@ -9,10 +9,8 @@ import { ExperimentService } from '../services/experiment.service';
 })
 export class ExperimentOmniTrackComponent implements OnInit {
 
-  private experimentService: ExperimentService
   constructor(private api: ResearchApiService) {
-    this.experimentService = api.selectedExperimentService()
-   }
+  }
 
   ngOnInit() {
   }

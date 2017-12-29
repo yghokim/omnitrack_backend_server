@@ -11,7 +11,9 @@ export class ExperimentGroupsComponent implements OnInit {
 
   private experimentService: ExperimentService
   constructor(private api: ResearchApiService) {
-    this.experimentService = api.selectedExperimentService()
+    api.selectedExperimentService.subscribe(expService=>{
+      this.experimentService = expService
+    })
   }
 
   ngOnInit() {

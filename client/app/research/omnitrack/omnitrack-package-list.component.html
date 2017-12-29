@@ -1,10 +1,10 @@
 <div class="container">
   <div class="flex-container flex-stretch container-vertical-padding">
-    <small class="flex-element info-text">Packages: {{(experimentService.getOmniTrackPackages() | async).length}}</small>
+    <small class="flex-element info-text">Packages: {{packages.length}}</small>
     <button type="button" class="flex-element btn btn-link btn-link-medium">+ Add New Tracking Package</button>
   </div>
   <div class="package-list">
-    <div class="card omnitrack-card" *ngFor="let package of (experimentService.getOmniTrackPackages() | async)">
+    <div class="card omnitrack-card" *ngFor="let package of packages">
       <div class="card-header">
         <div class="bold">
           {{package.name}}
@@ -21,11 +21,12 @@
           <td>
             <div class="tracker-list">
               <div *ngFor="let tracker of package.data.trackers" class="card card-sm card-component">
+                <div class="card-strip" [style.background]="getTrackerColorString(tracker)"></div>
                 <div class="card-header">
                   {{tracker.name}}
                 </div>
                 <ul class="list-group list-group-flush attribute-list">
-                  <li class="list-group-item font-color-gray" *ngFor="let attribute of tracker.attributes">{{attribute.name}}</li>
+                  <li class="list-group-item font-color-gray" *ngFor="let attribute of tracker.attributes">{{attribute.name}}<sup class="text-color-accented font-weight-bold" *ngIf="attribute.isRequired">*</sup></li>
                 </ul>
               </div>
             </div>
@@ -33,7 +34,11 @@
           <td>
             <div class="trigger-list">
               <div *ngFor="let trigger of package.data.triggers" class="card card-sm card-component">
-                {{trigger.name}}
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item font-color-gray">
+                      <span class="badge badge-primary" *ngFor="let trackerId of trigger.trackers">{{findTrackerName(package, trackerId)}}</span>
+                    </li>
+                  </ul>
               </div>
             </div>
           </td>

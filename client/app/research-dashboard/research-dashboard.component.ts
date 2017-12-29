@@ -118,6 +118,7 @@ export class ResearchDashboardComponent implements OnInit {
   onExperimentSelected(id) {
     this.isLoadingSelectedExperiment = true
     this.api.setSelectedExperimentId(id).subscribe((exp) => {
+      console.log(exp)
       this.selectedExperimentName = exp.name
       this.isLoadingSelectedExperiment = false
     })

@@ -1,4 +1,4 @@
-<div class="list-flex-wrap">
+<div class="list-flex-wrap" *ngIf="experimentService">
   <div class="card participant-group-card card-sm" *ngFor="let group of (experimentService.getExperiment() | async).groups">
     <div class="card-header">
       {{group.name}}

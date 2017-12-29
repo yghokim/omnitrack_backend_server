@@ -15,19 +15,24 @@ export class ExperimentSettingsComponent implements OnInit {
   private manager: any
 
   constructor(private api: ResearchApiService) {
-    this.experimentService = api.selectedExperimentService()
+    api.selectedExperimentService.subscribe(expService => {
+      this.experimentService = expService
+    })
   }
 
   ngOnInit() {
-    this.api.selectedExperimentService().getExperiment().subscribe(exp=>{
-      this.experiment = exp
-    })
+    this.api.selectedExperimentService.subscribe(experimentService => {
 
-    this.experimentService.getManagerInfo().subscribe(
-      managerInfo=>
-      
-      this.manager = managerInfo
-    )
+      this.experimentService.getExperiment().subscribe(exp => {
+        this.experiment = exp
+      })
+
+      this.experimentService.getManagerInfo().subscribe(
+        managerInfo =>
+
+          this.manager = managerInfo
+      )
+    })
   }
 
 }

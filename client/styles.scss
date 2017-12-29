@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
-$color_accent: #d43861;
+
+$color_accent: #ff814f;;
 $color_pointed: #2cbbbb;
 
 html{
@@ -12,9 +13,14 @@ html{
 }
 
 body {
+  font-family: "Open Sans", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans KR", "Malgun Gothic", sans-serif, sans-serif;
   background: initial;
   margin-top: 0px;
   margin-bottom: 10px;
+}
+
+.text-color-accented{
+  color: $color_accent;
 }
 
 .input-group {
@@ -75,6 +81,16 @@ small.info-text{
 .card.card-component{
   border: 1px solid #cecece;
   box-shadow: none;
+}
+
+.card{
+  overflow: hidden;
+}
+
+.card > .card-strip{
+  background: gray;
+  display: block;
+  height: 0.25rem;
 }
 
 .card.card-add-new{
