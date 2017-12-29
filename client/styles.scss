@@ -19,6 +19,24 @@ body {
   margin-bottom: 10px;
 }
 
+.tag{
+  background: #eee;
+}
+
+.tag-lg{
+  padding: 0.5rem;
+}
+
+.circle-inline{
+  background: black;
+  width: 1.2em;
+  height: 1.2em;
+  border-radius: 50px;
+}
+
+.text-color-dark{
+  color: #252525;
+}
 .text-color-accented{
   color: $color_accent;
 }
@@ -34,6 +52,10 @@ body {
     margin-right: 1em;
     margin-bottom: 1em;
   }
+}
+
+.margin-right-small{
+  margin-right: 0.5em;
 }
 
 .no-margin-bottom{
@@ -55,6 +77,10 @@ body {
   & > .flex-element{
     align-self: center;
   }
+}
+
+.flex-container.flex-align-items-center{
+  align-items: center;
 }
 
 .flex-container.flex-stretch{
@@ -79,12 +105,20 @@ small.info-text{
 }
 
 .card.card-component{
-  border: 1px solid #cecece;
-  box-shadow: none;
+  border: none;
+  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.17);
+  border-radius: 0;
+  .list-group, .list-group-item{
+    border-radius: 0 !important;
+  }
 }
 
 .card{
   overflow: hidden;
+
+  .list-group-item:first-child{
+    border-top: none;
+  }
 }
 
 .card > .card-strip{

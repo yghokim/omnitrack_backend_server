@@ -33,8 +33,8 @@ export class OmniTrackPackageListComponent implements OnInit {
     }else return "transparent"
   }
 
-  findTrackerName(pack, trackerId){
-    return pack.data.trackers.find(tracker => tracker.objectId == trackerId).name
+  findTracker(pack, trackerId){
+    return pack.data.trackers.find(tracker => tracker.objectId == trackerId)
   }
 
   onAddNewPackageClicked(){

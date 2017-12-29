@@ -112,9 +112,6 @@ export class ResearchDashboardComponent implements OnInit {
     })
   }
 
-  getSelectedMenuTitle() {
-  }
-
   onExperimentSelected(id) {
     this.isLoadingSelectedExperiment = true
     this.api.setSelectedExperimentId(id).subscribe((exp) => {

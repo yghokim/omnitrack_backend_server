@@ -1,5 +1,4 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { OAuthModule } from 'angular-oauth2-oidc';
 
 import { RoutingModule } from './routing.module';
@@ -56,7 +55,6 @@ import { OmniTrackPackageEditComponent } from './research/omnitrack/omnitrack-pa
     OmniTrackPackageEditComponent
   ],
   imports: [
-    NgbModule.forRoot(),
     OAuthModule.forRoot(),
     RoutingModule,
     SharedModule

@@ -36,7 +36,12 @@
               <div *ngFor="let trigger of package.data.triggers" class="card card-sm card-component">
                   <ul class="list-group list-group-flush">
                     <li class="list-group-item font-color-gray">
-                      <span class="badge badge-primary" *ngFor="let trackerId of trigger.trackers">{{findTrackerName(package, trackerId)}}</span>
+                      <div class="tag tag-lg" *ngFor="let trackerId of trigger.trackers">
+                        <div class="tag-content flex-container flex-align-items-center">
+                            <div class="circle-inline margin-right-small" [style.background]="getTrackerColorString(findTracker(package, trackerId))"></div>
+                            <span class="text-color-dark">{{findTracker(package, trackerId).name}}</span>
+                        </div>
+                      </div>
                     </li>
                   </ul>
               </div>
