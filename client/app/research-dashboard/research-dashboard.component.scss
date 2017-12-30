@@ -87,6 +87,10 @@ $sidebar_width: 180px;
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d81e75', endColorstr='#15a8a5',GradientType=1 ); /* IE6-9 */  
 }
 
+#main-overlay-container{
+  margin-top: $header_height;
+}
+
 #research_dashboard_wrapper{
   padding-left: $sidebar_width;
   padding-top: $header_height;

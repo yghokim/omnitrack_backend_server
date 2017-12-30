@@ -34,6 +34,9 @@
     <!--<div class="header-border"></div>-->
   </div>
 </div>
+<div id="main-overlay-container" class="overlay-busy" *ngIf="isLoadingSelectedExperiment">
+  <busy-overlay class="main-busy" [scale]="0.75"></busy-overlay>
+</div>
 <div id="research_dashboard_wrapper" *ngIf="!isLoadingSelectedExperiment">
   <div id="research_column_sidebar">
     <div class="nav nav-pills flex-column">

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
   selector: 'busy-overlay',
@@ -7,9 +7,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class BusyOverlayComponent implements OnInit {
 
+  @Input()
+  scale = 1.0
+
+
   constructor() { }
 
   ngOnInit() {
   }
-
 }

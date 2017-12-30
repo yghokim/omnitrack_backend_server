@@ -17,6 +17,7 @@
     </mat-tab>
     <mat-tab label="The OmniTrack User Pool">
       <div class="card card-main">
+        <busy-overlay *ngIf="isLoadingUserPool" [scale] = "0.5" [overlayClass]="main"></busy-overlay>
         <table class="table table-data" (mouseleave)="selectedRowIndex = -1">
           <thead>
             <tr>
@@ -61,7 +62,6 @@
 
         </div>
       </div>
-      <busy-overlay *ngIf="isLoadingUserPool"></busy-overlay>
     </mat-tab>
   </mat-tab-group>
 
