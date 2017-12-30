@@ -32,6 +32,7 @@ import { OmniTrackPackageEditComponent } from './research/omnitrack/omnitrack-pa
 import { MaterialDesignModule } from './material-design.module';
 import { YesNoDialogComponent } from './dialogs/yes-no-dialog/yes-no-dialog.component';
 import { NewInvitationDialogComponent } from './experiment-invitations/new-invitation-dialog/new-invitation-dialog.component';
+import { BusyOverlayComponent } from './busy-overlay/busy-overlay.component';
 
 
 @NgModule({
@@ -60,7 +61,8 @@ import { NewInvitationDialogComponent } from './experiment-invitations/new-invit
     OmniTrackPackageListComponent,
     OmniTrackPackageEditComponent,
     YesNoDialogComponent,
-    NewInvitationDialogComponent
+    NewInvitationDialogComponent,
+    BusyOverlayComponent
   ],
   imports: [
     OAuthModule.forRoot(),

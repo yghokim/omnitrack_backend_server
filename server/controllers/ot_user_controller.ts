@@ -1,10 +1,14 @@
 import BaseCtrl from './base';
 import * as mongoose from 'mongoose';
 import OTUser from '../models/ot_user';
+import OTItem from '../models/ot_item';
+import OTTracker from '../models/ot_tracker';
+import OTTrigger from '../models/ot_trigger';
 import OTUserReport from '../models/ot_user_report';
 import InformationUpdateResult from '../../omnitrack/core/information_update_result';
 import * as firebaseAdmin from 'firebase-admin';
 import app from '../app';
+import { promise } from 'selenium-webdriver';
 
 export default class OTUserCtrl extends BaseCtrl {
   model = OTUser
@@ -263,5 +267,47 @@ export default class OTUserCtrl extends BaseCtrl {
         }, { upsert: true })
       }
     )
+  }
+
+  deleteAccount = (req, res)=>{
+    var userId
+    if(req.researcher)
+    {
+      //researcher mode
+      userId = req.params.userId
+    }
+    else if(res.locals.user)
+    {
+      userId = res.locals.user.uid
+    }
+    else{
+      res.status(500).send({err: "You are neither a researcher nor a user."})
+    }
+
+    const removeData = JSON.parse(req.query.removeData || "false")
+    
+    const promises: Array<PromiseLike<any>> = [
+      OTUser.collection.findOneAndDelete({_id: userId}).then(res=>{
+        return {name: OTUser.name, result: res.ok > 0, count: 1}})
+    ]
+
+    if(removeData)
+    {
+      [OTItem, OTTracker, OTTrigger].forEach(model=>{
+        promises.push(
+          model.remove({user: userId}).then(removeRes=>{return {name: model.name, result: removeRes["result"].ok > 0, count: removeRes["result"].n}})
+        )
+      })
+    }
+
+    Promise.all(promises)
+      .then(results=>{
+        console.log(results)
+        res.status(200).send(results)
+      }).catch(err=>{
+        console.log(err)
+        res.status(500).send(err)
+      })
+
   }
 }

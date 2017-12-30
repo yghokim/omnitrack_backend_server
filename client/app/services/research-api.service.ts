@@ -16,6 +16,7 @@ export class ResearchApiService {
   private selectedExperimentId: string = null
 
   private experimentInfoQuery: Observable<Array<ExperimentInfo>> = null
+  private userPoolQuery: Observable<Array<any>> = null
 
   public readonly selectedExperimentService = new BehaviorSubject<ExperimentService>(null)
 
@@ -51,5 +52,25 @@ export class ResearchApiService {
     return this.selectedExperimentService.flatMap(expService=> expService.reloadExperiment())
   }
 
+  getUserPool(): Observable<Array<any>>{
+    if(!this.userPoolQuery)
+    {
+      this.userPoolQuery = this.http.get("/api/research/users/all", this.authorizedOptions).map(res=>{
+        return res.json()}).publishReplay(1).refCount()
+    }
 
+    return this.userPoolQuery
+  }
+
+  invalidateUserPool(){
+    this.userPoolQuery = null
+  }
+
+  deleteUserAccount(userId: string, removeData: boolean): Observable<boolean>{
+    return this.http.delete('/api/research/users/' + userId, new RequestOptions({ headers: this.tokenHeaders, params: {removeData: removeData} }))
+      .map(res=>{
+        console.log(res.json())
+        return true
+      })
+  }
 }

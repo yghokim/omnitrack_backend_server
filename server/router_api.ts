@@ -98,6 +98,7 @@ const router = express.Router();
   router.put('/user/name', assertSignedInMiddleware, userCtrl.putUserName)
   router.put('/user/device', firebaseMiddleware.auth, userCtrl.putDeviceInfo)
   router.post('/user/report', assertSignedInMiddleware, userCtrl.postReport)
+  router.delete('/user', assertSignedInMiddleware, userCtrl.deleteAccount)
 
   router.route('/items/all').get(itemCtrl.getAll)
   router.route('/users/all').get(userCtrl.getAll)
@@ -106,6 +107,7 @@ const router = express.Router();
 
   router.route('/usage/logs/').get(usageLogCtrl.getAll)
 
+  router.route('/users/destroy').get(userCtrl.destroy)
   router.route('/trackers/destroy').get(trackerCtrl.destroy)
   router.route('/items/destroy').get(itemCtrl.destroy)
   router.route('/triggers/destroy').get(triggerCtrl.destroy)

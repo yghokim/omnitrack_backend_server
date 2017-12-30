@@ -1,3 +1,71 @@
-<ul class="list-horizontal">
+<div class="container">
+  <mat-tab-group class="tab-group" (selectedTabChange)="onTabChanged($event)">
+    <mat-tab label="Study Participants">
 
-</ul>
+      <div class="card card-main">
+        <table class="table table-data">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Name</th>
+              <th>Created</th>
+              <th>User UID</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </mat-tab>
+    <mat-tab label="The OmniTrack User Pool">
+      <div class="card card-main">
+        <table class="table table-data" (mouseleave)="selectedRowIndex = -1">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Demographic</th>
+              <th>Created</th>
+              <th>Signed In</th>
+              <th>User UID</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tr class="hoverable singleline" *ngFor="let user of userPool let index = index" (mouseleave)="selectedRowIndex = -1" (mouseover)="selectedRowIndex = index">
+            <td>{{user.email}}</td>
+            <td>{{exractDemographics(user)}}</td>
+            <td>{{user.accountCreationTime | date: 'MMM dd, yyyy'}}</td>
+            <td>{{user.accountLastSignInTime | date: 'MMM dd, yyyy'}}</td>
+            <td>{{user._id}}</td>
+            <td>
+              <div class="pull-right" [style.visibility]="selectedRowIndex != index? 'hidden' : 'inherit'">
+                <button class="btn btn-primary btn-sm" mat-icon-button [matMenuTriggerFor]="menu">
+                  ...
+                </button>
+                <mat-menu #menu="matMenu">
+                  <button mat-menu-item>
+                    <span>Invite</span>
+                  </button>
+                  <button mat-menu-item (click)="onDeleteAccountClicked(user._id)">
+                    <span class="text-color-danger">Delete Account</span>
+                  </button>
+                </mat-menu>
+              </div>
+            </td>
+
+          </tr>
+        </table>
+
+        <div class="card-block card-footer">
+
+            <small *ngIf="userPool== null" class="text-color-gray">User pool not loaded.</small>
+          <small *ngIf="userPool!= null && userPool.length == 0" class="text-color-gray">No users in server.</small>
+          <small *ngIf="userPool!= null && userPool.length > 0" class="text-color-gray">Users: {{userPool.length}}</small>
+
+        </div>
+      </div>
+      <busy-overlay *ngIf="isLoadingUserPool"></busy-overlay>
+    </mat-tab>
+  </mat-tab-group>
+
+
+
+
+</div>

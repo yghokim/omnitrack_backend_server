@@ -32,6 +32,17 @@ export default class AdminCtrl {
     })
   }
 
+  pushUsers = (req, res)=>{
+    const userData = JSON.parse(req.query.users)
+    console.log("push " + userData.length + " user data.")
+    OTUser.collection.bulkWrite(userData.map(user=>{
+      return {insertOne: {"document": user}}
+    })).then(bulkResult=>{
+      console.log(bulkResult)
+      res.status(200).send(bulkResult)
+    })
+  }
+
   migrateUserTrackingData = (req, res) =>{
     const fromUserId = req.query["from"]
     const toUserId = req.query["to"]

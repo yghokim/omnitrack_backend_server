@@ -9,6 +9,7 @@
 
 $color_accent: #ff814f;;
 $color_pointed: #2cbbbb;
+$color_pointed_darker: #20acac;
 
 @mixin horizontal-gradient($from, $to, $stop: 100%) {
   /* fallback/image non-cover color */
@@ -38,6 +39,14 @@ $color_pointed: #2cbbbb;
 
 @mixin main-gradient{
   @include horizontal-gradient(#a63e63, #e96d6d)
+}
+
+@mixin pointed-gradient{
+  @include horizontal-gradient(#16afa3, #65d1c0 )
+}
+
+@mixin pointed-gradient-darker{
+  @include horizontal-gradient(#158d83, #4fbeac )
 }
 
 html{
@@ -130,6 +139,25 @@ body {
     background: rgba(0,0,0,0.1);
     border-radius: 0.1rem;
     text-decoration: none;
+  }
+}
+
+.text-color-danger{
+  color: #e65a56;
+}
+
+.btn.btn-danger{
+  background: #e65a56;
+}
+
+.btn.btn-primary{
+  background: $color-pointed;
+  //@include pointed-gradient();
+  border-color: #47a594;
+
+  &:hover{
+    background: $color_pointed_darker;
+    //@include pointed-gradient-darker();
   }
 }
 
@@ -278,7 +306,7 @@ tr.singleline{
 }
 
 .table.table-data{
-  font-size: 0.8em;
+  font-size: 0.7em;
   .tag{
     font-size: 1.0em;
     font-weight: 400;
@@ -286,8 +314,8 @@ tr.singleline{
   thead{
     background: #f8f8f8;
     td, th{
-      padding-top: 0.8em;
-      padding-bottom: 0.8em;
+      padding-top: 0.9em;
+      padding-bottom: 0.9em;
     }
   }
 
@@ -299,8 +327,13 @@ tr.singleline{
   }
 
   td, th{
-    padding-top: 0.8em;
-    padding-bottom: 0.8em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+  }
+
+  td.button-cell{
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
   }
 }
 

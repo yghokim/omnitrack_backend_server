@@ -30,7 +30,7 @@
             <span *ngIf="invitation.groupMechanism.group" class="tag tag-info">{{getGroupName(invitation.groupMechanism.group)}}</span>
           </div>
         </td>
-        <td>
+        <td class="button-cell">
           <div class="pull-right" [style.visibility]="selectedRowIndex != index? 'hidden' : 'inherit'">
           <button class="btn btn-danger btn-sm" (click)="onDeleteClicked(invitation)">Delete</button>
         </div>
