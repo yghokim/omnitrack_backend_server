@@ -63,7 +63,7 @@ export class ExperimentParticipantsComponent implements OnInit {
       const role = user.activatedRoles.find(role => role.role == "ServiceUser")
       if(role)
       {
-        return role.information.age + " (" + role.information.gender.charAt(0) + ") in " + role.information.country 
+        return role.information.age + " (" + role.information.gender.charAt(0).toUpperCase() + ") in " + role.information.country 
       }
     }
   }

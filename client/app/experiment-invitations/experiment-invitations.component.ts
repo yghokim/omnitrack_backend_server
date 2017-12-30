@@ -76,7 +76,7 @@ export class ExperimentInvitationsComponent implements OnInit {
   }
 
   getGroupName(groupId): string {
-    return this.groups.find(g => g._id == groupId).name
+    return (this.groups.find(g => g._id == groupId) || {name:""}).name
   }
 
 }

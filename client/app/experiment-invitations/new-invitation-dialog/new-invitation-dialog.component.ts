@@ -60,25 +60,19 @@ export class NewInvitationDialogComponent implements OnInit {
     this.selectedTypeKey = key
   }
 
-  onGroupChecked(groupId, checked) {
+  onGroupChecked(groupId, event) {
     const selectedIndex = this.selectedGroupIds.indexOf(groupId)
-    if (checked == false) {
+    if (event.checked == false) {
       if (selectedIndex != -1) {
         this.selectedGroupIds.splice(selectedIndex, 1)
       }
     }
-    else if (checked == true) {
+    else if (event.checked == true) {
       if (selectedIndex == -1) {
         this.selectedGroupIds.push(groupId)
       }
     }
     console.log(this.selectedGroupIds)
-  }
-
-  onGroupSelected(groupId, checked) {
-    if (checked == true) {
-      this.selectedGroupId = groupId
-    }
   }
 
   isGenerateAvailable(): boolean {

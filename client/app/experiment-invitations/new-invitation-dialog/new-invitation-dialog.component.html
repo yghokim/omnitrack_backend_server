@@ -11,21 +11,20 @@
       <p>
         Participants will be assigned to the selected group.
       </p>
-        <div class="form-check" *ngFor="let group of groups">
-          <label class="form-check-label">
-            <input class="form-check-input" type="radio" [value]="group._id" [checked] = "selectedGroupId == group._id" (change)="onGroupSelected(group._id, $event.target.checked)">{{group.name}}
-          </label>
-        </div>
+      <mat-radio-group [required] = true [value] = "selectedGroupId" (change)="selectedGroupId = $event.value">
+        <mat-radio-button *ngFor="let group of groups"
+        [value] = "group._id">
+            {{group.name}}
+        </mat-radio-button>
+      </mat-radio-group>
     </div>
     <div *ngIf="isRandomGroupInvitationSelected()" id="container-new-invitation-type-random">
       <p>
         Participant will be randomly distributed to the selected groups.
       </p>
-        <div class="form-check" *ngFor="let group of groups">
-            <label class="form-check-label">
-              <input class="form-check-input" type="checkbox" [value]="group._id" [checked] = "selectedGroupId == group._id" (change)="onGroupChecked(group._id, $event.target.checked)" >{{group.name}}
-            </label>
-          </div>
+        <mat-checkbox *ngFor="let group of groups" [value]="group._id" [checked] = "selectedGroupId == group._id" (change)="onGroupChecked(group._id, $event)" >
+          {{group.name}}
+        </mat-checkbox>
     </div>
   </div>
 
@@ -35,9 +34,5 @@
     </div>
   </div>
 
-  <div class="overlay" *ngIf="isBusy">
-      <svg class="spinner" width="65px" height="65px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
-        <circle class="path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle>
-     </svg>
-  </div>
+  <busy-overlay *ngIf="isBusy" [scale]="0.5"></busy-overlay>
 </div>
