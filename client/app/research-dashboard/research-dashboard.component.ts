@@ -3,6 +3,8 @@ import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { ResearchApiService } from '../services/research-api.service';
 import ExperimentInfo from '../models/experiment-info';
+import { MatDialog } from '@angular/material';
+import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 
 @Component({
   selector: 'app-research-dashboard',
@@ -67,7 +69,8 @@ export class ResearchDashboardComponent implements OnInit {
     private api: ResearchApiService,
     private authService: ResearcherAuthService,
     private router: Router,
-    private activatedRoute: ActivatedRoute) {
+    private activatedRoute: ActivatedRoute,
+    private dialog: MatDialog) {
     this.router.events.filter(ev => ev instanceof NavigationEnd)
       .map(_ => this.router.routerState.root)
       .map(route => {
@@ -118,6 +121,17 @@ export class ResearchDashboardComponent implements OnInit {
       console.log(exp)
       this.selectedExperimentName = exp.name
       this.isLoadingSelectedExperiment = false
+    })
+  }
+
+  onSignOutClicked(){
+    const dialogRef = this.dialog.open(YesNoDialogComponent,{ data: {title: "Sign Out", message: "Do you want to sign out?",} })
+    dialogRef.afterClosed().subscribe(result=>
+    {
+      if(result==true)
+      {
+        this.signOut()
+      }
     })
   }
 

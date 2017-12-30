@@ -28,6 +28,10 @@ router.get('/experiments/all', tokenAuth, experimentCtrl.getExperimentInformatio
 router.get('/experiments/:experimentId', tokenAuth, experimentCtrl.getExperiment)
 router.get('/experiments/manager/:experimentId', tokenAuth, experimentCtrl.getManagerInfo)
 
+router.get('/experiments/:experimentId/invitations', tokenAuth, experimentCtrl.getInvitations)
+router.post('/experiments/:experimentId/invitations/new', tokenAuth, experimentCtrl.addNewIntivation)
+router.delete('/experiments/:experimentId/invitations/:invitationId', tokenAuth, experimentCtrl.removeInvitation)
+
 //debuging
 router.get('/debug/clear_researchers', adminCtrl.clearResearchers)
 

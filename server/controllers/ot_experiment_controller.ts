@@ -1,7 +1,10 @@
 import OTResearcher from '../models/ot_researcher'
 import OTExperiment from '../models/ot_experiment'
+import OTInvitation from '../models/ot_invitation'
 import { Document } from 'mongoose';
 
+
+var crypto = require("crypto");
 
 export default class OTExperimentCtrl {
 
@@ -67,6 +70,51 @@ export default class OTExperimentCtrl {
           )
         }
       }
+    })
+  }
+
+  getInvitations = (req, res)=>{
+    const researcherId = req.researcher.uid
+    const experimentId = req.params.experimentId
+    OTInvitation.find({experiment: experimentId}, (err, list)=>{
+      if(err!=null)
+      {
+        res.status(500).send(err)
+      }
+      else{
+        res.status(200).json(list)
+      }
+    })
+  }
+
+  removeInvitation = (req, res)=>{
+    const researcherId = req.researcher.uid
+    const experimentId = req.params.experimentId
+    const invitationId = req.params.invitationId
+    OTInvitation.findOneAndRemove({_id: invitationId, experiment: experimentId}).then(removed=>{
+      res.status(200).send(true)
+    })
+    .catch(err=>{
+      res.status(500).send(err)
+    })
+  }
+  
+  addNewIntivation = (req, res)=>{
+    const researcherId = req.researcher.uid
+    const experimentId = req.params.experimentId
+    const data = req.body
+    new OTInvitation({
+      code: crypto.randomBytes(16).toString('base64'),
+      experiment: experimentId,
+      isActive: true,
+      groupMechanism: data
+    }).save().then(
+      invit=>{
+        res.status(200).json(invit)
+      }
+    ).catch(err=>{
+      console.log(err)
+      res.status(500).send(err)
     })
   }
 }

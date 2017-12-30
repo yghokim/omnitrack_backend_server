@@ -1,21 +1,32 @@
-<div class="card card-main">
-  <div class="card-header">
-    Experiment Information
-  </div>
-    <table class="table">
-      <tr><th>Name</th><td>{{experiment.name}}</td></tr>
-      <tr><th>Experiment Id</th><td>{{experiment._id}}</td></tr>
-      <tr *ngIf="manager"><th>Manager</th><td>{{manager.alias}} ({{manager.email}})</td></tr>
+<div class="container">
+  <div class="card card-main">
+    <div class="card-header">
+      Experiment Information
+    </div>
+    <table class="table table-data">
+      <tr>
+        <th>Name</th>
+        <td>{{experiment.name}}</td>
+      </tr>
+      <tr>
+        <th>Experiment Id</th>
+        <td>{{experiment._id}}</td>
+      </tr>
+      <tr *ngIf="manager">
+        <th>Manager</th>
+        <td>{{manager.alias}} ({{manager.email}})</td>
+      </tr>
     </table>
-</div>
+  </div>
 
-<div class="card card-main">
+  <div class="card card-main">
     <div class="card-header">
       Collaborators
     </div>
     <div class="card-block empty">
-      No collaborators.      
+      No collaborators.
     </div>
-      <table class="table">
-      </table>
+    <table class="table table-data">
+    </table>
   </div>
+</div>

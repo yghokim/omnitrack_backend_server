@@ -1,4 +1,7 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+
 import { OAuthModule } from 'angular-oauth2-oidc';
 
 import { RoutingModule } from './routing.module';
@@ -26,6 +29,9 @@ import { ExperimentSettingsComponent } from './experiment-settings/experiment-se
 import { ExperimentDataComponent } from './experiment-data/experiment-data.component';
 import { OmniTrackPackageListComponent } from './research/omnitrack/omnitrack-package-list.component';
 import { OmniTrackPackageEditComponent } from './research/omnitrack/omnitrack-package-edit.component';
+import { MaterialDesignModule } from './material-design.module';
+import { YesNoDialogComponent } from './dialogs/yes-no-dialog/yes-no-dialog.component';
+import { NewInvitationDialogComponent } from './experiment-invitations/new-invitation-dialog/new-invitation-dialog.component';
 
 
 @NgModule({
@@ -52,12 +58,17 @@ import { OmniTrackPackageEditComponent } from './research/omnitrack/omnitrack-pa
     ExperimentSettingsComponent,
     ExperimentDataComponent,
     OmniTrackPackageListComponent,
-    OmniTrackPackageEditComponent
+    OmniTrackPackageEditComponent,
+    YesNoDialogComponent,
+    NewInvitationDialogComponent
   ],
   imports: [
     OAuthModule.forRoot(),
     RoutingModule,
-    SharedModule
+    SharedModule,
+    BrowserModule,
+    BrowserAnimationsModule,
+    MaterialDesignModule
   ],
   providers: [
     ResearcherAuthGuardSecure,
@@ -67,6 +78,10 @@ import { OmniTrackPackageEditComponent } from './research/omnitrack/omnitrack-pa
     /*AuthService,
     CatService,
     UserService*/
+  ],
+  entryComponents: [
+    YesNoDialogComponent,
+    NewInvitationDialogComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent]

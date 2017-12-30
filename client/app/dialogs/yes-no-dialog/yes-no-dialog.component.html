@@ -1,0 +1,10 @@
+<div class="dialog">
+  
+<div class="card-header font-weight-bold">{{title}}</div>
+<div class="card-block">{{message}}</div>
+<div class="card-block pull-right">
+    <button type="button" (click)="onNoClick()" class="btn" [ngClass]="negativeButtonClass">{{negativeLabel}}</button>
+    <button type="button" (click)="onYesClick()" class="btn" [ngClass]="positiveButtonClass">{{positiveLabel}}</button>
+</div>
+
+</div>

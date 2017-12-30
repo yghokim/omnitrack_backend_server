@@ -1,29 +1,31 @@
-<div class="list-flex-wrap" *ngIf="experimentService">
-  <div class="card participant-group-card card-sm" *ngFor="let group of (experimentService.getExperiment() | async).groups">
-    <div class="card-header">
-      {{group.name}}
-    </div>
-    <div class="card-block">
-      <table class="table table-sm no-horizontal-padding">
-        <tr>
-          <th>Participants</th>
-          <td>{{group.participants.length}}/{{group.maxSize}}</td>
-        </tr>
-        <tr>
-          <th>Tracking Package</th>
-          <td *ngIf="!group.trackingPackageKey">Not assigned</td>
-          <td *ngIf="group.trackingPackageKey">{{(experimentService.getOmniTrackPackage(group.trackingPackageKey) | async).name}}</td>
-        </tr>
+<div class="container">
+  <div class="list-flex-wrap" *ngIf="experimentService">
+    <div class="card participant-group-card card-sm" *ngFor="let group of (experimentService.getExperiment() | async).groups">
+      <div class="card-header">
+        {{group.name}}
+      </div>
+      <div class="card-block">
+        <table class="table table-sm no-horizontal-padding">
+          <tr>
+            <th>Participants</th>
+            <td>{{group.participants.length}}/{{group.maxSize}}</td>
+          </tr>
+          <tr>
+            <th>Tracking Package</th>
+            <td *ngIf="!group.trackingPackageKey">Not assigned</td>
+            <td *ngIf="group.trackingPackageKey">{{(experimentService.getOmniTrackPackage(group.trackingPackageKey) | async).name}}</td>
+          </tr>
 
-      </table>
-    </div>
-  </div>
-  <div class="card participant-group-card card-sm card-add-new" (click)="onAddNewGroupClicked()">
-    <div class="card-block center">
-      <div class="content">
-        + Add New Group
+        </table>
       </div>
     </div>
-  </div>
+    <div class="card participant-group-card card-sm card-add-new" (click)="onAddNewGroupClicked()">
+      <div class="card-block center">
+        <div class="content">
+          + Add New Group
+        </div>
+      </div>
+    </div>
 
+  </div>
 </div>

@@ -121,6 +121,7 @@ $sidebar_width: 180px;
     #title-header{
       @include main-gradient();
       padding: .5rem 0.9rem;
+      margin-bottom: 2em;
       border-radius: 0;
       .dashboard-title{
         color: white;

@@ -1,3 +1,47 @@
-<p>
-  experiment-invitations works!
-</p>
+<div class="container">
+  <div class="card card-main">
+    <div class="card-header">
+      <div class="flex-container flex-stretch">
+        <div class="flex-element">
+          Current Invitations
+        </div>
+        <button (click)="onNewInvitationClicked()" type="button" class="flex-element btn btn-primary" data-toggle="modal" data-target="#exampleModal">Add new invitation</button>
+      </div>
+    </div>
+    <table class="table table-sm table-data" (mouseleave)="selectedRowIndex = -1">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Generated</th>
+          <th>Group Mehcanism</th>
+          <th>Group(s)</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tr class="hoverable singleline" *ngFor="let invitation of invitations let index = index" (mouseover)="selectedRowIndex = index">
+        <td>{{invitation.code}}</td>
+        <td>{{invitation.createdAt | date: 'MMM dd, yyyy'}}</td>
+        <td>{{getInvitationType(invitation)}}</td>
+        <td>
+          <div *ngIf="invitation.groupMechanism">
+            <div *ngIf="invitation.groupMechanism.groups">
+              <span class="tag tag-info" *ngFor="let group of invitation.groupMechanism.groups">{{getGroupName(group)}}</span>
+            </div>
+            <span *ngIf="invitation.groupMechanism.group" class="tag tag-info">{{getGroupName(invitation.groupMechanism.group)}}</span>
+          </div>
+        </td>
+        <td>
+          <div class="pull-right" [style.visibility]="selectedRowIndex != index? 'hidden' : 'inherit'">
+          <button class="btn btn-danger btn-sm" (click)="onDeleteClicked(invitation)">Delete</button>
+        </div>
+        </td>
+      </tr>
+    </table>
+
+    <div class="card-block card-footer">
+      <small *ngIf="invitations!= null && invitations.length == 0" class="text-color-gray">No invitations.</small>
+      <small *ngIf="invitations!= null && invitations.length > 0" class="text-color-gray">Invitations: {{invitations.length}}</small>
+
+    </div>
+  </div>
+</div>
