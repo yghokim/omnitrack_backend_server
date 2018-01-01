@@ -31,8 +31,16 @@ router.get('/experiments/:experimentId', tokenAuth, experimentCtrl.getExperiment
 router.get('/experiments/manager/:experimentId', tokenAuth, experimentCtrl.getManagerInfo)
 
 router.get('/experiments/:experimentId/invitations', tokenAuth, experimentCtrl.getInvitations)
+
+router.get('/experiments/:experimentId/participants', tokenAuth, experimentCtrl.getParticipants)
+
 router.post('/experiments/:experimentId/invitations/new', tokenAuth, experimentCtrl.addNewIntivation)
+
+router.post('/experiments/:experimentId/invitations/send', tokenAuth, experimentCtrl.sendInvitation)
+
 router.delete('/experiments/:experimentId/invitations/:invitationId', tokenAuth, experimentCtrl.removeInvitation)
+
+router.delete('/participants/:participantId', tokenAuth, experimentCtrl.removeParticipant)
 
 router.delete("/users/:userId", tokenAuth, userCtrl.deleteAccount)
 

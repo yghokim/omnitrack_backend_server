@@ -4,8 +4,8 @@ export abstract class AInvitation{
 
   public static fromJson(json: any): AInvitation{
     switch(json.type){
-      case RandomGroupInvitation: return new RandomGroupInvitation(json.groups)
-      case SpecificGroupInvitation: return new SpecificGroupInvitation(json.group)
+      case AInvitation.RandomGroupType: return new RandomGroupInvitation(json.groups)
+      case AInvitation.SpecificGroupType: return new SpecificGroupInvitation(json.group)
     }
   }
 

@@ -9,6 +9,7 @@ export class ExperimentService {
   private _loadExperimentQuery: Observable<any> = null
   private _loadManagerInfoQuery: Observable<any> = null
   private _loadInvitationListQuery: Observable<Array<any>> = null
+  private _loadParticipantsQuery: Observable<Array<any>> = null
 
   constructor(readonly experimentId: string, private http: Http, private authService: ResearcherAuthService, private researchApi: ResearchApiService) {
     this.reloadExperiment()
@@ -68,6 +69,29 @@ export class ExperimentService {
     return this.http.delete("/api/research/experiments/" + this.experimentId + '/invitations/' + invitation._id, this.researchApi.authorizedOptions).map(
       res=>res.json()
     )
+  }
+
+  sendInvitation(invitationCode: string, userIds: Array<string>, force: boolean): Observable<Array<{invitationAlreadySent: boolean, participant: any}>>{
+    return this.http.post("/api/research/experiments/" + this.experimentId + "/invitations/send", {invitationCode: invitationCode, userIds: userIds, force: force}, this.researchApi.authorizedOptions).map(res=>res.json())
+  }
+
+  getParticipants(): Observable<Array<any>>{
+    if(!this._loadParticipantsQuery)
+    {
+      this._loadParticipantsQuery = this.http.get("/api/research/experiments/" + this.experimentId + '/participants', this.researchApi.authorizedOptions).map(
+        res=>res.json()
+      ).publishReplay(1).refCount()
+    }
+
+    return this._loadParticipantsQuery
+  }
+
+  invalidateParticipants(){
+    this._loadParticipantsQuery = null
+  }
+
+  removeParticipant(participantId): Observable<any>{
+    return this.http.delete("/api/research/participants/" + participantId, this.researchApi.authorizedOptions).map(res=>res.json())
   }
 
   getOmniTrackPackages(): Observable<Array<any>>{

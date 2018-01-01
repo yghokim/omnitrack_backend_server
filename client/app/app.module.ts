@@ -33,6 +33,7 @@ import { MaterialDesignModule } from './material-design.module';
 import { YesNoDialogComponent } from './dialogs/yes-no-dialog/yes-no-dialog.component';
 import { NewInvitationDialogComponent } from './experiment-invitations/new-invitation-dialog/new-invitation-dialog.component';
 import { BusyOverlayComponent } from './busy-overlay/busy-overlay.component';
+import { ChooseInvitationDialogComponent } from './dialogs/choose-invitation-dialog/choose-invitation-dialog.component';
 
 
 @NgModule({
@@ -62,7 +63,8 @@ import { BusyOverlayComponent } from './busy-overlay/busy-overlay.component';
     OmniTrackPackageEditComponent,
     YesNoDialogComponent,
     NewInvitationDialogComponent,
-    BusyOverlayComponent
+    BusyOverlayComponent,
+    ChooseInvitationDialogComponent
   ],
   imports: [
     OAuthModule.forRoot(),
@@ -83,6 +85,7 @@ import { BusyOverlayComponent } from './busy-overlay/busy-overlay.component';
   ],
   entryComponents: [
     YesNoDialogComponent,
+    ChooseInvitationDialogComponent,
     NewInvitationDialogComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

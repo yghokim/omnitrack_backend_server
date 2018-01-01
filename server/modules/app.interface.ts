@@ -3,12 +3,14 @@ import CommandModule from "modules/command.module";
 import ServerModule from "modules/server.module";
 import OmniTrackModule from "modules/omnitrack.module";
 import { Application } from "express-serve-static-core";
+import ResearchModule from "modules/research.module";
 
 export default interface AppInterface{
   pushModule(): PushModule
   commandModule(): CommandModule
   serverModule(): ServerModule
   omnitrackModule(): OmniTrackModule
+  researchModule(): ResearchModule
 }
 
 export class AppWrapper implements AppInterface{
@@ -26,6 +28,10 @@ export class AppWrapper implements AppInterface{
   }
   omnitrackModule(): OmniTrackModule {
     return this.app.get("omnitrack")
+  }
+
+  researchModule(): ResearchModule{
+    return this.omnitrackModule().researchModule
   }
   
 }

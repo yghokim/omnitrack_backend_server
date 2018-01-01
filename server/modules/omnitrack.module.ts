@@ -10,6 +10,7 @@ import OTTracker from '../models/ot_tracker'
 import OTTrigger from '../models/ot_trigger'
 import IdGenerator from '../../omnitrack/core/id_generator'
 import C from '../server_consts'
+import ResearchModule from './research.module';
 
 export default class OmniTrackModule{
 
@@ -17,12 +18,14 @@ export default class OmniTrackModule{
   public readonly firstUserPolicyModule: FirstUserPolicyModule
   public readonly commandModule: CommandModule
   public readonly pushModule: PushModule
+  public readonly researchModule: ResearchModule
 
   constructor(private app: any){
     this.serverModule = new ServerModule()
     this.firstUserPolicyModule = new FirstUserPolicyModule()
     this.commandModule = new CommandModule()
     this.pushModule = new PushModule()
+    this.researchModule = new ResearchModule()
   }
 
   bootstrap(){

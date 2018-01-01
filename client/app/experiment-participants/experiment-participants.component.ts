@@ -3,6 +3,7 @@ import { ResearchApiService } from '../services/research-api.service';
 import { Subscription } from 'rxjs/Subscription';
 import { MatDialog } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
+import { ChooseInvitationDialogComponent } from '../dialogs/choose-invitation-dialog/choose-invitation-dialog.component';
 
 @Component({
   selector: 'app-experiment-participants',
@@ -14,7 +15,13 @@ export class ExperimentParticipantsComponent implements OnInit {
   private userPool: Array<any>
   private userPoolSubscription : Subscription = null
   private isLoadingUserPool = true
+
+  private participants: Array<any>
+  private participantsSubscription : Subscription = null
+  private isLoadingParticipants = true
+
   private hoveredRowIndex = -1
+  private hoveredParticipantId = null
 
   constructor(
     private api: ResearchApiService,
@@ -22,27 +29,59 @@ export class ExperimentParticipantsComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    
+    this.onParticipantsTabSelected()
   }
 
   onTabChanged(event){
     this.hoveredRowIndex = -1
-    if(event.index == 1)
+    switch(event.index)
     {
-      this.onUserPoolSelected()
+      case 0:
+      this.onParticipantsTabSelected()
+      break;
+      case 1:
+      this.onUserPoolTabSelected()
+      break;
     }
   }
 
-  onUserPoolSelected(){
+  onUserPoolTabSelected(){
     if(!this.userPoolSubscription || this.userPoolSubscription.closed)
     {
       this.isLoadingUserPool = true
       this.userPoolSubscription = this.api.getUserPool().subscribe(userPool=>{
         this.userPool = userPool
-        console.log(this.userPool)
         this.isLoadingUserPool = false
       })
     }
+  }
+
+  onParticipantsTabSelected(){
+    if(!this.participantsSubscription || this.participantsSubscription.closed)
+    {
+      this.isLoadingParticipants = true
+      this.participantsSubscription = this.api.selectedExperimentService.flatMap(expService=> expService.getParticipants()).subscribe(
+        participants=>{
+          this.participants = participants
+          this.isLoadingParticipants = false
+        }
+      )
+    }
+  }
+
+  onSendInvitationClicked(userId: string) {
+    this.dialog.open(ChooseInvitationDialogComponent, {data: {positiveLabel: "Send"}}).afterClosed().subscribe(
+      invitationCode=>{
+        if(invitationCode)
+        {
+          this.api.selectedExperimentService.flatMap(exp=>{
+            exp.invalidateParticipants()
+            return exp.sendInvitation(invitationCode, [userId], false)}).subscribe(result=>{
+            this.participantsSubscription.unsubscribe()
+          })
+        }
+      }
+    )
   }
 
   onDeleteAccountClicked(userId: string) {
@@ -50,9 +89,32 @@ export class ExperimentParticipantsComponent implements OnInit {
       if (res == true) {
         this.api.deleteUserAccount(userId, true).subscribe(result => {
           if (result == true) {
+            this.api.invalidateUserPool()
             this.userPool.splice(this.userPool.findIndex((user) => user._id == userId), 1)
           }
         })
+      }
+    })
+  }
+
+  onDeleteParticipantClicked(participantId: string, title: string, message: string){
+    this.dialog.open(YesNoDialogComponent, {data: {
+      title: title,
+      message: message,
+      positiveLabel: title,
+      positiveClass: "btn-danger",
+      negativeClass: "btn-primary",
+    }}).afterClosed().subscribe(ok=>{
+      if(ok==true)
+      {
+        this.api.selectedExperimentService.flatMap(expService=> expService.removeParticipant(participantId)).subscribe(
+          removed=>{
+            if(removed)
+            {
+              this.participants.splice(this.participants.findIndex(part=>part._id == participantId), 1)
+            }
+          }
+        )
       }
     })
   }
@@ -68,4 +130,5 @@ export class ExperimentParticipantsComponent implements OnInit {
     }
   }
 
+  
 }

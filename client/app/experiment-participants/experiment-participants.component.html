@@ -3,21 +3,60 @@
     <mat-tab label="Study Participants">
 
       <div class="card card-main">
+        <busy-overlay *ngIf="isLoadingParticipants" [scale]="0.5" [overlayClass]="main"></busy-overlay>
         <table class="table table-data">
           <thead>
             <tr>
               <th>Email</th>
-              <th>Name</th>
+              <th>Status</th>
               <th>Created</th>
+              <th>Signed In</th>
               <th>User UID</th>
+              <th></th>
             </tr>
           </thead>
+          <tr class="hoverable singleline" *ngFor="let participant of participants let index = index" (mouseLeave)="selectedRowIndex = -1"
+            (mouseOver)="selectedRowIndex = index">
+            <td>{{participant.user.email}}</td>
+            <td>
+              <div class="tag tag-danger" *ngIf="participant.isDenied">Denied</div>
+              <div class="tag tag-warning" *ngIf="!participant.isDenied && !participant.isConsentApproved">Invitation Pending</div>
+
+            </td>
+            <td>{{participant.user.accountCreationTime | date: 'MMM dd, yyyy'}}</td>
+            <td>{{participant.user.accountLastSignInTime | date: 'MMM dd, yyyy'}}</td>
+
+            <td>{{participant.user._id}}</td>
+            <td>
+              <div class="pull-right">
+                <button class="btn btn-primary btn-sm" mat-icon-button [matMenuTriggerFor]="menu">
+                  ...
+                </button>
+                <mat-menu #menu="matMenu">
+                  <button mat-menu-item *ngIf="!participant.isDenied && !participant.isConsentApproved" (click)="onDeleteParticipantClicked(participant._id, 'Cancel Invitation', 'Do you want to cancel the pending invitation to the user?')">
+                    <span>Cancel Invitation</span>
+                  </button>  
+                  <button mat-menu-item *ngIf="!participant.isDenied && 
+                  participant.isConsentApproved" (click)="onDeleteParticipantClicked(participant._id, 'Exclude Participant', 'Do you want to exclude the participant from the experiment?')"></button>
+                    <span *ngIf="!participant.isDenied && 
+                    participant.isConsentApproved">Exclude Participant</span>
+                </mat-menu>
+              </div>
+            </td>
+          </tr>
         </table>
+        <div class="card-block card-footer">
+
+          <small *ngIf="participants== null" class="text-color-gray">Participants not loaded.</small>
+          <small *ngIf="participants!= null && participants.length == 0" class="text-color-gray">No participants in server.</small>
+          <small *ngIf="participants!= null && participants.length > 0" class="text-color-gray">Participants: {{participants.length}}</small>
+
+        </div>
       </div>
     </mat-tab>
     <mat-tab label="The OmniTrack User Pool">
       <div class="card card-main">
-        <busy-overlay *ngIf="isLoadingUserPool" [scale] = "0.5" [overlayClass]="main"></busy-overlay>
+        <busy-overlay *ngIf="isLoadingUserPool" [scale]="0.5" [overlayClass]="main"></busy-overlay>
         <table class="table table-data" (mouseleave)="selectedRowIndex = -1">
           <thead>
             <tr>
@@ -41,7 +80,7 @@
                   ...
                 </button>
                 <mat-menu #menu="matMenu">
-                  <button mat-menu-item>
+                  <button mat-menu-item (click)="onSendInvitationClicked(user._id)">
                     <span>Invite</span>
                   </button>
                   <button mat-menu-item (click)="onDeleteAccountClicked(user._id)">
@@ -56,7 +95,7 @@
 
         <div class="card-block card-footer">
 
-            <small *ngIf="userPool== null" class="text-color-gray">User pool not loaded.</small>
+          <small *ngIf="userPool== null" class="text-color-gray">User pool not loaded.</small>
           <small *ngIf="userPool!= null && userPool.length == 0" class="text-color-gray">No users in server.</small>
           <small *ngIf="userPool!= null && userPool.length > 0" class="text-color-gray">Users: {{userPool.length}}</small>
 

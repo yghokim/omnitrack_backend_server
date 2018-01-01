@@ -1,0 +1,28 @@
+<div class="dialog">
+
+  <div class="card-header font-weight-bold">Choose Invitation</div>
+  <div class="card-block">
+    <table class="table table-data">
+      <tr class="singleline hoverable cursor-pointer" *ngFor="let invitation of invitations" (click)="selectedInvitationCode = invitation.code">
+        <td>
+          <mat-radio-button [aria-label]="invitation.code" [value]="invitation.code" [checked] = "selectedInvitationCode == invitation.code" (change)="selectedInvitationCode = invitation.code"></mat-radio-button>
+        </td>
+        <td>{{invitation.code}}</td>
+        <td>{{getInvitationType(invitation)}}</td>
+        <td>
+            <div *ngIf="invitation.groupMechanism">
+              <div *ngIf="invitation.groupMechanism.groups">
+                <span class="tag tag-info" *ngFor="let group of invitation.groupMechanism.groups">{{getGroupName(group)}}</span>
+              </div>
+              <span *ngIf="invitation.groupMechanism.group" class="tag tag-info">{{getGroupName(invitation.groupMechanism.group)}}</span>
+            </div>
+          </td>
+      </tr>
+    </table>
+    <hr>
+    <div class="pull-right">
+        <button type="button" (click)="onNoClick()" class="btn btn-danger">Cancel</button>
+        <button type="button" (click)="onYesClick()" class="btn btn-primary">{{positiveLabel}}</button>
+      </div>
+  </div>
+</div>

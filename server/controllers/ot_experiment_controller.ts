@@ -1,60 +1,63 @@
 import OTResearcher from '../models/ot_researcher'
 import OTExperiment from '../models/ot_experiment'
 import OTInvitation from '../models/ot_invitation'
+import OTParticipant from '../models/ot_participant'
 import { Document } from 'mongoose';
-
+import app from '../app';
 
 var crypto = require("crypto");
 
 export default class OTExperimentCtrl {
 
-  private _getExperiment(researcherId:string, experimentId: string): Promise<Document>{
-    return OTExperiment.findOne({ $and: [ {_id: experimentId}, {$or: [{manager: researcherId}, {experimenters: researcherId}]} ] }).then(doc=>doc)
+  private _getExperiment(researcherId: string, experimentId: string): Promise<Document> {
+    return OTExperiment.findOne({ $and: [{ _id: experimentId }, { $or: [{ manager: researcherId }, { experimenters: researcherId }] }] }).then(doc => doc)
   }
 
-  getExperimentInformationsOfResearcher = (req, res)=>{
+  private _makeParticipantQueryConditionForPendingInvitation(invitationId) {
+    return { $and: [{ invitation: invitationId }, { $or: [{ isDenied: true }, { isConsentApproved: false }] }] }
+  }
+
+  getExperimentInformationsOfResearcher = (req, res) => {
     const researcherId = req.researcher.uid
     console.log("find experiments of the researcher: " + researcherId)
-    OTResearcher.findById(researcherId).then((researcher)=>{
+    OTResearcher.findById(researcherId).then((researcher) => {
       console.log("found researcher: " + researcher)
-      OTExperiment.find({_id: {
-        $in: (researcher as any).experiments
-      }}).then(experiments=>{
+      OTExperiment.find({
+        _id: {
+          $in: (researcher as any).experiments
+        }
+      }).then(experiments => {
         console.log(experiments)
         res.status(200).json(experiments)
-      }).catch(err=>{
+      }).catch(err => {
         console.log(err)
         res.status(500).send(err)
       })
     })
   }
 
-  getExperiment = (req, res)=>{
+  getExperiment = (req, res) => {
     const researcherId = req.researcher.uid
     const experimentId = req.params.experimentId
-    this._getExperiment(researcherId, experimentId).then(exp=>{
-        console.log(exp)
-        res.status(200).json(exp)
-      })
-      .catch(err=>{
+    this._getExperiment(researcherId, experimentId).then(exp => {
+      console.log(exp)
+      res.status(200).json(exp)
+    })
+      .catch(err => {
         console.log(err)
         res.status(500).send(err)
       })
   }
 
-  getManagerInfo = (req, res)=>{
+  getManagerInfo = (req, res) => {
     const researcherId = req.researcher.uid
     const experimentId = req.params.experimentId
-    this._getExperiment(researcherId, experimentId).then(exp=>{
-      if(exp!=null)
-      {
-        if(exp["manager"])
-        {
+    this._getExperiment(researcherId, experimentId).then(exp => {
+      if (exp != null) {
+        if (exp["manager"]) {
           OTResearcher.findById(exp["manager"]).then(
-            manager=>
-            {
-              if(manager!=null)
-              {
+            manager => {
+              if (manager != null) {
                 res.status(200).json(
                   {
                     uid: manager["_id"],
@@ -63,7 +66,7 @@ export default class OTExperimentCtrl {
                   }
                 )
               }
-              else{
+              else {
                 res.sendStatus(404)
               }
             }
@@ -73,33 +76,37 @@ export default class OTExperimentCtrl {
     })
   }
 
-  getInvitations = (req, res)=>{
+  getInvitations = (req, res) => {
     const researcherId = req.researcher.uid
     const experimentId = req.params.experimentId
-    OTInvitation.find({experiment: experimentId}, (err, list)=>{
-      if(err!=null)
-      {
+    OTInvitation.find({ experiment: experimentId }, (err, list) => {
+      if (err != null) {
         res.status(500).send(err)
       }
-      else{
+      else {
         res.status(200).json(list)
       }
     })
   }
 
-  removeInvitation = (req, res)=>{
+  removeInvitation = (req, res) => {
     const researcherId = req.researcher.uid
     const experimentId = req.params.experimentId
     const invitationId = req.params.invitationId
-    OTInvitation.findOneAndRemove({_id: invitationId, experiment: experimentId}).then(removed=>{
-      res.status(200).send(true)
+    OTInvitation.findOneAndRemove({ _id: invitationId, experiment: experimentId }).then(removed => {
+      //remove participants with pending invitation.
+      return OTParticipant.remove(this._makeParticipantQueryConditionForPendingInvitation(invitationId))
     })
-    .catch(err=>{
-      res.status(500).send(err)
-    })
+      .catch(err => {
+        res.status(500).send(err)
+      })
+      .then(result => {
+        console.log(result)
+        res.status(200).send(true)
+      })
   }
-  
-  addNewIntivation = (req, res)=>{
+
+  addNewIntivation = (req, res) => {
     const researcherId = req.researcher.uid
     const experimentId = req.params.experimentId
     const data = req.body
@@ -109,11 +116,51 @@ export default class OTExperimentCtrl {
       isActive: true,
       groupMechanism: data
     }).save().then(
-      invit=>{
+      invit => {
         res.status(200).json(invit)
       }
-    ).catch(err=>{
+      ).catch(err => {
+        console.log(err)
+        res.status(500).send(err)
+      })
+  }
+
+  sendInvitation = (req, res) => {
+    const invitationCode = req.body.invitationCode
+    const userIds = req.body.userIds
+    const force = req.body.force
+    Promise.all(userIds.map(userId => app.researchModule().sendInvitationToUser(invitationCode, userId, force))).then(
+      result => {
+        res.status(200).send(result)
+      }
+    ).catch(err => {
       console.log(err)
+      res.status(500).send(err)
+    })
+  }
+
+  getParticipants = (req, res) => {
+    const experimentId = req.params.experimentId
+    OTParticipant.find({ experiment: experimentId }).populate("user")
+      .then(
+      participants => {
+        console.log("participants: ")
+        console.log(participants)
+        res.status(200).send(participants)
+      }
+      ).catch(err => {
+        console.log(err)
+        res.status(500).send(err)
+      })
+  }
+
+  removeParticipant = (req, res) => {
+    const participantId = req.params.participantId
+    app.researchModule().removeParticipant(participantId).then(
+      participant=>{
+        res.status(200).send(participant)
+      }
+    ).catch(err=>{
       res.status(500).send(err)
     })
   }
