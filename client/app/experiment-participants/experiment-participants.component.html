@@ -61,6 +61,7 @@
           <thead>
             <tr>
               <th>Email</th>
+              <th>Status</th>
               <th>Demographic</th>
               <th>Created</th>
               <th>Signed In</th>
@@ -70,6 +71,11 @@
           </thead>
           <tr class="hoverable singleline" *ngFor="let user of userPool let index = index" (mouseleave)="selectedRowIndex = -1" (mouseover)="selectedRowIndex = index">
             <td>{{user.email}}</td>
+            <td>
+              <div *ngIf="extractParticipantFromthisExperiment(user)">
+                <span class="tag"></span>
+              </div>
+            </td>
             <td>{{exractDemographics(user)}}</td>
             <td>{{user.accountCreationTime | date: 'MMM dd, yyyy'}}</td>
             <td>{{user.accountLastSignInTime | date: 'MMM dd, yyyy'}}</td>
@@ -80,7 +86,7 @@
                   ...
                 </button>
                 <mat-menu #menu="matMenu">
-                  <button mat-menu-item (click)="onSendInvitationClicked(user._id)">
+                  <button mat-menu-item *ngIf="!hasPendingInvitationFromThisExperiment(user)" (click)="onSendInvitationClicked(user._id)">
                     <span>Invite</span>
                   </button>
                   <button mat-menu-item (click)="onDeleteAccountClicked(user._id)">

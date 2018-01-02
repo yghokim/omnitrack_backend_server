@@ -44,7 +44,7 @@ router.delete('/participants/:participantId', tokenAuth, experimentCtrl.removePa
 
 router.delete("/users/:userId", tokenAuth, userCtrl.deleteAccount)
 
-router.get("/users/all", tokenAuth, userCtrl.getAll)
+router.get("/users/all", tokenAuth, experimentCtrl.getUsersWithPariticipantInformation)
 
 //debuging
 router.get('/debug/clear_researchers', adminCtrl.clearResearchers)

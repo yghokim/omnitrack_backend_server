@@ -1,3 +1,4 @@
+import OTUser from '../models/ot_user'
 import OTResearcher from '../models/ot_researcher'
 import OTExperiment from '../models/ot_experiment'
 import OTInvitation from '../models/ot_invitation'
@@ -157,11 +158,31 @@ export default class OTExperimentCtrl {
   removeParticipant = (req, res) => {
     const participantId = req.params.participantId
     app.researchModule().removeParticipant(participantId).then(
-      participant=>{
+      participant => {
         res.status(200).send(participant)
       }
-    ).catch(err=>{
+    ).catch(err => {
       res.status(500).send(err)
     })
+  }
+
+  getUsersWithPariticipantInformation = (req, res) => {
+    OTUser.find({}).populate({
+        path: 'participantIdentities',
+        select: '_id invitation isDenied isConsentApproved',
+        populate: {
+          path: 'invitation',
+          select: '_id experiment code',
+          populate: {
+            path: 'experiment',
+            select: '_id name'
+          }
+        }
+      }).then(list => {
+        res.status(200).send(list)
+      }).catch(err => {
+        console.log(err)
+        res.status(500).send(err)
+      })
   }
 }

@@ -24,7 +24,35 @@ const otUserSchema = new mongoose.Schema({
   }],
   deviceLocalKeySeed: {type: Number, required: true, default: 0},
   devices: [otClientDeviceSchema]
-}, {timestamps: true});
+}, {timestamps: true, toJSON: {virtuals: true}});
+
+otUserSchema.virtual('trackers', {
+  ref: 'OTTracker',
+  localField: '_id',
+  foreignField: 'user',
+  justOne: false
+})
+
+otUserSchema.virtual('triggers', {
+  ref: 'OTTrigger',
+  localField: '_id',
+  foreignField: 'user',
+  justOne: false
+})
+
+otUserSchema.virtual('items', {
+  ref: 'OTItem',
+  localField: '_id',
+  foreignField: 'user',
+  justOne: false
+})
+
+otUserSchema.virtual("participantIdentities", {
+  ref: 'OTParticipant',
+  localField: '_id',
+  foreignField: 'user',
+  justOne: false
+})
 
 const OTUser = mongoose.model('OTUser', otUserSchema);
 

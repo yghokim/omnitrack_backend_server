@@ -13,11 +13,11 @@ import { ChooseInvitationDialogComponent } from '../dialogs/choose-invitation-di
 export class ExperimentParticipantsComponent implements OnInit {
 
   private userPool: Array<any>
-  private userPoolSubscription : Subscription = null
+  private userPoolSubscription: Subscription = null
   private isLoadingUserPool = true
 
   private participants: Array<any>
-  private participantsSubscription : Subscription = null
+  private participantsSubscription: Subscription = null
   private isLoadingParticipants = true
 
   private hoveredRowIndex = -1
@@ -32,36 +32,35 @@ export class ExperimentParticipantsComponent implements OnInit {
     this.onParticipantsTabSelected()
   }
 
-  onTabChanged(event){
+  onTabChanged(event) {
     this.hoveredRowIndex = -1
-    switch(event.index)
-    {
+    switch (event.index) {
       case 0:
-      this.onParticipantsTabSelected()
-      break;
+        this.onParticipantsTabSelected()
+        break;
       case 1:
-      this.onUserPoolTabSelected()
-      break;
+        this.onUserPoolTabSelected()
+        break;
     }
   }
 
-  onUserPoolTabSelected(){
-    if(!this.userPoolSubscription || this.userPoolSubscription.closed)
-    {
+  onUserPoolTabSelected() {
+    if (!this.userPoolSubscription || this.userPoolSubscription.closed) {
       this.isLoadingUserPool = true
-      this.userPoolSubscription = this.api.getUserPool().subscribe(userPool=>{
+      this.userPoolSubscription = this.api.getUserPool().subscribe(userPool => {
         this.userPool = userPool
+        console.log(userPool)
         this.isLoadingUserPool = false
       })
     }
   }
 
-  onParticipantsTabSelected(){
-    if(!this.participantsSubscription || this.participantsSubscription.closed)
-    {
+  onParticipantsTabSelected() {
+    if (!this.participantsSubscription || this.participantsSubscription.closed) {
       this.isLoadingParticipants = true
-      this.participantsSubscription = this.api.selectedExperimentService.flatMap(expService=> expService.getParticipants()).subscribe(
-        participants=>{
+      this.participantsSubscription = this.api.selectedExperimentService.flatMap(expService => expService.getParticipants()).subscribe(
+        participants => {
+          console.log(participants)
           this.participants = participants
           this.isLoadingParticipants = false
         }
@@ -70,14 +69,16 @@ export class ExperimentParticipantsComponent implements OnInit {
   }
 
   onSendInvitationClicked(userId: string) {
-    this.dialog.open(ChooseInvitationDialogComponent, {data: {positiveLabel: "Send"}}).afterClosed().subscribe(
-      invitationCode=>{
-        if(invitationCode)
-        {
-          this.api.selectedExperimentService.flatMap(exp=>{
+    this.dialog.open(ChooseInvitationDialogComponent, { data: { positiveLabel: "Send" } }).afterClosed().subscribe(
+      invitationCode => {
+        if (invitationCode) {
+          this.api.selectedExperimentService.flatMap(exp => {
             exp.invalidateParticipants()
-            return exp.sendInvitation(invitationCode, [userId], false)}).subscribe(result=>{
+            return exp.sendInvitation(invitationCode, [userId], false)
+          }).subscribe(result => {
+            this.api.invalidateUserPool()
             this.participantsSubscription.unsubscribe()
+            this.onUserPoolTabSelected()
           })
         }
       }
@@ -97,38 +98,48 @@ export class ExperimentParticipantsComponent implements OnInit {
     })
   }
 
-  onDeleteParticipantClicked(participantId: string, title: string, message: string){
-    this.dialog.open(YesNoDialogComponent, {data: {
-      title: title,
-      message: message,
-      positiveLabel: title,
-      positiveClass: "btn-danger",
-      negativeClass: "btn-primary",
-    }}).afterClosed().subscribe(ok=>{
-      if(ok==true)
-      {
-        this.api.selectedExperimentService.flatMap(expService=> expService.removeParticipant(participantId)).subscribe(
-          removed=>{
-            if(removed)
-            {
-              this.participants.splice(this.participants.findIndex(part=>part._id == participantId), 1)
+  onDeleteParticipantClicked(participantId: string, title: string, message: string) {
+    this.dialog.open(YesNoDialogComponent, {
+      data: {
+        title: title,
+        message: message,
+        positiveLabel: title,
+        positiveClass: "btn-danger",
+        negativeClass: "btn-primary",
+      }
+    }).afterClosed().subscribe(ok => {
+      if (ok == true) {
+        this.api.selectedExperimentService.flatMap(expService => {
+          expService.invalidateParticipants()
+          return expService.removeParticipant(participantId)
+        }).subscribe(
+          removed => {
+            if (removed) {
+              this.api.invalidateUserPool()
+              this.participants.splice(this.participants.findIndex(part => part._id == participantId), 1)
             }
           }
-        )
+          )
       }
     })
   }
 
-  exractDemographics(user){
-    if(user.activatedRoles)
-    {
+  exractDemographics(user) {
+    if (user.activatedRoles) {
       const role = user.activatedRoles.find(role => role.role == "ServiceUser")
-      if(role)
-      {
-        return role.information.age + " (" + role.information.gender.charAt(0).toUpperCase() + ") in " + role.information.country 
+      if (role) {
+        return role.information.age + " (" + role.information.gender.charAt(0).toUpperCase() + ") in " + role.information.country
       }
     }
   }
 
-  
+  extractParticipantFromthisExperiment(user: any): any{
+    return user.participantIdentities.find(participant => participant.invitation.experiment._id == this.api.getSelectedExperimentId())
+  }
+
+  hasPendingInvitationFromThisExperiment(user: any): boolean{
+    const participant = this.extractParticipantFromthisExperiment(user)
+    return participant != null && !participant.isDenied && !participant.isConsentApproved
+  }
+
 }
