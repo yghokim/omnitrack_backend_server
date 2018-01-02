@@ -34,6 +34,7 @@ import { YesNoDialogComponent } from './dialogs/yes-no-dialog/yes-no-dialog.comp
 import { NewInvitationDialogComponent } from './experiment-invitations/new-invitation-dialog/new-invitation-dialog.component';
 import { BusyOverlayComponent } from './busy-overlay/busy-overlay.component';
 import { ChooseInvitationDialogComponent } from './dialogs/choose-invitation-dialog/choose-invitation-dialog.component';
+import { ExperimentMessagingComponent } from './experiment-messaging/experiment-messaging.component';
 
 
 @NgModule({
@@ -64,7 +65,8 @@ import { ChooseInvitationDialogComponent } from './dialogs/choose-invitation-dia
     YesNoDialogComponent,
     NewInvitationDialogComponent,
     BusyOverlayComponent,
-    ChooseInvitationDialogComponent
+    ChooseInvitationDialogComponent,
+    ExperimentMessagingComponent
   ],
   imports: [
     OAuthModule.forRoot(),

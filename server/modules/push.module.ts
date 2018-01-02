@@ -1,6 +1,7 @@
 import OTUser from "../models/ot_user";
 import * as admin from 'firebase-admin';
 import C from '../server_consts';
+import { instanceId } from "firebase-admin";
 
 export default class PushModule {
 
@@ -28,6 +29,38 @@ export default class PushModule {
 
   /**
    * 
+   * @param userId user id or id array
+   * @param title notification title string
+   * @param message notification message string
+   * @param options 
+   * @returns Promise with sent device ids
+   */
+  sendNotificationMessageToUser(userId: string | string[], 
+    title: string, 
+    message: string,
+    dataPayload: any = null,
+    options: PushOptions = { excludeDeviceIds: [] }): Promise<Array<string>>{
+    return this.getInstanceIds(userId, options)
+      .then(instanceIds=>{
+        if(instanceIds.length > 0)
+        {
+          console.log("send notificationMessage to " + instanceIds)
+          return admin.messaging().sendToDevice(instanceIds, {
+            notification: {
+              title: title,
+              body: message
+            },
+            data: dataPayload
+          }).then(response=>{
+            console.log(response)
+            return response.results.map(device=>device.messageId)
+          })
+        }
+      })
+  }
+
+  /**
+   * 
    * @param userId 
    * @param options
    * @returns Promise with sent device ids 
@@ -46,7 +79,7 @@ export default class PushModule {
     return this.getInstanceIds(userId, options)
       .then(instanceIds => {
         if (instanceIds.length > 0) {
-          console.log("send notification to " + instanceIds)
+          console.log("send dataPayloadMessage to " + instanceIds)
 
           //send notification to instanceIds
           return admin.messaging().sendToDevice(instanceIds, { data: messagePayload }).then(

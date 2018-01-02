@@ -1,9 +1,9 @@
-import PushModule from "modules/push.module";
-import CommandModule from "modules/command.module";
-import ServerModule from "modules/server.module";
-import OmniTrackModule from "modules/omnitrack.module";
+import PushModule from "./push.module";
+import CommandModule from "./command.module";
+import ServerModule from "./server.module";
+import OmniTrackModule from "./omnitrack.module";
 import { Application } from "express-serve-static-core";
-import ResearchModule from "modules/research.module";
+import ResearchModule from "./research.module";
 
 export default interface AppInterface{
   pushModule(): PushModule

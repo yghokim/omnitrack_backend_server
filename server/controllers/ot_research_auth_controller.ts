@@ -7,8 +7,6 @@ import OTExperiment from '../models/ot_experiment';
 import OTResearcherToken from '../models/ot_researcher_token';
 import OTResearcherClient from '../models/ot_researcher_client';
 import env from '../env';
-import OTExperimentCtrl from './ot_experiment_controller';
-
 
 export default class OTResearchAuthCtrl {
 

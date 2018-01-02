@@ -20,6 +20,7 @@ import { ExperimentInvitationsComponent } from './experiment-invitations/experim
 import { ExperimentSettingsComponent } from './experiment-settings/experiment-settings.component';
 import { OmniTrackPackageListComponent } from './research/omnitrack/omnitrack-package-list.component';
 import { OmniTrackPackageEditComponent } from './research/omnitrack/omnitrack-package-edit.component';
+import { ExperimentMessagingComponent } from './experiment-messaging/experiment-messaging.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'research', pathMatch: 'full' },
@@ -31,6 +32,7 @@ const routes: Routes = [
         children: [
           { path: '', redirectTo: 'overview', pathMatch: "full"},
           { path: 'overview', component: ExperimentOverviewComponent, data:{title: 'Overview'}},
+          { path: 'messaging', component: ExperimentMessagingComponent, data: {title: "Messaging"}}
           { path: 'tracking-data', component: ExperimentDataComponent, data: {title: 'Tracking Data'}},
           { path: 'participants', component: ExperimentParticipantsComponent, data: {title: 'Participants'}},
           { path: 'groups', component: ExperimentGroupsComponent, data: {title: 'Groups'}},

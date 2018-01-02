@@ -23,7 +23,7 @@ export class ResearchDashboardComponent implements OnInit {
 
   dashboardNavigationGroups = [
     {
-      name: "Analytics",
+      name: "Research",
       menus: [
         { name: "Overview", key: "overview" },
         {
@@ -33,6 +33,10 @@ export class ResearchDashboardComponent implements OnInit {
         {
           name: "Participants",
           key: "participants"
+        },
+        {
+          name: "Messaging",
+          key: "messaging"
         }
       ]
     },

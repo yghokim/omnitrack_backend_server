@@ -8,7 +8,7 @@ import app from '../app';
 
 var crypto = require("crypto");
 
-export default class OTExperimentCtrl {
+export default class OTResearchCtrl {
 
   private _getExperiment(researcherId: string, experimentId: string): Promise<Document> {
     return OTExperiment.findOne({ $and: [{ _id: experimentId }, { $or: [{ manager: researcherId }, { experimenters: researcherId }] }] }).then(doc => doc)
@@ -184,5 +184,22 @@ export default class OTExperimentCtrl {
         console.log(err)
         res.status(500).send(err)
       })
+  }
+
+  sendNotificationMessageToUser = (req, res) => {
+    const researcher = req.researcher
+    const userId: string | string[] = req.body.userId
+    const title: string = req.body.title
+    const message: string = req.body.message
+    const payload: any = req.body.payload
+    payload.sent_by_name = researcher.email
+    app.pushModule().sendNotificationMessageToUser(userId, title, message, payload).then(
+      result=>{
+        console.log(result)
+        res.status(200).send(result)
+      }
+    ).catch(err=>{
+      res.status(500).send(err)
+    })
   }
 }
