@@ -71,6 +71,11 @@ export class ResearchApiService {
       .map(res=>{
         console.log(res.json())
         return true
+      }).do(result=>{
+        if(result==true)
+        {
+          this.invalidateUserPool()
+        }
       })
   }
 }

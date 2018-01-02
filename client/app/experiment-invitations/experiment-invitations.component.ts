@@ -68,7 +68,6 @@ export class ExperimentInvitationsComponent implements OnInit {
     this.dialog.open(NewInvitationDialogComponent, {}).beforeClose().subscribe(
       newInvitation => {
         if (newInvitation) {
-          this.experimentService.invalidateInvitations()
           this.ngOnInit()
         }
       }

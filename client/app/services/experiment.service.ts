@@ -62,17 +62,30 @@ export class ExperimentService {
   }
 
   generateInvitation(information): Observable<any>{
-    return this.http.post("/api/research/experiments/" + this.experimentId + '/invitations/new', information, this.researchApi.authorizedOptions).map(res=>res.json())
+    return this.http.post("/api/research/experiments/" + this.experimentId + '/invitations/new', information, this.researchApi.authorizedOptions)
+    .map(res=>res.json())
+    .do(res=>{
+      this.invalidateInvitations()
+    })
   }
 
   removeInvitation(invitation): Observable<any>{
     return this.http.delete("/api/research/experiments/" + this.experimentId + '/invitations/' + invitation._id, this.researchApi.authorizedOptions).map(
       res=>res.json()
-    )
+    ).do(result=>{
+      this.invalidateInvitations()
+      this.invalidateParticipants()
+      this.researchApi.invalidateUserPool()
+    })
   }
 
   sendInvitation(invitationCode: string, userIds: Array<string>, force: boolean): Observable<Array<{invitationAlreadySent: boolean, participant: any}>>{
-    return this.http.post("/api/research/experiments/" + this.experimentId + "/invitations/send", {invitationCode: invitationCode, userIds: userIds, force: force}, this.researchApi.authorizedOptions).map(res=>res.json())
+    return this.http.post("/api/research/experiments/" + this.experimentId + "/invitations/send", {invitationCode: invitationCode, userIds: userIds, force: force}, this.researchApi.authorizedOptions)
+      .map(res=>res.json())
+      .do(res=>{
+        this.researchApi.invalidateUserPool()
+        this.invalidateParticipants()
+      })
   }
 
   getParticipants(): Observable<Array<any>>{
@@ -91,7 +104,13 @@ export class ExperimentService {
   }
 
   removeParticipant(participantId): Observable<any>{
-    return this.http.delete("/api/research/participants/" + participantId, this.researchApi.authorizedOptions).map(res=>res.json())
+    return this.http.delete("/api/research/participants/" + participantId, this.researchApi.authorizedOptions).map(res=>res.json()).do(result=>{
+      if(result)
+      {
+        this.researchApi.invalidateUserPool()
+        this.invalidateParticipants()
+      }
+    })
   }
 
   getOmniTrackPackages(): Observable<Array<any>>{
