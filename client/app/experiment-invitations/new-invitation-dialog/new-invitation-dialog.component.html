@@ -1,36 +1,34 @@
 <div class="dialog">
   <div class="card-header">New Invitation</div>
   <div class="card-block">
-    <ul class="nav nav-tabs">
-      <li class="nav-item" *ngFor="let typeItem of invitationTypeList">
-        <a href class="nav-link" [ngClass]="{'active': selectedTypeKey == typeItem.key}" (click)="!!selectInvitationType(typeItem.key)">{{typeItem.tab}}</a>
-      </li>
-    </ul>
-    <div class="card-block">
-    <div *ngIf="isSpecificGroupInvitationSelected()" id="container-new-invitation-type-specific">
-      <p>
-        Participants will be assigned to the selected group.
-      </p>
-      <mat-radio-group [required] = true [value] = "selectedGroupId" (change)="selectedGroupId = $event.value">
-        <mat-radio-button *ngFor="let group of groups"
-        [value] = "group._id">
+    <mat-tab-group class="tab-group" (selectedTabChange)="onTabChanged($event)">
+      <mat-tab label="Specific Group" [value] = "specificGroupType">
+        <div class="card-block">
+          <p>
+            Participants will be assigned to the selected group.
+          </p>
+          <mat-radio-group [required]=true [value]="selectedGroupId" (change)="selectedGroupId = $event.value">
+            <mat-radio-button *ngFor="let group of groups" [value]="group._id">
+              {{group.name}}
+            </mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </mat-tab>
+      <mat-tab label="Random Group" [value]="randomGroupType">
+        <div class="card-block">
+          <p>
+            Participant will be randomly distributed to the selected groups.
+          </p>
+          <mat-checkbox *ngFor="let group of groups" [value]="group._id" [checked]="selectedGroupId == group._id" (change)="onGroupChecked(group._id, $event)">
             {{group.name}}
-        </mat-radio-button>
-      </mat-radio-group>
-    </div>
-    <div *ngIf="isRandomGroupInvitationSelected()" id="container-new-invitation-type-random">
-      <p>
-        Participant will be randomly distributed to the selected groups.
-      </p>
-        <mat-checkbox *ngFor="let group of groups" [value]="group._id" [checked] = "selectedGroupId == group._id" (change)="onGroupChecked(group._id, $event)" >
-          {{group.name}}
-        </mat-checkbox>
-    </div>
-  </div>
+          </mat-checkbox>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
 
     <hr>
     <div class="pull-right">
-      <button type="button" class="btn btn-primary" [disabled]="!isGenerateAvailable()" (click)="generate()">Generate</button>
+      <button mat-raised-button color="primary" [disabled]="!isGenerateAvailable()" (click)="generate()">Generate</button>
     </div>
   </div>
 

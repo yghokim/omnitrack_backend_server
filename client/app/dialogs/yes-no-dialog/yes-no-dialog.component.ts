@@ -11,11 +11,14 @@ export class YesNoDialogComponent implements OnInit {
   private title: string = ""
   private message: string = ""
 
-  private positiveButtonClass = this.data.positiveButtonClass || "btn-primary"
-  private negativeButtonClass = this.data.negativeButtonClass || "btn-danger"
+  private positiveButtonClass = this.data.positiveButtonClass || ""
+  private negativeButtonClass = this.data.negativeButtonClass || ""
   private positiveLabel = this.data.positiveLabel || "Yes"
   private negativeLabel = this.data.negativeLabel || "No"
+  private positiveColor = this.data.positiveColor || "primary"
+  private negativeColor = this.data.negativeColor || "accent"
   
+
   constructor(private dialogRef: MatDialogRef<YesNoDialogComponent>, 
     @Inject(MAT_DIALOG_DATA) public data: any) {
      }

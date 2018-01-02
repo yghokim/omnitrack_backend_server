@@ -12,17 +12,6 @@ export class NewInvitationDialogComponent implements OnInit {
 
   private isBusy = true
 
-  private invitationTypeList = [
-    {
-      key: AInvitation.SpecificGroupType,
-      tab: "Specific Group"
-    },
-    {
-      key: AInvitation.RandomGroupType,
-      tab: "Random Group"
-    }
-  ]
-
   private selectedTypeKey = AInvitation.SpecificGroupType
   private groups: Array<any>
   private selectedGroupId: string
@@ -47,6 +36,20 @@ export class NewInvitationDialogComponent implements OnInit {
       }
     )
   }
+  
+  onTabChanged(event){
+    console.log(event)
+    switch(event.index)
+    {
+      case 0:
+      this.selectedTypeKey = AInvitation.SpecificGroupType
+      break;
+      case 1:
+      this.selectedTypeKey = AInvitation.RandomGroupType
+      break;
+    }
+  }
+
 
   isSpecificGroupInvitationSelected(): boolean {
     return this.selectedTypeKey == AInvitation.SpecificGroupType

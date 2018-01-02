@@ -111,7 +111,7 @@ export class ExperimentParticipantsComponent implements OnInit {
   }
 
   onDeleteAccountClicked(userId: string) {
-    this.dialog.open(YesNoDialogComponent, { data: { title: "Delete User Account", message: "Do you want to remove the user account from server? This process cannot be undone.", positiveLabel: "Delete", positiveButtonClass: "btn-danger", negativeButtonClass: "btn-primary" } }).beforeClose().subscribe(res => {
+    this.dialog.open(YesNoDialogComponent, { data: { title: "Delete User Account", message: "Do you want to remove the user account from server? This process cannot be undone.", positiveLabel: "Delete", positiveColor: "warn", negativeColor: "primary" } }).beforeClose().subscribe(res => {
       if (res == true) {
         this.api.deleteUserAccount(userId, true).subscribe(result => {
           if (result == true) {
@@ -128,8 +128,8 @@ export class ExperimentParticipantsComponent implements OnInit {
         title: title,
         message: message,
         positiveLabel: title,
-        positiveClass: "btn-danger",
-        negativeClass: "btn-primary",
+        positiveColor: "warn",
+        negativeColor: "primary",
       }
     }).afterClosed().subscribe(ok => {
       if (ok == true) {

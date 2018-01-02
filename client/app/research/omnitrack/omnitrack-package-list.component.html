@@ -1,13 +1,23 @@
 <div class="container">
   <div class="flex-container flex-stretch container-vertical-padding">
     <small class="flex-element info-text">Packages: {{packages.length}}</small>
-    <button type="button" class="flex-element btn btn-link btn-link-medium">+ Add New Tracking Package</button>
+    <button mat-button color="primary" class="flex-element">+ Add New Tracking Package</button>
   </div>
   <div class="package-list">
     <div class="card omnitrack-card" *ngFor="let package of packages">
-      <div class="card-header">
-        <div class="bold">
-          {{package.name}}
+      <div class="card-header card-header-with-button">
+        <div class="flex-container flex-stretch">
+          <div class="bold flex-element">
+            {{package.name}}
+          </div>
+          <div class="flex-element">
+            <button mat-icon-button class="text-color-darkgray">
+              <mat-icon class="material-icons">delete</mat-icon>
+            </button>
+            <button mat-icon-button class="text-color-darkgray">
+              <mat-icon class="material-icons">edit</mat-icon>
+            </button>
+          </div>
         </div>
       </div>
       <table class="table table-schema table-sm no-margin-bottom no-borders">
@@ -26,7 +36,9 @@
                   {{tracker.name}}
                 </div>
                 <ul class="list-group list-group-flush attribute-list">
-                  <li class="list-group-item font-color-gray" *ngFor="let attribute of tracker.attributes">{{attribute.name}}<sup class="text-color-accented font-weight-bold" *ngIf="attribute.isRequired">*</sup></li>
+                  <li class="list-group-item font-color-gray" *ngFor="let attribute of tracker.attributes">{{attribute.name}}
+                    <sup class="text-color-accented font-weight-bold" *ngIf="attribute.isRequired">*</sup>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -34,26 +46,21 @@
           <td>
             <div class="trigger-list">
               <div *ngFor="let trigger of package.data.triggers" class="card card-sm card-component">
-                  <ul class="list-group list-group-flush">
-                    <li class="list-group-item font-color-gray">
-                      <div class="tag tag-lg tag-secondary" *ngFor="let trackerId of trigger.trackers">
-                        <div class="tag-content flex-container flex-align-items-center">
-                            <div class="circle-inline margin-right-small" [style.background]="getTrackerColorString(findTracker(package, trackerId))"></div>
-                            <span class="text-color-dark">{{findTracker(package, trackerId).name}}</span>
-                        </div>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item font-color-gray">
+                    <div class="tag tag-lg tag-secondary" *ngFor="let trackerId of trigger.trackers">
+                      <div class="tag-content flex-container flex-align-items-center">
+                        <div class="circle-inline margin-right-small" [style.background]="getTrackerColorString(findTracker(package, trackerId))"></div>
+                        <span class="text-color-dark">{{findTracker(package, trackerId).name}}</span>
                       </div>
-                    </li>
-                  </ul>
+                    </div>
+                  </li>
+                </ul>
               </div>
             </div>
           </td>
         </tr>
       </table>
-      <div class="card-block">
-        <hr>
-        <a href="#" class="btn btn-danger">Remove</a>
-        <a href="#" class="btn btn-primary">Edit Package</a>
-      </div>
     </div>
   </div>
 </div>

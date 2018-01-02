@@ -10,7 +10,7 @@
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue.
-$candy-app-primary: mat-palette($mat-pink, 500);
+$candy-app-primary: mat-palette($mat-teal, 400, 200, 600);
 $candy-app-accent:  mat-palette($mat-orange, 500, A100, A400);
 
 // The warn palette is optional (defaults to red).
@@ -33,6 +33,7 @@ $candy-app-theme: mat-light-theme($candy-app-primary, $candy-app-accent, $candy-
 $color_accent: #ff814f;;
 $color_pointed: #2cbbbb;
 $color_pointed_darker: #20acac;
+$color_dark_gray: #575757;
 
 @mixin horizontal-gradient($from, $to, $stop: 100%) {
   /* fallback/image non-cover color */
@@ -82,7 +83,7 @@ html{
 }
 
 body {
-  font-family: "Open Sans", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans KR", "Malgun Gothic", sans-serif, sans-serif;
+  font-family: Roboto, "Open Sans", "Segoe UI", "Helvetica Neue", Arial, "Noto Sans KR", "Malgun Gothic", sans-serif, sans-serif;
   background: initial;
   margin-top: 0px;
   margin-bottom: 10px;
@@ -103,6 +104,11 @@ body {
 .text-color-dark{
   color: #252525;
 }
+
+.mat-icon-button.text-color-darkgray, .text-color-darkgray{
+  color: #575757;
+}
+
 .text-color-accented{
   color: $color_accent;
 }
@@ -220,6 +226,12 @@ small.info-text{
   }
 }
 
+.card-header.card-header-with-button{
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  padding-right: 0.25rem;
+}
+
 .card > .card-strip{
   background: gray;
   display: block;
@@ -258,6 +270,19 @@ small.info-text{
     border-radius: 0;
     @include main-gradient();
     color: white;
+    font-weight: 300;
+  }
+
+  & > .card-block{
+    padding: 1.0rem;
+  }
+
+  p{
+    color: $color_dark_gray;
+    font-size: 0.9em;
+    &:last-child{
+      margin-bottom: 0;
+    }
   }
 
   .overlay{

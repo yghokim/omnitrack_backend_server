@@ -125,7 +125,8 @@ export class ResearchDashboardComponent implements OnInit {
   }
 
   onSignOutClicked(){
-    const dialogRef = this.dialog.open(YesNoDialogComponent,{ data: {title: "Sign Out", message: "Do you want to sign out?",} })
+    const dialogRef = this.dialog.open(YesNoDialogComponent,{ data: {
+      title: "Sign Out", message: "Do you want to sign out?",} })
     dialogRef.afterClosed().subscribe(result=>
     {
       if(result==true)

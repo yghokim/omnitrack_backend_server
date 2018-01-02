@@ -53,7 +53,7 @@ export class ExperimentInvitationsComponent implements OnInit {
   }
 
   onDeleteClicked(invitation: any) {
-    this.dialog.open(YesNoDialogComponent, { data: { title: "Remove Invitation", message: "Do you want to remove invitation? This process cannot be undone.", positiveLabel: "Delete", positiveButtonClass: "btn-danger", negativeButtonClass: "btn-primary" } }).beforeClose().subscribe(res => {
+    this.dialog.open(YesNoDialogComponent, { data: { title: "Remove Invitation", message: "Do you want to remove invitation?<br>This process cannot be undone.", positiveLabel: "Delete", positiveColor: "warn", negativeColor: "primary" } }).beforeClose().subscribe(res => {
       if (res == true) {
         this.experimentService.removeInvitation(invitation).subscribe(result => {
           if (result == true) {

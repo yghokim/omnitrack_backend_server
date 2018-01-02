@@ -1,6 +1,5 @@
 <div class="dialog">
-
-  <div class="card-header font-weight-bold">Choose Invitation</div>
+  <div class="card-header">Choose Invitation</div>
   <div class="card-block">
     <table class="table table-data">
       <tr class="singleline hoverable cursor-pointer" *ngFor="let invitation of invitations" (click)="selectedInvitationCode = invitation.code">
@@ -21,8 +20,8 @@
     </table>
     <hr>
     <div class="pull-right">
-        <button type="button" (click)="onNoClick()" class="btn btn-danger">Cancel</button>
-        <button type="button" (click)="onYesClick()" class="btn btn-primary">{{positiveLabel}}</button>
+        <button mat-button color="accent" (click)="onNoClick()">Cancel</button>
+        <button mat-raised-button color="primary" (click)="onYesClick()">{{positiveLabel}}</button>
       </div>
   </div>
 </div>

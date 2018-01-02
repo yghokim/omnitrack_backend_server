@@ -1,10 +1,9 @@
 <div class="dialog">
-  
-<div class="card-header font-weight-bold">{{title}}</div>
-<div class="card-block">{{message}}</div>
+<div class="card-header">{{title}}</div>
+<div class="card-block"><p [innerHTML] = "message"></p></div>
 <div class="card-block pull-right">
-    <button type="button" (click)="onNoClick()" class="btn" [ngClass]="negativeButtonClass">{{negativeLabel}}</button>
-    <button type="button" (click)="onYesClick()" class="btn" [ngClass]="positiveButtonClass">{{positiveLabel}}</button>
+    <button type="button" mat-button [color]="negativeColor" (click)="onNoClick()" [ngClass]="negativeButtonClass">{{negativeLabel}}</button>
+    <button type="button" mat-raised-button [color]="positiveColor" (click)="onYesClick()" [ngClass]="positiveButtonClass">{{positiveLabel}}</button>
 </div>
 
 </div>
