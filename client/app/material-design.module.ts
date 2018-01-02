@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialogModule, MatTabsModule, MatCheckboxModule, MatRadioModule, MatMenuModule, MatIconRegistry } from '@angular/material';
+import { MatDialogModule, MatTabsModule, MatCheckboxModule, MatRadioModule, MatMenuModule, MatIconRegistry, MatButtonModule } from '@angular/material';
 import { YesNoDialogComponent } from './dialogs/yes-no-dialog/yes-no-dialog.component';
 
 @NgModule({
@@ -10,14 +10,16 @@ import { YesNoDialogComponent } from './dialogs/yes-no-dialog/yes-no-dialog.comp
     MatTabsModule,
     MatCheckboxModule,
     MatRadioModule,
-    MatMenuModule
+    MatMenuModule,
+    MatButtonModule
   ],
   exports: [
     MatDialogModule,
     MatTabsModule,
     MatCheckboxModule,
     MatRadioModule,
-    MatMenuModule
+    MatMenuModule,
+    MatButtonModule
   ],
   providers: [
     MatIconRegistry]

@@ -5,7 +5,7 @@
         <div class="flex-element">
           Current Invitations
         </div>
-        <button (click)="onNewInvitationClicked()" type="button" class="flex-element btn btn-primary" data-toggle="modal" data-target="#exampleModal">Add new invitation</button>
+        <button mat-raised-button color="accent" (click)="onNewInvitationClicked()" class="flex-element" data-toggle="modal" data-target="#exampleModal">Add new invitation</button>
       </div>
     </div>
     <table class="table table-sm table-data" (mouseleave)="selectedRowIndex = -1">
@@ -32,7 +32,9 @@
         </td>
         <td class="button-cell">
           <div class="pull-right" [style.visibility]="selectedRowIndex != index? 'hidden' : 'inherit'">
-          <button class="btn btn-danger btn-sm" (click)="onDeleteClicked(invitation)">Delete</button>
+          <button mat-icon-button color="warn('light')" (click)="onDeleteClicked(invitation)">
+            <mat-icon class="material-icons">delete</mat-icon>
+          </button>
         </div>
         </td>
       </tr>

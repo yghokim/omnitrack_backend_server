@@ -107,6 +107,7 @@ body {
   color: $color_accent;
 }
 
+
 .input-group {
   margin-bottom: 15px;
 }
@@ -128,9 +129,18 @@ body {
   margin-bottom: 0;
 }
 
+.no-padding{
+  padding: 0;
+}
+
 .no-horizontal-padding{
   padding-left: 0;
   padding-right: 0;
+}
+
+.no-vertical-padding{
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .container-vertical-padding{
@@ -340,6 +350,10 @@ small.info-text{
   }
 }
 
+button.mat-raised-button{
+  color: white !important;
+}
+
 
 tr.singleline{
   td, th{
@@ -376,6 +390,11 @@ tr.singleline{
   td.button-cell{
     padding-top: 0.5em;
     padding-bottom: 0.5em;
+    padding-left: 0;
+
+    &:last-child{
+      padding-right: 0.2em;
+    }
   }
 }
 

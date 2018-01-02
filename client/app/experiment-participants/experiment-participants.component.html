@@ -27,10 +27,10 @@
             <td>{{participant.user.accountLastSignInTime | date: 'MMM dd, yyyy'}}</td>
 
             <td>{{participant.user._id}}</td>
-            <td>
+            <td class="button-cell">
               <div class="pull-right">
-                <button class="btn btn-primary btn-sm" mat-icon-button [matMenuTriggerFor]="menu">
-                  ...
+                <button mat-icon-button [matMenuTriggerFor]="menu">
+                  <mat-icon class="material-icons">more_vert</mat-icon>
                 </button>
                 <mat-menu #menu="matMenu">
                   <button mat-menu-item *ngIf="!participant.isDenied && !participant.isConsentApproved" (click)="onDeleteParticipantClicked(participant._id, 'Cancel Invitation', 'Do you want to cancel the pending invitation to the user?')">
@@ -73,17 +73,22 @@
             <td>{{user.email}}</td>
             <td>
               <div *ngIf="extractParticipantFromthisExperiment(user)">
-                <span class="tag"></span>
+                <span *ngIf="hasPendingInvitationFromThisExperiment(user)" class="tag tag-warning">Invitation Pending</span>
+                <span *ngIf="isParticipatingInThisExperiment(user)" class="tag tag-primary">In Experiment</span>
+                
+              </div>
+              <div *ngIf="isParticipatingInAnotherExperiment(user)">
+                <span class="tag tag-warning">In Other Experiments</span>
               </div>
             </td>
             <td>{{exractDemographics(user)}}</td>
             <td>{{user.accountCreationTime | date: 'MMM dd, yyyy'}}</td>
             <td>{{user.accountLastSignInTime | date: 'MMM dd, yyyy'}}</td>
             <td>{{user._id}}</td>
-            <td>
+            <td class="button-cell">
               <div class="pull-right" [style.visibility]="selectedRowIndex != index? 'hidden' : 'inherit'">
-                <button class="btn btn-primary btn-sm" mat-icon-button [matMenuTriggerFor]="menu">
-                  ...
+                <button mat-icon-button [matMenuTriggerFor]="menu">
+                  <mat-icon class="material-icons">more_vert</mat-icon>
                 </button>
                 <mat-menu #menu="matMenu">
                   <button mat-menu-item *ngIf="!hasPendingInvitationFromThisExperiment(user)" (click)="onSendInvitationClicked(user._id)">

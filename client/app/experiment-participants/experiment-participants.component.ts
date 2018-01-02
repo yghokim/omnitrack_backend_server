@@ -137,9 +137,18 @@ export class ExperimentParticipantsComponent implements OnInit {
     return user.participantIdentities.find(participant => participant.invitation.experiment._id == this.api.getSelectedExperimentId())
   }
 
+  isParticipatingInAnotherExperiment(user: any): any{
+    return user.participantIdentities.find(participant => !participant.isDenied && participant.isConsentApproved && participant.invitation.experiment._id != this.api.getSelectedExperimentId()) != null
+  }
+
   hasPendingInvitationFromThisExperiment(user: any): boolean{
-    const participant = this.extractParticipantFromthisExperiment(user)
-    return participant != null && !participant.isDenied && !participant.isConsentApproved
+    return user.participantIdentities.find(participant => 
+      !participant.isDenied && !participant.isConsentApproved && participant.invitation.experiment._id == this.api.getSelectedExperimentId()) != null
+  }
+
+  isParticipatingInThisExperiment(user: any): boolean{
+    return user.participantIdentities.find(participant => 
+      !participant.isDenied && participant.isConsentApproved && participant.invitation.experiment._id == this.api.getSelectedExperimentId()) != null
   }
 
 }
