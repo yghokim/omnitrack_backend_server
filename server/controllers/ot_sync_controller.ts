@@ -7,25 +7,24 @@ import app from '../app';
 
 export default class OTSyncCtrl {
 
-    constructor(private trackerCtrl: OTTrackerCtrl, private triggerCtrl: OTTriggerCtrl, private itemCtrl: OTItemCtrl){
+    constructor(private trackerCtrl: OTTrackerCtrl, private triggerCtrl: OTTriggerCtrl, private itemCtrl: OTItemCtrl) {
 
     }
 
-    batchGetServerChangesAfter=(req, res)=>{
-        try{
+    batchGetServerChangesAfter= (req, res) => {
+        try {
         const userId = res.locals.user.uid
         const typeCount = req.query.types.length
         const queryList = Array<{type: string, timestamp: number}>()
 
-        for(var i = 0; i<typeCount; i++)
-        {
-            queryList.push({type: req.query.types[i].toString(), timestamp: req.query.timestamps[i]*1})
+        for (let i = 0; i < typeCount; i++) {
+            queryList.push({type: req.query.types[i].toString(), timestamp: req.query.timestamps[i] * 1})
         }
-        
+
         Promise.all(
-            queryList.map(entry=>{
-                var controller: UserBelongingCtrl
-                switch(entry.type.toUpperCase()){
+            queryList.map(entry => {
+                let controller: UserBelongingCtrl
+                switch (entry.type.toUpperCase()) {
                     case C.SYNC_TYPE_TRACKER:
                     controller = this.trackerCtrl
                     break
@@ -36,44 +35,41 @@ export default class OTSyncCtrl {
                     controller = this.itemCtrl
                     break
                 }
-    
-                if(controller!=null)
-              {
-                    return controller.getAllByUserOverTimestampQuery(userId, entry.timestamp).then(l=> { return {type:entry.type, list: l}})
-                }else return Promise.resolve({type: entry.type, list: []})
+
+                if (controller != null) {
+                    return controller.getAllByUserOverTimestampQuery(userId, entry.timestamp).then(l => ({type: entry.type, list: l}))
+                } else { return Promise.resolve({type: entry.type, list: []}) }
             })
         ).then(
-            results=>
-            {
+            results => {
                 return results.reduce(function(map, obj) {
                     map[obj.type] = obj.list
                     return map
                 }, {})
             }
         ).then(
-            result=>
-            {
+            result => {
                 res.status(200).send(result)
             }
         )
-        
-        }catch(ex){
+
+        } catch (ex) {
             console.log(ex)
-            res.status(500).send({error:ex})
+            res.status(500).send({error: ex})
         }
     }
 
-    batchPostClientChanges=(req,res)=>{
-        try{
+    batchPostClientChanges= (req, res) => {
+        try {
             const userId = res.locals.user.uid
-            const clientChangeList: Array<{type:string, rows: Array<any>}> = req.body
+            const clientChangeList: Array<{type: string, rows: Array<any>}> = req.body
 
             console.log("received client changes:")
             console.log(clientChangeList)
             Promise.all(clientChangeList.map(
-                entry=>{
-                    var controller: UserBelongingCtrl
-                    switch(entry.type.toUpperCase()){
+                entry => {
+                    let controller: UserBelongingCtrl
+                    switch (entry.type.toUpperCase()) {
                         case C.SYNC_TYPE_TRACKER:
                         controller = this.trackerCtrl
                         break
@@ -85,32 +81,30 @@ export default class OTSyncCtrl {
                         break
                     }
 
-                    if(controller==null)
-                    {
+                    if (controller == null) {
                         return Promise.resolve({type: entry.type, rows: []})
-                    }
-                    else return controller.applyClientChanges(userId, entry.rows.map(str=>JSON.parse(str))).then(result=>{return {type: entry.type, rows: result}})
+                    } else { return controller.applyClientChanges(userId, entry.rows.map(str => JSON.parse(str))).then(result => ({type: entry.type, rows: result})) }
                 }
             )
-        ).then(results=>{
+        ).then(results => {
             console.log("bulk result: ")
             console.log(results)
-            const changedTypes = results.filter(r=>r.rows.length > 0).map(r=>r.type)
+            const changedTypes = results.filter(r => r.rows.length > 0).map(r => r.type)
             app.pushModule().sendSyncDataMessageToUser(userId, changedTypes, {excludeDeviceIds: [res.locals.deviceId]})
               .then().catch()
-              
+
             return results.reduce(function(map, obj) {
                 map[obj.type] = obj.rows
                 return map
             }, {})
-        }).then(result=>{
+        }).then(result => {
             console.log(result)
             res.status(200).send(result)
         })
 
-        }catch(ex){
+        } catch (ex) {
             console.log(ex)
-            res.status(500).send({error:ex})
+            res.status(500).send({error: ex})
         }
     }
 }

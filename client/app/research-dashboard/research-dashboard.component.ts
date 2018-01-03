@@ -62,8 +62,6 @@ export class ResearchDashboardComponent implements OnInit {
           name: 'OmniTrack',
           key: 'omnitrack',
           icon: 'tune'
-          //svgIcon: 'omnitrack',
-          // iconPath: '/assets/ic_omnitrack_24px.svg'
         }
       ]
     },

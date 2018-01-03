@@ -6,43 +6,40 @@ export default class PushModule {
 
   private getInstanceIds(userId: string | string[], options: PushOptions): Promise<Array<string>> {
     const pipe: Array<any> = [
-      {$match: { _id: (userId instanceof Array)? {$in: userId} : userId }},
+      {$match: { _id: (userId instanceof Array) ? {$in: userId} : userId }},
       {$unwind: "$devices"}
     ]
 
-    if(options.excludeDeviceIds != null && options.excludeDeviceIds.length > 0)
-    {
+    if (options.excludeDeviceIds != null && options.excludeDeviceIds.length > 0) {
       pipe.push({$match: {"devices.deviceId": {$nin: options.excludeDeviceIds}}})
     }
-    
+
     pipe.push({$project: { instanceId: "$devices.instanceId" }})
 
     return OTUser.aggregate(pipe).then(
-      result=>
-      { 
+      result => {
         console.log(result)
-        return result.map(r=>r["instanceId"])
+        return result.map(r => r["instanceId"])
       }
     )
   }
 
   /**
-   * 
+   *
    * @param userId user id or id array
    * @param title notification title string
    * @param message notification message string
-   * @param options 
+   * @param options
    * @returns Promise with sent device ids
    */
-  sendNotificationMessageToUser(userId: string | string[], 
-    title: string, 
+  sendNotificationMessageToUser(userId: string | string[],
+    title: string,
     message: string,
     dataPayload: any = null,
-    options: PushOptions = { excludeDeviceIds: [] }): Promise<Array<string>>{
+    options: PushOptions = { excludeDeviceIds: [] }): Promise<Array<string>> {
     return this.getInstanceIds(userId, options)
-      .then(instanceIds=>{
-        if(instanceIds.length > 0)
-        {
+      .then(instanceIds => {
+        if (instanceIds.length > 0) {
           console.log("send notificationMessage to " + instanceIds)
           return admin.messaging().sendToDevice(instanceIds, {
             notification: {
@@ -50,29 +47,29 @@ export default class PushModule {
               body: message
             },
             data: dataPayload
-          }).then(response=>{
+          }).then(response => {
             console.log(response)
-            return response.results.map(device=>device.messageId)
+            return response.results.map(device => device.messageId)
           })
         }
       })
   }
 
   /**
-   * 
-   * @param userId 
+   *
+   * @param userId
    * @param options
-   * @returns Promise with sent device ids 
+   * @returns Promise with sent device ids
    */
   sendDataMessageToUser(userId: string | string[], messageData: MessageData, options: PushOptions = { excludeDeviceIds: [] }): Promise<Array<string>> {
     return this.sendDataPayloadMessageToUser(userId, messageData.toMessagingPayloadJson(), options)
   }
 
   /**
-   * 
-   * @param userId 
+   *
+   * @param userId
    * @param options
-   * @returns Promise with sent device ids 
+   * @returns Promise with sent device ids
    */
   sendDataPayloadMessageToUser(userId: string | string[], messagePayload: any, options: PushOptions = { excludeDeviceIds: [] }): Promise<Array<string>> {
     return this.getInstanceIds(userId, options)
@@ -80,7 +77,7 @@ export default class PushModule {
         if (instanceIds.length > 0) {
           console.log("send dataPayloadMessage to " + instanceIds)
 
-          //send notification to instanceIds
+          // send notification to instanceIds
           return admin.messaging().sendToDevice(instanceIds, { data: messagePayload }).then(
             response => {
               console.log(response)
@@ -90,32 +87,31 @@ export default class PushModule {
             console.log(err)
             return []
           })
-        }
-        else {
+        } else {
           return []
         }
       })
   }
 
-  sendSyncDataMessageToUser(userId: string|string[], syncTypes: Array<string>, options: PushOptions={ excludeDeviceIds: [] }): Promise<Array<string>> {
+  sendSyncDataMessageToUser(userId: string|string[], syncTypes: Array<string>, options: PushOptions= { excludeDeviceIds: [] }): Promise<Array<string>> {
     return this.sendDataMessageToUser(userId, this.makeSyncMessageFromTypes(syncTypes), options)
   }
 
-  makeFullSyncMessageData(): MessageData{
-    return new SyncInfo([C.SYNC_TYPE_TRACKER, C.SYNC_TYPE_TRIGGER, C.SYNC_TYPE_ITEM].map(t=>{return {type:t}}))
+  makeFullSyncMessageData(): MessageData {
+    return new SyncInfo([C.SYNC_TYPE_TRACKER, C.SYNC_TYPE_TRIGGER, C.SYNC_TYPE_ITEM].map(t => ({type: t})))
   }
 
-  makeSyncMessageFromTypes(syncTypes: Array<string>): MessageData{
-    return new SyncInfo(syncTypes.map(t=>{return {type:t}}))
+  makeSyncMessageFromTypes(syncTypes: Array<string>): MessageData {
+    return new SyncInfo(syncTypes.map(t => ({type: t})))
   }
 
-  sendFullSyncDataMessageToUser(userId: string|string[], options: PushOptions={ excludeDeviceIds: [] }): Promise<Array<string>>{
+  sendFullSyncDataMessageToUser(userId: string|string[], options: PushOptions= { excludeDeviceIds: [] }): Promise<Array<string>> {
     return this.getInstanceIds(userId, options)
     .then(instanceIds => {
       if (instanceIds.length > 0) {
         console.log("send notification to " + instanceIds)
 
-        //send notification to instanceIds
+        // send notification to instanceIds
         return admin.messaging().sendToDevice(instanceIds, { data: this.makeFullSyncMessageData().toMessagingPayloadJson() }).then(
           response => {
             console.log(response)
@@ -125,8 +121,7 @@ export default class PushModule {
           console.log(err)
           return []
         })
-      }
-      else {
+      } else {
         return []
       }
     })

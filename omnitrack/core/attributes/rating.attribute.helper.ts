@@ -4,9 +4,9 @@ import { EPropertyType } from "../properties/property.types";
 import PropertyHelper from "../properties/property.helper.base";
 import AttributeManager from "./attribute.manager";
 
-export default class RatingAttributeHelper extends AttributeHelper{
+export default class RatingAttributeHelper extends AttributeHelper {
 
-  constructor(){
+  constructor() {
     super(AttributeManager.ATTR_TYPE_RATING)
   }
 
@@ -15,12 +15,11 @@ export default class RatingAttributeHelper extends AttributeHelper{
   propertyKeys: string[] = [RatingAttributeHelper.PROPERTY_KEY_OPTIONS];
 
   getPropertyHelper<T>(propertyKey: string): PropertyHelper<T> {
-    switch(propertyKey)
-    {
+    switch (propertyKey) {
       case RatingAttributeHelper.PROPERTY_KEY_OPTIONS:
       return PropertyHelperManager.getHelper(EPropertyType.RatingOptions)
     }
   }
 
-  
+
 }

@@ -41,13 +41,6 @@ import { ComposeMessageComponent } from './experiment-messaging/compose-message/
 @NgModule({
   declarations: [
     AppComponent,
-    //CatsComponent,
-    //AboutComponent,
-    //RegisterComponent,
-    //LoginComponent,
-    //LogoutComponent,
-    //AccountComponent,
-    //AdminComponent,
     NotFoundComponent,
     ResearchMainComponent,
     ResearchLoginComponent,

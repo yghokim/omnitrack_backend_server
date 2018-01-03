@@ -37,39 +37,34 @@ const router = express.Router();
 
     res.locals["roleName"] = role
 
-    if(clientKeys.find(k=>{ return k.key == fingerPrint && k.package == packageName }) == null)
-    {
+    if (clientKeys.find(k => k.key === fingerPrint && k.package === packageName) == null) {
       console.log(clientKeys)
       console.log("The client is not certificated in the server.")
       res.status(404).send(new Error("The client is not certificated in the server."))
-    }
-    else if (deviceId != null) {
-      if(res.locals.user)
-      {
+    } else if (deviceId != null) {
+      if (res.locals.user) {
       OTUser.collection.findOne({ _id: res.locals.user.uid, "devices.deviceId": deviceId }).then(
         user => {
           if (user != null) {
             console.log("received an authorized call from device: " + deviceId)
             res.locals["deviceId"] = deviceId
             next()
-          }
-          else {
+          } else {
             res.status(404).send(new Error("no such device."))
           }
-        }).catch((err)=>{
+        }).catch((err) => {
             console.log(err)
             res.status(500).send(err)
         })
-      }else{
+      } else {
         next()
       }
-    }
-    else next()
+    } else { next() }
   }
 
   const assertSignedInMiddleware = [firebaseMiddleware.auth, omnitrackDeviceCheckMiddleware]
 
-  //admin
+  // admin
   router.route('/admin/package/extract').get(adminCtrl.extractPredefinedPackage)
   router.route('/admin/package/inject/:userId/:packageName?').get(adminCtrl.injectPackageToUser)
 
@@ -112,7 +107,7 @@ const router = express.Router();
   router.route('/items/destroy').get(itemCtrl.destroy)
   router.route('/triggers/destroy').get(triggerCtrl.destroy)
 
-  //binary
+  // binary
   router.post('/upload/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier', assertSignedInMiddleware, storageCtrl.uploadItemMedia)
   router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', assertSignedInMiddleware, storageCtrl.downloadItemMedia)
 
@@ -126,13 +121,13 @@ const router = express.Router();
     router.route('/cat/:id').delete(catCtrl.delete);*/
 
   // Users
-  //router.route('/login').post(userCtrl.login);
-  //router.route('/users').get(userCtrl.getAll);
-  //router.route('/users/count').get(userCtrl.count);
-  //router.route('/user').post(userCtrl.insert);
-  //router.route('/user/:id').get(userCtrl.get);
-  //router.route('/user/:id').put(userCtrl.update);
-  //router.route('/user/:id').delete(userCtrl.delete);
+  // router.route('/login').post(userCtrl.login);
+  // router.route('/users').get(userCtrl.getAll);
+  // router.route('/users/count').get(userCtrl.count);
+  // router.route('/user').post(userCtrl.insert);
+  // router.route('/user/:id').get(userCtrl.get);
+  // router.route('/user/:id').put(userCtrl.update);
+  // router.route('/user/:id').delete(userCtrl.delete);
 
 
   export default router;

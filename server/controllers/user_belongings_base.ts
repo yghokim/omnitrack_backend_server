@@ -45,15 +45,14 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
             console.log(error.toJSON())
           })
           console.log("ok: " + result.ok + ", nIn: " + result.nInserted + ", nUp: " + result.nUpserted + ", nMatched: " + result.nMatched)
-          if (result.ok == 1) {
+          if (result.ok === 1) {
             return this.model.find({ _id: { $in: clientChangeList.map(element => element.objectId) } }, { updatedAt: 1 })
-          } else throw Error("Server error while upserting.")
+          } else { throw Error("Server error while upserting.") }
         }
         ).then(
         result => result.map(entry => { console.log("haha"); console.log(entry); return { id: entry._id, synchronizedAt: entry.updatedAt.getTime() } })
         )
-    }
-    else return Promise.resolve([])
+    } else { return Promise.resolve([]) }
   }
 
   getServerChanges = (req: Request, res: Response) => {
@@ -73,8 +72,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
           res.status(400).send({ error: err })
         }
         )
-    }
-    else {
+    } else {
       res.status(400).send({ error: "No user id was passed." })
     }
   }
@@ -117,13 +115,13 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
             )).then(
             result => {
               console.log(result)
-              if (result.ok == 1) {
+              if (result.ok === 1) {
                 return this.model.find({ _id: { $in: list.map(element => element.objectId) } }, { updatedAt: 1 })
-              } else res.status(500).send({ error: "Server error while upserting." })
+              } else { res.status(500).send({ error: "Server error while upserting." }) }
             }
             ).then(
             result => {
-              const mappedResult = result.map(entry => { return { id: entry._id, synchronizedAt: entry.updatedAt.getTime() } })
+              const mappedResult = result.map(entry => ({ id: entry._id, synchronizedAt: entry.updatedAt.getTime() }))
               console.log(mappedResult)
               res.status(200).send(
                 mappedResult
@@ -133,9 +131,8 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
               console.log(err)
               res.status(500).send({ error: "Server error in progress of posting local changes." })
             })
-        }
-        else res.status(200).send([])
+        } else { res.status(200).send([]) }
       }
-    } else res.status(400).send({ error: "No user id was passed." })
+    } else { res.status(400).send({ error: "No user id was passed." }) }
   }
 }

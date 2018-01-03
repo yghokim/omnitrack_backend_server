@@ -4,22 +4,21 @@ import PropertyHelper from "../properties/property.helper.base";
 import PropertyHelperManager from "../properties/property.helper.manager";
 import { EPropertyType } from "../properties/property.types";
 
-export default class NumberAttributeHelper extends AttributeHelper{
-  
+export default class NumberAttributeHelper extends AttributeHelper {
+
   static readonly PROPERTY_KEY_NUMBER_STYLE = "style"
-  
+
   propertyKeys = [NumberAttributeHelper.PROPERTY_KEY_NUMBER_STYLE]
 
-  constructor(){
+  constructor() {
     super(AttributeManager.ATTR_TYPE_NUMBER)
   }
 
   getPropertyHelper<T>(propertyKey: string): PropertyHelper<T> {
-    switch(propertyKey)
-    {
+    switch (propertyKey) {
       case NumberAttributeHelper.PROPERTY_KEY_NUMBER_STYLE:
         return PropertyHelperManager.getHelper(EPropertyType.NumberStyle)
     }
   }
-  
+
 }

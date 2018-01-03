@@ -8,8 +8,7 @@ export class ResearcherAuthGuardSecure implements CanActivate {
   constructor(public auth: ResearcherAuthService, private router: Router) {}
 
   canActivate() {
-    if(!this.auth.isSignedIn())
-    {
+    if (!this.auth.isSignedIn()) {
       this.router.navigate(['/research/login'])
     }
     return true

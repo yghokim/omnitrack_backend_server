@@ -9,16 +9,17 @@ import { Router, ActivatedRoute } from '@angular/router';
 })
 export class ExperimentMessagingComponent implements OnInit {
 
-  constructor(private dialog: MatDialog, private router: Router, private activatedRoute: ActivatedRoute) { }
+  constructor(private dialog: MatDialog, private router: Router, private activatedRoute: ActivatedRoute) {
+  }
 
   ngOnInit() {
   }
 
-  onTabChanged(event){
+  onTabChanged(event) {
     console.log(event.index)
   }
 
-  onNewMessageClicked(){
+  onNewMessageClicked() {
     this.router.navigate(['./new'], { relativeTo: this.activatedRoute })
   }
 

@@ -17,7 +17,7 @@ export default class OTUserCtrl extends BaseCtrl {
     console.log("Firebase app:")
     console.log(firebaseAdmin.auth().app.name)
 
-    var generate = require("adjective-adjective-animal");
+    const generate = require("adjective-adjective-animal");
 
     return generate({ adjectives: 2, format: "title" }).then(
       generatedName => {
@@ -50,13 +50,12 @@ export default class OTUserCtrl extends BaseCtrl {
       result => {
         if (result == null) {
           return this.fetchUserDataToDb(userId)
-            .then(user => { return { user: user, inserted: true } })
+            .then(user => ({ user: user, inserted: true }))
             .catch(ex => {
               console.log(ex)
               return Promise.reject(ex)
             })
-        }
-        else return Promise.resolve({ user: result, inserted: false })
+        } else { return Promise.resolve({ user: result, inserted: false }) }
       }
     )
   }
@@ -67,8 +66,7 @@ export default class OTUserCtrl extends BaseCtrl {
       result => {
         if (result == null) {
           res.json([])
-        }
-        else res.json(result["activatedRoles"] || [])
+        } else { res.json(result["activatedRoles"] || []) }
       }
     ).catch(
       error => {
@@ -85,37 +83,35 @@ export default class OTUserCtrl extends BaseCtrl {
         const user = userResult.user
         const newRole = req.body
         if (newRole != null) {
-          var updated = false
+          let updated = false
           user.activatedRoles.forEach(role => {
-            if (role.role == newRole.role) {
+            if (role.role === newRole.role) {
               role.isConsentApproved = newRole.isConsentApproved
               role.information = newRole.information
               updated = true
             }
           })
-          if (updated == false) {
+          if (updated === false) {
             user.activatedRoles.push(newRole)
           }
           user.save().then(
             result => {
-              if (updated == false || userResult.inserted == true) {
+              if (updated === false || userResult.inserted === true) {
                 console.log("insert new role")
-                //new user role
+                // new user role
                 app.omnitrackModule().firstUserPolicyModule.processOnNewUserRole(userId, newRole.role)
                   .then(
                   () => {
                     res.status(200).send(true)
                   }
                   )
-              }
-              else res.status(200).send(true)
+              } else { res.status(200).send(true) }
             }
           ).catch(err => {
             console.log(err)
             res.status(500).send({ error: err })
           })
-        }
-        else {
+        } else {
           res.status(500).send("No role was passed.")
         }
       }
@@ -125,10 +121,9 @@ export default class OTUserCtrl extends BaseCtrl {
   postReport = (req, res) => {
     const reportData = req.body
     const newReport = new OTUserReport({ _id: mongoose.Types.ObjectId(), data: reportData })
-    if (reportData.anonymous == true) {
+    if (reportData.anonymous === true) {
       console.log("received the anonymized report")
-    }
-    else {
+    } else {
       console.log("received the de-anonymized report")
       newReport["user"] = res.locals.user.uid
     }
@@ -150,34 +145,27 @@ export default class OTUserCtrl extends BaseCtrl {
     OTUser.findOne({ _id: userId }).then(
       (result: any) => {
         if (result) {
-          if(result.name != name)
-          {
-            if((result.nameUpdatedAt||new Date(0)).getTime() < timestamp)
-            {
+          if (result.name !== name) {
+            if ((result.nameUpdatedAt || new Date(0)).getTime() < timestamp) {
               result.name = name
               result.nameUpdatedAt = Date.now()
-              result.save(err=>{
-                if(err)
-                {
+              result.save(err => {
+                if (err) {
                   console.log(err)
                   res.status(500).send(err)
-                }
-                else res.json(<InformationUpdateResult>{success: true, finalValue: result.name, payloads:new Map([["updatedAt", result.nameUpdatedAt.getTime().toString()]])})
+                } else { res.json(<InformationUpdateResult>{success: true, finalValue: result.name, payloads: new Map([["updatedAt", result.nameUpdatedAt.getTime().toString()]])}) }
               })
+            } else {
+              res.json(<InformationUpdateResult>{success: false, finalValue: result.name, payloads: new Map([["updatedAt", result.nameUpdatedAt.getTime().toString()]])})
             }
-            else{
-              res.json(<InformationUpdateResult>{success: false, finalValue: result.name, payloads:new Map([["updatedAt", result.nameUpdatedAt.getTime().toString()]])})
-            }
-          }
-          else{
+          } else {
             res.json(<InformationUpdateResult>{success: false})
           }
-        }
-        else {
-          res.json(<InformationUpdateResult>{success: false, payloads:new Map([["reason", "No such user"]])})
+        } else {
+          res.json(<InformationUpdateResult>{success: false, payloads: new Map([["reason", "No such user"]])})
         }
       }
-    ).catch(err=>{
+    ).catch(err => {
       console.log(err)
       res.status(500).send(err)
     })
@@ -189,8 +177,7 @@ export default class OTUserCtrl extends BaseCtrl {
       result => {
         if (result == null) {
           res.json([])
-        }
-        else res.json(result["devices"] || [])
+        } else { res.json(result["devices"] || []) }
       }
     ).catch(
       error => {
@@ -210,9 +197,9 @@ export default class OTUserCtrl extends BaseCtrl {
         const user = userResult.user
         console.log("insertedUser: ")
         console.log(user)
-        var updated = false
-        var localKey = null
-        const matchedDevice = user.devices.find(device => device.deviceId == deviceInfo.deviceId)
+        let updated = false
+        let localKey = null
+        const matchedDevice = user.devices.find(device => device.deviceId === deviceInfo.deviceId)
         if (matchedDevice != null) {
           console.log("found device with id matches: ")
           localKey = matchedDevice.localKey
@@ -229,8 +216,7 @@ export default class OTUserCtrl extends BaseCtrl {
           matchedDevice.os = deviceInfo.os
 
           updated = true
-        }
-        else {
+        } else {
           localKey = (user.deviceLocalKeySeed || 0) + 1
           deviceInfo.localKey = localKey
           user.deviceLocalKeySeed++
@@ -244,7 +230,7 @@ export default class OTUserCtrl extends BaseCtrl {
           console.log(err)
           if (err == null) {
 
-            const role = user.activatedRoles.find(role => role.role == (res.locals.role || req.get("OTRole")))
+            const role = user.activatedRoles.find(r => r.role === (res.locals.role || req.get("OTRole")))
             console.log(
               "role of this client: "
             )
@@ -252,59 +238,53 @@ export default class OTUserCtrl extends BaseCtrl {
             console.log(role)
             console.log("device local key: " + localKey)
             res.json({
-              result: updated == true ? "updated" : "added",
+              result: updated === true ? "updated" : "added",
               deviceLocalKey: localKey.toString(16),
-              payloads: { 
-                email: user.email, 
-                name: user.name, 
-                nameUpdatedAt: user.nameUpdatedAt.getTime(), 
-                picture: user.picture, 
-                updatedAt: user.updatedAt.getTime(), 
+              payloads: {
+                email: user.email,
+                name: user.name,
+                nameUpdatedAt: user.nameUpdatedAt.getTime(),
+                picture: user.picture,
+                updatedAt: user.updatedAt.getTime(),
                 consentApproved: (role != null ? role.isConsentApproved : false).toString() }
             })
-          }
-          else res.status(500).send({ error: "deviceinfo db update failed." })
+          } else { res.status(500).send({ error: "deviceinfo db update failed." }) }
         }, { upsert: true })
       }
     )
   }
 
-  deleteAccount = (req, res)=>{
-    var userId
-    if(req.researcher)
-    {
-      //researcher mode
+  deleteAccount = (req, res) => {
+    let userId
+    if (req.researcher) {
+      // researcher mode
       userId = req.params.userId
-    }
-    else if(res.locals.user)
-    {
+    } else if (res.locals.user) {
       userId = res.locals.user.uid
-    }
-    else{
+    } else {
       res.status(500).send({err: "You are neither a researcher nor a user."})
     }
 
     const removeData = JSON.parse(req.query.removeData || "false")
-    
+
     const promises: Array<PromiseLike<any>> = [
-      OTUser.collection.findOneAndDelete({_id: userId}).then(res=>{
-        return {name: OTUser.name, result: res.ok > 0, count: 1}})
+      OTUser.collection.findOneAndDelete({_id: userId}).then(result => {
+        return {name: OTUser.name, result: result.ok > 0, count: 1}})
     ]
 
-    if(removeData)
-    {
-      [OTItem, OTTracker, OTTrigger].forEach(model=>{
+    if (removeData) {
+      [OTItem, OTTracker, OTTrigger].forEach(model => {
         promises.push(
-          model.remove({user: userId}).then(removeRes=>{return {name: model.name, result: removeRes["result"].ok > 0, count: removeRes["result"].n}})
+          model.remove({user: userId}).then(removeRes => ({name: model.name, result: removeRes["result"].ok > 0, count: removeRes["result"].n}))
         )
       })
     }
 
     Promise.all(promises)
-      .then(results=>{
+      .then(results => {
         console.log(results)
         res.status(200).send(results)
-      }).catch(err=>{
+      }).catch(err => {
         console.log(err)
         res.status(500).send(err)
       })

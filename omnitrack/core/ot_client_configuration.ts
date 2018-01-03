@@ -1,12 +1,12 @@
-export default class OTClientConfiguration{
-  allowTrackerAddition?: boolean = true
-  allowTrackerEdition?: boolean = true
-  allowTrackerDeletion?: boolean = true
+export default class OTClientConfiguration {
+  allowTrackerAddition = true
+  allowTrackerEdition = true
+  allowTrackerDeletion = true
 
-  allowTriggerAddition?: boolean = true
-  allowTriggerEdition?: boolean = true
-  allowTriggerDeletion?: boolean = true
+  allowTriggerAddition = true
+  allowTriggerEdition = true
+  allowTriggerDeletion = true
 
   overrideAppName?: String = "OmniTrack"
-  
+
 }

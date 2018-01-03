@@ -4,7 +4,7 @@ abstract class BaseCtrl {
 
   abstract model: any;
 
-  protected preprocessBeforeInsertToDb(singleQueryObject: any): any{
+  protected preprocessBeforeInsertToDb(singleQueryObject: any): any {
     return singleQueryObject
   }
 
@@ -64,12 +64,11 @@ abstract class BaseCtrl {
   }
 
   destroy = (req, res) => {
-    this.model.remove({}, err=>{
-      if(err){
+    this.model.remove({}, err => {
+      if (err) {
         console.log(err)
         res.sendStatus(500);
-      }
-      else{
+      } else {
         res.status(200).send({result: "destroyed all data rows in " + this.model + "."})
       }
     })

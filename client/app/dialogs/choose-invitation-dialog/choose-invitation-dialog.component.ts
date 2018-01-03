@@ -24,8 +24,7 @@ export class ChooseInvitationDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.api.selectedExperimentService.flatMap(expService=> expService.getExperiment()).map(exp=>exp.groups).subscribe(groups=>
-    {
+    this.api.selectedExperimentService.flatMap(expService => expService.getExperiment()).map(exp => exp.groups).subscribe(groups => {
       this.groups = groups
     })
 
@@ -46,11 +45,11 @@ export class ChooseInvitationDialogComponent implements OnInit {
         case AInvitation.RandomGroupType:
           return "Random Group"
       }
-    } else return ""
+    } else { return "" }
   }
 
   getGroupName(groupId): string {
-    return (this.groups.find(g => g._id == groupId) || {name:""}).name
+    return (this.groups.find(g => g._id === groupId) || {name: ""}).name
   }
 
   onNoClick() {

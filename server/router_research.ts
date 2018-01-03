@@ -5,7 +5,7 @@ import OTResearchAuthCtrl from './controllers/ot_research_auth_controller';
 import AdminCtrl from "./controllers/admin_controller";
 import OTResearchCtrl from './controllers/ot_research_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
-var jwt = require('express-jwt');
+const jwt = require('express-jwt');
 const OAuthServer = require('express-oauth-server');
 const router = express.Router()
 
@@ -48,7 +48,7 @@ router.delete("/users/:userId", tokenAuth, userCtrl.deleteAccount)
 
 router.get("/users/all", tokenAuth, researchCtrl.getUsersWithPariticipantInformation)
 
-//debuging
+// debuging
 router.get('/debug/clear_researchers', adminCtrl.clearResearchers)
 router.get('/debug/push_users', adminCtrl.pushUsers)
 

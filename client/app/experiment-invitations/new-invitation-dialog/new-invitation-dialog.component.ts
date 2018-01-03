@@ -36,11 +36,10 @@ export class NewInvitationDialogComponent implements OnInit {
       }
     )
   }
-  
-  onTabChanged(event){
+
+  onTabChanged(event) {
     console.log(event)
-    switch(event.index)
-    {
+    switch (event.index) {
       case 0:
       this.selectedTypeKey = AInvitation.SpecificGroupType
       break;
@@ -52,11 +51,11 @@ export class NewInvitationDialogComponent implements OnInit {
 
 
   isSpecificGroupInvitationSelected(): boolean {
-    return this.selectedTypeKey == AInvitation.SpecificGroupType
+    return this.selectedTypeKey === AInvitation.SpecificGroupType
   }
 
   isRandomGroupInvitationSelected(): boolean {
-    return this.selectedTypeKey == AInvitation.RandomGroupType
+    return this.selectedTypeKey === AInvitation.RandomGroupType
   }
 
   selectInvitationType(key) {
@@ -65,13 +64,12 @@ export class NewInvitationDialogComponent implements OnInit {
 
   onGroupChecked(groupId, event) {
     const selectedIndex = this.selectedGroupIds.indexOf(groupId)
-    if (event.checked == false) {
-      if (selectedIndex != -1) {
+    if (event.checked === false) {
+      if (selectedIndex !== -1) {
         this.selectedGroupIds.splice(selectedIndex, 1)
       }
-    }
-    else if (event.checked == true) {
-      if (selectedIndex == -1) {
+    } else if (event.checked === true) {
+      if (selectedIndex === -1) {
         this.selectedGroupIds.push(groupId)
       }
     }
@@ -89,7 +87,7 @@ export class NewInvitationDialogComponent implements OnInit {
 
   generate() {
     if (this.isGenerateAvailable()) {
-      var invitation: AInvitation
+      let invitation: AInvitation
       switch (this.selectedTypeKey) {
         case AInvitation.SpecificGroupType:
           invitation = new SpecificGroupInvitation(this.selectedGroupId)
@@ -101,8 +99,8 @@ export class NewInvitationDialogComponent implements OnInit {
 
       console.log(invitation.toJson())
       this.isBusy = true
-      this.api.selectedExperimentService.flatMap(service=>service.generateInvitation(invitation.toJson())).subscribe(
-        newInvitation=>{
+      this.api.selectedExperimentService.flatMap(service => service.generateInvitation(invitation.toJson())).subscribe(
+        newInvitation => {
           console.log(newInvitation)
           this.isBusy = true
           this.dialogRef.close(newInvitation)

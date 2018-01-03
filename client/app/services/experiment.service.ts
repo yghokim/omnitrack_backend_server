@@ -11,18 +11,21 @@ export class ExperimentService {
   private _loadInvitationListQuery: Observable<Array<any>> = null
   private _loadParticipantsQuery: Observable<Array<any>> = null
 
-  constructor(readonly experimentId: string, private http: Http, private authService: ResearcherAuthService, private researchApi: ResearchApiService) {
+  constructor(
+    readonly experimentId: string,
+    private http: Http,
+    private authService: ResearcherAuthService,
+    private researchApi: ResearchApiService) {
     this.reloadExperiment()
   }
 
-  reloadExperiment(): Observable<any>{
+  reloadExperiment(): Observable<any> {
     this._loadExperimentQuery = null
     return this.getExperiment()
   }
 
-  getExperiment(): Observable<any>{
-    if(this._loadExperimentQuery==null)
-    {
+  getExperiment(): Observable<any> {
+    if (this._loadExperimentQuery === null) {
       this._loadExperimentQuery = this.http.get('/api/research/experiments/' + this.experimentId, this.researchApi.authorizedOptions)
       .map(res => {
         return res.json()
@@ -33,11 +36,11 @@ export class ExperimentService {
     return this._loadExperimentQuery
   }
 
-  getManagerInfo(): Observable<any>{
-    if(this._loadManagerInfoQuery == null)
-    {
-      this._loadManagerInfoQuery = this.http.get('/api/research/experiments/manager/' + this.experimentId, this.researchApi.authorizedOptions)
-      .map(res=>{
+  getManagerInfo(): Observable<any> {
+    if (this._loadManagerInfoQuery == null) {
+      this._loadManagerInfoQuery = this.http
+      .get('/api/research/experiments/manager/' + this.experimentId, this.researchApi.authorizedOptions)
+      .map(res => {
         return res.json()
       })
       .publishReplay(1).refCount()
@@ -45,11 +48,11 @@ export class ExperimentService {
     return this._loadManagerInfoQuery
   }
 
-  getInvitations(): Observable<Array<any>>{
-    if(this._loadInvitationListQuery == null)
-    {
-      this._loadInvitationListQuery = this.http.get('/api/research/experiments/' + this.experimentId + "/invitations", this.researchApi.authorizedOptions)
-        .map(res=>{
+  getInvitations(): Observable<Array<any>> {
+    if (this._loadInvitationListQuery == null) {
+      this._loadInvitationListQuery = this.http
+      .get('/api/research/experiments/' + this.experimentId + "/invitations", this.researchApi.authorizedOptions)
+        .map(res => {
           return res.json()
         })
         .publishReplay(1).refCount()
@@ -57,71 +60,74 @@ export class ExperimentService {
     return this._loadInvitationListQuery
   }
 
-  invalidateInvitations(){
+  invalidateInvitations() {
     this._loadInvitationListQuery = null
   }
 
-  generateInvitation(information): Observable<any>{
-    return this.http.post("/api/research/experiments/" + this.experimentId + '/invitations/new', information, this.researchApi.authorizedOptions)
-    .map(res=>res.json())
-    .do(res=>{
+  generateInvitation(information): Observable<any> {
+    return this.http
+    .post("/api/research/experiments/" + this.experimentId + '/invitations/new', information, this.researchApi.authorizedOptions)
+    .map(res => res.json())
+    .do(res => {
       this.invalidateInvitations()
     })
   }
 
-  removeInvitation(invitation): Observable<any>{
-    return this.http.delete("/api/research/experiments/" + this.experimentId + '/invitations/' + invitation._id, this.researchApi.authorizedOptions).map(
-      res=>res.json()
-    ).do(result=>{
+  removeInvitation(invitation): Observable<any> {
+    return this.http
+    .delete("/api/research/experiments/" + this.experimentId + '/invitations/' + invitation._id, this.researchApi.authorizedOptions).map(
+      res => res.json()
+    ).do(result => {
       this.invalidateInvitations()
       this.invalidateParticipants()
       this.researchApi.invalidateUserPool()
     })
   }
 
-  sendInvitation(invitationCode: string, userIds: Array<string>, force: boolean): Observable<Array<{invitationAlreadySent: boolean, participant: any}>>{
-    return this.http.post("/api/research/experiments/" + this.experimentId + "/invitations/send", {invitationCode: invitationCode, userIds: userIds, force: force}, this.researchApi.authorizedOptions)
-      .map(res=>res.json())
-      .do(res=>{
+  sendInvitation(invitationCode: string, userIds: Array<string>, force: boolean): Observable<Array<{
+    invitationAlreadySent: boolean,
+    participant: any}>> {
+    return this.http
+    .post("/api/research/experiments/" + this.experimentId + "/invitations/send", {invitationCode: invitationCode, userIds: userIds, force: force}, this.researchApi.authorizedOptions)
+      .map(res => res.json())
+      .do(res => {
         this.researchApi.invalidateUserPool()
         this.invalidateParticipants()
       })
   }
 
-  getParticipants(): Observable<Array<any>>{
-    if(!this._loadParticipantsQuery)
-    {
+  getParticipants(): Observable<Array<any>> {
+    if (!this._loadParticipantsQuery) {
       this._loadParticipantsQuery = this.http.get("/api/research/experiments/" + this.experimentId + '/participants', this.researchApi.authorizedOptions).map(
-        res=>res.json()
+        res => res.json()
       ).publishReplay(1).refCount()
     }
 
     return this._loadParticipantsQuery
   }
 
-  invalidateParticipants(){
+  invalidateParticipants() {
     this._loadParticipantsQuery = null
   }
 
-  removeParticipant(participantId): Observable<any>{
-    return this.http.delete("/api/research/participants/" + participantId, this.researchApi.authorizedOptions).map(res=>res.json()).do(result=>{
-      if(result)
-      {
+  removeParticipant(participantId): Observable<any> {
+    return this.http.delete("/api/research/participants/" + participantId, this.researchApi.authorizedOptions).map(res => res.json()).do(result => {
+      if (result) {
         this.researchApi.invalidateUserPool()
         this.invalidateParticipants()
       }
     })
   }
 
-  getOmniTrackPackages(): Observable<Array<any>>{
-    return this.getExperiment().map(exp=>{
+  getOmniTrackPackages(): Observable<Array<any>> {
+    return this.getExperiment().map(exp => {
       return exp.trackingPackages
     })
   }
 
-  getOmniTrackPackage(key: string): Observable<any>{
-    return this.getOmniTrackPackages().map(list=>{
-      return list.find(l=>l.key == key)
+  getOmniTrackPackage(key: string): Observable<any> {
+    return this.getOmniTrackPackages().map(list => {
+      return list.find(l => l.key === key)
     })
   }
 }

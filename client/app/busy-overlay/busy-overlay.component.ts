@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
-  selector: 'busy-overlay',
+  selector: 'app-busy-overlay',
   templateUrl: './busy-overlay.component.html',
   styleUrls: ['./busy-overlay.component.scss']
 })

@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(morgan('dev'));
 
-const clientKeys: Array<{key:string, package:string, alias:string}> = require(path.join(__dirname, "../../../credentials/client-keys.json"));
+const clientKeys: Array<{key: string, package: string, alias: string}> = require(path.join(__dirname, "../../../credentials/client-keys.json"));
 
 const firebaseServiceAccount = require(path.join(__dirname, "../../../credentials/firebase-cert.json"));
 firebaseAdmin.initializeApp({credential: firebaseAdmin.credential.cert(firebaseServiceAccount)});
@@ -46,10 +46,10 @@ db.once('open', () => {
   app.get("omnitrack").bootstrap()
 
 
-  //Routers===================================
+  // Routers===================================
   app.use('/api', apiRouter);
-  app.use('/api/research', researchRouter) //research path
-  //==========================================
+  app.use('/api/research', researchRouter) // research path
+  // ==========================================
 
 
   app.get('/*', function(req, res) {

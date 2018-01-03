@@ -12,12 +12,12 @@ export class ResearchLoginComponent implements OnInit {
 
 
   registerForm: FormGroup;
-  
+
   email = new FormControl('', [Validators.required]);
   password = new FormControl('', [Validators.required]);
 
   constructor(
-    private formBuilder: FormBuilder, 
+    private formBuilder: FormBuilder,
     private router: Router,
     private authService: ResearcherAuthService) { }
 
@@ -28,8 +28,8 @@ export class ResearchLoginComponent implements OnInit {
     })
   }
 
-  authorize(){
-    this.authService.authorize(this.registerForm.value.email, this.registerForm.value.password).subscribe(res=>{
+  authorize() {
+    this.authService.authorize(this.registerForm.value.email, this.registerForm.value.password).subscribe(res => {
       this.router.navigate(['/research'])
     })
   }

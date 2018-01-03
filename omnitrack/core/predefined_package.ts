@@ -20,7 +20,7 @@ export default class PredefinedPackage {
   } = { user: null, trackers: [], triggers: [], attributes: [] }
 
   /**
-   * 
+   *
    * @param trackers trackers in a client format
    * @param triggers triggers in a client format
    */
@@ -34,53 +34,50 @@ export default class PredefinedPackage {
    * Writes the package into Json file.
    * @param path JSON file path to write
    */
-  write(path: string): Promise<void>{
+  write(path: string): Promise<void> {
     return fs.outputJson(path, {
-      trackers: this.trackers, 
-      triggers: this.triggers, 
+      trackers: this.trackers,
+      triggers: this.triggers,
       serviceCodes: this.serviceCodes
-    }, {spaces: 2})
+    }, { spaces: 2 })
   }
 
   /**
    * Anonymise current data again.
    */
   refresh() {
-    //first, clear removed ones
-    for(let i = this.trackers.length - 1; i >= 0; --i){
-      if(this.trackers[i].removed == true)
-      {
+    // first, clear removed ones
+    for (let i = this.trackers.length - 1; i >= 0; --i) {
+      if (this.trackers[i].removed === true) {
         this.trackers.splice(i, 1)
-      }else{
-        for(let j = this.trackers[i].attributes.length - 1; j >= 0; --j){
+      } else {
+        for (let j = this.trackers[i].attributes.length - 1; j >= 0; --j) {
           const attr = this.trackers[i].attributes[j]
-          if(attr.isInTrashcan == true)
-          {
-            this.trackers[i].attributes.splice(j,1)
+          if (attr.isInTrashcan === true) {
+            this.trackers[i].attributes.splice(j, 1)
           }
         }
       }
     }
 
-    for(let i = this.triggers.length - 1; i>= 0; --i){
-      if(this.triggers[i].removed == true)
-      {
+    for (let i = this.triggers.length - 1; i >= 0; --i) {
+      if (this.triggers[i].removed === true) {
         this.triggers.splice(i, 1)
       }
     }
 
     const trackerIdTable = {}
-    var trackerCount = 0
+    let trackerCount = 0
     const triggerIdTable = {}
-    var triggerCount = 0
+    let triggerCount = 0
     const attributeIdTable = {}
-    var attributeCount = 0
+    let attributeCount = 0
     const attributeLocalIdTable = {}
 
     this.placeHolderDict = { user: null, trackers: [], triggers: [], attributes: [] }
     this.placeHolderDict.user = this.generatePlaceholder("owner")
 
-    //anonymise trackers and attributes 
+    // anonymise trackers and attributes
     this.trackers.forEach(tracker => {
       tracker.user = this.placeHolderDict.user
       const trackerPlaceHolder = this.generatePlaceholder("tracker", trackerCount)
@@ -92,20 +89,20 @@ export default class PredefinedPackage {
       tracker.attributes.forEach(attribute => {
         const attrPlaceHolder = this.generatePlaceholder("attribute", attributeCount)
         const attrLocalIdPlaceHolder = this.generatePlaceholder("attribute_local", attributeCount)
-        this.placeHolderDict.attributes.push({id: attrPlaceHolder, localId: attrLocalIdPlaceHolder})
+        this.placeHolderDict.attributes.push({ id: attrPlaceHolder, localId: attrLocalIdPlaceHolder })
         attributeIdTable[attribute.objectId] = attrPlaceHolder
         attributeLocalIdTable[attribute.localId] = attrLocalIdPlaceHolder
         attributeCount++
-        
+
         attribute.objectId = attrPlaceHolder
         attribute.localId = attrLocalIdPlaceHolder
         attribute.trackerId = trackerIdTable[attribute.trackerId]
       })
     })
-    
-    //anonymise triggers and associated trackers and attributes
+
+    // anonymise triggers and associated trackers and attributes
     this.triggers.forEach(trigger => {
-      const triggerPlaceHolder= this.generatePlaceholder("trigger", triggerCount)
+      const triggerPlaceHolder = this.generatePlaceholder("trigger", triggerCount)
       triggerCount++
       this.placeHolderDict.triggers.push(triggerPlaceHolder)
       triggerIdTable[trigger.objectId] = triggerPlaceHolder
@@ -118,24 +115,27 @@ export default class PredefinedPackage {
         }
       }
 
-      //condition script
-      if(trigger.script!=null)
-      {
-        for(let id in trackerIdTable)
-        {
-          trigger.script = trigger.script.replace(id, trackerIdTable[id])
+      // condition script
+      if (trigger.script != null) {
+        for (const id in trackerIdTable) {
+          if (trackerIdTable.hasOwnProperty(id)) {
+            trigger.script = trigger.script.replace(id, trackerIdTable[id])
+          }
         }
-        for(let id in triggerIdTable)
-        {
-          trigger.script = trigger.script.replace(id, triggerIdTable[id])
+        for (const id in triggerIdTable) {
+          if (triggerIdTable.hasOwnProperty(id)) {
+            trigger.script = trigger.script.replace(id, triggerIdTable[id])
+          }
         }
-        for(let id in attributeIdTable)
-        {
-          trigger.script = trigger.script.replace(id, attributeIdTable[id])
+        for (const id in attributeIdTable) {
+          if (attributeIdTable.hasOwnProperty(id)) {
+            trigger.script = trigger.script.replace(id, attributeIdTable[id])
+          }
         }
-        for(let id in attributeLocalIdTable)
-        {
-          trigger.script = trigger.script.replace(id, attributeLocalIdTable[id])
+        for (const id in attributeLocalIdTable) {
+          if (attributeLocalIdTable.hasOwnProperty(id)) {
+            trigger.script = trigger.script.replace(id, attributeLocalIdTable[id])
+          }
         }
       }
     })

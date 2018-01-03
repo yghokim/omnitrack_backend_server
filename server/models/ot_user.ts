@@ -18,7 +18,7 @@ const otUserSchema = new mongoose.Schema({
   accountCreationTime: Date,
   accountLastSignInTime: Date,
   activatedRoles: [{
-    role: {type: String, required: true}, 
+    role: {type: String, required: true},
     isConsentApproved: {type: Boolean, default: false, required: true},
     information: mongoose.Schema.Types.Mixed
   }],

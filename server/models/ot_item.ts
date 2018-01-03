@@ -2,12 +2,12 @@ import * as mongoose from 'mongoose';
 
 const otItemSchema = new mongoose.Schema({
   _id: {type: String, unique: true},
-  tracker: {type:String, ref: 'OTTracker', required: true},
-  user: {type:String, ref: 'OTUser', required: true},
+  tracker: {type: String, ref: 'OTTracker', required: true},
+  user: {type: String, ref: 'OTUser', required: true},
   source: String,
-  timestamp: {type:Number, required: true},
+  timestamp: {type: Number, required: true},
   deviceId: String,
-  dataTable: [{_id:false, attrLocalId: String, sVal: String}],
+  dataTable: [{_id: false, attrLocalId: String, sVal: String}],
   removed: {type: Boolean, default: false},
   userUpdatedAt: Number
 }, {timestamps: true});

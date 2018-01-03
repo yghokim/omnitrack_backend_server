@@ -14,14 +14,14 @@ export class ResearchFrameComponent implements OnInit {
   ngOnInit() {
   }
 
-  signOut(){
-    this.authService.signOut().subscribe((signedOut)=>{
+  signOut() {
+    this.authService.signOut().subscribe((signedOut) => {
       console.log("successfully signed out.")
       this.goToSignIn()
     })
   }
 
-  goToSignIn(){
+  goToSignIn() {
     this.router.navigate(['/research/login'])
   }
 }

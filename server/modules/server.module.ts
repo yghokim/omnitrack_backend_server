@@ -22,7 +22,7 @@ export default class ServerModule {
 
   bootstrap() {
     try {
-      OTParticipant.remove({ experiment: {$exists: false}}).then(result=>{
+      OTParticipant.remove({ experiment: {$exists: false}}).then(result => {
         console.log(result["result"].n + " dangling participants were removed.")
       })
       OTItem.collection.dropIndex("objectId_1")
@@ -73,7 +73,7 @@ export default class ServerModule {
                   })
               })
           } else {
-            //another mime types
+            // another mime types
           }
         })
       } else {
@@ -83,7 +83,7 @@ export default class ServerModule {
   }
 
   private newAgendaBase(): Agenda {
-    var mongoDbUri: string
+    let mongoDbUri: string
     if (env.node_env === 'test') {
       mongoDbUri = env.mongodb_test_uri
     } else {
@@ -98,30 +98,29 @@ export default class ServerModule {
     return "storage/uploads/users/" + userId + "/" + trackerId + "/" + itemId
   }
 
-  private defineDataMessagePushAgenda(){
-    this.agenda.define(C.TASK_PUSH_DATA, (job, done)=>{
+  private defineDataMessagePushAgenda() {
+    this.agenda.define(C.TASK_PUSH_DATA, (job, done) => {
       console.log("start sending synchronization job..")
       const userId = job.attrs.data.userId
       const options = job.attrs.data.options
       const messagePayload = job.attrs.data.messagePayload
-    
-      app.pushModule().sendDataPayloadMessageToUser(userId, messagePayload, options).then(arr=>{
+
+      app.pushModule().sendDataPayloadMessageToUser(userId, messagePayload, options).then(arr => {
         console.log(arr)
         done()
-      }).catch((err)=>{
+      }).catch((err) => {
         console.log(err)
         done(new Error("push error"))
       })
     })
   }
 
-  registerMessageDataPush(userId: string|string[], messageData: MessageData, options: PushOptions = {excludeDeviceIds: []}){
+  registerMessageDataPush(userId: string|string[], messageData: MessageData, options: PushOptions = {excludeDeviceIds: []}) {
     console.log("send synchronization push - " + userId)
-    this.agenda.now(C.TASK_PUSH_DATA, {userId: userId, messagePayload: messageData.toMessagingPayloadJson(), options: options}, (err)=>{
-      if(err){
+    this.agenda.now(C.TASK_PUSH_DATA, {userId: userId, messagePayload: messageData.toMessagingPayloadJson(), options: options}, (err) => {
+      if (err) {
 
-      }
-      else{
+      } else {
         console.log("sent push messages successfully.")
       }
     })

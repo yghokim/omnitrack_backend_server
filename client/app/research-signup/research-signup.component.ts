@@ -33,20 +33,18 @@ export class ResearchSignupComponent implements OnInit {
         password: this.password,
         confirmPassword: this.confirmPassword
       }, {
-        validator: (group: FormGroup)=>{
+        validator: (group: FormGroup) => {
           const passwordInput = group.controls["password"]
           const confirmPasswordInput = group.controls["confirmPassword"]
-          if(passwordInput.value != confirmPasswordInput.value)
-          {
+          if (passwordInput.value !== confirmPasswordInput.value) {
             return confirmPasswordInput.setErrors({passwordNotMatch: true})
-          }
-          else return null
+          } else { return null }
         }
       })
     })
   }
 
-  register(){
+  register() {
     console.log("register")
     const credential = {
       email: this.registerForm.value.email,
@@ -54,14 +52,14 @@ export class ResearchSignupComponent implements OnInit {
       password: this.registerForm.value.matchingPassword.password
     }
     this.authService.register(credential).subscribe(
-      res=>{
+      res => {
         this.router.navigate(['/research'])
       }
     )
   }
 
   setClassEmail() {
-    return (!this.email.pristine && !this.email.valid)? ":invalid":":valid";
+    return (!this.email.pristine && !this.email.valid) ? ":invalid" : ":valid";
   }
 
   setClassPassword() {

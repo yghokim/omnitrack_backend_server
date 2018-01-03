@@ -2,7 +2,7 @@
   <div class="card">
     <mat-tab-group class="tab-group" (selectedTabChange)="onTabChanged($event)">
       <mat-tab label="Study Participants">
-        <busy-overlay *ngIf="isLoadingParticipants" [scale]="0.5" [overlayClass]="'main'"></busy-overlay>
+        <app-busy-overlay *ngIf="isLoadingParticipants" [scale]="0.5" [overlayClass]="'main'"></app-busy-overlay>
         <table class="table table-data">
           <thead>
             <tr>
@@ -14,8 +14,8 @@
               <th></th>
             </tr>
           </thead>
-          <tr class="hoverable singleline" *ngFor="let participant of participants let index = index" (mouseLeave)="selectedRowIndex = -1"
-            (mouseOver)="selectedRowIndex = index">
+          <tr class="hoverable singleline" *ngFor="let participant of participants let index = index" (mouseLeave)="hoveredRowIndex = -1"
+            (mouseOver)="hoveredRowIndex = index">
             <td>{{participant.user.email}}</td>
             <td>
               <div class="tag tag-danger" *ngIf="participant.isDenied">Denied</div>
@@ -53,8 +53,8 @@
         </div>
       </mat-tab>
       <mat-tab label="The OmniTrack User Pool">
-        <busy-overlay *ngIf="isLoadingUserPool" [scale]="0.5" [overlayClass]="main"></busy-overlay>
-        <table class="table table-data" (mouseleave)="selectedRowIndex = -1">
+        <app-busy-overlay *ngIf="isLoadingUserPool" [scale]="0.5" [overlayClass]="'main'"></app-busy-overlay>
+        <table class="table table-data" (mouseleave)="hoveredRowIndex = -1">
           <thead>
             <tr>
               <th>Email</th>
@@ -66,7 +66,7 @@
               <th></th>
             </tr>
           </thead>
-          <tr class="hoverable singleline" *ngFor="let user of userPool let index = index" (mouseleave)="selectedRowIndex = -1" (mouseover)="selectedRowIndex = index">
+          <tr class="hoverable singleline" *ngFor="let user of userPool let index = index" (mouseleave)="hoveredRowIndex = -1" (mouseover)="hoveredRowIndex = index">
             <td>{{user.email}}</td>
             <td>
               <div *ngIf="extractParticipantFromthisExperiment(user)">
@@ -83,7 +83,7 @@
             <td>{{user.accountLastSignInTime | date: 'MMM dd, yyyy'}}</td>
             <td>{{user._id}}</td>
             <td class="button-cell">
-              <div class="pull-right" [style.visibility]="selectedRowIndex != index? 'hidden' : 'inherit'">
+              <div class="pull-right" [style.visibility]="hoveredRowIndex != index? 'hidden' : 'inherit'">
                 <button mat-icon-button [matMenuTriggerFor]="menu">
                   <mat-icon class="material-icons">more_vert</mat-icon>
                 </button>

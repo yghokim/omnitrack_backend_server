@@ -1,8 +1,8 @@
 import { TimePoint, TimeSpan, ServerFile, LatLng, Fraction } from './datatypes/field_datatypes'
 
-var bigdecimal = require("bigdecimal");
-var StringBuilder = require('stringbuilder');
-export default class TypedStringSerializer{
+const bigdecimal = require("bigdecimal");
+const StringBuilder = require('stringbuilder');
+export default class TypedStringSerializer {
   static readonly TYPENAME_INT = "I"
   static readonly TYPENAME_LONG = "L"
   static readonly TYPENAME_FLOAT = "F"
@@ -18,20 +18,20 @@ export default class TypedStringSerializer{
   static readonly TYPENAME_FRACTION = "Fr"
   static readonly TYPENAME_SERVERFILE = "SF"
 
-  static deserialize(typedString: string): any{
-    
+  static deserialize(typedString: string): any {
+
     const typeLength = parseInt(typedString[0])
     const typeName = typedString.substr(1, typeLength)
     const value = typedString.substring(1 + typeLength, typedString.length).toString()
-    switch(typeName) {
+    switch (typeName) {
         case TypedStringSerializer.TYPENAME_INT: return parseInt(value)
         case TypedStringSerializer.TYPENAME_FLOAT: return parseFloat(value)
         case TypedStringSerializer.TYPENAME_DOUBLE: return parseFloat(value)
         case TypedStringSerializer.TYPENAME_LONG: return parseInt(value)
         case TypedStringSerializer.TYPENAME_STRING: return value
         case TypedStringSerializer.TYPENAME_BIGDECIMAL: return new bigdecimal.BigDecimal(value)
-        
-        case TypedStringSerializer.TYPENAME_TIMEPOINT: 
+
+        case TypedStringSerializer.TYPENAME_TIMEPOINT:
           const tpParts = value.split('@')
           return new TimePoint(parseInt(tpParts[0]), tpParts[1])
 
@@ -41,33 +41,33 @@ export default class TypedStringSerializer{
 
         case TypedStringSerializer.TYPENAME_INT_ARRAY:
         case TypedStringSerializer.TYPENAME_LONG_ARRAY:
-         if (value.length==0) {
+         if (value.length === 0) {
             return new Array<number>()
         } else {
-            return value.split(",").map(s=>parseInt(s))
+            return value.split(",").map(s => parseInt(s))
         }
 
         case TypedStringSerializer.TYPENAME_LATITUDE_LONGITUDE:
           const llParts = value.split(",")
           return new LatLng(parseFloat(llParts[0]), parseFloat(llParts[1]))
 
-        //case TypedStringSerializer.TYPENAME_ROUTE -> Route(value)
-        case TypedStringSerializer.TYPENAME_SERVERFILE: 
+        // case TypedStringSerializer.TYPENAME_ROUTE -> Route(value)
+        case TypedStringSerializer.TYPENAME_SERVERFILE:
           const serverFileJson = JSON.parse(value)
           return new ServerFile(serverFileJson.path, serverFileJson.size, serverFileJson.mime, serverFileJson.origName)
 
         case TypedStringSerializer.TYPENAME_FRACTION:
             const frParts = value.split("/")
             return new Fraction(parseInt(frParts[0]), parseInt(frParts[1]))
-        
+
     }
   }
 
-  static serialize(typeName: string, value: any): string{
+  static serialize(typeName: string, value: any): string {
     const stringBuilder = new StringBuilder()
     stringBuilder.append(typeName.length)
     stringBuilder.append(typeName)
-    switch(typeName) {
+    switch (typeName) {
         case TypedStringSerializer.TYPENAME_BIGDECIMAL:
           stringBuilder.append(value.toString())
           break;
@@ -84,7 +84,7 @@ export default class TypedStringSerializer{
         case TypedStringSerializer.TYPENAME_LATITUDE_LONGITUDE:
           stringBuilder.append(value.latitude).append(",").append(value.longitude)
           break;
-        //case TypedStringSerializer.TYPENAME_ROUTE -> (value as Route).getSerializedString()
+        // case TypedStringSerializer.TYPENAME_ROUTE -> (value as Route).getSerializedString()
         case TypedStringSerializer.TYPENAME_FRACTION:
           stringBuilder.append(value.upper).append("/").append(value.under)
           break;
@@ -97,7 +97,7 @@ export default class TypedStringSerializer{
           serverFileJson["origName"] = serverFile.originalFileName
           stringBuilder.append(JSON.stringify(serverFileJson))
           break;
-        default: 
+        default:
           stringBuilder.append(value.toString())
           break;
     }

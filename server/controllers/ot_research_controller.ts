@@ -6,7 +6,7 @@ import OTParticipant from '../models/ot_participant'
 import { Document } from 'mongoose';
 import app from '../app';
 
-var crypto = require("crypto");
+const crypto = require("crypto");
 
 export default class OTResearchCtrl {
 
@@ -66,8 +66,7 @@ export default class OTResearchCtrl {
                     alias: manager["alias"]
                   }
                 )
-              }
-              else {
+              } else {
                 res.sendStatus(404)
               }
             }
@@ -83,8 +82,7 @@ export default class OTResearchCtrl {
     OTInvitation.find({ experiment: experimentId }, (err, list) => {
       if (err != null) {
         res.status(500).send(err)
-      }
-      else {
+      } else {
         res.status(200).json(list)
       }
     })
@@ -95,7 +93,7 @@ export default class OTResearchCtrl {
     const experimentId = req.params.experimentId
     const invitationId = req.params.invitationId
     OTInvitation.findOneAndRemove({ _id: invitationId, experiment: experimentId }).then(removed => {
-      //remove participants with pending invitation.
+      // remove participants with pending invitation.
       return OTParticipant.remove(this._makeParticipantQueryConditionForPendingInvitation(invitationId))
     })
       .catch(err => {
@@ -194,11 +192,11 @@ export default class OTResearchCtrl {
     const payload: any = req.body.payload
     payload.sent_by_name = researcher.email
     app.pushModule().sendNotificationMessageToUser(userId, title, message, payload).then(
-      result=>{
+      result => {
         console.log(result)
         res.status(200).send(result)
       }
-    ).catch(err=>{
+    ).catch(err => {
       res.status(500).send(err)
     })
   }

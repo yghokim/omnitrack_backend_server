@@ -37,6 +37,8 @@ export class ComposeMessageComponent implements OnInit {
     }
   ]
 
+  public isBusy = false
+
   public selectedParticipantUserIds: Array<string> = []
 
   public selectedDeliveryType = "now"

@@ -1,27 +1,27 @@
-export abstract class AInvitation{
+export abstract class AInvitation {
   public static readonly RandomGroupType = "RandomGroup"
   public static readonly SpecificGroupType = "SpecificGroup"
 
-  public static fromJson(json: any): AInvitation{
-    switch(json.type){
+  public static fromJson(json: any): AInvitation {
+    switch (json.type) {
       case AInvitation.RandomGroupType: return new RandomGroupInvitation(json.groups)
       case AInvitation.SpecificGroupType: return new SpecificGroupInvitation(json.group)
     }
   }
 
-  constructor(public type:string){}
+  constructor(public type: string) {}
   abstract pickGroup(): string
-  toJson():any{
+  toJson(): any {
     const json = {type: this.type}
     this.processJson(json)
     return json
   }
 
-  protected abstract processJson(json:any)
+  protected abstract processJson(json: any)
 }
 
-export class RandomGroupInvitation extends AInvitation{
-  constructor(public groups: Array<string>){
+export class RandomGroupInvitation extends AInvitation {
+  constructor(public groups: Array<string>) {
     super(AInvitation.RandomGroupType)
   }
 
@@ -34,8 +34,8 @@ export class RandomGroupInvitation extends AInvitation{
   }
 }
 
-export class SpecificGroupInvitation extends AInvitation{
-  constructor(public group: string){
+export class SpecificGroupInvitation extends AInvitation {
+  constructor(public group: string) {
     super(AInvitation.SpecificGroupType)
   }
 
@@ -43,7 +43,7 @@ export class SpecificGroupInvitation extends AInvitation{
     return this.group
   }
 
-  protected processJson(json: any){
+  protected processJson(json: any) {
     json.group = this.group
   }
 }
