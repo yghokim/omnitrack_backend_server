@@ -94,6 +94,10 @@ body {
   padding: 0.5rem;
 }
 
+.fill-width{
+  width: 100%;
+}
+
 .circle-inline{
   background: black;
   width: 1.2em;
@@ -105,6 +109,14 @@ body {
   color: #252525;
 }
 
+.text-color-white{
+  color: white;
+}
+
+.mat-select{
+  font-size: 0.9em;
+}
+
 .mat-icon-button.text-color-darkgray, .text-color-darkgray{
   color: #575757;
 }
@@ -113,6 +125,14 @@ body {
   color: $color_accent;
 }
 
+.tabbar-header-right-container-absolute{
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 10;
+  margin-top: 0.3rem;
+  margin-right: 0.3rem;
+}
 
 .input-group {
   margin-bottom: 15px;
@@ -139,6 +159,14 @@ body {
   padding: 0;
 }
 
+.padding-left-tiny{
+  padding-left: 0.2em;
+}
+
+.no-padding-top{
+  padding-top: 0;
+}
+
 .no-horizontal-padding{
   padding-left: 0;
   padding-right: 0;
@@ -158,6 +186,10 @@ body {
   display: flex;
   & > .flex-element{
     align-self: center;
+  }
+
+  & > .flex-element-fill{
+    flex: 1;
   }
 }
 
@@ -198,6 +230,30 @@ body {
     background: $color_pointed_darker;
     //@include pointed-gradient-darker();
   }
+}
+
+label.small.horizontal{
+  margin-right: 1.5em;
+}
+
+.tiny{
+  font-size: 0.5em;
+}
+
+.text-size-dot8em{
+  font-size: 0.8em;
+}
+
+.text-size-1dot2em{
+  font-size: 1.2em;
+}
+
+.left-margin-dot5em{
+  margin-left: 0.5em;
+}
+
+.left-margin-dot2em{
+  margin-left: 0.2em;
 }
 
 small.info-text{
@@ -302,7 +358,7 @@ small.info-text{
 
 .overlay-busy{
   position: absolute;
-  z-index: 5000;
+  z-index: 10;
   top: 0;
   right: 0;
   width: 100%;
@@ -436,6 +492,10 @@ table.table.no-borders{
   td, th{
     border: hidden;
   }
+}
+
+.form-control{
+  font-size: 0.9em; 
 }
 
 mat-dialog-container.mat-dialog-container{

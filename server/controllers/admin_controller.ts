@@ -12,19 +12,15 @@ import app from '../app';
 
 export default class AdminCtrl {
 
-  clearResearchers = (req, res) =>{
-    OTResearcher.remove({}, (err)=>{
-      if(err!=null)
-      {
+  clearResearchers = (req, res) => {
+    OTResearcher.remove({}, (err) => {
+      if (err != null) {
         res.sendStatus(500)
-      }
-      else{
-        OTExperiment.remove({}, (err2)=>{
-          if(err2 != null)
-          {
+      } else {
+        OTExperiment.remove({}, (err2) => {
+          if (err2 != null) {
             res.sendStatus(500)
-          }
-          else{
+          } else {
             res.status(200).send(true)
           }
         })
@@ -32,24 +28,24 @@ export default class AdminCtrl {
     })
   }
 
-  pushUsers = (req, res)=>{
+  pushUsers = (req, res) => {
     const userData = JSON.parse(req.query.users)
     console.log("push " + userData.length + " user data.")
-    OTUser.collection.bulkWrite(userData.map(user=>{
+    OTUser.collection.bulkWrite(userData.map(user => {
       return {insertOne: {"document": user}}
-    })).then(bulkResult=>{
+    })).then(bulkResult => {
       console.log(bulkResult)
       res.status(200).send(bulkResult)
     })
   }
 
-  migrateUserTrackingData = (req, res) =>{
+  migrateUserTrackingData = (req, res) => {
     const fromUserId = req.query["from"]
     const toUserId = req.query["to"]
     Promise.all([
       OTItem, OTTracker, OTTrigger
-    ].map(model => {return model.update({user: fromUserId}, {$set: {user: toUserId}}, {multi: true})}))
-      .then(results=>{
+    ].map(model => model.update({user: fromUserId}, {$set: {user: toUserId}}, {multi: true})))
+      .then(results => {
         console.log(results)
         res.sendStatus(200)
       })
@@ -80,6 +76,7 @@ export default class AdminCtrl {
 
   injectPackageToUser = (req, res) => {
     const userId = req.params.userId
+    const creationFlags = req.body.creationFlags
     const packageName = req.params.packageName
     if (packageName != null) {
       switch (packageName) {
@@ -87,7 +84,7 @@ export default class AdminCtrl {
           return fs.readJson(path.resolve(__dirname, "../../../../omnitrack/examples/example_trackers.json"))
             .then(
             pack => {
-              return app.omnitrackModule().injectPackage(userId, pack)
+              return app.omnitrackModule().injectPackage(userId, pack, creationFlags)
             }
             ).then(
             () => {
@@ -132,7 +129,7 @@ export default class AdminCtrl {
 
   setTriggerSwitch = (req, res) => {
     const triggerId = req.params.triggerId
-    const isOn = req.params.isOn.toLowerCase() == "true"
+    const isOn = req.params.isOn.toLowerCase() === "true"
     console.log("triggerId: " + triggerId)
     console.log("isOn: " + isOn)
     req.app.get("omnitrack").commandModule.setTriggerSwitch(triggerId, isOn)
@@ -157,34 +154,34 @@ export default class AdminCtrl {
       )
   }
 
-  removeUser = (req, res)=>{
+  removeUser = (req, res) => {
     const userId = req.params.userId
     app.commandModule().removeUser(userId, false, false).then(
-      removed=>{
+      removed => {
         res.status(200).send(removed)
       }
     ).catch(
-      err=>{
+      err => {
         res.status(500).send(err)
       }
     )
   }
 
-  getAttributePropertyValue = (req, res)=>{
+  getAttributePropertyValue = (req, res) => {
     const trackerId = req.params.trackerId
     const attributeLocalId = req.params.attributeLocalId
     const propertyKey = req.params.propertyKey
     app.commandModule().getAttributePropertyValue(trackerId, attributeLocalId, propertyKey).then(
-      result=>
+      result =>
       res.status(200).send(result)
     )
-    .catch(err=>{
+    .catch(err => {
       console.log(err)
       res.status(500).send(err)
     })
   }
 
-  setAttributePropertySerializedValue = (req, res)=>{
+  setAttributePropertySerializedValue = (req, res) => {
     const trackerId = req.query.trackerId
     const attributeLocalId = req.query.attributeLocalId
     const attributeType = req.query.attributeType
@@ -194,35 +191,30 @@ export default class AdminCtrl {
 
     const trackerFilter = {}
     const attributeFilter = {}
-    if(trackerId)
-    {
+    if (trackerId) {
       trackerFilter["_id"] = trackerId
     }
 
-    if(attributeLocalId)
-    {
+    if (attributeLocalId) {
       attributeFilter["attributes.localId"] = attributeLocalId
     }
 
-    if(attributeType)
-    {
+    if (attributeType) {
       attributeFilter["attributes.type"] = Number(attributeType)
     }
 
-    if(attributeName)
-    {
+    if (attributeName) {
       attributeFilter["attributes.name"] = attributeName
     }
-    
+
     app.commandModule().setAttributePropertySerializedValue(trackerFilter, attributeFilter, propertyKey, serializedValue).then(
-      result=>{
+      result => {
         res.status(200).send(result)
       }
-    ).catch(err=>
-      {
+    ).catch(err => {
         res.status(500).send(err)
       }
     )
-    
+
   }
 }

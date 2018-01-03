@@ -30,7 +30,7 @@ export class ResearchApiService {
             const info = new ExperimentInfo()
             info.id = exp._id
             info.name = exp.name
-            info.isAdmin = exp.manager == this.authService.currentResearcher.uid
+            info.isAdmin = exp.manager === this.authService.currentResearcher.uid
             return info
           }
         )
@@ -44,36 +44,34 @@ export class ResearchApiService {
   }
 
   setSelectedExperimentId(id: string): Observable<any> {
-    if (this.selectedExperimentId != id) {
+    if (this.selectedExperimentId !== id) {
         this.selectedExperimentId = id
         this.selectedExperimentService.next(new ExperimentService(this.selectedExperimentId, this.http, this.authService, this))
     }
-    
-    return this.selectedExperimentService.flatMap(expService=> expService.reloadExperiment())
+
+    return this.selectedExperimentService.flatMap(expService => expService.reloadExperiment())
   }
 
-  getUserPool(): Observable<Array<any>>{
-    if(!this.userPoolQuery)
-    {
-      this.userPoolQuery = this.http.get("/api/research/users/all", this.authorizedOptions).map(res=>{
+  getUserPool(): Observable<Array<any>> {
+    if (!this.userPoolQuery) {
+      this.userPoolQuery = this.http.get("/api/research/users/all", this.authorizedOptions).map(res => {
         return res.json()}).publishReplay(1).refCount()
     }
 
     return this.userPoolQuery
   }
 
-  invalidateUserPool(){
+  invalidateUserPool() {
     this.userPoolQuery = null
   }
 
-  deleteUserAccount(userId: string, removeData: boolean): Observable<boolean>{
+  deleteUserAccount(userId: string, removeData: boolean): Observable<boolean> {
     return this.http.delete('/api/research/users/' + userId, new RequestOptions({ headers: this.tokenHeaders, params: {removeData: removeData} }))
-      .map(res=>{
+      .map(res => {
         console.log(res.json())
         return true
-      }).do(result=>{
-        if(result==true)
-        {
+      }).do(result => {
+        if (result === true) {
           this.invalidateUserPool()
         }
       })

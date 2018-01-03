@@ -1,9 +1,8 @@
 <div class="container">
-  <mat-tab-group class="tab-group" (selectedTabChange)="onTabChanged($event)">
-    <mat-tab label="Study Participants">
-
-      <div class="card card-main">
-        <busy-overlay *ngIf="isLoadingParticipants" [scale]="0.5" [overlayClass]="main"></busy-overlay>
+  <div class="card">
+    <mat-tab-group class="tab-group" (selectedTabChange)="onTabChanged($event)">
+      <mat-tab label="Study Participants">
+        <busy-overlay *ngIf="isLoadingParticipants" [scale]="0.5" [overlayClass]="'main'"></busy-overlay>
         <table class="table table-data">
           <thead>
             <tr>
@@ -35,10 +34,10 @@
                 <mat-menu #menu="matMenu">
                   <button mat-menu-item *ngIf="!participant.isDenied && !participant.isConsentApproved" (click)="onDeleteParticipantClicked(participant._id, 'Cancel Invitation', 'Do you want to cancel the pending invitation to the user?')">
                     <span>Cancel Invitation</span>
-                  </button>  
+                  </button>
                   <button mat-menu-item *ngIf="!participant.isDenied && 
                   participant.isConsentApproved" (click)="onDeleteParticipantClicked(participant._id, 'Exclude Participant', 'Do you want to exclude the participant from the experiment?')"></button>
-                    <span *ngIf="!participant.isDenied && 
+                  <span *ngIf="!participant.isDenied && 
                     participant.isConsentApproved">Exclude Participant</span>
                 </mat-menu>
               </div>
@@ -52,10 +51,8 @@
           <small *ngIf="participants!= null && participants.length > 0" class="text-color-gray">Participants: {{participants.length}}</small>
 
         </div>
-      </div>
-    </mat-tab>
-    <mat-tab label="The OmniTrack User Pool">
-      <div class="card card-main">
+      </mat-tab>
+      <mat-tab label="The OmniTrack User Pool">
         <busy-overlay *ngIf="isLoadingUserPool" [scale]="0.5" [overlayClass]="main"></busy-overlay>
         <table class="table table-data" (mouseleave)="selectedRowIndex = -1">
           <thead>
@@ -75,7 +72,7 @@
               <div *ngIf="extractParticipantFromthisExperiment(user)">
                 <span *ngIf="hasPendingInvitationFromThisExperiment(user)" class="tag tag-warning">Invitation Pending</span>
                 <span *ngIf="isParticipatingInThisExperiment(user)" class="tag tag-primary">In Experiment</span>
-                
+
               </div>
               <div *ngIf="isParticipatingInAnotherExperiment(user)">
                 <span class="tag tag-warning">In Other Experiments</span>
@@ -111,11 +108,10 @@
           <small *ngIf="userPool!= null && userPool.length > 0" class="text-color-gray">Users: {{userPool.length}}</small>
 
         </div>
-      </div>
-    </mat-tab>
-  </mat-tab-group>
+      </mat-tab>
+    </mat-tab-group>
 
-
+  </div>
 
 
 </div>

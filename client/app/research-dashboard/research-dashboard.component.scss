@@ -1,7 +1,7 @@
 @import '../../styles.scss';
 
 $header_height: 45px;
-$sidebar_width: 180px;
+$sidebar_width: 185px;
 
 .header{
   height: $header_height;
@@ -117,20 +117,35 @@ $sidebar_width: 180px;
         margin-top: 0;
       }
     }
+
+    .gnb-icon{
+      font-size: 1.2em;
+      margin-right: 0.5em;
+    }
     
   }
 
   #research_column_main{
     overflow-y: auto;
-    #title-header{
+    .title-header{
       @include main-gradient();
       padding: .5rem 0.9rem;
       margin-bottom: 2em;
       border-radius: 0;
+
+      &.with-button{
+        padding-left: 0.2rem;
+      }
+
       .dashboard-title{
         color: white;
         text-transform: uppercase;
         font-size: 1.0em;
+        font-weight: 500;
+      }
+
+      small.dashboard-back-title{
+        color: rgba(255,255,255,0.8);
         font-weight: 500;
       }
     }

@@ -13,19 +13,19 @@ import { NewInvitationDialogComponent } from '../experiment-invitations/new-invi
 })
 export class ExperimentParticipantsComponent implements OnInit {
 
-  private userPool: Array<any>
-  private userPoolSubscription: Subscription = null
-  private isLoadingUserPool = true
+  public userPool: Array<any>
+  public userPoolSubscription: Subscription = null
+  public isLoadingUserPool = true
 
-  private participants: Array<any>
-  private participantsSubscription: Subscription = null
-  private isLoadingParticipants = true
+  public participants: Array<any>
+  public participantsSubscription: Subscription = null
+  public isLoadingParticipants = true
 
-  private hoveredRowIndex = -1
-  private hoveredParticipantId = null
+  public hoveredRowIndex = -1
+  public hoveredParticipantId = null
 
   constructor(
-    private api: ResearchApiService,
+    public api: ResearchApiService,
     private dialog: MatDialog
   ) { }
 
@@ -70,8 +70,8 @@ export class ExperimentParticipantsComponent implements OnInit {
   }
 
   onSendInvitationClicked(userId: string) {
-    this.api.selectedExperimentService.flatMap(expService => expService.getInvitations()).subscribe(list=>{
-      if (list.length > 0) { //Has invitations. Show selection window.
+    this.api.selectedExperimentService.flatMap(expService => expService.getInvitations()).subscribe(list => {
+      if (list.length > 0) { // Has invitations. Show selection window.
         this.dialog.open(ChooseInvitationDialogComponent, { data: { positiveLabel: "Send" } }).afterClosed().subscribe(
           invitationCode => {
             if (invitationCode) {
@@ -84,17 +84,15 @@ export class ExperimentParticipantsComponent implements OnInit {
             }
           }
         )
-      }
-      else{
-        //No invitation. Ask to make the invitation.
+      } else {
+        // No invitation. Ask to make the invitation.
         this.dialog.open(YesNoDialogComponent, { data: {
-          title: "No Invitation", 
+          title: "No Invitation",
           message: "There are no invitations to current experiment. Do you want to create a new one and invite the user?",
           positiveLabel: "Create New Invitation"
-        } }).afterClosed().subscribe(yes=>{
-          if(yes==true)
-          {
-            this.dialog.open(NewInvitationDialogComponent, {}).afterClosed().subscribe(newInvitation=>{
+        } }).afterClosed().subscribe(yes => {
+          if (yes === true) {
+            this.dialog.open(NewInvitationDialogComponent, {}).afterClosed().subscribe(newInvitation => {
               if (newInvitation) {
                 this.api.selectedExperimentService.flatMap(exp => {
                   return exp.sendInvitation(newInvitation.code, [userId], false)
@@ -112,10 +110,10 @@ export class ExperimentParticipantsComponent implements OnInit {
 
   onDeleteAccountClicked(userId: string) {
     this.dialog.open(YesNoDialogComponent, { data: { title: "Delete User Account", message: "Do you want to remove the user account from server? This process cannot be undone.", positiveLabel: "Delete", positiveColor: "warn", negativeColor: "primary" } }).beforeClose().subscribe(res => {
-      if (res == true) {
+      if (res === true) {
         this.api.deleteUserAccount(userId, true).subscribe(result => {
-          if (result == true) {
-            this.userPool.splice(this.userPool.findIndex((user) => user._id == userId), 1)
+          if (result === true) {
+            this.userPool.splice(this.userPool.findIndex((user) => user._id === userId), 1)
           }
         })
       }
@@ -132,12 +130,12 @@ export class ExperimentParticipantsComponent implements OnInit {
         negativeColor: "primary",
       }
     }).afterClosed().subscribe(ok => {
-      if (ok == true) {
+      if (ok === true) {
         this.api.selectedExperimentService.flatMap(expService => expService.removeParticipant(participantId))
           .subscribe(
           removed => {
             if (removed) {
-              this.participants.splice(this.participants.findIndex(part => part._id == participantId), 1)
+              this.participants.splice(this.participants.findIndex(part => part._id === participantId), 1)
             }
           }
           )
@@ -147,7 +145,7 @@ export class ExperimentParticipantsComponent implements OnInit {
 
   exractDemographics(user) {
     if (user.activatedRoles) {
-      const role = user.activatedRoles.find(role => role.role == "ServiceUser")
+      const role = user.activatedRoles.find(r => r.role === "ServiceUser")
       if (role) {
         return role.information.age + " (" + role.information.gender.charAt(0).toUpperCase() + ") in " + role.information.country
       }
@@ -155,21 +153,21 @@ export class ExperimentParticipantsComponent implements OnInit {
   }
 
   extractParticipantFromthisExperiment(user: any): any {
-    return user.participantIdentities.find(participant => participant.invitation.experiment._id == this.api.getSelectedExperimentId())
+    return user.participantIdentities.find(participant => participant.invitation.experiment._id === this.api.getSelectedExperimentId())
   }
 
   isParticipatingInAnotherExperiment(user: any): any {
-    return user.participantIdentities.find(participant => !participant.isDenied && participant.isConsentApproved && participant.invitation.experiment._id != this.api.getSelectedExperimentId()) != null
+    return user.participantIdentities.find(participant => !participant.isDenied && participant.isConsentApproved && participant.invitation.experiment._id !== this.api.getSelectedExperimentId()) != null
   }
 
   hasPendingInvitationFromThisExperiment(user: any): boolean {
     return user.participantIdentities.find(participant =>
-      !participant.isDenied && !participant.isConsentApproved && participant.invitation.experiment._id == this.api.getSelectedExperimentId()) != null
+      !participant.isDenied && !participant.isConsentApproved && participant.invitation.experiment._id === this.api.getSelectedExperimentId()) != null
   }
 
   isParticipatingInThisExperiment(user: any): boolean {
     return user.participantIdentities.find(participant =>
-      !participant.isDenied && participant.isConsentApproved && participant.invitation.experiment._id == this.api.getSelectedExperimentId()) != null
+      !participant.isDenied && participant.isConsentApproved && participant.invitation.experiment._id === this.api.getSelectedExperimentId()) != null
   }
 
 }

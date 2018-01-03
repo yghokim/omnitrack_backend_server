@@ -35,6 +35,7 @@ import { NewInvitationDialogComponent } from './experiment-invitations/new-invit
 import { BusyOverlayComponent } from './busy-overlay/busy-overlay.component';
 import { ChooseInvitationDialogComponent } from './dialogs/choose-invitation-dialog/choose-invitation-dialog.component';
 import { ExperimentMessagingComponent } from './experiment-messaging/experiment-messaging.component';
+import { ComposeMessageComponent } from './experiment-messaging/compose-message/compose-message.component';
 
 
 @NgModule({
@@ -66,7 +67,8 @@ import { ExperimentMessagingComponent } from './experiment-messaging/experiment-
     NewInvitationDialogComponent,
     BusyOverlayComponent,
     ChooseInvitationDialogComponent,
-    ExperimentMessagingComponent
+    ExperimentMessagingComponent,
+    ComposeMessageComponent
   ],
   imports: [
     OAuthModule.forRoot(),

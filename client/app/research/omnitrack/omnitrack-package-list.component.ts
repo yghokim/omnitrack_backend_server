@@ -15,29 +15,28 @@ export class OmniTrackPackageListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.api.selectedExperimentService.flatMap(expService=>expService.getOmniTrackPackages()).subscribe(packages=>{
+    this.api.selectedExperimentService.flatMap(expService => expService.getOmniTrackPackages()).subscribe(packages => {
       this.packages = packages
       console.log(packages)
     })
   }
 
-  getTrackerColorString(tracker: any): string{
+  getTrackerColorString(tracker: any): string {
     const colorInt = tracker.color
-    if(colorInt)
-    {
+    if (colorInt) {
       const alpha = (colorInt  >> 24) & 0xFF
       const red = (colorInt  >> 16) & 0xFF
       const green = (colorInt >> 8) & 0xFF
       const blue = (colorInt) & 0xFF
-      return "rgba(" + red +"," + green +"," + blue + "," + (alpha/255) +")"
-    }else return "transparent"
+      return "rgba(" + red + "," + green + "," + blue + "," + (alpha / 255) + ")"
+    } else { return "transparent" }
   }
 
-  findTracker(pack, trackerId){
-    return pack.data.trackers.find(tracker => tracker.objectId == trackerId)
+  findTracker(pack, trackerId) {
+    return pack.data.trackers.find(tracker => tracker.objectId === trackerId)
   }
 
-  onAddNewPackageClicked(){
+  onAddNewPackageClicked() {
 
   }
 

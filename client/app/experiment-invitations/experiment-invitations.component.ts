@@ -49,15 +49,15 @@ export class ExperimentInvitationsComponent implements OnInit {
         case AInvitation.RandomGroupType:
           return "Random Group"
       }
-    } else return ""
+    } else { return "" }
   }
 
   onDeleteClicked(invitation: any) {
     this.dialog.open(YesNoDialogComponent, { data: { title: "Remove Invitation", message: "Do you want to remove invitation?<br>This process cannot be undone.", positiveLabel: "Delete", positiveColor: "warn", negativeColor: "primary" } }).beforeClose().subscribe(res => {
-      if (res == true) {
+      if (res === true) {
         this.experimentService.removeInvitation(invitation).subscribe(result => {
-          if (result == true) {
-            this.invitations.splice(this.invitations.findIndex((invit) => invit._id == invitation._id), 1)
+          if (result === true) {
+            this.invitations.splice(this.invitations.findIndex((invit) => invit._id === invitation._id), 1)
           }
         })
       }
@@ -75,7 +75,7 @@ export class ExperimentInvitationsComponent implements OnInit {
   }
 
   getGroupName(groupId): string {
-    return (this.groups.find(g => g._id == groupId) || {name:""}).name
+    return (this.groups.find(g => g._id === groupId) || {name: ""}).name
   }
 
 }

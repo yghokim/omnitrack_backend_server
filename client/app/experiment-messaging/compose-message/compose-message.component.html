@@ -1,0 +1,74 @@
+<div class="container">
+  <div class="card">
+    <div class="card-block no-padding-top">
+      <div class="flex-container flex-align-items-center">
+        <label class="small horizontal">Type</label>
+        <mat-form-field>
+          <mat-select [(value)]="mountedMessage.type">
+            <mat-option *ngFor="let messageType of messageTypes" [value]="messageType.key">{{messageType.text}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="form-group">
+        <label class="small flex-container flex-align-items-center">
+          <span for="inputLabel">Label</span>
+          <span matTooltip="A nickname to idenfity this message on server. Not shown to users." matTooltipPosition="after" matTooltipClass="text-size-dot8em"
+            class="material-icons text-size-1dot2em left-margin-dot2em">help_outline</span>
+        </label>
+        <input class="form-control" id="inputLabel" type="text" name="Label" placeholder="Nickname for this message" [(ngModel)]="mountedMessage.label"
+          autofocus>
+      </div>
+      <div class="form-group">
+        <label class="small" for="inputTitle">Title (Optional)</label>
+        <input class="form-control" id="inputTitle" type="text" name="Title" placeholder="Title" [(ngModel)]="mountedMessage.messageTitle"
+          autofocus>
+      </div>
+      <div class="form-group">
+        <label class="small" for="inputMessageBody">Message</label>
+        <textarea class="form-control" id="inputMessageBody" name="message" placeholder="Message" [(ngModel)]="mountedMessage.messageBody"></textarea>
+      </div>
+      <div class="flex-container flex-align-items-center">
+        <label class="small horizontal">Delivery</label>
+        <mat-form-field class="margin-right-small">
+          <mat-select [(value)]="selectedDeliveryType">
+            <mat-option *ngFor="let deliveryType of deliveryTypes" [value]="deliveryType.key">{{deliveryType.text}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <div *ngIf="selectedDeliveryType === 'later'" class="flex-container flex-align-items-center">
+          <mat-form-field class="margin-right-small">
+            <input matInput [matDatepicker]="picker" value="2018-01-03" placeholder="Date">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field class="margin-right-small">
+            <input matInput placeholder="Time" value="12:00:00" type="time">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="flex-container flex-align-items-center">
+        <label class="small horizontal">Send To</label>
+        <mat-form-field class="margin-right-small">
+          <mat-select [value]="mountedMessage.receiverRule.type" (selectionChange) = "onSelectedReceiverRuleChanged($event)">
+            <mat-option *ngFor="let receiverRuleType of receiverRuleTypes" [value]="receiverRuleType.key">{{receiverRuleType.text}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field class="flex-element-fill" *ngIf="mountedMessage.receiverRule.type === 'SpecificUsers'">
+          <mat-select placeholder="Choose Participants..." multiple [(value)] = "selectedParticipantUserIds" (selectionChange)="onParticipantSelected($event)">
+            <mat-option *ngFor="let participant of (loadedParticipants | async)" [value]="participant.user._id">{{participant.user.email}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <hr>
+      <div class="pull-right">
+        <button [disabled]="!isDraftContentAvailable()" mat-button color="primary" (click)="saveAsDraft()">Save as Draft</button>
+
+        <button [disabled]="!isMessageComposable()" mat-raised-button color="primary" (click)="composeMessage()">Compose</button>
+      </div>
+    </div>
+
+    <busy-overlay *ngIf="isBusy || !mountedMessage" [scale]="0.5"></busy-overlay>
+  </div>
+</div>

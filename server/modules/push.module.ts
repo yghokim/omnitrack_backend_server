@@ -1,7 +1,6 @@
 import OTUser from "../models/ot_user";
 import * as admin from 'firebase-admin';
 import C from '../server_consts';
-import { instanceId } from "firebase-admin";
 
 export default class PushModule {
 

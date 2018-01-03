@@ -21,6 +21,7 @@ import { ExperimentSettingsComponent } from './experiment-settings/experiment-se
 import { OmniTrackPackageListComponent } from './research/omnitrack/omnitrack-package-list.component';
 import { OmniTrackPackageEditComponent } from './research/omnitrack/omnitrack-package-edit.component';
 import { ExperimentMessagingComponent } from './experiment-messaging/experiment-messaging.component';
+import { ComposeMessageComponent } from './experiment-messaging/compose-message/compose-message.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'research', pathMatch: 'full' },
@@ -32,7 +33,8 @@ const routes: Routes = [
         children: [
           { path: '', redirectTo: 'overview', pathMatch: "full"},
           { path: 'overview', component: ExperimentOverviewComponent, data:{title: 'Overview'}},
-          { path: 'messaging', component: ExperimentMessagingComponent, data: {title: "Messaging"}}
+          { path: 'messaging', component: ExperimentMessagingComponent, data: {title: "Messaging"}},
+          { path: 'messaging/new', component: ComposeMessageComponent, data: {title: "Compose Message", backTitle: "Messaging", backNavigationUrl: './messaging'}},
           { path: 'tracking-data', component: ExperimentDataComponent, data: {title: 'Tracking Data'}},
           { path: 'participants', component: ExperimentParticipantsComponent, data: {title: 'Participants'}},
           { path: 'groups', component: ExperimentGroupsComponent, data: {title: 'Groups'}},

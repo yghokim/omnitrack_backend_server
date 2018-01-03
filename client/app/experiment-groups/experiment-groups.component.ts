@@ -9,17 +9,17 @@ import { ExperimentService } from '../services/experiment.service';
 })
 export class ExperimentGroupsComponent implements OnInit {
 
-  private experimentService: ExperimentService
+  public experimentService: ExperimentService
   constructor(private api: ResearchApiService) {
-    api.selectedExperimentService.subscribe(expService=>{
+    api.selectedExperimentService.subscribe(expService => {
       this.experimentService = expService
     })
   }
 
   ngOnInit() {
   }
-  
-  onAddNewGroupClicked(){
+
+  onAddNewGroupClicked() {
 
   }
 }

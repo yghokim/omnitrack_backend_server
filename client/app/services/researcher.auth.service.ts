@@ -8,44 +8,43 @@ import { Observable } from 'rxjs/Observable';
 export class ResearcherAuthService {
   private jsonHeaders = new Headers({ 'Content-Type': 'application/json', 'charset': 'UTF-8' });
   private formHeaders = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded', 'charset': 'UTF-8' });
-  
+
   private jsonOptions = new RequestOptions({ headers: this.jsonHeaders });
   private formOptions = new RequestOptions({ headers: this.formHeaders });
 
   jwtHelper: JwtHelper = new JwtHelper();
-  
+
   currentResearcher = { uid: '', email: '', alias: '' };
 
   constructor(private http: Http) {
     const token = localStorage.getItem('omnitrack_researcher_token');
-    if (token && this.jwtHelper.isTokenExpired(token) == false) {
+    if (token && this.jwtHelper.isTokenExpired(token) === false) {
       this.decodeAndSaveResearcherFromToken(token);
     }
   }
 
-  token(): string{
+  token(): string {
     return localStorage.getItem('omnitrack_researcher_token')
   }
 
-  isSignedIn(): boolean{
+  public isSignedIn(): boolean {
     const token = localStorage.getItem('omnitrack_researcher_token');
-    return (token && this.jwtHelper.isTokenExpired(token) == false)
+    return (token && this.jwtHelper.isTokenExpired(token) === false)
   }
 
-  private decodeAndSaveResearcherFromToken(token){
+  private decodeAndSaveResearcherFromToken(token) {
     const decoded = this.jwtHelper.decodeToken(token)
     this.currentResearcher.uid = decoded.uid
     this.currentResearcher.email = decoded.email
     this.currentResearcher.alias = decoded.alias
   }
 
-  register(info): Observable<any> {
+  public register(info): Observable<any> {
     console.log(info)
     return this.http.post('/api/research/auth/register', JSON.stringify(info), this.jsonOptions)
-    .map(res =>{
+    .map(res => {
       const token = res.json().token
-      if(token!=null)
-      { 
+      if (token != null) {
         localStorage.setItem('omnitrack_researcher_token', token)
         this.decodeAndSaveResearcherFromToken(token)
       }
@@ -53,25 +52,24 @@ export class ResearcherAuthService {
     })
   }
 
-  signOut(): Observable<any>{
-    return Observable.defer(()=>{
+  public signOut(): Observable<any> {
+    return Observable.defer(() => {
       localStorage.removeItem("omnitrack_researcher_token")
       this.currentResearcher = { uid: '', email: '', alias: '' };
       return Observable.of(true)
     })
   }
 
-  authorize(email: string, password: string): Observable<any>{
+  public authorize(email: string, password: string): Observable<any> {
     const requestBody = {
       grant_type: "password",
       username: email,
       password: password
     }
     return this.http.post('/api/research/auth/authenticate', JSON.stringify(requestBody), this.jsonOptions)
-    .map(res=>{
+    .map(res => {
       const token = res.json().token
-      if(token!=null)
-      {
+      if (token != null) {
         localStorage.setItem('omnitrack_researcher_token', token)
         this.decodeAndSaveResearcherFromToken(token)
       }

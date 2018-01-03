@@ -16,6 +16,7 @@ const otTriggerSchema = new mongoose.Schema({
   userCreatedAt: Number,
   userUpdatedAt: Number,
   lockedProperties: {type: Object, default: {}},
+  flags: {type: Object, default: {}},
   isOn: {type: Boolean, default: false},
   removed: {type: Boolean, default: false}
 }, {timestamps: true});

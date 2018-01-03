@@ -1,3 +1,27 @@
-<p>
-  experiment-messaging works!
-</p>
+<div class="container">
+  <div class="card">
+    <mat-tab-group class="tab-group" (selectedTabChange)="onTabChanged($event)">
+      <mat-tab label="Messages">
+        <table class="table table-data">
+          <thead>
+            <th>Type</th>
+            <th>Title</th>
+            <th>Message</th>
+            <th>Reciever Rule</th>
+            <th>Receivers</th>
+            <th>Composed</th>
+            <th>Sent</th>
+            <th></th>
+          </thead>
+        </table>
+      </mat-tab>
+      <mat-tab label="Drafts">
+      </mat-tab>
+    </mat-tab-group>
+    <div class="tabbar-header-right-container-absolute">
+      <button mat-button color="accent" (click)="onNewMessageClicked()">
+        New Message
+      </button>
+    </div>
+  </div>
+</div>

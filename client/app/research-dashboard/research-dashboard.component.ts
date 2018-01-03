@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { ResearchApiService } from '../services/research-api.service';
 import ExperimentInfo from '../models/experiment-info';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatIconRegistry } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 
 @Component({
@@ -13,96 +14,117 @@ import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.com
 })
 export class ResearchDashboardComponent implements OnInit {
 
-  isLoadingSelectedExperiment: boolean = true
-  isLoadingExperiments: boolean = true
+  isLoadingSelectedExperiment = true;
+  isLoadingExperiments = true;
 
-  headerTitle
-  selectedExperimentName
+  headerTitle;
+  upperHeaderTitle;
+  backNavigationUrl;
+  selectedExperimentName;
 
-  experimentInfos: Array<ExperimentInfo> = []
+  experimentInfos: Array<ExperimentInfo> = [];
 
   dashboardNavigationGroups = [
     {
-      name: "Research",
+      name: 'Research',
       menus: [
-        { name: "Overview", key: "overview" },
         {
-          name: "Self-Tracking Data",
-          key: "tracking-data"
+          name: 'Overview',
+          key: 'overview',
+          icon: 'timeline'
         },
         {
-          name: "Participants",
-          key: "participants"
+          name: 'Self-Tracking Data',
+          key: 'tracking-data',
+          icon: 'view_list'
         },
         {
-          name: "Messaging",
-          key: "messaging"
+          name: 'Participants',
+          key: 'participants',
+          icon: 'person'
+        },
+        {
+          name: 'Messaging',
+          key: 'messaging',
+          icon: 'sms'
         }
       ]
     },
     {
-      name: "Design",
+      name: 'Design',
       menus: [
         {
-          name: "Groups",
-          key: "groups"
+          name: 'Groups',
+          key: 'groups',
+          icon: 'group'
         },
         {
-          name: "OmniTrack",
-          key: "omnitrack"
+          name: 'OmniTrack',
+          key: 'omnitrack',
+          icon: 'tune'
+          //svgIcon: 'omnitrack',
+          // iconPath: '/assets/ic_omnitrack_24px.svg'
         }
       ]
     },
     {
-      name: "Settings",
+      name: 'Settings',
       menus: [
         {
-          name: "Invitations",
-          key: "invitations"
+          name: 'Invitations',
+          key: 'invitations',
+          icon: 'mail'
         },
         {
-          name: "Experiment Settings",
-          key: "settings"
+          name: 'Experiment Settings',
+          key: 'settings',
+          icon: 'settings'
         }
       ]
     }
 
-  ]
+  ];
 
   constructor(
-    private api: ResearchApiService,
-    private authService: ResearcherAuthService,
+    public api: ResearchApiService,
+    public authService: ResearcherAuthService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private dialog: MatDialog) {
+    private dialog: MatDialog,
+    private sanitizer: DomSanitizer,
+    private iconRegistry: MatIconRegistry
+  ) {
+    iconRegistry.addSvgIcon("omnitrack", sanitizer.bypassSecurityTrustResourceUrl("/assets/ic_omnitrack_24px.svg"))
+
     this.router.events.filter(ev => ev instanceof NavigationEnd)
       .map(_ => this.router.routerState.root)
       .map(route => {
-        while (route.firstChild) route = route.firstChild
-        return route
+        while (route.firstChild) { route = route.firstChild; }
+        return route;
       })
       .flatMap(route => route.data)
       .subscribe(data => {
-        this.headerTitle = data["title"]
+        this.headerTitle = data['title'];
+        this.upperHeaderTitle = data['backTitle'];
+        this.backNavigationUrl = data['backNavigationUrl'];
       })
   }
 
   ngOnInit() {
-    //init experiment infos
+    // init experiment infos
     this.activatedRoute.paramMap.subscribe(paramMap => {
-      const paramExpId = paramMap.get("experimentId")
+      const paramExpId = paramMap.get('experimentId')
       if (paramExpId) {
-        console.log("mount an experiment : " + paramExpId)
-        localStorage.setItem("selectedExperiment", paramExpId)
+        console.log('mount an experiment : ' + paramExpId)
+        localStorage.setItem('selectedExperiment', paramExpId)
         this.onExperimentSelected(paramExpId)
-      }
-      else {
+      } else {
         this.api.getExperimentInfos().subscribe(experiments => {
           this.isLoadingExperiments = false
           this.experimentInfos = experiments
           if (this.experimentInfos.length > 0) {
-            var selectedId = localStorage.getItem("selectedExperiment") || this.experimentInfos[0].id
-            if (this.experimentInfos.findIndex(exp => exp.id == selectedId) == -1) {
+            let selectedId = localStorage.getItem('selectedExperiment') || this.experimentInfos[0].id
+            if (this.experimentInfos.findIndex(exp => exp.id === selectedId) === -1) {
               selectedId = this.experimentInfos[0].id
             }
             this.router.navigate(['research/dashboard', selectedId])
@@ -111,9 +133,9 @@ export class ResearchDashboardComponent implements OnInit {
       }
     })
 
-    console.log("load experiments of user")
+    console.log('load experiments of user')
     this.api.getExperimentInfos().subscribe(experiments => {
-      console.log("experiments were loaded.")
+      console.log('experiments were loaded.')
       this.isLoadingExperiments = false
       this.experimentInfos = experiments
     })
@@ -128,13 +150,14 @@ export class ResearchDashboardComponent implements OnInit {
     })
   }
 
-  onSignOutClicked(){
-    const dialogRef = this.dialog.open(YesNoDialogComponent,{ data: {
-      title: "Sign Out", message: "Do you want to sign out?",} })
-    dialogRef.afterClosed().subscribe(result=>
-    {
-      if(result==true)
-      {
+  onSignOutClicked() {
+    const dialogRef = this.dialog.open(YesNoDialogComponent, {
+      data: {
+        title: 'Sign Out', message: 'Do you want to sign out?',
+      }
+    })
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
         this.signOut()
       }
     })
@@ -142,13 +165,13 @@ export class ResearchDashboardComponent implements OnInit {
 
   signOut() {
     this.authService.signOut().subscribe((signedOut) => {
-      console.log("successfully signed out.")
-      this.goToSignIn()
-    })
+      console.log('successfully signed out.');
+      this.goToSignIn();
+    });
   }
 
   goToSignIn() {
-    this.router.navigate(['/research/login'])
+    this.router.navigate(['/research/login']);
   }
 
 }

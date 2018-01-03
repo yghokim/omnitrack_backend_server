@@ -9,10 +9,10 @@ import { ExperimentService } from '../services/experiment.service';
 })
 export class ExperimentSettingsComponent implements OnInit {
 
-  private experiment: any
-  private experimentService: ExperimentService
+  public experiment: any
+  public experimentService: ExperimentService
 
-  private manager: any
+  public manager: any
 
   constructor(private api: ResearchApiService) {
     api.selectedExperimentService.subscribe(expService => {
