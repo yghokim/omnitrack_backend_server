@@ -1,3 +1,4 @@
+import { ResearcherAuthService } from '../client/app/services/researcher.auth.service';
 import * as express from 'express';
 
 import OTSyncCtrl from './controllers/ot_sync_controller';
@@ -6,6 +7,7 @@ import OTTrackerCtrl from './controllers/ot_tracker_controller';
 import OTTriggerCtrl from './controllers/ot_trigger_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
 import OTUsageLogCtrl from './controllers/ot_usage_log_controller';
+import OTResearchCtrl from './controllers/ot_research_controller';
 import UserCtrl from './controllers/user';
 import OTUser from './models/ot_user';
 import User from './models/user';
@@ -25,6 +27,7 @@ const router = express.Router();
   const syncCtrl = new OTSyncCtrl(trackerCtrl, triggerCtrl, itemCtrl)
   const storageCtrl = new BinaryStorageCtrl()
   const adminCtrl = new AdminCtrl()
+  const researchCtrl = new OTResearchCtrl()
 
   const firebaseMiddleware = require('express-firebase-middleware');
 
@@ -111,7 +114,13 @@ const router = express.Router();
   router.post('/upload/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier', assertSignedInMiddleware, storageCtrl.uploadItemMedia)
   router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', assertSignedInMiddleware, storageCtrl.downloadItemMedia)
 
+  router.post("/research/invitation/approve", assertSignedInMiddleware, researchCtrl.approveExperimentInvitation)
 
+  router.post("/research/invitation/reject", assertSignedInMiddleware, researchCtrl.rejectExperimentInvitation)
+
+  router.post("/research/experiment/:experimentId/dropout", assertSignedInMiddleware, researchCtrl.dropOutFromExperiment)
+
+  router.get('/research/experiments/history', assertSignedInMiddleware, researchCtrl.getExperimentHistoryOfUser)
 
   /*
     router.route('/items/count').get(catCtrl.count);

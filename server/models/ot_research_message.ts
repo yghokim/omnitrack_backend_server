@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 
 const otResearchMessageSchema = new mongoose.Schema({
   label: String,
-  type: {type: String, default: "push", required: true},
+  type: {type: String, enum: ["push", "email"], default: "push", required: true},
   receiverRule: mongoose.Schema.Types.Mixed,
   receivers: {type: [{type: String, ref: "OTParticipant"}]},
   experiment: {type: String, ref: "OTExperiment", default: undefined},

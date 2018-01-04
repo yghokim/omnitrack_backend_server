@@ -3,6 +3,7 @@ import OTResearcher from '../models/ot_researcher'
 import OTExperiment from '../models/ot_experiment'
 import OTInvitation from '../models/ot_invitation'
 import OTParticipant from '../models/ot_participant'
+import { IJoinedExperimentInfo } from '../../omnitrack/core/research/experiment'
 import { Document } from 'mongoose';
 import app from '../app';
 
@@ -16,6 +17,27 @@ export default class OTResearchCtrl {
 
   private _makeParticipantQueryConditionForPendingInvitation(invitationId) {
     return { $and: [{ invitation: invitationId }, { $or: [{ isDenied: true }, { isConsentApproved: false }] }] }
+  }
+
+  getExperimentHistoryOfUser = (req, res) => {
+    let userId
+    if(res.locals.user)
+    {
+      userId = res.locals.user.uid
+    }
+    else if(req.researcher)
+    {
+      userId = req.query.userId
+    }
+
+    const after = req.query.after || Number.MIN_VALUE
+
+    OTParticipant.find({"user._id": userId, isConsendApproved: true}).populate({path: "experiment", 
+    select: '_id name'}).then(
+      participants=>{
+        participants.map(participant => {return {id: participant["experiment"]._id, name: participant["experiment"].name, joinedAt: participant["approvedAt"].getDate(), droppedAt: participant["dropped"] == true ? participant["droppedAt"].getTime() : null} as IJoinedExperimentInfo})
+      }
+    )
   }
 
   getExperimentInformationsOfResearcher = (req, res) => {
@@ -166,22 +188,105 @@ export default class OTResearchCtrl {
 
   getUsersWithPariticipantInformation = (req, res) => {
     OTUser.find({}).populate({
-        path: 'participantIdentities',
-        select: '_id invitation isDenied isConsentApproved',
+      path: 'participantIdentities',
+      select: '_id invitation isDenied isConsentApproved',
+      populate: {
+        path: 'invitation',
+        select: '_id experiment code',
         populate: {
-          path: 'invitation',
-          select: '_id experiment code',
-          populate: {
-            path: 'experiment',
-            select: '_id name'
-          }
+          path: 'experiment',
+          select: '_id name'
         }
-      }).then(list => {
-        res.status(200).send(list)
-      }).catch(err => {
-        console.log(err)
-        res.status(500).send(err)
+      }
+    }).then(list => {
+      res.status(200).send(list)
+    }).catch(err => {
+      console.log(err)
+      res.status(500).send(err)
+    })
+  }
+
+  approveExperimentInvitation = (req, res) => {
+    let userId: string
+    if (req.researcher) {
+      // researcher mode
+      userId = req.body.userId
+    } else if (res.locals.user) {
+      // user mode
+      userId = res.locals.user.uid
+    } else {
+      res.status(500).send("UnAuthorized from either side.")
+    }
+
+    const invitationCode = req.query.invitationCode
+    if (!userId || !invitationCode) {
+      res.status(500).send("IllegalArgumentException")
+    }
+    else {
+
+      app.researchModule().handleInvitationApproval(userId, invitationCode)
+        .then(result => {
+          res.status(200).send(result)
+        })
+        .catch(error => {
+          res.status(500).send(error)
+        })
+    }
+  }
+
+  rejectExperimentInvitation = (req, res) => {
+    const userId = req.body.userId
+    const invitationCode = req.query.invitationCode
+    if (!userId || !invitationCode) {
+      res.status(500).send("IllegalArgumentException")
+    }
+    else{
+      OTParticipant.findOneAndUpdate({
+        "user._id": userId,
+        "invitation.code": invitationCode
+      }, {isDenied: true, deniedAt: new Date()}, (err, doc) => {
+        if(err)
+        {
+          res.status(500).send(err)
+        }
+        else{
+          res.status(200).send(true)
+        }
       })
+    }
+  }
+
+  dropOutFromExperiment = (req, res) => {
+    let userId: string
+    let researcherId: string = null
+    if (req.researcher) {
+      // researcher mode
+      researcherId = req.researcher.uid
+      userId = req.body.userId
+    } else if (res.locals.user) {
+      // user mode
+      userId = res.locals.user.uid
+    } else {
+      res.status(500).send("UnAuthorized from either side.")
+      return
+    }
+
+    const experimentId = req.params.experimentId
+
+    if(!userId || !experimentId)
+    {
+      res.status(500).send("UnAuthorized from either side.")
+      return
+    }
+
+    const reason = req.body.reason
+
+    app.researchModule().dropOutFromExperiment(userId, experimentId, reason, researcherId).then( success => {
+      res.status(200).send(true)
+    })
+    .catch( err => {
+      res.status(500).send(err)
+    })
   }
 
   sendNotificationMessageToUser = (req, res) => {
