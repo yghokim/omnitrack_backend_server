@@ -1,5 +1,3 @@
-import { IncomingMessage } from "http";
-
 export interface IMessageReceiverRule {
   type: string
 }

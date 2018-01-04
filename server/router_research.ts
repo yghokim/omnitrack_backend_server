@@ -46,10 +46,14 @@ router.delete('/participants/:participantId', tokenAuth, researchCtrl.removePart
 
 router.delete("/users/:userId", tokenAuth, userCtrl.deleteAccount)
 
+router.delete("/participants/:participantId/drop", tokenAuth, researchCtrl.dropOutFromExperiment)
+
+
 router.get("/users/all", tokenAuth, researchCtrl.getUsersWithPariticipantInformation)
 
 // debuging
 router.get('/debug/clear_researchers', adminCtrl.clearResearchers)
 router.get('/debug/push_users', adminCtrl.pushUsers)
+router.get('/debug/participants/all', researchCtrl.getallParticipants)
 
 export default router;

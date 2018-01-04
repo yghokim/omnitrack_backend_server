@@ -1,3 +1,7 @@
+import OTTracker from './models/ot_tracker'
+import OTTrigger from './models/ot_trigger'
+import OTItem from './models/ot_item'
+
 export default class ServerConstants {
   static readonly SYNC_TYPE_TRACKER = "TRACKER"
   static readonly SYNC_TYPE_TRIGGER = "TRIGGER"
@@ -11,4 +15,11 @@ export default class ServerConstants {
   static readonly PUSH_DATA_TYPE_SIGN_OUT = "sign_out"
   static readonly PUSH_DATA_TYPE_DUMP_DB = "dump_db"
 
+  static getSyncTypeFromModel(model: any){
+    switch(model){
+      case OTTracker: return ServerConstants.SYNC_TYPE_TRACKER
+      case OTTrigger: return ServerConstants.SYNC_TYPE_TRIGGER
+      case OTItem: return ServerConstants.SYNC_TYPE_ITEM
+    }
+  }
 }

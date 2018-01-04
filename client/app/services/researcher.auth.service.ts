@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { JwtHelper } from 'angular2-jwt';
 import { Http, Headers, RequestOptions } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
+import 'rxjs/add/operator/map';
 
 @Injectable()
 export class ResearcherAuthService {

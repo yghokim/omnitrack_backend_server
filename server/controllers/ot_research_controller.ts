@@ -175,6 +175,14 @@ export default class OTResearchCtrl {
       })
   }
 
+  getallParticipants = (req, res) => {
+    OTParticipant.find({}).populate("user").populate("invitation").populate("experiment").then(
+      docs => {
+        res.status(200).send(docs)
+      }
+    )
+  }
+
   removeParticipant = (req, res) => {
     const participantId = req.params.participantId
     app.researchModule().removeParticipant(participantId).then(
@@ -258,11 +266,13 @@ export default class OTResearchCtrl {
 
   dropOutFromExperiment = (req, res) => {
     let userId: string
+    let participantId: string
     let researcherId: string = null
     if (req.researcher) {
       // researcher mode
-      researcherId = req.researcher.uid
+      researcherId = req.researcher._id
       userId = req.body.userId
+      participantId = req.params.participantId
     } else if (res.locals.user) {
       // user mode
       userId = res.locals.user.uid
@@ -273,15 +283,19 @@ export default class OTResearchCtrl {
 
     const experimentId = req.params.experimentId
 
-    if(!userId || !experimentId)
-    {
-      res.status(500).send("UnAuthorized from either side.")
-      return
-    }
-
     const reason = req.body.reason
 
-    app.researchModule().dropOutFromExperiment(userId, experimentId, reason, researcherId).then( success => {
+    let promise: Promise<boolean>
+    
+    if(participantId)
+    {
+      promise = app.researchModule().dropParticipant(participantId, reason, researcherId)
+    }else if(userId && experimentId)
+    {
+      promise = app.researchModule().dropOutFromExperiment(userId, experimentId, reason, researcherId)
+    }
+    
+    promise.then( success => {
       res.status(200).send(true)
     })
     .catch( err => {

@@ -16,30 +16,38 @@ import { Document } from 'mongoose';
 
 export default class ResearchModule {
   sendInvitationToUser(invitationCode: string, userId: string, force: boolean): PromiseLike<{ invitationAlreadySent: boolean, participant: any }> {
-    return OTParticipant.findOne({ user: userId, "invitation.code": invitationCode }).then(participantDoc => {
-      let sendAgain = false
-      let reject = false
-      if (participantDoc) {
-        if (force === true) {
-          reject = false
-          sendAgain = true
-        } else {
-          reject = true
-          sendAgain = false
+    return this.getInvitationIdFromCode(invitationCode).then(
+      invitationId => OTParticipant.findOne({ user: userId, "invitation.code": invitationCode }).then(participantDoc => {
+        let sendAgain = false
+        let reject = false
+        if (participantDoc) {
+          if (force === true) {
+            reject = false
+            sendAgain = true
+          } else {
+            reject = true
+            sendAgain = false
+          }
         }
-      }
 
-      if (reject === true) {
-        return { invitationAlreadySent: true, participant: participantDoc }
-      } else {
-        return this.makeParticipantInstanceFromInvitation(invitationCode, userId).then(document => document.save().then(doc => {
-          // TODO send push notification to user
-          return { invitationAlreadySent: sendAgain, participant: doc }
-        })
-        )
-      }
-    }
+        if (reject === true) {
+          return { invitationAlreadySent: true, participant: participantDoc }
+        } else {
+          return this.makeParticipantInstanceFromInvitation(invitationCode, userId).then(document => document.save().then(doc => {
+            // TODO send push notification to user
+            return { invitationAlreadySent: sendAgain, participant: doc }
+          })
+          )
+        }
+      })
     )
+  }
+
+  getInvitationIdFromCode(invitationCode: string): Promise<string> {
+    return OTInvitation.findOne({ code: invitationCode }, { _id: 1 }).then(invitation => invitation._id).catch(err => {
+      console.log(err)
+      return err
+    })
   }
 
   makeParticipantInstanceFromInvitation(invitationCode: string, userId: string): Promise<Document> {
@@ -66,22 +74,33 @@ export default class ResearchModule {
     })
   }
 
-  dropOutFromExperiment(userId: string, experimentId: string, reason?: string, researcherId?: string): Promise<boolean> {
-    return OTParticipant.findOneAndUpdate({"user._id": userId, experiment: experimentId }, {
-      dropped: true, 
-      droppedBy: researcherId, 
+  private dropOutImpl(search: any, reason?: string, researcherId?: string): Promise<boolean> {
+    return OTParticipant.findOneAndUpdate(search, {
+      dropped: true,
+      droppedBy: researcherId,
       droppedReason: reason,
-      droppedAt: new Date()}).then(participant => {
-      if(participant){
+      droppedAt: new Date()
+    }).then(participant => {
+      if (participant) {
         //TODO remove trackers, triggers, items, and medias associated with the experiment
-        return Promise.all([OTTracker, OTItem, OTTrigger].map(model => {
+        return Promise.all([OTTracker, OTTrigger].map(model => {
           return model.update({
             "flags.injected": true,
-            "flags.experiment": experimentId
-          }, {removed: true, userUpdatedAt: new Date().getTime()}).exec()
-        })).then( objRemovalResult => {
+            "flags.experiment": participant["experiment"]
+          }, { removed: true }, { multi: true }).then(res => {
+            if (res.ok === 1) {
+              return { changed: res.n > 0, syncType: C.getSyncTypeFromModel(model), changeCount: res.n }
+            }
+            else return { changed: false, syncType: C.getSyncTypeFromModel(model) }
+          })
+        })).then(objRemovalResult => {
           console.log(objRemovalResult)
-          app.serverModule().registerMessageDataPush(userId, app.pushModule().makeFullSyncMessageData())
+          const changedResults = objRemovalResult.filter(r => r.changed == true)
+          if (changedResults.length > 0) {
+            app.serverModule().registerMessageDataPush(participant["user"], app.pushModule().makeSyncMessageFromTypes(
+              changedResults.map(r => r.syncType)
+            ))
+          }
           return true
         })
       }
@@ -89,56 +108,82 @@ export default class ResearchModule {
     })
   }
 
+  dropOutFromExperiment(userId: string, experimentId: string, reason?: string, researcherId?: string): Promise<boolean> {
+    return this.dropOutImpl({ "user._id": userId, experiment: experimentId }, reason, researcherId)
+  }
+
+  dropParticipant(participantId: string, reason?: string, researcherId?: string): Promise<boolean> {
+    return this.dropOutImpl({ _id: participantId }, reason, researcherId)
+  }
+
   /**
    * Handles the participation process after the user approved the invitation.
    * @param userId
    * @param invitationCode
    */
-  handleInvitationApproval(userId: string, invitationCode: string): Promise<{ success: boolean, injectionExists: boolean, experiment?:IJoinedExperimentInfo  }> {
+  handleInvitationApproval(userId: string, invitationCode: string): Promise<{ success: boolean, error?: String, injectionExists?: boolean, experiment?: IJoinedExperimentInfo }> {
     const joinedDate = new Date()
     // find participant information
-    return OTParticipant.findOneAndUpdate({ "user._id": userId, "invitation.code": invitationCode }, {
-      isDenied: false,
-      isConsentApproved: true,
-      approvedAt: joinedDate
-    }).populate("experiment").then(changedParticipant =>{
-      if(changedParticipant==null)
-      {
-        return this.makeParticipantInstanceFromInvitation(invitationCode, userId).then(newParticipant=>{
-          newParticipant["isDenied"] = false
-          newParticipant["isConsentApproved"] = true
-          newParticipant["approvedAt"] = joinedDate
-          return newParticipant.save().then(participant=>{
-            return participant.populate("experiment").execPopulate()
-          })
-        })
-      }
-      else return changedParticipant
-    }).then(changedParticipant=> {
-      if (changedParticipant) {
-        const groupId = changedParticipant["groupId"]
-        const experiment = changedParticipant["experiment"]
-        const experimentInfo : IJoinedExperimentInfo = {id: experiment._id.toString(), name: experiment.name.toString(), joinedAt: joinedDate.getDate()} 
-        const group = experiment.groups.find(g => g._id === groupId)
-        if (group && group.trackingPackageKey) {
-          const trackingPackage = (experiment.trackingPackages || []).find(p => p.key === group.trackingPackageKey)
-          if (trackingPackage) {
-            console.log("inject trackingPackage '" + trackingPackage.name + "' to user " + userId)
+    return OTInvitation.findOne({ code: invitationCode }, { _id: 1, experiment: 1 })
+      .then(invitation => {
+        if (!invitation) {
+          return { success: false, error: "Could not find such invitation code.", injectionExists: null, experiment: null }
+        }
 
-            return app.omnitrackModule().injectPackage(userId, trackingPackage.data, {
-              injected: true,
-              experiment: experiment._id
-            }).then(res => {
-              return { success: true, injectionExists: true, experiment: experimentInfo}
-            })
-          } else {
-            return Promise.reject("The group contains trackingPackage which does not exist in the experiment.")
+        return OTParticipant.find({ "user": userId, "experiment": invitation["experiment"], isConsentApproved: true, dropped: false }).then(participants => {
+          if (participants.length > 0) {
+            console.log("duplicate experiment participation. skip the approval process.")
+            // already approved the invitation.
+            return { success: false, error: "Already participating in this experiment.", injectionExists: null, experiment: null }
           }
-        } else { return { success: true, injectionExists: false, experiment: experimentInfo} }
-      } else {
-        return Promise.reject("The invitation is no longer available.")
-      }
-    })
+          else {
+            return OTParticipant.findOneAndUpdate({ "user": userId, "invitation": invitation._id, isConsentApproved: false, approvedAt: { $exists: false } }, {
+              isDenied: false,
+              isConsentApproved: true,
+              approvedAt: joinedDate
+            }).populate("experiment").then(changedParticipant => {
+              console.log("changed participant: ")
+              console.log(changedParticipant)
+              if (changedParticipant == null) {
+                console.log("No participant. this is the intentional participation. Add new participant instance.")
+                return this.makeParticipantInstanceFromInvitation(invitationCode, userId).then(newParticipant => {
+                  newParticipant["isDenied"] = false
+                  newParticipant["isConsentApproved"] = true
+                  newParticipant["approvedAt"] = joinedDate
+                  return newParticipant.save().then(participant => {
+                    return participant.populate("experiment").execPopulate()
+                  })
+                })
+              }
+              else return changedParticipant
+            }).then(changedParticipant => {
+              if (changedParticipant) {
+                const groupId = changedParticipant["groupId"]
+                const experiment = changedParticipant["experiment"]
+                const experimentInfo: IJoinedExperimentInfo = { id: experiment._id.toString(), name: experiment.name.toString(), joinedAt: joinedDate.getDate() }
+                const group = experiment.groups.find(g => g._id === groupId)
+                if (group && group.trackingPackageKey) {
+                  const trackingPackage = (experiment.trackingPackages || []).find(p => p.key === group.trackingPackageKey)
+                  if (trackingPackage) {
+                    console.log("inject trackingPackage '" + trackingPackage.name + "' to user " + userId)
+
+                    return app.omnitrackModule().injectPackage(userId, trackingPackage.data, {
+                      injected: true,
+                      experiment: experiment._id
+                    }).then(res => {
+                      return { success: true, injectionExists: true, experiment: experimentInfo }
+                    })
+                  } else {
+                    return Promise.reject("The group contains trackingPackage which does not exist in the experiment.")
+                  }
+                } else { return { success: true, injectionExists: false, experiment: experimentInfo } }
+              } else {
+                return Promise.reject("The invitation is no longer available.")
+              }
+            })
+          }
+        })
+      })
   }
 
 

@@ -3,7 +3,7 @@ import * as uuid from 'uuid';
 
 const otExperimentGroupSchema = new mongoose.Schema(
   {
-    _id: {type: String, unique: true, default: uuid.v1},
+    _id: {type: String, default: uuid.v1},
     name: {type: String, required: true},
     maxSize: {type: Number, required: true, default: 20},
     trackingPackageKey: {type: String, default: null}
@@ -22,7 +22,7 @@ const otExperimentInjectionPackageSchema = new mongoose.Schema(
 
 
 const otExperimentSchema = new mongoose.Schema({
-  _id: {type: String, unique: true, default: uuid.v1},
+  _id: {type: String, default: uuid.v1},
   name: {type: String, required: true},
   groups: {type: [otExperimentGroupSchema], default: [{name: "Default", maxSize: 100, participants: []}]},
   manager: {type: String, ref: 'OTResearcher', required: true},

@@ -11,6 +11,7 @@ import OTTrigger from '../models/ot_trigger'
 import IdGenerator from '../../omnitrack/core/id_generator'
 import C from '../server_consts'
 import ResearchModule from './research.module';
+import { merge } from '../utils';
 
 export default class OmniTrackModule {
 
@@ -30,25 +31,6 @@ export default class OmniTrackModule {
 
   bootstrap() {
     this.serverModule.bootstrap()
-  }
-
-  /**
-   * Extracts predefined package from the trackers
-   * @param userId user object id
-   * @param trackerIds tracker object ids
-   */
-  extractPackage(userId: string, trackerIds: Array<string>): Promise<PredefinedPackage> {
-    const trackers: Array<any> = []
-    return OTTracker.find().where('_id').in(trackerIds).then(result => {
-      if (result.length > 0) {
-        trackers.push(result)
-        return OTTrigger.find().where('trackers').in(result.map(t => t._id)).then(triggers => {
-
-        })
-      } else {
-        return Promise.resolve(null)
-      }
-    })
   }
 
   injectPackage(userId: string, predefinedPackage: PredefinedPackage, creationFlags?: any): Promise<void> {
@@ -73,12 +55,12 @@ export default class OmniTrackModule {
       })
 
       pack.trackers.forEach(tracker => {
-        tracker.flags = creationFlags
+        tracker.flags = merge(tracker.flags, creationFlags, true)
         tracker.userCreatedAt = Date.now()
         tracker.user = userId
         tracker.objectId = trackerIdTable[tracker.objectId]
         tracker.attributes.forEach(attr => {
-          attr.flags = creationFlags
+          attr.flags = merge(attr.flags,  creationFlags, true)
           attr.objectId = attributeIdTable[attr.objectId]
           attr.localId = attributeLocalIdTable[attr.localId]
           attr.trackerId = tracker.objectId
@@ -93,7 +75,7 @@ export default class OmniTrackModule {
       })
 
       pack.triggers.forEach(trigger => {
-        trigger.creationFlags = creationFlags
+        trigger.flags = merge(trigger.flags, creationFlags, true)
         trigger.userCreatedAt = Date.now()
         trigger.user = userId
         trigger.objectId = triggerIdTable[trigger.objectId]

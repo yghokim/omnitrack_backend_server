@@ -1,6 +1,7 @@
 import OTTracker from '../models/ot_tracker';
 import OTItem from '../models/ot_item';
 import OTParticipant from '../models/ot_participant';
+import OTExperiment from '../models/ot_experiment';
 import OTItemMedia from '../models/ot_item_media';
 import OTUser from '../models/ot_user';
 import { Express } from 'express';
@@ -22,9 +23,10 @@ export default class ServerModule {
 
   bootstrap() {
     try {
-      OTParticipant.remove({ experiment: {$exists: false}}).then(result => {
-        console.log(result["result"].n + " dangling participants were removed.")
+      OTParticipant.remove({$or:[{ experiment: {$exists: false}}, { invitation: {$exists: false} }]}).then(result => {
+        console.log(result["n"] + " dangling participants were removed.")
       })
+
       OTItem.collection.dropIndex("objectId_1")
       OTTracker.collection.dropIndex("objectId_1")
     } catch (err) {

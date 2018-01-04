@@ -17,7 +17,7 @@ export default class FirstUserPolicyModule {
   private processOnNewServiceUserRole(userId: string): PromiseLike<any> {
     return fs.readJson(path.resolve(__dirname, "../../../../omnitrack/examples/example_trackers.json")).then(
       pack => {
-        return app.omnitrackModule().injectPackage(userId, pack)
+        return app.omnitrackModule().injectPackage(userId, pack, {tag: "example"})
       }
     )
   }

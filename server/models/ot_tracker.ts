@@ -5,7 +5,7 @@ const otAttributeSchema = new mongoose.Schema({
   name: String,
   localId: String,
   trackerId: String,
-  connection: Object,
+  connection: mongoose.Schema.Types.Mixed,
   fallbackPolicy: Number,
   fallbackPreset: String,
   type: Number,
@@ -15,20 +15,20 @@ const otAttributeSchema = new mongoose.Schema({
   properties: [{_id: false, key: String, sVal: String}],
   userCreatedAt: Number,
   userUpdatedAt: Number,
-  lockedProperties: {type: Object, default: {}},
+  lockedProperties: {type: mongoose.Schema.Types.Mixed, default: {}},
   flags: {type: Object, default: {}},
 }, {_id: false});
 
 const otTrackerSchema = new mongoose.Schema({
-  _id: {type: String, unique: true},
+  _id: {type: String},
   name: String,
   color: Number,
   user: {type: String, ref: 'OTUser'},
   isBookmarked: {type: Boolean, default: false},
   position: Number,
   attributes: {type: [otAttributeSchema], default: []},
-  lockedProperties: {type: Object, default: {}},
-  flags: {type: Object, default: {}},
+  lockedProperties: {type: mongoose.Schema.Types.Mixed, default: {}},
+  flags: {type: mongoose.Schema.Types.Mixed, default: {}},
   userCreatedAt: Number,
   userUpdateAt: Number,
   removed: {type: Boolean, default: false}

@@ -120,18 +120,41 @@ export class ExperimentParticipantsComponent implements OnInit {
     })
   }
 
-  onDeleteParticipantClicked(participantId: string, title: string, message: string) {
+  onCancelInvitationClicked(participantId: string) {
     this.dialog.open(YesNoDialogComponent, {
       data: {
-        title: title,
-        message: message,
-        positiveLabel: title,
+        title: 'Cancel Invitation',
+        message:  'Do you want to cancel the pending invitation to the user?',
+        positiveLabel: 'Cancel Invitation',
         positiveColor: "warn",
         negativeColor: "primary",
       }
     }).afterClosed().subscribe(ok => {
       if (ok === true) {
         this.api.selectedExperimentService.flatMap(expService => expService.removeParticipant(participantId))
+          .subscribe(
+          removed => {
+            if (removed) {
+              this.participants.splice(this.participants.findIndex(part => part._id === participantId), 1)
+            }
+          }
+          )
+      }
+    })
+  }
+
+  onDropParticipantClicked(participantId: string){
+    this.dialog.open(YesNoDialogComponent, {
+      data: {
+        title: 'Drop Participant',
+        message:  'Do you want to drop the participant from this experiment?',
+        positiveLabel: 'Drop',
+        positiveColor: "warn",
+        negativeColor: "primary",
+      }
+    }).afterClosed().subscribe(ok => {
+      if (ok === true) {
+        this.api.selectedExperimentService.flatMap(expService => expService.dropParticipant(participantId))
           .subscribe(
           removed => {
             if (removed) {

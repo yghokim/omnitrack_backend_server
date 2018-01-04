@@ -111,7 +111,18 @@ export class ExperimentService {
   }
 
   removeParticipant(participantId): Observable<any> {
-    return this.http.delete("/api/research/participants/" + participantId, this.researchApi.authorizedOptions).map(res => res.json()).do(result => {
+    return this.http.delete("/api/research/participants/" + participantId, this.researchApi.authorizedOptions)
+    .map(res => res.json()).do(result => {
+      if (result) {
+        this.researchApi.invalidateUserPool()
+        this.invalidateParticipants()
+      }
+    })
+  }
+
+  dropParticipant(participantId): Observable<any> {
+    return this.http.delete("/api/research/participants/" + participantId + "/drop", this.researchApi.authorizedOptions)
+    .map(res => res.json()).do(result => {
       if (result) {
         this.researchApi.invalidateUserPool()
         this.invalidateParticipants()

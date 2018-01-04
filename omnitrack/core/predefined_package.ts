@@ -1,12 +1,22 @@
 import IdGenerator from "./id_generator";
 import * as fs from "fs-extra";
 
+const randomstring  = require('randomstring');
 /**
  * Contains the anonymised tracker and trigger package that are portable and injectable to any users.
  */
 export default class PredefinedPackage {
   static readonly PLACEHOLDER_PREFIX = "%{"
   static readonly PLACEHOLDER_SUFFIX = "}%"
+
+  static generateNewInjectionId(currentPool: Array<string>):string{
+    let newId: string
+    do{
+      newId = randomstring.generate(8); 
+    }while(currentPool.indexOf(newId) >= 0)
+    currentPool.push(newId)
+    return newId
+  }
 
   trackers: Array<any> = []
   triggers: Array<any> = []
@@ -66,6 +76,9 @@ export default class PredefinedPackage {
       }
     }
 
+    //Injection ids to avoid duplicate id.
+    const generatedInjectionIds = []
+
     const trackerIdTable = {}
     let trackerCount = 0
     const triggerIdTable = {}
@@ -79,6 +92,12 @@ export default class PredefinedPackage {
 
     // anonymise trackers and attributes
     this.trackers.forEach(tracker => {
+      if(!tracker.flags)
+      {
+        tracker.flags = {injected: true}
+      }
+      tracker.flags.injectionId = PredefinedPackage.generateNewInjectionId(generatedInjectionIds)
+
       tracker.user = this.placeHolderDict.user
       const trackerPlaceHolder = this.generatePlaceholder("tracker", trackerCount)
       trackerCount++
@@ -87,6 +106,12 @@ export default class PredefinedPackage {
       trackerIdTable[tracker.objectId] = trackerPlaceHolder
       tracker.objectId = trackerPlaceHolder
       tracker.attributes.forEach(attribute => {
+        if(!attribute.flags)
+      {
+        attribute.flags = {injected: true}
+      }
+      attribute.flags.injectionId = PredefinedPackage.generateNewInjectionId(generatedInjectionIds)
+
         const attrPlaceHolder = this.generatePlaceholder("attribute", attributeCount)
         const attrLocalIdPlaceHolder = this.generatePlaceholder("attribute_local", attributeCount)
         this.placeHolderDict.attributes.push({ id: attrPlaceHolder, localId: attrLocalIdPlaceHolder })
@@ -102,6 +127,12 @@ export default class PredefinedPackage {
 
     // anonymise triggers and associated trackers and attributes
     this.triggers.forEach(trigger => {
+      if(!trigger.flags)
+      {
+        trigger.flags = {injected: true}
+      }
+      trigger.flags.injectionId = PredefinedPackage.generateNewInjectionId(generatedInjectionIds)
+
       const triggerPlaceHolder = this.generatePlaceholder("trigger", triggerCount)
       triggerCount++
       this.placeHolderDict.triggers.push(triggerPlaceHolder)

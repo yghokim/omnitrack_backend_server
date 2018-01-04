@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 
 const otTriggerSchema = new mongoose.Schema({
-  _id: {type: String, unique: true},
+  _id: {type: String},
   user: {type: String, ref: 'OTUser', required: false},
   alias: {type: String, default: ""},
   position: {type: Number, default: 0},
@@ -15,8 +15,8 @@ const otTriggerSchema = new mongoose.Schema({
   trackers: [{type: String, ref: 'OTTracker'}],
   userCreatedAt: Number,
   userUpdatedAt: Number,
-  lockedProperties: {type: Object, default: {}},
-  flags: {type: Object, default: {}},
+  lockedProperties: {type: mongoose.Schema.Types.Mixed, default: {}},
+  flags: {type: mongoose.Schema.Types.Mixed, default: {}},
   isOn: {type: Boolean, default: false},
   removed: {type: Boolean, default: false}
 }, {timestamps: true});

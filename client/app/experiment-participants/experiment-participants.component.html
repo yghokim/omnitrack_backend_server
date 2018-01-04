@@ -32,13 +32,13 @@
                   <mat-icon class="material-icons">more_vert</mat-icon>
                 </button>
                 <mat-menu #menu="matMenu">
-                  <button mat-menu-item *ngIf="!participant.isDenied && !participant.isConsentApproved" (click)="onDeleteParticipantClicked(participant._id, 'Cancel Invitation', 'Do you want to cancel the pending invitation to the user?')">
+                  <button mat-menu-item *ngIf="!participant.isDenied && !participant.isConsentApproved" (click)="onCancelInvitationClicked(participant._id)">
                     <span>Cancel Invitation</span>
                   </button>
                   <button mat-menu-item *ngIf="!participant.isDenied && 
-                  participant.isConsentApproved" (click)="onDeleteParticipantClicked(participant._id, 'Exclude Participant', 'Do you want to exclude the participant from the experiment?')"></button>
-                  <span *ngIf="!participant.isDenied && 
-                    participant.isConsentApproved">Exclude Participant</span>
+                  participant.isConsentApproved" (click)="onDropParticipantClicked(participant._id)">
+                  <span>Drop Participant</span>
+                  </button>
                 </mat-menu>
               </div>
             </td>
