@@ -31,9 +31,9 @@ firebaseAdmin.initializeApp({credential: firebaseAdmin.credential.cert(firebaseS
 
 (<any>mongoose).Promise = global.Promise;
 if (env.node_env === 'test') {
-  mongoose.connect(env.mongodb_test_uri, {useMongoClient: true});
+  mongoose.connect(env.mongodb_test_uri);
 } else {
-  mongoose.connect(env.mongodb_uri, {useMongoClient: true});
+  mongoose.connect(env.mongodb_uri);
 }
 
 const db = mongoose.connection;

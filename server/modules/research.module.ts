@@ -76,12 +76,15 @@ export default class ResearchModule {
 
   private dropOutImpl(search: any, reason?: string, researcherId?: string): Promise<{success: boolean, injectionExists?: boolean, error?: string, experiment?: IJoinedExperimentInfo}> {
     const droppedDate = new Date()
+    search.dropped = {$ne: true}
+    console.log(search)
     return OTParticipant.findOneAndUpdate(search, {
       dropped: true,
       droppedBy: researcherId,
       droppedReason: reason,
       droppedAt: new Date()
     }, {new: true}).populate({path: "experiment", select: "_id name"}).then(participant => {
+      console.log(participant)
       if (participant) {
         const experiment = participant["experiment"]
         //TODO remove trackers, triggers, items, and medias associated with the experiment
@@ -111,7 +114,7 @@ export default class ResearchModule {
   }
 
   dropOutFromExperiment(userId: string, experimentId: string, reason?: string, researcherId?: string): Promise<any> {
-    return this.dropOutImpl({ "user._id": userId, experiment: experimentId }, reason, researcherId)
+    return this.dropOutImpl({ "user": userId, experiment: experimentId }, reason, researcherId)
   }
 
   dropParticipant(participantId: string, reason?: string, researcherId?: string): Promise<any> {
@@ -132,18 +135,21 @@ export default class ResearchModule {
           return { success: false, error: "Could not find such invitation code.", injectionExists: null, experiment: null }
         }
 
-        return OTParticipant.find({ "user": userId, "experiment": invitation["experiment"], isConsentApproved: true, dropped: false }).then(participants => {
+        return OTParticipant.find({ "user": userId, "experiment": invitation["experiment"], isConsentApproved: true, dropped: {$ne: true} }).then(participants => {
           if (participants.length > 0) {
             console.log("duplicate experiment participation. skip the approval process.")
             // already approved the invitation.
             return { success: false, error: "Already participating in this experiment.", injectionExists: null, experiment: null }
           }
           else {
-            return OTParticipant.findOneAndUpdate({ "user": userId, "invitation": invitation._id, isConsentApproved: false, approvedAt: { $exists: false } }, {
+            return OTParticipant.findOneAndUpdate({ "user": userId, "invitation": invitation._id }, {
               isDenied: false,
               isConsentApproved: true,
-              approvedAt: joinedDate
-            }).populate("experiment").then(changedParticipant => {
+              approvedAt: joinedDate,
+              dropped: false,
+              droppedAt: null,
+              droppedBy: null
+            }, {new: true}).populate("experiment").then(changedParticipant => {
               console.log("changed participant: ")
               console.log(changedParticipant)
               if (changedParticipant == null) {
@@ -162,7 +168,7 @@ export default class ResearchModule {
               if (changedParticipant) {
                 const groupId = changedParticipant["groupId"]
                 const experiment = changedParticipant["experiment"]
-                const experimentInfo: IJoinedExperimentInfo = { id: experiment._id.toString(), name: experiment.name.toString(), joinedAt: joinedDate.getDate() }
+                const experimentInfo: IJoinedExperimentInfo = { id: experiment._id.toString(), name: experiment.name.toString(), joinedAt: joinedDate.getTime() }
                 const group = experiment.groups.find(g => g._id === groupId)
                 if (group && group.trackingPackageKey) {
                   const trackingPackage = (experiment.trackingPackages || []).find(p => p.key === group.trackingPackageKey)

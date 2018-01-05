@@ -9,7 +9,7 @@ const otParticipantSchema = new mongoose.Schema({
   isDenied: {type: Boolean, default: false, required: true},
   deniedAt: Date,
   isConsentApproved: {type: Boolean, default: false, required: true}, approvedAt: Date,
-  dropped: Boolean,
+  dropped: {type: Boolean, default: false},
   droppedReason: String,
   droppedBy: {type: String, ref: "OTResearcher", defaut: null},
   droppedAt: Date,

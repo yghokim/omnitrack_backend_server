@@ -23,10 +23,15 @@ export default class ServerModule {
 
   bootstrap() {
     try {
-      OTParticipant.remove({$or:[{ experiment: {$exists: false}}, { invitation: {$exists: false} }]}).then(result => {
-        console.log(result["n"] + " dangling participants were removed.")
-      })
-
+      OTParticipant.find({}, {select: "_id experiment invitation user"}).populate("user").populate("experiment").populate("invitation").then(
+        participants => {
+          const removeIds = participants.filter( p => !p["experiment"] || !p["invitation"] || !p["user"]).map(p => p._id)
+          OTParticipant.remove({_id: {$in: removeIds}}).then(result => {
+            console.log(result["n"] + " dangling participants were removed.")
+          })
+        }
+      )
+      
       OTItem.collection.dropIndex("objectId_1")
       OTTracker.collection.dropIndex("objectId_1")
     } catch (err) {

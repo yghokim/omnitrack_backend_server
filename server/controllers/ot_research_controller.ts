@@ -35,7 +35,8 @@ export default class OTResearchCtrl {
     OTParticipant.find({"user": userId, isConsentApproved: true}).populate({path: "experiment", 
     select: '_id name'}).then(
       participants=>{
-        const list = participants.map(participant => {return {id: participant["experiment"]._id, name: participant["experiment"].name, joinedAt: participant["approvedAt"].getTime(), droppedAt: participant["dropped"] == true ? participant["droppedAt"].getTime() : null} as IJoinedExperimentInfo})
+
+        const list = participants.filter(p => p["experiment"]).map(participant => {return {id: participant["experiment"]._id, name: participant["experiment"].name, joinedAt: participant["approvedAt"].getTime(), droppedAt: participant["dropped"] == true ? participant["droppedAt"].getTime() : null} as IJoinedExperimentInfo})
 
         console.log(list)
 
