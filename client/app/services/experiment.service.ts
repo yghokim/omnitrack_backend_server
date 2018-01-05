@@ -122,7 +122,7 @@ export class ExperimentService {
 
   dropParticipant(participantId): Observable<any> {
     return this.http.delete("/api/research/participants/" + participantId + "/drop", this.researchApi.authorizedOptions)
-    .map(res => res.json()).do(result => {
+    .map(res => res.json().success).do(result => {
       if (result) {
         this.researchApi.invalidateUserPool()
         this.invalidateParticipants()

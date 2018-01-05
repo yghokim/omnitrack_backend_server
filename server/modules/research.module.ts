@@ -74,19 +74,21 @@ export default class ResearchModule {
     })
   }
 
-  private dropOutImpl(search: any, reason?: string, researcherId?: string): Promise<boolean> {
+  private dropOutImpl(search: any, reason?: string, researcherId?: string): Promise<{success: boolean, injectionExists?: boolean, error?: string, experiment?: IJoinedExperimentInfo}> {
+    const droppedDate = new Date()
     return OTParticipant.findOneAndUpdate(search, {
       dropped: true,
       droppedBy: researcherId,
       droppedReason: reason,
       droppedAt: new Date()
-    }).then(participant => {
+    }, {new: true}).populate({path: "experiment", select: "_id name"}).then(participant => {
       if (participant) {
+        const experiment = participant["experiment"]
         //TODO remove trackers, triggers, items, and medias associated with the experiment
         return Promise.all([OTTracker, OTTrigger].map(model => {
           return model.update({
             "flags.injected": true,
-            "flags.experiment": participant["experiment"]
+            "flags.experiment": experiment._id
           }, { removed: true }, { multi: true }).then(res => {
             if (res.ok === 1) {
               return { changed: res.n > 0, syncType: C.getSyncTypeFromModel(model), changeCount: res.n }
@@ -101,18 +103,18 @@ export default class ResearchModule {
               changedResults.map(r => r.syncType)
             ))
           }
-          return true
+          return {success: true, experiment:{id: experiment._id.toString(), name: experiment.name.toString(), injectionExists: changedResults.length > 0, joinedAt: participant["approvedAt"].getTime(), droppedAt: droppedDate.getTime()}}
         })
       }
-      return true
+      return {success: false, injectionExists: false, error: "Not participating in the experiment.", experiment: null}
     })
   }
 
-  dropOutFromExperiment(userId: string, experimentId: string, reason?: string, researcherId?: string): Promise<boolean> {
+  dropOutFromExperiment(userId: string, experimentId: string, reason?: string, researcherId?: string): Promise<any> {
     return this.dropOutImpl({ "user._id": userId, experiment: experimentId }, reason, researcherId)
   }
 
-  dropParticipant(participantId: string, reason?: string, researcherId?: string): Promise<boolean> {
+  dropParticipant(participantId: string, reason?: string, researcherId?: string): Promise<any> {
     return this.dropOutImpl({ _id: participantId }, reason, researcherId)
   }
 

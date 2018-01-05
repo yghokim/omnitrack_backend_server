@@ -32,12 +32,21 @@ export default class OTResearchCtrl {
 
     const after = req.query.after || Number.MIN_VALUE
 
-    OTParticipant.find({"user._id": userId, isConsendApproved: true}).populate({path: "experiment", 
+    OTParticipant.find({"user": userId, isConsentApproved: true}).populate({path: "experiment", 
     select: '_id name'}).then(
       participants=>{
-        participants.map(participant => {return {id: participant["experiment"]._id, name: participant["experiment"].name, joinedAt: participant["approvedAt"].getDate(), droppedAt: participant["dropped"] == true ? participant["droppedAt"].getTime() : null} as IJoinedExperimentInfo})
+        const list = participants.map(participant => {return {id: participant["experiment"]._id, name: participant["experiment"].name, joinedAt: participant["approvedAt"].getTime(), droppedAt: participant["dropped"] == true ? participant["droppedAt"].getTime() : null} as IJoinedExperimentInfo})
+
+        console.log(list)
+
+        res.status(200).send(
+          list
+        )
       }
-    )
+    ).catch(err => {
+      console.log(err)
+      res.status(500).send(err)
+    })
   }
 
   getExperimentInformationsOfResearcher = (req, res) => {
@@ -295,8 +304,8 @@ export default class OTResearchCtrl {
       promise = app.researchModule().dropOutFromExperiment(userId, experimentId, reason, researcherId)
     }
     
-    promise.then( success => {
-      res.status(200).send(true)
+    promise.then( result => {
+      res.status(200).send(result)
     })
     .catch( err => {
       res.status(500).send(err)
