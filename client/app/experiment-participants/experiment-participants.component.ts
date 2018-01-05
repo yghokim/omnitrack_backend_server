@@ -34,7 +34,6 @@ export class ExperimentParticipantsComponent implements OnInit {
   }
 
   activeParticipantCount(){
-    console.log(this.participants)
     if(!this.participants) return 0
     return this.participants.filter(participant => participant.dropped!=true && participant.isConsentApproved==true).length
   }
@@ -69,7 +68,6 @@ export class ExperimentParticipantsComponent implements OnInit {
       this.isLoadingUserPool = true
       this.userPoolSubscription = this.api.getUserPool().subscribe(userPool => {
         this.userPool = userPool
-        console.log(userPool)
         this.isLoadingUserPool = false
       })
     }
@@ -80,7 +78,6 @@ export class ExperimentParticipantsComponent implements OnInit {
       this.isLoadingParticipants = true
       this.participantsSubscription = this.api.selectedExperimentService.flatMap(expService => expService.getParticipants()).subscribe(
         participants => {
-          console.log(participants)
           this.participants = participants
           this.isLoadingParticipants = false
         }

@@ -6,6 +6,7 @@ import 'rxjs/add/operator/publishReplay';
 import ExperimentInfo from '../models/experiment-info';
 import { ExperimentService } from './experiment.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Socket } from 'ng-socket-io';
 
 @Injectable()
 export class ResearchApiService {
@@ -20,7 +21,13 @@ export class ResearchApiService {
 
   public readonly selectedExperimentService = new BehaviorSubject<ExperimentService>(null)
 
-  constructor(private http: Http, private authService: ResearcherAuthService) { }
+  constructor(private http: Http, private authService: ResearcherAuthService, private socket: Socket) {
+    this.socket.fromEvent("change").subscribe(
+      data => {
+        console.log(data)
+      }
+    )
+  }
 
   getExperimentInfos(): Observable<Array<ExperimentInfo>> {
     if (!this.experimentInfoQuery) {

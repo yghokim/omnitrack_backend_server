@@ -36,6 +36,7 @@ if (env.node_env === 'test') {
   mongoose.connect(env.mongodb_uri);
 }
 
+let io
 const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -57,11 +58,17 @@ db.once('open', () => {
   });
 
   if (!module.parent) {
-    app.listen(app.get('port'), () => {
+    const server = app.listen(app.get('port'), () => {
       console.log('Angular Full Stack listening on port ' + app.get('port'));
     });
+
+    io = require("socket.io")(server)
+    
+    io.on("connection", function(socket){
+      console.log("new client was connected via websocket.")
+    })
   }
 });
 
-export { app, clientKeys}
+export { app, clientKeys, io}
 export default appWrapper

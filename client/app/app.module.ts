@@ -1,7 +1,7 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-
+import { SocketIoModule, SocketIoConfig } from 'ng-socket-io';
 import { OAuthModule } from 'angular-oauth2-oidc';
 
 import { RoutingModule } from './routing.module';
@@ -69,7 +69,8 @@ import { ComposeMessageComponent } from './experiment-messaging/compose-message/
     SharedModule,
     BrowserModule,
     BrowserAnimationsModule,
-    MaterialDesignModule
+    MaterialDesignModule,
+    SocketIoModule.forRoot( {url: "http://localhost:3000", options: {}})
   ],
   providers: [
     ResearcherAuthGuardSecure,
