@@ -33,6 +33,21 @@ export class ResearcherAuthService {
     return (token && this.jwtHelper.isTokenExpired(token) === false)
   }
 
+  public verifySignedInStatus(): Observable<boolean>{
+    
+    const tokenHeaders = new Headers({ 'Authorization': 'Bearer ' + this.token() });
+    const authorizedOptions = new RequestOptions({ headers: tokenHeaders });
+
+    return this.http.post("/api/research/auth/verify", null, authorizedOptions).map( result => result.json()).catch(err => Observable.of(false)).flatMap( verified => {
+      if(verified == false)
+      {
+        //sign out
+        return this.signOut().map(r => false)
+      }
+      else return Observable.of(true)
+    } )
+  }
+
   private decodeAndSaveResearcherFromToken(token) {
     const decoded = this.jwtHelper.decodeToken(token)
     this.currentResearcher.uid = decoded.uid
@@ -53,7 +68,7 @@ export class ResearcherAuthService {
     })
   }
 
-  public signOut(): Observable<any> {
+  public signOut(): Observable<boolean> {
     return Observable.defer(() => {
       localStorage.removeItem("omnitrack_researcher_token")
       this.currentResearcher = { uid: '', email: '', alias: '' };

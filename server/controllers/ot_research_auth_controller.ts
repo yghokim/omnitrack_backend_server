@@ -90,6 +90,7 @@ export default class OTResearchAuthCtrl {
                     _id: researcherId,
                     email: email,
                     hashed_password: hashedPassword,
+                    passwordSetAt: new Date(),
                     alias: alias,
                     experiments: experiments.map(exp => exp._id)
                   })
@@ -152,8 +153,13 @@ export default class OTResearchAuthCtrl {
         })
         break;
       case 'token':
+        const researcher = req.researcher
         break;
     }
+  }
+
+  verifyToken = (req, res) => {
+    res.status(200).send(req.researcher != null)
   }
 
   /*

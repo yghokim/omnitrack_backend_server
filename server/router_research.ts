@@ -14,7 +14,24 @@ const researchAuthCtrl = new OTResearchAuthCtrl()
 const adminCtrl = new AdminCtrl()
 const userCtrl = new OTUserCtrl()
 
-const tokenAuth = jwt({secret: env.jwt_secret, userProperty: 'researcher'})
+const tokenAuth = jwt({secret: env.jwt_secret, userProperty: 'researcher', isRevoked: (req, payload, done)=>{
+  OTResearcher.findById(payload.uid, (idFindErr, researcher) => {
+    if(idFindErr)
+    {
+      done(idFindErr, true)
+      return
+    }
+    else if(researcher)
+    {
+      if(payload.iat < (researcher["passwordSetAt"] || researcher["createdAt"]).getTime()/1000)
+      {
+        done("passwordChanged", true)
+      }
+      else done(null, false)
+    }
+    else done(null, true)
+  })
+}})
 
 /*
 router.post('/oauth/authorize', oauth.authorize())
@@ -25,6 +42,8 @@ router.use("/secure", tokenAuth);
 
 router.post('/auth/authenticate', researchAuthCtrl.authenticate)
 router.post('/auth/register', researchAuthCtrl.registerResearcher)
+
+router.post('/auth/verify', tokenAuth, researchAuthCtrl.verifyToken)
 
 router.get('/experiments/all', tokenAuth, researchCtrl.getExperimentInformationsOfResearcher)
 router.get('/experiments/:experimentId', tokenAuth, researchCtrl.getExperiment)
