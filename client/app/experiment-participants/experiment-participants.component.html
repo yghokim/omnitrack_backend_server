@@ -20,7 +20,9 @@
             <td>
               <div class="tag tag-danger" *ngIf="participant.isDenied">Denied</div>
               <div class="tag tag-warning" *ngIf="!participant.isDenied && !participant.isConsentApproved">Invitation Pending</div>
-
+              <div class="tag tag-danger" *ngIf="participant.dropped == true">Dropped Out</div>
+              <div class="tag tag-primary" *ngIf="participant.isConsentApproved && participant.dropped != true">In Experiment</div>
+              
             </td>
             <td>{{participant.user.accountCreationTime | date: 'MMM dd, yyyy'}}</td>
             <td>{{participant.user.accountLastSignInTime | date: 'MMM dd, yyyy'}}</td>
@@ -36,7 +38,7 @@
                     <span>Cancel Invitation</span>
                   </button>
                   <button mat-menu-item *ngIf="!participant.isDenied && 
-                  participant.isConsentApproved" (click)="onDropParticipantClicked(participant._id)">
+                  participant.isConsentApproved && participant.dropped != true" (click)="onDropParticipantClicked(participant._id)">
                   <span>Drop Participant</span>
                   </button>
                 </mat-menu>
@@ -44,11 +46,16 @@
             </td>
           </tr>
         </table>
-        <div class="card-block card-footer">
+        <div class="card-block card-footer horizontal-padding-narrow">
 
           <small *ngIf="participants== null" class="text-color-gray">Participants not loaded.</small>
           <small *ngIf="participants!= null && participants.length == 0" class="text-color-gray">No participants in server.</small>
-          <small *ngIf="participants!= null && participants.length > 0" class="text-color-gray">Participants: {{participants.length}}</small>
+          <div *ngIf="participants!= null && participants.length > 0" class="text-color-gray flex-container flex-align-items-center">
+            <small class="right-margin-3em">Active Participants: {{activeParticipantCount()}}</small>
+            <small class="right-margin-3em">Pending Invitees: {{pendingInviteeCount()}}</small>
+            <small class="right-margin-3em">Dropped: {{droppedParticipantCount()}}</small>
+            
+          </div>
 
         </div>
       </mat-tab>
@@ -69,10 +76,11 @@
           <tr class="hoverable singleline" *ngFor="let user of userPool let index = index" (mouseleave)="hoveredRowIndex = -1" (mouseover)="hoveredRowIndex = index">
             <td>{{user.email}}</td>
             <td>
-              <div *ngIf="extractParticipantFromthisExperiment(user)">
-                <span *ngIf="hasPendingInvitationFromThisExperiment(user)" class="tag tag-warning">Invitation Pending</span>
-                <span *ngIf="isParticipatingInThisExperiment(user)" class="tag tag-primary">In Experiment</span>
-
+              <div *ngIf="getParticipationStatusToThisExperimentOfUser(user)" [ngSwitch]="getParticipationStatusToThisExperimentOfUser(user)">
+                <span *ngSwitchCase="'pending'" class="tag tag-warning">Invitation Pending</span>
+                <span *ngSwitchCase="'participating'" class="tag tag-primary">In Experiment</span>
+                <span *ngSwitchCase="'dropped'"  class="tag tag-danger">Dropped Out</span>
+                <span *ngSwitchCase="'denied'"  class="tag tag-danger">Denied</span>
               </div>
               <div *ngIf="isParticipatingInAnotherExperiment(user)">
                 <span class="tag tag-warning">In Other Experiments</span>
@@ -88,7 +96,7 @@
                   <mat-icon class="material-icons">more_vert</mat-icon>
                 </button>
                 <mat-menu #menu="matMenu">
-                  <button mat-menu-item *ngIf="!hasPendingInvitationFromThisExperiment(user)" (click)="onSendInvitationClicked(user._id)">
+                  <button mat-menu-item *ngIf="!getParticipationStatusToThisExperimentOfUser(user)" (click)="onSendInvitationClicked(user._id)">
                     <span>Invite</span>
                   </button>
                   <button mat-menu-item (click)="onDeleteAccountClicked(user._id)">

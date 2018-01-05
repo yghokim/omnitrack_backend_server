@@ -33,6 +33,25 @@ export class ExperimentParticipantsComponent implements OnInit {
     this.onParticipantsTabSelected()
   }
 
+  activeParticipantCount(){
+    console.log(this.participants)
+    if(!this.participants) return 0
+    return this.participants.filter(participant => participant.dropped!=true && participant.isConsentApproved==true).length
+  }
+
+  droppedParticipantCount(){
+    if(!this.participants) return 0
+    return this.participants.filter(participant => participant.dropped==true).length
+  }
+
+  pendingInviteeCount(){
+    if(!this.participants) return 0
+    return this.participants.filter(participant => participant.isDenied!=true&&participant.isConsentApproved!=true&&participant.dropped!=true).length
+  }
+
+  
+  
+
   onTabChanged(event) {
     this.hoveredRowIndex = -1
     switch (event.index) {
@@ -175,22 +194,30 @@ export class ExperimentParticipantsComponent implements OnInit {
     }
   }
 
-  extractParticipantFromthisExperiment(user: any): any {
-    return user.participantIdentities.find(participant => participant.invitation.experiment._id === this.api.getSelectedExperimentId())
-  }
 
   isParticipatingInAnotherExperiment(user: any): any {
     return user.participantIdentities.find(participant => !participant.isDenied && participant.isConsentApproved && participant.invitation.experiment._id !== this.api.getSelectedExperimentId()) != null
   }
 
-  hasPendingInvitationFromThisExperiment(user: any): boolean {
-    return user.participantIdentities.find(participant =>
-      !participant.isDenied && !participant.isConsentApproved && participant.invitation.experiment._id === this.api.getSelectedExperimentId()) != null
-  }
-
-  isParticipatingInThisExperiment(user: any): boolean {
-    return user.participantIdentities.find(participant =>
-      !participant.isDenied && participant.isConsentApproved && participant.invitation.experiment._id === this.api.getSelectedExperimentId()) != null
+  getParticipationStatusToThisExperimentOfUser(user: any): string
+  {
+    const participant = user.participantIdentities.find(participant => participant.invitation.experiment._id === this.api.getSelectedExperimentId()) 
+    if(participant)
+    {
+      if(participant.isDenied == true)
+      {
+        return 'denied'
+      }
+      else if(participant.dropped == true)
+      {
+        return 'dropped'
+      }
+      else if(participant.isConsentApproved == true)
+      {
+        return 'participating'
+      }
+      else return 'pending'
+    } else { return null } 
   }
 
 }
