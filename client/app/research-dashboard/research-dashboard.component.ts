@@ -4,7 +4,7 @@ import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { ResearchApiService } from '../services/research-api.service';
 import ExperimentInfo from '../models/experiment-info';
-import { MatDialog, MatIconRegistry } from '@angular/material';
+import { MatDialog, MatIconRegistry, MatSnackBar } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 
 @Component({
@@ -90,7 +90,8 @@ export class ResearchDashboardComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private dialog: MatDialog,
     private sanitizer: DomSanitizer,
-    private iconRegistry: MatIconRegistry
+    private iconRegistry: MatIconRegistry,
+    private snackBar: MatSnackBar
   ) {
     iconRegistry.addSvgIcon("omnitrack", sanitizer.bypassSecurityTrustResourceUrl("/assets/ic_omnitrack_24px.svg"))
 
@@ -152,6 +153,7 @@ export class ResearchDashboardComponent implements OnInit {
       )
   }
 
+
   onExperimentSelected(id) {
     this.api.setSelectedExperimentId(id)
   }
@@ -177,7 +179,14 @@ export class ResearchDashboardComponent implements OnInit {
   }
 
   goToSignIn() {
-    this.router.navigate(['/research/login']);
+    this.router.navigate(['/research/login']).then(
+      onFulfilled => {
+        if(onFulfilled==true)
+        {
+          this.snackBar.open("Signed out from the research dashboard.", null, {duration: 3000})
+        }
+      }
+    )
   }
 
 }

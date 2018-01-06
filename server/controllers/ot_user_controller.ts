@@ -9,6 +9,7 @@ import InformationUpdateResult from '../../omnitrack/core/information_update_res
 import * as firebaseAdmin from 'firebase-admin';
 import app from '../app';
 import { promise } from 'selenium-webdriver';
+import { SocketConstants } from '../../omnitrack/core/research/socket';
 
 export default class OTUserCtrl extends BaseCtrl {
   model = OTUser
@@ -269,13 +270,13 @@ export default class OTUserCtrl extends BaseCtrl {
 
     const promises: Array<PromiseLike<any>> = [
       OTUser.collection.findOneAndDelete({_id: userId}).then(result => {
-        return {name: OTUser.name, result: result.ok > 0, count: 1}})
+        return {name: OTUser.modelName, result: result.ok > 0, count: 1}})
     ]
 
     if (removeData) {
       [OTItem, OTTracker, OTTrigger].forEach(model => {
         promises.push(
-          model.remove({user: userId}).then(removeRes => ({name: model.name, result: removeRes["result"].ok > 0, count: removeRes["result"].n}))
+          model.remove({user: userId}).then(removeRes => ({name: model.modelName, result: removeRes["ok"] > 0, count: removeRes["n"]}))
         )
       })
     }
@@ -283,6 +284,9 @@ export default class OTUserCtrl extends BaseCtrl {
     Promise.all(promises)
       .then(results => {
         console.log(results)
+        app.socketModule().sendGlobalEvent( results.filter(r => r.count > 0).map( r => {
+            return {model : r.name, event: SocketConstants.EVENT_REMOVED }
+          }))
         res.status(200).send(results)
       }).catch(err => {
         console.log(err)

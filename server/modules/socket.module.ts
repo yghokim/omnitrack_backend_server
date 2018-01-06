@@ -1,8 +1,4 @@
-export interface UpdateInfo{
-  model: string,
-  event: string,
-  payload?: any
-}
+import { SocketConstants, UpdateInfo } from "../../omnitrack/core/research/socket"
 
 export default class SocketModule {
 
@@ -17,6 +13,8 @@ export default class SocketModule {
    * value: client id
    */
   private experimentIdTable = new Map<string, [string]>()
+
+  private serverGlobalEventTable = new Set<string>()
   
   constructor(readonly io: SocketIO.Server){
 
@@ -52,7 +50,7 @@ export default class SocketModule {
 
   bootstrap(){
     console.log("listening to socket.io event.")
-    this.io.emit("server/reset")
+    this.io.emit(SocketConstants.SERVER_EVENT_RESET)
     this.io.on("connection", (client) => {
       console.log("Websocket client " + client.id + " connected.")
 
@@ -63,7 +61,19 @@ export default class SocketModule {
         
       })
 
-      client.on("subscribe_researcher", (data)=>{
+      client.on(SocketConstants.SERVER_EVENT_SUBSCRIBE_SERVER_GLOBAL,
+        (data)=>{
+          this.serverGlobalEventTable.add(client.id)
+        }
+      )
+
+      client.on(SocketConstants.SERVER_EVENT_UNSUBSCRIBE_SERVER_GLOBAL,
+        (data)=>{
+          this.serverGlobalEventTable.delete(client.id)
+        }
+      )
+
+      client.on(SocketConstants.SERVER_EVENT_SUBSCRIBE_RESEARCHER, (data)=>{
         console.log("a researcher subscribed via websocket.")
         if(data.uid)
         {
@@ -71,7 +81,7 @@ export default class SocketModule {
         }
       })
 
-      client.on("unsubscribe_researcher", (data) => {
+      client.on(SocketConstants.SERVER_EVENT_UNSUBSCRIBE_RESEARCHER, (data) => {
         console.log("a researcher unsubscribed.")
         if(data.uid)
         {
@@ -79,7 +89,7 @@ export default class SocketModule {
         }
       })
 
-      client.on("subscribe_experiment", (data)=>{
+      client.on(SocketConstants.SERVER_EVENT_SUBSCRIBE_EXPERIMENT, (data)=>{
         console.log("experiment subscribed via websocket.")
         if(data.experimentId)
         {
@@ -87,7 +97,7 @@ export default class SocketModule {
         }
       })
 
-      client.on("unsubscribe_experiment", (data)=>{
+      client.on(SocketConstants.SERVER_EVENT_UNSUBSCRIBE_EXPERIMENT, (data)=>{
         console.log("experiment unsubscribed from websocket.")
         if(data.experimentId)
         {
@@ -98,35 +108,55 @@ export default class SocketModule {
     })
   }
 
-  public sendDataToExperimentSubscribers(experimentId: string, eventName: string, data: any){
-    console.log("find websocket clients with experiment id.")
-    if(this.experimentIdTable.has(experimentId))
+  public sendDateToEntitySubscribers(entityId: string, entityTable: Map<string, [string]>, eventName: string, data: any): number{
+    if(entityTable.has(entityId))
     {
-      console.log("found websocket clients with expeirment id : " + this.experimentIdTable.get(experimentId).length)
-    
-      this.experimentIdTable.get(experimentId).forEach(
+      let count = 0
+      entityTable.get(entityId).forEach(
         clientId => {
-          console.log("emit experiment update message " + eventName + " to client " + clientId)
-
           const client = this.io.sockets.connected[clientId]
-          
           if(client)
           {
             client.emit(eventName, data)
+            count ++
           }
         }
       )
+      return count
     }
-    else{
-      console.log("No websocket clients are connected to the experiment. skip the message.")
-    }
+    return 0
   }
 
-  public sendUpdateNotificationToExperimentSubscribers(experimentId: string, updateInfo: UpdateInfo){
-    this.sendDataToExperimentSubscribers(experimentId, "updated/experiment", updateInfo)
+  public sendDataToGlobalSubscribers(eventName: string, data: any): number{
+    let count = 0
+    this.serverGlobalEventTable.forEach(clientId => {
+      const client = this.io.sockets.connected[clientId]
+          if(client)
+          {
+            client.emit(eventName, data)
+            count ++
+          }
+    })
+    return count
   }
 
-  public sendUpdateNotificationToResearcherSubscribers(researcherId: string, updateInfo: UpdateInfo){
-    this.sendDataToExperimentSubscribers(researcherId, "updated/researcher", updateInfo)
+  public sendGlobalEvent(updateInfo: UpdateInfo | UpdateInfo[]): number{
+    return this.sendDataToGlobalSubscribers(SocketConstants.SERVER_EVENT_UPDATED_GLOBAL, updateInfo instanceof Array? updateInfo : [updateInfo])
+  }
+
+  public sendDataToExperimentSubscribers(experimentId: string, eventName: string, data: any):number{
+    return this.sendDateToEntitySubscribers(experimentId, this.experimentIdTable, eventName, data)  
+  }
+
+  public sendDataToResearcherSubscribers(researcherId: string, eventName: string, data: any):number{
+    return this.sendDateToEntitySubscribers(researcherId, this.researcherIdTable, eventName, data)
+  }
+
+  public sendUpdateNotificationToExperimentSubscribers(experimentId: string, updateInfo: UpdateInfo | UpdateInfo[]){
+    this.sendDataToExperimentSubscribers(experimentId, SocketConstants.SOCKET_MESSAGE_UPDATED_EXPERIMENT, updateInfo instanceof Array? updateInfo : [updateInfo])
+  }
+
+  public sendUpdateNotificationToResearcherSubscribers(researcherId: string, updateInfo: UpdateInfo | UpdateInfo[]){
+    this.sendDataToResearcherSubscribers(researcherId, SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER, updateInfo instanceof Array? updateInfo : [updateInfo])
   }
 }

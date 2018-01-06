@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import * as io from 'socket.io-client';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
+import {SocketConstants} from '../../../omnitrack/core/research/socket'
 
 @Injectable()
 export class SocketService {
@@ -20,7 +21,7 @@ export class SocketService {
     this.socket.connect()
 
     this.socket.on(
-      "server/reset", ()=>{
+      SocketConstants.SERVER_EVENT_RESET, ()=>{
         console.log("refresh sockets.")
         this._onConnected.next(this.socket)
       }

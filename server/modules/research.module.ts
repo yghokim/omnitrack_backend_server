@@ -12,6 +12,7 @@ import { AInvitation } from '../../omnitrack/core/research/invitation';
 import { IJoinedExperimentInfo } from '../../omnitrack/core/research/experiment';
 import app from '../app';
 import C from '../server_consts'
+import { SocketConstants } from '../../omnitrack/core/research/socket'
 import { Document } from 'mongoose';
 
 export default class ResearchModule {
@@ -35,7 +36,7 @@ export default class ResearchModule {
         } else {
           return this.makeParticipantInstanceFromInvitation(invitationCode, userId).then(document => document.save().then(doc => {
 
-            app.socketModule().sendUpdateNotificationToExperimentSubscribers(doc["experiment"], {model: "participant", event: "invited", payload: {participant: doc}})
+            app.socketModule().sendUpdateNotificationToExperimentSubscribers(doc["experiment"], {model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_INVITED, payload: {participant: doc}})
 
             // TODO send push notification to user
             return { invitationAlreadySent: sendAgain, participant: doc }
@@ -71,7 +72,7 @@ export default class ResearchModule {
     return OTParticipant.findOneAndRemove({ _id: participantId }).then(removedParticipant => {
       const part = (removedParticipant as any)
 
-      app.socketModule().sendUpdateNotificationToExperimentSubscribers(part.experiment, {model: "participant", event: "removed", payload: {participant: part}})
+      app.socketModule().sendUpdateNotificationToExperimentSubscribers(part.experiment, {model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_REMOVED, payload: {participant: part}})
 
       if (!part.isDenied && !part.isConsentApproved) {
         // TODO remove push notification to user
@@ -113,7 +114,7 @@ export default class ResearchModule {
             ))
           }
 
-          app.socketModule().sendUpdateNotificationToExperimentSubscribers(experiment._id, {model: "participant", event: "dropped", payload: {participant: participant}})
+          app.socketModule().sendUpdateNotificationToExperimentSubscribers(experiment._id, {model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_DROPPED, payload: {participant: participant}})
 
           return {success: true, experiment:{id: experiment._id.toString(), name: experiment.name.toString(), injectionExists: changedResults.length > 0, joinedAt: participant["approvedAt"].getTime(), droppedAt: droppedDate.getTime()}}
         })
@@ -197,6 +198,12 @@ export default class ResearchModule {
               } else {
                 return Promise.reject("The invitation is no longer available.")
               }
+            }).then(result => {
+              if(result.success==true)
+              {
+                app.socketModule().sendUpdateNotificationToExperimentSubscribers(result.experiment.id, {model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_APPROVED, payload: result})
+              }
+              return result
             })
           }
         })
