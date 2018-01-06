@@ -34,6 +34,9 @@ export default class ResearchModule {
           return { invitationAlreadySent: true, participant: participantDoc }
         } else {
           return this.makeParticipantInstanceFromInvitation(invitationCode, userId).then(document => document.save().then(doc => {
+
+            app.socketModule().sendUpdateNotificationToExperimentSubscribers(doc["experiment"], {model: "participant", event: "invited", payload: {participant: doc}})
+
             // TODO send push notification to user
             return { invitationAlreadySent: sendAgain, participant: doc }
           })
@@ -67,6 +70,9 @@ export default class ResearchModule {
   removeParticipant(participantId): Promise<any> {
     return OTParticipant.findOneAndRemove({ _id: participantId }).then(removedParticipant => {
       const part = (removedParticipant as any)
+
+      app.socketModule().sendUpdateNotificationToExperimentSubscribers(part.experiment, {model: "participant", event: "removed", payload: {participant: part}})
+
       if (!part.isDenied && !part.isConsentApproved) {
         // TODO remove push notification to user
       }
@@ -106,6 +112,9 @@ export default class ResearchModule {
               changedResults.map(r => r.syncType)
             ))
           }
+
+          app.socketModule().sendUpdateNotificationToExperimentSubscribers(experiment._id, {model: "participant", event: "dropped", payload: {participant: participant}})
+
           return {success: true, experiment:{id: experiment._id.toString(), name: experiment.name.toString(), injectionExists: changedResults.length > 0, joinedAt: participant["approvedAt"].getTime(), droppedAt: droppedDate.getTime()}}
         })
       }

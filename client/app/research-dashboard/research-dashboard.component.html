@@ -16,16 +16,16 @@
       <!--<button type="button" class="btn btn-info btn-sm" i="plus">Add New Experiment</button>-->
     </div>
     <div class="profile_container">
-      <div class="sign_in" *ngIf="!authService.isSignedIn()">
+      <div class="sign_in" *ngIf="(authService.currentResearcher | async).signedIn != true">
         <button class="btn btn-primary" (click)="goToSignIn()">Sign In</button>
       </div>
-      <div class="signed_in_profile" *ngIf="authService.isSignedIn()">
+      <div class="signed_in_profile" *ngIf="(authService.currentResearcher | async).signedIn == true">
         <div class="information">
           <div class="name font-weight-bold">
-            {{authService.currentResearcher.alias}}
+            {{(authService.currentResearcher | async).alias}}
           </div>
           <div class="email font-weight-light">
-            {{authService.currentResearcher.email}}
+            {{(authService.currentResearcher | async).email}}
           </div>
         </div>
         <button class="btn btn-secondary btn-sm" (click)="onSignOutClicked()">Sign Out</button>

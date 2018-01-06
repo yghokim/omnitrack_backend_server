@@ -50,8 +50,8 @@ const routes: Routes = [
 
         ]
       },
-      { path: 'signup', component: ResearchSignupComponent, canActivate: [ResearcherAuthGuardMain] },
-      { path: 'login', component: ResearchLoginComponent, canActivate: [ResearcherAuthGuardMain] },
+      { path: 'signup', component: ResearchSignupComponent },
+      { path: 'login', component: ResearchLoginComponent },
     ]
   },
 

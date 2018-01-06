@@ -35,8 +35,7 @@ export default class OTResearchCtrl {
     OTParticipant.find({"user": userId, isConsentApproved: true}).populate({path: "experiment", 
     select: '_id name'}).then(
       participants=>{
-
-        const list = participants.filter(p => p["experiment"]).map(participant => {return {id: participant["experiment"]._id, name: participant["experiment"].name, joinedAt: participant["approvedAt"].getTime(), droppedAt: participant["dropped"] == true ? participant["droppedAt"].getTime() : null} as IJoinedExperimentInfo})
+        const list = participants.map(participant => {return {id: participant["experiment"]._id, name: participant["experiment"].name, joinedAt: participant["approvedAt"].getTime(), droppedAt: participant["dropped"] == true ? participant["droppedAt"].getTime() : null} as IJoinedExperimentInfo})
 
         console.log(list)
 
@@ -133,6 +132,7 @@ export default class OTResearchCtrl {
       })
       .then(result => {
         console.log(result)
+
         res.status(200).send(true)
       })
   }
@@ -200,6 +200,7 @@ export default class OTResearchCtrl {
         res.status(200).send(participant)
       }
     ).catch(err => {
+      console.log(err)
       res.status(500).send(err)
     })
   }
@@ -207,7 +208,7 @@ export default class OTResearchCtrl {
   getUsersWithPariticipantInformation = (req, res) => {
     OTUser.find({}).populate({
       path: 'participantIdentities',
-      select: '_id invitation isDenied isConsentApproved dropped',
+      select: '_id invitation isDenied isConsentApproved',
       populate: {
         path: 'invitation',
         select: '_id experiment code',
@@ -295,7 +296,7 @@ export default class OTResearchCtrl {
 
     const reason = req.body.reason
 
-    let promise: Promise<boolean>
+    let promise: Promise<any>
     
     if(participantId)
     {
@@ -309,6 +310,8 @@ export default class OTResearchCtrl {
       res.status(200).send(result)
     })
     .catch( err => {
+      console.log("Dropout err:")
+      console.log(err)
       res.status(500).send(err)
     })
   }

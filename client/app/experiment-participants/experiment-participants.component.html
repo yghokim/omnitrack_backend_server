@@ -16,7 +16,7 @@
           </thead>
           <tr class="hoverable singleline" *ngFor="let participant of participants let index = index" (mouseLeave)="hoveredRowIndex = -1"
             (mouseOver)="hoveredRowIndex = index">
-            <td>{{participant.user.email}}</td>
+            <td>{{participant.user.email | anonymizeEmail}}</td>
             <td>
               <div class="tag tag-danger" *ngIf="participant.isDenied">Denied</div>
               <div class="tag tag-warning" *ngIf="!participant.isDenied && !participant.isConsentApproved">Invitation Pending</div>
@@ -33,14 +33,19 @@
                 <button mat-icon-button [matMenuTriggerFor]="menu">
                   <mat-icon class="material-icons">more_vert</mat-icon>
                 </button>
-                <mat-menu #menu="matMenu">
-                  <button mat-menu-item *ngIf="!participant.isDenied && !participant.isConsentApproved" (click)="onCancelInvitationClicked(participant._id)">
+                <mat-menu #menu="matMenu" [ngSwitch]="getParticipationStatus(participant)">
+                  <button mat-menu-item *ngSwitchCase="'pending'" (click)="onCancelInvitationClicked(participant._id)">
                     <span>Cancel Invitation</span>
                   </button>
-                  <button mat-menu-item *ngIf="!participant.isDenied && 
-                  participant.isConsentApproved && participant.dropped != true" (click)="onDropParticipantClicked(participant._id)">
+
+                  <button mat-menu-item *ngSwitchCase="'participating'" (click)="onDropParticipantClicked(participant._id)">
                   <span>Drop Participant</span>
                   </button>
+
+
+                  <button mat-menu-item *ngSwitchCase="'dropped' || 'denied'" (click)="onRemoveParticipantEntryClicked(participant._id)">
+                    <span>Remove Entry</span>
+                    </button>
                 </mat-menu>
               </div>
             </td>
@@ -74,7 +79,7 @@
             </tr>
           </thead>
           <tr class="hoverable singleline" *ngFor="let user of userPool let index = index" (mouseleave)="hoveredRowIndex = -1" (mouseover)="hoveredRowIndex = index">
-            <td>{{user.email}}</td>
+            <td>{{user.email | anonymizeEmail}}</td>
             <td>
               <div *ngIf="getParticipationStatusToThisExperimentOfUser(user)" [ngSwitch]="getParticipationStatusToThisExperimentOfUser(user)">
                 <span *ngSwitchCase="'pending'" class="tag tag-warning">Invitation Pending</span>

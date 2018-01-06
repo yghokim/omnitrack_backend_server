@@ -8,9 +8,11 @@ export class ResearcherAuthGuardMain implements CanActivate {
 
   constructor(public auth: ResearcherAuthService, private router: Router) {}
 
-  canActivate(): Observable<boolean> {
-    return this.auth.verifySignedInStatus().do(success => {
-      if (success) {
+  canActivate(activatedRoute: ActivatedRouteSnapshot, routerState: RouterStateSnapshot): Observable<boolean> {
+    console.log(activatedRoute.url)
+    return this.auth.verifySignedInStatus().map(success => {
+      console.log("verified: " + success)
+      if (success==true) {
         this.router.navigate(['/research/dashboard'])
       }
       return true

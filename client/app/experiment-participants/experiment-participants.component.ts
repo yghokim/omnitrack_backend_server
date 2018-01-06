@@ -137,11 +137,25 @@ export class ExperimentParticipantsComponent implements OnInit {
   }
 
   onCancelInvitationClicked(participantId: string) {
+    this.deleteParticipant(participantId, 
+      'Cancel Invitation', 
+      'Do you want to cancel the pending invitation to the user?')
+  }
+
+  onRemoveParticipantEntryClicked(participantId: string){
+    this.deleteParticipant(participantId,
+      'Delete Participation Entry',
+      'Do you want to remove this participation entry?',
+      'Delete'
+    )
+  }
+
+  private deleteParticipant(participantId: string, title: string, message: string, positiveLabel: string = title){
     this.dialog.open(YesNoDialogComponent, {
       data: {
-        title: 'Cancel Invitation',
-        message:  'Do you want to cancel the pending invitation to the user?',
-        positiveLabel: 'Cancel Invitation',
+        title: title,
+        message:  message,
+        positiveLabel: positiveLabel,
         positiveColor: "warn",
         negativeColor: "primary",
       }
@@ -196,12 +210,9 @@ export class ExperimentParticipantsComponent implements OnInit {
     return user.participantIdentities.find(participant => !participant.isDenied && participant.isConsentApproved && participant.invitation.experiment._id !== this.api.getSelectedExperimentId()) != null
   }
 
-  getParticipationStatusToThisExperimentOfUser(user: any): string
+  getParticipationStatus(participant: any): string
   {
-    const participant = user.participantIdentities.find(participant => participant.invitation.experiment._id === this.api.getSelectedExperimentId()) 
-    if(participant)
-    {
-      if(participant.isDenied == true)
+    if(participant.isDenied == true)
       {
         return 'denied'
       }
@@ -214,6 +225,14 @@ export class ExperimentParticipantsComponent implements OnInit {
         return 'participating'
       }
       else return 'pending'
+  }
+
+  getParticipationStatusToThisExperimentOfUser(user: any): string
+  {
+    const participant = user.participantIdentities.find(participant => participant.invitation.experiment._id === this.api.getSelectedExperimentId()) 
+    if(participant)
+    {
+      return this.getParticipationStatus(participant)
     } else { return null } 
   }
 

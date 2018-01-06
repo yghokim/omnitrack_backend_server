@@ -137,15 +137,23 @@ export class ResearchDashboardComponent implements OnInit {
       this.isLoadingExperiments = false
       this.experimentInfos = experiments
     })
+
+    this.api.selectedExperimentService.filter(expService => expService!=null).do(expService => {
+      this.isLoadingSelectedExperiment = true;
+    }).flatMap( expService => 
+      expService.getExperiment()).subscribe(
+        experimentInfo => {
+          if(experimentInfo)
+          {
+            this.isLoadingSelectedExperiment = false
+            this.selectedExperimentName = experimentInfo.name
+          }
+        }
+      )
   }
 
   onExperimentSelected(id) {
-    this.isLoadingSelectedExperiment = true
-    this.api.setSelectedExperimentId(id).subscribe((exp) => {
-      console.log(exp)
-      this.selectedExperimentName = exp.name
-      this.isLoadingSelectedExperiment = false
-    })
+    this.api.setSelectedExperimentId(id)
   }
 
   onSignOutClicked() {

@@ -3,10 +3,10 @@ import { Http, Headers, RequestOptions } from '@angular/http';
 import { ResearcherAuthService } from './researcher.auth.service';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/publishReplay';
+import { SocketService } from './socket.service';
 import ExperimentInfo from '../models/experiment-info';
 import { ExperimentService } from './experiment.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Socket } from 'ng-socket-io';
 
 @Injectable()
 export class ResearchApiService {
@@ -21,26 +21,30 @@ export class ResearchApiService {
 
   public readonly selectedExperimentService = new BehaviorSubject<ExperimentService>(null)
 
-  constructor(private http: Http, private authService: ResearcherAuthService, private socket: Socket) {
-    this.socket.fromEvent("change").subscribe(
-      data => {
-        console.log(data)
+  constructor(private http: Http, private authService: ResearcherAuthService, private socketService: SocketService) {
+
+    this.authService.tokenSubject.subscribe(token => {
+      if(token)
+      {
+        this.tokenHeaders = new Headers({ 'Authorization': 'Bearer ' + token });
       }
-    )
+    })
   }
 
   getExperimentInfos(): Observable<Array<ExperimentInfo>> {
     if (!this.experimentInfoQuery) {
-      this.experimentInfoQuery = this.http.get('/api/research/experiments/all', this.authorizedOptions).map(res => {
-        return res.json().map(
-          exp => {
-            const info = new ExperimentInfo()
-            info.id = exp._id
-            info.name = exp.name
-            info.isAdmin = exp.manager === this.authService.currentResearcher.uid
-            return info
-          }
-        )
+      this.experimentInfoQuery = this.http.get('/api/research/experiments/all', this.authorizedOptions).flatMap(res => {
+        return this.authService.currentResearcher.map(researcher => {
+          return res.json().map(
+            exp => {
+              const info = new ExperimentInfo()
+              info.id = exp._id
+              info.name = exp.name
+              info.isAdmin = exp.manager === researcher.uid
+              return info
+            }
+          )
+        })
       }).publishReplay(1).refCount()
     }
     return this.experimentInfoQuery
@@ -50,13 +54,15 @@ export class ResearchApiService {
     return this.selectedExperimentId
   }
 
-  setSelectedExperimentId(id: string): Observable<any> {
+  setSelectedExperimentId(id: string) {
     if (this.selectedExperimentId !== id) {
+        if(this.selectedExperimentService.value)
+        {
+          this.selectedExperimentService.value.dispose()
+        }
         this.selectedExperimentId = id
-        this.selectedExperimentService.next(new ExperimentService(this.selectedExperimentId, this.http, this.authService, this))
+        this.selectedExperimentService.next(new ExperimentService(this.selectedExperimentId, this.http, this.authService, this, this.socketService))
     }
-
-    return this.selectedExperimentService.flatMap(expService => expService.reloadExperiment())
   }
 
   getUserPool(): Observable<Array<any>> {

@@ -1,7 +1,6 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import { SocketIoModule, SocketIoConfig } from 'ng-socket-io';
 import { OAuthModule } from 'angular-oauth2-oidc';
 
 import { RoutingModule } from './routing.module';
@@ -36,6 +35,8 @@ import { BusyOverlayComponent } from './busy-overlay/busy-overlay.component';
 import { ChooseInvitationDialogComponent } from './dialogs/choose-invitation-dialog/choose-invitation-dialog.component';
 import { ExperimentMessagingComponent } from './experiment-messaging/experiment-messaging.component';
 import { ComposeMessageComponent } from './experiment-messaging/compose-message/compose-message.component';
+import { AnonymizeEmailPipe } from './pipes/anonymize-email.pipe';
+import { SocketService } from './services/socket.service';
 
 
 @NgModule({
@@ -61,7 +62,8 @@ import { ComposeMessageComponent } from './experiment-messaging/compose-message/
     BusyOverlayComponent,
     ChooseInvitationDialogComponent,
     ExperimentMessagingComponent,
-    ComposeMessageComponent
+    ComposeMessageComponent,
+    AnonymizeEmailPipe
   ],
   imports: [
     OAuthModule.forRoot(),
@@ -70,13 +72,13 @@ import { ComposeMessageComponent } from './experiment-messaging/compose-message/
     BrowserModule,
     BrowserAnimationsModule,
     MaterialDesignModule,
-    SocketIoModule.forRoot( {url: "http://localhost:3000", options: {}})
   ],
   providers: [
     ResearcherAuthGuardSecure,
     ResearcherAuthGuardMain,
     ResearcherAuthService,
-    ResearchApiService
+    ResearchApiService,
+    SocketService
     /*AuthService,
     CatService,
     UserService*/

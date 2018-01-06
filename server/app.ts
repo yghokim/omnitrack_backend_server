@@ -36,16 +36,11 @@ if (env.node_env === 'test') {
   mongoose.connect(env.mongodb_uri);
 }
 
-let io
 const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
   console.log('Connected to MongoDB');
-
-  app.set("omnitrack", new OmniTrackModule(app))
-  app.get("omnitrack").bootstrap()
-
 
   // Routers===================================
   app.use('/api', apiRouter);
@@ -59,16 +54,16 @@ db.once('open', () => {
 
   if (!module.parent) {
     const server = app.listen(app.get('port'), () => {
-      console.log('Angular Full Stack listening on port ' + app.get('port'));
+      console.log('OmniTrack API Server listening on port ' + app.get('port'));
     });
 
-    io = require("socket.io")(server)
-    
-    io.on("connection", function(socket){
-      console.log("new client was connected via websocket.")
-    })
+    const io = require("socket.io")(server)
+    app.set("io", io)
+
+    app.set("omnitrack", new OmniTrackModule(app))
+    app.get("omnitrack").bootstrap()
   }
 });
 
-export { app, clientKeys, io}
+export { app, clientKeys }
 export default appWrapper

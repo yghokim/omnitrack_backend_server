@@ -12,6 +12,7 @@ import IdGenerator from '../../omnitrack/core/id_generator'
 import C from '../server_consts'
 import ResearchModule from './research.module';
 import { merge } from '../utils';
+import SocketModule from './socket.module';
 
 export default class OmniTrackModule {
 
@@ -20,6 +21,7 @@ export default class OmniTrackModule {
   public readonly commandModule: CommandModule
   public readonly pushModule: PushModule
   public readonly researchModule: ResearchModule
+  public readonly socketModule: SocketModule
 
   constructor(private app: any) {
     this.serverModule = new ServerModule()
@@ -27,10 +29,12 @@ export default class OmniTrackModule {
     this.commandModule = new CommandModule()
     this.pushModule = new PushModule()
     this.researchModule = new ResearchModule()
+    this.socketModule = new SocketModule(app.get("io"))
   }
 
   bootstrap() {
     this.serverModule.bootstrap()
+    this.socketModule.bootstrap()
   }
 
   injectPackage(userId: string, predefinedPackage: PredefinedPackage, creationFlags?: any): Promise<void> {
