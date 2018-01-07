@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { ChooseInvitationDialogComponent } from '../dialogs/choose-invitation-dialog/choose-invitation-dialog.component';
 import { NewInvitationDialogComponent } from '../experiment-invitations/new-invitation-dialog/new-invitation-dialog.component';
+import "rxjs/add/observable/zip";
 
 @Component({
   selector: 'app-experiment-participants',
@@ -115,11 +116,11 @@ export class ExperimentParticipantsComponent implements OnInit {
           positiveLabel: "Create New Invitation"
         } }).afterClosed().subscribe(yes => {
           if (yes === true) {
-            this.dialog.open(NewInvitationDialogComponent, {data: {groups: groups}}).afterClosed().subscribe(newInvitation => {
-              if (newInvitation) {
-                this.api.selectedExperimentService.flatMap(exp => {
-                  return exp.sendInvitation(newInvitation.code, [userId], false)
-                }).subscribe(result => {
+            this.dialog.open(NewInvitationDialogComponent, {data: {groups: groups}}).afterClosed().subscribe(invitation => {
+              if (invitation) {
+                this.api.selectedExperimentService.flatMap(service => service.generateInvitation(invitation.toJson()).flatMap(newInvitation =>
+                  service.sendInvitation(newInvitation.code, [userId], false)
+                )).subscribe(result => {
                   this.participantsSubscription.unsubscribe()
                   this.onUserPoolTabSelected()
                 })

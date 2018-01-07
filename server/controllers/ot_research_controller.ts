@@ -212,7 +212,7 @@ export default class OTResearchCtrl {
   getUsersWithPariticipantInformation = (req, res) => {
     OTUser.find({}).populate({
       path: 'participantIdentities',
-      select: '_id invitation isDenied isConsentApproved',
+      select: '_id invitation isDenied isConsentApproved dropped',
       populate: {
         path: 'invitation',
         select: '_id experiment code',

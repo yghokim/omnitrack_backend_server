@@ -45,6 +45,11 @@ export class ExperimentService {
                   case SocketConstants.MODEL_INVITATION:
                     this.loadInvitationList()
                     this.researchApi.loadUserPool()
+                    switch (datum.event) {
+                      case SocketConstants.EVENT_REMOVED:
+                        this.loadParticipantList()
+                        break;
+                    }
                     break;
                   case SocketConstants.MODEL_PARTICIPANT:
                     this.loadParticipantList()
