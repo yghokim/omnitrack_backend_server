@@ -57,7 +57,6 @@ export class ExperimentInvitationsComponent implements OnInit {
       if (res === true) {
         this.experimentService.removeInvitation(invitation).subscribe(result => {
           if (result === true) {
-            this.invitations.splice(this.invitations.findIndex((invit) => invit._id === invitation._id), 1)
           }
         })
       }
@@ -65,17 +64,22 @@ export class ExperimentInvitationsComponent implements OnInit {
   }
 
   onNewInvitationClicked() {
-    this.dialog.open(NewInvitationDialogComponent, {}).beforeClose().subscribe(
-      newInvitation => {
-        if (newInvitation) {
-          this.ngOnInit()
+    this.dialog.open(NewInvitationDialogComponent, { data: { groups: this.groups } }).beforeClose().subscribe(
+      invitation => {
+        if (invitation) {
+          this.isLoadingInvitations = true
+          this.api.selectedExperimentService.flatMap(service => service.generateInvitation(invitation.toJson())).subscribe(
+            newInvitation => {
+              this.isLoadingInvitations = false
+            }
+          )
         }
       }
     )
   }
 
   getGroupName(groupId): string {
-    return (this.groups.find(g => g._id === groupId) || {name: ""}).name
+    return (this.groups.find(g => g._id === groupId) || { name: "" }).name
   }
 
 }

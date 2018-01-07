@@ -8,6 +8,7 @@ import ExperimentInfo from '../models/experiment-info';
 import { ExperimentService } from './experiment.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
+import { NotificationService } from './notification.service';
 
 @Injectable()
 export class ResearchApiService implements OnDestroy {
@@ -18,12 +19,14 @@ export class ResearchApiService implements OnDestroy {
 
   private selectedExperimentId: string = null
 
-  public readonly selectedExperimentService = new BehaviorSubject<ExperimentService>(null)
+  private readonly _selectedExperimentService = new BehaviorSubject<ExperimentService>(null)
+
+  public readonly selectedExperimentService: Observable<ExperimentService> = this._selectedExperimentService.filter(s => { return s != null })
 
   private readonly _experimentListSubject = new BehaviorSubject<Array<ExperimentInfo>>([])
   private readonly _userPoolSubject = new BehaviorSubject<Array<any>>([])
 
-  constructor(private http: Http, private authService: ResearcherAuthService, private socketService: SocketService) {
+  constructor(private http: Http, private authService: ResearcherAuthService, private socketService: SocketService, private notificationService: NotificationService) {
 
     this.authService.tokenSubject.subscribe(token => {
       if (token) {
@@ -49,6 +52,11 @@ export class ResearchApiService implements OnDestroy {
               switch(datum.model){
                 case SocketConstants.MODEL_USER:
                   this.loadUserPool()
+                  switch(datum.event){
+                    case SocketConstants.EVENT_REMOVED:
+                      this.notificationService.pushSnackBarMessage({message: "A user account was removed."})
+                    break;
+                  }
                 break;
               }
             })
@@ -103,11 +111,11 @@ export class ResearchApiService implements OnDestroy {
 
   setSelectedExperimentId(id: string) {
     if (this.selectedExperimentId !== id) {
-      if (this.selectedExperimentService.value) {
-        this.selectedExperimentService.value.dispose()
+      if (this._selectedExperimentService.value) {
+        this._selectedExperimentService.value.dispose()
       }
       this.selectedExperimentId = id
-      this.selectedExperimentService.next(new ExperimentService(this.selectedExperimentId, this.http, this.authService, this, this.socketService))
+      this._selectedExperimentService.next(new ExperimentService(this.selectedExperimentId, this.http, this.authService, this, this.socketService, this.notificationService))
     }
   }
 

@@ -32,6 +32,8 @@ import { YesNoDialogComponent } from './dialogs/yes-no-dialog/yes-no-dialog.comp
     MatDatepickerModule,
     MatNativeDateModule,
     MatSnackBarModule
-  ]
+  ],
+   providers: [
+    MatIconRegistry]
 })
 export class MaterialDesignModule { }

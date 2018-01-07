@@ -6,6 +6,7 @@ import OTParticipant from '../models/ot_participant'
 import { IJoinedExperimentInfo } from '../../omnitrack/core/research/experiment'
 import { Document } from 'mongoose';
 import app from '../app';
+import { SocketConstants } from '../../omnitrack/core/research/socket';
 
 const crypto = require("crypto");
 
@@ -132,7 +133,7 @@ export default class OTResearchCtrl {
       })
       .then(result => {
         console.log(result)
-
+        app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, {model: SocketConstants.MODEL_INVITATION, event: SocketConstants.EVENT_REMOVED})
         res.status(200).send(true)
       })
   }
@@ -148,6 +149,9 @@ export default class OTResearchCtrl {
       groupMechanism: data
     }).save().then(
       invit => {
+        app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, 
+          {model: SocketConstants.MODEL_INVITATION, event: SocketConstants.EVENT_ADDED, payload: invit})
+
         res.status(200).json(invit)
       }
       ).catch(err => {
@@ -269,6 +273,7 @@ export default class OTResearchCtrl {
           res.status(500).send(err)
         }
         else{
+          app.socketModule().sendUpdateNotificationToExperimentSubscribers(doc["experiment"], {model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_DENIED, payload: doc})
           res.status(200).send(true)
         }
       })

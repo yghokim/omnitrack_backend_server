@@ -3,6 +3,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { ResearchApiService } from '../services/research-api.service';
+import { NotificationService } from '../services/notification.service';
 import ExperimentInfo from '../models/experiment-info';
 import { MatDialog, MatIconRegistry, MatSnackBar } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
@@ -86,6 +87,7 @@ export class ResearchDashboardComponent implements OnInit {
   constructor(
     public api: ResearchApiService,
     public authService: ResearcherAuthService,
+    private notificationService: NotificationService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private dialog: MatDialog,
@@ -107,6 +109,17 @@ export class ResearchDashboardComponent implements OnInit {
         this.upperHeaderTitle = data['backTitle'];
         this.backNavigationUrl = data['backNavigationUrl'];
       })
+
+    this.notificationService.snackBarMessageQueue.subscribe(
+      message=>{
+        console.log(message)
+        if(message.action)
+        {
+          this.snackBar.open(message.message, message.action.label, {duration : 3000})
+        }
+        else this.snackBar.open(message.message, null, { duration : 3000 })
+      }
+    )
   }
 
   ngOnInit() {

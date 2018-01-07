@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
 import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
 import { MatDialog } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { ChooseInvitationDialogComponent } from '../dialogs/choose-invitation-dialog/choose-invitation-dialog.component';
@@ -86,9 +87,15 @@ export class ExperimentParticipantsComponent implements OnInit {
   }
 
   onSendInvitationClicked(userId: string) {
-    this.api.selectedExperimentService.flatMap(expService => expService.getInvitations()).subscribe(list => {
-      if (list.length > 0) { // Has invitations. Show selection window.
-        this.dialog.open(ChooseInvitationDialogComponent, { data: { positiveLabel: "Send" } }).afterClosed().subscribe(
+    this.api.selectedExperimentService.flatMap(expService => 
+      Observable.zip(expService.getInvitations(), expService.getExperiment())).subscribe(result => {
+        const invitations = result[0]
+        const groups = result[1].groups
+      if (invitations.length > 0) { // Has invitations. Show selection window.
+        this.dialog.open(ChooseInvitationDialogComponent, { data: { 
+          groups: groups,
+          invitations: invitations,
+          positiveLabel: "Send" } }).afterClosed().subscribe(
           invitationCode => {
             if (invitationCode) {
               this.api.selectedExperimentService.flatMap(exp => {
@@ -108,7 +115,7 @@ export class ExperimentParticipantsComponent implements OnInit {
           positiveLabel: "Create New Invitation"
         } }).afterClosed().subscribe(yes => {
           if (yes === true) {
-            this.dialog.open(NewInvitationDialogComponent, {}).afterClosed().subscribe(newInvitation => {
+            this.dialog.open(NewInvitationDialogComponent, {data: {groups: groups}}).afterClosed().subscribe(newInvitation => {
               if (newInvitation) {
                 this.api.selectedExperimentService.flatMap(exp => {
                   return exp.sendInvitation(newInvitation.code, [userId], false)

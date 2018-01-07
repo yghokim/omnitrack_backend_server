@@ -18,15 +18,26 @@ export class NewInvitationDialogComponent implements OnInit {
   private selectedGroupIds: Array<string> = []
 
   constructor(
-    private api: ResearchApiService,
     private dialogRef: MatDialogRef<NewInvitationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) private data: any) {
 
   }
 
   ngOnInit() {
-    this.api.selectedExperimentService.flatMap(service => service.getExperiment()).subscribe(
+    if(this.data.groups)
+    {
+      this.groups = this.data.groups
+      if (this.groups.length > 0) {
+        this.selectedGroupId = this.groups[0]._id
+      }
+      this.selectedGroupIds = this.groups.map(g => g._id)
+    }
+    /*
+    this.api.selectedExperimentService.flatMap(service => {
+      console.log(service)
+      return service.getExperiment()}).subscribe(
       exp => {
+        console.log(exp)
         this.isBusy = false
         this.groups = exp.groups
         if (this.groups.length > 0) {
@@ -34,7 +45,7 @@ export class NewInvitationDialogComponent implements OnInit {
         }
         this.selectedGroupIds = this.groups.map(g => g._id)
       }
-    )
+    )*/
   }
 
   onTabChanged(event) {
@@ -97,6 +108,10 @@ export class NewInvitationDialogComponent implements OnInit {
           break;
       }
 
+      this.dialogRef.close(invitation)
+
+      /*
+
       console.log(invitation.toJson())
       this.isBusy = true
       this.api.selectedExperimentService.flatMap(service => service.generateInvitation(invitation.toJson())).subscribe(
@@ -105,7 +120,7 @@ export class NewInvitationDialogComponent implements OnInit {
           this.isBusy = true
           this.dialogRef.close(newInvitation)
         }
-      )
+      )*/
     }
   }
 }

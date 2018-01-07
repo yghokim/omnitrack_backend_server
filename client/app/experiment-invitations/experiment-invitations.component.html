@@ -5,7 +5,7 @@
         <div class="flex-element">
           Current Invitations
         </div>
-        <button mat-raised-button color="accent" (click)="onNewInvitationClicked()" class="flex-element" data-toggle="modal" data-target="#exampleModal">Add new invitation</button>
+        <button mat-raised-button color="accent" (click)="onNewInvitationClicked()" class="flex-element" data-toggle="modal" data-target="#exampleModal" [disabled]="!groups">Add new invitation</button>
       </div>
     </div>
     <table class="table table-sm table-data" (mouseleave)="selectedRowIndex = -1">

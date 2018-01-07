@@ -6,6 +6,7 @@ import 'rxjs/add/operator/publishReplay';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { SocketService } from './socket.service';
 import {SocketConstants} from '../../../omnitrack/core/research/socket'
+import { NotificationService } from './notification.service';
 
 export class ExperimentService {
 
@@ -19,7 +20,11 @@ export class ExperimentService {
     private http: Http,
     private authService: ResearcherAuthService,
     private researchApi: ResearchApiService,
-    private socketService: SocketService) {
+    private socketService: SocketService,
+    private notificationService: NotificationService
+  ) {
+
+    console.log("initialized experiment service.")
 
     this.loadExperimentInfo()
     this.loadInvitationList()
@@ -45,9 +50,22 @@ export class ExperimentService {
                   case SocketConstants.MODEL_PARTICIPANT:
                     this.loadParticipantList()
                     this.researchApi.loadUserPool()
+                    switch(datum.event){
+                      case SocketConstants.EVENT_APPROVED:
+                      this.notificationService.pushSnackBarMessage({
+                        message: "A user started participating in the experiment."
+                      })
+                      break;
+                      case SocketConstants.EVENT_DROPPED:
+                      this.notificationService.pushSnackBarMessage({
+                        message: "A participant dropped out the experiment."
+                      })
+                      break;
+                    }
                     break; 
                   case SocketConstants.MODEL_EXPERIMENT:
                     this.loadExperimentInfo()
+                    break;
                 }
               }
             })
@@ -69,7 +87,10 @@ export class ExperimentService {
       .map(res => {
         return res.json()
       }).subscribe(
-      experimentInfo => this.experimentInfo.next(experimentInfo)
+      experimentInfo => {
+        console.log(experimentInfo)
+        this.experimentInfo.next(experimentInfo)
+      }
       )
   }
 
