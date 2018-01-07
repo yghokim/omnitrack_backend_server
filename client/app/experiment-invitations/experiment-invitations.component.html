@@ -41,8 +41,12 @@
     </table>
 
     <div class="card-block card-footer">
-      <small *ngIf="invitations!= null && invitations.length == 0" class="text-color-gray">No invitations.</small>
+      <div class="flex-container flex-align-content-center">
+        <small *ngIf="invitations!= null && invitations.length == 0" class="text-color-gray">No invitations.</small>
       <small *ngIf="invitations!= null && invitations.length > 0" class="text-color-gray">Invitations: {{invitations.length}}</small>
+
+    </div>
+      
 
     </div>
   </div>

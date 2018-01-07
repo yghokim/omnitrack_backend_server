@@ -72,6 +72,7 @@ export class ResearchApiService implements OnDestroy {
   }
 
   loadExperimentInfo() {
+    this.notificationService.registerGlobalBusyTag("experimentInfo")
     this.http.get('/api/research/experiments/all', this.authorizedOptions).flatMap(res => {
       return this.authService.currentResearcher.map(researcher => {
         return res.json().map(
@@ -86,16 +87,20 @@ export class ResearchApiService implements OnDestroy {
       })
     }).subscribe(
       list => {
+
+      this.notificationService.unregisterGlobalBusyTag("experimentInfo")
         this._experimentListSubject.next(list)
       })
   }
 
   loadUserPool() {
+    this.notificationService.registerGlobalBusyTag("userPool")
     this.http.get("/api/research/users/all", this.authorizedOptions).map(res => {
       return res.json()
     }).subscribe(
       list => 
       {
+      this.notificationService.unregisterGlobalBusyTag("userPool")
         this._userPoolSubject.next(list)
       }
     )

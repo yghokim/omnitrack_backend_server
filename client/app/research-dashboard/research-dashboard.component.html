@@ -4,9 +4,9 @@
       <img class="logo" src="/assets/omnitrack_research_kit_logo.svg">
     </div>
     <div class="heading_container">
-      <div class="dropdown experiment"*ngIf="api.getSelectedExperimentId()">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
-          aria-haspopup="true" aria-expanded="false">
+      <div class="dropdown experiment" *ngIf="api.getSelectedExperimentId()">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+          aria-expanded="false">
           {{selectedExperimentName}}
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -42,30 +42,32 @@
     <div class="nav nav-pills flex-column">
       <div class="group" *ngFor="let group of dashboardNavigationGroups">
         <div class="small nav-link nav-subtitle">{{group.name}}</div>
-        <a class="nav-link flex-container flex-align-items-center"
-          *ngFor="let menu of group.menus" 
-          [routerLink] = "['/research/dashboard', api.getSelectedExperimentId(), menu.key]"
-          [routerLinkActive] = "['active']"
-          >
-            <mat-icon *ngIf="menu.icon" class="gnb-icon material-icons">{{menu.icon}}</mat-icon>
-            <!--<img class="gnb-icon material-icons" *ngIf="menu.iconPath" [src]="menu.iconPath">
+        <a class="nav-link flex-container flex-align-items-center" *ngFor="let menu of group.menus" [routerLink]="['/research/dashboard', api.getSelectedExperimentId(), menu.key]"
+          [routerLinkActive]="['active']">
+          <mat-icon *ngIf="menu.icon" class="gnb-icon material-icons">{{menu.icon}}</mat-icon>
+          <!--<img class="gnb-icon material-icons" *ngIf="menu.iconPath" [src]="menu.iconPath">
             <mat-icon *ngIf="menu.svgIcon" class="gnb-icon material-icons" [svgIcon]="menu.svgIcon"></mat-icon>-->
-            
-            <span>{{menu.name}}</span>
-          </a>
+
+          <span>{{menu.name}}</span>
+        </a>
       </div>
     </div>
   </div>
   <div id="research_column_main">
-    <div class="card" class="title-header" [ngClass]="upperHeaderTitle!=undefined? 'with-button':''" *ngIf="headerTitle">
+    <div class="title-header-container">
+      <div class="card" class="title-header" [ngClass]="upperHeaderTitle!=undefined? 'with-button':''" *ngIf="headerTitle">
         <div *ngIf="!upperHeaderTitle" class="dashboard-title">{{headerTitle}}</div>
         <div *ngIf="upperHeaderTitle" class="flex-container flex-align-items-center">
-          <button mat-icon-button class="margin-right-small text-color-white" [routerLink]="backNavigationUrl"><mat-icon class="material-icons">arrow_back</mat-icon></button>
+          <button mat-icon-button class="margin-right-small text-color-white" [routerLink]="backNavigationUrl">
+            <mat-icon class="material-icons">arrow_back</mat-icon>
+          </button>
           <div class="flex-child">
-          <small class="dashboard-back-title">{{upperHeaderTitle}}</small>
-          <div class="dashboard-title">{{headerTitle}}</div>
+            <small class="dashboard-back-title">{{upperHeaderTitle}}</small>
+            <div class="dashboard-title">{{headerTitle}}</div>
+          </div>
         </div>
-        </div>
+      </div>
+      <mat-progress-bar [@ySlide]="(notificationService.globalBusyFlag | async)" id="main-progress-bar" mode="indeterminate" color="accent"></mat-progress-bar>
     </div>
     <div class="container-fluid">
       <router-outlet></router-outlet>

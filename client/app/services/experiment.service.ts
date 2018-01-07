@@ -5,7 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/publishReplay';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { SocketService } from './socket.service';
-import {SocketConstants} from '../../../omnitrack/core/research/socket'
+import { SocketConstants } from '../../../omnitrack/core/research/socket'
 import { NotificationService } from './notification.service';
 
 export class ExperimentService {
@@ -38,8 +38,7 @@ export class ExperimentService {
         socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_EXPERIMENT, (data) => {
           console.log("received updated/experiment websocket event.")
           console.log(data)
-          if( data instanceof Array)
-          {
+          if (data instanceof Array) {
             data.forEach(datum => {
               if (datum.model) {
                 switch (datum.model) {
@@ -50,19 +49,19 @@ export class ExperimentService {
                   case SocketConstants.MODEL_PARTICIPANT:
                     this.loadParticipantList()
                     this.researchApi.loadUserPool()
-                    switch(datum.event){
+                    switch (datum.event) {
                       case SocketConstants.EVENT_APPROVED:
-                      this.notificationService.pushSnackBarMessage({
-                        message: "A user started participating in the experiment."
-                      })
-                      break;
+                        this.notificationService.pushSnackBarMessage({
+                          message: "A user started participating in the experiment."
+                        })
+                        break;
                       case SocketConstants.EVENT_DROPPED:
-                      this.notificationService.pushSnackBarMessage({
-                        message: "A participant dropped out the experiment."
-                      })
-                      break;
+                        this.notificationService.pushSnackBarMessage({
+                          message: "A participant dropped out the experiment."
+                        })
+                        break;
                     }
-                    break; 
+                    break;
                   case SocketConstants.MODEL_EXPERIMENT:
                     this.loadExperimentInfo()
                     break;
@@ -83,51 +82,62 @@ export class ExperimentService {
   }
 
   loadExperimentInfo() {
+    this.notificationService.registerGlobalBusyTag("experimentList")
     this.http.get('/api/research/experiments/' + this.experimentId, this.researchApi.authorizedOptions)
       .map(res => {
         return res.json()
       }).subscribe(
       experimentInfo => {
-        console.log(experimentInfo)
+        this.notificationService.unregisterGlobalBusyTag("experimentList")
         this.experimentInfo.next(experimentInfo)
       }
       )
   }
 
   loadManagerInfo() {
+    this.notificationService.registerGlobalBusyTag("managerInfo")
     this.http
       .get('/api/research/experiments/manager/' + this.experimentId, this.researchApi.authorizedOptions)
       .map(res => {
         return res.json()
       }).subscribe(
-      manager => this.managerInfo.next(manager)
-      )
+      manager => {
+
+        this.notificationService.unregisterGlobalBusyTag("managerInfo")
+        this.managerInfo.next(manager)
+      })
   }
 
   loadInvitationList() {
+    this.notificationService.registerGlobalBusyTag("invitationList")
     this.http
       .get('/api/research/experiments/' + this.experimentId + "/invitations", this.researchApi.authorizedOptions)
       .map(res => {
         return res.json()
       }).subscribe(
-      list => this.invitationList.next(list)
-      )
+      list => {
+        this.notificationService.unregisterGlobalBusyTag("invitationList")
+        this.invitationList.next(list)
+      })
   }
 
   loadParticipantList() {
+    this.notificationService.registerGlobalBusyTag("participantList")
     this.http.get("/api/research/experiments/" + this.experimentId + '/participants', this.researchApi.authorizedOptions).map(
       res => res.json()
     ).subscribe(
-      list => this.participantList.next(list)
-      )
+      list => {
+        this.notificationService.unregisterGlobalBusyTag("participantList")
+        this.participantList.next(list)
+      })
   }
 
   getExperiment(): Observable<any> {
-    return this.experimentInfo.filter(res => res != null )
+    return this.experimentInfo.filter(res => res != null)
   }
 
   getManagerInfo(): Observable<any> {
-    return this.managerInfo.filter(res => res != null )
+    return this.managerInfo.filter(res => res != null)
   }
 
   getInvitations(): Observable<Array<any>> {

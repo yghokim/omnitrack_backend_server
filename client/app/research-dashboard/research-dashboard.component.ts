@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
@@ -11,7 +11,13 @@ import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.com
 @Component({
   selector: 'app-research-dashboard',
   templateUrl: './research-dashboard.component.html',
-  styleUrls: ['./research-dashboard.component.scss']
+  styleUrls: ['./research-dashboard.component.scss'],
+  animations: [
+    trigger('ySlide', [
+      state('false', style({ transform: "translate(0, -100%)" })),
+      transition("true => false", animate('700ms ease-in'))
+    ])
+  ]
 })
 export class ResearchDashboardComponent implements OnInit {
 

@@ -127,29 +127,35 @@ $sidebar_width: 185px;
 
   #research_column_main{
     overflow-y: auto;
-    .title-header{
-      @include main-gradient();
-      padding: .5rem 0.9rem;
+    .title-header-container{
       margin-bottom: 2em;
-      border-radius: 0;
-
-      &.with-button{
-        padding-left: 0.2rem;
-      }
-
-      .dashboard-title{
-        color: white;
-        text-transform: uppercase;
-        font-size: 1.0em;
-        font-weight: 500;
-      }
-
-      small.dashboard-back-title{
-        color: rgba(255,255,255,0.8);
-        font-weight: 500;
+      .title-header{
+        @include main-gradient();
+        padding: .5rem 0.9rem;
+        border-radius: 0;
+  
+        &.with-button{
+          padding-left: 0.2rem;
+        }
+  
+        .dashboard-title{
+          color: white;
+          text-transform: uppercase;
+          font-size: 1.0em;
+          font-weight: 500;
+        }
+  
+        small.dashboard-back-title{
+          color: rgba(255,255,255,0.8);
+          font-weight: 500;
+        }
       }
     }
   }
+}
+
+#main-progress-bar{
+  z-index: -1;
 }
 
 a.nav-link{
