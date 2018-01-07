@@ -12,7 +12,7 @@
     "build": "ng build",
     "start": "node dist/server/server/app.js",
     "predev": "tsc -p server",
-    "dev": "concurrently \"mongod\" \"ng serve -pc proxy.conf.json --open\" \"tsc -w -p server\" \"nodemon dist/server/server/app.js\"",
+    "dev": "concurrently \"mongod\" \"ng serve --host 0.0.0.0 --disable-host-check -pc proxy.conf.json --open\" \"tsc -w -p server\" \"nodemon dist/server/server/app.js\"",
     "prod": "concurrently \"mongod\" \"ng build -aot -prod && tsc -p server && node dist/server/server/app.js\"",
     "test": "ng test",
     "testbe": "tsc -p server && node_modules/.bin/mocha dist/server/test",

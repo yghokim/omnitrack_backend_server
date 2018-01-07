@@ -17,7 +17,7 @@ export class SocketService {
 
   constructor() {
 
-    this.socket = io("http://localhost:3000")
+    this.socket = io(window.location.protocol + "//" + window.location.hostname + ":3000")
     this.socket.connect()
 
     this.socket.on(
