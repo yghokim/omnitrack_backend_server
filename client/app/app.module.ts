@@ -19,12 +19,14 @@ import { ChooseInvitationDialogComponent } from './dialogs/choose-invitation-dia
 import { NotificationService } from './services/notification.service';
 
 import { ResearchModule } from './research.module';
+import { TextInputDialogComponent } from './dialogs/text-input-dialog/text-input-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     NotFoundComponent,
     YesNoDialogComponent,
+    TextInputDialogComponent,
     BusyOverlayComponent,
   ],
   imports: [
@@ -43,7 +45,8 @@ import { ResearchModule } from './research.module';
     UserService*/
   ],
   entryComponents: [
-    YesNoDialogComponent
+    YesNoDialogComponent,
+    TextInputDialogComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent]

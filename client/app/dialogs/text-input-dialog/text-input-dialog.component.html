@@ -1,0 +1,16 @@
+<div class="dialog">
+    <div class="card-header">{{title}}</div>
+    <div class="card-block">
+      <p [innerHTML] = "message"></p>
+      <div class="form-group" [class.has-danger]="submitErrorMessage">
+        <input class="form-control" type="text" name="text" [placeholder]="placeholder" [(ngModel)]="textValue" autofocus>
+      </div>
+      <div *ngIf="submitErrorMessage" class="small text-danger">{{submitErrorMessage}}</div>
+    </div>
+    <div class="card-block pull-right">
+        <button type="button" mat-button [color]="negativeColor" (click)="onNoClick()" [ngClass]="negativeButtonClass">{{negativeLabel}}</button>
+        <button type="button" mat-raised-button [color]="positiveColor" [disabled]="!isValid()"  (click)="onYesClick()" [ngClass]="positiveButtonClass">{{positiveLabel}}</button>
+    </div>
+    
+    </div>
+    

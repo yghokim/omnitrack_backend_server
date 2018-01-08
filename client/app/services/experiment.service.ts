@@ -198,6 +198,10 @@ export class ExperimentService {
       .map(res => res.json().success)
   }
 
+  changeParticipantAlias(participantId, alias): Observable<boolean>{
+    return this.http.post("/api/research/participants/" + participantId  + "/alias", {alias: alias}, this.researchApi.authorizedOptions).map(res => res.json())
+  }
+
   getOmniTrackPackages(): Observable<Array<any>> {
     return this.experimentInfo.map(exp => {
       return exp.trackingPackages

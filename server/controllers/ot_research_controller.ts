@@ -216,6 +216,20 @@ export default class OTResearchCtrl {
     })
   }
 
+  changeParticipantAlias = (req, res) => {
+    const participantId = req.params.participantId
+    const alias = req.body.alias
+    app.researchModule().changeParticipantAlias(participantId, alias).then(
+      changed=>{
+        res.status(200).send(changed)
+      }
+    ).catch(
+      err=>{
+        res.status(500).send({error: err})
+      }
+    )
+  }
+
   getUsersWithPariticipantInformation = (req, res) => {
     OTUser.find({}).populate({
       path: 'participantIdentities',

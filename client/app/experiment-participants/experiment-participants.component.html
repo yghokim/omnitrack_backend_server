@@ -16,7 +16,7 @@
           </thead>
           <tr class="hoverable singleline" *ngFor="let participant of participants let index = index" (mouseLeave)="hoveredRowIndex = -1"
             (mouseOver)="hoveredRowIndex = index">
-            <td>{{participant.alias}}</td>
+            <td [class.text-color-lightgray]="!participant.alias">{{participant.alias || 'Not set'}}</td>
             <td>
               <div class="tag tag-danger" *ngIf="participant.isDenied">Denied</div>
               <div class="tag tag-warning" *ngIf="!participant.isDenied && !participant.isConsentApproved">Invitation Pending</div>
@@ -34,7 +34,7 @@
                   <mat-icon class="material-icons">more_vert</mat-icon>
                 </button>
                 <mat-menu #menu="matMenu" [ngSwitch]="getParticipationStatus(participant)">
-                  <button mat-menu-item >
+                  <button mat-menu-item (click)="onChangeAliasClicked(participant)">
                     Change Alias
                   </button>
                   <button mat-menu-item *ngSwitchCase="'pending'" (click)="onCancelInvitationClicked(participant._id)">

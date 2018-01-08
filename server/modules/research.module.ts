@@ -166,6 +166,25 @@ export default class ResearchModule {
     return this.dropOutImpl({ _id: participantId }, reason, researcherId)
   }
 
+  changeParticipantAlias(participantId: string, alias: string): Promise<boolean>{
+    return OTParticipant.findOne({_id: {$ne: participantId}, alias: alias }).then(doc=>{
+      if(doc){
+        return Promise.reject("AliasAlreadyExists");
+      }
+      else{
+        return OTParticipant.findByIdAndUpdate(participantId, {alias: alias}, {select: "_id alias experiment"}).then(old=>{
+          const changed = old["alias"] != alias
+          if(changed==true)
+          {
+            app.socketModule().sendUpdateNotificationToExperimentSubscribers(old["experiment"], {model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_EDITED})
+          }
+
+          return changed
+        })
+      }
+    })
+  }
+
   putAliasToParticipantsIfNull(): Promise<number> {
     let count = 0
     const makePromise = () => OTParticipant.findOne({ alias: { $exists: false } }, { select: "_id alias user" }).populate({ path: "user", select: "_id activatedRoles" })

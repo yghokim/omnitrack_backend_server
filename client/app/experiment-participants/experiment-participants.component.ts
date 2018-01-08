@@ -7,6 +7,7 @@ import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.com
 import { ChooseInvitationDialogComponent } from '../dialogs/choose-invitation-dialog/choose-invitation-dialog.component';
 import { NewInvitationDialogComponent } from '../experiment-invitations/new-invitation-dialog/new-invitation-dialog.component';
 import "rxjs/add/observable/zip";
+import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
 
 @Component({
   selector: 'app-experiment-participants',
@@ -221,6 +222,27 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
             })
         }
       })
+    )
+  }
+
+  onChangeAliasClicked(participant: any){
+    this._internalSubscriptions.add(
+      this.dialog.open(TextInputDialogComponent, {
+        data: {
+          title: "Change Alias",
+          positiveLabel: "Change",
+          prefill: participant.alias,
+          placeholder: "Insert new alias",
+          validator: (text)=>{ 
+            return (text || "").length > 0 && text.trim() !== participant.alias
+           },
+          submit: (text) => this.api.selectedExperimentService.flatMap(service => service.changeParticipantAlias(participant._id, text.trim()))
+        }
+      }).afterClosed().subscribe(
+        alias => {
+
+        }
+      )
     )
   }
 

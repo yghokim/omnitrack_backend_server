@@ -63,6 +63,9 @@ router.post('/users/notify/message', tokenAuth, researchCtrl.sendNotificationMes
 
 router.delete('/participants/:participantId', tokenAuth, researchCtrl.removeParticipant)
 
+router.post('/participants/:participantId/alias', tokenAuth, researchCtrl.changeParticipantAlias)
+
+
 router.delete("/users/:userId", tokenAuth, userCtrl.deleteAccount)
 
 router.delete("/participants/:participantId/drop", tokenAuth, researchCtrl.dropOutFromExperiment)
