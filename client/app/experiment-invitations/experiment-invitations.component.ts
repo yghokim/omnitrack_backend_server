@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
 import { ExperimentService } from '../services/experiment.service';
+import { NotificationService } from '../services/notification.service';
 import { MatDialog } from '@angular/material';
 import { NewInvitationDialogComponent } from './new-invitation-dialog/new-invitation-dialog.component';
 import { AInvitation } from '../../../omnitrack/core/research/invitation';
@@ -20,7 +21,10 @@ export class ExperimentInvitationsComponent implements OnInit {
 
   private hoveredRowIndex = -1
 
-  constructor(private api: ResearchApiService, private dialog: MatDialog) {
+  constructor(
+    private api: ResearchApiService,
+    private notificationService: NotificationService, 
+    private dialog: MatDialog) {
     this.api.selectedExperimentService.subscribe(expService => {
       this.experimentService = expService
     })
@@ -61,6 +65,10 @@ export class ExperimentInvitationsComponent implements OnInit {
         })
       }
     })
+  }
+
+  onInvitationCodeCopied(invitation){
+    this.notificationService.pushSnackBarMessage({message: "Copied the invitation code to clipboard."})
   }
 
   onNewInvitationClicked() {

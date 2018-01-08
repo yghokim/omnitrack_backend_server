@@ -28,13 +28,15 @@ import { SocketService } from './services/socket.service';
 import { RoutingModule } from './routing.module';
 import { SharedModule } from './shared/shared.module';
 import { MaterialDesignModule } from './material-design.module';
+import { ClipboardModule } from 'ngx-clipboard';
 
 @NgModule({
   imports: [
     CommonModule,
     SharedModule,
     MaterialDesignModule,
-    RoutingModule
+    RoutingModule,
+    ClipboardModule
   ],
   declarations: [
 

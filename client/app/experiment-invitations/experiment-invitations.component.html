@@ -8,7 +8,7 @@
         <button mat-raised-button color="accent" (click)="onNewInvitationClicked()" class="flex-element" data-toggle="modal" data-target="#exampleModal" [disabled]="!groups">Add new invitation</button>
       </div>
     </div>
-    <table class="table table-sm table-data" (mouseleave)="selectedRowIndex = -1">
+    <table class="table table-sm table-data">
       <thead>
         <tr>
           <th>Code</th>
@@ -18,7 +18,7 @@
           <th></th>
         </tr>
       </thead>
-      <tr class="hoverable singleline" *ngFor="let invitation of invitations let index = index" (mouseover)="selectedRowIndex = index">
+      <tr class="hoverable singleline" *ngFor="let invitation of invitations let index = index" (mouseover)="selectedRowIndex = index" (mouseleave)="selectedRowIndex = -1">
         <td>{{invitation.code}}</td>
         <td>{{invitation.createdAt | date: 'MMM dd, yyyy'}}</td>
         <td>{{getInvitationType(invitation)}}</td>
@@ -32,7 +32,10 @@
         </td>
         <td class="button-cell">
           <div class="pull-right" [style.visibility]="selectedRowIndex != index? 'hidden' : 'inherit'">
-          <button mat-icon-button color="warn('light')" (click)="onDeleteClicked(invitation)">
+              <button mat-icon-button ngxClipboard [cbContent]="invitation.code" (cbOnSuccess)="onInvitationCodeCopied(invitation)" matTooltip="Copy code to clipboard" matTooltipPosition="above">
+                  <mat-icon class="material-icons">filter_none</mat-icon>
+                </button>
+          <button mat-icon-button matTooltip="Remove Invitation" matTooltipPosition="above" color="warn('light')" (click)="onDeleteClicked(invitation)">
             <mat-icon class="material-icons">delete</mat-icon>
           </button>
         </div>
