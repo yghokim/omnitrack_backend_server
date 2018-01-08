@@ -345,4 +345,15 @@ export default class OTResearchCtrl {
       res.status(500).send(err)
     })
   }
+
+  generateAliasOfParticipants = (req, res) => {
+    app.researchModule().putAliasToParticipantsIfNull().then(
+      count => {
+        res.status(200).send({count: count})
+      }
+    ).catch(err=>{
+      console.log(err)
+      res.status(500).send(err)
+    })
+  }
 }

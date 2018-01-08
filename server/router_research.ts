@@ -71,6 +71,7 @@ router.delete("/participants/:participantId/drop", tokenAuth, researchCtrl.dropO
 router.get("/users/all", tokenAuth, researchCtrl.getUsersWithPariticipantInformation)
 
 // debuging
+router.get("/debug/generate_participant_alias", researchCtrl.generateAliasOfParticipants)
 router.get('/debug/clear_researchers', adminCtrl.clearResearchers)
 router.get('/debug/push_users', adminCtrl.pushUsers)
 router.get('/debug/participants/all', researchCtrl.getallParticipants)
