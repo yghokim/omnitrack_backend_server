@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { JwtHelper } from 'angular2-jwt';
 import { Http, Headers, RequestOptions } from '@angular/http';
@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { SocketService } from './socket.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/map';
+import { Subscription } from 'rxjs/Subscription';
 
 export class ResearcherAuthInfo {
   constructor(
@@ -17,12 +18,14 @@ export class ResearcherAuthInfo {
 }
 
 @Injectable()
-export class ResearcherAuthService {
-  private jsonHeaders = new Headers({ 'Content-Type': 'application/json', 'charset': 'UTF-8' });
-  private formHeaders = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded', 'charset': 'UTF-8' });
+export class ResearcherAuthService implements OnDestroy {
+  private readonly jsonHeaders = new Headers({ 'Content-Type': 'application/json', 'charset': 'UTF-8' });
+  private readonly formHeaders = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded', 'charset': 'UTF-8' });
 
-  private jsonOptions = new RequestOptions({ headers: this.jsonHeaders });
-  private formOptions = new RequestOptions({ headers: this.formHeaders });
+  private readonly jsonOptions = new RequestOptions({ headers: this.jsonHeaders });
+  private readonly formOptions = new RequestOptions({ headers: this.formHeaders });
+
+  private readonly _internalSubscriptions = new Subscription()
 
   jwtHelper: JwtHelper = new JwtHelper();
 
@@ -38,32 +41,36 @@ export class ResearcherAuthService {
       this.decodeAndSaveResearcherFromToken(token);
     }
 
-    this.socketService.onConnected.subscribe(
-      socket=>{
-        console.log("websocket connected.")
-        if(socket != null)
-        {
-          this.currentResearcher.subscribe(researcher => {
-            if (researcher.signedIn == true) {
-              socket.emit("subscribe_researcher", { uid: researcher.uid }, () => {
-                console.log("subscribed as a researcher")
-                
-              })
-              socket.on("updated/researcher", (data) => {
-                console.log("received a updated/researcher websocket event")
-                console.log(data)
-              })
-            }
-            else {
-              socket.emit("unsubscribe_researcher", { uid: researcher.uid }, () => {
-                console.log("unsubscribed")
-                socket.removeListener("updated/researcher")
-              })
-            }
-          })
-        }
-      }
+    this._internalSubscriptions.add(
+      this.socketService.onConnected.subscribe(
+        socket => {
+          console.log("websocket connected.")
+          if (socket != null) {
+            this.currentResearcher.subscribe(researcher => {
+              if (researcher.signedIn == true) {
+                socket.emit("subscribe_researcher", { uid: researcher.uid }, () => {
+                  console.log("subscribed as a researcher")
+
+                })
+                socket.on("updated/researcher", (data) => {
+                  console.log("received a updated/researcher websocket event")
+                  console.log(data)
+                })
+              }
+              else {
+                socket.emit("unsubscribe_researcher", { uid: researcher.uid }, () => {
+                  console.log("unsubscribed")
+                  socket.removeListener("updated/researcher")
+                })
+              }
+            })
+          }
+        })
     )
+  }
+
+  ngOnDestroy() {
+    this._internalSubscriptions.unsubscribe()
   }
 
   token(): string {

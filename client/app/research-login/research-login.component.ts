@@ -1,15 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from "@angular/router";
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { ResearcherAuthService } from '../services/researcher.auth.service';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-research-login',
   templateUrl: './research-login.component.html',
   styleUrls: ['./research-login.component.scss']
 })
-export class ResearchLoginComponent implements OnInit {
+export class ResearchLoginComponent implements OnInit, OnDestroy {
 
+  private _internalSubscriptions = new Subscription()
 
   registerForm: FormGroup;
 
@@ -30,20 +32,25 @@ export class ResearchLoginComponent implements OnInit {
     })
   }
 
+  ngOnDestroy() {
+    this._internalSubscriptions.unsubscribe()
+  }
+
   authorize() {
     this.errorMessage = null
-    this.authService.authorize(this.registerForm.value.email, this.registerForm.value.password).subscribe(res => {
-      this.router.navigate(['/research'])
-    }, err => {
-      console.log("authorize error")
-      const errBody = err.json()
-      switch(errBody.error)
-      {
-        case "CredentialWrong":
-        this.errorMessage = "A researcher with the login information is wrong."
-        break;
-      }
-    })
+    this._internalSubscriptions.add(
+      this.authService.authorize(this.registerForm.value.email, this.registerForm.value.password).subscribe(res => {
+        this.router.navigate(['/research'])
+      }, err => {
+        console.log("authorize error")
+        const errBody = err.json()
+        switch (errBody.error) {
+          case "CredentialWrong":
+            this.errorMessage = "A researcher with the login information is wrong."
+            break;
+        }
+      })
+    )
   }
 
 }

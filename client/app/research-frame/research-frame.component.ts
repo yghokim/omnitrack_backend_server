@@ -11,19 +11,8 @@ import { ResearchApiService } from '../services/research-api.service';
 })
 export class ResearchFrameComponent implements OnInit {
 
-  constructor(private authService: ResearcherAuthService, private router: Router) { }
+  constructor() { }
 
   ngOnInit() {
-  }
-
-  signOut() {
-    this.authService.signOut().subscribe((signedOut) => {
-      console.log("successfully signed out.")
-      this.goToSignIn()
-    })
-  }
-
-  goToSignIn() {
-    this.router.navigate(['/research/login'])
   }
 }

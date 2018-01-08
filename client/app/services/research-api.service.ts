@@ -3,6 +3,7 @@ import { Http, Headers, RequestOptions } from '@angular/http';
 import { ResearcherAuthService } from './researcher.auth.service';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/publishReplay';
+import { Subscription } from 'rxjs/Subscription';
 import { SocketService } from './socket.service';
 import ExperimentInfo from '../models/experiment-info';
 import { ExperimentService } from './experiment.service';
@@ -26,52 +27,59 @@ export class ResearchApiService implements OnDestroy {
   private readonly _experimentListSubject = new BehaviorSubject<Array<ExperimentInfo>>([])
   private readonly _userPoolSubject = new BehaviorSubject<Array<any>>([])
 
+  private readonly _internalSubscriptions = new Subscription()
+
   constructor(private http: Http, private authService: ResearcherAuthService, private socketService: SocketService, private notificationService: NotificationService) {
 
-    this.authService.tokenSubject.subscribe(token => {
-      if (token) {
-        this.tokenHeaders = new Headers({ 'Authorization': 'Bearer ' + token });
-        this.authorizedOptions = new RequestOptions({ headers: this.tokenHeaders });
+    this._internalSubscriptions.add(
+      this.authService.tokenSubject.subscribe(token => {
+        if (token) {
+          this.tokenHeaders = new Headers({ 'Authorization': 'Bearer ' + token });
+          this.authorizedOptions = new RequestOptions({ headers: this.tokenHeaders });
 
-        this.loadExperimentInfo()
-        this.loadUserPool()
-      }
-    })
+          this.loadExperimentInfo()
+          this.loadUserPool()
+        }
+      })
+    )
 
-    this.socketService.onConnected.flatMap( socket => 
-      this.authService.tokenSubject.map(token => {return {token: token, socket: socket}})
-    ).subscribe(
-      res => {
-        res.socket.emit(SocketConstants.SERVER_EVENT_SUBSCRIBE_SERVER_GLOBAL)
+    this._internalSubscriptions.add(
+      this.socketService.onConnected.flatMap(socket =>
+        this.authService.tokenSubject.map(token => { return { token: token, socket: socket } })
+      ).subscribe(
+        res => {
+          res.socket.emit(SocketConstants.SERVER_EVENT_SUBSCRIBE_SERVER_GLOBAL)
 
-        res.socket.on(SocketConstants.SERVER_EVENT_UPDATED_GLOBAL, (data) => {
-          console.log(data)
-          if(data instanceof Array){
-            data.forEach(datum => {
-              switch(datum.model){
-                case SocketConstants.MODEL_USER:
-                  this.loadUserPool()
-                  switch(datum.event){
-                    case SocketConstants.EVENT_REMOVED:
-                      this.notificationService.pushSnackBarMessage({message: "A user account was removed."})
+          res.socket.on(SocketConstants.SERVER_EVENT_UPDATED_GLOBAL, (data) => {
+            console.log(data)
+            if (data instanceof Array) {
+              data.forEach(datum => {
+                switch (datum.model) {
+                  case SocketConstants.MODEL_USER:
+                    this.loadUserPool()
+                    switch (datum.event) {
+                      case SocketConstants.EVENT_REMOVED:
+                        this.notificationService.pushSnackBarMessage({ message: "A user account was removed." })
+                        break;
+                    }
                     break;
-                  }
-                break;
-              }
-            })
-          }
+                }
+              })
+            }
+          })
         })
-      }
     )
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.socketService.socket.emit(SocketConstants.SERVER_EVENT_UNSUBSCRIBE_SERVER_GLOBAL)
     this.socketService.socket.removeListener(SocketConstants.SERVER_EVENT_UPDATED_GLOBAL)
+    this._internalSubscriptions.unsubscribe()
   }
 
   loadExperimentInfo() {
     this.notificationService.registerGlobalBusyTag("experimentInfo")
+    this._internalSubscriptions.add(
     this.http.get('/api/research/experiments/all', this.authorizedOptions).flatMap(res => {
       return this.authService.currentResearcher.map(researcher => {
         return res.json().map(
@@ -87,21 +95,23 @@ export class ResearchApiService implements OnDestroy {
     }).subscribe(
       list => {
 
-      this.notificationService.unregisterGlobalBusyTag("experimentInfo")
+        this.notificationService.unregisterGlobalBusyTag("experimentInfo")
         this._experimentListSubject.next(list)
       })
+    )
   }
 
   loadUserPool() {
     this.notificationService.registerGlobalBusyTag("userPool")
+    this._internalSubscriptions.add(
     this.http.get("/api/research/users/all", this.authorizedOptions).map(res => {
       return res.json()
     }).subscribe(
-      list => 
-      {
-      this.notificationService.unregisterGlobalBusyTag("userPool")
+      list => {
+        this.notificationService.unregisterGlobalBusyTag("userPool")
         this._userPoolSubject.next(list)
       }
+      )
     )
   }
 

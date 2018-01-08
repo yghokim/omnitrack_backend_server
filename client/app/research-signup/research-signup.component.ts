@@ -1,14 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from "@angular/router";
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { ResearcherAuthService } from '../services/researcher.auth.service';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-research-signup',
   templateUrl: './research-signup.component.html',
   styleUrls: ['./research-signup.component.scss']
 })
-export class ResearchSignupComponent implements OnInit {
+export class ResearchSignupComponent implements OnInit, OnDestroy {
+
+  private readonly _internalSubscriptions = new Subscription()
 
   registerForm: FormGroup;
 
@@ -33,15 +36,19 @@ export class ResearchSignupComponent implements OnInit {
         password: this.password,
         confirmPassword: this.confirmPassword
       }, {
-        validator: (group: FormGroup) => {
-          const passwordInput = group.controls["password"]
-          const confirmPasswordInput = group.controls["confirmPassword"]
-          if (passwordInput.value !== confirmPasswordInput.value) {
-            return confirmPasswordInput.setErrors({passwordNotMatch: true})
-          } else { return null }
-        }
-      })
+          validator: (group: FormGroup) => {
+            const passwordInput = group.controls["password"]
+            const confirmPasswordInput = group.controls["confirmPassword"]
+            if (passwordInput.value !== confirmPasswordInput.value) {
+              return confirmPasswordInput.setErrors({ passwordNotMatch: true })
+            } else { return null }
+          }
+        })
     })
+  }
+
+  ngOnDestroy() {
+    this._internalSubscriptions.unsubscribe()
   }
 
   register() {
@@ -51,10 +58,11 @@ export class ResearchSignupComponent implements OnInit {
       alias: this.registerForm.value.alias,
       password: this.registerForm.value.matchingPassword.password
     }
-    this.authService.register(credential).subscribe(
-      res => {
-        this.router.navigate(['/research'])
-      }
+    this._internalSubscriptions.add(
+      this.authService.register(credential).subscribe(
+        res => {
+          this.router.navigate(['/research'])
+        })
     )
   }
 

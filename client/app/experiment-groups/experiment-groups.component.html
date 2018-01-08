@@ -1,6 +1,6 @@
 <div class="container">
-  <div class="list-flex-wrap" *ngIf="experimentService">
-    <div class="card participant-group-card card-sm" *ngFor="let group of (experimentService.getExperiment() | async).groups">
+  <div class="list-flex-wrap">
+    <div class="card participant-group-card card-sm" *ngFor="let group of groups">
       <div class="card-header">
         {{group.name}}
       </div>
@@ -13,7 +13,7 @@
           <tr>
             <th>Tracking Package</th>
             <td *ngIf="!group.trackingPackageKey">Not assigned</td>
-            <td *ngIf="group.trackingPackageKey">{{(experimentService.getOmniTrackPackage(group.trackingPackageKey) | async).name}}</td>
+            <td *ngIf="group.trackingPackageKey">{{(getOmniTrackPackage(group.trackingPackageKey) | async).name}}</td>
           </tr>
 
         </table>

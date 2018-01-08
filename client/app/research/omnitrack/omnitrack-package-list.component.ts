@@ -1,13 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../../services/research-api.service';
 import { ExperimentService } from '../../services/experiment.service';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-omnitrack-package-list',
   templateUrl: './omnitrack-package-list.component.html',
   styleUrls: ['./omnitrack-package-list.component.scss']
 })
-export class OmniTrackPackageListComponent implements OnInit {
+export class OmniTrackPackageListComponent implements OnInit, OnDestroy {
+
+  private _internalSubscriptions = new Subscription()
 
   private experimentService: ExperimentService
   private packages: Array<any>
@@ -15,17 +18,23 @@ export class OmniTrackPackageListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.api.selectedExperimentService.flatMap(expService => expService.getOmniTrackPackages()).subscribe(packages => {
-      this.packages = packages
-      console.log(packages)
-    })
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.flatMap(expService => expService.getOmniTrackPackages()).subscribe(packages => {
+        this.packages = packages
+        console.log(packages)
+      })
+    )
+  }
+
+  ngOnDestroy() {
+    this._internalSubscriptions.unsubscribe()
   }
 
   getTrackerColorString(tracker: any): string {
     const colorInt = tracker.color
     if (colorInt) {
-      const alpha = (colorInt  >> 24) & 0xFF
-      const red = (colorInt  >> 16) & 0xFF
+      const alpha = (colorInt >> 24) & 0xFF
+      const red = (colorInt >> 16) & 0xFF
       const green = (colorInt >> 8) & 0xFF
       const blue = (colorInt) & 0xFF
       return "rgba(" + red + "," + green + "," + blue + "," + (alpha / 255) + ")"

@@ -1,22 +1,39 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
 import { ExperimentService } from '../services/experiment.service';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'app-experiment-groups',
   templateUrl: './experiment-groups.component.html',
   styleUrls: ['./experiment-groups.component.scss']
 })
-export class ExperimentGroupsComponent implements OnInit {
+export class ExperimentGroupsComponent implements OnInit, OnDestroy {
 
-  public experimentService: ExperimentService
+  private readonly _internalSubscriptions = new Subscription()
+
+  groups: Array<any> = []
+
   constructor(private api: ResearchApiService) {
-    api.selectedExperimentService.subscribe(expService => {
-      this.experimentService = expService
-    })
+    
   }
 
   ngOnInit() {
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.flatMap(expService => expService.getExperiment()).subscribe(
+        experiment => {
+          this.groups = experiment.groups
+        })
+    )
+  }
+
+  ngOnDestroy(){
+    this._internalSubscriptions.unsubscribe()
+  }
+
+  getOmniTrackPackage(key: string): Observable<any>{
+    return this.api.selectedExperimentService.flatMap(service=>service.getOmniTrackPackage(key))
   }
 
   onAddNewGroupClicked() {

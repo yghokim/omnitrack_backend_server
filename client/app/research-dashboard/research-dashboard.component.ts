@@ -1,4 +1,4 @@
-import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
+import { Component, OnInit, trigger, state, style, transition, animate, OnDestroy } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
@@ -7,6 +7,7 @@ import { NotificationService } from '../services/notification.service';
 import ExperimentInfo from '../models/experiment-info';
 import { MatDialog, MatIconRegistry, MatSnackBar } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-research-dashboard',
@@ -19,7 +20,7 @@ import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.com
     ])
   ]
 })
-export class ResearchDashboardComponent implements OnInit {
+export class ResearchDashboardComponent implements OnInit, OnDestroy {
 
   isLoadingSelectedExperiment = true;
   isLoadingExperiments = true;
@@ -28,6 +29,8 @@ export class ResearchDashboardComponent implements OnInit {
   upperHeaderTitle;
   backNavigationUrl;
   selectedExperimentName;
+
+  private readonly _internalSubscriptions = new Subscription()
 
   experimentInfos: Array<ExperimentInfo> = [];
 
@@ -103,73 +106,83 @@ export class ResearchDashboardComponent implements OnInit {
   ) {
     iconRegistry.addSvgIcon("omnitrack", sanitizer.bypassSecurityTrustResourceUrl("/assets/ic_omnitrack_24px.svg"))
 
-    this.router.events.filter(ev => ev instanceof NavigationEnd)
-      .map(_ => this.router.routerState.root)
-      .map(route => {
-        while (route.firstChild) { route = route.firstChild; }
-        return route;
-      })
-      .flatMap(route => route.data)
-      .subscribe(data => {
-        this.headerTitle = data['title'];
-        this.upperHeaderTitle = data['backTitle'];
-        this.backNavigationUrl = data['backNavigationUrl'];
-      })
+    this._internalSubscriptions.add(
+      this.router.events.filter(ev => ev instanceof NavigationEnd)
+        .map(_ => this.router.routerState.root)
+        .map(route => {
+          while (route.firstChild) { route = route.firstChild; }
+          return route;
+        })
+        .flatMap(route => route.data)
+        .subscribe(data => {
+          this.headerTitle = data['title'];
+          this.upperHeaderTitle = data['backTitle'];
+          this.backNavigationUrl = data['backNavigationUrl'];
+        })
+    )
 
-    this.notificationService.snackBarMessageQueue.subscribe(
-      message=>{
-        console.log(message)
-        if(message.action)
-        {
-          this.snackBar.open(message.message, message.action.label, {duration : 3000})
-        }
-        else this.snackBar.open(message.message, null, { duration : 3000 })
-      }
+    this._internalSubscriptions.add(
+      this.notificationService.snackBarMessageQueue.subscribe(
+        message => {
+          console.log(message)
+          if (message.action) {
+            this.snackBar.open(message.message, message.action.label, { duration: 3000 })
+          }
+          else this.snackBar.open(message.message, null, { duration: 3000 })
+        })
     )
   }
 
   ngOnInit() {
     // init experiment infos
-    this.activatedRoute.paramMap.subscribe(paramMap => {
-      const paramExpId = paramMap.get('experimentId')
-      if (paramExpId) {
-        console.log('mount an experiment : ' + paramExpId)
-        localStorage.setItem('selectedExperiment', paramExpId)
-        this.onExperimentSelected(paramExpId)
-      } else {
-        this.api.getExperimentInfos().subscribe(experiments => {
-          this.isLoadingExperiments = false
-          this.experimentInfos = experiments
-          if (this.experimentInfos.length > 0) {
-            let selectedId = localStorage.getItem('selectedExperiment') || this.experimentInfos[0].id
-            if (this.experimentInfos.findIndex(exp => exp.id === selectedId) === -1) {
-              selectedId = this.experimentInfos[0].id
+    this._internalSubscriptions.add(
+      this.activatedRoute.paramMap.subscribe(paramMap => {
+        const paramExpId = paramMap.get('experimentId')
+        if (paramExpId) {
+          console.log('mount an experiment : ' + paramExpId)
+          localStorage.setItem('selectedExperiment', paramExpId)
+          this.onExperimentSelected(paramExpId)
+        } else {
+          this.api.getExperimentInfos().subscribe(experiments => {
+            this.isLoadingExperiments = false
+            this.experimentInfos = experiments
+            if (this.experimentInfos.length > 0) {
+              let selectedId = localStorage.getItem('selectedExperiment') || this.experimentInfos[0].id
+              if (this.experimentInfos.findIndex(exp => exp.id === selectedId) === -1) {
+                selectedId = this.experimentInfos[0].id
+              }
+              this.router.navigate(['research/dashboard', selectedId])
             }
-            this.router.navigate(['research/dashboard', selectedId])
-          }
-        })
-      }
-    })
+          })
+        }
+      })
+    )
 
     console.log('load experiments of user')
-    this.api.getExperimentInfos().subscribe(experiments => {
-      console.log('experiments were loaded.')
-      this.isLoadingExperiments = false
-      this.experimentInfos = experiments
-    })
+    this._internalSubscriptions.add(
+      this.api.getExperimentInfos().subscribe(experiments => {
+        console.log('experiments were loaded.')
+        this.isLoadingExperiments = false
+        this.experimentInfos = experiments
+      })
+    )
 
-    this.api.selectedExperimentService.filter(expService => expService!=null).do(expService => {
-      this.isLoadingSelectedExperiment = true;
-    }).flatMap( expService => 
-      expService.getExperiment()).subscribe(
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.filter(expService => expService != null).do(expService => {
+        this.isLoadingSelectedExperiment = true;
+      }).flatMap(expService =>
+        expService.getExperiment()).subscribe(
         experimentInfo => {
-          if(experimentInfo)
-          {
+          if (experimentInfo) {
             this.isLoadingSelectedExperiment = false
             this.selectedExperimentName = experimentInfo.name
           }
-        }
-      )
+        })
+    )
+  }
+
+  ngOnDestroy(): void {
+    this._internalSubscriptions.unsubscribe()
   }
 
 
@@ -183,26 +196,29 @@ export class ResearchDashboardComponent implements OnInit {
         title: 'Sign Out', message: 'Do you want to sign out?',
       }
     })
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        this.signOut()
-      }
-    })
+    this._internalSubscriptions.add(
+      dialogRef.afterClosed().subscribe(result => {
+        if (result === true) {
+          this.signOut()
+        }
+      })
+    )
   }
 
   signOut() {
-    this.authService.signOut().subscribe((signedOut) => {
-      console.log('successfully signed out.');
-      this.goToSignIn();
-    });
+    this._internalSubscriptions.add(
+      this.authService.signOut().subscribe((signedOut) => {
+        console.log('successfully signed out.');
+        this.goToSignIn();
+      })
+    )
   }
 
   goToSignIn() {
     this.router.navigate(['/research/login']).then(
       onFulfilled => {
-        if(onFulfilled==true)
-        {
-          this.snackBar.open("Signed out from the research dashboard.", null, {duration: 3000})
+        if (onFulfilled == true) {
+          this.snackBar.open("Signed out from the research dashboard.", null, { duration: 3000 })
         }
       }
     )
