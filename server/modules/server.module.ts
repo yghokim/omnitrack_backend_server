@@ -12,6 +12,7 @@ import C from "../server_consts"
 import { SyncInfo, PushOptions, MessageData } from '../modules/push.module'
 import env from '../env'
 import app from '../app'
+import OTResearcher from '../models/ot_researcher';
 
 export default class ServerModule {
 
@@ -32,6 +33,7 @@ export default class ServerModule {
         }
       )
       
+      OTResearcher.collection.dropIndex("password_reset_token_1")
       OTItem.collection.dropIndex("objectId_1")
       OTTracker.collection.dropIndex("objectId_1")
     } catch (err) {

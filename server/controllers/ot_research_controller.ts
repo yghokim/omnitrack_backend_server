@@ -17,7 +17,15 @@ export default class OTResearchCtrl {
   }
 
   private _makeParticipantQueryConditionForPendingInvitation(invitationId) {
-    return { $and: [{ invitation: invitationId }, { $or: [{ isDenied: true }, { isConsentApproved: false }] }] }
+    return { $and: [
+      { invitation: invitationId }, 
+      { dropped: {$ne:true}}, 
+      { $or: [
+          { isDenied: true }, 
+          { isConsentApproved: {$ne:true}}
+        ] 
+      }
+    ] }
   }
 
   getExperimentHistoryOfUser = (req, res) => {

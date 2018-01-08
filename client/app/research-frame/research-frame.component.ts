@@ -7,8 +7,7 @@ import { ResearchApiService } from '../services/research-api.service';
 @Component({
   selector: 'app-research-frame',
   templateUrl: './research-frame.component.html',
-  styleUrls: ['./research-frame.component.scss'],
-  providers: [ NotificationService, ResearchApiService ]
+  styleUrls: ['./research-frame.component.scss']
 })
 export class ResearchFrameComponent implements OnInit {
 

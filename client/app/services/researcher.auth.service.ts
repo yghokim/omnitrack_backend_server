@@ -47,10 +47,11 @@ export class ResearcherAuthService {
             if (researcher.signedIn == true) {
               socket.emit("subscribe_researcher", { uid: researcher.uid }, () => {
                 console.log("subscribed as a researcher")
-                socket.on("updated/researcher", (data) => {
-                  console.log("received a updated/researcher websocket event")
-                  console.log(data)
-                })
+                
+              })
+              socket.on("updated/researcher", (data) => {
+                console.log("received a updated/researcher websocket event")
+                console.log(data)
               })
             }
             else {
@@ -101,12 +102,12 @@ export class ResearcherAuthService {
   }
 
   public register(info): Observable<any> {
-    console.log(info)
     return this.http.post('/api/research/auth/register', JSON.stringify(info), this.jsonOptions)
       .map(res => {
         const token = res.json().token
         if (token != null) {
           localStorage.setItem('omnitrack_researcher_token', token)
+          this.tokenSubject.next(token)
           this.decodeAndSaveResearcherFromToken(token)
         }
         return token

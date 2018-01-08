@@ -16,6 +16,8 @@ export class ResearchLoginComponent implements OnInit {
   email = new FormControl('', [Validators.required]);
   password = new FormControl('', [Validators.required]);
 
+  errorMessage: string = null
+
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
@@ -29,8 +31,18 @@ export class ResearchLoginComponent implements OnInit {
   }
 
   authorize() {
+    this.errorMessage = null
     this.authService.authorize(this.registerForm.value.email, this.registerForm.value.password).subscribe(res => {
       this.router.navigate(['/research'])
+    }, err => {
+      console.log("authorize error")
+      const errBody = err.json()
+      switch(errBody.error)
+      {
+        case "CredentialWrong":
+        this.errorMessage = "A researcher with the login information is wrong."
+        break;
+      }
     })
   }
 

@@ -30,7 +30,6 @@ export class ResearchApiService implements OnDestroy {
 
     this.authService.tokenSubject.subscribe(token => {
       if (token) {
-        console.log(token)
         this.tokenHeaders = new Headers({ 'Authorization': 'Bearer ' + token });
         this.authorizedOptions = new RequestOptions({ headers: this.tokenHeaders });
 

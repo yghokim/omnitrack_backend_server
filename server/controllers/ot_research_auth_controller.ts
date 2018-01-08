@@ -23,7 +23,7 @@ export default class OTResearchAuthCtrl {
     });
   }
 
-  private generateJWTToken(user): string {
+  private generateJWTToken(user, iat?: Date): string {
     const expiry = new Date();
     expiry.setDate(expiry.getDate() + 7)
 
@@ -31,7 +31,8 @@ export default class OTResearchAuthCtrl {
       uid: user._id,
       email: user.email,
       alias: user.alias,
-      exp: Math.floor(expiry.getTime() / 1000)
+      exp: Math.floor(expiry.getTime() / 1000),
+      iat: (iat || new Date()).getTime() / 1000
     }, env.jwt_secret);
   }
 
@@ -95,11 +96,11 @@ export default class OTResearchAuthCtrl {
                     experiments: experiments.map(exp => exp._id)
                   })
                   newResearcher.save().catch(saveError => {
+                      console.log(saveError)
                       res.status(500).send({ error: saveError })
                     })
                     .then(
                     researcher => {
-                      console.log(researcher)
                       res.status(200).send({
                         token: this.generateJWTToken(researcher)
                       })

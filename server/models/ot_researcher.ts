@@ -7,7 +7,7 @@ const otResearcherSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
   hashed_password: { type: String, required: true },
   passwordSetAt: Date, 
-  password_reset_token: { type: String, unique: true },
+  password_reset_token: { type: String },
   reset_token_expires: Date,
   experiments: {type: [{type: String, ref: 'OTExperiment'}], default: []}
 }, {timestamps: true});
