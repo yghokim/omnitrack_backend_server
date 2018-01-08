@@ -13,14 +13,20 @@
         <tr>
           <th>Code</th>
           <th>Generated</th>
+          <th>Invitees</th> 
+          <th>Denied</th> 
+          <th>Active</th> 
           <th>Group Mehcanism</th>
-          <th>Group(s)</th>
+          <th>Target Group(s)</th>
           <th></th>
         </tr>
       </thead>
       <tr class="hoverable singleline" *ngFor="let invitation of invitations let index = index" (mouseover)="selectedRowIndex = index" (mouseleave)="selectedRowIndex = -1">
         <td>{{invitation.code}}</td>
         <td>{{invitation.createdAt | date: 'MMM dd, yyyy'}}</td>
+        <td>{{invitation.participants.length}}</td>
+        <td>{{getNumDeniedParticipants(invitation)}}</td>
+        <td>{{getNumActiveParticipants(invitation)}}</td>
         <td>{{getInvitationType(invitation)}}</td>
         <td>
           <div *ngIf="invitation.groupMechanism">

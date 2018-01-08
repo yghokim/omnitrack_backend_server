@@ -119,12 +119,11 @@ export default class OTResearchCtrl {
   getInvitations = (req, res) => {
     const researcherId = req.researcher.uid
     const experimentId = req.params.experimentId
-    OTInvitation.find({ experiment: experimentId }, (err, list) => {
-      if (err != null) {
-        res.status(500).send(err)
-      } else {
-        res.status(200).json(list)
-      }
+    OTInvitation.find({ experiment: experimentId }).populate({path: "participants", select: "_id isDenied isConsentApproved dropped"}).then(list => {
+      res.status(200).json(list)
+    })
+    .catch(err => {
+      res.status(500).send(err)
     })
   }
 

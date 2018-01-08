@@ -57,6 +57,7 @@ export class ExperimentService {
                       break;
                     case SocketConstants.MODEL_PARTICIPANT:
                       this.loadParticipantList()
+                      this.loadInvitationList()
                       this.researchApi.loadUserPool()
                       switch (datum.event) {
                         case SocketConstants.EVENT_APPROVED:

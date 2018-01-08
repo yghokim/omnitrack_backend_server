@@ -90,4 +90,23 @@ export class ExperimentInvitationsComponent implements OnInit {
     return (this.groups.find(g => g._id === groupId) || { name: "" }).name
   }
 
+  getNumActiveParticipants(invitation):number{
+    const participants = invitation.participants
+    if(participants instanceof Array)
+    {
+      return participants.filter(p => p.dropped!=true && p.isConsentApproved == true).length
+    }
+    else return 0
+  }
+
+
+  getNumDeniedParticipants(invitation):number{
+    const participants = invitation.participants
+    if(participants instanceof Array)
+    {
+      return participants.filter(p => p.isDenied==true).length
+    }
+    else return 0
+  }
+
 }
