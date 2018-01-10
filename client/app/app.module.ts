@@ -6,8 +6,6 @@ import { OAuthModule } from 'angular-oauth2-oidc';
 import { RoutingModule } from './routing.module';
 import { SharedModule } from './shared/shared.module';
 
-import { UserService } from './services/user.service';
-import { AuthService } from './services/auth.service';
 import { AppComponent } from './app.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 
@@ -39,10 +37,7 @@ import { TextInputDialogComponent } from './dialogs/text-input-dialog/text-input
     ResearchModule,
   ],
   providers: [
-    NotificationService, 
-    /*AuthService,
-    CatService,
-    UserService*/
+    NotificationService
   ],
   entryComponents: [
     YesNoDialogComponent,

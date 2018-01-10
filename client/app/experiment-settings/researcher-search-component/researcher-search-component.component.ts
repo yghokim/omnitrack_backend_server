@@ -7,7 +7,7 @@ import "rxjs/add/operator/debounceTime";
 import "rxjs/add/operator/distinctUntilChanged";
 import { MatMenuTrigger } from '@angular/material';
 import {FormControl} from '@angular/forms';
-import { CollaboratorExperimentPermissions } from '../../../../omnitrack/core/research/experiment';
+import { ExperimentPermissions } from '../../../../omnitrack/core/research/experiment';
 
 @Component({
   selector: 'app-researcher-search-component',
@@ -73,7 +73,7 @@ export class ResearcherSearchComponentComponent implements OnInit, OnDestroy {
     {
        this._internalSubscriptions.add(
          this.api.selectedExperimentService.flatMap(
-           service=>service.addCollaborator(collaborator._id, new CollaboratorExperimentPermissions())
+           service=>service.addCollaborator(collaborator._id, ExperimentPermissions.makeCollaboratorDefaultPermissions())
          ).subscribe(
            success=>{
              console.log(success)

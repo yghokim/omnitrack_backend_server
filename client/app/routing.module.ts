@@ -3,7 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { AppComponent } from './app.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 
-import { AuthGuardAdmin } from './services/auth-guard-admin.service';
 import { ResearchMainComponent } from './research-main/research-main.component';
 import { ResearchSignupComponent } from './research-signup/research-signup.component';
 import { ResearchLoginComponent } from './research-login/research-login.component';
