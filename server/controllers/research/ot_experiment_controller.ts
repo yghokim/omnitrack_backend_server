@@ -3,7 +3,7 @@ import OTResearcher from '../../models/ot_researcher'
 import OTExperiment from '../../models/ot_experiment'
 import OTInvitation from '../../models/ot_invitation'
 import OTParticipant from '../../models/ot_participant'
-import { IJoinedExperimentInfo, CollaboratorExperimentPermissions } from '../../../omnitrack/core/research/experiment'
+import { IJoinedExperimentInfo, ExperimentPermissions } from '../../../omnitrack/core/research/experiment'
 import { Document } from 'mongoose';
 import app from '../../app';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
@@ -18,7 +18,7 @@ export default class OTExperimentCtrl {
       .then(doc => doc)
   }
 
-  private _updateCollaboratorPermissions(experimentId: string, managerId: string, collaboratorId: string, permissions: CollaboratorExperimentPermissions): Promise<boolean> {
+  private _updateCollaboratorPermissions(experimentId: string, managerId: string, collaboratorId: string, permissions: ExperimentPermissions): Promise<boolean> {
     return OTExperiment.findOneAndUpdate({ _id: experimentId, "experimenter.researcher": collaboratorId, manager: managerId }, {
       $push: {
         "experimenters.0.permissions": permissions
@@ -36,7 +36,7 @@ export default class OTExperimentCtrl {
       )
   }
 
-  private _addCollaborator(experimentId: string, managerId: string, collaboratorId: string, permissions: CollaboratorExperimentPermissions): Promise<boolean> {
+  private _addCollaborator(experimentId: string, managerId: string, collaboratorId: string, permissions: ExperimentPermissions): Promise<boolean> {
     return OTExperiment.findOneAndUpdate({ _id: experimentId, manager: managerId }, {
       $push: {
         experimenters: { researcher: collaboratorId, permissions: permissions }

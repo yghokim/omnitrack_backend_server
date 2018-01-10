@@ -8,6 +8,8 @@ import ExperimentInfo from '../models/experiment-info';
 import { MatDialog, MatIconRegistry, MatSnackBar } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
+import { ExperimentPermissions } from '../../../omnitrack/core/research/experiment';
 
 @Component({
   selector: 'app-research-dashboard',
@@ -93,6 +95,8 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
 
   ];
 
+  private experimentPermissions: ExperimentPermissions
+
   constructor(
     public api: ResearchApiService,
     public authService: ResearcherAuthService,
@@ -147,9 +151,9 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
             this.isLoadingExperiments = false
             this.experimentInfos = experiments
             if (this.experimentInfos.length > 0) {
-              let selectedId = localStorage.getItem('selectedExperiment') || this.experimentInfos[0].id
-              if (this.experimentInfos.findIndex(exp => exp.id === selectedId) === -1) {
-                selectedId = this.experimentInfos[0].id
+              let selectedId = localStorage.getItem('selectedExperiment') || this.experimentInfos[0]._id
+              if (this.experimentInfos.findIndex(exp => exp._id === selectedId) === -1) {
+                selectedId = this.experimentInfos[0]._id
               }
               this.router.navigate(['research/dashboard', selectedId])
             }
@@ -179,12 +183,46 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
           }
         })
     )
+
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.flatMap(expService => expService.getMyPermissions()).filter(p=>p!=null).subscribe(
+        permissions => {
+          if(permissions && this.experimentPermissions != permissions)
+          {
+            this.experimentPermissions = permissions
+            this.applyPermissions(permissions)
+          }
+        }
+      )
+    )
   }
 
   ngOnDestroy(): void {
     this._internalSubscriptions.unsubscribe()
   }
 
+  private applyPermissions(permissions: ExperimentPermissions)
+  {
+    console.log("apply experiment permissions")
+    console.log(permissions)
+    this.dashboardNavigationGroups.forEach(group => {
+      group.menus.forEach(menu => {
+        const pagePermission = permissions.allowedPages[menu.key]
+        if(pagePermission)
+        {
+          if(pagePermission instanceof Boolean)
+          {
+            menu["disabled"] = pagePermission
+          }else{
+
+          }
+        }
+        else{
+          menu["disabled"] = true
+        }
+      })
+    })
+  }
 
   onExperimentSelected(id) {
     this.api.setSelectedExperimentId(id)
@@ -224,4 +262,7 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
     )
   }
 
+  getMyRole(): Observable<string>{
+    return this.api.selectedExperimentService.flatMap(service => service.getMyRole())
+  }
 }

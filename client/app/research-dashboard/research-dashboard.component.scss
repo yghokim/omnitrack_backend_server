@@ -64,6 +64,12 @@ $sidebar_width: 185px;
       }
     }
   }
+
+  .dropdown-item.dropdown-item-experiment{
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    cursor: pointer;
+  }
 }
 
 #research_main{
@@ -190,5 +196,24 @@ a.nav-link{
   &:hover{
     color: white;
     background-color: rgba(255,255,255,0.07);
+  }
+
+  &.disabled{
+    pointer-events: none;
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+.tag-researcher-role{
+  padding: 0.5em;
+  text-transform: capitalize;
+  font-weight: 500;
+  &.collaborator{
+    background: #78c8eb;
+  }
+
+  &.manager{
+    background: #e97a9b;
   }
 }

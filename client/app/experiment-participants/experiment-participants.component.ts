@@ -27,6 +27,8 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
   public hoveredRowIndex = -1
   public hoveredParticipantId = null
 
+  public isUserpoolAccessible: boolean = false
+
   private readonly _internalSubscriptions = new Subscription()
 
   constructor(
@@ -36,6 +38,16 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.onParticipantsTabSelected()
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.flatMap(expService => expService.getMyPermissions())
+        .subscribe(
+          permissions=>{
+            if(permissions){
+              this.isUserpoolAccessible = permissions.access.userPool
+            }
+          }
+        )
+    )    
   }
 
   ngOnDestroy() {

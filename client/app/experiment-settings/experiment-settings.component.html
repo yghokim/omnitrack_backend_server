@@ -23,7 +23,7 @@
     <div class="card-header">
       <div class="flex-container flex-align-items-center flex-stretch">
         <span>Collaborators</span>
-        <app-researcher-search-component></app-researcher-search-component>
+        <app-researcher-search-component *ngIf="permissions && permissions.access.manageCollaborators == true"></app-researcher-search-component>
       </div>
     </div>
     <table class="table table-data">
@@ -52,11 +52,5 @@
             </tr>
           </tbody>
     </table>
-
-    <div class="card-block card-footer">
-      <small class="text-color-gray">
-        No collaborators.
-      </small>
-    </div>
   </div>
 </div>

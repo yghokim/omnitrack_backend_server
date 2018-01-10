@@ -7,8 +7,9 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { SocketService } from './socket.service';
 import { SocketConstants } from '../../../omnitrack/core/research/socket'
 import { NotificationService } from './notification.service';
-import { CollaboratorExperimentPermissions} from '../../../omnitrack/core/research/experiment'
+import { ExperimentPermissions} from '../../../omnitrack/core/research/experiment'
 import { Subscription } from 'rxjs/Subscription';
+import 'rxjs/add/operator/combineLatest';
 
 export class ExperimentService {
 
@@ -215,7 +216,39 @@ export class ExperimentService {
     })
   }
 
-  addCollaborator(collaboratorId: string, permissions: CollaboratorExperimentPermissions): Observable<boolean>{
+  getMyRole(): Observable<string>{
+    return this.getExperiment().combineLatest(this.authService.currentResearcher, (exp, researcher)=>{
+      if(exp.manager._id === researcher.uid)
+      {
+        return "manager"
+      }
+      else if(exp.experimenters.find(ex=>ex.researcher.email === researcher.email)){
+        return "collaborator"
+      }
+      else return null
+    })
+  }
+
+  getMyPermissions(): Observable<ExperimentPermissions>{
+    return this.getExperiment().combineLatest(this.authService.currentResearcher, (exp, researcher)=>{
+      if(exp.manager._id === researcher.uid)
+      {
+        return ExperimentPermissions.makeMasterPermissions()
+      }
+      else{
+        const col = exp.experimenters.find(ex=>ex.researcher.email === researcher.email)
+        if(col){
+          return ExperimentPermissions.fromJson(col.permissions)
+        }
+      }
+      
+      return null
+    })
+  }
+
+  //commands====================
+
+  addCollaborator(collaboratorId: string, permissions: ExperimentPermissions): Observable<boolean>{
     return this.http.post("api/research/experiments/" + this.experimentId + "/collaborators/new", {
       collaborator: collaboratorId,
       permissions: permissions

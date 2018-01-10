@@ -201,6 +201,10 @@ body {
   align-items: center;
 }
 
+.flex-align-self-center{
+  align-self: center;
+}
+
 .flex-container.flex-stretch{
   justify-content: space-between;
 }
@@ -267,6 +271,10 @@ label.small.horizontal{
 
 .right-margin-dot2em{
   margin-left: 0.2em;
+}
+
+.left-margin-1em{
+  margin-left: 1em;
 }
 
 .left-margin-dot5em{
@@ -439,6 +447,9 @@ mat-form-field.mat-form-no-vertical-padding{
     background: inherit;
     font-weight: light;
     color: #757575;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    font-weight: 300;
   }
 }
 

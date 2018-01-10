@@ -10,9 +10,14 @@
           {{selectedExperimentName}}
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item small" (click)="onExperimentSelected(exp.id)" *ngFor="let exp of experimentInfos">{{exp.name}}</a>
+          <a class="dropdown-item small dropdown-item-experiment" (click)="onExperimentSelected(exp._id)" *ngFor="let exp of experimentInfos">{{exp.name}}</a>
         </div>
       </div>
+
+      <span class="tag tag-primary tag-researcher-role flex-align-self-center left-margin-1em flex-container flex-align-items-center" [ngClass]="(getMyRole() | async)"
+      matTooltip="Your role in this experiment." matTooltipPosition="below">
+        <span>{{getMyRole() | async}}</span>
+        <mat-icon class="material-icons left-margin-dot2em text-size-1dot2em">help_outline</mat-icon></span>
       <!--<button type="button" class="btn btn-info btn-sm" i="plus">Add New Experiment</button>-->
     </div>
     <div class="profile_container">
@@ -42,7 +47,7 @@
     <div class="nav nav-pills flex-column">
       <div class="group" *ngFor="let group of dashboardNavigationGroups">
         <div class="small nav-link nav-subtitle">{{group.name}}</div>
-        <a class="nav-link flex-container flex-align-items-center" *ngFor="let menu of group.menus" [routerLink]="['/research/dashboard', api.getSelectedExperimentId(), menu.key]"
+        <a class="nav-link flex-container flex-align-items-center" [class.disabled] = "menu.disabled===true" *ngFor="let menu of group.menus" [routerLink]="['/research/dashboard', api.getSelectedExperimentId(), menu.key]"
           [routerLinkActive]="['active']">
           <mat-icon *ngIf="menu.icon" class="gnb-icon material-icons">{{menu.icon}}</mat-icon>
           <!--<img class="gnb-icon material-icons" *ngIf="menu.iconPath" [src]="menu.iconPath">

@@ -67,7 +67,7 @@
 
         </div>
       </mat-tab>
-      <mat-tab label="The OmniTrack User Pool">
+      <mat-tab label="The OmniTrack User Pool" [disabled] = "isUserpoolAccessible == false">
         <app-busy-overlay *ngIf="isLoadingUserPool" [scale]="0.5" [overlayClass]="'main'"></app-busy-overlay>
         <table class="table table-data" (mouseleave)="hoveredRowIndex = -1">
           <thead>
