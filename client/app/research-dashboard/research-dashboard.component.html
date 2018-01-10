@@ -3,14 +3,20 @@
     <div class="logo_container">
       <img class="logo" src="/assets/omnitrack_research_kit_logo.svg">
     </div>
-    <div class="heading_container">
+    <div class="heading_container" *ngIf="!isLoadingSelectedExperiment">
       <div class="dropdown experiment" *ngIf="api.getSelectedExperimentId()">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
           aria-expanded="false">
           {{selectedExperimentName}}
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item small dropdown-item-experiment" (click)="onExperimentSelected(exp._id)" *ngFor="let exp of experimentInfos">{{exp.name}}</a>
+          <h6 class="dropdown-header text-color-accented" *ngIf="myExperimentInfos.length > 0">Your experiments</h6>
+          <a class="dropdown-item small dropdown-item-experiment" (click)="onExperimentSelected(exp._id)" *ngFor="let exp of myExperimentInfos">{{exp.name}}</a>
+          <h6 class="dropdown-header text-color-accented" *ngIf="guestExperimentInfos.length > 0">Guest experiments</h6>
+          <a class="dropdown-item small dropdown-item-experiment" (click)="onExperimentSelected(exp._id)" *ngFor="let exp of guestExperimentInfos">{{exp.name}}</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item small dropdown-item-experiment" disabled = true>Experiment List</a>
+          
         </div>
       </div>
 

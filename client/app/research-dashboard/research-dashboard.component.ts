@@ -35,6 +35,9 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
   private readonly _internalSubscriptions = new Subscription()
 
   experimentInfos: Array<ExperimentInfo> = [];
+  myExperimentInfos: Array<ExperimentInfo> = [];
+  guestExperimentInfos: Array<ExperimentInfo> = [];
+  
 
   dashboardNavigationGroups = [
     {
@@ -164,7 +167,11 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
 
     console.log('load experiments of user')
     this._internalSubscriptions.add(
-      this.api.getExperimentInfos().subscribe(experiments => {
+      this.api.getExperimentInfos().combineLatest(this.authService.currentResearcher, (infos, researcher)=>{
+        this.myExperimentInfos = infos.filter(i => i.manager._id === researcher.uid)
+        this.guestExperimentInfos = infos.filter(i => i.manager._id !== researcher.uid)
+        return infos
+      }).subscribe(experiments => {
         console.log('experiments were loaded.')
         this.isLoadingExperiments = false
         this.experimentInfos = experiments
@@ -222,6 +229,10 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
         }
       })
     })
+  }
+
+  getManagingExperiments(): Array<ExperimentInfo>{
+    return this.experimentInfos.filter(e => e.manager._id)
   }
 
   onExperimentSelected(id) {
