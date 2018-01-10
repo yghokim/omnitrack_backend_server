@@ -10,6 +10,8 @@ import { NotificationService } from './notification.service';
 import { ExperimentPermissions} from '../../../omnitrack/core/research/experiment'
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/operator/combineLatest';
+import { VisualizationConfigs } from '../../../omnitrack/core/research/configs';
+import { TrackingDataService } from './tracking-data.service';
 
 export class ExperimentService {
 
@@ -19,6 +21,8 @@ export class ExperimentService {
   private readonly participantList = new BehaviorSubject<Array<any>>([])
 
   private readonly _internalSubscriptions = new Subscription()
+
+  private readonly trackingDataService: TrackingDataService
 
   constructor(
     readonly experimentId: string,
@@ -30,6 +34,9 @@ export class ExperimentService {
   ) {
 
     console.log("initialized experiment service.")
+
+    this.trackingDataService = new TrackingDataService(this.researchApi, this)
+    this.trackingDataService.ngOnInit()
 
     this.loadExperimentInfo()
     this.loadInvitationList()
@@ -83,7 +90,7 @@ export class ExperimentService {
             }
           })
         })
-    )
+      )
   }
 
   dispose() {
@@ -92,6 +99,7 @@ export class ExperimentService {
       this.socketService.socket.removeListener(SocketConstants.SOCKET_MESSAGE_UPDATED_EXPERIMENT)
     })
     this._internalSubscriptions.unsubscribe()
+    this.trackingDataService.ngOnDestroy()
   }
 
   loadExperimentInfo() {
@@ -216,6 +224,10 @@ export class ExperimentService {
     })
   }
 
+  getVisualizationConfigs(): Observable<VisualizationConfigs>{
+    return this.getExperiment().map(exp => VisualizationConfigs.fromJson(exp.visualizationConfigs))
+  }
+
   getMyRole(): Observable<string>{
     return this.getExperiment().combineLatest(this.authService.currentResearcher, (exp, researcher)=>{
       if(exp.manager._id === researcher.uid)
@@ -255,5 +267,6 @@ export class ExperimentService {
     },this.researchApi.authorizedOptions)
       .map(res => res.json())
   }
+
 
 }

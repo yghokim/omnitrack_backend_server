@@ -31,7 +31,7 @@ const otTrackerSchema = new mongoose.Schema({
   flags: {type: mongoose.Schema.Types.Mixed, default: {}},
   userCreatedAt: Number,
   userUpdateAt: Number,
-  removed: {type: Boolean, default: false}
+  removed: {type: Boolean, index: true, default: false}
 }, {timestamps: true});
 
 const OTTracker = mongoose.model('OTTracker', otTrackerSchema);

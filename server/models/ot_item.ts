@@ -5,10 +5,10 @@ const otItemSchema = new mongoose.Schema({
   tracker: {type: String, ref: 'OTTracker', required: true},
   user: {type: String, ref: 'OTUser', required: true},
   source: String,
-  timestamp: {type: Number, required: true},
+  timestamp: {type: Number, index: true, required: true},
   deviceId: String,
   dataTable: [{_id: false, attrLocalId: String, sVal: String}],
-  removed: {type: Boolean, default: false},
+  removed: {type: Boolean, index: true, default: false},
   userUpdatedAt: Number
 }, {timestamps: true});
 

@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import * as uuid from 'uuid';
-import { ExperimentDashboardConfigs, ExperimentPermissions } from '../../omnitrack/core/research/experiment'
+import { ExperimentPermissions } from '../../omnitrack/core/research/experiment'
+import { ExperimentDashboardConfigs, TrackingItemListTableConfig, VisualizationConfigs } from '../../omnitrack/core/research/configs';
 
 const otExperimentGroupSchema = new mongoose.Schema(
   {
@@ -27,7 +28,7 @@ const otExperimentSchema = new mongoose.Schema({
   name: {type: String, required: true},
   groups: {type: [otExperimentGroupSchema], default: [{name: "Default", maxSize: 100, participants: []}]},
   manager: {type: String, ref: 'OTResearcher', required: true},
-  configs: {type: mongoose.Schema.Types.Mixed, default: ()=>{return new ExperimentDashboardConfigs()}},
+  visualizationConfigs: {type: mongoose.Schema.Types.Mixed, default: ()=>{return new VisualizationConfigs()}},
   trackingPackages: {type: [otExperimentInjectionPackageSchema]},
   experimenters: {type: [{
       researcher: {type: String, ref: 'OTResearcher'}, 

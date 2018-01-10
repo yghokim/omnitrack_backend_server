@@ -18,7 +18,7 @@ const otTriggerSchema = new mongoose.Schema({
   lockedProperties: {type: mongoose.Schema.Types.Mixed, default: {}},
   flags: {type: mongoose.Schema.Types.Mixed, default: {}},
   isOn: {type: Boolean, default: false},
-  removed: {type: Boolean, default: false}
+  removed: {type: Boolean, index: true, default: false}
 }, {timestamps: true});
 
 const OTTrigger = mongoose.model('OTTrigger', otTriggerSchema);

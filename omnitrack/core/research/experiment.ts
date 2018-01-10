@@ -20,11 +20,6 @@ export interface IJoinedExperimentInfo{
   droppedAt?: number
 }
 
-export class ExperimentDashboardConfigs{
-  excludeWeekends?: boolean = false
-  alignStartDate?: boolean = true
-}
-
 export class ExperimentPermissions{
   allowedPages = {}
   access = {

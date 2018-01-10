@@ -6,6 +6,10 @@ import AdminCtrl from "./controllers/admin_controller";
 import OTResearchCtrl from './controllers/ot_research_controller';
 import { experimentCtrl } from './controllers/research/ot_experiment_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
+import ot_tracker from './models/ot_tracker';
+import ot_trigger from './models/ot_trigger';
+import ot_item from './models/ot_item';
+import { trackingDataCtrl } from './controllers/research/ot_tracking_data_controller';
 const jwt = require('express-jwt');
 const OAuthServer = require('express-oauth-server');
 const router = express.Router()
@@ -76,6 +80,17 @@ router.get("/researchers/search", tokenAuth, researchCtrl.searchResearchers)
 router.delete("/users/:userId", tokenAuth, userCtrl.deleteAccount)
 
 router.delete("/participants/:participantId/drop", tokenAuth, researchCtrl.dropOutFromExperiment)
+
+
+//tracking data
+new Array(
+  {url: "trackers", model: ot_tracker}, 
+  {url:"triggers", model: ot_trigger}, 
+  {url:"items", model: ot_item}).forEach(
+    info=>{
+      router.get('/experiments/:experimentId/data/' + info.url, trackingDataCtrl.getChildrenOfExperiment(info.model))
+    }
+  )
 
 
 router.get("/users/all", tokenAuth, researchCtrl.getUsersWithPariticipantInformation)
