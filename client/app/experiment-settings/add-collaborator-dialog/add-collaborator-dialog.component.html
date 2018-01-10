@@ -1,0 +1,11 @@
+<div class="dialog">
+    <div class="card-header">Add Collaborator</div>
+    <div class="card-block">
+      <app-researcher-search-component></app-researcher-search-component>
+      <app-researcher-permissions-configuration></app-researcher-permissions-configuration>
+      <hr>
+      <div class="pull-right">
+        <button mat-raised-button color="primary" [disabled]="!isGenerateAvailable()" (click)="generate()">Add</button>
+      </div>
+    </div>
+  </div>

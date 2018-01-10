@@ -1,4 +1,4 @@
-export function merge(objA: any, objB: any, overwrite: boolean): any{
+export function merge(objA: any, objB: any, overwrite: boolean, recursive: boolean = true): any{
   if(!objA)
   {
     return JSON.parse(JSON.stringify(objB))
@@ -14,15 +14,18 @@ export function merge(objA: any, objB: any, overwrite: boolean): any{
   {
     if(objB.hasOwnProperty(bField))
     {
-      if(objA.hasOwnProperty(bField))
+      if(objA.hasOwnProperty(bField) && overwrite==false)
       {
-        if(overwrite)
-        {
-          newObj[bField] = objB[bField]
-        }
+        continue;
       }
       else{
-        newObj[bField] = objB[bField]
+        if(recursive==true)
+        {
+          newObj[bField] = merge(newObj[bField], objB[bField], overwrite, true)
+        }
+        else{
+          newObj[bField] = objB[bField]
+        }
       }
     }
   }

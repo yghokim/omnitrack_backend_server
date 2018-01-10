@@ -37,7 +37,7 @@ export class ResearchApiService implements OnDestroy {
           this.tokenHeaders = new Headers({ 'Authorization': 'Bearer ' + token });
           this.authorizedOptions = new RequestOptions({ headers: this.tokenHeaders });
 
-          this.loadExperimentInfo()
+          this.loadExperimentList()
           this.loadUserPool()
         }
       })
@@ -63,6 +63,10 @@ export class ResearchApiService implements OnDestroy {
                         break;
                     }
                     break;
+                  
+                    case SocketConstants.MODEL_EXPERIMENT:
+                    this.loadExperimentList()
+                    break;
                 }
               })
             }
@@ -77,24 +81,15 @@ export class ResearchApiService implements OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
-  loadExperimentInfo() {
+  loadExperimentList() {
     this.notificationService.registerGlobalBusyTag("experimentInfo")
     this._internalSubscriptions.add(
     this.http.get('/api/research/experiments/all', this.authorizedOptions).flatMap(res => {
       return this.authService.currentResearcher.map(researcher => {
-        return res.json().map(
-          exp => {
-            const info = new ExperimentInfo()
-            info.id = exp._id
-            info.name = exp.name
-            info.isAdmin = exp.manager === researcher.uid
-            return info
-          }
-        )
+        return res.json()
       })
     }).subscribe(
       list => {
-
         this.notificationService.unregisterGlobalBusyTag("experimentInfo")
         this._experimentListSubject.next(list)
       })
@@ -146,5 +141,9 @@ export class ResearchApiService implements OnDestroy {
         if (result === true) {
         }
       })
+  }
+
+  searchResearchers(term: string, excludeSelf): Observable<Array<{_id: string, email: string, alias: string}>>{
+    return this.http.get("/api/research/researchers/search", {headers: this.tokenHeaders, params: { term: term, excludeSelf: excludeSelf }}).map(res => res.json())
   }
 }

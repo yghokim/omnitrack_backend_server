@@ -1,5 +1,8 @@
-export default class ExperimentInfo {
-  public name: string
-  public id: string
-  public isAdmin: boolean
+import { CollaboratorExperimentPermissions } from "../../../omnitrack/core/research/experiment";
+
+export default interface ExperimentInfo {
+  name: string
+  _id: string
+  manager: {alias: string, email: string, _id: string}
+  experimenters: Array<{researcher: string, permissions: CollaboratorExperimentPermissions}>
 }

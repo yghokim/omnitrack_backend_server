@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
-import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
-import {Observable} from "rxjs/Observable"
-import {Subscription} from 'rxjs/Subscription'
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { Observable } from "rxjs/Observable"
+import { Subscription } from 'rxjs/Subscription'
 
 
 @Component({
@@ -15,8 +15,8 @@ export class TextInputDialogComponent implements OnInit, OnDestroy {
   private message = ""
   private placeholder = "Insert text"
   private textValue = ""
-  private validator:(text:string)=>boolean
-  private submit: (text:string)=>Observable<any>
+  private validator: (text: string) => boolean
+  private submit: (text: string) => Observable<any>
 
   private positiveButtonClass = this.data.positiveButtonClass || ""
   private negativeButtonClass = this.data.negativeButtonClass || ""
@@ -31,7 +31,7 @@ export class TextInputDialogComponent implements OnInit, OnDestroy {
 
   constructor(private dialogRef: MatDialogRef<TextInputDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
-     }
+  }
 
   ngOnInit() {
     this.title = this.data.title
@@ -42,36 +42,37 @@ export class TextInputDialogComponent implements OnInit, OnDestroy {
     this.submit = this.data.submit
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
   }
 
   onYesClick(): void {
-    if(this.submit)
-    {
-      this._internalSubscriptions.add(
-        this.submit(this.textValue).subscribe(
-          result=>{
-            console.log("textinput submit result: " + result)
-            this.dialogRef.close(this.textValue)
-          },
-          err=>{
-            console.log(err)
-            this.submitErrorMessage = err.error
-          }
+    if (this.isValid() == true) {
+      if (this.submit) {
+        this._internalSubscriptions.add(
+          this.submit(this.textValue).subscribe(
+            result => {
+              console.log("textinput submit result: " + result)
+              this.dialogRef.close(this.textValue)
+            },
+            err => {
+              console.log(err)
+              this.submitErrorMessage = err.error
+            }
+          )
         )
-      )
-    }else this.dialogRef.close(this.textValue)
+      } else this.dialogRef.close(this.textValue)
+    }
   }
 
   onNoClick(): void {
     this.dialogRef.close(null);
   }
 
-  isValid(): boolean{
-    if(this.validator){
+  isValid(): boolean {
+    if (this.validator) {
       return this.validator(this.textValue)
-    }else return true
+    } else return true
   }
 
 }

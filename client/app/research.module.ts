@@ -29,6 +29,9 @@ import { RoutingModule } from './routing.module';
 import { SharedModule } from './shared/shared.module';
 import { MaterialDesignModule } from './material-design.module';
 import { ClipboardModule } from 'ngx-clipboard';
+import { ResearcherPermissionsConfigurationComponent } from './experiment-settings/researcher-permissions-configuration/researcher-permissions-configuration.component';
+import { ResearcherSearchComponentComponent } from './experiment-settings/researcher-search-component/researcher-search-component.component';
+import { AddCollaboratorDialogComponent } from './experiment-settings/add-collaborator-dialog/add-collaborator-dialog.component';
 
 @NgModule({
   imports: [
@@ -59,6 +62,9 @@ import { ClipboardModule } from 'ngx-clipboard';
     ExperimentMessagingComponent,
     ComposeMessageComponent,
     AnonymizeEmailPipe,
+    ResearcherPermissionsConfigurationComponent,
+    ResearcherSearchComponentComponent,
+    AddCollaboratorDialogComponent,
 
   ],
   exports: [
@@ -94,7 +100,8 @@ import { ClipboardModule } from 'ngx-clipboard';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   entryComponents:[
     ChooseInvitationDialogComponent,
-    NewInvitationDialogComponent
+    NewInvitationDialogComponent,
+    AddCollaboratorDialogComponent
   ]
 })
 export class ResearchModule { }

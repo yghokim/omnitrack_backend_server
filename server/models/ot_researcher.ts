@@ -9,9 +9,23 @@ const otResearcherSchema = new mongoose.Schema({
   passwordSetAt: Date, 
   password_reset_token: { type: String },
   reset_token_expires: Date,
-  experiments: {type: [{type: String, ref: 'OTExperiment'}], default: []}
-}, {timestamps: true});
+}, {timestamps: true, toJSON: {virtuals: true}});
+
+otResearcherSchema.virtual('managingExperiments', {
+  ref: 'OTExperiment',
+  localField: '_id',
+  foreignField: 'manager',
+  justOne: false
+})
+
+otResearcherSchema.virtual('collaboratingExperiments', {
+  ref: 'OTExperiment',
+  localField: '_id',
+  foreignField: 'experimenters.researcher',
+  justOne: false
+})
 
 const OTResearcher = mongoose.model('OTResearcher', otResearcherSchema);
+
 
 export default OTResearcher;

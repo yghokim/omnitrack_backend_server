@@ -92,8 +92,7 @@ export default class OTResearchAuthCtrl {
                     email: email,
                     hashed_password: hashedPassword,
                     passwordSetAt: new Date(),
-                    alias: alias,
-                    experiments: experiments.map(exp => exp._id)
+                    alias: alias
                   })
                   newResearcher.save().catch(saveError => {
                       console.log(saveError)

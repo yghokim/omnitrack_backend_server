@@ -17,7 +17,12 @@ export class SocketService {
 
   constructor() {
 
-    this.socket = io(window.location.protocol + "//" + window.location.hostname + ":3000")
+    this.socket = io(window.location.protocol + "//" + window.location.hostname + ":3000", {
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000
+    })
     this.socket.connect()
 
     this.socket.on(
@@ -26,6 +31,15 @@ export class SocketService {
         this._onConnected.next(this.socket)
       }
     )
+
+    this.socket.on("disconnect", ()=>{
+      console.log( 'disconnected from server. retry after 3 seconds..' );
+      window.setTimeout( ()=>{ this.socket.connect() }, 3000)
+    })
+
+    this.socket.on("reconnect", ()=>{
+      console.log("socket reconnected.")
+    })
 
     console.log(this.socket)
     this._onConnected.next(this.socket)

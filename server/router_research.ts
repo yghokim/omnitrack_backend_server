@@ -4,6 +4,7 @@ import OTResearcher from './models/ot_researcher';
 import OTResearchAuthCtrl from './controllers/ot_research_auth_controller';
 import AdminCtrl from "./controllers/admin_controller";
 import OTResearchCtrl from './controllers/ot_research_controller';
+import { experimentCtrl } from './controllers/research/ot_experiment_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
 const jwt = require('express-jwt');
 const OAuthServer = require('express-oauth-server');
@@ -45,9 +46,14 @@ router.post('/auth/register', researchAuthCtrl.registerResearcher)
 
 router.post('/auth/verify', tokenAuth, researchAuthCtrl.verifyToken)
 
-router.get('/experiments/all', tokenAuth, researchCtrl.getExperimentInformationsOfResearcher)
-router.get('/experiments/:experimentId', tokenAuth, researchCtrl.getExperiment)
-router.get('/experiments/manager/:experimentId', tokenAuth, researchCtrl.getManagerInfo)
+router.get('/experiments/all', tokenAuth, experimentCtrl.getExperimentInformationsOfResearcher)
+router.get('/experiments/:experimentId', tokenAuth, experimentCtrl.getExperiment)
+
+router.post("/experiments/:experimentId/collaborators/new", tokenAuth, experimentCtrl.addCollaborator)
+
+router.post("/experiments/:experimentId/collaborators/update", tokenAuth, experimentCtrl.updateCollaboratorPermissions)
+
+router.get('/experiments/manager/:experimentId', tokenAuth, experimentCtrl.getManagerInfo)
 
 router.get('/experiments/:experimentId/invitations', tokenAuth, researchCtrl.getInvitations)
 
@@ -65,6 +71,7 @@ router.delete('/participants/:participantId', tokenAuth, researchCtrl.removePart
 
 router.post('/participants/:participantId/alias', tokenAuth, researchCtrl.changeParticipantAlias)
 
+router.get("/researchers/search", tokenAuth, researchCtrl.searchResearchers)
 
 router.delete("/users/:userId", tokenAuth, userCtrl.deleteAccount)
 

@@ -12,39 +12,72 @@ const crypto = require("crypto");
 
 export default class OTResearchCtrl {
 
-  private _getExperiment(researcherId: string, experimentId: string): Promise<Document> {
-    return OTExperiment.findOne({ $and: [{ _id: experimentId }, { $or: [{ manager: researcherId }, { experimenters: researcherId }] }] }).then(doc => doc)
-  }
 
   private _makeParticipantQueryConditionForPendingInvitation(invitationId) {
-    return { $and: [
-      { invitation: invitationId }, 
-      { dropped: {$ne:true}}, 
-      { $or: [
-          { isDenied: true }, 
-          { isConsentApproved: {$ne:true}}
-        ] 
-      }
-    ] }
+    return {
+      $and: [
+        { invitation: invitationId },
+        { dropped: { $ne: true } },
+        {
+          $or: [
+            { isDenied: true },
+            { isConsentApproved: { $ne: true } }
+          ]
+        }
+      ]
+    }
+  }
+
+  searchResearchers = (req, res) => {
+    const researcherId = req.researcher.uid
+    const searchTerm = req.query.term
+    const excludeSelf = (req.query.excludeSelf || "true") === "true"
+
+    const searchQuery = {$or: [ 
+      { email: {$regex: searchTerm, $options: 'gi'}},
+      { alias: {$regex: searchTerm, $options: 'gi'}},
+     ]}
+
+    let condition
+    if (excludeSelf == true) {
+      condition = { $and: [{ _id: { $ne: researcherId } }, searchQuery] }
+    }
+    else condition = searchQuery
+
+    console.log("search researchers with term " + searchTerm)
+
+    return OTResearcher.find(condition, { _id: 1, email: 1, alias: 1 }, {multi: true}).catch(err => {
+      console.log(err)
+      return []
+    })
+      .then(result => {
+        console.log("search result: ")
+        console.log(result)
+        res.status(200).send(result)
+      }).catch(err => {
+        console.log(err)
+        res.status(500).send(err)
+      })
+
   }
 
   getExperimentHistoryOfUser = (req, res) => {
     let userId
-    if(res.locals.user)
-    {
+    if (res.locals.user) {
       userId = res.locals.user.uid
     }
-    else if(req.researcher)
-    {
+    else if (req.researcher) {
       userId = req.query.userId
     }
 
     const after = req.query.after || Number.MIN_VALUE
 
-    OTParticipant.find({"user": userId, isConsentApproved: true}).populate({path: "experiment", 
-    select: '_id name'}).then(
-      participants=>{
-        const list = participants.map(participant => {return {id: participant["experiment"]._id, name: participant["experiment"].name, joinedAt: participant["approvedAt"].getTime(), droppedAt: participant["dropped"] == true ? participant["droppedAt"].getTime() : null} as IJoinedExperimentInfo})
+    OTParticipant.find({ "user": userId, isConsentApproved: true }).populate({
+      path: "experiment",
+      select: '_id name'
+    }).then(
+      participants => {
+        const list = participants.map(participant => { return { id: participant["experiment"]._id, name: participant["experiment"].name, joinedAt: participant["approvedAt"].getTime(), droppedAt: participant["dropped"] == true ? participant["droppedAt"].getTime() : null } as IJoinedExperimentInfo })
 
         console.log(list)
 
@@ -52,79 +85,21 @@ export default class OTResearchCtrl {
           list
         )
       }
-    ).catch(err => {
-      console.log(err)
-      res.status(500).send(err)
-    })
-  }
-
-  getExperimentInformationsOfResearcher = (req, res) => {
-    const researcherId = req.researcher.uid
-    console.log("find experiments of the researcher: " + researcherId)
-    OTResearcher.findById(researcherId).then((researcher) => {
-      console.log("found researcher: " + researcher)
-      OTExperiment.find({
-        _id: {
-          $in: (researcher as any).experiments
-        }
-      }).then(experiments => {
-        console.log(experiments)
-        res.status(200).json(experiments)
-      }).catch(err => {
+      ).catch(err => {
         console.log(err)
         res.status(500).send(err)
       })
-    })
-  }
-
-  getExperiment = (req, res) => {
-    const researcherId = req.researcher.uid
-    const experimentId = req.params.experimentId
-    this._getExperiment(researcherId, experimentId).then(exp => {
-      console.log(exp)
-      res.status(200).json(exp)
-    })
-      .catch(err => {
-        console.log(err)
-        res.status(500).send(err)
-      })
-  }
-
-  getManagerInfo = (req, res) => {
-    const researcherId = req.researcher.uid
-    const experimentId = req.params.experimentId
-    this._getExperiment(researcherId, experimentId).then(exp => {
-      if (exp != null) {
-        if (exp["manager"]) {
-          OTResearcher.findById(exp["manager"]).then(
-            manager => {
-              if (manager != null) {
-                res.status(200).json(
-                  {
-                    uid: manager["_id"],
-                    email: manager["email"],
-                    alias: manager["alias"]
-                  }
-                )
-              } else {
-                res.sendStatus(404)
-              }
-            }
-          )
-        }
-      }
-    })
   }
 
   getInvitations = (req, res) => {
     const researcherId = req.researcher.uid
     const experimentId = req.params.experimentId
-    OTInvitation.find({ experiment: experimentId }).populate({path: "participants", select: "_id isDenied isConsentApproved dropped"}).then(list => {
+    OTInvitation.find({ experiment: experimentId }).populate({ path: "participants", select: "_id isDenied isConsentApproved dropped" }).then(list => {
       res.status(200).json(list)
     })
-    .catch(err => {
-      res.status(500).send(err)
-    })
+      .catch(err => {
+        res.status(500).send(err)
+      })
   }
 
   removeInvitation = (req, res) => {
@@ -140,7 +115,7 @@ export default class OTResearchCtrl {
       })
       .then(result => {
         console.log(result)
-        app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, {model: SocketConstants.MODEL_INVITATION, event: SocketConstants.EVENT_REMOVED})
+        app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, { model: SocketConstants.MODEL_INVITATION, event: SocketConstants.EVENT_REMOVED })
         res.status(200).send(true)
       })
   }
@@ -156,8 +131,8 @@ export default class OTResearchCtrl {
       groupMechanism: data
     }).save().then(
       invit => {
-        app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, 
-          {model: SocketConstants.MODEL_INVITATION, event: SocketConstants.EVENT_ADDED, payload: invit})
+        app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId,
+          { model: SocketConstants.MODEL_INVITATION, event: SocketConstants.EVENT_ADDED, payload: invit })
 
         res.status(200).json(invit)
       }
@@ -220,14 +195,14 @@ export default class OTResearchCtrl {
     const participantId = req.params.participantId
     const alias = req.body.alias
     app.researchModule().changeParticipantAlias(participantId, alias).then(
-      changed=>{
+      changed => {
         res.status(200).send(changed)
       }
     ).catch(
-      err=>{
-        res.status(500).send({error: err})
+      err => {
+        res.status(500).send({ error: err })
       }
-    )
+      )
   }
 
   getUsersWithPariticipantInformation = (req, res) => {
@@ -284,17 +259,16 @@ export default class OTResearchCtrl {
     if (!userId || !invitationCode) {
       res.status(500).send("IllegalArgumentException")
     }
-    else{
+    else {
       OTParticipant.findOneAndUpdate({
         "user._id": userId,
         "invitation.code": invitationCode
-      }, {isDenied: true, deniedAt: new Date()}, (err, doc) => {
-        if(err)
-        {
+      }, { isDenied: true, deniedAt: new Date() }, (err, doc) => {
+        if (err) {
           res.status(500).send(err)
         }
-        else{
-          app.socketModule().sendUpdateNotificationToExperimentSubscribers(doc["experiment"], {model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_DENIED, payload: doc})
+        else {
+          app.socketModule().sendUpdateNotificationToExperimentSubscribers(doc["experiment"], { model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_DENIED, payload: doc })
           res.status(200).send(true)
         }
       })
@@ -323,23 +297,21 @@ export default class OTResearchCtrl {
     const reason = req.body.reason
 
     let promise: Promise<any>
-    
-    if(participantId)
-    {
+
+    if (participantId) {
       promise = app.researchModule().dropParticipant(participantId, reason, researcherId)
-    }else if(userId && experimentId)
-    {
+    } else if (userId && experimentId) {
       promise = app.researchModule().dropOutFromExperiment(userId, experimentId, reason, researcherId)
     }
-    
-    promise.then( result => {
+
+    promise.then(result => {
       res.status(200).send(result)
     })
-    .catch( err => {
-      console.log("Dropout err:")
-      console.log(err)
-      res.status(500).send(err)
-    })
+      .catch(err => {
+        console.log("Dropout err:")
+        console.log(err)
+        res.status(500).send(err)
+      })
   }
 
   sendNotificationMessageToUser = (req, res) => {
@@ -362,9 +334,9 @@ export default class OTResearchCtrl {
   generateAliasOfParticipants = (req, res) => {
     app.researchModule().putAliasToParticipantsIfNull().then(
       count => {
-        res.status(200).send({count: count})
+        res.status(200).send({ count: count })
       }
-    ).catch(err=>{
+    ).catch(err => {
       console.log(err)
       res.status(500).send(err)
     })

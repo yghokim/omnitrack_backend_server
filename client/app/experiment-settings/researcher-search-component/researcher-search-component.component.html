@@ -1,0 +1,20 @@
+<div class="flex-container flex-align-items-center">
+    <form class="right-margin-dot5em">
+      <mat-form-field floatLabel="never" class="mat-form-no-vertical-padding">
+        <input matInput [formControl]="formControl" class="form-control form-control-sm form-control-round" type="text" placeholder="Search by alias or email" (input)="onInput($event.target.value)"  [matAutocomplete]="auto">
+
+        <mat-autocomplete #auto="matAutocomplete">
+          <mat-option *ngFor="let researcher of searchResults" class="search-autocomplete" [value]="researcher.email">
+            <div class="small">
+            <div class="font-weight-bold">{{researcher.alias}}</div>
+            <div>{{researcher.email}}</div>
+            </div>
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+    </form>
+    
+    <button mat-button color="accent" [disabled]="!isAdditionValid()" (click)="onAddCollaboratorClicked()">
+        <span class="left-margin-dot2em">Add</span>
+      </button>
+</div>

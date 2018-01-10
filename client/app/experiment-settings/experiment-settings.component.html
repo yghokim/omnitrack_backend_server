@@ -12,21 +12,51 @@
         <th>Experiment Id</th>
         <td>{{experiment._id}}</td>
       </tr>
-      <tr *ngIf="manager">
+      <tr *ngIf="experiment.manager">
         <th>Manager</th>
-        <td>{{manager.alias}} ({{manager.email}})</td>
+        <td>{{experiment.manager.alias}} ({{experiment.manager.email}})</td>
       </tr>
     </table>
   </div>
 
   <div class="card card-main">
     <div class="card-header">
-      Collaborators
-    </div>
-    <div class="card-block empty">
-      No collaborators.
+      <div class="flex-container flex-align-items-center flex-stretch">
+        <span>Collaborators</span>
+        <app-researcher-search-component></app-researcher-search-component>
+      </div>
     </div>
     <table class="table table-data">
+        <thead>
+            <tr>
+              <th>Email</th>
+              <th>Alias</th>
+              <th>Permissions</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="hoverable singleline" *ngFor="let collaborator of experiment.experimenters">
+              <td>
+                {{collaborator.researcher.email}}
+              </td>
+              <td>
+                {{collaborator.researcher.alias}}
+              </td>
+              <td>
+
+              </td>
+              <td>
+
+              </td>
+            </tr>
+          </tbody>
     </table>
+
+    <div class="card-block card-footer">
+      <small class="text-color-gray">
+        No collaborators.
+      </small>
+    </div>
   </div>
 </div>

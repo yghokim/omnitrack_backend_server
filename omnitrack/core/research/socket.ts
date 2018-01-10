@@ -33,6 +33,7 @@ export class SocketConstants{
   static readonly EVENT_ADDED = "added"
   static readonly EVENT_EDITED = "edited"
   static readonly EVENT_INVITED = "invited"
+  static readonly EVENT_PERMISSION_CHANGED = "permission_changed"
 }
 
 export interface UpdateInfo{

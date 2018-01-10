@@ -7,6 +7,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { SocketService } from './socket.service';
 import { SocketConstants } from '../../../omnitrack/core/research/socket'
 import { NotificationService } from './notification.service';
+import { CollaboratorExperimentPermissions} from '../../../omnitrack/core/research/experiment'
 import { Subscription } from 'rxjs/Subscription';
 
 export class ExperimentService {
@@ -213,4 +214,13 @@ export class ExperimentService {
       return list.find(l => l.key === key)
     })
   }
+
+  addCollaborator(collaboratorId: string, permissions: CollaboratorExperimentPermissions): Observable<boolean>{
+    return this.http.post("api/research/experiments/" + this.experimentId + "/collaborators/new", {
+      collaborator: collaboratorId,
+      permissions: permissions
+    },this.researchApi.authorizedOptions)
+      .map(res => res.json())
+  }
+
 }
