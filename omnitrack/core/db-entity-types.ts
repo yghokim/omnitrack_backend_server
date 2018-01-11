@@ -4,6 +4,10 @@ export interface IMongooseDbEntity{
   updatedAt?: Date
 }
 
+export interface IUserChildDbEntity extends IMongooseDbEntity{
+  user: string
+}
+
 export interface IAttributeDbEntity{
   name?: string,
   localId?: string,
@@ -22,10 +26,9 @@ export interface IAttributeDbEntity{
   flags?: any,
 }
 
-export interface ITrackerDbEntity extends IMongooseDbEntity{
+export interface ITrackerDbEntity extends IUserChildDbEntity{
   name?: string,
   color?: Number,
-  user?: string,
   isBookmarked?: Boolean,
   position?: Number,
   attributes?: [IAttributeDbEntity],
@@ -36,8 +39,7 @@ export interface ITrackerDbEntity extends IMongooseDbEntity{
   removed?: boolean
 }
 
-export interface ITriggerDbEntity extends IMongooseDbEntity{
-  user: string,
+export interface ITriggerDbEntity extends IUserChildDbEntity{
   alias: string,
   position: number,
   conditionType: number,
@@ -56,7 +58,7 @@ export interface ITriggerDbEntity extends IMongooseDbEntity{
   removed: boolean
 }
 
-export interface IItemDbEntity extends IMongooseDbEntity{
+export interface IItemDbEntity extends IUserChildDbEntity{
   tracker: string,
   user: string,
   source: string,

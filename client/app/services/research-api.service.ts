@@ -24,6 +24,10 @@ export class ResearchApiService implements OnDestroy {
 
   public readonly selectedExperimentService: Observable<ExperimentService> = this._selectedExperimentService.filter(s => { return s != null })
 
+  get selectedExperimentServiceSync(): ExperimentService{
+    return this._selectedExperimentService.getValue()
+  }
+
   private readonly _experimentListSubject = new BehaviorSubject<Array<ExperimentInfo>>([])
   private readonly _userPoolSubject = new BehaviorSubject<Array<any>>([])
 
@@ -145,5 +149,9 @@ export class ResearchApiService implements OnDestroy {
 
   searchResearchers(term: string, excludeSelf): Observable<Array<{_id: string, email: string, alias: string}>>{
     return this.http.get("/api/research/researchers/search", {headers: this.tokenHeaders, params: { term: term, excludeSelf: excludeSelf }}).map(res => res.json())
+  }
+
+  makeAuthorizedRequestOptions(query: any): RequestOptions{
+    return  new RequestOptions({ headers: this.tokenHeaders, params: query })
   }
 }

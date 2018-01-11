@@ -3,6 +3,7 @@ import { Http } from '@angular/http';
 import { ResearchApiService } from './research-api.service';
 import { ExperimentService } from './experiment.service';
 import { SocketService } from './socket.service';
+import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription'; 
 import 'rxjs/add/operator/combineLatest';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
@@ -16,7 +17,7 @@ export class TrackingDataService implements OnInit, OnDestroy{
 
   readonly trackers = new BehaviorSubject<Array<ITrackerDbEntity>>([])
   readonly triggers = new BehaviorSubject<Array<ITriggerDbEntity>>([])
-  readonly items = new BehaviorSubject<Array<ITrackerDbEntity>>([])
+  readonly items = new BehaviorSubject<Array<IItemDbEntity>>([])
   
 
   get hasConsumers(): boolean{
@@ -28,6 +29,7 @@ export class TrackingDataService implements OnInit, OnDestroy{
     private socketService: SocketService,
     private api: ResearchApiService,
     private experimentService: ExperimentService){
+      console.log("initialized new trackingDataService of experiment " + this.experimentService.experimentId)
   }
 
   ngOnInit(): void {
@@ -55,6 +57,7 @@ export class TrackingDataService implements OnInit, OnDestroy{
   }
   
   registerConsumer(tag: string):boolean{
+    console.log("try register tracking data consumer: " + tag)
     const needRefresh = this.dataConsumerTags.size == 0
     const appendedThisTime = !this.dataConsumerTags.has(tag)
     this.dataConsumerTags.add(tag)
@@ -62,29 +65,60 @@ export class TrackingDataService implements OnInit, OnDestroy{
     if(needRefresh)
     {
       //perform load
-      
+      this.reloadTrackers()
+      this.reloadTriggers()
+      this.reloadItems()
     }
 
     return appendedThisTime
   }
 
   unregisterConsumer(tag: string): boolean{
+    console.log("try unregister tracking data consumer: " + tag)
     const removedThisTime = this.dataConsumerTags.delete(tag)
     return removedThisTime
   }
 
-  reloadTrackers(){
+  private makeEntitiesQueryUrl(modelPath: string): string{
+    return "/api/research/experiments/" + this.experimentService.experimentId + "/data/" + modelPath
+  }
+
+  reloadEntities(modelPath: string, subject: BehaviorSubject<any>, userId: string = null){
     this._internalSubscriptions.add(
-      this.http
+      this.http.get(this.makeEntitiesQueryUrl(modelPath), this.api.makeAuthorizedRequestOptions({userId: userId})).subscribe(
+        entities=>{
+          console.log('loadedEntity:')
+          console.log(entities.json())
+          subject.next(entities.json())
+        }
+      )
     )
   }
 
-  reloadItems(){
+  reloadTrackers(){
+    this.reloadEntities("trackers", this.trackers, null)
+  }
 
+  reloadItems(){
+    this.reloadEntities("items", this.items, null)
   }
 
   reloadTriggers(){
+    this.reloadEntities("triggers", this.triggers, null)
+  }
 
+  getTrackersOfUser(userId: string): Observable<Array<ITrackerDbEntity>>{
+    return this.trackers.map( list => list.filter(t=>t.user === userId))
+  }
+
+  
+  getTriggersOfUser(userId: string): Observable<Array<ITriggerDbEntity>>{
+    return this.triggers.map( list => list.filter(t=>t.user === userId))
+  }
+
+  
+  getItemsOfUser(userId: string): Observable<Array<IItemDbEntity>>{
+    return this.items.map( list => list.filter(t=>t.user === userId))
   }
   
 }

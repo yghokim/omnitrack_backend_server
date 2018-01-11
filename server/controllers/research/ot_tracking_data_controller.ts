@@ -11,24 +11,34 @@ import { merge } from '../../../shared_lib/utils';
 import { PaginateResult, Model } from 'mongoose';
 
 export default class TrackingDataCtrl {
-  private _getModelsOfExperiment(model: mongoose.Model<any>, experimentId: string, options: {
+  private _getModelsOfExperiment(model: mongoose.Model<any>, experimentId: string, userId: string | Array<string> = null, options: {
     excludeRemoved?: boolean
     excludeExternals?: boolean
-    select?: string
-    pagination?: {limit: number, page: number}
-  } = { excludeExternals: true, excludeRemoved: true }): Promise<Array<PaginateResult<any>>> {
+  } = { excludeExternals: true, excludeRemoved: true }): Promise<Array<any>> {
+
+    const participantQuery = {
+      experiment: experimentId,
+      isDenied: { $ne: true }, isConsentApproved: true, dropped: { $ne: true }
+    }
+
+    if(userId)
+    {
+      if(userId instanceof Array)
+      {
+        participantQuery["user"] = {$in: userId}
+      }
+      else{
+        participantQuery["user"] = userId
+      }
+    }
+
     return OTParticipant.find({
       experiment: experimentId,
       isDenied: { $ne: true }, isConsentApproved: true, dropped: { $ne: true }
     }, { _id: 1, user: 1 }).then(
       participants => {
-        console.log(participants)
         if (participants.length > 0) {
-          
-          const paginationOptions = merge({
-            select: options.select}, options.pagination || {limit: Number.MAX_SAFE_INTEGER, page: 0}, true, true)
           const condition = { user: { $in: participants.map(p => p["user"]) } }
-
           if (options.excludeRemoved==true) {
             condition["removed"] = { $ne: true }
           }
@@ -38,8 +48,8 @@ export default class TrackingDataCtrl {
             {
               return OTTracker.find(condition, {_id: 1}).then(
                 trackers =>{
-                  condition["tracker._id"] = {$in: trackers.map(t=>t._id)}
-                  return OTItem.paginate(condition, paginationOptions).then(
+                  condition["tracker"] = {$in: trackers.map(t=>t._id)}
+                  return OTItem.find(condition).then(
                       paginationResult => {
                         return paginationResult
                       })
@@ -47,9 +57,10 @@ export default class TrackingDataCtrl {
             }else{condition["flags.experiment"] = experimentId
           }
 
-          return (model as any).paginate(condition, paginationOptions)
+          return (model as any).find(condition)
         } else return []
       }
+      return []
     })
   }
 
@@ -57,7 +68,7 @@ export default class TrackingDataCtrl {
     return (req, res) => {
       const experimentId = req.params.experimentId
       const options = { excludeExternals: req.query.excludeExternals || true, excludeRemoved: req.query.excludeRemoved || true }
-      this._getModelsOfExperiment(model, experimentId, options).then(
+      this._getModelsOfExperiment(model, experimentId, req.query.userId, options).then(
         list => {
           res.status(200).send(list)
         })

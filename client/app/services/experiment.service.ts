@@ -22,7 +22,7 @@ export class ExperimentService {
 
   private readonly _internalSubscriptions = new Subscription()
 
-  private readonly trackingDataService: TrackingDataService
+  public readonly trackingDataService: TrackingDataService
 
   constructor(
     readonly experimentId: string,
