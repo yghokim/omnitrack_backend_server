@@ -80,8 +80,9 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   }
 
   onParticipantSelectionChanged(event) {
-    console.log(event);
+    this.onSelectedParticipantIdChanged(this.selectedParticipantId)
   }
+
 
   onTrackerTabChanged(event) {
     console.log("tracker tap changed");
@@ -101,6 +102,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
         )
         .subscribe(trackers => {
           this.userTrackers = trackers;
+          console.log("current selected tracker tab index: " + this.selectedTrackerIndex)
           const selectedTrackerIndex = Math.max(
             0,
             Math.min(trackers.length - 1, this.selectedTrackerIndex)
@@ -134,7 +136,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     const tableEntry = item.dataTable.find(
       entry => entry.attrLocalId === attr.localId
     );
-    if (tableEntry) {
+    if (tableEntry && tableEntry.sVal != null) {
       const helper = AttributeManager.getHelper(attr.type);
       const deserializedValue = TypedStringSerializer.deserialize(
         tableEntry.sVal

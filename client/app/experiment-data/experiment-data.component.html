@@ -10,7 +10,7 @@
         </mat-select>
       </mat-form-field>
     </div>
-    <mat-tab-group class="tab-group" [(position)] = "selectedTrackerIndex" (selectedTabChange)="onTrackerTabChanged($event)">
+    <mat-tab-group class="tab-group" [(selectedIndex)] = "selectedTrackerIndex" (selectedTabChange)="onTrackerTabChanged($event)">
       <mat-tab *ngFor="let tracker of userTrackers" [label] = "tracker.name" [value] = "tracker._id">
         <table class="table table-data" *ngIf="selectedTracker">
           <thead>
