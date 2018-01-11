@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-var mongoosePaginate = require('mongoose-paginate');
 
 const otAttributeSchema = new mongoose.Schema({
   objectId: String, // this object id is not used as an index in server. it is only used in client.
@@ -34,8 +33,6 @@ const otTrackerSchema = new mongoose.Schema({
   userUpdateAt: Number,
   removed: {type: Boolean, index: true, default: false}
 }, {timestamps: true});
-
-otTrackerSchema.plugin(mongoosePaginate)
 
 const OTTracker = mongoose.model('OTTracker', otTrackerSchema);
 

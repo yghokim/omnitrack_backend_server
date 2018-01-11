@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { ResearchApiService } from '../services/research-api.service';
 import { NotificationService } from '../services/notification.service';
 import { ITrackerDbEntity, IItemDbEntity } from '../../../omnitrack/core/db-entity-types';
+import TypedStringSerializer from '../../../omnitrack/core/typed_string_serializer';
 
 @Component({
   selector: 'app-experiment-data',
@@ -14,14 +15,18 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   private readonly _internalSubscriptions = new Subscription()
 
   private userSubscriptions = new Subscription()
+  private trackerSubscriptions = new Subscription()
 
-  private participants: Array<any>
+  private participants: Array<any> = []
 
   private selectedParticipantId: string
   private selectedTrackerId: string
 
   private userTrackers: Array<ITrackerDbEntity> = []
-  private userItems: Array<IItemDbEntity> = []
+
+  private trackerItems: Array<IItemDbEntity> = []
+
+  private tableSchema: Array<{localId:string, name:string, type: string, hide: boolean}> = []
   
   constructor(
     private api: ResearchApiService,
@@ -80,18 +85,27 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
         }
       )
     )
-    
-    this.userSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(service=>service.trackingDataService.getItemsOfUser(userId)).subscribe(
+  }
+
+  private onSelectedTrackerIdChanged(newTrackerId: string){
+    this.trackerSubscriptions.unsubscribe()
+    this.trackerSubscriptions = new Subscription()
+    this.trackerSubscriptions.add(
+      this.api.selectedExperimentService.flatMap(service=>service.trackingDataService.getItemsOfTracker(newTrackerId)).subscribe(
         items => {
-          this.userItems = items
+          this.trackerItems = items
         }
       )
     )
   }
 
-  private onSelectedTrackerIdChanged(newTrackerId: string){
-    
+  getItemValue(item: IItemDbEntity, attrLocalId: string): any{
+    const tableEntry = item.dataTable.find(entry => entry.attrLocalId === attrLocalId)
+    if(tableEntry)
+    {
+      return TypedStringSerializer.deserialize(tableEntry.sVal)
+    }else return null
+
   }
 
 }

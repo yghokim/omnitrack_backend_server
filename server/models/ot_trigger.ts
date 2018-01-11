@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-var mongoosePaginate = require('mongoose-paginate');
 
 const otTriggerSchema = new mongoose.Schema({
   _id: {type: String},
@@ -21,8 +20,6 @@ const otTriggerSchema = new mongoose.Schema({
   isOn: {type: Boolean, default: false},
   removed: {type: Boolean, index: true, default: false}
 }, {timestamps: true});
-
-otTriggerSchema.plugin(mongoosePaginate)
 
 const OTTrigger = mongoose.model('OTTrigger', otTriggerSchema);
 

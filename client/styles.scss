@@ -128,6 +128,13 @@ body {
   color: #575757;
 }
 
+.page-info-message{
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #b5b5b5;
+}
+
 .text-color-accented{
   color: $color_accent;
 }
@@ -352,17 +359,18 @@ mat-form-field.mat-form-no-vertical-padding{
     height: 100%;
     text-align: center;
   }
-  .center{
-    display:flex;
-    align-content: center;
-    .content{
-      align-self: center;
-      width: 100%;
-    }
-  }
 
   &:hover{
     background: $color_pointed;
+  }
+}
+
+.center{
+  display:flex;
+  align-content: center;
+  .content{
+    align-self: center;
+    width: 100%;
   }
 }
 

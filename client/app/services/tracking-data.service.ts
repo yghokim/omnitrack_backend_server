@@ -120,5 +120,9 @@ export class TrackingDataService implements OnInit, OnDestroy{
   getItemsOfUser(userId: string): Observable<Array<IItemDbEntity>>{
     return this.items.map( list => list.filter(t=>t.user === userId))
   }
+
+  getItemsOfTracker(trackerId: string): Observable<Array<IItemDbEntity>>{
+    return this.items.map( list => list.filter(i => i.tracker === trackerId))
+  }
   
 }

@@ -1,5 +1,8 @@
 <div class="container">
-  <div class="card card-main">
+  <div *ngIf="!participants || participants.length === 0" class="page-info-message">
+    No participants in the experiment.
+  </div>
+  <div *ngIf="participants && participants.length > 0" class="card card-main">
     <div class="card-header">
       <mat-form-field class="mat-form-no-vertical-padding">
         <mat-select [(value)]="selectedParticipantId" required="true" (selectionChange)="onParticipantSelectionChanged($event)">
@@ -9,7 +12,21 @@
     </div>
     <mat-tab-group class="tab-group" (selectedTabChange)="onTrackerTabChanged($event)">
       <mat-tab *ngFor="let tracker of userTrackers" [label] = "tracker.name" [value] = "tracker._id">
-        {{tracker._id}}
+        <table class="table table-data">
+          <thead>
+            <th *ngFor="let attr of tableSchema">
+              {{attr.name}}
+            </th>
+            <th class="timestamp">Logged At</th>
+          </thead>
+          <tbody>
+            <tr class="hoverable singleline" *ngFor="let item of trackerItems">
+              <td *ngFor="let attr of tableSchema">
+                <span *ngIf="getItemValue(item, attr.localId)">{{getItemValue(item, attr.localId)}}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </mat-tab>
     </mat-tab-group>
   </div>

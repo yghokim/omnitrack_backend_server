@@ -64,7 +64,7 @@ export interface IItemDbEntity extends IUserChildDbEntity{
   source: string,
   timestamp: number,
   deviceId: string,
-  dataTable: [{attrLocalId: String, sVal: String}],
+  dataTable: [{attrLocalId: string, sVal: string}],
   removed: boolean,
   userUpdatedAt: number
 }

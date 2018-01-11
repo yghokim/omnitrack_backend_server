@@ -5,7 +5,6 @@ import OTTrigger from '../../models/ot_trigger'
 import OTItem from '../../models/ot_item'
 import OTParticipant from '../../models/ot_participant'
 import * as mongoose from 'mongoose';
-import * as  mongoosePaginate from 'mongoose-paginate';
 import { PARAMETERS } from '@angular/core/src/util/decorators';
 import { merge } from '../../../shared_lib/utils';
 import { PaginateResult, Model } from 'mongoose';
