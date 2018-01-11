@@ -4,6 +4,7 @@ import NumberAttributeHelper from "./number.attribute.helper";
 import attributeTypes from "./attribute-types";
 import ChoiceAttributeHelper from './choice.attribute.helper';
 import TimeSpanAttributeHelper from "./time-span.attribute.helper";
+import TimePointAttributeHelper from "./time-point.attribute.helper";
 
 export default class AttributeManager {
 
@@ -26,6 +27,9 @@ export default class AttributeManager {
         break;
         case attributeTypes.ATTR_TYPE_TIMESPAN:
           AttributeManager.dict[type.toString()] = new TimeSpanAttributeHelper()
+        break;
+        case attributeTypes.ATTR_TYPE_TIME:
+          AttributeManager.dict[type.toString()] = new TimePointAttributeHelper()
         break;
       }
 
