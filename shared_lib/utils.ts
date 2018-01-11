@@ -31,3 +31,7 @@ export function merge(objA: any, objB: any, overwrite: boolean, recursive: boole
   }
   return newObj
 }
+
+export function deepclone(obj: any): any{
+  return JSON.parse(JSON.stringify(obj))
+}

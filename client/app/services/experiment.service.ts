@@ -35,7 +35,7 @@ export class ExperimentService {
 
     console.log("initialized experiment service.")
 
-    this.trackingDataService = new TrackingDataService(this.researchApi, this)
+    this.trackingDataService = new TrackingDataService(http, socketService, this.researchApi, this)
     this.trackingDataService.ngOnInit()
 
     this.loadExperimentInfo()
@@ -46,6 +46,7 @@ export class ExperimentService {
     this._internalSubscriptions.add(
       socketService.onConnected.subscribe(
         socket => {
+          console.log("connect new experiment service to websocket.")
           socket.emit(SocketConstants.SERVER_EVENT_SUBSCRIBE_EXPERIMENT, { experimentId: this.experimentId })
 
           socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_EXPERIMENT, (data) => {

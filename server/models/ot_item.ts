@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+var mongoosePaginate = require('mongoose-paginate');
 
 const otItemSchema = new mongoose.Schema({
   _id: {type: String},
@@ -11,6 +12,8 @@ const otItemSchema = new mongoose.Schema({
   removed: {type: Boolean, index: true, default: false},
   userUpdatedAt: Number
 }, {timestamps: true});
+
+otItemSchema.plugin(mongoosePaginate)
 
 const OTItem = mongoose.model('OTItem', otItemSchema);
 

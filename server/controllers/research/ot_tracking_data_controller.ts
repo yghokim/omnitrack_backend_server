@@ -5,15 +5,18 @@ import OTTrigger from '../../models/ot_trigger'
 import OTItem from '../../models/ot_item'
 import OTParticipant from '../../models/ot_participant'
 import * as mongoose from 'mongoose';
+import * as  mongoosePaginate from 'mongoose-paginate';
 import { PARAMETERS } from '@angular/core/src/util/decorators';
-import { merge } from 'utils';
+import { merge } from '../../../shared_lib/utils';
+import { PaginateResult, Model } from 'mongoose';
 
 export default class TrackingDataCtrl {
   private _getModelsOfExperiment(model: mongoose.Model<any>, experimentId: string, options: {
     excludeRemoved?: boolean
     excludeExternals?: boolean
-  } = { excludeExternals: true, excludeRemoved: true }): Promise<any> {
-
+    select?: string
+    pagination?: {limit: number, page: number}
+  } = { excludeExternals: true, excludeRemoved: true }): Promise<Array<PaginateResult<any>>> {
     return OTParticipant.find({
       experiment: experimentId,
       isDenied: { $ne: true }, isConsentApproved: true, dropped: { $ne: true }
@@ -21,22 +24,33 @@ export default class TrackingDataCtrl {
       participants => {
         console.log(participants)
         if (participants.length > 0) {
+          
+          const paginationOptions = merge({
+            select: options.select}, options.pagination || {limit: Number.MAX_SAFE_INTEGER, page: 0}, true, true)
           const condition = { user: { $in: participants.map(p => p["user"]) } }
-
-          if (options.excludeExternals==true) {
-            if(model !== OTItem)
-            {
-            }else condition["flags.experiment"] = experimentId
-          }
 
           if (options.excludeRemoved==true) {
             condition["removed"] = { $ne: true }
           }
 
-          return model.find(condition)
+          if (options.excludeExternals==true) {
+            if(model === OTItem)
+            {
+              return OTTracker.find(condition, {_id: 1}).then(
+                trackers =>{
+                  condition["tracker._id"] = {$in: trackers.map(t=>t._id)}
+                  return OTItem.paginate(condition, paginationOptions).then(
+                      paginationResult => {
+                        return paginationResult
+                      })
+                })
+            }else{condition["flags.experiment"] = experimentId
+          }
+
+          return (model as any).paginate(condition, paginationOptions)
         } else return []
       }
-      )
+    })
   }
 
   getChildrenOfExperiment(model: mongoose.Model<any>) {

@@ -1,4 +1,4 @@
-import { merge } from "../../../server/utils";
+import { merge } from "../../../shared_lib/utils";
 
 
 export class ExperimentConstants{

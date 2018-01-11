@@ -13,9 +13,18 @@ export class SocketConstants{
   static readonly SERVER_EVENT_SUBSCRIBE_EXPERIMENT = "subscribe/researcher"
   static readonly SERVER_EVENT_UNSUBSCRIBE_EXPERIMENT = "unsubscribe/researcher" 
 
+  static readonly SERVER_EVENT_RESUBSCRIBE_PARTICIPANT_TRACKING_DATA = "reinitialize/participants" 
+  static readonly SERVER_EVENT_UNSUBSCRIBE_PARTICIPANT_TRACKING_DATA = "reinitialize/participants" 
+  
+
   static readonly SOCKET_MESSAGE_UPDATED_EXPERIMENT = "updated/experiment"
   
   static readonly SOCKET_MESSAGE_UPDATED_RESEARCHER = "updated/researcher"
+
+  static readonly SOCKET_MESSAGE_UPDATED_TRACKERS = "updated/trackers"
+  static readonly SOCKET_MESSAGE_UPDATED_ITEMS = "updated/items"
+  static readonly SOCKET_MESSAGE_UPDATED_TRIGGERS = "updated/triggers"
+
   
   static readonly MODEL_INVITATION = "OTInvitation"
   static readonly MODEL_PARTICIPANT = "OTParticipant"

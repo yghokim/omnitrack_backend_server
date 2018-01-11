@@ -11,7 +11,7 @@ import OTTrigger from '../models/ot_trigger'
 import IdGenerator from '../../omnitrack/core/id_generator'
 import C from '../server_consts'
 import ResearchModule from './research.module';
-import { merge } from '../utils';
+import { merge } from '../../shared_lib/utils';
 import SocketModule from './socket.module';
 
 export default class OmniTrackModule {
