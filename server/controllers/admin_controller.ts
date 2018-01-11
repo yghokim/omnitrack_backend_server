@@ -28,6 +28,12 @@ export default class AdminCtrl {
     })
   }
 
+  removeResearcher = (req, res) => {
+    OTResearcher.remove({_id: req.params.researcherId}).then(
+      res.status(200).send(true)
+    )
+  }
+
   pushUsers = (req, res) => {
     const userData = JSON.parse(req.query.users)
     console.log("push " + userData.length + " user data.")

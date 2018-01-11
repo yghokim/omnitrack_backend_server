@@ -13,7 +13,7 @@
     <mat-tab-group class="tab-group" [(selectedIndex)] = "selectedTrackerIndex" (selectedTabChange)="onTrackerTabChanged($event)">
       <mat-tab *ngFor="let tracker of userTrackers" [label] = "tracker.name" [value] = "tracker._id">
         <table class="table table-data" *ngIf="selectedTracker">
-          <thead>
+          <thead class="singleline">
             <th *ngFor="let attr of selectedTracker.attributes">
               {{attr.name}}
             </th>

@@ -492,8 +492,7 @@ button.mat-raised-button{
   color: white !important;
 }
 
-
-tr.singleline{
+tr.singleline, thead.singleline{
   td, th{
   vertical-align: middle;
   }
