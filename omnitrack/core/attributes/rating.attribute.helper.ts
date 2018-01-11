@@ -2,12 +2,28 @@ import AttributeHelper from "./attribute.helper";
 import PropertyHelperManager from "../properties/property.helper.manager";
 import { EPropertyType } from "../properties/property.types";
 import PropertyHelper from "../properties/property.helper.base";
-import AttributeManager from "./attribute.manager";
+import { IAttributeDbEntity } from "../db-entity-types";
+import { Fraction } from "../datatypes/field_datatypes";
+import attributeTypes from "./attribute-types";
+import { RatingOptions } from "../datatypes/rating_options";
 
 export default class RatingAttributeHelper extends AttributeHelper {
+  get typeName(): string { return "Rating" }
+
+  formatAttributeValue(attr: IAttributeDbEntity, value: any): string {
+    if(value instanceof Fraction)
+    {
+      const ratingOptions = this.getParsedPropertyValue<RatingOptions>(attr, RatingAttributeHelper.PROPERTY_KEY_OPTIONS)
+      
+      return (value.upper/value.under).toFixed(2)
+    }
+    else{
+      return value.toString()
+    }
+  }
 
   constructor() {
-    super(AttributeManager.ATTR_TYPE_RATING)
+    super(attributeTypes.ATTR_TYPE_RATING)
   }
 
   static readonly PROPERTY_KEY_OPTIONS = "options"
@@ -21,5 +37,5 @@ export default class RatingAttributeHelper extends AttributeHelper {
     }
   }
 
-
+  
 }

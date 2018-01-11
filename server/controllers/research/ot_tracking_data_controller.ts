@@ -7,7 +7,6 @@ import OTParticipant from '../../models/ot_participant'
 import * as mongoose from 'mongoose';
 import { PARAMETERS } from '@angular/core/src/util/decorators';
 import { merge } from '../../../shared_lib/utils';
-import { PaginateResult, Model } from 'mongoose';
 
 export default class TrackingDataCtrl {
   private _getModelsOfExperiment(model: mongoose.Model<any>, experimentId: string, userId: string | Array<string> = null, options: {

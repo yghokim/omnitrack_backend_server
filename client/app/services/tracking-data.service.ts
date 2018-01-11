@@ -108,7 +108,14 @@ export class TrackingDataService implements OnInit, OnDestroy{
   }
 
   getTrackersOfUser(userId: string): Observable<Array<ITrackerDbEntity>>{
-    return this.trackers.map( list => list.filter(t=>t.user === userId))
+    return this.trackers.map( list => list.filter(t=>t.user === userId).sort((a, b) => { 
+      const aName = a.name.toUpperCase()
+      const bName = b.name.toUpperCase()
+
+      if(aName > bName) return 1
+      else if(aName < bName) return -1
+      else return 0
+     }))
   }
 
   

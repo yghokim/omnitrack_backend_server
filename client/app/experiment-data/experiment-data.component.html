@@ -10,20 +10,21 @@
         </mat-select>
       </mat-form-field>
     </div>
-    <mat-tab-group class="tab-group" (selectedTabChange)="onTrackerTabChanged($event)">
+    <mat-tab-group class="tab-group" [(position)] = "selectedTrackerIndex" (selectedTabChange)="onTrackerTabChanged($event)">
       <mat-tab *ngFor="let tracker of userTrackers" [label] = "tracker.name" [value] = "tracker._id">
-        <table class="table table-data">
+        <table class="table table-data" *ngIf="selectedTracker">
           <thead>
-            <th *ngFor="let attr of tableSchema">
+            <th *ngFor="let attr of selectedTracker.attributes">
               {{attr.name}}
             </th>
-            <th class="timestamp">Logged At</th>
+            <th class="header-timestamp">Logged At</th>
           </thead>
           <tbody>
             <tr class="hoverable singleline" *ngFor="let item of trackerItems">
-              <td *ngFor="let attr of tableSchema">
-                <span *ngIf="getItemValue(item, attr.localId)">{{getItemValue(item, attr.localId)}}</span>
+              <td *ngFor="let attr of selectedTracker.attributes">
+                <span *ngIf="getItemValue(item, attr)">{{getItemValue(item, attr)}}</span>
               </td>
+              <td class="cell-timestamp">{{item.timestamp | date: 'short'}}</td>
             </tr>
           </tbody>
         </table>
