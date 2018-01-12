@@ -77,6 +77,12 @@ $color_dark_gray: #575757;
   @include horizontal-gradient(#158d83, #4fbeac )
 }
 
+
+$research_header_height: 45px;
+$research_sidebar_width: 185px;
+
+
+
 html{
   min-height: 100%;
   background: #fcf7ea; /* Old browsers */
@@ -133,6 +139,12 @@ body {
   font-size: 0.9rem;
   font-weight: 500;
   color: #b5b5b5;
+}
+
+.dropdown-item{
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  cursor: pointer;
 }
 
 .text-color-accented{

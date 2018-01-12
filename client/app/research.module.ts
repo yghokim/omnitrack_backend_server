@@ -32,6 +32,9 @@ import { ClipboardModule } from 'ngx-clipboard';
 import { ResearcherPermissionsConfigurationComponent } from './experiment-settings/researcher-permissions-configuration/researcher-permissions-configuration.component';
 import { ResearcherSearchComponentComponent } from './experiment-settings/researcher-search-component/researcher-search-component.component';
 import { AddCollaboratorDialogComponent } from './experiment-settings/add-collaborator-dialog/add-collaborator-dialog.component';
+import { ResearchLayoutComponent } from './layouts/research-layout/research-layout.component';
+import { ResearchHomeFrameComponent } from './research-home-frame/research-home-frame.component';
+import { ExperimentListComponent } from './experiment-list/experiment-list.component';
 
 @NgModule({
   imports: [
@@ -65,7 +68,9 @@ import { AddCollaboratorDialogComponent } from './experiment-settings/add-collab
     ResearcherPermissionsConfigurationComponent,
     ResearcherSearchComponentComponent,
     AddCollaboratorDialogComponent,
-
+    ResearchLayoutComponent,
+    ResearchHomeFrameComponent,
+    ExperimentListComponent,
   ],
   exports: [
 
@@ -88,7 +93,8 @@ import { AddCollaboratorDialogComponent } from './experiment-settings/add-collab
     ExperimentMessagingComponent,
     ComposeMessageComponent,
     AnonymizeEmailPipe,
-
+    ResearchLayoutComponent,
+    ResearchHomeFrameComponent
   ],
   providers: [
     ResearcherAuthGuardSecure,

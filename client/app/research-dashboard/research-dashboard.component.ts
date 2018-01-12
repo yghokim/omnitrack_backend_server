@@ -239,40 +239,6 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
     this.api.setSelectedExperimentId(id)
   }
 
-  onSignOutClicked() {
-    const dialogRef = this.dialog.open(YesNoDialogComponent, {
-      data: {
-        title: 'Sign Out', message: 'Do you want to sign out?',
-      }
-    })
-    this._internalSubscriptions.add(
-      dialogRef.afterClosed().subscribe(result => {
-        if (result === true) {
-          this.signOut()
-        }
-      })
-    )
-  }
-
-  signOut() {
-    this._internalSubscriptions.add(
-      this.authService.signOut().subscribe((signedOut) => {
-        console.log('successfully signed out.');
-        this.goToSignIn();
-      })
-    )
-  }
-
-  goToSignIn() {
-    this.router.navigate(['/research/login']).then(
-      onFulfilled => {
-        if (onFulfilled == true) {
-          this.snackBar.open("Signed out from the research dashboard.", null, { duration: 3000 })
-        }
-      }
-    )
-  }
-
   getMyRole(): Observable<string>{
     return this.api.selectedExperimentService.flatMap(service => service.getMyRole())
   }

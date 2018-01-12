@@ -13,7 +13,7 @@ export class ResearcherAuthGuardMain implements CanActivate {
     return this.auth.verifySignedInStatus().map(success => {
       console.log("verified: " + success)
       if (success==true) {
-        this.router.navigate(['/research/dashboard'])
+        this.router.navigate(['/research/experiments'])
       }
       return true
     })
