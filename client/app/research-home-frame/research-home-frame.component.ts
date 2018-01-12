@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ResearcherAuthService } from '../services/researcher.auth.service';
 
 @Component({
   selector: 'app-research-home-frame',
@@ -7,7 +8,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ResearchHomeFrameComponent implements OnInit {
 
-  constructor() { }
+  mainGnbs=[
+    {
+      url: 'experiments',
+      name: 'Experiments',
+      secure: true
+    }
+  ]
+
+  constructor(private auth: ResearcherAuthService) {
+  }
 
   ngOnInit() {
   }

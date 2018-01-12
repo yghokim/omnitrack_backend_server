@@ -4,28 +4,37 @@
       Account Profile
     </div>
     <div class="card-block">
-      <form *ngIf="accountForm" [formGroup]="accountForm">
-        <div class="form-group row">
-          <label for="input_alias" class="col-sm-3 col-form-label small">Alias</label>
-          <div class="col-sm-9">
-            <input formControlName="alias" type="text" class="form-control invalid" id="input_alias" placeholder="Insert nickname to be displayed to others">
+        <input id="prevent_autofill" type="text" style="display:none;" value="" name="prevent_autofill">
+        <input id="password_fake" type="password" style="display:none;" value="" name="password_fake">
+        
+        <div class="form-group row flex-container flex-align-items-center">
+          <label for="input_alias" class="col-sm-2 col-form-label small">Alias</label>
+          <div class="col-sm-10">
+            <input [(ngModel)]="alias" type="text" class="form-control" id="input_alias" placeholder="Insert nickname to be displayed to others">
           </div>
         </div>
-        <div class="form-group row invalid">
-          <label for="input_new_password" class="col-sm-3 col-form-label small">New Password</label>
-          <div class="col-sm-4">
-            <input formControlName="newPassword" type="password" class="form-control" id="input_new_password" placeholder="Insert new password">
+        <div class="form-group row flex-container flex-align-items-center">
+          <label for="input_new_password" class="col-sm-2 col-form-label small">New Password</label>
+          <div class="col-sm-5">
+            <input [(ngModel)]="newPassword" type="password" class="form-control" id="input_new_password" 
+            autocomplete="new-password" 
+            placeholder="Insert new password">
           </div>
-          <div class="col-sm-4">
-            <input formControlName="confirmNewPassword" *ngIf="newPasswordForm.value" type="password" class="form-control" id="input_new_password_confirm"
+          <div class="col-sm-5">
+            <input [(ngModel)]="newPasswordConfirm" *ngIf="newPassword" type="password" class="form-control"  autocomplete="new-password-confirm" id="input_new_password_confirm"
               placeholder="Confirm new password">
+          </div>
+        </div>
+        <div *ngIf="newPassword" class="form-group row flex-container flex-align-items-center">
+          <label for="input_original_password" class="col-sm-2 col-form-label small">Original Password</label>
+          <div class="col-sm-5">
+            <input autocomplete="new-password-original"  [(ngModel)]="originalPassword" type="password" class="form-control" id="input_original_password" placeholder="Insert original password">
           </div>
         </div>
         <hr>
         <div class="pull-right">
-          <button type="submit" mat-raised-button color="primary" [disabled]="!isValid">Change Information</button>
+          <button mat-raised-button color="primary" [disabled]="!isValid()" (click)="onSubmitClicked()">Change Information</button>
         </div>
-      </form>
     </div>
   </div>
 </div>

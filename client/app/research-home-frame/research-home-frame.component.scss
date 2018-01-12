@@ -1,5 +1,12 @@
 @import '../../styles.scss';
 
+.gnb-list{
+  margin-left: 0.5rem;
+  .gnb-element{
+    font-size: 13px;
+  }
+}
+
 #research-home-wrapper{
   padding-top: $research_header_height + 20px;
 

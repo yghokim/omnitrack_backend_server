@@ -47,7 +47,7 @@ router.use("/secure", tokenAuth);
 
 router.post('/auth/authenticate', researchAuthCtrl.authenticate)
 router.post('/auth/register', researchAuthCtrl.registerResearcher)
-
+router.post('/auth/update', tokenAuth, researchAuthCtrl.update)
 router.post('/auth/verify', tokenAuth, researchAuthCtrl.verifyToken)
 
 router.get('/experiments/all', tokenAuth, experimentCtrl.getExperimentInformationsOfResearcher)

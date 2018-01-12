@@ -7,6 +7,7 @@ import { SocketService } from './socket.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/map';
 import { Subscription } from 'rxjs/Subscription';
+import { isNullOrBlank } from '../../../shared_lib/utils';
 
 export class ResearcherAuthInfo {
   constructor(
@@ -77,6 +78,11 @@ export class ResearcherAuthService implements OnDestroy {
     return localStorage.getItem('omnitrack_researcher_token')
   }
 
+  makeAuthorizedOptions(): RequestOptions {
+    const tokenHeaders = new Headers({ 'Authorization': 'Bearer ' + this.token() });
+    return new RequestOptions({ headers: tokenHeaders });
+  }
+
   public isTokenAvailable(): boolean {
     const token = localStorage.getItem('omnitrack_researcher_token');
     return (token && this.jwtHelper.isTokenExpired(token) === false)
@@ -87,10 +93,7 @@ export class ResearcherAuthService implements OnDestroy {
       return Observable.of(false)
     }
 
-    const tokenHeaders = new Headers({ 'Authorization': 'Bearer ' + this.token() });
-    const authorizedOptions = new RequestOptions({ headers: tokenHeaders });
-
-    return this.http.post("/api/research/auth/verify", null, authorizedOptions).map(result => result.json()).catch(err => {
+    return this.http.post("/api/research/auth/verify", null, this.makeAuthorizedOptions()).map(result => result.json()).catch(err => {
       return Observable.of(false)
     }).flatMap(verified => {
       if (verified == false) {
@@ -102,10 +105,11 @@ export class ResearcherAuthService implements OnDestroy {
     })
   }
 
-  private decodeAndSaveResearcherFromToken(token) {
+  private decodeAndSaveResearcherFromToken(token): any {
     const decoded = this.jwtHelper.decodeToken(token)
     const decodedResearcher = new ResearcherAuthInfo(true, decoded.uid, decoded.email, decoded.alias)
     this.currentResearcher.next(decodedResearcher)
+    return decodedResearcher
   }
 
   public register(info): Observable<any> {
@@ -113,12 +117,16 @@ export class ResearcherAuthService implements OnDestroy {
       .map(res => {
         const token = res.json().token
         if (token != null) {
-          localStorage.setItem('omnitrack_researcher_token', token)
-          this.tokenSubject.next(token)
-          this.decodeAndSaveResearcherFromToken(token)
+          this.setNewToken(token)
         }
         return token
       })
+  }
+
+  private setNewToken(token): any {
+    localStorage.setItem('omnitrack_researcher_token', token)
+    this.tokenSubject.next(token)
+    return this.decodeAndSaveResearcherFromToken(token)
   }
 
   public signOut(): Observable<boolean> {
@@ -140,12 +148,41 @@ export class ResearcherAuthService implements OnDestroy {
       .map(res => {
         const token = res.json().token
         if (token != null) {
-          localStorage.setItem('omnitrack_researcher_token', token)
-          this.tokenSubject.next(token)
-          this.decodeAndSaveResearcherFromToken(token)
+          this.setNewToken(token)
         }
         return token
       })
+  }
+
+  public updateInfo(alias?: string, newPassword?: string, originalPassword?: string): Observable<any> {
+    if (newPassword && !originalPassword) {
+      throw new Error("You should insert the original password.")
+    }
+    else {
+      const body: any = {}
+      if (alias) {
+        body.alias = alias
+      }
+      if (newPassword) {
+        body.newPassword = newPassword
+      }
+      if (originalPassword) {
+        body.originalPassword = originalPassword
+      }
+
+      if (Object.keys(body).length > 0) {
+        return this.http.post("/api/research/auth/update", body, this.makeAuthorizedOptions()).map(res => res.json()).map(
+          res => {
+            if (!isNullOrBlank(res.token)) {
+              return this.setNewToken(res.token)
+            }else throw new Error("No token retrieved.")
+          }
+        )
+      }
+      else {
+        throw new Error("Set either alias or passwords.")
+      }
+    }
   }
 
 }

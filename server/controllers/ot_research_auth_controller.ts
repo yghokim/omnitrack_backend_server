@@ -7,6 +7,8 @@ import OTExperiment from '../models/ot_experiment';
 import OTResearcherToken from '../models/ot_researcher_token';
 import OTResearcherClient from '../models/ot_researcher_client';
 import env from '../env';
+import { isNullOrBlank } from '../../shared_lib/utils';
+import { Document } from 'mongoose';
 
 export default class OTResearchAuthCtrl {
 
@@ -32,7 +34,7 @@ export default class OTResearchAuthCtrl {
       email: user.email,
       alias: user.alias,
       exp: Math.floor(expiry.getTime() / 1000),
-      iat: (iat || new Date()).getTime() / 1000
+      iat: (iat || user.passwordSetAt || new Date()).getTime() / 1000
     }, env.jwt_secret);
   }
 
@@ -160,6 +162,84 @@ export default class OTResearchAuthCtrl {
 
   verifyToken = (req, res) => {
     res.status(200).send(req.researcher != null)
+  }
+
+  private _updateSingleUserAndGetToken(query: any, update: any): Promise<string>
+  {
+    console.log("query:")
+    console.log(query)
+    console.log("update:")
+    console.log(update)
+    if(Object.keys(query).length > 0 && Object.keys(update).length > 0)
+    {
+      return OTResearcher.findOneAndUpdate(query, update, {new: true}).then((researcher : any) => {
+        if(researcher){
+          console.log(researcher)
+          console.log("updated researcher information. return updated token")
+          return this.generateJWTToken(researcher)
+        }
+        else{
+          return Promise.reject<string>("No such researcher")
+        }
+      })
+    }else{
+      return Promise.reject<string>("Empty query or update.")
+    }
+  }
+
+  update = (req, res) => {
+    const query: any = { _id: req.researcher.uid }
+    const update: any = {}
+
+    if(!isNullOrBlank(req.body.alias))
+    {
+      update.alias = req.body.alias
+    }
+
+    if(!isNullOrBlank(req.body.newPassword) && !isNullOrBlank(req.body.originalPassword))
+    {
+      OTResearcher.findById(req.researcher.uid).then(
+        (researcher: any) => {
+          if(researcher){
+            this.bcrypt.compare(req.body.originalPassword, researcher.hashed_password, (compareErr, match)=>{
+              if(match===true)
+              {
+                this.hashPassword(req.body.newPassword, (newPasswordErr, hashedNewPassword)=>{
+                  if(newPasswordErr)
+                  {
+                    res.status(500).send(newPasswordErr)
+                    return
+                  }else{
+                    update.hashed_password = hashedNewPassword
+                    update.passwordSetAt = new Date()
+                    for(let change in update){
+                      researcher[change] = update[change]
+                    }
+                    (researcher as Document).save().then(newResearcher=>{
+                      console.log(newResearcher)
+                      res.status(200).send({token: this.generateJWTToken(newResearcher)})
+                    })
+                  }
+                })
+              }
+            })
+          }
+        }
+      )
+    }
+    else{
+      this._updateSingleUserAndGetToken(query, update).then(token=>{
+        if(token)
+        {
+          res.status(200).send({token: token})
+        }
+        else{
+          res.status(500).send("null token")
+        }
+      }).catch(err=>{
+        res.status(500).send(err)
+      })
+    }
   }
 
   /*
