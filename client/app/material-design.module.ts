@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialogModule, MatTabsModule, MatCheckboxModule, MatRadioModule, MatMenuModule, MatIconRegistry, MatButtonModule, MatSelectModule, MatInputModule, MatTooltipModule, MatDatepickerModule, MatNativeDateModule, MatSnackBarModule, MatProgressBarModule, MatProgressSpinnerModule, MatAutocompleteModule, MatChipsModule } from '@angular/material';
+import { MatDialogModule, MatTabsModule, MatCheckboxModule, MatRadioModule, MatMenuModule, MatIconRegistry, MatButtonModule, MatSelectModule, MatInputModule, MatTooltipModule, MatDatepickerModule, MatNativeDateModule, MatSnackBarModule, MatProgressBarModule, MatProgressSpinnerModule, MatAutocompleteModule, MatChipsModule, MatGridListModule, MatCardModule } from '@angular/material';
 import { YesNoDialogComponent } from './dialogs/yes-no-dialog/yes-no-dialog.component';
 
 @NgModule({
@@ -21,7 +21,9 @@ import { YesNoDialogComponent } from './dialogs/yes-no-dialog/yes-no-dialog.comp
     MatProgressBarModule,
     MatProgressSpinnerModule,
     MatAutocompleteModule,
-    MatChipsModule
+    MatChipsModule,
+    MatGridListModule,
+    MatCardModule
   ],
   exports: [
     MatDialogModule,
@@ -39,7 +41,9 @@ import { YesNoDialogComponent } from './dialogs/yes-no-dialog/yes-no-dialog.comp
     MatProgressBarModule,
     MatProgressSpinnerModule,
     MatAutocompleteModule,
-    MatChipsModule
+    MatChipsModule,
+    MatGridListModule,
+    MatCardModule
   ],
    providers: [
     MatIconRegistry]

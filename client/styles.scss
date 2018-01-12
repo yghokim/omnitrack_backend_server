@@ -219,6 +219,49 @@ body {
   }
 }
 
+.flex-container.flex-container-wrap{
+  flex-wrap: wrap;
+}
+
+.flex-container.flex-padded-content{
+  margin: -0.8rem;
+  & > *{
+    padding: 0.8rem;
+  }
+}
+
+.flex-container.flex-container-responsive-columns{
+  & > *{
+    width: 33%;
+    // Medium devices (tablets, less than 992px)
+    @media screen and  (max-width: 991px) { width: 50% }
+
+    @media screen and (max-width: 575px) { width: 100% }
+
+    // Small devices (landscape phones, less than 768px)
+    @media screen and (max-width: 767px) { width: 100% }
+
+  }
+}
+
+.flex-container.flex-container-col3{
+  & > *{
+    width: 33%;
+  }
+}
+
+.flex-container.flex-container-col2{
+  & > *{
+    width: 50%;
+  }
+}
+
+.flex-container.flex-container-col1{
+  & > *{
+    width: 100%;
+  }
+}
+
 .flex-container.flex-align-items-center{
   align-items: center;
 }
@@ -575,6 +618,12 @@ mat-dialog-container.mat-dialog-container{
   padding: 0;
 }
 
+.global-page-title{
+  font-weight: 300;
+  font-size: 1.2rem;
+  color: #575757;
+}
+
 .header-main{
   color: white;
   font-weight: bold;
@@ -596,6 +645,20 @@ $duration: 1.4s;
 
 .spinner {
   animation: rotator $duration linear infinite;
+}
+
+
+.tag-researcher-role{
+  padding: 0.5em;
+  text-transform: capitalize;
+  font-weight: 500;
+  &.collaborator{
+    background: #78c8eb;
+  }
+
+  &.manager{
+    background: #e97a9b;
+  }
 }
 
 @keyframes rotator {

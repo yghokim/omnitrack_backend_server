@@ -1,0 +1,24 @@
+.card.card-experiment{
+  cursor: pointer;
+  height: 150px;
+  overflow-y: hidden;
+
+  &:hover{
+    background: #fafafa;
+  }
+
+  .card-title{
+    font-size: 1.0rem;
+    font-weight: 500;
+    color: #252525;
+  }
+
+  .card-header{
+    border: hidden;
+  }
+}
+
+.tag-researcher-role{
+  margin-left: -0.2em;
+  margin-bottom: 0.5rem;
+}

@@ -138,16 +138,3 @@ a.nav-link{
     opacity: 0.5;
   }
 }
-
-.tag-researcher-role{
-  padding: 0.5em;
-  text-transform: capitalize;
-  font-weight: 500;
-  &.collaborator{
-    background: #78c8eb;
-  }
-
-  &.manager{
-    background: #e97a9b;
-  }
-}

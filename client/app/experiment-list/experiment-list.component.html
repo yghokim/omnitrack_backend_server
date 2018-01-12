@@ -1,3 +1,30 @@
-<p>
-  experiment-list works!
-</p>
+<div class="container">
+  <div class="flex-container flex-stretch">
+    <small class="flex-element global-page-title">
+      Recent Experiments
+    </small>
+    <button mat-raised-button color="primary" class="flex-element">Create new Experiment</button>
+  </div>
+  <hr>
+  <div class="flex-container flex-container-wrap  flex-padded-content flex-container-responsive-columns">
+    <div *ngFor="let experiment of experiments">
+      <div class="card card-component card-experiment" (click)="onExperimentClicked(experiment)">
+        <div class="card-header">
+            <span header class="tag tag-primary tag-researcher-role"
+            [ngClass]="(getMyRole(experiment) | async)">
+            {{getMyRole(experiment) | async}}
+            </span>
+
+            <div class="card-title">
+              {{experiment.name}}
+            </div>
+        </div>
+        <div class="card-block"></div>
+        <div class="card-footer">
+          <div class="pull-right">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
