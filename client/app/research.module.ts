@@ -35,6 +35,7 @@ import { AddCollaboratorDialogComponent } from './experiment-settings/add-collab
 import { ResearchLayoutComponent } from './layouts/research-layout/research-layout.component';
 import { ResearchHomeFrameComponent } from './research-home-frame/research-home-frame.component';
 import { ExperimentListComponent } from './experiment-list/experiment-list.component';
+import { ResearcherAccountSettingsComponent } from './researcher-account-settings/researcher-account-settings.component';
 
 @NgModule({
   imports: [
@@ -71,6 +72,7 @@ import { ExperimentListComponent } from './experiment-list/experiment-list.compo
     ResearchLayoutComponent,
     ResearchHomeFrameComponent,
     ExperimentListComponent,
+    ResearcherAccountSettingsComponent,
   ],
   exports: [
 
@@ -94,7 +96,8 @@ import { ExperimentListComponent } from './experiment-list/experiment-list.compo
     ComposeMessageComponent,
     AnonymizeEmailPipe,
     ResearchLayoutComponent,
-    ResearchHomeFrameComponent
+    ResearchHomeFrameComponent,
+    ResearcherAccountSettingsComponent
   ],
   providers: [
     ResearcherAuthGuardSecure,

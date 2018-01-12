@@ -1,0 +1,31 @@
+<div class="container">
+  <div class="card card-main">
+    <div class="card-header">
+      Account Profile
+    </div>
+    <div class="card-block">
+      <form *ngIf="accountForm" [formGroup]="accountForm">
+        <div class="form-group row">
+          <label for="input_alias" class="col-sm-3 col-form-label small">Alias</label>
+          <div class="col-sm-9">
+            <input formControlName="alias" type="text" class="form-control invalid" id="input_alias" placeholder="Insert nickname to be displayed to others">
+          </div>
+        </div>
+        <div class="form-group row invalid">
+          <label for="input_new_password" class="col-sm-3 col-form-label small">New Password</label>
+          <div class="col-sm-4">
+            <input formControlName="newPassword" type="password" class="form-control" id="input_new_password" placeholder="Insert new password">
+          </div>
+          <div class="col-sm-4">
+            <input formControlName="confirmNewPassword" *ngIf="newPasswordForm.value" type="password" class="form-control" id="input_new_password_confirm"
+              placeholder="Confirm new password">
+          </div>
+        </div>
+        <hr>
+        <div class="pull-right">
+          <button type="submit" mat-raised-button color="primary" [disabled]="!isValid">Change Information</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

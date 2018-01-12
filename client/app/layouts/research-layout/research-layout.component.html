@@ -23,7 +23,7 @@
           <mat-icon class="material-icons text-color-darkgray">more_vert</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
-          <button mat-menu-item class="btn btn-secondary btn-sm">Account Settings</button>
+          <button mat-menu-item class="btn btn-secondary btn-sm" (click)="onAccountSettingsClicked()">Account Settings</button>
           <button mat-menu-item class="btn btn-secondary btn-sm" (click)="onSignOutClicked()">Sign Out</button>
         </mat-menu>
       </div>

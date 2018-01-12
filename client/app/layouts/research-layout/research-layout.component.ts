@@ -30,7 +30,9 @@ export class ResearchLayoutComponent implements OnInit {
   ngOnInit() {
   }
 
-  
+  onAccountSettingsClicked(){
+    this.router.navigate(["/research/account"])
+  }
 
   onSignOutClicked() {
     const dialogRef = this.dialog.open(YesNoDialogComponent, {

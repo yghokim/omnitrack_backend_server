@@ -23,6 +23,7 @@ import { ExperimentMessagingComponent } from './experiment-messaging/experiment-
 import { ComposeMessageComponent } from './experiment-messaging/compose-message/compose-message.component';
 import { ResearchHomeFrameComponent } from './research-home-frame/research-home-frame.component';
 import { ExperimentListComponent } from './experiment-list/experiment-list.component';
+import { ResearcherAccountSettingsComponent } from './researcher-account-settings/researcher-account-settings.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'research', pathMatch: 'full' },
@@ -33,7 +34,8 @@ const routes: Routes = [
             {path: '', component: ResearchMainComponent, canActivate: [ResearcherAuthGuardMain]},
             {path: 'signup', component: ResearchSignupComponent},
             { path: 'login', component: ResearchLoginComponent},
-            { path: 'experiments', component: ExperimentListComponent, canActivate: [ResearcherAuthGuardSecure]} 
+            { path: 'experiments', component: ExperimentListComponent, canActivate: [ResearcherAuthGuardSecure]},
+            { path: 'account', component: ResearcherAccountSettingsComponent, canActivate: [ResearcherAuthGuardSecure]}
           ]
       },
       { path: 'dashboard', component: ResearchDashboardComponent, canActivate: [ResearcherAuthGuardSecure] },

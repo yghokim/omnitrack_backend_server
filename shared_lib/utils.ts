@@ -35,3 +35,12 @@ export function merge(objA: any, objB: any, overwrite: boolean, recursive: boole
 export function deepclone(obj: any): any{
   return JSON.parse(JSON.stringify(obj))
 }
+
+export function isNullOrEmpty(obj: string): boolean{
+  return obj == null || obj.length == 0
+}
+
+
+export function isNullOrBlank(obj: string): boolean{
+  return obj == null || obj.trim().length == 0
+}
