@@ -245,6 +245,7 @@ export default class ResearchModule {
                   dropped: false,
                   droppedAt: null,
                   droppedBy: null,
+                  experimentRange: {from: joinedDate, to: null}
                 }, { new: true }).populate("experiment").then(changedParticipant => {
                   console.log("changed participant: ")
                   console.log(changedParticipant)
@@ -254,6 +255,7 @@ export default class ResearchModule {
                       newParticipant["isDenied"] = false
                       newParticipant["isConsentApproved"] = true
                       newParticipant["approvedAt"] = joinedDate
+                      newParticipant["experimentRange"] = {from: joinedDate, to: null}
                       return newParticipant.save().then(participant => {
                         return participant.populate("experiment").execPopulate()
                       })

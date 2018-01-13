@@ -1,0 +1,14 @@
+<div class="card card-main">
+  <div class="card-header">
+    <div class="flex-container flex-align-items-center flex-stretch">
+      <span>{{title}}</span>
+      <div select="[header]"></div>
+    </div>
+  </div>
+  <div class="card-block">
+    <ng-content select="[main]"></ng-content>
+  </div>
+  <div class="overlay" *ngIf="isBusy===true">
+    <mat-progress-spinner diameter="35" mode="indeterminate" color="primary"></mat-progress-spinner>
+  </div>
+</div>

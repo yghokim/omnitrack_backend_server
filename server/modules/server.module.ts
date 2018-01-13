@@ -24,12 +24,29 @@ export default class ServerModule {
 
   bootstrap() {
     try {
+      /*
       OTParticipant.find({}, {select: "_id experiment invitation user"}).populate("user").populate("experiment").populate("invitation").then(
         participants => {
           const removeIds = participants.filter( p => !p["experiment"] || !p["invitation"] || !p["user"]).map(p => p._id)
           OTParticipant.remove({_id: {$in: removeIds}}).then(result => {
             console.log(result["n"] + " dangling participants were removed.")
           })
+        }
+      )*/
+
+      OTParticipant.find({experimentRange: {$exists:false}, approvedAt: {$exists: true}}).then(
+        participants=>
+        {
+          if(participants)
+          {
+            Promise.all(participants.map(participant => {
+              participant["experimentRange"] = {from: participant["approvedAt"], to: null}
+              participant.markModified("experimentRange")
+              return participant.save()
+            })).then(result => {
+              console.log(participants.length + " participants were updated regarding their experimentRange.")
+            })
+          }
         }
       )
       

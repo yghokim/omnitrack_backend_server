@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { MAX_VALUE } from 'long';
 
 const otParticipantSchema = new mongoose.Schema({
   alias: String,
@@ -14,7 +15,8 @@ const otParticipantSchema = new mongoose.Schema({
   droppedReason: String,
   droppedBy: {type: String, ref: "OTResearcher", defaut: null},
   droppedAt: Date,
-  information: mongoose.Schema.Types.Mixed
+  information: mongoose.Schema.Types.Mixed,
+  experimentRange: {type: {from: Date, to: Date}, default: ()=>{ return {from: new Date(), to: null} }}
 }, {timestamps: true});
 
 otParticipantSchema.index({dropped: 1, isDenied: 1, isConsentApproved: 1})

@@ -36,6 +36,8 @@ import { ResearchLayoutComponent } from './layouts/research-layout/research-layo
 import { ResearchHomeFrameComponent } from './research-home-frame/research-home-frame.component';
 import { ExperimentListComponent } from './experiment-list/experiment-list.component';
 import { ResearcherAccountSettingsComponent } from './researcher-account-settings/researcher-account-settings.component';
+import { ChartFrameComponent } from './research/visualization/chart-frame/chart-frame.component';
+import { EngagementComponent } from './research/visualization/engagement/engagement.component';
 
 @NgModule({
   imports: [
@@ -73,6 +75,8 @@ import { ResearcherAccountSettingsComponent } from './researcher-account-setting
     ResearchHomeFrameComponent,
     ExperimentListComponent,
     ResearcherAccountSettingsComponent,
+    ChartFrameComponent,
+    EngagementComponent,
   ],
   exports: [
 
