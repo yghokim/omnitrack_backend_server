@@ -107,8 +107,16 @@ export class TrackingDataService implements OnInit, OnDestroy{
     this.reloadEntities("triggers", this.triggers, null)
   }
 
-  getTrackersOfUser(userId: string): Observable<Array<ITrackerDbEntity>>{
-    return this.trackers.map( list => list.filter(t=>t.user === userId).sort((a, b) => { 
+  getTrackersOfUser(userId: string | Array<string>): Observable<Array<ITrackerDbEntity>>{
+    return this.trackers.map( list => list.filter(t=>{
+      if(userId instanceof String)
+      {
+        return t.user === userId
+      }else if(userId instanceof Array){
+        return userId.find(u=>u === t.user) != null
+      }
+      else return false
+    }).sort((a, b) => { 
       const aName = a.name.toUpperCase()
       const bName = b.name.toUpperCase()
 
@@ -119,17 +127,41 @@ export class TrackingDataService implements OnInit, OnDestroy{
   }
 
   
-  getTriggersOfUser(userId: string): Observable<Array<ITriggerDbEntity>>{
-    return this.triggers.map( list => list.filter(t=>t.user === userId))
+  getTriggersOfUser(userId: string | Array<string>): Observable<Array<ITriggerDbEntity>>{
+    return this.triggers.map( list => list.filter(t=>{
+      if(userId instanceof String)
+      {
+        return t.user === userId
+      }else if(userId instanceof Array){
+        return userId.find(u=>u === t.user) != null
+      }
+      else return false
+    }))
   }
 
   
-  getItemsOfUser(userId: string): Observable<Array<IItemDbEntity>>{
-    return this.items.map( list => list.filter(t=>t.user === userId))
+  getItemsOfUser(userId: string | Array<string>): Observable<Array<IItemDbEntity>>{
+    return this.items.map( list => list.filter(t=>{
+      if(userId instanceof String)
+      {
+        return t.user === userId
+      }else if(userId instanceof Array){
+        return userId.find(u=>u === t.user) != null
+      }
+      else return false
+    }))
   }
 
-  getItemsOfTracker(trackerId: string): Observable<Array<IItemDbEntity>>{
-    return this.items.map( list => list.filter(i => i.tracker === trackerId))
+  getItemsOfTracker(trackerId: string | Array<string>): Observable<Array<IItemDbEntity>>{
+    return this.items.map( list => list.filter(i => {
+      if(trackerId instanceof String)
+      {
+        return i.tracker === trackerId
+      }else if(trackerId instanceof Array){
+        return trackerId.find(t=>t === i.tracker) != null
+      }
+      else return false
+    }))
   }
   
 }
