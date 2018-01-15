@@ -1,3 +1,18 @@
+@import '../../../../styles.scss';
+
 :host /deep/ path.domain{
   visibility: hidden;
+}
+
+:host /deep/ path.no-log-pattern{
+  stroke: #f5c4b7;
+  stroke-width: 0.08em;;
+}
+
+:host /deep/ rect.encoded{
+  fill: $visualization_encoded_color;
+
+  &.over-threshold{
+    fill: $visualization_encoded_color_thicker;
+  }
 }

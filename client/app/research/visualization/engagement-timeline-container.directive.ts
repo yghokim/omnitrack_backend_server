@@ -21,19 +21,57 @@ export class EngagementTimelineContainerDirective implements AfterContentChecked
 
   ngAfterContentChecked(){
     const blockDomainSize = 1/this.numBlocksPerDay
+    const blockCellWidth = this.dayScale(blockDomainSize) - this.dayScale(0)
+
+    const minDayIndex = this.dayScale.domain()[0]
+    const maxDayIndex = this.dayScale.domain()[1]
+
+    const daySelection = d3.select(this.elementRef.nativeElement).selectAll("rect.day")
+      .data(Array.from(new Array(maxDayIndex-minDayIndex+1), (value, index)=>{return index+minDayIndex}))
     
-    const chartSelection = d3.select(this.elementRef.nativeElement).selectAll("rect.block-of-the-day")
+    const dayEnter = daySelection.enter().append("rect").attr("class", "day")
+      .attr("height", this.chartHeight)
+      .attr("y", -this.chartHeight/2)
+      .attr("fill", dayIndex=>{
+        if(this.tracker.itemBlocks.find(b => b.day === dayIndex)!=null)
+        {
+          return "#eaeaea"
+        }else return "transparent"
+      })
+
+    dayEnter.merge(daySelection)
+      .attr("x", d => (this.dayScale(d) + 1))
+      .attr("width", this.dayScale(1) - this.dayScale(0) - 2)
+    
+    const chartSelection = d3.select(this.elementRef.nativeElement).selectAll("g.block-of-the-day")
       .data(this.tracker.itemBlocks, (block: ItemBlockRow)=>block.day + "_" + block.blockIndex)
     
-      const chartEnter = chartSelection.enter().append("rect")
+      const chartEnter = chartSelection.enter().append("g")
       .attr("class","block-of-the-day")
-      .attr("transform", block => this.makeTranslate(this.dayScale(block.day + block.blockIndex*blockDomainSize), 0))
-      .attr("height", 0)
-    
-      chartEnter.merge(chartSelection)
-        .attr("width", this.dayScale(blockDomainSize) - this.dayScale(0))
+      .attr("transform", block => this.makeTranslate(this.dayScale(block.day + block.blockIndex*blockDomainSize) + 1, 0))
+
+      chartEnter.append("rect").attr("class", "back")
+        .attr("width", blockCellWidth - 2)
+        .attr("height", this.chartHeight)
+        .attr("y", -this.chartHeight/2)
+        .attr("fill", "transparent")
+
+      chartEnter.append("rect").attr("class", "encoded")
+        .attr("width", blockCellWidth - 2)
+        .attr("height", 0)
+        .attr("y", 0)
+        .classed("over-threshold", block=> block.items.length > this.maxItemCountThreshold)
+      
+      const merged = chartEnter.merge(chartSelection)
+        
+      merged.select("rect.back")
+        .attr("width", blockCellWidth - 2)
+        
+
+      merged.select("rect.encoded")
+        .attr("width", blockCellWidth - 2)
         .attr("height", b=>this.calcHeightOfBlock(b))
-        .attr("transform", block => this.makeTranslate(this.dayScale(block.day + block.blockIndex*blockDomainSize), -this.calcHeightOfBlock(block)/2))
+        .attr("y", block => -this.calcHeightOfBlock(block)/2)
   }
 
   calcHeightOfBlock(itemBlock: ItemBlockRow): number{

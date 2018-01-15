@@ -19,6 +19,7 @@ import { NotificationService } from './services/notification.service';
 import { ResearchModule } from './research.module';
 import { TextInputDialogComponent } from './dialogs/text-input-dialog/text-input-dialog.component';
 import { D3ChartFrameComponent } from './research/visualization/d3-chart-frame/d3-chart-frame.component';
+import { SVGEllipsisDirective } from './directives/svgellipsis.directive';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,7 @@ import { D3ChartFrameComponent } from './research/visualization/d3-chart-frame/d
     NotFoundComponent,
     YesNoDialogComponent,
     TextInputDialogComponent,
-    BusyOverlayComponent,
+    BusyOverlayComponent
   ],
   imports: [
     OAuthModule.forRoot(),

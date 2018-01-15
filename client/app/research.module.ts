@@ -40,6 +40,7 @@ import { ChartFrameComponent } from './research/visualization/chart-frame/chart-
 import { EngagementComponent } from './research/visualization/engagement/engagement.component';
 import { D3ChartFrameComponent } from './research/visualization/d3-chart-frame/d3-chart-frame.component';
 import { EngagementTimelineContainerDirective } from './research/visualization/engagement-timeline-container.directive';
+import { SVGEllipsisDirective } from './directives/svgellipsis.directive';
 
 @NgModule({
   imports: [
@@ -81,6 +82,7 @@ import { EngagementTimelineContainerDirective } from './research/visualization/e
     EngagementComponent,
     D3ChartFrameComponent,
     EngagementTimelineContainerDirective,
+    SVGEllipsisDirective
   ],
   exports: [
 

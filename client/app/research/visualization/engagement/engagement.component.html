@@ -1,6 +1,10 @@
 <app-d3-chart-frame title="Engagement" [isBusy]="isBusy" [visualizationAreaHeight]="visualizationAreaHeight" (visualizationAreaWidthChanged)="visualizationWidth.next($event)">
   <div header>
   </div>
+  <svg:pattern visualization *ngFor="let pattern of hatchPatterns"
+    [attr.id]="pattern.id" [attr.width]="pattern.size" [attr.height]="pattern.size" patternUnits="userSpaceOnUse">
+    <svg:path [ngClass]="pattern.pathClass" [attr.d]="'M-1,1 l2,-2 M0,' + pattern.size + 'l' + pattern.size + ',-' + pattern.size + ' M' + (pattern.size-1)+','+(pattern.size+1)+ ' l2,-2'"></svg:path>
+  </svg:pattern>
   <svg:g visualization #chartMainGroup [attr.transform]="makeTranslate(Y_AXIS_WIDTH, X_AXIS_HEIGHT)">
     <svg:g *ngFor="let participant of data.participantList let index = index" class="participant" [attr.transform]="makeParticipantRowTransform(participant, index)">
       <svg:text class="participant-alias" font-size="12px" text-anchor="end" dominant-baseline="middle" alignment-baseline="middle"
@@ -13,10 +17,25 @@
         stroke="#b5b5b5"
         strokeWidth="1"
       ></svg:line>
+
+      <svg:rect class="no-log-day"
+        *ngFor="let noLogDay of participant.noLogDayIndices"
+        [attr.width]="dayAxisScale(1)-dayAxisScale(0) - 2"
+        [attr.height]="calcHeightOfParticipantRow(participant)"
+        fill="url(#no-log)"
+        [attr.x]="dayAxisScale(noLogDay)"
+        ></svg:rect>
+
       <svg:g class="tracker" *ngFor="let tracker of participant.trackingDataList let index = index"
         [attr.transform]="makeTranslate(0, index * (TRACKER_ROW_HEIGHT + TRACKER_MARGIN))">
-        <svg:text class="tracker-name" font-size="10px" dominant-baseline="middle" alignment-baseline="middle"
-          [attr.transform]="makeTranslate(-TRACKER_NAME_WIDTH+3, TRACKER_ROW_HEIGHT/2)">{{tracker.trackerName}}</svg:text>
+        <svg:text class="tracker-name" font-size="10px" dominant-baseline="middle" 
+          alignment-baseline="middle"
+          [ellipsis]="TRACKER_NAME_WIDTH-3"
+          [text]="tracker.trackerName"
+          [matTooltip]="tracker.trackerName"
+          matTooltipPosition="left"
+          [attr.transform]="makeTranslate(-TRACKER_NAME_WIDTH+3, TRACKER_ROW_HEIGHT/2)"></svg:text>
+
         <svg:g class="timeline-container" engagementTimelineContainer 
           [tracker]="tracker"
           [chartWidth]="mainChartAreaWidth"

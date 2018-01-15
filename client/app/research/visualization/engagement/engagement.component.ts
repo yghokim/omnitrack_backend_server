@@ -15,7 +15,7 @@ import { ScaleOrdinal, Axis } from "d3";
 import * as moment from "moment";
 import { IItemDbEntity } from "../../../../../omnitrack/core/db-entity-types";
 import { EngagementTimelineContainerDirective } from "../engagement-timeline-container.directive";
-var groupArray = require('group-array');
+import * as groupArray from 'group-array';
 
 @Component({
   selector: "app-engagement",
@@ -48,6 +48,13 @@ EngagementData
 
   private visualizationAreaHeight = 100
 
+  private hatchPatterns = [
+    {
+      id: "no-log",
+      size: 7,
+      pathClass: "no-log-pattern"   
+    }
+  ]
 
   @ViewChild("xAxisGroup") xAxisGroup: ElementRef
   @ViewChild("yAxisGroup") yAxisGroup: ElementRef
@@ -219,35 +226,48 @@ EngagementData
             const startDate = moment(participant.experimentRange.from).startOf("day")
             const numDays = today.diff(startDate, "days") + 1
 
-            return {
-              participantId: participant._id.toString(), alias: participant.alias.toString(), daysSinceStart: numDays, trackingDataList: trackers.filter(tracker => tracker.user === participant.user._id).map(tracker => {
-                const itemWithRelative = items.filter(item => item.tracker === tracker._id).map(item => {
-                  const timestampMoment = moment(item.timestamp)
-                  const diff = timestampMoment.diff(startDate, "days", true)
-                  const day = Math.floor(diff)
-                  const dayRatio = diff - day
-                  const block = Math.floor(dayRatio / (1/this.NUM_BLOCKS_PER_DAY))
-                  return { dayRelative: diff, day: day, dayRatio: dayRatio, block: block, dayAndBlock: day+"_"+block, item: item }
-                })
-                
-                const grouped = groupArray(itemWithRelative, "dayAndBlock")
-                const itemBlocks = []
-                for(let dayAndBlock in grouped){
-                  const group = grouped[dayAndBlock]
-                  const split = dayAndBlock.split("_")
-                  const day = Number.parseInt(split[0])
-                  const block = Number.parseInt(split[1])
-                  itemBlocks.push({day: day, blockIndex: block, items: group})
-                }
-                
-                return {
-                  trackerName: tracker.name.toString(), trackerId: tracker._id.toString(), itemBlocks: itemBlocks
-                }
+            const trackingDataList = trackers.filter(tracker => tracker.user === participant.user._id).map(tracker => {
+              const itemWithRelative = items.filter(item => item.tracker === tracker._id).map(item => {
+                const timestampMoment = moment(item.timestamp)
+                const diff = timestampMoment.diff(startDate, "days", true)
+                const day = Math.floor(diff)
+                const dayRatio = diff - day
+                const block = Math.floor(dayRatio / (1/this.NUM_BLOCKS_PER_DAY))
+                return { dayRelative: diff, day: day, dayRatio: dayRatio, block: block, dayAndBlock: day+"_"+block, item: item }
               })
+              
+              const grouped = groupArray(itemWithRelative, "dayAndBlock")
+              const itemBlocks = []
+              for(let dayAndBlock in grouped){
+                const group = grouped[dayAndBlock]
+                const split = dayAndBlock.split("_")
+                const day = Number.parseInt(split[0])
+                const block = Number.parseInt(split[1])
+                itemBlocks.push({day: day, blockIndex: block, items: group})
+              }
+
+              return {
+                trackerName: tracker.name.toString(), trackerId: tracker._id.toString(), itemBlocks: itemBlocks
+              }
+            })
+
+            const noLogDayIndices = []
+            for(let i = 0; i < numDays; i++)
+            {
+              if(trackingDataList.find(tracker=>
+                tracker.itemBlocks.find(it=>it.day === i) != null) == null)
+                {
+                  noLogDayIndices.push(i)
+                }
+            }
+            
+
+            return {
+              participantId: participant._id.toString(), alias: participant.alias.toString(), daysSinceStart: numDays,
+              noLogDayIndices: noLogDayIndices,
+              trackingDataList: trackingDataList
             }
           })
-
-
 
           return { earliestExperimentStart: earliestExperimentStart, maxTotalDays: d3.max(data, (datum) => datum.daysSinceStart), participantList: data }
         })
@@ -272,6 +292,8 @@ export type TrackerRow = {
   itemBlocks: Array<ItemBlockRow>,
 }
 
-type ParticipantRow = { participantId: string, alias: string, daysSinceStart: number, trackingDataList: Array<TrackerRow> }
+type ParticipantRow = { participantId: string, alias: string, daysSinceStart: number, 
+  
+  noLogDayIndices: Array<number>, trackingDataList: Array<TrackerRow> }
 
 type EngagementData = { earliestExperimentStart: number, maxTotalDays: number, participantList: Array<ParticipantRow> }
