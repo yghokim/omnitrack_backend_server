@@ -18,6 +18,7 @@ import { NotificationService } from './services/notification.service';
 
 import { ResearchModule } from './research.module';
 import { TextInputDialogComponent } from './dialogs/text-input-dialog/text-input-dialog.component';
+import { D3ChartFrameComponent } from './research/visualization/d3-chart-frame/d3-chart-frame.component';
 
 @NgModule({
   declarations: [

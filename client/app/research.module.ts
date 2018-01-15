@@ -38,6 +38,7 @@ import { ExperimentListComponent } from './experiment-list/experiment-list.compo
 import { ResearcherAccountSettingsComponent } from './researcher-account-settings/researcher-account-settings.component';
 import { ChartFrameComponent } from './research/visualization/chart-frame/chart-frame.component';
 import { EngagementComponent } from './research/visualization/engagement/engagement.component';
+import { D3ChartFrameComponent } from './research/visualization/d3-chart-frame/d3-chart-frame.component';
 
 @NgModule({
   imports: [
@@ -77,6 +78,7 @@ import { EngagementComponent } from './research/visualization/engagement/engagem
     ResearcherAccountSettingsComponent,
     ChartFrameComponent,
     EngagementComponent,
+    D3ChartFrameComponent,
   ],
   exports: [
 
@@ -101,7 +103,8 @@ import { EngagementComponent } from './research/visualization/engagement/engagem
     AnonymizeEmailPipe,
     ResearchLayoutComponent,
     ResearchHomeFrameComponent,
-    ResearcherAccountSettingsComponent
+    ResearcherAccountSettingsComponent,
+    D3ChartFrameComponent
   ],
   providers: [
     ResearcherAuthGuardSecure,
