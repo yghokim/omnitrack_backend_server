@@ -16,7 +16,7 @@ const otParticipantSchema = new mongoose.Schema({
   droppedBy: {type: String, ref: "OTResearcher", defaut: null},
   droppedAt: Date,
   information: mongoose.Schema.Types.Mixed,
-  experimentRange: {type: {from: Date, to: Date}, default: ()=>{ return {from: new Date(), to: null} }}
+  experimentRange: {from: Date, to: Date}
 }, {timestamps: true});
 
 otParticipantSchema.index({dropped: 1, isDenied: 1, isConsentApproved: 1})

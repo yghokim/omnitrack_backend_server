@@ -1,8 +1,32 @@
-<app-d3-chart-frame title="Engagement" [isBusy] = "isBusy" [visualizationAreaHeight]="visualizationAreaHeight" (visualizationAreaWidthChanged)="visualizationWidth.next($event)">
+<app-d3-chart-frame title="Engagement" [isBusy]="isBusy" [visualizationAreaHeight]="visualizationAreaHeight" (visualizationAreaWidthChanged)="visualizationWidth.next($event)">
   <div header>
   </div>
   <svg:g visualization #chartMainGroup [attr.transform]="makeTranslate(Y_AXIS_WIDTH, X_AXIS_HEIGHT)">
+    <svg:g *ngFor="let participant of data.participantList let index = index" class="participant" [attr.transform]="makeParticipantRowTransform(participant, index)">
+      <svg:text class="participant-alias" font-size="12px" text-anchor="end" dominant-baseline="middle" alignment-baseline="middle"
+        [attr.transform]="makeTranslate(-5-TRACKER_NAME_WIDTH, calcHeightOfParticipantRow(participant)/2)">{{participant.alias}}</svg:text>
+      <svg:line class="participant-alias-separator"
+        [attr.x1]="-TRACKER_NAME_WIDTH"
+        [attr.x2]="-TRACKER_NAME_WIDTH"
+        y1="0"
+        [attr.y2]="calcHeightOfParticipantRow(participant)"
+        stroke="#b5b5b5"
+        strokeWidth="1"
+      ></svg:line>
+      <svg:g class="tracker" *ngFor="let tracker of participant.trackingDataList let index = index"
+        [attr.transform]="makeTranslate(0, index * (TRACKER_ROW_HEIGHT + TRACKER_MARGIN))">
+        <svg:text class="tracker-name" font-size="10px" dominant-baseline="middle" alignment-baseline="middle"
+          [attr.transform]="makeTranslate(-TRACKER_NAME_WIDTH+3, TRACKER_ROW_HEIGHT/2)">{{tracker.trackerName}}</svg:text>
+        <svg:g class="timeline-container" engagementTimelineContainer 
+          [tracker]="tracker"
+          [chartWidth]="mainChartAreaWidth"
+          [chartHeight]="TRACKER_ROW_HEIGHT" 
+          [numBlocksPerDay]="NUM_BLOCKS_PER_DAY"
+          [dayScale]="dayAxisScale"
+          [attr.transform]="makeTranslate(0,TRACKER_ROW_HEIGHT/2)"></svg:g> 
+      </svg:g>
+    </svg:g>
   </svg:g>
   <svg:g visualization #yAxisGroup></svg:g>
-  <svg:g visualization #xAxisGroup [attr.transform]="makeTranslate(X_AXIS_WIDTH, visualizationAreaHeight - X_AXIS_HEIGHT)"></svg:g>
+  <svg:g visualization #xAxisGroup [attr.transform]="makeTranslate(Y_AXIS_WIDTH, X_AXIS_HEIGHT)"></svg:g>
 </app-d3-chart-frame>

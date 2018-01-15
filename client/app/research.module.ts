@@ -39,6 +39,7 @@ import { ResearcherAccountSettingsComponent } from './researcher-account-setting
 import { ChartFrameComponent } from './research/visualization/chart-frame/chart-frame.component';
 import { EngagementComponent } from './research/visualization/engagement/engagement.component';
 import { D3ChartFrameComponent } from './research/visualization/d3-chart-frame/d3-chart-frame.component';
+import { EngagementTimelineContainerDirective } from './research/visualization/engagement-timeline-container.directive';
 
 @NgModule({
   imports: [
@@ -79,6 +80,7 @@ import { D3ChartFrameComponent } from './research/visualization/d3-chart-frame/d
     ChartFrameComponent,
     EngagementComponent,
     D3ChartFrameComponent,
+    EngagementTimelineContainerDirective,
   ],
   exports: [
 

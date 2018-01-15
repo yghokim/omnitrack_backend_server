@@ -64,6 +64,7 @@
     "firebase-admin": "^5.6.0",
     "font-awesome": "^4.7.0",
     "fs-extra": "^5.0.0",
+    "group-array": "^0.3.3",
     "jquery": "^3.2.1",
     "jsonwebtoken": "^8.1.0",
     "lodash": "^4.17.4",
