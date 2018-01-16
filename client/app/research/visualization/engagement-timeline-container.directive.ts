@@ -21,7 +21,7 @@ export class EngagementTimelineContainerDirective implements AfterContentChecked
 
   ngAfterContentChecked(){
     const blockDomainSize = 1/this.numBlocksPerDay
-    const blockCellWidth = this.dayScale(blockDomainSize) - this.dayScale(0)
+    const blockCellWidth = ()=>{return this.dayScale(blockDomainSize) - this.dayScale(0) - 2}
 
     const minDayIndex = this.dayScale.domain()[0]
     const maxDayIndex = this.dayScale.domain()[1]
@@ -48,16 +48,16 @@ export class EngagementTimelineContainerDirective implements AfterContentChecked
     
       const chartEnter = chartSelection.enter().append("g")
       .attr("class","block-of-the-day")
-      .attr("transform", block => this.makeTranslate(this.dayScale(block.day + block.blockIndex*blockDomainSize) + 1, 0))
+
+      chartEnter.merge(chartSelection)
+        .attr("transform", block => this.makeTranslate(this.dayScale(block.day + block.blockIndex*blockDomainSize) + 1, 0))
 
       chartEnter.append("rect").attr("class", "back")
-        .attr("width", blockCellWidth - 2)
         .attr("height", this.chartHeight)
         .attr("y", -this.chartHeight/2)
         .attr("fill", "transparent")
 
       chartEnter.append("rect").attr("class", "encoded")
-        .attr("width", blockCellWidth - 2)
         .attr("height", 0)
         .attr("y", 0)
         .classed("over-threshold", block=> block.items.length > this.maxItemCountThreshold)
@@ -65,11 +65,11 @@ export class EngagementTimelineContainerDirective implements AfterContentChecked
       const merged = chartEnter.merge(chartSelection)
         
       merged.select("rect.back")
-        .attr("width", blockCellWidth - 2)
+        .attr("width", blockCellWidth)
         
 
       merged.select("rect.encoded")
-        .attr("width", blockCellWidth - 2)
+        .attr("width", blockCellWidth)
         .attr("height", b=>this.calcHeightOfBlock(b))
         .attr("y", block => -this.calcHeightOfBlock(block)/2)
   }
