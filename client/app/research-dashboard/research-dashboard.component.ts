@@ -31,6 +31,7 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
   upperHeaderTitle;
   backNavigationUrl;
   selectedExperimentName;
+  showTitleBar: boolean = true
 
   private readonly _internalSubscriptions = new Subscription()
 
@@ -122,9 +123,11 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
         })
         .flatMap(route => route.data)
         .subscribe(data => {
+          console.log(data)
           this.headerTitle = data['title'];
           this.upperHeaderTitle = data['backTitle'];
           this.backNavigationUrl = data['backNavigationUrl'];
+          this.showTitleBar = data['showTitleBar'];
         })
     )
 

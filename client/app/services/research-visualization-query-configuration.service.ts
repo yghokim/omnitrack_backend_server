@@ -6,6 +6,7 @@ import { TrackingDataService } from "./tracking-data.service";
 import isEqual from "lodash/isEqual";
 import * as moment from "moment-timezone";
 import { FormBuilder } from "@angular/forms";
+import { deepclone } from "../../../shared_lib/utils";
 
 const dayStartArg = { hour: 0, minute: 0, second: 0, millisecond: 0 };
 
@@ -15,12 +16,17 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
 
   private readonly _scopeSubject = new BehaviorSubject<Scope>(new Scope());
 
+
   constructor() {}
 
   ngOnInit() {}
 
   ngOnDestroy() {
     this._internalSubscriptions.unsubscribe();
+  }
+
+  get scope(): Scope{
+    return this._scopeSubject.value
   }
 
   set scope(range: Scope) {
@@ -40,6 +46,17 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
     }
   }
 
+  setIncludeWeekends(includeWeekends: boolean){
+    console.log("set includeWeekends to " + includeWeekends)
+    const scope: Scope = deepclone(this.scope)
+    scope.includeWeekends = includeWeekends
+    this._scopeSubject.next(scope)
+  }
+
+  includeWeekends(): Observable<boolean>{
+    return this._scopeSubject.map(scope=>scope.includeWeekends)
+  }
+
   get scopeSubject(): Observable<Scope> {
     return this._scopeSubject.filter(range => range != null);
   }
@@ -51,6 +68,7 @@ export class Scope {
   rangeUnit: string = "w";
   offset: number = 0;
   endPivot: number = Date.now();
+  includeWeekends: boolean = false
 
   getRange(
     participant?: any,

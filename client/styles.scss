@@ -101,6 +101,18 @@ body {
   margin-bottom: 10px;
 }
 
+.research-main-fixed-header{
+  position: fixed;
+  z-index: 10;
+  top: $research_header_height;
+  left: $research_sidebar_width;
+  right: 0px;
+
+  &.card{
+    border-radius: 0;
+  }
+}
+
 .tag-lg{
   padding: 0.5rem;
 }

@@ -40,7 +40,7 @@
     </div>
     <div id="research_column_main">
       <div class="title-header-container">
-        <div class="card" class="title-header" [ngClass]="upperHeaderTitle!=undefined? 'with-button':''" *ngIf="headerTitle">
+        <div class="card" class="title-header" [ngClass]="upperHeaderTitle!=undefined? 'with-button':''" *ngIf="headerTitle && (showTitleBar!==false)">
           <div *ngIf="!upperHeaderTitle" class="dashboard-title">{{headerTitle}}</div>
           <div *ngIf="upperHeaderTitle" class="flex-container flex-align-items-center">
             <button mat-icon-button class="margin-right-small text-color-white" [routerLink]="backNavigationUrl">

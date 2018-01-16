@@ -42,7 +42,7 @@ const routes: Routes = [
       { path: 'dashboard/:experimentId', component: ResearchDashboardComponent, canActivate: [ResearcherAuthGuardSecure],
         children: [
           { path: '', redirectTo: 'overview', pathMatch: "full"},
-          { path: 'overview', component: ExperimentOverviewComponent, data: {title: 'Overview'}},
+          { path: 'overview', component: ExperimentOverviewComponent, data: {title: 'Overview', showTitleBar:false}},
           { path: 'messaging', component: ExperimentMessagingComponent, data: {title: "Messaging"}},
           { path: 'messaging/new', component: ComposeMessageComponent, data: {title: "Compose Message", backTitle: "Messaging", backNavigationUrl: './messaging'}},
           { path: 'tracking-data', component: ExperimentDataComponent, data: {title: 'Tracking Data'}},

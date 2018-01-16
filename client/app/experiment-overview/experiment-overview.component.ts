@@ -9,9 +9,15 @@ import { ResearchVisualizationQueryConfigurationService } from '../services/rese
 })
 export class ExperimentOverviewComponent implements OnInit {
 
-  constructor() { }
+  constructor(private configuration: ResearchVisualizationQueryConfigurationService) {
+  }
 
   ngOnInit() {
+    console.log(this.configuration.includeWeekends)
+  }
+
+  includeWeekendsChanged(include: boolean){
+    this.configuration.setIncludeWeekends(include)
   }
 
 }

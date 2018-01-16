@@ -1,3 +1,12 @@
-<div class="container">
+<div class="card research-main-fixed-header">
+  <div class="container">
+    <div class="card-block no-horizontal-padding">
+      <div class="flex-container flex-align-items-center">
+        <mat-slide-toggle [checked]="configuration.includeWeekends() | async" (change)="includeWeekendsChanged($event.checked)">Include Weekends</mat-slide-toggle>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container main">
   <app-engagement></app-engagement>
 </div>

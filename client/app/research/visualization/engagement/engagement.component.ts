@@ -16,6 +16,7 @@ import * as moment from "moment";
 import { IItemDbEntity } from "../../../../../omnitrack/core/db-entity-types";
 import { EngagementTimelineContainerDirective } from "../engagement-timeline-container.directive";
 import * as groupArray from 'group-array';
+import { Moment } from "moment-timezone";
 
 @Component({
   selector: "app-engagement",
@@ -70,7 +71,8 @@ EngagementData
     super();
 
     this.dayAxisScale = d3.scaleLinear()
-    this.dayAxis = d3.axisTop(this.dayAxisScale).tickSize(0).tickPadding(5).tickFormat(d => d === 0 ? null : d.toString())
+    this.dayAxis = d3.axisTop(this.dayAxisScale)
+      .tickSize(0).tickPadding(5).tickFormat( (d:number) => d === 0 || (d - Math.floor(d) > 0.01) ? null : d.toString())
   }
 
   ngOnInit() {
@@ -208,6 +210,29 @@ EngagementData
       )
   }
 
+  private diffDaysBetweenTwoMoments(a: Moment, b: Moment, includeWeekends: boolean): number{
+    
+    if(includeWeekends)
+    {
+      return a.diff(b, "days")
+    }
+    else{
+
+      const bStart = moment(b).startOf("day")
+      const aStart = moment(a).startOf("day")
+      let diff:number =  0
+      while(aStart.diff(bStart) >= 1)
+      {
+        bStart.add(1, "day")
+        if(bStart.isoWeekday() !== 6 && bStart.isoWeekday() !== 7)
+        {
+          diff++
+        }
+      }
+      return diff
+    }
+  }
+
   private makeDataObservable(): Observable<EngagementData> {
     return this.makeScopeAndParticipantsObservable().flatMap(project => {
       const userIds = project.participants.map(p => p.user._id)
@@ -224,16 +249,28 @@ EngagementData
             }
 
             const startDate = moment(participant.experimentRange.from).startOf("day")
-            const numDays = today.diff(startDate, "days") + 1
+            const numDays = this.diffDaysBetweenTwoMoments(today, startDate, project.scope.includeWeekends) + 1
 
             const trackingDataList = trackers.filter(tracker => tracker.user === participant.user._id).map(tracker => {
-              const itemWithRelative = items.filter(item => item.tracker === tracker._id).map(item => {
+              const itemWithRelative = items.filter(item => {
+                if(item.tracker === tracker._id)
+                {
+                  if(project.scope.includeWeekends)
+                  {
+                    return true
+                  }
+                  else{
+                    const dow = moment(item.timestamp).isoWeekday()
+                    return dow!==6 && dow!==7
+                  }
+                }
+                return false
+              }).map(item => {
                 const timestampMoment = moment(item.timestamp)
-                const diff = timestampMoment.diff(startDate, "days", true)
-                const day = Math.floor(diff)
-                const dayRatio = diff - day
+                const day = this.diffDaysBetweenTwoMoments(timestampMoment, startDate, project.scope.includeWeekends)
+                const dayRatio = timestampMoment.diff(moment(timestampMoment).startOf("day"), "days", true)
                 const block = Math.floor(dayRatio / (1/this.NUM_BLOCKS_PER_DAY))
-                return { dayRelative: diff, day: day, dayRatio: dayRatio, block: block, dayAndBlock: day+"_"+block, item: item }
+                return { day: day, dayRatio: dayRatio, block: block, dayAndBlock: day+"_"+block, item: item }
               })
               
               const grouped = groupArray(itemWithRelative, "dayAndBlock")
@@ -260,7 +297,6 @@ EngagementData
                   noLogDayIndices.push(i)
                 }
             }
-            
 
             return {
               participantId: participant._id.toString(), alias: participant.alias.toString(), daysSinceStart: numDays,
@@ -296,4 +332,5 @@ type ParticipantRow = { participantId: string, alias: string, daysSinceStart: nu
   
   noLogDayIndices: Array<number>, trackingDataList: Array<TrackerRow> }
 
-type EngagementData = { earliestExperimentStart: number, maxTotalDays: number, participantList: Array<ParticipantRow> }
+type EngagementData = { earliestExperimentStart: number
+  maxTotalDays: number, participantList: Array<ParticipantRow> }
