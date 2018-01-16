@@ -1,3 +1,6 @@
+import * as moment from 'moment';
+import { Moment } from 'moment-timezone';
+
 export function merge(objA: any, objB: any, overwrite: boolean, recursive: boolean = true): any{
   if(!objA)
   {
@@ -43,4 +46,29 @@ export function isNullOrEmpty(obj: string): boolean{
 
 export function isNullOrBlank(obj: string): boolean{
   return obj == null || obj.trim().length == 0
+}
+
+
+
+export function diffDaysBetweenTwoMoments(a: Moment, b: Moment, includeWeekends: boolean): number{
+    
+  if(includeWeekends)
+  {
+    return a.diff(b, "days")
+  }
+  else{
+
+    const bStart = moment(b).startOf("day")
+    const aStart = moment(a).startOf("day")
+    let diff:number =  0
+    while(aStart.diff(bStart) >= 1)
+    {
+      bStart.add(1, "day")
+      if(bStart.isoWeekday() !== 6 && bStart.isoWeekday() !== 7)
+      {
+        diff++
+      }
+    }
+    return diff
+  }
 }

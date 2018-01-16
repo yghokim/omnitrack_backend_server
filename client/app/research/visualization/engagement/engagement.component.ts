@@ -17,6 +17,7 @@ import { IItemDbEntity } from "../../../../../omnitrack/core/db-entity-types";
 import { EngagementTimelineContainerDirective } from "../engagement-timeline-container.directive";
 import * as groupArray from 'group-array';
 import { Moment } from "moment-timezone";
+import { diffDaysBetweenTwoMoments } from "../../../../../shared_lib/utils";
 
 @Component({
   selector: "app-engagement",
@@ -57,6 +58,8 @@ EngagementData
     }
   ]
 
+  scope: Scope
+
   @ViewChild("xAxisGroup") xAxisGroup: ElementRef
   @ViewChild("yAxisGroup") yAxisGroup: ElementRef
   @ViewChild("chartMainGroup") chartMainGroup: ElementRef
@@ -72,7 +75,8 @@ EngagementData
 
     this.dayAxisScale = d3.scaleLinear()
     this.dayAxis = d3.axisTop(this.dayAxisScale)
-      .tickSize(0).tickPadding(5).tickFormat( (d:number) => d === 0 || (d - Math.floor(d) > 0.01) ? null : d.toString())
+      .tickSize(0).tickPadding(5)
+      .tickFormat( (d:number) => d === 0 || (d - Math.floor(d) > 0.01) || (d>this.dayAxisScale.domain()[1] || d<=this.dayAxisScale.domain()[0]) ? null : d.toString())
   }
 
   ngOnInit() {
@@ -80,11 +84,12 @@ EngagementData
     //init visualization
 
     this._internalSubscriptions.add(
-      this.makeDataObservable().do(data => {
-        this.data = data
+      this.makeDataObservable().do(scopeAndData => {
+        this.data = scopeAndData.data
+        this.scope = scopeAndData.scope
         this.isBusy = false
-      }).combineLatest(this.visualizationWidth, (data, width) => {
-        return { data: data, width: width }
+      }).combineLatest(this.visualizationWidth, (scopeAndData, width) => {
+        return { data: scopeAndData.data, scope: scopeAndData.scope, width: width }
       }).subscribe(project => {
         this.mainChartAreaWidth = project.width - this.Y_AXIS_WIDTH
         console.log("refresh engagement data.")
@@ -102,7 +107,7 @@ EngagementData
         //-----------------------------
 
         //update axis========================
-        this.dayAxisScale.domain([0, project.data.maxTotalDays]).range([0, project.width - this.Y_AXIS_WIDTH])
+        this.dayAxisScale.domain([project.scope.dayIndexRange[0], project.scope.dayIndexRange[1]+1]).range([0, project.width - this.Y_AXIS_WIDTH])
         d3.select(this.xAxisGroup.nativeElement).call(this.dayAxis).call(
           (selection) => {
             selection.selectAll(".tick text")
@@ -185,6 +190,10 @@ EngagementData
 
   }
 
+  private isWithinScale(dayIndex: number): boolean{
+    return this.scope.dayIndexRange[0] <= dayIndex && this.scope.dayIndexRange[1] >= dayIndex
+  }
+
   private makeParticipantRowTransform(row: ParticipantRow, index: number): string{
     let currentY = 0;
       for (let i = 0; i < index; i++) {
@@ -210,30 +219,7 @@ EngagementData
       )
   }
 
-  private diffDaysBetweenTwoMoments(a: Moment, b: Moment, includeWeekends: boolean): number{
-    
-    if(includeWeekends)
-    {
-      return a.diff(b, "days")
-    }
-    else{
-
-      const bStart = moment(b).startOf("day")
-      const aStart = moment(a).startOf("day")
-      let diff:number =  0
-      while(aStart.diff(bStart) >= 1)
-      {
-        bStart.add(1, "day")
-        if(bStart.isoWeekday() !== 6 && bStart.isoWeekday() !== 7)
-        {
-          diff++
-        }
-      }
-      return diff
-    }
-  }
-
-  private makeDataObservable(): Observable<EngagementData> {
+  private makeDataObservable(): Observable<{scope: Scope, data: EngagementData}> {
     return this.makeScopeAndParticipantsObservable().flatMap(project => {
       const userIds = project.participants.map(p => p.user._id)
       return project.trackingDataService.getTrackersOfUser(userIds)
@@ -249,7 +235,7 @@ EngagementData
             }
 
             const startDate = moment(participant.experimentRange.from).startOf("day")
-            const numDays = this.diffDaysBetweenTwoMoments(today, startDate, project.scope.includeWeekends) + 1
+            const numDays = diffDaysBetweenTwoMoments(today, startDate, project.scope.includeWeekends) + 1
 
             const trackingDataList = trackers.filter(tracker => tracker.user === participant.user._id).map(tracker => {
               const itemWithRelative = items.filter(item => {
@@ -267,7 +253,7 @@ EngagementData
                 return false
               }).map(item => {
                 const timestampMoment = moment(item.timestamp)
-                const day = this.diffDaysBetweenTwoMoments(timestampMoment, startDate, project.scope.includeWeekends)
+                const day = diffDaysBetweenTwoMoments(timestampMoment, startDate, project.scope.includeWeekends)
                 const dayRatio = timestampMoment.diff(moment(timestampMoment).startOf("day"), "days", true)
                 const block = Math.floor(dayRatio / (1/this.NUM_BLOCKS_PER_DAY))
                 return { day: day, dayRatio: dayRatio, block: block, dayAndBlock: day+"_"+block, item: item }
@@ -305,7 +291,7 @@ EngagementData
             }
           })
 
-          return { earliestExperimentStart: earliestExperimentStart, maxTotalDays: d3.max(data, (datum) => datum.daysSinceStart), participantList: data }
+          return {scope: project.scope, data: { earliestExperimentStart: earliestExperimentStart, maxTotalDays: d3.max(data, (datum) => datum.daysSinceStart), participantList: data }}
         })
     })
   }

@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ResearchVisualizationQueryConfigurationService } from '../services/research-visualization-query-configuration.service';
+import { ResearchApiService } from '../services/research-api.service';
+import { Subscription } from 'rxjs/Subscription';
+import * as moment from "moment-timezone";
+import { diffDaysBetweenTwoMoments } from '../../../shared_lib/utils';
 
 @Component({
   selector: 'app-experiment-overview',
@@ -9,15 +13,74 @@ import { ResearchVisualizationQueryConfigurationService } from '../services/rese
 })
 export class ExperimentOverviewComponent implements OnInit {
 
-  constructor(private configuration: ResearchVisualizationQueryConfigurationService) {
+  private readonly _internalSubscriptions = new Subscription()
+
+  private tooltipText = {
+    to: (number)=>{ return "D" + (number+1).toFixed(0)}
+  }
+
+  dayIndexRangeSliderConfigs = {
+    margin: 1,
+    step: 1,
+    connect: true,
+    behaviour: 'drag',
+    tooltips: [this.tooltipText, this.tooltipText]
+  }
+
+  dayIndexMax: number = 100
+
+  dayIndexRange
+
+  participants: Array<any>
+
+  constructor(
+    private api: ResearchApiService,
+    private configuration: ResearchVisualizationQueryConfigurationService) {
+      
   }
 
   ngOnInit() {
-    console.log(this.configuration.includeWeekends)
+    this._internalSubscriptions.add(
+      this.configuration.scopeSubject.do(
+        scope=>{
+          this.dayIndexRange = scope.dayIndexRange
+        }
+      ).combineLatest(this.api.selectedExperimentService.flatMap(service => service.getParticipants()), (scope, participants)=> {return {scope: scope, participants: participants}}).subscribe(
+        project=>{
+          this.participants = project.participants
+
+          let earliestExperimentStart: number = null
+          
+          project.participants.forEach(participant => {
+            const experimentRangeStart = new Date(participant.experimentRange.from).getTime()
+            if (!earliestExperimentStart) earliestExperimentStart = experimentRangeStart
+            else {
+              earliestExperimentStart = Math.min(earliestExperimentStart, experimentRangeStart)
+            }
+          })
+
+          if(earliestExperimentStart!=null)
+          {
+            const today = moment().endOf("day")
+            const numDays = diffDaysBetweenTwoMoments(today, moment(earliestExperimentStart).startOf("day"), project.scope.includeWeekends) + 1
+
+            console.log("longest duration: " + numDays)
+            this.dayIndexMax = numDays-1
+
+            this.dayIndexRange = project.scope.dayIndexRange
+          }
+        }
+      )
+    )
   }
 
   includeWeekendsChanged(include: boolean){
     this.configuration.setIncludeWeekends(include)
+  }
+
+  onDayIndexSliderChanged(newRange){
+    console.log(newRange)
+    this.configuration.setDayIndexRange(newRange)
   }
 
 }

@@ -44,7 +44,7 @@ export class EngagementTimelineContainerDirective implements AfterContentChecked
       .attr("width", this.dayScale(1) - this.dayScale(0) - 2)
     
     const chartSelection = d3.select(this.elementRef.nativeElement).selectAll("g.block-of-the-day")
-      .data(this.tracker.itemBlocks, (block: ItemBlockRow)=>block.day + "_" + block.blockIndex)
+      .data(this.tracker.itemBlocks.filter(b=>{return b.day >= minDayIndex && b.day < maxDayIndex}), (block: ItemBlockRow)=>block.day + "_" + block.blockIndex)
     
       const chartEnter = chartSelection.enter().append("g")
       .attr("class","block-of-the-day")

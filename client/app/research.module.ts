@@ -41,6 +41,7 @@ import { EngagementComponent } from './research/visualization/engagement/engagem
 import { D3ChartFrameComponent } from './research/visualization/d3-chart-frame/d3-chart-frame.component';
 import { EngagementTimelineContainerDirective } from './research/visualization/engagement-timeline-container.directive';
 import { SVGEllipsisDirective } from './directives/svgellipsis.directive';
+import { NouisliderModule, NouisliderComponent } from 'ng2-nouislider';
 
 @NgModule({
   imports: [
@@ -48,7 +49,8 @@ import { SVGEllipsisDirective } from './directives/svgellipsis.directive';
     SharedModule,
     MaterialDesignModule,
     RoutingModule,
-    ClipboardModule
+    ClipboardModule,
+    NouisliderModule
   ],
   declarations: [
 
@@ -85,7 +87,7 @@ import { SVGEllipsisDirective } from './directives/svgellipsis.directive';
     SVGEllipsisDirective
   ],
   exports: [
-
+    NouisliderModule,
     ResearchMainComponent,
     ResearchLoginComponent,
     ResearchSignupComponent,

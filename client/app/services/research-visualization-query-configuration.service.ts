@@ -6,7 +6,8 @@ import { TrackingDataService } from "./tracking-data.service";
 import isEqual from "lodash/isEqual";
 import * as moment from "moment-timezone";
 import { FormBuilder } from "@angular/forms";
-import { deepclone } from "../../../shared_lib/utils";
+import { deepclone, diffDaysBetweenTwoMoments } from "../../../shared_lib/utils";
+import { ResearchApiService } from "./research-api.service";
 
 const dayStartArg = { hour: 0, minute: 0, second: 0, millisecond: 0 };
 
@@ -17,19 +18,49 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
   private readonly _scopeSubject = new BehaviorSubject<Scope>(new Scope());
 
 
-  constructor() {}
+  constructor(
+    private api: ResearchApiService
+  ) {
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.flatMap(service => service.getParticipants()).subscribe(
+        participants => {
+          console.log("participants were loaded.")
+          let earliestExperimentStart: number = null
 
-  ngOnInit() {}
+          participants.forEach(participant => {
+            const experimentRangeStart = new Date(participant.experimentRange.from).getTime()
+            if (!earliestExperimentStart) earliestExperimentStart = experimentRangeStart
+            else {
+              earliestExperimentStart = Math.min(earliestExperimentStart, experimentRangeStart)
+            }
+          })
+
+          if (earliestExperimentStart != null) {
+            const today = moment().endOf("day")
+            const numDays = diffDaysBetweenTwoMoments(today, moment(earliestExperimentStart).startOf("day"), this.scope.includeWeekends) + 1
+
+            const scope = this._scopeSubject.getValue()
+            scope.dayIndexRange = [0, numDays - 1]
+            console.log("send new scope:")
+            console.log(scope)
+            this.scope = scope
+          }
+        }
+      )
+    )
+   }
+
 
   ngOnDestroy() {
     this._internalSubscriptions.unsubscribe();
   }
 
-  get scope(): Scope{
+  get scope(): Scope {
     return this._scopeSubject.value
   }
 
   set scope(range: Scope) {
+    /*
     if (this._scopeSubject.value) {
       // value exists
       if (range) {
@@ -43,18 +74,26 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
       if (range) {
         this._scopeSubject.next(range);
       }
-    }
+    }*/
+    this._scopeSubject.next(range);
   }
 
-  setIncludeWeekends(includeWeekends: boolean){
-    console.log("set includeWeekends to " + includeWeekends)
-    const scope: Scope = deepclone(this.scope)
-    scope.includeWeekends = includeWeekends
-    this._scopeSubject.next(scope)
+  setIncludeWeekends(includeWeekends: boolean) {
+    this.scope.includeWeekends = includeWeekends
+    this._scopeSubject.next(this.scope)
   }
 
-  includeWeekends(): Observable<boolean>{
-    return this._scopeSubject.map(scope=>scope.includeWeekends)
+  includeWeekends(): Observable<boolean> {
+    return this._scopeSubject.map(scope => scope.includeWeekends)
+  }
+
+  dayIndexRange(): Observable<Array<number>> {
+    return this._scopeSubject.map(scope => scope.dayIndexRange)
+  }
+
+  setDayIndexRange(range: Array<number>) {
+    this.scope.dayIndexRange = range
+    this._scopeSubject.next(this.scope)
   }
 
   get scopeSubject(): Observable<Scope> {
@@ -63,7 +102,8 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
 }
 
 export class Scope {
-  isAbsolute: boolean = true;
+  isAbsolute: boolean = false;
+  dayIndexRange: Array<number> = [0, 1]
   rangeLength: number = 3;
   rangeUnit: string = "w";
   offset: number = 0;

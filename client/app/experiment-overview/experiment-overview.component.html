@@ -1,8 +1,11 @@
 <div class="card research-main-fixed-header">
   <div class="container">
-    <div class="card-block no-horizontal-padding">
+    <div class="card-block no-horizontal-padding vertical-padding-small">
       <div class="flex-container flex-align-items-center">
-        <mat-slide-toggle [checked]="configuration.includeWeekends() | async" (change)="includeWeekendsChanged($event.checked)">Include Weekends</mat-slide-toggle>
+        <mat-slide-toggle [checked]="configuration.includeWeekends() | async" [tooltips]="[true, true]" (change)="includeWeekendsChanged($event.checked)">Include Weekends</mat-slide-toggle>
+        <div class="flex-element-fill"  *ngIf="dayIndexRange">
+          <nouislider [config]="dayIndexRangeSliderConfigs" [min]="0" [max] = "dayIndexMax" [(ngModel)]="dayIndexRange" (ngModelChange)="onDayIndexSliderChanged($event)"></nouislider>
+        </div>
       </div>
     </div>
   </div>

@@ -20,6 +20,7 @@
 
       <svg:rect class="no-log-day"
         *ngFor="let noLogDay of participant.noLogDayIndices"
+        [attr.display]="isWithinScale(noLogDay)===true? null:'none'"
         [attr.width]="dayAxisScale(1)-dayAxisScale(0) - 2"
         [attr.height]="calcHeightOfParticipantRow(participant)"
         fill="url(#no-log)"
