@@ -17,6 +17,8 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
 
   private readonly _scopeSubject = new BehaviorSubject<Scope>(new Scope());
 
+  private readonly _dayIndexRangeSubject = new BehaviorSubject<DayIndexRange>({from: 0, to: 1})
+
 
   constructor(
     private api: ResearchApiService
@@ -39,11 +41,9 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
             const today = moment().endOf("day")
             const numDays = diffDaysBetweenTwoMoments(today, moment(earliestExperimentStart).startOf("day"), this.scope.includeWeekends) + 1
 
-            const scope = this._scopeSubject.getValue()
-            scope.dayIndexRange = [0, numDays - 1]
-            console.log("send new scope:")
-            console.log(scope)
-            this.scope = scope
+            this._dayIndexRangeSubject.next(
+              {from: 0, to: numDays-1}
+            )
           }
         }
       )
@@ -88,12 +88,11 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
   }
 
   dayIndexRange(): Observable<Array<number>> {
-    return this._scopeSubject.map(scope => scope.dayIndexRange)
+    return this._dayIndexRangeSubject.map(range=>[range.from, range.to])
   }
 
   setDayIndexRange(range: Array<number>) {
-    this.scope.dayIndexRange = range
-    this._scopeSubject.next(this.scope)
+    this._dayIndexRangeSubject.next({from: range[0], to: range[1]})
   }
 
   get scopeSubject(): Observable<Scope> {
@@ -101,9 +100,13 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
   }
 }
 
+export type DayIndexRange = {
+  from: number,
+  to: number
+}
+
 export class Scope {
   isAbsolute: boolean = false;
-  dayIndexRange: Array<number> = [0, 1]
   rangeLength: number = 3;
   rangeUnit: string = "w";
   offset: number = 0;

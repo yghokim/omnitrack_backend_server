@@ -41,11 +41,7 @@ export class ExperimentOverviewComponent implements OnInit {
 
   ngOnInit() {
     this._internalSubscriptions.add(
-      this.configuration.scopeSubject.do(
-        scope=>{
-          this.dayIndexRange = scope.dayIndexRange
-        }
-      ).combineLatest(this.api.selectedExperimentService.flatMap(service => service.getParticipants()), (scope, participants)=> {return {scope: scope, participants: participants}}).subscribe(
+      this.configuration.scopeSubject.combineLatest(this.api.selectedExperimentService.flatMap(service => service.getParticipants()), (scope, participants)=> {return {scope: scope, participants: participants}}).subscribe(
         project=>{
           this.participants = project.participants
 
@@ -66,9 +62,15 @@ export class ExperimentOverviewComponent implements OnInit {
 
             console.log("longest duration: " + numDays)
             this.dayIndexMax = numDays-1
-
-            this.dayIndexRange = project.scope.dayIndexRange
           }
+        }
+      )
+    )
+
+    this._internalSubscriptions.add(
+      this.configuration.dayIndexRange().subscribe(
+        dayIndexRange=>{
+          this.dayIndexRange = dayIndexRange
         }
       )
     )

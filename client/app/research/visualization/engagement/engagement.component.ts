@@ -59,6 +59,7 @@ EngagementData
   ]
 
   scope: Scope
+  dayIndexRange: Array<number>
 
   @ViewChild("xAxisGroup") xAxisGroup: ElementRef
   @ViewChild("yAxisGroup") yAxisGroup: ElementRef
@@ -88,8 +89,12 @@ EngagementData
         this.data = scopeAndData.data
         this.scope = scopeAndData.scope
         this.isBusy = false
+      }).combineLatest(this.queryConfigService.dayIndexRange().do(range=>{
+        this.dayIndexRange = range
+      }), (scopeAndData, range)=>{
+        return {scope: scopeAndData.scope, data: scopeAndData.data, range: range}
       }).combineLatest(this.visualizationWidth, (scopeAndData, width) => {
-        return { data: scopeAndData.data, scope: scopeAndData.scope, width: width }
+        return { data: scopeAndData.data, scope: scopeAndData.scope, range: scopeAndData.range, width: width }
       }).subscribe(project => {
         this.mainChartAreaWidth = project.width - this.Y_AXIS_WIDTH
         console.log("refresh engagement data.")
@@ -107,7 +112,7 @@ EngagementData
         //-----------------------------
 
         //update axis========================
-        this.dayAxisScale.domain([project.scope.dayIndexRange[0], project.scope.dayIndexRange[1]+1]).range([0, project.width - this.Y_AXIS_WIDTH])
+        this.dayAxisScale.domain([project.range[0], project.range[1]+1]).range([0, project.width - this.Y_AXIS_WIDTH])
         d3.select(this.xAxisGroup.nativeElement).call(this.dayAxis).call(
           (selection) => {
             selection.selectAll(".tick text")
@@ -191,7 +196,7 @@ EngagementData
   }
 
   private isWithinScale(dayIndex: number): boolean{
-    return this.scope.dayIndexRange[0] <= dayIndex && this.scope.dayIndexRange[1] >= dayIndex
+    return this.dayIndexRange[0] <= dayIndex && this.dayIndexRange[1] >= dayIndex
   }
 
   private makeParticipantRowTransform(row: ParticipantRow, index: number): string{

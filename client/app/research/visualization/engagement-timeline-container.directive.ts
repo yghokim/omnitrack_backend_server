@@ -8,7 +8,7 @@ import { ScaleLinear } from 'd3';
 })
 export class EngagementTimelineContainerDirective implements AfterContentChecked {
 
-  @Input() tracker: TrackerRow 
+  @Input() tracker: TrackerRow
   @Input() chartHeight: number
   @Input() chartWidth: number
 
@@ -19,66 +19,72 @@ export class EngagementTimelineContainerDirective implements AfterContentChecked
   constructor(public elementRef: ElementRef) {
   }
 
-  ngAfterContentChecked(){
-    const blockDomainSize = 1/this.numBlocksPerDay
-    const blockCellWidth = ()=>{return this.dayScale(blockDomainSize) - this.dayScale(0) - 2}
+  ngAfterContentChecked() {
+
+    const blockDomainSize = 1 / this.numBlocksPerDay
+    const blockCellWidth = () => { return this.dayScale(blockDomainSize) - this.dayScale(0) - 2 }
 
     const minDayIndex = this.dayScale.domain()[0]
-    const maxDayIndex = this.dayScale.domain()[1]
+    const maxDayIndex = this.dayScale.domain()[1] - 1
+
+    const filteredItemBlocks = this.tracker.itemBlocks.filter(b => { return b.day >= minDayIndex && b.day <= maxDayIndex })
 
     const daySelection = d3.select(this.elementRef.nativeElement).selectAll("rect.day")
-      .data(Array.from(new Array(maxDayIndex-minDayIndex+1), (value, index)=>{return index+minDayIndex}))
-    
+      .data(Array.from(new Array(maxDayIndex - minDayIndex + 1), (value, index) => { return index + minDayIndex }), (d:number)=>d.toString())
+
     const dayEnter = daySelection.enter().append("rect").attr("class", "day")
       .attr("height", this.chartHeight)
-      .attr("y", -this.chartHeight/2)
-      .attr("fill", dayIndex=>{
-        if(this.tracker.itemBlocks.find(b => b.day === dayIndex)!=null)
-        {
+      .attr("y", -this.chartHeight / 2)
+      .attr("fill", dayIndex => {
+        if (filteredItemBlocks.find(b => b.day === dayIndex) != null) {
           return "#eaeaea"
-        }else return "transparent"
+        } else return "transparent"
       })
 
     dayEnter.merge(daySelection)
       .attr("x", d => (this.dayScale(d) + 1))
       .attr("width", this.dayScale(1) - this.dayScale(0) - 2)
-    
+
+    daySelection.exit().remove()
+
     const chartSelection = d3.select(this.elementRef.nativeElement).selectAll("g.block-of-the-day")
-      .data(this.tracker.itemBlocks.filter(b=>{return b.day >= minDayIndex && b.day < maxDayIndex}), (block: ItemBlockRow)=>block.day + "_" + block.blockIndex)
-    
-      const chartEnter = chartSelection.enter().append("g")
-      .attr("class","block-of-the-day")
+      .data(filteredItemBlocks.filter(b => { return b.day >= minDayIndex && b.day < maxDayIndex }), (block: ItemBlockRow) => block.day + "_" + block.blockIndex)
 
-      chartEnter.merge(chartSelection)
-        .attr("transform", block => this.makeTranslate(this.dayScale(block.day + block.blockIndex*blockDomainSize) + 1, 0))
+    const chartEnter = chartSelection.enter().append("g")
+      .attr("class", "block-of-the-day")
 
-      chartEnter.append("rect").attr("class", "back")
-        .attr("height", this.chartHeight)
-        .attr("y", -this.chartHeight/2)
-        .attr("fill", "transparent")
+    chartEnter.merge(chartSelection)
+      .attr("transform", block => this.makeTranslate(this.dayScale(block.day + block.blockIndex * blockDomainSize) + 1, 0))
 
-      chartEnter.append("rect").attr("class", "encoded")
-        .attr("height", 0)
-        .attr("y", 0)
-        .classed("over-threshold", block=> block.items.length > this.maxItemCountThreshold)
-      
-      const merged = chartEnter.merge(chartSelection)
-        
-      merged.select("rect.back")
-        .attr("width", blockCellWidth)
-        
+    chartEnter.append("rect").attr("class", "back")
+      .attr("height", this.chartHeight)
+      .attr("y", -this.chartHeight / 2)
+      .attr("fill", "transparent")
 
-      merged.select("rect.encoded")
-        .attr("width", blockCellWidth)
-        .attr("height", b=>this.calcHeightOfBlock(b))
-        .attr("y", block => -this.calcHeightOfBlock(block)/2)
+    chartEnter.append("rect").attr("class", "encoded")
+      .attr("height", 0)
+      .attr("y", 0)
+      .classed("over-threshold", block => block.items.length > this.maxItemCountThreshold)
+
+    const merged = chartEnter.merge(chartSelection)
+
+    merged.select("rect.back")
+      .attr("width", blockCellWidth)
+
+
+    merged.select("rect.encoded")
+      .attr("width", blockCellWidth)
+      .attr("height", b => this.calcHeightOfBlock(b))
+      .attr("y", block => -this.calcHeightOfBlock(block) / 2)
+
+    chartSelection.exit().remove()
   }
 
-  calcHeightOfBlock(itemBlock: ItemBlockRow): number{
-    return this.chartHeight * Math.min(itemBlock.items.length, this.maxItemCountThreshold)/this.maxItemCountThreshold
+  calcHeightOfBlock(itemBlock: ItemBlockRow): number {
+    return this.chartHeight * Math.min(itemBlock.items.length, this.maxItemCountThreshold) / this.maxItemCountThreshold
   }
 
-  makeTranslate(x: number=0, y:number=0): string{
+  makeTranslate(x: number = 0, y: number = 0): string {
     return "translate(" + x + ", " + y + ")"
   }
 }
