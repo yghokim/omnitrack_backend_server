@@ -1,41 +1,3 @@
-@import "~nouislider/distribute/nouislider.min.css";
-.noUi-horizontal {
-  height: 10px;
-  .noUi-handle {
-    width: 24px;
-    height: 24px;
-    left: -12px;
-    top: -9px;
-    border-radius: 500px;
-    background: white;
-    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
-  }
-  .noUi-tooltip {
-    transform: translate(-50%, 0);
-    left: 50%;
-    bottom: 120%;
-  }
-}
-
-.noUi-tooltip {
-  display: block;
-  position: absolute;
-  border: 1px solid #D9D9D9;
-  border-radius: 3px;
-  background: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  padding: 1px 5px;
-  text-align: center;
-  white-space: nowrap;
-  font-size: 0.7em;
-}
-
-.noUi-handle::before,
-.noUi-handle::after {
-  display: none;
-}
-
-
 /* You can add global styles to this file, and also import other style files */
 
 @import '~@angular/material/theming';
@@ -65,7 +27,7 @@ $candy-app-theme: mat-light-theme($candy-app-primary, $candy-app-accent, $candy-
 }
 
 $color_accent: #ff814f;
-;
+$color_accent_light: #ff9870;
 $color_pointed: #2cbbbb;
 $color_pointed_darker: #20acac;
 $color_dark_gray: #575757;
@@ -100,6 +62,54 @@ $visualization_encoded_color_thicker: #077baa;
 
 @mixin pointed-gradient-darker {
   @include horizontal-gradient(#158d83, #4fbeac)
+}
+
+@import "~nouislider/distribute/nouislider.min.css";
+.noUi-horizontal {
+  height: 10px;
+  .noUi-handle {
+    width: 24px;
+    height: 24px;
+    left: -12px;
+    top: -9px;
+    border: hidden;
+    border-radius: 500px;
+    background: $color_accent_light;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
+  }
+  .noUi-tooltip {
+    transform: translate(-50%, 0);
+    left: 50%;
+    bottom: 120%;
+  }
+}
+
+.noUi-target{
+  background: #E7E7E7;
+  border-radius: 16px;
+  border: none;
+}
+
+.noUi-connect{
+  background: $color_accent;
+}
+
+.noUi-tooltip {
+  display: block;
+  position: absolute;
+  border: 1px solid #D9D9D9;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 1px 5px;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 0.7em;
+}
+
+.noUi-handle::before,
+.noUi-handle::after {
+  display: none;
 }
 
 $research_header_height: 45px;

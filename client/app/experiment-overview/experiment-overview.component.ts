@@ -4,6 +4,7 @@ import { ResearchApiService } from '../services/research-api.service';
 import { Subscription } from 'rxjs/Subscription';
 import * as moment from "moment-timezone";
 import { diffDaysBetweenTwoMoments } from '../../../shared_lib/utils';
+import { Subject } from 'rxjs/Subject';
 
 @Component({
   selector: 'app-experiment-overview',
@@ -31,6 +32,8 @@ export class ExperimentOverviewComponent implements OnInit {
 
   dayIndexRange
 
+  private readonly _dayRangeValueInject = new Subject<Array<number>>()
+
   participants: Array<any>
 
   constructor(
@@ -40,6 +43,14 @@ export class ExperimentOverviewComponent implements OnInit {
   }
 
   ngOnInit() {
+    this._internalSubscriptions.add(
+      this._dayRangeValueInject.debounceTime(200).subscribe(
+        range=>{
+          this.configuration.setDayIndexRange(range)
+        }
+      )
+    )
+
     this._internalSubscriptions.add(
       this.configuration.scopeSubject.combineLatest(this.api.selectedExperimentService.flatMap(service => service.getParticipants()), (scope, participants)=> {return {scope: scope, participants: participants}}).subscribe(
         project=>{
@@ -82,7 +93,8 @@ export class ExperimentOverviewComponent implements OnInit {
 
   onDayIndexSliderChanged(newRange){
     console.log(newRange)
-    this.configuration.setDayIndexRange(newRange)
+    this._dayRangeValueInject.next(newRange)
+    //this.configuration.setDayIndexRange(newRange)
   }
 
 }
