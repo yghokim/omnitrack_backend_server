@@ -113,7 +113,10 @@ EngagementData
 
         //update axis========================
         this.dayAxisScale.domain([project.range[0], project.range[1]+1]).range([0, project.width - this.Y_AXIS_WIDTH])
-        d3.select(this.xAxisGroup.nativeElement).call(this.dayAxis).call(
+        d3.select(this.xAxisGroup.nativeElement)
+          .transition()
+          .duration(500)
+          .call(this.dayAxis).call(
           (selection) => {
             selection.selectAll(".tick text")
               .attr("transform", this.makeTranslate(-(this.dayAxisScale(1) - this.dayAxisScale(0)) / 2, 0))

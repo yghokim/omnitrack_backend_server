@@ -38,11 +38,12 @@
           [attr.transform]="makeTranslate(-TRACKER_NAME_WIDTH+3, TRACKER_ROW_HEIGHT/2)"></svg:text>
 
         <svg:g class="timeline-container" engagementTimelineContainer 
-          [tracker]="tracker"
-          [chartWidth]="mainChartAreaWidth"
           [chartHeight]="TRACKER_ROW_HEIGHT" 
           [numBlocksPerDay]="NUM_BLOCKS_PER_DAY"
           [dayScale]="dayAxisScale"
+          [dayIndexRange]="dayIndexRange"
+          [chartWidth]="mainChartAreaWidth"
+          [tracker]="tracker"
           [attr.transform]="makeTranslate(0,TRACKER_ROW_HEIGHT/2)"></svg:g> 
       </svg:g>
     </svg:g>
