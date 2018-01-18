@@ -96,9 +96,11 @@ export class EngagementTimelineContainerDirective implements AfterContentInit {
       .attr("y", -this._chartHeight / 2)
       .attr("fill", dayIndex => {
         if (filteredItemBlocks.find(b => b.day === dayIndex) != null) {
-          return "#eaeaea"
+          return "#efefef"
         } else return "transparent"
       })
+      .attr("rx", 3)
+      .attr("ry", 3)
       .attr("x", d => (this._dayScale(d) + 1))
       .attr("width", this._dayScale(1) - this._dayScale(0) - 2)
       .attr("opacity", 0)
@@ -156,7 +158,8 @@ export class EngagementTimelineContainerDirective implements AfterContentInit {
       .attr("fill", block => this._colorScale(block.items.length))
 
     chartSelection.exit().
-      transition().duration(500).attr("opacity", 0).remove()
+      transition().duration(500)
+      .attr("opacity", 0).remove()
 
     this.contentInitialized = true
   }

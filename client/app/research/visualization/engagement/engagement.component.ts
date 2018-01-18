@@ -340,9 +340,9 @@ export type TrackerRow = {
   itemBlocks: Array<ItemBlockRow>,
 }
 
-type ParticipantRow = { participantId: string, alias: string, daysSinceStart: number, 
+export type ParticipantRow = { participantId: string, alias: string, daysSinceStart: number, 
   
   noLogDayIndices: Array<number>, trackingDataList: Array<TrackerRow> }
 
-type EngagementData = { earliestExperimentStart: number
+export type EngagementData = { earliestExperimentStart: number
   maxTotalDays: number, participantList: Array<ParticipantRow> }

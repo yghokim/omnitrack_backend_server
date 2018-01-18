@@ -43,6 +43,7 @@ import { EngagementTimelineContainerDirective } from './research/visualization/e
 import { SVGEllipsisDirective } from './directives/svgellipsis.directive';
 import { NouisliderModule, NouisliderComponent } from 'ng2-nouislider';
 import { NewExperimentDialogComponent } from './experiment-list/new-experiment-dialog/new-experiment-dialog.component';
+import { EngagementParticipantGroupDirective } from './research/visualization/engagement/engagement-participant-group.directive';
 
 @NgModule({
   imports: [
@@ -86,7 +87,8 @@ import { NewExperimentDialogComponent } from './experiment-list/new-experiment-d
     D3ChartFrameComponent,
     EngagementTimelineContainerDirective,
     SVGEllipsisDirective,
-    NewExperimentDialogComponent
+    NewExperimentDialogComponent,
+    EngagementParticipantGroupDirective
   ],
   exports: [
     NouisliderModule,
