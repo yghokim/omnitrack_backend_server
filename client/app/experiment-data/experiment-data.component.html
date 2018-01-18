@@ -1,35 +1,40 @@
-<div class="container">
+<div [ngClass]="screenExpanded===true? 'container-fluid' : 'container'">
   <div *ngIf="!participants || participants.length === 0" class="page-info-message">
     No participants in the experiment.
   </div>
   <div *ngIf="participants && participants.length > 0" class="card card-main">
-    <div class="card-header">
-      <mat-form-field class="mat-form-no-vertical-padding">
-        <mat-select [(value)]="selectedParticipantId" required="true" (selectionChange)="onParticipantSelectionChanged($event)">
-          <mat-option *ngFor="let participant of participants" [value]="participant._id">{{participant.alias}}</mat-option>
-        </mat-select>
-      </mat-form-field>
+    <div class="card-header container-vertical-padding">
+      <div class="flex-container flex-align-items-center flex-stretch">
+        <mat-form-field class="mat-form-no-vertical-padding">
+          <mat-select [(value)]="selectedParticipantId" required="true" (selectionChange)="onParticipantSelectionChanged($event)">
+            <mat-option *ngFor="let participant of participants" [value]="participant._id">{{participant.alias}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-icon-button [matTooltip]="screenExpanded===true? 'contract' : 'expand'"  (click)="screenExpanded = !screenExpanded">
+          <mat-icon class="material-icons">{{screenExpanded===true? 'picture_in_picture' : 'aspect_ratio'}}</mat-icon>
+        </button>
+      </div>
     </div>
-    <mat-tab-group class="tab-group" [(selectedIndex)] = "selectedTrackerIndex" (selectedTabChange)="onTrackerTabChanged($event)">
-      <mat-tab *ngFor="let tracker of userTrackers" [label] = "tracker.name" [value] = "tracker._id">
-        
+    <mat-tab-group class="tab-group" [(selectedIndex)]="selectedTrackerIndex" (selectedTabChange)="onTrackerTabChanged($event)">
+      <mat-tab *ngFor="let tracker of userTrackers" [label]="tracker.name" [value]="tracker._id">
+
       </mat-tab>
     </mat-tab-group>
     <table class="table table-data" *ngIf="selectedTracker">
-        <thead class="singleline">
-          <th *ngFor="let attr of selectedTracker.attributes">
-            {{attr.name}}
-          </th>
-          <th class="header-timestamp">Logged At</th>
-        </thead>
-        <tbody>
-          <tr class="hoverable singleline" *ngFor="let item of trackerItems">
-            <td *ngFor="let attr of selectedTracker.attributes">
-              <span *ngIf="getItemValue(item, attr)">{{getItemValue(item, attr)}}</span>
-            </td>
-            <td class="cell-timestamp">{{item.timestamp | date: 'short'}}</td>
-          </tr>
-        </tbody>
-      </table>
+      <thead class="singleline">
+        <th *ngFor="let attr of selectedTracker.attributes">
+          {{attr.name}}
+        </th>
+        <th class="header-timestamp">Logged At</th>
+      </thead>
+      <tbody>
+        <tr class="hoverable singleline" *ngFor="let item of trackerItems">
+          <td *ngFor="let attr of selectedTracker.attributes">
+            <span *ngIf="getItemValue(item, attr)">{{getItemValue(item, attr)}}</span>
+          </td>
+          <td class="cell-timestamp">{{item.timestamp | date: 'short'}}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>

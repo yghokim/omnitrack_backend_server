@@ -32,6 +32,8 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   private trackerItems: Array<IItemDbEntity> = [];
 
+  private screenExpanded: boolean = false
+
   private tableSchema: Array<{
     localId: string;
     name: string;
@@ -77,6 +79,11 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     }
     this._internalSubscriptions.unsubscribe();
     this.userSubscriptions.unsubscribe();
+  }
+
+  onExpandButtonClicked(){
+    this.screenExpanded = !this.screenExpanded
+    console.log(this.screenExpanded)
   }
 
   onParticipantSelectionChanged(event) {
