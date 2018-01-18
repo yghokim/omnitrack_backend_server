@@ -48,6 +48,8 @@ EngagementData
   private readonly visualizationWidth = new Subject<number>();
   private mainChartAreaWidth: number = 0
 
+  private itemCountRangeMax: number = 5
+
   private visualizationAreaHeight = 100
 
   private hatchPatterns = [
@@ -68,6 +70,8 @@ EngagementData
   private readonly dayAxisScale: ScaleLinear<number, number>
   private readonly dayAxis: Axis<number | { valueOf(): number }>
 
+  private readonly colorScale: ScaleLinear<d3.RGBColor, string>
+
   constructor(
     private queryConfigService: ResearchVisualizationQueryConfigurationService,
     private api: ResearchApiService
@@ -78,6 +82,9 @@ EngagementData
     this.dayAxis = d3.axisTop(this.dayAxisScale)
       .tickSize(0).tickPadding(5)
       .tickFormat( (d:number) => d === 0 || (d - Math.floor(d) > 0.01) || (d>this.dayAxisScale.domain()[1] || d<=this.dayAxisScale.domain()[0]) ? null : d.toString())
+
+    this.colorScale = d3.scaleLinear<d3.RGBColor, number>().domain([1, this.itemCountRangeMax]).interpolate(d3.interpolateHcl).range([d3.rgb("rgb(231, 234, 101)"), d3.rgb("#2387a0")])
+    
   }
 
   ngOnInit() {
@@ -196,6 +203,17 @@ EngagementData
       })
     );
 
+  }
+
+  private colorLegends(): Array<{color: string, value: string}>{
+    const array = []
+    for(let i = 1; i <= this.itemCountRangeMax; i++)
+    {
+      array.push({value: i.toFixed(0), color: this.colorScale(i)})
+    }
+    array.push({value: ">"+this.itemCountRangeMax.toFixed(0), color: this.colorScale(this.itemCountRangeMax+1)})
+
+    return array
   }
 
   private isWithinScale(dayIndex: number): boolean{

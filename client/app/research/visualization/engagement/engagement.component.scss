@@ -10,9 +10,22 @@
 }
 
 :host /deep/ rect.encoded{
-  fill: $visualization_encoded_color;
 
   &.over-threshold{
-    fill: $visualization_encoded_color_thicker;
+    //fill: $visualization_encoded_color_thicker;
+  }
+}
+
+.legend-cell{
+  text-align: center;
+
+  .legend-color{
+    display: block;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .legend-text{
+    font-size: 0.6rem;
   }
 }

@@ -1,8 +1,10 @@
 <app-chart-frame [title]="title" [isBusy]="isBusy">
   <ng-content header select="[header]"></ng-content>
+  <ng-content main select="[upper-visualization]"></ng-content>
   <div main #mainContainer (window:resize)="d3ContainerSizeChanged($event)">
     <svg [attr.width]="lastVisualizationAreaWidth + 'px'" [attr.height]="visualizationAreaHeight + 'px'">
       <ng-content select="[visualization]"></ng-content>
     </svg>
   </div>
+  <ng-content main select="[under-visualization]"></ng-content>
 </app-chart-frame>

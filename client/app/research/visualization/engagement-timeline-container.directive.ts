@@ -27,6 +27,12 @@ export class EngagementTimelineContainerDirective implements AfterContentInit {
     this.updateSize()
   }
 
+  private _colorScale: ScaleLinear<d3.RGBColor, string>
+  @Input() set colorScale(scale: ScaleLinear<d3.RGBColor, string>){
+    this._colorScale = scale
+    this.updateSize()
+  }
+
   private _chartHeight: number = 30
   private _numBlocksPerDay: number = 4
   private _maxItemCountThreshold: number = 5
@@ -138,6 +144,8 @@ export class EngagementTimelineContainerDirective implements AfterContentInit {
     chartEnter.append("rect").attr("class", "encoded")
       .attr("height", 0)
       .attr("y", 0)
+      .attr("rx", 3)
+      .attr("ry", 3)
       .classed("over-threshold", block => block.items.length > this._maxItemCountThreshold)
 
     const merged = chartEnter.merge(chartSelection)
@@ -150,8 +158,9 @@ export class EngagementTimelineContainerDirective implements AfterContentInit {
       .transition()
       .duration(300)
       .attr("width", blockCellWidth)
-      .attr("height", b => this.calcHeightOfBlock(b))
-      .attr("y", block => -this.calcHeightOfBlock(block) / 2)
+      .attr("height", b => this._chartHeight)
+      .attr("y", block => -this._chartHeight / 2)
+      .attr("fill", block => this._colorScale(block.items.length))
 
     chartSelection.exit().
       transition().duration(500).attr("opacity", 0).remove()

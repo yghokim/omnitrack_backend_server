@@ -1,6 +1,16 @@
 <app-d3-chart-frame title="Engagement" [isBusy]="isBusy" [visualizationAreaHeight]="visualizationAreaHeight" (visualizationAreaWidthChanged)="visualizationWidth.next($event)">
   <div header>
   </div>
+  <div upper-visualization class="pull-right legend-container">
+    <div class="flex-container flex-align-items-center">
+
+      <small class="right-margin-dot5em flex-align-self-start">Number of Logs: </small>
+      <div *ngFor="let legendCell of colorLegends()" class="legend-cell">
+        <div class="legend-color" [style.background]="legendCell.color"></div>
+        <span class="legend-text">{{legendCell.value}}</span>
+      </div>
+    </div>
+  </div>
   <svg:pattern visualization *ngFor="let pattern of hatchPatterns"
     [attr.id]="pattern.id" [attr.width]="pattern.size" [attr.height]="pattern.size" patternUnits="userSpaceOnUse">
     <svg:path [ngClass]="pattern.pathClass" [attr.d]="'M-1,1 l2,-2 M0,' + pattern.size + 'l' + pattern.size + ',-' + pattern.size + ' M' + (pattern.size-1)+','+(pattern.size+1)+ ' l2,-2'"></svg:path>
@@ -41,6 +51,8 @@
           [chartHeight]="TRACKER_ROW_HEIGHT" 
           [numBlocksPerDay]="NUM_BLOCKS_PER_DAY"
           [dayScale]="dayAxisScale"
+          [colorScale]="colorScale"
+          [maxItemCountThreshold]="itemCountRangeMax"
           [dayIndexRange]="dayIndexRange"
           [chartWidth]="mainChartAreaWidth"
           [tracker]="tracker"
