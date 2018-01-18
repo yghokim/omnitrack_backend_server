@@ -109,8 +109,7 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private dialog: MatDialog,
     private sanitizer: DomSanitizer,
-    private iconRegistry: MatIconRegistry,
-    private snackBar: MatSnackBar
+    private iconRegistry: MatIconRegistry
   ) {
     iconRegistry.addSvgIcon("omnitrack", sanitizer.bypassSecurityTrustResourceUrl("/assets/ic_omnitrack_24px.svg"))
 
@@ -128,17 +127,6 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
           this.upperHeaderTitle = data['backTitle'];
           this.backNavigationUrl = data['backNavigationUrl'];
           this.showTitleBar = data['showTitleBar'];
-        })
-    )
-
-    this._internalSubscriptions.add(
-      this.notificationService.snackBarMessageQueue.subscribe(
-        message => {
-          console.log(message)
-          if (message.action) {
-            this.snackBar.open(message.message, message.action.label, { duration: 3000 })
-          }
-          else this.snackBar.open(message.message, null, { duration: 3000 })
         })
     )
   }

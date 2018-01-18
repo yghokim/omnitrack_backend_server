@@ -50,6 +50,7 @@ router.post('/auth/register', researchAuthCtrl.registerResearcher)
 router.post('/auth/update', tokenAuth, researchAuthCtrl.update)
 router.post('/auth/verify', tokenAuth, researchAuthCtrl.verifyToken)
 
+router.post('/experiments/new', tokenAuth, experimentCtrl.createExperiment)
 router.get('/experiments/all', tokenAuth, experimentCtrl.getExperimentInformationsOfResearcher)
 router.get('/experiments/:experimentId', tokenAuth, experimentCtrl.getExperiment)
 

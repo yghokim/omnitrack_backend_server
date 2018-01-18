@@ -75,6 +75,18 @@ export class ResearchApiService implements OnDestroy {
               })
             }
           })
+
+          res.socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER, (data)=>{
+            if(data instanceof Array){
+              data.forEach(datum => {
+                switch(datum.model){
+                  case SocketConstants.MODEL_EXPERIMENT:
+                    this.loadExperimentList()  
+                  break;
+                }
+              })
+            }
+          })
         })
     )
   }
@@ -144,6 +156,13 @@ export class ResearchApiService implements OnDestroy {
       }).do(result => {
         if (result === true) {
         }
+      })
+  }
+
+  createExperiment(info: any): Observable<any>{
+    return this.http.post("/api/research/experiments/new", info, this.authorizedOptions)
+      .map(res=>{
+        return res.json()
       })
   }
 

@@ -50,6 +50,7 @@ export default class ServerModule {
         }
       )
       
+      OTExperiment.collection.dropIndex("trackingPackages.key_1")
       OTResearcher.collection.dropIndex("password_reset_token_1")
       OTItem.collection.dropIndex("objectId_1")
       OTTracker.collection.dropIndex("objectId_1")

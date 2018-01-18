@@ -1,0 +1,15 @@
+<div class="dialog">
+  <div class="card-header">Add an Experiment</div>
+  <div class="card-block">
+    <div class="form-group" [class.has-danger]="submitErrorMessage">
+      <input class="form-control" type="text" name="text" placeholder="Your Experiment Name" [(ngModel)]="experimentName" autofocus>
+    </div>
+    <div *ngIf="submitErrorMessage" class="small text-danger">{{submitErrorMessage}}</div>
+  </div>
+  <div class="card-block pull-right">
+      <button type="button" mat-button (click)="onNoClick()">Cancel</button>
+      <button type="button" mat-raised-button color="primary" [disabled]="isValid()!==true"  (click)="onYesClick()">Create Experiment</button>
+  </div>
+  
+  </div>
+  

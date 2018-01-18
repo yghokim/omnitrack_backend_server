@@ -3,6 +3,8 @@ import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { NotificationService } from '../services/notification.service';
 import { Router } from '@angular/router';
 import { ResearchApiService } from '../services/research-api.service';
+import { Subscription } from 'rxjs/Subscription';
+import { MatSnackBar } from '@angular/material';
 
 @Component({
   selector: 'app-research-frame',
@@ -11,8 +13,23 @@ import { ResearchApiService } from '../services/research-api.service';
 })
 export class ResearchFrameComponent implements OnInit {
 
-  constructor() { }
+  private readonly _internalSubscriptions = new Subscription()
+
+  constructor(private notificationService: NotificationService, 
+    private snackBar: MatSnackBar) { }
 
   ngOnInit() {
+
+
+    this._internalSubscriptions.add(
+      this.notificationService.snackBarMessageQueue.subscribe(
+        message => {
+          console.log(message)
+          if (message.action) {
+            this.snackBar.open(message.message, message.action.label, { duration: 3000 })
+          }
+          else this.snackBar.open(message.message, null, { duration: 3000 })
+        })
+    )
   }
 }

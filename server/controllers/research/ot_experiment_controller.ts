@@ -54,6 +54,11 @@ export default class OTExperimentCtrl {
       )
   }
 
+  private _createExperimentByInfo(name: string, managerId: string): Promise<Document>{
+    const newExperiment = new OTExperiment({name: name, manager: managerId})
+    return newExperiment.save()
+  }
+
   getExperiment = (req, res) => {
     const researcherId = req.researcher.uid
     const experimentId = req.params.experimentId
@@ -108,6 +113,29 @@ export default class OTExperimentCtrl {
       })
   }
 
+  createExperiment = (req, res) => {
+    const researcherId = req.researcher.uid
+    if(researcherId)
+    {
+      if(req.body.name)
+      {
+        this._createExperimentByInfo(req.body.name, researcherId).then(experiment => {
+          if(experiment){
+            app.socketModule()
+              .sendUpdateNotificationToResearcherSubscribers(researcherId, {model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_ADDED})
+            
+              res.status(200).send(experiment)
+          }
+          else{
+            res.status(500).send({"error": "CannotCreated"})
+          }
+        }).catch(err=>{
+          console.log(err)
+          res.status(500).send(err)
+        })
+      }
+    }
+  }
 
   addCollaborator = (req, res) => {
     const managerId = req.researcher.uid
