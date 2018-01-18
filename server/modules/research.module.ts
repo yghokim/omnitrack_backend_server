@@ -132,6 +132,7 @@ export default class ResearchModule {
         //TODO remove trackers, triggers, items, and medias associated with the experiment
         return Promise.all([OTTracker, OTTrigger].map(model => {
           return model.update({
+            "user": participant["user"],
             "flags.injected": true,
             "flags.experiment": experiment._id
           }, { removed: true }, { multi: true }).then(res => {
@@ -165,6 +166,8 @@ export default class ResearchModule {
   dropParticipant(participantId: string, reason?: string, researcherId?: string): Promise<any> {
     return this.dropOutImpl({ _id: participantId }, reason, researcherId)
   }
+
+  
 
   changeParticipantAlias(participantId: string, alias: string): Promise<boolean>{
     return OTParticipant.findOne({_id: {$ne: participantId}, alias: alias }).then(doc=>{

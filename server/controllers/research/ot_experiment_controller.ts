@@ -1,4 +1,6 @@
 import OTUser from '../../models/ot_user'
+import OTTrigger from '../../models/ot_trigger'
+import OTTracker from '../../models/ot_tracker'
 import OTResearcher from '../../models/ot_researcher'
 import OTExperiment from '../../models/ot_experiment'
 import OTInvitation from '../../models/ot_invitation'
@@ -51,6 +53,19 @@ export default class OTExperimentCtrl {
         }
         else return false
       }
+      )
+  }
+
+  private _restoreExperimentTrackingEntities(experimentId: string): Promise<boolean>{
+    return Promise.all([OTTracker, OTTrigger].map(model => {
+      return model.update({
+        "flags.injected": true,
+        "flags.experiment": experimentId
+      }, { removed: false }, { multi: true }) })).then(
+        result=>{
+          console.log(result)
+          return true
+        }
       )
   }
 
@@ -177,6 +192,16 @@ export default class OTExperimentCtrl {
       res.status(500).send({ error: err })
     })
   }
+
+  restoreExperimentTrackingEntities = (req, res) => {
+    const experimentId = req.params.experimentId
+    this._restoreExperimentTrackingEntities(experimentId).then(
+      success=>{
+        res.status(200).send(true)
+      }
+    )
+  }
+
 }
 
 
