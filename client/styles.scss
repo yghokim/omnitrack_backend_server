@@ -516,6 +516,14 @@ mat-form-field.mat-form-no-vertical-padding {
       margin-bottom: 0;
     }
   }
+
+  &.dialog-mid{
+    width: 500px;
+
+    @media screen and (max-width: 575px) {
+      min-width: initial;
+    }
+  }
 }
 
 .overlay {
