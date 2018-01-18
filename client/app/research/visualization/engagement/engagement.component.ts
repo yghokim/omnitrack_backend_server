@@ -83,7 +83,7 @@ EngagementData
       .tickSize(0).tickPadding(5)
       .tickFormat( (d:number) => d === 0 || (d - Math.floor(d) > 0.01) || (d>this.dayAxisScale.domain()[1] || d<=this.dayAxisScale.domain()[0]) ? null : d.toString())
 
-    this.colorScale = d3.scaleLinear<d3.RGBColor, number>().domain([1, this.itemCountRangeMax]).interpolate(d3.interpolateHcl).range([d3.rgb("rgb(231, 234, 101)"), d3.rgb("#2387a0")])
+    this.colorScale = d3.scaleLinear<d3.RGBColor, number>().domain([1, this.itemCountRangeMax]).interpolate(d3.interpolateHcl).range([d3.rgb("rgb(243, 220, 117)"), d3.rgb("#2387a0")])
     
   }
 

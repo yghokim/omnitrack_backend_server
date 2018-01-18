@@ -123,15 +123,8 @@ export class EngagementTimelineContainerDirective implements AfterContentInit {
     const chartEnter = chartSelection.enter().append("g")
       .attr("class", "block-of-the-day")
       .attr("transform", block => this.makeTranslate(this._dayScale(block.day + block.blockIndex * blockDomainSize) + 1, 0))
-      .attr("opacity", 0)
-
-    chartEnter
-      .transition()
-      .duration(500)
-      .attr("opacity", 1)
-
-    
-      chartSelection
+     
+    chartSelection
       .transition()
       .duration(500)
       .attr("transform", block => this.makeTranslate(this._dayScale(block.day + block.blockIndex * blockDomainSize) + 1, 0))
