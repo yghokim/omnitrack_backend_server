@@ -409,7 +409,7 @@ label.small.horizontal {
 }
 
 .right-margin-dot2em {
-  margin-left: 0.2em;
+  margin-right: 0.2em;
 }
 
 .left-margin-1em {
@@ -503,6 +503,10 @@ mat-form-field.mat-form-no-vertical-padding {
     align-self: center;
     width: 100%;
   }
+}
+
+.text-align-center{
+  text-align: center;
 }
 
 .dialog {

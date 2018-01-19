@@ -3,6 +3,8 @@ import { ResearchApiService } from '../services/research-api.service';
 import { ExperimentService } from '../services/experiment.service';
 import { Subscription } from 'rxjs/Subscription';
 import { ExperimentPermissions } from '../../../omnitrack/core/research/experiment';
+import { MatDialog } from '@angular/material';
+import { DeleteExperimentConfirmDialogComponent } from '../dialogs/delete-experiment-confirm-dialog/delete-experiment-confirm-dialog.component';
 
 @Component({
   selector: 'app-experiment-settings',
@@ -17,7 +19,7 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
 
   private _internalSubscriptions = new Subscription()
 
-  constructor(private api: ResearchApiService) {
+  constructor(private api: ResearchApiService, private dialog: MatDialog) {
   }
 
   ngOnInit() {
@@ -39,6 +41,16 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this._internalSubscriptions.unsubscribe()
+  }
+
+  onDeleteExperimentClicked(){
+    this._internalSubscriptions.add(
+      this.dialog.open(DeleteExperimentConfirmDialogComponent, {}).afterClosed().subscribe(
+        result=>{
+          
+        }
+      )
+    )
   }
 
 }

@@ -70,6 +70,8 @@ router.post('/experiments/:experimentId/invitations/send', tokenAuth, researchCt
 
 router.delete('/experiments/:experimentId/invitations/:invitationId', tokenAuth, researchCtrl.removeInvitation)
 
+router.post('/experiments/:experimentId/update', tokenAuth, experimentCtrl.updateExperiment)
+
 router.post('/users/notify/message', tokenAuth, researchCtrl.sendNotificationMessageToUser)
 
 router.delete('/participants/:participantId', tokenAuth, researchCtrl.removeParticipant)

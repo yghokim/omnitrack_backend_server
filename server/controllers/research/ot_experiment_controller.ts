@@ -74,6 +74,33 @@ export default class OTExperimentCtrl {
     return newExperiment.save()
   }
 
+  private _removeExperiment(experimentId: string, managerId: string): Promise<boolean>{
+    return OTExperiment.findOneAndRemove({_id: experimentId, manager: managerId}).then(removed=>{
+      if(removed){
+        return Promise.all([OTTracker, OTTrigger].map(model=>{return model.update({"flags.injected": true,
+        "flags.experiment": experimentId}, {removed: true}, {multi: true})})).then(result=>{
+          console.log(result)
+          return OTParticipant.find({experiment: experimentId}, {_id: 1, user: 1}).then(result=>{
+            app.pushModule().sendDataMessageToUser(result.map(r=>{return r["user"]}), app.pushModule().makeFullSyncMessageData()).then(
+              messageResult=>{
+                
+              })
+
+              return OTParticipant.remove({experiment: experimentId}).then(result=>{
+                console.log(result)
+                
+                return OTInvitation.remove({experiment: experimentId}).then(result=>{
+                  console.log(result)
+                  return true
+                })
+              })
+          })
+        })
+      }
+      else return false
+    })
+  }
+
   getExperiment = (req, res) => {
     const researcherId = req.researcher.uid
     const experimentId = req.params.experimentId
@@ -200,6 +227,40 @@ export default class OTExperimentCtrl {
         res.status(200).send(true)
       }
     )
+  }
+
+  updateExperiment=(req, res)=>{
+    const managerId = req.researcher.uid
+    const experimentId = req.params.experimentId
+    OTExperiment.updateOne({_id: experimentId, manager: managerId}, req.body, {new: true}).then(
+      updated => {
+        if(updated){
+          res.status(200).send({updated: true, experiment: updated})
+        }
+        else{
+          res.status(200).send({updated: false, experiment: updated})
+        }
+      }
+    ).catch(err=>{
+      console.log(err)
+      res.status(500).send(err)
+    })
+  }
+
+  removeExperiment = (req, res)=>{
+    const managerId = req.researcher.uid
+    const experimentId = req.params.experimentId
+    this._removeExperiment(experimentId, managerId).then(success=>{
+      if(success === true){
+        res.status(200).send(success)
+      }
+      else{
+        res.status(404).send(false)
+      }
+    }).catch(err=>{
+      console.log(err)
+      res.status(500).send(err)
+    })
   }
 
 }

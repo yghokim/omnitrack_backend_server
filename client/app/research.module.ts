@@ -44,6 +44,7 @@ import { SVGEllipsisDirective } from './directives/svgellipsis.directive';
 import { NouisliderModule, NouisliderComponent } from 'ng2-nouislider';
 import { NewExperimentDialogComponent } from './experiment-list/new-experiment-dialog/new-experiment-dialog.component';
 import { EngagementParticipantGroupDirective } from './research/visualization/engagement/engagement-participant-group.directive';
+import { DeleteExperimentConfirmDialogComponent } from './dialogs/delete-experiment-confirm-dialog/delete-experiment-confirm-dialog.component';
 
 @NgModule({
   imports: [
@@ -88,7 +89,8 @@ import { EngagementParticipantGroupDirective } from './research/visualization/en
     EngagementTimelineContainerDirective,
     SVGEllipsisDirective,
     NewExperimentDialogComponent,
-    EngagementParticipantGroupDirective
+    EngagementParticipantGroupDirective,
+    DeleteExperimentConfirmDialogComponent
   ],
   exports: [
     NouisliderModule,
@@ -128,7 +130,8 @@ import { EngagementParticipantGroupDirective } from './research/visualization/en
     ChooseInvitationDialogComponent,
     NewInvitationDialogComponent,
     AddCollaboratorDialogComponent,
-    NewExperimentDialogComponent
+    NewExperimentDialogComponent,
+    DeleteExperimentConfirmDialogComponent
   ]
 })
 export class ResearchModule { }
