@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/operator/combineLatest';
 import { VisualizationConfigs } from '../../../omnitrack/core/research/configs';
 import { TrackingDataService } from './tracking-data.service';
+import { Subject } from 'rxjs/Subject';
 
 export class ExperimentService {
 
@@ -23,6 +24,12 @@ export class ExperimentService {
   private readonly _internalSubscriptions = new Subscription()
 
   public readonly trackingDataService: TrackingDataService
+
+  private readonly _onExperimentInvalid = new Subject<void>()
+
+  public get experimentInvalidated(): Observable<void>{
+    return this._onExperimentInvalid
+  }
 
   constructor(
     readonly experimentId: string,
@@ -84,6 +91,15 @@ export class ExperimentService {
                       break;
                     case SocketConstants.MODEL_EXPERIMENT:
                       this.loadExperimentInfo()
+                      switch(datum.event){
+                        case SocketConstants.EVENT_REMOVED:
+                          this.researchApi.loadExperimentList()
+                          this.notificationService.pushSnackBarMessage({
+                            message: "The Experiment was deleted."
+                          })
+                          this._onExperimentInvalid.next()
+                        break;
+                      }
                       break;
                   }
                 }

@@ -1,17 +1,38 @@
-<div class="dialog dialog-warning dialog-mid">
-    <div class="card-header">
-      <div class="flex-container flex-align-items-center">
-        <mat-icon class="material-icons right-margin-dot2em">report_problem</mat-icon>
-        <span>Delete Experiment</span>
-      </div>
-    </div>
-
-    <div class="card-block">
-      
-      <hr>
-      <div class="pull-right">
-          <button mat-button color="primary" (click)="onNoClick()">Cancel</button>
-          <button mat-raised-button color="warn" (click)="onYesClick()">Delete Experiment</button>
-        </div>
+<div class="dialog dialog-warning">
+  <div class="card-header">
+    <div class="flex-container flex-align-items-center">
+      <mat-icon class="material-icons right-margin-dot2em">report_problem</mat-icon>
+      <span>Delete Experiment</span>
     </div>
   </div>
+
+  <div class="card-block">
+    <div class="card-block">
+      <p>
+        If you delete the experiment, the following data entities will also removed:
+      </p>
+      <ul class="small">
+        <li>The experiment information</li>
+        <li>Study participant information</li>
+        <li>OmniTrack trackers, triggers, and items which have been injected for this experiment</li>
+      </ul>
+
+      <p>The following information will remain:</p>
+      <ul class="small">
+        <li>OmniTrack user account of the study participants</li>
+        <li>Trackers, triggers, and items of users that are not related to this experiment</li>
+        <li>Study participants' interaction logs</li>
+      </ul>
+
+      <p class="font-weight-bold">If you want to delete the experiment, insert your experiment's ID in the following form:</p>
+      <blockquote>{{data.experimentId}}</blockquote>
+
+      <input class="form-control" type="text" placeholder="Your experiment ID" class="fill-width" [(ngModel)]="experimentIdConfirm">
+    </div>
+    <hr>
+    <div class="pull-right">
+      <button mat-button color="primary" (click)="onNoClick()">Cancel</button>
+      <button mat-raised-button color="warn" (click)="onYesClick()" [disabled]="!isValid()">Delete Experiment</button>
+    </div>
+  </div>
+</div>

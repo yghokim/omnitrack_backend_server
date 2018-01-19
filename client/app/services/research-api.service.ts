@@ -166,6 +166,10 @@ export class ResearchApiService implements OnDestroy {
       })
   }
 
+  removeExperiment(experimentId: string): Observable<boolean>{
+    return this.http.delete("/api/research/experiments/" + experimentId, this.authorizedOptions).map(res=>res.json())
+  }
+
   searchResearchers(term: string, excludeSelf): Observable<Array<{_id: string, email: string, alias: string}>>{
     return this.http.get("/api/research/researchers/search", {headers: this.tokenHeaders, params: { term: term, excludeSelf: excludeSelf }}).map(res => res.json())
   }

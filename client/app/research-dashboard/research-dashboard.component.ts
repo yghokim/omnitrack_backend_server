@@ -183,6 +183,15 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
     )
 
     this._internalSubscriptions.add(
+      this.api.selectedExperimentService.flatMap(service => service.experimentInvalidated).subscribe(
+        v => {
+          console.log("experiment was removed")
+          this.router.navigate(["../"])
+        }
+      )
+    )
+
+    this._internalSubscriptions.add(
       this.api.selectedExperimentService.flatMap(expService => expService.getMyPermissions()).filter(p=>p!=null).subscribe(
         permissions => {
           if(permissions && this.experimentPermissions != permissions)

@@ -83,7 +83,7 @@ export default class OTExperimentCtrl {
           return OTParticipant.find({experiment: experimentId}, {_id: 1, user: 1}).then(result=>{
             app.pushModule().sendDataMessageToUser(result.map(r=>{return r["user"]}), app.pushModule().makeFullSyncMessageData()).then(
               messageResult=>{
-                
+                console.log(messageResult)
               })
 
               return OTParticipant.remove({experiment: experimentId}).then(result=>{
@@ -91,6 +91,11 @@ export default class OTExperimentCtrl {
                 
                 return OTInvitation.remove({experiment: experimentId}).then(result=>{
                   console.log(result)
+
+                  //socket
+                  app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, {model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_REMOVED})
+
+
                   return true
                 })
               })

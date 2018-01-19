@@ -5,6 +5,8 @@ import { Subscription } from 'rxjs/Subscription';
 import { ExperimentPermissions } from '../../../omnitrack/core/research/experiment';
 import { MatDialog } from '@angular/material';
 import { DeleteExperimentConfirmDialogComponent } from '../dialogs/delete-experiment-confirm-dialog/delete-experiment-confirm-dialog.component';
+import { NotificationService } from '../services/notification.service';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'app-experiment-settings',
@@ -19,7 +21,7 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
 
   private _internalSubscriptions = new Subscription()
 
-  constructor(private api: ResearchApiService, private dialog: MatDialog) {
+  constructor(private api: ResearchApiService, private notification: NotificationService, private dialog: MatDialog) {
   }
 
   ngOnInit() {
@@ -45,11 +47,17 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
 
   onDeleteExperimentClicked(){
     this._internalSubscriptions.add(
-      this.dialog.open(DeleteExperimentConfirmDialogComponent, {}).afterClosed().subscribe(
-        result=>{
-          
-        }
-      )
+      this.dialog.open(DeleteExperimentConfirmDialogComponent, {data: {experimentId: this.api.getSelectedExperimentId()}}).afterClosed().filter(
+        experimentId=>{
+          return experimentId !== null
+        }).do(experimentId=>{
+          this.notification.registerGlobalBusyTag("experiment-deletion")
+        }).flatMap(experimentId=>{
+          return this.api.removeExperiment(experimentId)
+        }).subscribe(success=>{
+          console.log(success)
+          this.notification.unregisterGlobalBusyTag("experiment-deletion")
+        })
     )
   }
 

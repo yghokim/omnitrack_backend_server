@@ -54,6 +54,10 @@ router.post('/experiments/new', tokenAuth, experimentCtrl.createExperiment)
 router.get('/experiments/all', tokenAuth, experimentCtrl.getExperimentInformationsOfResearcher)
 router.get('/experiments/:experimentId', tokenAuth, experimentCtrl.getExperiment)
 
+router.post('/experiments/:experimentId/update', tokenAuth, experimentCtrl.updateExperiment)
+
+router.delete('/experiments/:experimentId', tokenAuth, experimentCtrl.removeExperiment)
+
 router.post("/experiments/:experimentId/collaborators/new", tokenAuth, experimentCtrl.addCollaborator)
 
 router.post("/experiments/:experimentId/collaborators/update", tokenAuth, experimentCtrl.updateCollaboratorPermissions)
@@ -69,8 +73,6 @@ router.post('/experiments/:experimentId/invitations/new', tokenAuth, researchCtr
 router.post('/experiments/:experimentId/invitations/send', tokenAuth, researchCtrl.sendInvitation)
 
 router.delete('/experiments/:experimentId/invitations/:invitationId', tokenAuth, researchCtrl.removeInvitation)
-
-router.post('/experiments/:experimentId/update', tokenAuth, experimentCtrl.updateExperiment)
 
 router.post('/users/notify/message', tokenAuth, researchCtrl.sendNotificationMessageToUser)
 
