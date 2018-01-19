@@ -26,7 +26,6 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.flatMap(service => service.getParticipants()).subscribe(
         participants => {
-          console.log("participants were loaded.")
           let earliestExperimentStart: number = null
 
           participants.forEach(participant => {

@@ -83,7 +83,6 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   onExpandButtonClicked(){
     this.screenExpanded = !this.screenExpanded
-    console.log(this.screenExpanded)
   }
 
   onParticipantSelectionChanged(event) {
@@ -92,12 +91,10 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
 
   onTrackerTabChanged(event) {
-    console.log("tracker tap changed");
     this.onSelectedTrackerChanged(this.userTrackers[event.index]);
   }
 
   private onSelectedParticipantIdChanged(newParticipantId: string) {
-    console.log("set to " + newParticipantId);
     const userId = this.participants.find(p => p._id == newParticipantId).user
       ._id;
     this.userSubscriptions.unsubscribe();
@@ -109,7 +106,6 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
         )
         .subscribe(trackers => {
           this.userTrackers = trackers;
-          console.log("current selected tracker tab index: " + this.selectedTrackerIndex)
           const selectedTrackerIndex = Math.max(
             0,
             Math.min(trackers.length - 1, this.selectedTrackerIndex)
@@ -121,7 +117,6 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   private onSelectedTrackerChanged(tracker: ITrackerDbEntity) {
     if (this.selectedTracker != tracker) {
-      console.log("mount new selected tracker - " + tracker)
       this.selectedTracker = tracker;
 
       this.trackerSubscriptions.unsubscribe();
@@ -132,7 +127,6 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
             service.trackingDataService.getItemsOfTracker(tracker._id)
           )
           .subscribe(items => {
-            console.log("retrieved tracker items")
             this.trackerItems = items;
           })
       );

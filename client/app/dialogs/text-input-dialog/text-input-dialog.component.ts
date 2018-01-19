@@ -52,11 +52,9 @@ export class TextInputDialogComponent implements OnInit, OnDestroy {
         this._internalSubscriptions.add(
           this.submit(this.textValue).subscribe(
             result => {
-              console.log("textinput submit result: " + result)
               this.dialogRef.close(this.textValue)
             },
             err => {
-              console.log(err)
               this.submitErrorMessage = err.error
             }
           )

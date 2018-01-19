@@ -8,6 +8,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/map';
 import { Subscription } from 'rxjs/Subscription';
 import { isNullOrBlank } from '../../../shared_lib/utils';
+import { SocketConstants } from '../../../omnitrack/core/research/socket';
 
 export class ResearcherAuthInfo {
   constructor(
@@ -43,28 +44,27 @@ export class ResearcherAuthService implements OnDestroy {
     }
 
     this._internalSubscriptions.add(
-      this.socketService.onConnected.subscribe(
-        socket => {
-          console.log("websocket connected.")
-          if (socket != null) {
-            this.currentResearcher.subscribe(researcher => {
-              if (researcher.signedIn == true) {
-                socket.emit("subscribe_researcher", { uid: researcher.uid }, () => {
+      this.socketService.onConnected.combineLatest(this.currentResearcher, (socket, researcher)=>{return {socket: socket, researcher: researcher}}).subscribe(
+        project => {
+          console.log("auth service : websocket connected.")
+          if (project.socket !== null) {
+             if (project.researcher.signedIn === true) {
+               console.log("subscribe websocket as a researcher: " + project.researcher.uid)
+                project.socket.emit(SocketConstants.SERVER_EVENT_SUBSCRIBE_RESEARCHER, { uid: project.researcher.uid }, () => {
                   console.log("subscribed as a researcher")
 
                 })
-                socket.on("updated/researcher", (data) => {
+                project.socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER, (data) => {
                   console.log("received a updated/researcher websocket event")
                   console.log(data)
                 })
               }
               else {
-                socket.emit("unsubscribe_researcher", { uid: researcher.uid }, () => {
+                project.socket.emit(SocketConstants.SERVER_EVENT_UNSUBSCRIBE_RESEARCHER, { uid: project.researcher.uid }, () => {
                   console.log("unsubscribed")
-                  socket.removeListener("updated/researcher")
+                  project.socket.removeListener(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER)
                 })
               }
-            })
           }
         })
     )

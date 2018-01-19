@@ -74,11 +74,9 @@ export class EngagementTimelineContainerDirective implements AfterContentInit {
   }
 
   private updateData(trackerRow: TrackerRow){
-    console.log("updated data")
   }
 
   ngAfterContentInit() {
-    console.log("chart refresh")
 
     const blockDomainSize = 1 / this._numBlocksPerDay
     const blockCellWidth = () => { return this._dayScale(blockDomainSize) - this._dayScale(0) - 2 }

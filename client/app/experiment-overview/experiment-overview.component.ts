@@ -71,7 +71,6 @@ export class ExperimentOverviewComponent implements OnInit {
             const today = moment().endOf("day")
             const numDays = diffDaysBetweenTwoMoments(today, moment(earliestExperimentStart).startOf("day"), project.scope.includeWeekends) + 1
 
-            console.log("longest duration: " + numDays)
             this.dayIndexMax = numDays-1
           }
         }
@@ -92,7 +91,6 @@ export class ExperimentOverviewComponent implements OnInit {
   }
 
   onDayIndexSliderChanged(newRange){
-    console.log(newRange)
     this._dayRangeValueInject.next(newRange)
     //this.configuration.setDayIndexRange(newRange)
   }

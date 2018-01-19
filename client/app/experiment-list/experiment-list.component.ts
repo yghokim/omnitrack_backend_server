@@ -48,7 +48,6 @@ export class ExperimentListComponent implements OnInit, OnDestroy {
         experimentBuildInfo=>{
           if(experimentBuildInfo)
           {
-            console.log(experimentBuildInfo)
             this._internalSubscriptions.add(
             this.api.createExperiment(experimentBuildInfo).subscribe(
               experiment => {

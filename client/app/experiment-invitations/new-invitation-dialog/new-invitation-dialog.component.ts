@@ -49,7 +49,6 @@ export class NewInvitationDialogComponent implements OnInit {
   }
 
   onTabChanged(event) {
-    console.log(event)
     switch (event.index) {
       case 0:
       this.selectedTypeKey = AInvitation.SpecificGroupType
@@ -84,7 +83,6 @@ export class NewInvitationDialogComponent implements OnInit {
         this.selectedGroupIds.push(groupId)
       }
     }
-    console.log(this.selectedGroupIds)
   }
 
   isGenerateAvailable(): boolean {

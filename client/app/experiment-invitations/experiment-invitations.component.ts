@@ -35,7 +35,6 @@ export class ExperimentInvitationsComponent implements OnInit {
     this.api.selectedExperimentService.flatMap(service => service.getInvitations()).subscribe(
       invitations => {
         this.invitations = invitations
-        console.log(invitations)
         this.isLoadingInvitations = false
       }
     )

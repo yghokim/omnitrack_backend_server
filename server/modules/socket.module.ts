@@ -50,9 +50,9 @@ export default class SocketModule {
 
   bootstrap(){
     console.log("listening to socket.io event.")
-    this.io.emit(SocketConstants.SERVER_EVENT_RESET)
     this.io.on("connection", (client) => {
       console.log("Websocket client " + client.id + " connected.")
+      client.emit(SocketConstants.SERVER_EVENT_RESET)  
 
       client.on("disconnect", () => {
         console.log("websocket client " + client.id + " disconnected." )

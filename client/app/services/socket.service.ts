@@ -33,7 +33,7 @@ export class SocketService {
     )
 
     this.socket.on("disconnect", ()=>{
-      console.log( 'disconnected from server. retry after 3 seconds..' );
+      console.log( 'socket disconnected from server. retry after 3 seconds..' );
       window.setTimeout( ()=>{ this.socket.connect() }, 3000)
     })
 
@@ -41,6 +41,7 @@ export class SocketService {
       console.log("socket reconnected.")
     })
 
+    console.log("websocket initialized.")
     console.log(this.socket)
     this._onConnected.next(this.socket)
   }

@@ -48,10 +48,11 @@ export class ResearchApiService implements OnDestroy {
     )
 
     this._internalSubscriptions.add(
-      this.socketService.onConnected.flatMap(socket =>
-        this.authService.tokenSubject.map(token => { return { token: token, socket: socket } })
-      ).subscribe(
+      this.socketService.onConnected
+      .combineLatest(this.authService.tokenSubject, (socket, token) => { return { token: token, socket: socket } })
+      .subscribe(
         res => {
+          console.log("socket or token was refreshed.")
           res.socket.emit(SocketConstants.SERVER_EVENT_SUBSCRIBE_SERVER_GLOBAL)
 
           res.socket.on(SocketConstants.SERVER_EVENT_UPDATED_GLOBAL, (data) => {
@@ -151,7 +152,6 @@ export class ResearchApiService implements OnDestroy {
   deleteUserAccount(userId: string, removeData: boolean): Observable<boolean> {
     return this.http.delete('/api/research/users/' + userId, new RequestOptions({ headers: this.tokenHeaders, params: { removeData: removeData } }))
       .map(res => {
-        console.log(res.json())
         return true
       }).do(result => {
         if (result === true) {

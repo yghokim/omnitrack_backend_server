@@ -64,7 +64,6 @@ export class ChooseInvitationDialogComponent implements OnInit {
   }
 
   onYesClick() {
-    console.log(this.selectedInvitationCode)
     this.dialogRef.close(this.selectedInvitationCode)
   }
 
