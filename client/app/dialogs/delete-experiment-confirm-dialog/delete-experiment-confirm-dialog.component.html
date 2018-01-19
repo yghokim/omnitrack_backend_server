@@ -26,8 +26,9 @@
 
       <p class="font-weight-bold">If you want to delete the experiment, insert your experiment's ID in the following form:</p>
       <blockquote>{{data.experimentId}}</blockquote>
-
-      <input class="form-control" type="text" placeholder="Your experiment ID" class="fill-width" [(ngModel)]="experimentIdConfirm">
+      <div class="form-group">
+        <input class="form-control fill-width" type="text" name="text" placeholder="Your experiment ID" [(ngModel)]="experimentIdConfirm">
+      </div>
     </div>
     <hr>
     <div class="pull-right">
