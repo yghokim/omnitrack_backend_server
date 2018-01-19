@@ -1,5 +1,5 @@
 import { Directive, Input, ElementRef, AfterContentInit } from '@angular/core';
-import { TrackerRow, ItemBlockRow } from './engagement/engagement.component';
+import { TrackerRow, ItemBlockRow } from './engagement.component';
 import * as d3 from 'd3'
 import { ScaleLinear } from 'd3';
 

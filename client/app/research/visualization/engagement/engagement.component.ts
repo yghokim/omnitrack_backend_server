@@ -14,7 +14,7 @@ import { D3VisualizationBaseComponent } from "../d3-visualization-base.component
 import { ScaleOrdinal, Axis } from "d3";
 import * as moment from "moment";
 import { IItemDbEntity } from "../../../../../omnitrack/core/db-entity-types";
-import { EngagementTimelineContainerDirective } from "../engagement-timeline-container.directive";
+import { EngagementTimelineContainerDirective } from "./engagement-timeline-container.directive";
 import * as groupArray from 'group-array';
 import { Moment } from "moment-timezone";
 import { diffDaysBetweenTwoMoments } from "../../../../../shared_lib/utils";

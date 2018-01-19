@@ -66,6 +66,7 @@ export class EngagementParticipantGroupDirective implements AfterContentInit {
 
     joined.transition()
       .duration(500)
+      .attr("opacity", 1)
       .attr("width", cellWidth)
       .attr("height", this._height)
       .attr("x", (d)=>{return this._dayScale(d)})

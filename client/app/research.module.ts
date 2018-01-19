@@ -39,7 +39,7 @@ import { ResearcherAccountSettingsComponent } from './researcher-account-setting
 import { ChartFrameComponent } from './research/visualization/chart-frame/chart-frame.component';
 import { EngagementComponent } from './research/visualization/engagement/engagement.component';
 import { D3ChartFrameComponent } from './research/visualization/d3-chart-frame/d3-chart-frame.component';
-import { EngagementTimelineContainerDirective } from './research/visualization/engagement-timeline-container.directive';
+import { EngagementTimelineContainerDirective } from './research/visualization/engagement/engagement-timeline-container.directive';
 import { SVGEllipsisDirective } from './directives/svgellipsis.directive';
 import { NouisliderModule, NouisliderComponent } from 'ng2-nouislider';
 import { NewExperimentDialogComponent } from './experiment-list/new-experiment-dialog/new-experiment-dialog.component';
