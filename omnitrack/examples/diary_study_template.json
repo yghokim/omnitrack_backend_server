@@ -24,7 +24,7 @@
           "fallbackPolicy": 3,
           "fallbackPreset": null,
           "connection": null,
-          "lockedProperties": {"delete": true},
+          "lockedProperties": {"delete": true, "visibility": true},
           "flags": { "injected": true, "injectionId": "OZLc8BKS" }
         },
         {
@@ -41,7 +41,7 @@
           "fallbackPolicy": 1,
           "fallbackPreset": null,
           "connection": null,
-          "lockedProperties": {"delete": true},
+          "lockedProperties": {"delete": true, "visibility": true},
           "flags": { "injected": true, "injectionId": "UDTGuxJm" }
         },
         {
@@ -64,7 +64,7 @@
           "fallbackPolicy": 1,
           "fallbackPreset": null,
           "connection": null,
-          "lockedProperties": {"delete": true},
+          "lockedProperties": {"delete": true, "visibility": true},
           "flags": { "injected": true, "injectionId": "uyMhOEin" }
         },
         {
@@ -81,7 +81,7 @@
           "fallbackPolicy": 0,
           "fallbackPreset": null,
           "connection": null,
-          "lockedProperties": {"delete": true},
+          "lockedProperties": {"delete": true, "visibility": true},
           "flags": { "injected": true, "injectionId": "3CVBwMM1" }
         },
         {
@@ -105,7 +105,7 @@
           "fallbackPolicy": 0,
           "fallbackPreset": null,
           "connection": null,
-          "lockedProperties": {"delete": true},
+          "lockedProperties": {"delete": true, "visibility": true},
           "flags": { "injected": true, "injectionId": "QizUYovc" }
         },
         {
@@ -122,7 +122,7 @@
           "fallbackPolicy": 0,
           "fallbackPreset": null,
           "connection": null,
-          "lockedProperties": {"delete": true},
+          "lockedProperties": {"delete": true, "visibility": true},
           "flags": { "injected": true, "injectionId": "9hwQHamo" }
         },
         {

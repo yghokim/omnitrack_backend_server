@@ -13,6 +13,10 @@ export interface ITrackerLockedProperties extends IEntityLockedProperties {
   enterVisualization?: boolean
 }
 
+export interface IAttributeLockedProperties extends IEntityLockedProperties{
+  visibility?: boolean
+}
+
 export interface ITriggerLockedProperties extends IEntityLockedProperties {
   changeSwitch?: boolean
   changeAssignedTrackers?: boolean
