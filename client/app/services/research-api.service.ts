@@ -188,4 +188,8 @@ export class ResearchApiService implements OnDestroy {
   makeAuthorizedRequestOptions(query: any): RequestOptions{
     return  new RequestOptions({ headers: this.tokenHeaders, params: query })
   }
+
+  updateExperiment(experimentId: string, update: any): Observable<boolean>{
+    return this.http.post("api/research/experiments/" + experimentId + "/update", update, this.authorizedOptions).map(res=>res.json().updated)
+  }
 }

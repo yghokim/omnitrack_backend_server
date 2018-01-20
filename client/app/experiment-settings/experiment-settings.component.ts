@@ -7,6 +7,8 @@ import { MatDialog } from '@angular/material';
 import { DeleteExperimentConfirmDialogComponent } from '../dialogs/delete-experiment-confirm-dialog/delete-experiment-confirm-dialog.component';
 import { NotificationService } from '../services/notification.service';
 import { Observable } from 'rxjs/Observable';
+import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
+import { isNullOrBlank } from '../../../shared_lib/utils';
 
 @Component({
   selector: 'app-experiment-settings',
@@ -43,6 +45,25 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this._internalSubscriptions.unsubscribe()
+  }
+
+  onEditNameClicked(){
+    this._internalSubscriptions.add(
+      this.dialog.open(TextInputDialogComponent, {data: {
+        title: "Edit Experiment Name",
+        placeholder: "Insert experiment name",
+        prefill: this.experiment.name,
+        validator: (text)=>{ return text !== this.experiment.name && !isNullOrBlank(text) && text.length < 100 },
+        submit: (newExperimentName)=>{
+          console.log("new experiment name: " + newExperimentName)
+          return this.api.updateExperiment(this.experiment._id, {name: newExperimentName})
+        }
+      }}).afterClosed().subscribe(
+        newExperimentName=>{
+
+        }
+      )
+    )
   }
 
   onDeleteExperimentClicked(){

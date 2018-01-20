@@ -240,6 +240,15 @@ export default class OTExperimentCtrl {
     OTExperiment.updateOne({_id: experimentId, manager: managerId}, req.body, {new: true}).then(
       updated => {
         if(updated){
+          app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, {model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_EDITED})
+          app.socketModule().sendUpdateNotificationToResearcherSubscribers(managerId, {model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_EDITED})
+          if(updated["experimenters"])
+          {
+            updated["experimenters"].forEach(experimenter=>{
+              app.socketModule().sendUpdateNotificationToResearcherSubscribers(experimenter.researcher, {model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_EDITED})
+            })
+          }
+
           res.status(200).send({updated: true, experiment: updated})
         }
         else{

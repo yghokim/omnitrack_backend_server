@@ -4,9 +4,12 @@
       Experiment Information
     </div>
     <table class="table table-data">
-      <tr>
+      <tr class="singleline">
         <th>Name</th>
-        <td>{{experiment.name}}</td>
+        <td>
+          {{experiment.name}}
+          <button mat-icon-button (click)="onEditNameClicked()"><mat-icon class="material-icons">edit</mat-icon></button>
+        </td>
       </tr>
       <tr>
         <th>Experiment Id</th>
@@ -26,7 +29,7 @@
         <app-researcher-search-component *ngIf="permissions && permissions.access.manageCollaborators == true"></app-researcher-search-component>
       </div>
     </div>
-    <table class="table table-data">
+    <table *ngIf="experiment.experimenters && experiment.experimenters.length > 0" class="table table-data">
         <thead>
             <tr>
               <th>Email</th>
