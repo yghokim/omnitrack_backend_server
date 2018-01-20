@@ -10,6 +10,7 @@ import { ExperimentService } from './experiment.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
 import { NotificationService } from './notification.service';
+import { ExampleExperimentInfo } from '../../../omnitrack/core/research/experiment';
 
 @Injectable()
 export class ResearchApiService implements OnDestroy {
@@ -78,6 +79,7 @@ export class ResearchApiService implements OnDestroy {
           })
 
           res.socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER, (data)=>{
+            console.log("received update researcher socket event.")
             if(data instanceof Array){
               data.forEach(datum => {
                 switch(datum.model){
@@ -129,6 +131,15 @@ export class ResearchApiService implements OnDestroy {
 
   getExperimentInfos(): Observable<Array<ExperimentInfo>> {
     return this._experimentListSubject.filter(res => res != null)
+  }
+
+  getExampleExperimentList(): Observable<Array<ExampleExperimentInfo>>{
+    return this.http.get("/api/research/experiments/examples").map(res => { console.log(res.json()); return res.json() })
+  }
+
+  addExampleExperimentAndGetId(key: string): Observable<string>{
+    console.log(this.authorizedOptions)
+    return this.http.post("/api/research/experiments/examples", {exampleKey: key}, this.authorizedOptions).map(res =>res.json())
   }
 
   getSelectedExperimentId(): string {

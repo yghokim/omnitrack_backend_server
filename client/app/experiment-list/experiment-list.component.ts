@@ -8,6 +8,7 @@ import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { MatDialog } from '@angular/material';
 import { NewExperimentDialogComponent } from './new-experiment-dialog/new-experiment-dialog.component';
 import { NotificationService } from '../services/notification.service';
+import { ExampleExperimentInfo } from '../../../omnitrack/core/research/experiment';
 
 
 @Component({
@@ -21,6 +22,8 @@ export class ExperimentListComponent implements OnInit, OnDestroy {
 
   experiments: Array<ExperimentInfo>
 
+  examples: Array<ExampleExperimentInfo>
+
   constructor(private api: ResearchApiService, private auth: ResearcherAuthService, private router: Router, private dialog: MatDialog, private notification: NotificationService) {
   }
 
@@ -32,6 +35,15 @@ export class ExperimentListComponent implements OnInit, OnDestroy {
         }
       )
     )
+
+    this._internalSubscriptions.add(
+      this.api.getExampleExperimentList().subscribe(
+        examples => {
+          this.examples = examples
+        }
+      )
+    )
+    
   }
 
   ngOnDestroy(): void {
@@ -61,6 +73,16 @@ export class ExperimentListComponent implements OnInit, OnDestroy {
               }
             ))
           }
+        }
+      )
+    )
+  }
+
+  onAddExampleClicked(exampleKey){
+    this._internalSubscriptions.add(
+      this.api.addExampleExperimentAndGetId(exampleKey).subscribe(
+        newExperimentId=>{
+          this.router.navigate(["/research/dashboard", newExperimentId])
         }
       )
     )

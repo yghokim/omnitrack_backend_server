@@ -9,15 +9,60 @@ import OTInvitation from '../models/ot_invitation';
 import OTParticipant from '../models/ot_participant';
 import { AInvitation } from '../../omnitrack/core/research/invitation';
 
-import { IJoinedExperimentInfo } from '../../omnitrack/core/research/experiment';
+import { IJoinedExperimentInfo, ExampleExperimentInfo } from '../../omnitrack/core/research/experiment';
 import app from '../app';
 import C from '../server_consts'
 import { SocketConstants } from '../../omnitrack/core/research/socket'
 import { Document } from 'mongoose';
+import * as path from "path";
 
 const random_name = require('node-random-name');
-
 export default class ResearchModule {
+
+
+  readonly exampleExperimentInformations: Array<ExampleExperimentInfo> = [
+    {
+      key: "productivity_diary",
+      name: "Diary Study for Personal Productivity",
+      description: "Conduct a diary study by asking participants to log the information of their productive tasks"
+    }
+  ]
+
+  generateExampleExperimentToResearcher(exampleKey: string, researcherId: string, notifySocket: boolean = false): Promise<string>{
+
+    const info = this.exampleExperimentInformations.find(info => info.key === exampleKey)
+    if(info)
+    {
+
+      const experiment = new OTExperiment({
+          name: info.name,
+          manager: researcherId
+        })
+    
+      switch(info.key){
+        case "productivity_diary":
+          const trackingPackage = {
+            name: "Diaries and Reminders",
+            data: require(path.join(__dirname, "../../../../omnitrack/examples/diary_study_template.json"))
+          }
+          experiment["trackingPackages"].push(trackingPackage)
+          experiment["groups"][0].trackingPackageKey = experiment["trackingPackages"][0].key
+        break;
+      }
+      
+      return experiment.save().then(result => {
+        
+        if(notifySocket === true)
+        {
+          app.socketModule().sendUpdateNotificationToResearcherSubscribers(researcherId, {model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_ADDED})
+        }
+
+        return result._id})
+        
+    }else{
+      return Promise.reject("no example key found.")
+    }
+  }
 
   generateRandomUniqueAliasForParticipant(gender: string, prefix: string = "", suffix: string = "?"): Promise<string> {
     let nextName: string = prefix + random_name({ first: true, gender: gender }) + suffix

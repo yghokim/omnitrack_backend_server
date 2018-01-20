@@ -13,6 +13,12 @@ export class ExperimentConstants{
   
 }
 
+export type ExampleExperimentInfo = {
+  key: string,
+  name: string,
+  description: string
+}
+
 export interface IJoinedExperimentInfo{
   id: string
   name: string

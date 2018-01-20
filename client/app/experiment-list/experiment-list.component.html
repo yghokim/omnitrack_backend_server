@@ -23,4 +23,31 @@
       </div>
     </div>
   </div>
+
+
+  <div class="spacer  bottom-margin-2em"></div>
+
+  <small class="flex-element global-page-title">
+      Example Experiments
+  </small>
+
+  <hr>
+  
+  <div class="flex-container flex-container-wrap  flex-padded-content flex-container-responsive-columns">
+      <div *ngFor="let experiment of examples">
+        <mat-card class="card-example">
+              <div class="card-title">
+                {{experiment.name}}
+              </div>
+              <mat-card-subtitle class="small">
+                {{experiment.description}}
+              </mat-card-subtitle>
+            <mat-card-actions>
+              <button mat-button color="primary" (click)="onAddExampleClicked(experiment.key)">Add Experiment</button>
+            </mat-card-actions>
+        </mat-card>
+      </div>
+    </div>
+
+
 </div>

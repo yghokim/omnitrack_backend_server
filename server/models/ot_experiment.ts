@@ -3,6 +3,12 @@ import * as uuid from 'uuid';
 import { ExperimentPermissions } from '../../omnitrack/core/research/experiment'
 import { ExperimentDashboardConfigs, TrackingItemListTableConfig, VisualizationConfigs } from '../../omnitrack/core/research/configs';
 
+const randomstring  = require('randomstring');
+
+export function generateNewExperimentId(): string{
+  return "ot-exp-" + randomstring.generate({length: 8, charset: 'numeric'})
+}
+
 const otExperimentGroupSchema = new mongoose.Schema(
   {
     _id: {type: String, default: uuid.v1},
@@ -24,7 +30,7 @@ const otExperimentInjectionPackageSchema = new mongoose.Schema(
 
 
 const otExperimentSchema = new mongoose.Schema({
-  _id: {type: String, default: uuid.v1},
+  _id: {type: String, default: generateNewExperimentId},
   name: {type: String, required: true},
   groups: {type: [otExperimentGroupSchema], default: [{name: "Default", maxSize: 100, participants: []}]},
   manager: {type: String, ref: 'OTResearcher', required: true},

@@ -1,306 +1,321 @@
 {
-  "trackers": [{
-    "user": "%{OWNER_0}%",
-    "position": 3,
-    "name": "생산성 로그 누락일지",
-    "color": -38203,
-    "removed": false,
-    "flags": {
-      "injected": true,
-      "injectionId": "nuiCy21H"
+  "trackers": [
+    {
+      "isBookmarked": true,
+      "attributes": [
+        {
+          "isHidden": false,
+          "isInTrashcan": false,
+          "properties": [
+            { "key": "multiSelection", "sVal": "false" },
+            {
+              "key": "entries",
+              "sVal":
+                "{\"seed\":2,\"entries\":[{\"id\":0,\"val\":\"시작 시각\"},{\"id\":1,\"val\":\"끝낸 시각\"}]}"
+            }
+          ],
+          "objectId": "%{ATTRIBUTE_2}%",
+          "localId": "%{ATTRIBUTE_LOCAL_2}%",
+          "type": 6,
+          "trackerId": "%{TRACKER_1}%",
+          "name": "어떤 시각을 입력하시겠습니까?",
+          "isRequired": true,
+          "position": 0,
+          "fallbackPolicy": 3,
+          "fallbackPreset": null,
+          "connection": null,
+          "lockedProperties": {"delete": true},
+          "flags": { "injected": true, "injectionId": "OZLc8BKS" }
+        },
+        {
+          "isHidden": false,
+          "isInTrashcan": false,
+          "properties": [{ "key": "granularity", "sVal": "1" }],
+          "objectId": "%{ATTRIBUTE_3}%",
+          "localId": "%{ATTRIBUTE_LOCAL_3}%",
+          "type": 1,
+          "trackerId": "%{TRACKER_1}%",
+          "name": "시작 혹은 끝 시각",
+          "isRequired": true,
+          "position": 0,
+          "fallbackPolicy": 1,
+          "fallbackPreset": null,
+          "connection": null,
+          "lockedProperties": {"delete": true},
+          "flags": { "injected": true, "injectionId": "UDTGuxJm" }
+        },
+        {
+          "isHidden": false,
+          "isInTrashcan": false,
+          "properties": [
+            {
+              "key": "style",
+              "sVal":
+                "{\"unitPosition\":2,\"unit\":\"분\",\"pluralize\":false,\"fraction\":0,\"comma\":3}"
+            }
+          ],
+          "objectId": "%{ATTRIBUTE_4}%",
+          "localId": "%{ATTRIBUTE_LOCAL_4}%",
+          "type": 0,
+          "trackerId": "%{TRACKER_1}%",
+          "name": "일한 시간",
+          "isRequired": true,
+          "position": 0,
+          "fallbackPolicy": 1,
+          "fallbackPreset": null,
+          "connection": null,
+          "lockedProperties": {"delete": true},
+          "flags": { "injected": true, "injectionId": "uyMhOEin" }
+        },
+        {
+          "isHidden": false,
+          "isInTrashcan": false,
+          "properties": [],
+          "objectId": "%{ATTRIBUTE_7}%",
+          "localId": "%{ATTRIBUTE_LOCAL_7}%",
+          "type": 3,
+          "trackerId": "%{TRACKER_1}%",
+          "name": "한 일",
+          "isRequired": true,
+          "position": 0,
+          "fallbackPolicy": 0,
+          "fallbackPreset": null,
+          "connection": null,
+          "lockedProperties": {"delete": true},
+          "flags": { "injected": true, "injectionId": "3CVBwMM1" }
+        },
+        {
+          "isHidden": false,
+          "isInTrashcan": false,
+          "properties": [
+            { "key": "multiSelection", "sVal": "false" },
+            {
+              "key": "entries",
+              "sVal":
+                "{\"seed\":2,\"entries\":[{\"id\":0,\"val\":\"보통\"},{\"id\":1,\"val\":\"생산적\"},{\"id\":2,\"val\":\"매우 생산적\"}]}"
+            }
+          ],
+          "objectId": "%{ATTRIBUTE_5}%",
+          "localId": "%{ATTRIBUTE_LOCAL_5}%",
+          "type": 6,
+          "trackerId": "%{TRACKER_1}%",
+          "name": "생산성",
+          "isRequired": true,
+          "position": 0,
+          "fallbackPolicy": 0,
+          "fallbackPreset": null,
+          "connection": null,
+          "lockedProperties": {"delete": true},
+          "flags": { "injected": true, "injectionId": "QizUYovc" }
+        },
+        {
+          "isHidden": false,
+          "isInTrashcan": false,
+          "properties": [],
+          "objectId": "%{ATTRIBUTE_6}%",
+          "localId": "%{ATTRIBUTE_LOCAL_6}%",
+          "type": 4,
+          "trackerId": "%{TRACKER_1}%",
+          "name": "생산성 판단 근거",
+          "isRequired": true,
+          "position": 0,
+          "fallbackPolicy": 0,
+          "fallbackPreset": null,
+          "connection": null,
+          "lockedProperties": {"delete": true},
+          "flags": { "injected": true, "injectionId": "9hwQHamo" }
+        },
+        {
+          "isHidden": false,
+          "isInTrashcan": false,
+          "properties": [
+            { "key": "multiSelection", "sVal": "false" },
+            {
+              "key": "entries",
+              "sVal":
+                "{\"seed\":2,\"entries\":[{\"id\":0,\"val\":\"사무실\"},{\"id\":1,\"val\":\"집\"},{\"id\":2,\"val\":\"카페\"}]}"
+            }
+          ],
+          "objectId": "%{ATTRIBUTE_8}%",
+          "localId": "%{ATTRIBUTE_LOCAL_8}%",
+          "type": 6,
+          "trackerId": "%{TRACKER_1}%",
+          "name": "일한 장소",
+          "isRequired": false,
+          "position": 0,
+          "fallbackPolicy": 0,
+          "fallbackPreset": null,
+          "connection": null,
+          "flags": { "injected": true, "injectionId": "ztoRgnIY" }
+        },
+        {
+          "isHidden": false,
+          "isInTrashcan": false,
+          "properties": [
+            { "key": "multiSelection", "sVal": "true" },
+            {
+              "key": "entries",
+              "sVal":
+                "{\"seed\":3,\"entries\":[{\"id\":0,\"val\":\"데스크탑\"},{\"id\":1,\"val\":\"스마트폰\"},{\"id\":2,\"val\":\"노트북\"},{\"id\":3,\"val\":\"태블릿\"}]}"
+            }
+          ],
+          "objectId": "%{ATTRIBUTE_9}%",
+          "localId": "%{ATTRIBUTE_LOCAL_9}%",
+          "type": 6,
+          "trackerId": "%{TRACKER_1}%",
+          "name": "사용한 디지털 기기",
+          "isRequired": false,
+          "position": 0,
+          "fallbackPolicy": 0,
+          "fallbackPreset": null,
+          "connection": null,
+          "flags": { "injected": true, "injectionId": "KJeafavG" }
+        },
+        {
+          "isHidden": false,
+          "isInTrashcan": false,
+          "properties": [],
+          "objectId": "%{ATTRIBUTE_10}%",
+          "localId": "%{ATTRIBUTE_LOCAL_10}%",
+          "type": 8,
+          "trackerId": "%{TRACKER_1}%",
+          "name": "컨텍스트",
+          "isRequired": false,
+          "position": 0,
+          "fallbackPolicy": 0,
+          "fallbackPreset": null,
+          "connection": null,
+          "flags": { "injected": true, "injectionId": "YNtFn97k" }
+        },
+        {
+          "isHidden": false,
+          "isInTrashcan": false,
+          "properties": [
+            {
+              "key": "options",
+              "sVal":
+                "{\"type\":1,\"stars\":5,\"left\":-2,\"right\":2,\"leftLabel\":\"매우 불행했다\",\"midLabel\":\"그저 그랬다\",\"rightLabel\":\"매우 행복했다\",\"fractional\":true}"
+            }
+          ],
+          "objectId": "%{ATTRIBUTE_11}%",
+          "localId": "%{ATTRIBUTE_LOCAL_11}%",
+          "type": 7,
+          "trackerId": "%{TRACKER_1}%",
+          "name": "행복도",
+          "isRequired": false,
+          "position": 0,
+          "fallbackPolicy": 0,
+          "fallbackPreset": null,
+          "connection": null,
+          "flags": { "injected": true, "injectionId": "BuzCGUEt" }
+        }
+      ],
+      "removed": false,
+      "user": "%{OWNER_0}%",
+      "position": 2,
+      "name": "생산성 로그",
+      "color": -6333198,
+      "objectId": "%{TRACKER_1}%",
+      "lockedProperties": {"delete": true},
+      "flags": { "injected": true, "injectionId": "Ab0ksQyh" }
     },
-    "attributes": [{
-      "objectId": "%{ATTRIBUTE_0}%",
-      "localId": "%{ATTRIBUTE_LOCAL_0}%",
-      "type": 1,
-      "trackerId": "%{TRACKER_0}%",
-      "name": "날짜",
-      "isRequired": true,
-      "position": 0,
-      "fallbackPolicy": 1,
-      "fallbackPreset": null,
-      "connection": null,
-      "properties": [{
-        "key": "granularity",
-        "sVal": "0"
-      }],
-      "isInTrashcan": false,
-      "isHidden": false,
-      "flags": {
-        "injected": true,
-        "injectionId": "8VsyGSy3"
-      }
-    }, {
-      "objectId": "%{ATTRIBUTE_1}%",
-      "localId": "%{ATTRIBUTE_LOCAL_1}%",
-      "type": 4,
-      "trackerId": "%{TRACKER_0}%",
-      "name": "생산성 로그가 없었던 이유",
-      "isRequired": true,
-      "position": 1,
-      "fallbackPolicy": 0,
-      "fallbackPreset": null,
-      "connection": null,
-      "properties": [],
-      "isInTrashcan": false,
-      "isHidden": false,
-      "flags": {
-        "injected": true,
-        "injectionId": "D78ifJJc"
-      }
-    }],
-    "isBookmarked": true,
-    "objectId": "%{TRACKER_0}%"
-  }, {
-    "user": "%{OWNER_0}%",
-    "position": 2,
-    "name": "생산성 로그",
-    "color": -6333198,
-    "removed": false,
-    "flags": {
-      "injected": true,
-      "injectionId": "0uZJeWde"
-    },
-    "attributes": [{
-      "objectId": "%{ATTRIBUTE_2}%",
-      "localId": "%{ATTRIBUTE_LOCAL_2}%",
-      "type": 2,
-      "trackerId": "%{TRACKER_1}%",
-      "name": "일한 시간",
-      "isRequired": true,
-      "position": 0,
-      "fallbackPolicy": 11,
-      "fallbackPreset": null,
-      "connection": null,
-      "properties": [{
-        "key": "granularity",
-        "sVal": "1"
-      }],
-      "isInTrashcan": false,
-      "isHidden": false,
-      "flags": {
-        "injected": true,
-        "injectionId": "V4euC0IN"
-      }
-    }, {
-      "objectId": "%{ATTRIBUTE_3}%",
-      "localId": "%{ATTRIBUTE_LOCAL_3}%",
-      "type": 6,
-      "trackerId": "%{TRACKER_1}%",
-      "name": "생산성",
-      "isRequired": true,
-      "position": 0,
-      "fallbackPolicy": 0,
-      "fallbackPreset": null,
-      "connection": null,
-      "properties": [{
-        "key": "multiSelection",
-        "sVal": "false"
-      }, {
-        "key": "entries",
-        "sVal": "{\"seed\":2,\"entries\":[{\"id\":0,\"val\":\"보통\"},{\"id\":1,\"val\":\"생산적\"},{\"id\":2,\"val\":\"매우 생산적\"}]}"
-      }],
-      "isInTrashcan": false,
-      "isHidden": false,
-      "flags": {
-        "injected": true,
-        "injectionId": "ExhPMxgn"
-      }
-    }, {
-      "objectId": "%{ATTRIBUTE_4}%",
-      "localId": "%{ATTRIBUTE_LOCAL_4}%",
-      "type": 4,
-      "trackerId": "%{TRACKER_1}%",
-      "name": "점수를 그렇게 매긴 이유",
-      "isRequired": true,
-      "position": 0,
-      "fallbackPolicy": 0,
-      "fallbackPreset": null,
-      "connection": null,
-      "properties": [],
-      "isInTrashcan": false,
-      "isHidden": false,
-      "flags": {
-        "injected": true,
-        "injectionId": "jsuU7fCb"
-      }
-    }, {
-      "objectId": "%{ATTRIBUTE_5}%",
-      "localId": "%{ATTRIBUTE_LOCAL_5}%",
-      "type": 3,
-      "trackerId": "%{TRACKER_1}%",
-      "name": "한 일",
-      "isRequired": true,
-      "position": 0,
-      "fallbackPolicy": 0,
-      "fallbackPreset": null,
-      "connection": null,
-      "properties": [],
-      "isInTrashcan": false,
-      "isHidden": false,
-      "flags": {
-        "injected": true,
-        "injectionId": "le7D1gwa"
-      }
-    }, {
-      "objectId": "%{ATTRIBUTE_6}%",
-      "localId": "%{ATTRIBUTE_LOCAL_6}%",
-      "type": 6,
-      "trackerId": "%{TRACKER_1}%",
-      "name": "일한 장소",
-      "isRequired": false,
-      "position": 0,
-      "fallbackPolicy": 0,
-      "fallbackPreset": null,
-      "connection": null,
-      "properties": [{
-        "key": "multiSelection",
-        "sVal": "false"
-      }, {
-        "key": "entries",
-        "sVal": "{\"seed\":2,\"entries\":[{\"id\":0,\"val\":\"집\"},{\"id\":1,\"val\":\"연구실\"},{\"id\":2,\"val\":\"카페\"}]}"
-      }],
-      "isInTrashcan": false,
-      "isHidden": false,
-      "flags": {
-        "injected": true,
-        "injectionId": "5nL8EwcC"
-      }
-    }, {
-      "objectId": "%{ATTRIBUTE_7}%",
-      "localId": "%{ATTRIBUTE_LOCAL_7}%",
-      "type": 6,
-      "trackerId": "%{TRACKER_1}%",
-      "name": "사용한 디지털 기기",
-      "isRequired": false,
-      "position": 0,
-      "fallbackPolicy": 0,
-      "fallbackPreset": null,
-      "connection": null,
-      "properties": [{
-        "key": "multiSelection",
-        "sVal": "true"
-      }, {
-        "key": "entries",
-        "sVal": "{\"seed\":3,\"entries\":[{\"id\":0,\"val\":\"Smartphone\"},{\"id\":1,\"val\":\"Desktop\"},{\"id\":2,\"val\":\"Laptop\"},{\"id\":3,\"val\":\"iPad\"}]}"
-      }],
-      "isInTrashcan": false,
-      "isHidden": false,
-      "flags": {
-        "injected": true,
-        "injectionId": "QWNYShi4"
-      }
-    }, {
-      "objectId": "%{ATTRIBUTE_8}%",
-      "localId": "%{ATTRIBUTE_LOCAL_8}%",
-      "type": 8,
-      "trackerId": "%{TRACKER_1}%",
-      "name": "컨텍스트",
-      "isRequired": false,
-      "position": 0,
-      "fallbackPolicy": 0,
-      "fallbackPreset": null,
-      "connection": null,
-      "properties": [],
-      "isInTrashcan": false,
-      "isHidden": false,
-      "flags": {
-        "injected": true,
-        "injectionId": "YO0kWzyS"
-      }
-    }, {
-      "objectId": "%{ATTRIBUTE_9}%",
-      "localId": "%{ATTRIBUTE_LOCAL_9}%",
-      "type": 7,
-      "trackerId": "%{TRACKER_1}%",
-      "name": "행복도",
-      "isRequired": false,
-      "position": 0,
-      "fallbackPolicy": 0,
-      "fallbackPreset": null,
-      "connection": null,
-      "properties": [{
-        "key": "options",
-        "sVal": "{\"type\":1,\"stars\":5,\"left\":-2,\"right\":2,\"leftLabel\":\"매우 불행했다\",\"midLabel\":\"그저 그랬다\",\"rightLabel\":\"매우 행복했다\",\"fractional\":true}"
-      }],
-      "isInTrashcan": false,
-      "isHidden": false,
-      "flags": {
-        "injected": true,
-        "injectionId": "qomyiR1v"
-      }
-    }],
-    "isBookmarked": true,
-    "objectId": "%{TRACKER_1}%"
-  }],
-  "triggers": [{
-    "user": "%{OWNER_0}%",
-    "condition": {
-      "cType": 0,
-      "aHr": 21,
-      "aMin": 0,
-      "iSec": 600,
-      "iRanged": false,
-      "iStartHr": 9,
-      "iEndHr": 12,
-      "repeat": true,
-      "dow": 127,
-      "endAt": null
-    },
-    "action": {
-      "level": 0
-    },
-    "lastTriggeredTime": null,
-    "script": "todayLogCountOf(\"%{TRACKER_0}%\") ==0 && todayLogCountOf(\"%{TRACKER_1}%\") == 0",
-    "removed": false,
-    "isOn": true,
-    "trackers": ["%{TRACKER_0}%"],
-    "checkScript": true,
-    "actionType": 0,
-    "conditionType": 0,
-    "position": 0,
-    "alias": "",
-    "objectId": "%{TRIGGER_0}%",
-    "flags": {
-      "injected": true,
-      "injectionId": "k4UWZ1Xu"
+
+    {
+      "isBookmarked": true,
+      "attributes": [
+        {
+          "isHidden": false,
+          "isInTrashcan": false,
+          "properties": [{ "key": "granularity", "sVal": "0" }],
+          "objectId": "%{ATTRIBUTE_0}%",
+          "localId": "%{ATTRIBUTE_LOCAL_0}%",
+          "type": 1,
+          "trackerId": "%{TRACKER_0}%",
+          "name": "날짜",
+          "isRequired": true,
+          "position": 0,
+          "fallbackPolicy": 1,
+          "fallbackPreset": null,
+          "connection": null,
+          "flags": { "injected": true, "injectionId": "Ac4gSN0C" }
+        },
+        {
+          "isHidden": false,
+          "isInTrashcan": false,
+          "properties": [],
+          "objectId": "%{ATTRIBUTE_1}%",
+          "localId": "%{ATTRIBUTE_LOCAL_1}%",
+          "type": 4,
+          "trackerId": "%{TRACKER_0}%",
+          "name": "생산성 로그가 없었던 이유",
+          "isRequired": true,
+          "position": 1,
+          "fallbackPolicy": 0,
+          "fallbackPreset": null,
+          "connection": null,
+          "flags": { "injected": true, "injectionId": "syXB4sIp" }
+        }
+      ],
+      "removed": false,
+      "user": "%{OWNER_0}%",
+      "position": 3,
+      "name": "생산성 로그 누락일지",
+      "color": -38203,
+      "objectId": "%{TRACKER_0}%",
+      "lockedProperties": {"edit":true, "delete": true},
+      "flags": { "injected": true, "injectionId": "gGv9WCm3" }
     }
-  }],
+  ],
+  "triggers": [
+    {
+      "alias": "",
+      "position": 0,
+      "conditionType": 0,
+      "actionType": 0,
+      "checkScript": true,
+      "trackers": ["%{TRACKER_0}%"],
+      "isOn": true,
+      "removed": false,
+      "user": "%{OWNER_0}%",
+      "condition": {
+        "endAt": null,
+        "dow": 127,
+        "repeat": true,
+        "iEndHr": 12,
+        "iStartHr": 9,
+        "iRanged": false,
+        "iSec": 600,
+        "aMin": 0,
+        "aHr": 21,
+        "cType": 0
+      },
+      "action": { "level": 0 },
+      "lastTriggeredTime": null,
+      "lockedProperties": {"edit":true, "delete": true},
+      "script":
+        "todayLogCountOf(\"%{TRACKER_0}%\") ==0 && todayLogCountOf(\"%{TRACKER_1}%\") == 0",
+      "objectId": "%{TRIGGER_0}%",
+      "flags": { "injected": true, "injectionId": "dITer8IU" }
+    }
+  ],
   "serviceCodes": [],
   "placeHolderDict": {
     "user": "%{OWNER_0}%",
     "trackers": ["%{TRACKER_0}%", "%{TRACKER_1}%"],
     "triggers": ["%{TRIGGER_0}%"],
-    "attributes": [{
-      "id": "%{ATTRIBUTE_0}%",
-      "localId": "%{ATTRIBUTE_LOCAL_0}%"
-    }, {
-      "id": "%{ATTRIBUTE_1}%",
-      "localId": "%{ATTRIBUTE_LOCAL_1}%"
-    }, {
-      "id": "%{ATTRIBUTE_2}%",
-      "localId": "%{ATTRIBUTE_LOCAL_2}%"
-    }, {
-      "id": "%{ATTRIBUTE_3}%",
-      "localId": "%{ATTRIBUTE_LOCAL_3}%"
-    }, {
-      "id": "%{ATTRIBUTE_4}%",
-      "localId": "%{ATTRIBUTE_LOCAL_4}%"
-    }, {
-      "id": "%{ATTRIBUTE_5}%",
-      "localId": "%{ATTRIBUTE_LOCAL_5}%"
-    }, {
-      "id": "%{ATTRIBUTE_6}%",
-      "localId": "%{ATTRIBUTE_LOCAL_6}%"
-    }, {
-      "id": "%{ATTRIBUTE_7}%",
-      "localId": "%{ATTRIBUTE_LOCAL_7}%"
-    }, {
-      "id": "%{ATTRIBUTE_8}%",
-      "localId": "%{ATTRIBUTE_LOCAL_8}%"
-    }, {
-      "id": "%{ATTRIBUTE_9}%",
-      "localId": "%{ATTRIBUTE_LOCAL_9}%"
-    }]
+    "attributes": [
+      { "id": "%{ATTRIBUTE_0}%", "localId": "%{ATTRIBUTE_LOCAL_0}%" },
+      { "id": "%{ATTRIBUTE_1}%", "localId": "%{ATTRIBUTE_LOCAL_1}%" },
+      { "id": "%{ATTRIBUTE_2}%", "localId": "%{ATTRIBUTE_LOCAL_2}%" },
+      { "id": "%{ATTRIBUTE_3}%", "localId": "%{ATTRIBUTE_LOCAL_3}%" },
+      { "id": "%{ATTRIBUTE_4}%", "localId": "%{ATTRIBUTE_LOCAL_4}%" },
+      { "id": "%{ATTRIBUTE_5}%", "localId": "%{ATTRIBUTE_LOCAL_5}%" },
+      { "id": "%{ATTRIBUTE_6}%", "localId": "%{ATTRIBUTE_LOCAL_6}%" },
+      { "id": "%{ATTRIBUTE_7}%", "localId": "%{ATTRIBUTE_LOCAL_7}%" },
+      { "id": "%{ATTRIBUTE_8}%", "localId": "%{ATTRIBUTE_LOCAL_8}%" },
+      { "id": "%{ATTRIBUTE_9}%", "localId": "%{ATTRIBUTE_LOCAL_9}%" },
+      { "id": "%{ATTRIBUTE_10}%", "localId": "%{ATTRIBUTE_LOCAL_10}%" },
+      { "id": "%{ATTRIBUTE_11}%", "localId": "%{ATTRIBUTE_LOCAL_11}%" }
+    ]
   }
 }

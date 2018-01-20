@@ -50,6 +50,9 @@ router.post('/auth/register', researchAuthCtrl.registerResearcher)
 router.post('/auth/update', tokenAuth, researchAuthCtrl.update)
 router.post('/auth/verify', tokenAuth, researchAuthCtrl.verifyToken)
 
+router.get("/experiments/examples", experimentCtrl.getExampleExperimentList)
+router.post("/experiments/examples", tokenAuth, experimentCtrl.addExampleExperiment)
+
 router.post('/experiments/new', tokenAuth, experimentCtrl.createExperiment)
 router.get('/experiments/all', tokenAuth, experimentCtrl.getExperimentInformationsOfResearcher)
 router.get('/experiments/:experimentId', tokenAuth, experimentCtrl.getExperiment)
@@ -57,6 +60,7 @@ router.get('/experiments/:experimentId', tokenAuth, experimentCtrl.getExperiment
 router.post('/experiments/:experimentId/update', tokenAuth, experimentCtrl.updateExperiment)
 
 router.delete('/experiments/:experimentId', tokenAuth, experimentCtrl.removeExperiment)
+
 
 router.post("/experiments/:experimentId/collaborators/new", tokenAuth, experimentCtrl.addCollaborator)
 

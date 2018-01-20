@@ -15,4 +15,5 @@ export interface ITrackerLockedProperties extends IEntityLockedProperties {
 
 export interface ITriggerLockedProperties extends IEntityLockedProperties {
   changeSwitch?: boolean
+  changeAssignedTrackers?: boolean
 }

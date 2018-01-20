@@ -268,6 +268,28 @@ export default class OTExperimentCtrl {
     })
   }
 
+  addExampleExperiment = (req, res) => {
+    const managerId = req.researcher.uid
+    const exampleKey = req.body.exampleKey
+    if(exampleKey)
+    {
+      app.researchModule().generateExampleExperimentToResearcher(exampleKey, managerId, true).then(experimentId=>{
+        res.status(200).send({experimentId: experimentId})
+      })
+      .catch(err=>{
+        console.log(err)
+        res.status(500).send(err)
+      })
+    }
+    else{
+      res.status(404).send("No example key was passed.")
+    }
+  }
+
+  getExampleExperimentList = (req, res) => {
+    console.log(app.researchModule().exampleExperimentInformations)
+    res.status(200).send(app.researchModule().exampleExperimentInformations)
+  }
 }
 
 
