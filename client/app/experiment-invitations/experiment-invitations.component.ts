@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
 import { ExperimentService } from '../services/experiment.service';
 import { NotificationService } from '../services/notification.service';
@@ -6,14 +6,16 @@ import { MatDialog } from '@angular/material';
 import { NewInvitationDialogComponent } from './new-invitation-dialog/new-invitation-dialog.component';
 import { AInvitation } from '../../../omnitrack/core/research/invitation';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-experiment-invitations',
   templateUrl: './experiment-invitations.component.html',
   styleUrls: ['./experiment-invitations.component.scss']
 })
-export class ExperimentInvitationsComponent implements OnInit {
+export class ExperimentInvitationsComponent implements OnInit, OnDestroy {
 
+  private readonly _internalSubscriptions = new Subscription()
   private experimentService: ExperimentService
   private invitations: Array<any>
   private groups: Array<any>
@@ -23,7 +25,7 @@ export class ExperimentInvitationsComponent implements OnInit {
 
   constructor(
     private api: ResearchApiService,
-    private notificationService: NotificationService, 
+    private notificationService: NotificationService,
     private dialog: MatDialog) {
     this.api.selectedExperimentService.subscribe(expService => {
       this.experimentService = expService
@@ -32,16 +34,24 @@ export class ExperimentInvitationsComponent implements OnInit {
 
   ngOnInit() {
     this.isLoadingInvitations = true
-    this.api.selectedExperimentService.flatMap(service => service.getInvitations()).subscribe(
-      invitations => {
-        this.invitations = invitations
-        this.isLoadingInvitations = false
-      }
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.flatMap(service => service.getInvitations()).subscribe(
+        invitations => {
+          this.invitations = invitations
+          this.isLoadingInvitations = false
+        }
+      )
     )
 
-    this.api.selectedExperimentService.flatMap(service => service.getExperiment()).map(exp => exp.groups).subscribe(groups => {
-      this.groups = groups
-    })
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.flatMap(service => service.getExperiment()).map(exp => exp.groups).subscribe(groups => {
+        this.groups = groups
+      })
+    )
+  }
+
+  ngOnDestroy() {
+    this._internalSubscriptions.unsubscribe()
   }
 
   private getInvitationType(invitation): string {
@@ -66,22 +76,26 @@ export class ExperimentInvitationsComponent implements OnInit {
     })
   }
 
-  onInvitationCodeCopied(invitation){
-    this.notificationService.pushSnackBarMessage({message: "Copied the invitation code to clipboard."})
+  onInvitationCodeCopied(invitation) {
+    this.notificationService.pushSnackBarMessage({ message: "Copied the invitation code to clipboard." })
   }
 
   onNewInvitationClicked() {
-    this.dialog.open(NewInvitationDialogComponent, { data: { groups: this.groups } }).beforeClose().subscribe(
-      invitation => {
-        if (invitation) {
-          this.isLoadingInvitations = true
-          this.api.selectedExperimentService.flatMap(service => service.generateInvitation(invitation.toJson())).subscribe(
-            newInvitation => {
-              this.isLoadingInvitations = false
-            }
-          )
+    this._internalSubscriptions.add(
+      this.dialog.open(NewInvitationDialogComponent, { data: { groups: this.groups } }).beforeClose().subscribe(
+        invitation => {
+          if (invitation) {
+            this.isLoadingInvitations = true
+            this._internalSubscriptions.add(
+              this.api.selectedExperimentService.flatMap(service => service.generateInvitation(invitation.toJson())).subscribe(
+                newInvitation => {
+                  this.isLoadingInvitations = false
+                }
+              )
+            )
+          }
         }
-      }
+      )
     )
   }
 
@@ -89,21 +103,19 @@ export class ExperimentInvitationsComponent implements OnInit {
     return (this.groups.find(g => g._id === groupId) || { name: "" }).name
   }
 
-  getNumActiveParticipants(invitation):number{
+  getNumActiveParticipants(invitation): number {
     const participants = invitation.participants
-    if(participants instanceof Array)
-    {
-      return participants.filter(p => p.dropped!=true && p.isConsentApproved == true).length
+    if (participants instanceof Array) {
+      return participants.filter(p => p.dropped != true && p.isConsentApproved == true).length
     }
     else return 0
   }
 
 
-  getNumDeniedParticipants(invitation):number{
+  getNumDeniedParticipants(invitation): number {
     const participants = invitation.participants
-    if(participants instanceof Array)
-    {
-      return participants.filter(p => p.isDenied==true).length
+    if (participants instanceof Array) {
+      return participants.filter(p => p.isDenied == true).length
     }
     else return 0
   }
