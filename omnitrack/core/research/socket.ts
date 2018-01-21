@@ -34,6 +34,7 @@ export class SocketConstants{
   static readonly MODEL_TRACKER = "OTTracker"
   static readonly MODEL_TRIGGER = "OTTrigger"
   static readonly MODEL_ITEM = "OTItem"
+  static readonly MODEL_RESEARCH_MESSAGE = "OTResearchMessage"
   
   static readonly EVENT_APPROVED = "approved"
   static readonly EVENT_DENIED = "denied"

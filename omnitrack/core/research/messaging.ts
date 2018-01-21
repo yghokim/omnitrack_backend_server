@@ -16,7 +16,7 @@ export class MessageReceiverRules {
 export class SpecificUsersMessageReceiverRule implements IMessageReceiverRule {
   public readonly type: string = MessageReceiverRules.SpecificUsersRule
 
-  constructor(public readonly userId: string | string[] = []) {
+  constructor(public userId: string | string[] = []) {
   }
 
   isValid(): boolean {
@@ -25,6 +25,7 @@ export class SpecificUsersMessageReceiverRule implements IMessageReceiverRule {
 }
 
 export interface IResearchMessage {
+  _id?: string
   label: string
   type: string
   receiverRule: IMessageReceiverRule
@@ -34,7 +35,7 @@ export interface IResearchMessage {
   isDraft: boolean
   reservedTime?: Date
   sentAt?: Date
-  experiment?: {_id: string, name: string}
+  experiment?: {_id: string, name: string} | string
   receivers?: Array<any>
 }
 

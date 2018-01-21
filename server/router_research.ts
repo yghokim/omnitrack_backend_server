@@ -5,6 +5,7 @@ import OTResearchAuthCtrl from './controllers/ot_research_auth_controller';
 import AdminCtrl from "./controllers/admin_controller";
 import OTResearchCtrl from './controllers/ot_research_controller';
 import { experimentCtrl } from './controllers/research/ot_experiment_controller';
+import { messageCtrl } from './controllers/research/ot_message_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
 import ot_tracker from './models/ot_tracker';
 import ot_trigger from './models/ot_trigger';
@@ -58,6 +59,12 @@ router.get('/experiments/all', tokenAuth, experimentCtrl.getExperimentInformatio
 router.get('/experiments/:experimentId', tokenAuth, experimentCtrl.getExperiment)
 
 router.post('/experiments/:experimentId/update', tokenAuth, experimentCtrl.updateExperiment)
+
+router.post('/experiments/:experimentId/messages/new', tokenAuth, messageCtrl.enqueueMessage)
+router.get('/experiments/:experimentId/messages', tokenAuth, messageCtrl.getMessageList)
+
+router.post('/experiments/:experimentId/update', tokenAuth, experimentCtrl.updateExperiment)
+
 
 router.delete('/experiments/:experimentId', tokenAuth, experimentCtrl.removeExperiment)
 

@@ -13,8 +13,12 @@ import { SocketConstants } from '../../../omnitrack/core/research/socket';
 
 export default class OTExperimentCtrl {
 
+  makeExperimentAndCorrespondingResearcherQuery(experimentId: string, researcherId: string): any{
+    return { $and: [{ _id: experimentId }, { $or: [{ manager: researcherId }, { "experimenters.researcher": researcherId }] }] }
+  }
+
   private _getExperiment(researcherId: string, experimentId: string): Promise<Document> {
-    return OTExperiment.findOne({ $and: [{ _id: experimentId }, { $or: [{ manager: researcherId }, { "experimenters.researcher": researcherId }] }] })
+    return OTExperiment.findOne(this.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId))
       .populate({ path: "manager", select: "_id email alias" })
       .populate({ path: "experimenters.researcher", select: "_id email alias" })
       .then(doc => doc)

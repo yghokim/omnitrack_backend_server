@@ -13,6 +13,7 @@ import 'rxjs/add/operator/combineLatest';
 import { VisualizationConfigs } from '../../../omnitrack/core/research/configs';
 import { TrackingDataService } from './tracking-data.service';
 import { Subject } from 'rxjs/Subject';
+import { IResearchMessage } from '../../../omnitrack/core/research/messaging';
 
 export class ExperimentService {
 
@@ -20,6 +21,7 @@ export class ExperimentService {
   private readonly managerInfo = new BehaviorSubject<any>(null)
   private readonly invitationList = new BehaviorSubject<Array<any>>([])
   private readonly participantList = new BehaviorSubject<Array<any>>([])
+  private readonly messageList = new BehaviorSubject<Array<IResearchMessage>>([])
 
   private readonly _internalSubscriptions = new Subscription()
 
@@ -49,6 +51,7 @@ export class ExperimentService {
     this.loadInvitationList()
     this.loadManagerInfo()
     this.loadParticipantList()
+    this.loadMessageList()
 
     this._internalSubscriptions.add(
       socketService.onConnected.subscribe(
@@ -101,6 +104,10 @@ export class ExperimentService {
                         break;
                       }
                       break;
+
+                    case SocketConstants.MODEL_RESEARCH_MESSAGE:
+                      this.loadMessageList()
+                    break;
                   }
                 }
               })
@@ -117,6 +124,22 @@ export class ExperimentService {
     })
     this._internalSubscriptions.unsubscribe()
     this.trackingDataService.ngOnDestroy()
+  }
+
+  loadMessageList(){
+    this.notificationService.registerGlobalBusyTag("messageList")
+    this._internalSubscriptions.add(
+      this.http.get("/api/research/experiments/" + this.experimentId + "/messages", this.researchApi.authorizedOptions)
+        .map(res=> res.json())
+        .subscribe(
+          messages=>{
+            if(messages instanceof Array){
+              this.notificationService.unregisterGlobalBusyTag("messageList")
+              this.messageList.next(messages)
+            }
+          }
+        )
+    )
   }
 
   loadExperimentInfo() {
@@ -191,6 +214,16 @@ export class ExperimentService {
 
   getParticipants(): Observable<Array<any>> {
     return this.participantList.asObservable()
+  }
+
+  getMessageList() : Observable<Array<IResearchMessage>>{
+    return this.messageList.filter(res=>res != null)
+  }
+
+  enqueueMessage(messageInfo: IResearchMessage): Observable<boolean>{
+    return this.http
+      .post("/api/research/experiments/" + this.experimentId + "/messages/new", messageInfo, this.researchApi.authorizedOptions)
+      .map(res=>res.json())
   }
 
   generateInvitation(information): Observable<any> {

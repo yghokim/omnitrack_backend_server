@@ -5,6 +5,7 @@
         <table class="table table-data">
           <thead>
             <th>Type</th>
+            <th>Label</th>
             <th>Title</th>
             <th>Message</th>
             <th>Reciever Rule</th>
@@ -13,6 +14,22 @@
             <th>Sent</th>
             <th></th>
           </thead>
+          <tbody>
+            <tr class="hoverable singleline" *ngFor="let message of messageList">
+              <td>
+                  <span>{{message.type}}</span>
+              </td>
+              <td>{{message.label}}</td>
+              <td>{{message.messageTitle}}</td>
+              <td class="message-body">{{message.messageBody}}</td>
+              <td>{{message.receiverRule.type}}</td>
+              <td></td>
+              <td>{{message.createdAt | date: 'short'}}</td>
+              <td></td>
+              <td></td>
+
+            </tr>
+          </tbody>
         </table>
       </mat-tab>
       <mat-tab label="Drafts">

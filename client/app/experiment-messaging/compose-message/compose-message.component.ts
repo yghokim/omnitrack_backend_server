@@ -1,14 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { IResearchMessage, DefaultNewMessage, MessageReceiverRules, SpecificUsersMessageReceiverRule } from '../../../../omnitrack/core/research/messaging';
 import { ResearchApiService } from '../../services/research-api.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-compose-message',
   templateUrl: './compose-message.component.html',
   styleUrls: ['./compose-message.component.scss']
 })
-export class ComposeMessageComponent implements OnInit {
+export class ComposeMessageComponent implements OnInit, OnDestroy {
 
   public messageTypes = [{
     key: "push",
@@ -37,6 +39,8 @@ export class ComposeMessageComponent implements OnInit {
     }
   ]
 
+  private _internalSubscriptions = new Subscription()
+
   public isBusy = false
 
   public selectedParticipantUserIds: Array<string> = []
@@ -47,13 +51,23 @@ export class ComposeMessageComponent implements OnInit {
 
   public loadedParticipants =  new BehaviorSubject<any[]>([])
 
-  constructor(private api: ResearchApiService) { }
+  constructor(private api: ResearchApiService, private router: Router, private activatedRoute: ActivatedRoute) { }
 
   ngOnInit() {
-    // TODO route
-
     this.mountMessage(new DefaultNewMessage())
-    this.loadParticipants()
+    this.mountedMessage.experiment = this.api.getSelectedExperimentId()
+
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.flatMap(service => service.getParticipants()).subscribe(
+        participants => {
+          this.loadedParticipants.next(participants)
+        }
+      )
+    )
+  }
+
+  ngOnDestroy(){
+    this._internalSubscriptions.unsubscribe()
   }
 
   private mountMessage(message: IResearchMessage) {
@@ -76,26 +90,37 @@ export class ComposeMessageComponent implements OnInit {
     switch (event.value) {
       case MessageReceiverRules.SpecificUsersRule:
         this.mountedMessage.receiverRule = new SpecificUsersMessageReceiverRule
-        this.loadParticipants()
       break;
     }
   }
 
-  private loadParticipants() {
-    this.api.selectedExperimentService.flatMap(service => service.getParticipants()).subscribe(
-      participants => {
-        console.log(participants)
-        this.loadedParticipants.next(participants)
-      }
-    )
-  }
-
   public saveAsDraft() {
     this.mountedMessage.isDraft = true
+    this.enqueueMessage()
   }
 
   public composeMessage() {
     this.mountedMessage.isDraft = false
+    this.enqueueMessage()
+  }
+
+  private enqueueMessage(){
+
+    switch (this.mountedMessage.receiverRule.type) {
+      case MessageReceiverRules.SpecificUsersRule:
+      (this.mountedMessage.receiverRule as SpecificUsersMessageReceiverRule).userId = this.selectedParticipantUserIds
+      break;
+    }
+
+    console.log(this.mountedMessage)
+
+    this._internalSubscriptions.add(
+    this.api.selectedExperimentService.flatMap(service=>service.enqueueMessage(this.mountedMessage)).subscribe(
+      success=>{
+        console.log(success)
+        this.router.navigate([".."], { relativeTo: this.activatedRoute })
+      })
+    )
   }
 
   public isDraftContentAvailable(): boolean {
