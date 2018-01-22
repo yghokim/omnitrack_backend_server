@@ -2,6 +2,7 @@ import { EPropertyType } from "./property.types";
 import PropertyHelper from "./property.helper.base";
 import RatingOptionsPropertyHelper from "./rating_options.property.helper";
 import NumberStylePropertyHelper from "./number_style.property.helper";
+import NumberPropertyHelper from './number.property.helper';
 import ChoiceEntryListPropertyHelper from "./choice-entry-list.property.helper";
 import BooleanPropertyHelper from "./boolean.property.helper";
 import SelectionPropertyHelper from './selection.property.helper';
@@ -29,6 +30,9 @@ export default class PropertyHelperManager {
           break;
         case EPropertyType.Selection:
           PropertyHelperManager.dict[type] = new SelectionPropertyHelper()
+          break;
+        case EPropertyType.Number:
+          PropertyHelperManager.dict[type] = new NumberPropertyHelper()
           break;
       }
       return PropertyHelperManager.dict[type]

@@ -52,6 +52,10 @@
               "key": "style",
               "sVal":
                 "{\"unitPosition\":2,\"unit\":\"분\",\"pluralize\":false,\"fraction\":0,\"comma\":3}"
+            },
+            {
+              "key": "buttonUnit",
+              "sVal": "30"
             }
           ],
           "objectId": "%{ATTRIBUTE_4}%",

@@ -1,3 +1,3 @@
 export enum EPropertyType {
-  Boolean, ChoiceEntryList, NumberStyle, RatingOptions, Selection
+  Boolean, ChoiceEntryList, NumberStyle, RatingOptions, Selection, Number
 }
