@@ -1,9 +1,10 @@
 import OTResearchMessage from '../../models/ot_research_message';
 import OTExperiment from '../../models/ot_experiment';
-import { IResearchMessage } from '../../../omnitrack/core/research/messaging';
+import { IResearchMessage, SpecificUsersMessageReceiverRule, MessageReceiverRules } from '../../../omnitrack/core/research/messaging';
 import { experimentCtrl } from './ot_experiment_controller';
 import app from '../../app';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
+import OTParticipant from '../../models/ot_participant';
 
 export default class OTResearchMessageCtrl {
 
@@ -14,17 +15,54 @@ export default class OTResearchMessageCtrl {
       if(savedMessage){
         const casted: IResearchMessage = savedMessage as any
         console.log(casted)
+
+        const onSuccess = ()=>{
+          app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, {model: SocketConstants.MODEL_RESEARCH_MESSAGE, event: SocketConstants.EVENT_ADDED})
+          return true
+        }
+
         if(casted.isDraft != true){
           if(casted.reservedTime){
             //reserve message to agenda
           }
           else{
             //send message immediately
-            
+            let receiverUserIds
+            switch(casted.receiverRule.type){
+              case MessageReceiverRules.SpecificUsersRule:
+              receiverUserIds = (casted.receiverRule as SpecificUsersMessageReceiverRule).userId
+              break;
+            }
+            console.log("send message to ")
+            console.log(receiverUserIds)
+            switch(casted.type){
+              case "push":
+              return app.pushModule().sendNotificationMessageToUser(receiverUserIds, casted.messageTitle, casted.messageBody).then(
+                result=>{
+                  console.log(result)
+                  const participantQuery: any = {experiment: experimentId}
+                  if(receiverUserIds instanceof Array){
+                    participantQuery["user"] = {$in: receiverUserIds}
+                  }else{
+                    participantQuery["user"] = receiverUserIds
+                  }
+                  
+                  return OTParticipant.find(participantQuery, {_id: 1}).then(participants=>{
+                    savedMessage["receivers"] = participants.map(p=>p._id)
+                    return savedMessage.save().then(saved=>{
+                      return onSuccess()
+                    })
+                  })
+                }
+              )
+              
+              case "email":
+              //TODO send email
+              return onSuccess()
+            }
           }
         }
-        app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, {model: SocketConstants.MODEL_RESEARCH_MESSAGE, event: SocketConstants.EVENT_ADDED})
-        return true
+        else return onSuccess()
       }
       else false
     })

@@ -37,17 +37,22 @@ export default class PushModule {
     message: string,
     dataPayload: any = null,
     options: PushOptions = { excludeDeviceIds: [] }): Promise<Array<string>> {
+      const body: any = {
+        notification: {
+          title: title,
+          body: message
+        }
+      }
+
+      if(dataPayload)
+      {
+        body.data = dataPayload
+      }
     return this.getInstanceIds(userId, options)
       .then(instanceIds => {
         if (instanceIds.length > 0) {
           console.log("send notificationMessage to " + instanceIds)
-          return admin.messaging().sendToDevice(instanceIds, {
-            notification: {
-              title: title,
-              body: message
-            },
-            data: dataPayload
-          }).then(response => {
+          return admin.messaging().sendToDevice(instanceIds, body).then(response => {
             console.log(response)
             return response.results.map(device => device.messageId)
           })
