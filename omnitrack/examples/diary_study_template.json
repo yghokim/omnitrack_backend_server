@@ -2,6 +2,14 @@
   "trackers": [
     {
       "isBookmarked": true,
+      "removed": false,
+      "user": "%{OWNER_0}%",
+      "position": 0,
+      "name": "생산성 로그",
+      "color": -6333198,
+      "objectId": "%{TRACKER_1}%",
+      "lockedProperties": {"delete": true},
+      "flags": { "injected": true, "injectionId": "Ab0ksQyh" },
       "attributes": [
         {
           "isHidden": false,
@@ -213,15 +221,7 @@
           "connection": null,
           "flags": { "injected": true, "injectionId": "BuzCGUEt" }
         }
-      ],
-      "removed": false,
-      "user": "%{OWNER_0}%",
-      "position": 2,
-      "name": "생산성 로그",
-      "color": -6333198,
-      "objectId": "%{TRACKER_1}%",
-      "lockedProperties": {"delete": true},
-      "flags": { "injected": true, "injectionId": "Ab0ksQyh" }
+      ]
     },
 
     {
@@ -241,6 +241,7 @@
           "fallbackPolicy": 1,
           "fallbackPreset": null,
           "connection": null,
+          "lockedProperties": {"delete":true, "edit":true, "visibility":true},
           "flags": { "injected": true, "injectionId": "Ac4gSN0C" }
         },
         {
@@ -257,16 +258,17 @@
           "fallbackPolicy": 0,
           "fallbackPreset": null,
           "connection": null,
+          "lockedProperties": {"delete":true, "edit":true, "visibility":true},
           "flags": { "injected": true, "injectionId": "syXB4sIp" }
         }
       ],
       "removed": false,
       "user": "%{OWNER_0}%",
-      "position": 3,
+      "position": 1,
       "name": "생산성 로그 누락일지",
       "color": -38203,
       "objectId": "%{TRACKER_0}%",
-      "lockedProperties": {"edit":true, "delete": true},
+      "lockedProperties": {"delete": true},
       "flags": { "injected": true, "injectionId": "gGv9WCm3" }
     }
   ],
