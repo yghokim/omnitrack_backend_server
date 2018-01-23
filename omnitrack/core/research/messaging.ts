@@ -36,7 +36,7 @@ export interface IResearchMessage {
   reservedTime?: Date
   sentAt?: Date
   experiment?: {_id: string, name: string} | string
-  receivers?: Array<any>
+  receivers?: Array<{_id: string, alias: string}>
 }
 
 export class DefaultNewMessage implements IResearchMessage {

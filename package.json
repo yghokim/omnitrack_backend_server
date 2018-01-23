@@ -81,6 +81,7 @@
     "path": "^0.12.7",
     "randomstring": "^1.1.5",
     "rxjs": "^5.5.6",
+    "sib-api-v3-sdk": "^3.1.6",
     "socket.io": "^2.0.4",
     "socket.io-client": "^2.0.4",
     "stringbuilder": "0.0.11",

@@ -15,7 +15,7 @@
             <th></th>
           </thead>
           <tbody>
-            <tr class="hoverable singleline" *ngFor="let message of messageList">
+            <tr class="hoverable singleline" *ngFor="let message of getMessageList()">
               <td>
                   <span>{{message.type}}</span>
               </td>
@@ -23,9 +23,9 @@
               <td>{{message.messageTitle}}</td>
               <td class="message-body">{{message.messageBody}}</td>
               <td>{{message.receiverRule.type}}</td>
-              <td></td>
+              <td>{{makeReceiversText(message)}}</td>
               <td>{{message.createdAt | date: 'short'}}</td>
-              <td></td>
+              <td>{{message.sentAt | date: 'short'}}</td>
               <td></td>
 
             </tr>
@@ -33,6 +33,31 @@
         </table>
       </mat-tab>
       <mat-tab label="Drafts">
+          <table class="table table-data">
+              <thead>
+                <th>Type</th>
+                <th>Label</th>
+                <th>Title</th>
+                <th>Message</th>
+                <th>Reciever Rule</th>
+                <th>Composed</th>
+                <th></th>
+              </thead>
+              <tbody>
+                <tr class="hoverable singleline" *ngFor="let message of getDraftList()">
+                  <td>
+                      <span>{{message.type}}</span>
+                  </td>
+                  <td>{{message.label}}</td>
+                  <td>{{message.messageTitle}}</td>
+                  <td class="message-body">{{message.messageBody}}</td>
+                  <td>{{message.receiverRule.type}}</td>
+                  <td>{{message.createdAt | date: 'short'}}</td>
+                  <td></td>
+    
+                </tr>
+              </tbody>
+            </table>
       </mat-tab>
     </mat-tab-group>
     <div class="tabbar-header-right-container-absolute">

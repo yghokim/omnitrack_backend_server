@@ -23,7 +23,6 @@ export class ExperimentMessagingComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.flatMap(service=> service.getMessageList()).subscribe(
         messages=>{
-          console.log(messages)
           this.messageList = messages
         }
       )
@@ -32,6 +31,26 @@ export class ExperimentMessagingComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(){
     this._internalSubscriptions.unsubscribe()
+  }
+
+  getDraftList(): Array<IResearchMessage>{
+    return this.messageList.filter(m => m.isDraft === true)
+  }
+
+  getMessageList(): Array<IResearchMessage>{
+    return this.messageList.filter(m => m.isDraft !== true)
+  }
+
+  makeReceiversText(message: IResearchMessage):string{
+    if(!message.receivers || message.receivers.length == 0)
+    {
+      return "No receivers."
+    }else if(message.receivers.length > 5){
+      return message.receivers[0].alias + " and " + (message.receivers.length - 1)
+    }
+    else{
+      return message.receivers.map(r=>r.alias).join(", ")
+    }
   }
 
   onTabChanged(event) {

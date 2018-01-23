@@ -4,6 +4,7 @@ import { ResearchApiService } from '../../services/research-api.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
+import * as moment from 'moment-timezone';
 
 @Component({
   selector: 'app-compose-message',
@@ -49,18 +50,27 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
 
   public mountedMessage: IResearchMessage
 
-  public loadedParticipants =  new BehaviorSubject<any[]>([])
+  public participants: Array<any>
+
+  deliveryDate: Date = new Date()
+  deliveryTime: string = "12:00"
 
   constructor(private api: ResearchApiService, private router: Router, private activatedRoute: ActivatedRoute) { }
 
   ngOnInit() {
+
+    const m = moment().set({minute: 0, second: 0, millisecond: 0}).add(1, "hours")
+    this.deliveryDate = m.toDate()
+
+    this.deliveryTime = m.format("HH:00")
+
     this.mountMessage(new DefaultNewMessage())
     this.mountedMessage.experiment = this.api.getSelectedExperimentId()
 
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.flatMap(service => service.getParticipants()).subscribe(
         participants => {
-          this.loadedParticipants.next(participants)
+          this.participants = participants
         }
       )
     )
@@ -84,6 +94,11 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
         }
       break;
     }
+  }
+
+  onDeliveryTimeChanged(event, type){
+    console.log(type)
+    console.log(event)
   }
 
   public onSelectedReceiverRuleChanged(event) {
@@ -110,6 +125,18 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
       case MessageReceiverRules.SpecificUsersRule:
       (this.mountedMessage.receiverRule as SpecificUsersMessageReceiverRule).userId = this.selectedParticipantUserIds
       break;
+    }
+
+    if(this.selectedDeliveryType == "later")
+    {
+      const time = moment(this.deliveryTime, "HH:mm")
+      const date = moment(this.deliveryDate)
+      date.set({
+        hour: time.hour(),
+        minute: time.minute()
+      })
+
+      this.mountedMessage.reservedTime = date.toDate()
     }
 
     console.log(this.mountedMessage)
