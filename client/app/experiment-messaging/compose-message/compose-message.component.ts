@@ -5,6 +5,8 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import * as moment from 'moment-timezone';
+import { FroalaEditorModule } from 'angular-froala-wysiwyg/editor/editor.module';
+declare var $ :any;
 
 @Component({
   selector: 'app-compose-message',
@@ -54,6 +56,22 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
 
   deliveryDate: Date = new Date()
   deliveryTime: string = "12:00"
+
+  froalaOptions = {
+    placeHolder: "Insert the email content",
+    multiline: true,
+    videoUpload: false,
+    fileUpload: false,
+    imageUpload: false,
+    imagePaste: false,
+    imageUploadRemoteUrls: false,
+    fontFamilySelection: true,
+    fontSizeSelection: true,
+    fontSizeDefaultSelection: 12,
+    enter: $.FroalaEditor.ENTER_BR,
+    height: 300,
+    heightMin: 200,
+  }
 
   constructor(private api: ResearchApiService, private router: Router, private activatedRoute: ActivatedRoute) { }
 

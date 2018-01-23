@@ -45,6 +45,7 @@ import { NouisliderModule, NouisliderComponent } from 'ng2-nouislider';
 import { NewExperimentDialogComponent } from './experiment-list/new-experiment-dialog/new-experiment-dialog.component';
 import { EngagementParticipantGroupDirective } from './research/visualization/engagement/engagement-participant-group.directive';
 import { DeleteExperimentConfirmDialogComponent } from './dialogs/delete-experiment-confirm-dialog/delete-experiment-confirm-dialog.component';
+import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
 
 @NgModule({
   imports: [
@@ -53,7 +54,9 @@ import { DeleteExperimentConfirmDialogComponent } from './dialogs/delete-experim
     MaterialDesignModule,
     RoutingModule,
     ClipboardModule,
-    NouisliderModule
+    NouisliderModule,
+    FroalaEditorModule.forRoot(),
+    FroalaViewModule.forRoot()
   ],
   declarations: [
 
