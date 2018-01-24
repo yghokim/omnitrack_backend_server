@@ -75,10 +75,8 @@ export default class OTExperimentCtrl {
 
   private _getPublicInvitations(userId: string): Promise<Array<any>>{
     return OTInvitation.find({isPublic: true})
-      .populate({path: "experiment", select: "_id name", populate: {
-        path: "participants",
-        match: {user: userId}
-      }})
+      .populate({path: "experiment", select: "_id name"})
+      .populate({path: "participants", match: {user: userId}})
       .then(docs => docs)
   }
 

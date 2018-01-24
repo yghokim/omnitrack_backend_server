@@ -13,6 +13,7 @@ import OTUser from './models/ot_user';
 import User from './models/user';
 import AdminCtrl from './controllers/admin_controller';
 import BinaryStorageCtrl from './controllers/binary_storage_controller';
+import { experimentCtrl } from './controllers/research/ot_experiment_controller'; 
 import { Request } from 'express';
 import { Error } from 'mongoose';
 import { clientKeys } from "./app";
@@ -121,6 +122,8 @@ const router = express.Router();
   router.post("/research/experiment/:experimentId/dropout", assertSignedInMiddleware, researchCtrl.dropOutFromExperiment)
 
   router.get('/research/experiments/history', assertSignedInMiddleware, researchCtrl.getExperimentHistoryOfUser)
+
+  router.get('/research/invitations/public', assertSignedInMiddleware, experimentCtrl.getPublicInvitationList)
 
   /*
     router.route('/items/count').get(catCtrl.count);

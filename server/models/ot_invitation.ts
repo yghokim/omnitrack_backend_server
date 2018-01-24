@@ -5,7 +5,7 @@ const otInvitationSchema = new mongoose.Schema({
   experiment: {type: String, ref: 'OTExperiment'},
   isPublic: {type: Boolean, default: false},
   groupMechanism: mongoose.Schema.Types.Mixed
-}, {timestamps: true, toJSON: {virtuals: true}});
+}, {timestamps: true, toObject: {virtuals: true}, toJSON: {virtuals: true}});
 
 
 otInvitationSchema.virtual('participants', {
