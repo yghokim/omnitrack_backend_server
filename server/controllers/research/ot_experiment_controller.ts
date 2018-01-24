@@ -73,6 +73,12 @@ export default class OTExperimentCtrl {
       )
   }
 
+  private _getPublicInvitations(): Promise<Array<any>>{
+    return OTInvitation.find({isPublic: true})
+      .populate({path: "experiment", select: "_id name"})
+      .then(docs => docs)
+  }
+
   private _createExperimentByInfo(name: string, managerId: string): Promise<Document>{
     const newExperiment = new OTExperiment({name: name, manager: managerId})
     return newExperiment.save()
@@ -302,6 +308,17 @@ export default class OTExperimentCtrl {
   getExampleExperimentList = (req, res) => {
     console.log(app.researchModule().exampleExperimentInformations)
     res.status(200).send(app.researchModule().exampleExperimentInformations)
+  }
+
+  getPublicInvitationList = (req, res) => {
+    this._getPublicInvitations().then(
+      invitations=>{
+        res.status(200).send(invitations)
+      }
+    ).catch(err=>{
+      console.log(err)
+      res.status(500).send(err)
+    })
   }
 }
 

@@ -51,6 +51,8 @@ router.post('/auth/register', researchAuthCtrl.registerResearcher)
 router.post('/auth/update', tokenAuth, researchAuthCtrl.update)
 router.post('/auth/verify', tokenAuth, researchAuthCtrl.verifyToken)
 
+router.get('/invitations/public', experimentCtrl.getPublicInvitationList)
+
 router.get("/experiments/examples", experimentCtrl.getExampleExperimentList)
 router.post("/experiments/examples", tokenAuth, experimentCtrl.addExampleExperiment)
 

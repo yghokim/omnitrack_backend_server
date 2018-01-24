@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 const otInvitationSchema = new mongoose.Schema({
   code: {type: String, required: true},
   experiment: {type: String, ref: 'OTExperiment'},
-  isActive: {type: Boolean, default: true},
+  isPublic: {type: Boolean, default: false},
   groupMechanism: mongoose.Schema.Types.Mixed
 }, {timestamps: true, toJSON: {virtuals: true}});
 
