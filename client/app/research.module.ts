@@ -46,6 +46,7 @@ import { NewExperimentDialogComponent } from './experiment-list/new-experiment-d
 import { EngagementParticipantGroupDirective } from './research/visualization/engagement/engagement-participant-group.directive';
 import { DeleteExperimentConfirmDialogComponent } from './dialogs/delete-experiment-confirm-dialog/delete-experiment-confirm-dialog.component';
 import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
+import { TableCellValueComponent } from './components/table-cell-value/table-cell-value.component';
 
 @NgModule({
   imports: [
@@ -93,7 +94,7 @@ import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
     SVGEllipsisDirective,
     NewExperimentDialogComponent,
     EngagementParticipantGroupDirective,
-    DeleteExperimentConfirmDialogComponent
+    DeleteExperimentConfirmDialogComponent,
   ],
   exports: [
     NouisliderModule,

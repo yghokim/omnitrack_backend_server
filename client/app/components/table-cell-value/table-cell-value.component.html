@@ -1,0 +1,3 @@
+<ng-container [ngSwitch]="getValueType()">
+  <span class="tag" [ngClass]="value===true? 'tag-true' : 'tag-false'" *ngSwitchCase="'boolean'">{{value}}</span>
+</ng-container>

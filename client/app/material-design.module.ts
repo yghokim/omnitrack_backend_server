@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogModule, MatTabsModule, MatCheckboxModule, MatRadioModule, MatMenuModule, MatIconRegistry, MatButtonModule, MatSelectModule, MatInputModule, MatTooltipModule, MatDatepickerModule, MatNativeDateModule, MatSnackBarModule, MatProgressBarModule, MatProgressSpinnerModule, MatAutocompleteModule, MatChipsModule, MatGridListModule, MatCardModule, MatSlideToggleModule } from '@angular/material';
-import { YesNoDialogComponent } from './dialogs/yes-no-dialog/yes-no-dialog.component';
 
 @NgModule({
   imports: [

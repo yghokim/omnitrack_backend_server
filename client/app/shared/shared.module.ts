@@ -5,6 +5,7 @@ import { HttpModule } from '@angular/http';
 
 import { ToastComponent } from './toast/toast.component';
 import { LoadingComponent } from './loading/loading.component';
+import { TableCellValueComponent } from '../components/table-cell-value/table-cell-value.component';
 
 @NgModule({
   imports: [
@@ -21,11 +22,13 @@ import { LoadingComponent } from './loading/loading.component';
     HttpModule,
     // Shared Components
     ToastComponent,
-    LoadingComponent
+    LoadingComponent,
+    TableCellValueComponent
   ],
   declarations: [
     ToastComponent,
-    LoadingComponent
+    LoadingComponent,
+    TableCellValueComponent
   ],
   providers: [
     ToastComponent

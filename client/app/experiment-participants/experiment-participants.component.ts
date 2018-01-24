@@ -143,9 +143,9 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
               }
             }).afterClosed().subscribe(yes => {
               if (yes === true) {
-                this.dialog.open(NewInvitationDialogComponent, { data: { groups: groups } }).afterClosed().subscribe(invitation => {
-                  if (invitation) {
-                    this.api.selectedExperimentService.flatMap(service => service.generateInvitation(invitation.toJson()).flatMap(newInvitation =>
+                this.dialog.open(NewInvitationDialogComponent, { data: { groups: groups } }).afterClosed().subscribe(invitationInfo => {
+                  if (invitationInfo) {
+                    this.api.selectedExperimentService.flatMap(service => service.generateInvitation(invitationInfo).flatMap(newInvitation =>
                       service.sendInvitation(newInvitation.code, [userId], false)
                     )).subscribe(result => {
                       this.participantsSubscription.unsubscribe()

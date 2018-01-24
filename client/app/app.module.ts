@@ -20,6 +20,7 @@ import { ResearchModule } from './research.module';
 import { TextInputDialogComponent } from './dialogs/text-input-dialog/text-input-dialog.component';
 import { D3ChartFrameComponent } from './research/visualization/d3-chart-frame/d3-chart-frame.component';
 import { SVGEllipsisDirective } from './directives/svgellipsis.directive';
+import { TableCellValueComponent } from './components/table-cell-value/table-cell-value.component';
 
 @NgModule({
   declarations: [

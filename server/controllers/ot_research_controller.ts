@@ -124,12 +124,9 @@ export default class OTResearchCtrl {
     const researcherId = req.researcher.uid
     const experimentId = req.params.experimentId
     const data = req.body
-    new OTInvitation({
-      code: crypto.randomBytes(16).toString('base64'),
-      experiment: experimentId,
-      isActive: true,
-      groupMechanism: data
-    }).save().then(
+    data["code"] = crypto.randomBytes(16).toString('base64')
+    data["experiment"] = experimentId
+    new OTInvitation(data).save().then(
       invit => {
         app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId,
           { model: SocketConstants.MODEL_INVITATION, event: SocketConstants.EVENT_ADDED, payload: invit })

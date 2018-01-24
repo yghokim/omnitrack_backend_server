@@ -83,11 +83,11 @@ export class ExperimentInvitationsComponent implements OnInit, OnDestroy {
   onNewInvitationClicked() {
     this._internalSubscriptions.add(
       this.dialog.open(NewInvitationDialogComponent, { data: { groups: this.groups } }).beforeClose().subscribe(
-        invitation => {
-          if (invitation) {
+        information => {
+          if (information) {
             this.isLoadingInvitations = true
             this._internalSubscriptions.add(
-              this.api.selectedExperimentService.flatMap(service => service.generateInvitation(invitation.toJson())).subscribe(
+              this.api.selectedExperimentService.flatMap(service => service.generateInvitation(information)).subscribe(
                 newInvitation => {
                   this.isLoadingInvitations = false
                 }

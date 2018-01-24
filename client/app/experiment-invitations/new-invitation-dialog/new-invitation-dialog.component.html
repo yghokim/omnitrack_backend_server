@@ -25,7 +25,10 @@
         </div>
       </mat-tab>
     </mat-tab-group>
-
+    <div class="card-block no-vertical-padding">
+      <hr>
+      <mat-checkbox class="small" [checked]="isPublic" (change)="isPublic = $event.checked">Allow the OmniTrack users to access this invitation publicly</mat-checkbox>
+    </div>
     <hr>
     <div class="pull-right">
       <button mat-raised-button color="primary" [disabled]="!isGenerateAvailable()" (click)="generate()">Generate</button>

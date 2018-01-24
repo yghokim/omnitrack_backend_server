@@ -13,6 +13,7 @@
         <tr>
           <th>Code</th>
           <th>Generated</th>
+          <th>Public</th>
           <th>Invitees</th> 
           <th>Denied</th> 
           <th>Active</th> 
@@ -24,6 +25,7 @@
       <tr class="hoverable singleline" *ngFor="let invitation of invitations let index = index" (mouseover)="selectedRowIndex = index" (mouseleave)="selectedRowIndex = -1">
         <td>{{invitation.code}}</td>
         <td>{{invitation.createdAt | date: 'MMM dd, yyyy'}}</td>
+        <td><app-table-cell-value [value]="invitation.isPublic"></app-table-cell-value></td>
         <td>{{invitation.participants.length}}</td>
         <td>{{getNumDeniedParticipants(invitation)}}</td>
         <td>{{getNumActiveParticipants(invitation)}}</td>

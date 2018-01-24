@@ -17,6 +17,8 @@ export class NewInvitationDialogComponent implements OnInit {
   private selectedGroupId: string
   private selectedGroupIds: Array<string> = []
 
+  isPublic: boolean = false
+
   constructor(
     private dialogRef: MatDialogRef<NewInvitationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) private data: any) {
@@ -106,7 +108,8 @@ export class NewInvitationDialogComponent implements OnInit {
           break;
       }
 
-      this.dialogRef.close(invitation)
+      console.log({groupMechanism: invitation.toJson(), isPublic: this.isPublic})
+      this.dialogRef.close({groupMechanism: invitation.toJson(), isPublic: this.isPublic})
 
       /*
 

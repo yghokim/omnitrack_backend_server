@@ -1,0 +1,11 @@
+.tag{
+  font-size: 0.9em;
+  text-transform: capitalize;
+  &.tag-false{
+    background: #f17c7c;
+  }
+
+  &.tag-true{
+    background: #5cd681;
+  }
+}
