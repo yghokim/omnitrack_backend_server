@@ -73,9 +73,12 @@ export default class OTExperimentCtrl {
       )
   }
 
-  private _getPublicInvitations(): Promise<Array<any>>{
+  private _getPublicInvitations(userId: string): Promise<Array<any>>{
     return OTInvitation.find({isPublic: true})
-      .populate({path: "experiment", select: "_id name"})
+      .populate({path: "experiment", select: "_id name", populate: {
+        path: "participants",
+        match: {user: userId}
+      }})
       .then(docs => docs)
   }
 
@@ -311,8 +314,10 @@ export default class OTExperimentCtrl {
   }
 
   getPublicInvitationList = (req, res) => {
-    this._getPublicInvitations().then(
+    const userId = res.locals.user.uid
+    this._getPublicInvitations(userId).then(
       invitations=>{
+        console.log(invitations)
         res.status(200).send(invitations)
       }
     ).catch(err=>{
