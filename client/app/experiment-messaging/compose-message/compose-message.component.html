@@ -1,6 +1,6 @@
 <div class="container">
   <div class="card">
-    <div class="card-block no-padding-top">
+    <div class="card-body no-padding-top">
       <div class="flex-container flex-align-items-center">
         <label class="small horizontal">Type</label>
         <mat-form-field>
@@ -63,7 +63,7 @@
       </div>
 
       <hr>
-      <div class="pull-right">
+      <div class="text-right">
         <button [disabled]="!isDraftContentAvailable()" mat-button color="primary" (click)="saveAsDraft()">Save as Draft</button>
 
         <button [disabled]="!isMessageComposable()" mat-raised-button color="primary" (click)="composeMessage()">Compose</button>

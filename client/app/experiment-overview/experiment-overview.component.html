@@ -1,6 +1,6 @@
 <div class="card research-main-fixed-header">
   <div class="container">
-    <div class="card-block no-horizontal-padding vertical-padding-small">
+    <div class="card-body no-horizontal-padding vertical-padding-small">
       <div class="flex-container flex-stretch flex-align-items-center">
         <mat-slide-toggle class="right-margin-2em" [checked]="configuration.includeWeekends() | async" [tooltips]="[true, true]" (change)="includeWeekendsChanged($event.checked)">Include Weekends</mat-slide-toggle>
         

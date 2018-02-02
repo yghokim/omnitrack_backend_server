@@ -33,13 +33,13 @@
         <td>
           <div *ngIf="invitation.groupMechanism">
             <div *ngIf="invitation.groupMechanism.groups">
-              <span class="tag tag-info" *ngFor="let group of invitation.groupMechanism.groups">{{getGroupName(group)}}</span>
+              <span class="badge badge-info" *ngFor="let group of invitation.groupMechanism.groups">{{getGroupName(group)}}</span>
             </div>
-            <span *ngIf="invitation.groupMechanism.group" class="tag tag-info">{{getGroupName(invitation.groupMechanism.group)}}</span>
+            <span *ngIf="invitation.groupMechanism.group" class="badge badge-info">{{getGroupName(invitation.groupMechanism.group)}}</span>
           </div>
         </td>
         <td class="button-cell">
-          <div class="pull-right" [style.visibility]="selectedRowIndex != index? 'hidden' : 'inherit'">
+          <div class="text-right" [style.visibility]="selectedRowIndex != index? 'hidden' : 'inherit'">
               <button mat-icon-button ngxClipboard [cbContent]="invitation.code" (cbOnSuccess)="onInvitationCodeCopied(invitation)" matTooltip="Copy code to clipboard" matTooltipPosition="above">
                   <mat-icon class="material-icons">filter_none</mat-icon>
                 </button>
@@ -51,7 +51,7 @@
       </tr>
     </table>
 
-    <div class="card-block card-footer">
+    <div class="card-body card-footer">
       <div class="flex-container flex-align-content-center">
         <small *ngIf="invitations!= null && invitations.length == 0" class="text-color-gray">No invitations.</small>
       <small *ngIf="invitations!= null && invitations.length > 0" class="text-color-gray">Invitations: {{invitations.length}}</small>

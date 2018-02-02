@@ -10,7 +10,7 @@
     <div *ngFor="let experiment of experiments">
       <div class="card card-component card-experiment" (click)="onExperimentClicked(experiment)">
         <div class="card-header">
-            <span header class="tag tag-primary tag-researcher-role"
+            <span header class="badge badge-primary badge-researcher-role"
             [ngClass]="(getMyRole(experiment) | async)">
             {{getMyRole(experiment) | async}}
             </span>
@@ -19,7 +19,7 @@
               {{experiment.name}}
             </div>
         </div>
-        <div class="card-block bottom"></div>
+        <div class="card-body bottom"></div>
       </div>
     </div>
   </div>

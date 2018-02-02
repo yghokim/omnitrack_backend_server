@@ -105,11 +105,9 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
     switch (message.receiverRule.type) {
       case MessageReceiverRules.SpecificUsersRule:
         const userId = (message.receiverRule as SpecificUsersMessageReceiverRule).userId
-        if (userId instanceof String) {
-          this.selectedParticipantUserIds.push(userId)
-        } else if (userId instanceof Array) {
+        if (userId instanceof Array) {
           userId.forEach(id => this.selectedParticipantUserIds.push(id))
-        }
+        }else this.selectedParticipantUserIds.push(userId)
       break;
     }
   }

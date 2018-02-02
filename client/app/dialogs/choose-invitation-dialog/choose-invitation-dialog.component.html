@@ -1,6 +1,6 @@
 <div class="dialog">
   <div class="card-header">Choose Invitation</div>
-  <div class="card-block">
+  <div class="card-body">
     <table class="table table-data">
       <tr class="singleline hoverable cursor-pointer" *ngFor="let invitation of invitations" (click)="selectedInvitationCode = invitation.code">
         <td>
@@ -11,17 +11,17 @@
         <td>
             <div *ngIf="invitation.groupMechanism">
               <div *ngIf="invitation.groupMechanism.groups">
-                <span class="tag tag-info" *ngFor="let group of invitation.groupMechanism.groups">{{getGroupName(group)}}</span>
+                <span class="badge badge-info" *ngFor="let group of invitation.groupMechanism.groups">{{getGroupName(group)}}</span>
               </div>
-              <span *ngIf="invitation.groupMechanism.group" class="tag tag-info">{{getGroupName(invitation.groupMechanism.group)}}</span>
+              <span *ngIf="invitation.groupMechanism.group" class="badge badge-info">{{getGroupName(invitation.groupMechanism.group)}}</span>
             </div>
           </td>
       </tr>
     </table>
     <hr>
-    <div class="pull-right">
+    <div class="text-right">
         <button mat-button color="accent" (click)="onNoClick()">Cancel</button>
         <button mat-raised-button color="primary" (click)="onYesClick()">{{positiveLabel}}</button>
-      </div>
+    </div>
   </div>
 </div>

@@ -18,10 +18,10 @@
             (mouseOver)="hoveredRowIndex = index">
             <td [class.text-color-lightgray]="!participant.alias">{{participant.alias || 'Not set'}}</td>
             <td>
-              <div class="tag tag-danger" *ngIf="participant.isDenied">Denied</div>
-              <div class="tag tag-warning" *ngIf="!participant.isDenied && !participant.isConsentApproved">Invitation Pending</div>
-              <div class="tag tag-danger" *ngIf="participant.dropped == true">Dropped Out</div>
-              <div class="tag tag-primary" *ngIf="participant.isConsentApproved && participant.dropped != true">In Experiment</div>
+              <div class="badge badge-danger" *ngIf="participant.isDenied">Denied</div>
+              <div class="badge badge-warning" *ngIf="!participant.isDenied && !participant.isConsentApproved">Invitation Pending</div>
+              <div class="badge badge-danger" *ngIf="participant.dropped == true">Dropped Out</div>
+              <div class="badge badge-primary" *ngIf="participant.isConsentApproved && participant.dropped != true">In Experiment</div>
               
             </td>
             <td>{{participant.user.accountCreationTime | date: 'MMM dd, yyyy'}}</td>
@@ -29,7 +29,7 @@
 
             <td>{{participant.user._id}}</td>
             <td class="button-cell">
-              <div class="pull-right">
+              <div class="text-right">
                 <button mat-icon-button [matMenuTriggerFor]="menu">
                   <mat-icon class="material-icons">more_vert</mat-icon>
                 </button>
@@ -54,7 +54,7 @@
             </td>
           </tr>
         </table>
-        <div class="card-block card-footer horizontal-padding-narrow">
+        <div class="card-body card-footer horizontal-padding-narrow">
 
           <small *ngIf="participants== null" class="text-color-gray">Participants not loaded.</small>
           <small *ngIf="participants!= null && participants.length == 0" class="text-color-gray">No participants in server.</small>
@@ -85,13 +85,13 @@
             <td>{{user.email | anonymizeEmail}}</td>
             <td>
               <div *ngIf="getParticipationStatusToThisExperimentOfUser(user)" [ngSwitch]="getParticipationStatusToThisExperimentOfUser(user)">
-                <span *ngSwitchCase="'pending'" class="tag tag-warning">Invitation Pending</span>
-                <span *ngSwitchCase="'participating'" class="tag tag-primary">In Experiment</span>
-                <span *ngSwitchCase="'dropped'"  class="tag tag-danger">Dropped Out</span>
-                <span *ngSwitchCase="'denied'"  class="tag tag-danger">Denied</span>
+                <span *ngSwitchCase="'pending'" class="badge badge-warning">Invitation Pending</span>
+                <span *ngSwitchCase="'participating'" class="badge badge-primary">In Experiment</span>
+                <span *ngSwitchCase="'dropped'"  class="badge badge-danger">Dropped Out</span>
+                <span *ngSwitchCase="'denied'"  class="badge badge-danger">Denied</span>
               </div>
               <div *ngIf="isParticipatingInAnotherExperiment(user)">
-                <span class="tag tag-warning">In Other Experiments</span>
+                <span class="badge badge-warning">In Other Experiments</span>
               </div>
             </td>
             <td>{{exractDemographics(user)}}</td>
@@ -99,7 +99,7 @@
             <td>{{user.accountLastSignInTime | date: 'MMM dd, yyyy'}}</td>
             <td>{{user._id}}</td>
             <td class="button-cell">
-              <div class="pull-right" [style.visibility]="hoveredRowIndex != index? 'hidden' : 'inherit'">
+              <div class="text-right" [style.visibility]="hoveredRowIndex != index? 'hidden' : 'inherit'">
                 <button mat-icon-button [matMenuTriggerFor]="menu">
                   <mat-icon class="material-icons">more_vert</mat-icon>
                 </button>
@@ -117,7 +117,7 @@
           </tr>
         </table>
 
-        <div class="card-block card-footer">
+        <div class="card-body card-footer">
 
           <small *ngIf="userPool== null" class="text-color-gray">User pool not loaded.</small>
           <small *ngIf="userPool!= null && userPool.length == 0" class="text-color-gray">No users in server.</small>
