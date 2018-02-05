@@ -77,6 +77,10 @@ export class UploadClientBinaryDialogComponent implements OnInit {
     this.dialogRef.close()
   }
 
+  onUploadClicked(){
+    this.dialogRef.close(this.loadedFile)
+  }
+
   getMinimumOSVersionString():string{
     switch(this.parsedPackageInfo.platform)
     {

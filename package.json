@@ -53,6 +53,7 @@
     "angular-oauth2-oidc": "^3.1.4",
     "angular-pretty-size": "0.0.2",
     "angular2-jwt": "^0.2.3",
+    "app-metadata": "^0.1.26",
     "bcryptjs": "^2.4.3",
     "bigdecimal": "^0.6.1",
     "body-parser": "^1.18.2",

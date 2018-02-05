@@ -6,6 +6,7 @@ import AdminCtrl from "./controllers/admin_controller";
 import OTResearchCtrl from './controllers/ot_research_controller';
 import { experimentCtrl } from './controllers/research/ot_experiment_controller';
 import { messageCtrl } from './controllers/research/ot_message_controller';
+import { clientBinaryCtrl } from './controllers/research/ot_client_binary_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
 import ot_tracker from './models/ot_tracker';
 import ot_trigger from './models/ot_trigger';
@@ -51,6 +52,7 @@ router.post('/auth/register', researchAuthCtrl.registerResearcher)
 router.post('/auth/update', tokenAuth, researchAuthCtrl.update)
 router.post('/auth/verify', tokenAuth, researchAuthCtrl.verifyToken)
 
+router.post('/clients/upload', tokenAuth, clientBinaryCtrl.postClientBinaryFile)
 
 router.get("/experiments/examples", experimentCtrl.getExampleExperimentList)
 router.post("/experiments/examples", tokenAuth, experimentCtrl.addExampleExperiment)

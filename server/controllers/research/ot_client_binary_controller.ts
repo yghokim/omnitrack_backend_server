@@ -4,10 +4,11 @@ import * as mime from "mime";
 import { StorageEngine } from "multer";
 import * as fs from "fs-extra";
 import * as path from "path";
-import { ResearcherPrevilages } from '../../../omnitrack/core/research/researcher'
-import * as PkgReader from 'isomorphic-apk-reader';
+//import { Extract } from 'app-metadata';
 import { getExtensionFromPath } from "../../../shared_lib/utils";
 const randomstring  = require('randomstring');
+const PkgReader = require('isomorphic-apk-reader');
+
 
 export default class OTBinaryCtrl{
 
@@ -17,7 +18,7 @@ export default class OTBinaryCtrl{
         cb(null, "storage/temp/clients")
       },
       filename: function (req, file, cb) {
-        const tempName = "temp_client" + randomstring.generate({length: 20})
+        const tempName = "temp_client_" + randomstring.generate({length: 20})
  + "_" + Date.now() + "." + 
  getExtensionFromPath(file.originalname)
         console.log("binary will be saved temporarily as " + tempName)
@@ -29,7 +30,7 @@ export default class OTBinaryCtrl{
   postClientBinaryFile = (req, res)=>{
     if(req.researcher)
     {
-      if(req.researcher.previlage >= ResearcherPrevilages.ADMIN)
+      if(req.researcher.previlage >= 1)
       {
         console.log("upload client binary to server.")
         const upload = multer({storage: this.makeClientBinaryStorage()}).single("file")
@@ -41,7 +42,18 @@ export default class OTBinaryCtrl{
           }
           else{
             const extension = getExtensionFromPath(req.file.originalname)
-            const pkgReader = new PkgReader(req.file.path, extension, {withIcon: false, searchResource: false}).parse((err, packageInfo)=>{
+            /*
+            Extract.run(req.file.path).then(result=>{
+              console.log(result)
+            }).catch(err=>{
+              console.log("app metadata parse error")
+              console.log(err)
+              res.status(500).send({error: "InvalidPackage", rawError: err})
+            })*/
+
+            
+            const pkgReader = new PkgReader(req.file.path, extension, {withIcon: false, searchResource: true})
+            pkgReader.parse((err, packageInfo)=>{
               if(!err){
                 switch(extension){
                   case "apk":
@@ -52,8 +64,19 @@ export default class OTBinaryCtrl{
                   break;
                 }
                 console.log(packageInfo)
+
+                fs.move(req.file.path, "storage/clients/" + (packageInfo.platform || "unknownPlatform") + "/omnitrack_client_" + packageInfo.platform + "_" + Date.now() + "." + extension)
+                  .then(()=>{
+                    res.status(200).send(true)
+                  })
+                  .catch(reason=>{
+                    console.log(reason)
+                    res.status(500).send({error: reason})
+                  })
+
               }
               else{
+                console.log(err)
                 res.status(500).send({error: "InvalidPackage"})
               }
             })

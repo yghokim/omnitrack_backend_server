@@ -33,9 +33,15 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
 
   onUploadClicked(){
     this.internalSubscriptions.add(
-      this.dialog.open(UploadClientBinaryDialogComponent, {data: {}}).afterClosed().subscribe(
-        fileInformation=>{
-            
+      this.dialog.open(UploadClientBinaryDialogComponent, {data: {}}).afterClosed().filter(f=>f).flatMap(
+        file=>{
+            console.log("upload file:")
+            console.log(file)
+              return this.api.uploadClientBinary(file)
+        }
+      ).subscribe(
+        success=>{
+          console.log("upload client: " + success)
         }
       )
     )

@@ -43,7 +43,7 @@
     <hr>
     <div class="text-right">
       <button mat-button>Cancel</button>
-      <button mat-raised-button [disabled]="!parsedPackageInfo" color="primary">Upload</button>
+      <button mat-raised-button [disabled]="!parsedPackageInfo" color="primary" (click)="onUploadClicked()">Upload</button>
     </div>
   </div>
 </div>
