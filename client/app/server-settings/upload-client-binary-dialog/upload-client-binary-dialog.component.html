@@ -1,0 +1,49 @@
+<div class="dialog dialog-mid">
+  <div class="card-header">Upload OmniTrack Setup File</div>
+  <div class="card-body">
+    <file-drop *ngIf="isBusy !== true && !parsedPackageInfo" customstyle="filedrop" (onFileDrop)="dropped($event)">
+      <span class="text-color-accented">Drop file ({{supportedExtensions.join('/')}}) here</span>
+    </file-drop>
+    <mat-progress-spinner *ngIf="isBusy === true" class="mx-auto" diameter="45" color="primary" mode="indeterminate"></mat-progress-spinner>
+
+    <mat-card *ngIf="isBusy !== true && !errorMessage && parsedPackageInfo">
+      <mat-card-header>
+        <div mat-card-avatar class="app-icon" [style.background-image]="'url(' + parsedPackageInfo.icon + ')'"></div>
+        <mat-card-title>
+          <span>{{parsedPackageInfo.application.label[0]}}</span>
+          <span class="badge badge-primary">{{parsedPackageInfo.platform}}</span>
+
+        </mat-card-title>
+        <mat-card-subtitle>{{parsedPackageInfo.package}}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <table class="table app-info">
+          <tr class="singleline">
+            <th>File Size</th>
+            <td>
+              {{loadedFile.size | nxtPrettySize}}
+            </td>
+          </tr>
+          <tr class="singleline">
+            <th>Minimum OS Version</th>
+            <td>{{getMinimumOSVersionString()}}</td>
+          </tr>
+
+          <tr *ngIf="parsedPackageInfo.platform === 'Android'" class="singleline">
+              <th>Complied OS Version</th>
+              <td>{{getCompiledOSVersionString()}}</td>
+            </tr>
+        </table>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="warn" (click)="cancelFile()">Choose another file</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <hr>
+    <div class="text-right">
+      <button mat-button>Cancel</button>
+      <button mat-raised-button [disabled]="!parsedPackageInfo" color="primary">Upload</button>
+    </div>
+  </div>
+</div>

@@ -72,3 +72,12 @@ export function diffDaysBetweenTwoMoments(a: Moment, b: Moment, includeWeekends:
     return diff
   }
 }
+
+export function getExtensionFromPath(path: string, delimiter:string = '.'): string{
+  const split = path.split(delimiter)
+  if(split.length <= 1)
+  {
+    return ""
+  }
+  else return split[split.length-1]
+}

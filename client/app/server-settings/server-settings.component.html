@@ -1,0 +1,26 @@
+<div class="container">
+  <div class="card card-main">
+    <div class="card-header">
+      Server Settings
+    </div>
+  </div>
+  
+  <div class="card card-main">
+      <div class="card-header container-vertical-padding">
+        <div class="flex-container flex-align-items-center flex-stretch">
+          <span>OmniTrack Client Apps</span>
+          <button mat-raised-button color="primary" (click)="onUploadClicked()">Upload</button>
+        </div>
+    </div>
+    <mat-tab-group class="tab-group" (selectedTabChange)="onTabChanged($event)">
+        <mat-tab label="Android">
+          
+        </mat-tab>
+    </mat-tab-group>
+    <table class="table table-data">
+    </table>
+    <div class="card-footer small">
+      No app files are assigned in the server.
+    </div>
+  </div>
+</div>

@@ -6,13 +6,17 @@ import { HttpModule } from '@angular/http';
 import { ToastComponent } from './toast/toast.component';
 import { LoadingComponent } from './loading/loading.component';
 import { TableCellValueComponent } from '../components/table-cell-value/table-cell-value.component';
+import { FileDropModule } from 'ngx-file-drop';
+import {PrettySizeModule} from 'angular-pretty-size';
 
 @NgModule({
   imports: [
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpModule
+    HttpModule,
+    FileDropModule,
+    PrettySizeModule
   ],
   exports: [
     // Shared Modules
@@ -20,6 +24,8 @@ import { TableCellValueComponent } from '../components/table-cell-value/table-ce
     FormsModule,
     ReactiveFormsModule,
     HttpModule,
+    FileDropModule,
+    PrettySizeModule,
     // Shared Components
     ToastComponent,
     LoadingComponent,

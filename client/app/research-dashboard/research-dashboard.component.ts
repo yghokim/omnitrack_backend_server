@@ -33,6 +33,8 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
   selectedExperimentName;
   showTitleBar: boolean = true
 
+  researcherPrevilage: number = -1
+
   private readonly _internalSubscriptions = new Subscription()
 
   experimentInfos: Array<ExperimentInfo> = [];
@@ -201,6 +203,17 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
           }
         }
       )
+    )
+
+    this._internalSubscriptions.add(
+      this.authService.currentResearcher.subscribe(researcher => {
+        if(researcher && researcher.tokenInfo){
+          this.researcherPrevilage = researcher.previlage
+        }
+        else{
+          this.researcherPrevilage = -1
+        }
+      })
     )
   }
 

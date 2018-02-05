@@ -27,8 +27,8 @@ export class ResearcherAccountSettingsComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(
       this.authService.currentResearcher.subscribe(
         researcher => {
-          this.originalResearcher = researcher
-          this.alias = deepclone(researcher.alias)
+          this.originalResearcher = researcher.tokenInfo
+          this.alias = deepclone(researcher.tokenInfo.alias)
           this.originalPassword = null
           this.newPassword = null
           this.newPasswordConfirm = null

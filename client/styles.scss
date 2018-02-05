@@ -762,6 +762,18 @@ $duration: 1.4s;
   }
 }
 
+.filedrop{
+  margin: auto;
+  border: 2px dotted #c2c2c2;
+  border-radius: 0.6rem;
+  background: #f0f0f0;
+  padding: 0.8rem;
+
+  & > .content{
+    height: inherit !important;
+  }
+}
+
 @keyframes rotator {
   0% {
     transform: rotate(0deg);

@@ -1,6 +1,6 @@
 <app-research-layout>
   <div header class="gnb-list">
-    <button *ngFor="let gnb of mainGnbs" class="gnb-element" mat-button [class.display]="((auth.tokenSubject | async) || gnb.secure!==true)? null:'none'" [routerLink]="['/research', gnb.url]">{{gnb.name}}</button>
+    <button *ngFor="let gnb of mainGnbs" class="gnb-element" mat-button [class.display]="((auth.tokenSubject | async) || gnb.secure!==true)? null:'none'" [routerLink]="gnb.url">{{gnb.name}}</button>
   </div>
   <div main id="research-home-wrapper">
     <router-outlet></router-outlet>
