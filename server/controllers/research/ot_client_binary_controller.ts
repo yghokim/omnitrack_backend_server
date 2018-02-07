@@ -3,12 +3,13 @@ import * as multer from "multer";
 import * as mime from "mime";
 import { StorageEngine } from "multer";
 import * as path from "path";
-import { getExtensionFromPath } from "../../../shared_lib/utils";
+import { getExtensionFromPath, compareVersions } from "../../../shared_lib/utils";
 import { ClientBinaryUtil } from '../../../omnitrack/core/client_binary_utils';
 const randomstring = require('randomstring');
 const PkgReader = require('isomorphic-apk-reader');
 const md5File = require('md5-file/promise');
 const fs = require("fs-extra");
+
 
 export default class OTBinaryCtrl {
   private makeClientFilePath(platform: string, filename: string): string {
@@ -40,17 +41,16 @@ export default class OTBinaryCtrl {
           if (err != null) {
             console.log(err)
             res.status(500).send(err)
-          }
-          else {
+          } else {
             md5File(req.file.path).then(hash => {
-              return OTClientBinary.findOne({checksum: hash}, {select: "_id"}).then(duplicate=>{
+              return OTClientBinary.findOne({checksum: hash}, {select: "_id"}).then(duplicate => {
                 return duplicate == null ? hash : null
               })
             }).then(
-              hash=>{
-                if(!hash){
+              hash => {
+                if (!hash) {
                   res.status(500).send({error: "FileAlreadyExists"})
-                }else{
+                } else {
                   const extension = getExtensionFromPath(req.file.originalname)
                   const pkgReader = new PkgReader(req.file.path, extension, { withIcon: false, searchResource: true })
                   pkgReader.parse((err, packageInfo) => {
@@ -64,9 +64,9 @@ export default class OTBinaryCtrl {
                           break;
                       }
                       console.log(packageInfo)
-    
+
                       const filename = "omnitrack_client_" + packageInfo.platform.toLowerCase() + "_" + Date.now() + "." + extension
-    
+
                       fs.move(req.file.path, this.makeClientFilePath(packageInfo.platform, filename))
                         .then(() => {
                           const model = {
@@ -79,7 +79,7 @@ export default class OTBinaryCtrl {
                             originalFileName: req.file.originalname,
                             checksum: hash
                           }
-                          new OTClientBinary(model).save().then(saved=>{
+                          new OTClientBinary(model).save().then(saved => {
                             console.log(saved)
                             res.status(200).send(true)
                           })
@@ -88,8 +88,7 @@ export default class OTBinaryCtrl {
                           console.log(reason)
                           res.status(500).send({ error: reason })
                         })
-                    }
-                    else {
+                    } else {
                       console.log(err)
                       res.status(500).send({ error: "InvalidPackage" })
                     }
@@ -98,48 +97,46 @@ export default class OTBinaryCtrl {
               })
           }
         })
-      }
-      else {
+      } else {
         res.status(500).send({ error: "PermissionDenied" })
       }
-    }
-    else {
+    } else {
       res.status(500).send({ error: "An admin researcher must be signed in." })
     }
   }
 
-  getClientBinaries = (req, res)=>{
+  getClientBinaries = (req, res) => {
     OTClientBinary.aggregate([{$group: {_id: "$platform", binaries: {$push: "$$ROOT"}}}])
     .then(
-      binaries=>{
-        console.log(binaries)
-        res.status(200).send(binaries)
+      platforms => {
+        platforms.forEach(platform => {
+          platform.binaries.sort((binary1, binary2) => {
+            return compareVersions(binary1.version, binary2.version)
+          })
+        })
+        res.status(200).send(platforms)
       }
-    ).catch(err=>{
+    ).catch(err => {
       console.log(err)
       res.status(500).send(err)
     })
   }
 
-  getLatestVersions = (req, res)=>{
-
-  }
-
-  downloadClientBinary = (req, res)=>{
+  downloadClientBinary = (req, res) => {
     OTClientBinary.findOneAndUpdate({platform: req.query.platform, version: req.query.version}, {$inc: {downloadCount: 1}}).then(
-      binary=>{
-        if(binary){
-          res.download(this.makeClientFilePath(binary["platform"], binary["fileName"]), binary["originalFileName"], err=>{
-            if(err){
+      binary => {
+        if (binary) {
+          res.download(this.makeClientFilePath(binary["platform"], binary["fileName"]), binary["originalFileName"], err => {
+            if (err) {
               res.status(500).send(err)
             }
           })
-        }else{
+        } else {
           console.log("Binary not found.")
           res.status(404).send("Binary not found.")
         }
       }
-    ).catch(err=>{
+    ).catch(err => {
       console.log(err)
       res.status(500).send(err)
     })

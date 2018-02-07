@@ -35,6 +35,16 @@ export default class ServerModule {
         }
       )*/
 
+      OTClientBinary.find({}).then(
+        binaries=>{
+          binaries.forEach(binary => {
+            binary["version"] = binary["version"].replace(/ /g, "-")
+            console.log(binary["version"])
+            binary.save().then()
+          })
+        }
+      )
+
       OTParticipant.find({experimentRange: {$exists:false}, approvedAt: {$exists: true}}).then(
         participants=>
         {

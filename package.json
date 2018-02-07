@@ -58,7 +58,6 @@
     "body-parser": "^1.18.2",
     "bootstrap": "4.0.0",
     "colors": "^1.1.2",
-    "compare-versions": "^3.1.0",
     "core-js": "^2.5.3",
     "d3": "^4.13.0",
     "dotenv": "^5.0.0",
