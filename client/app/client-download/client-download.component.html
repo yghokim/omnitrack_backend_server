@@ -18,7 +18,7 @@
     </div>
 
     <div class="btn-download-container">
-      <a *ngIf="latestBinary" type="button" class="btn btn-dark btn-lg btn-download" [href]="'/api/clients/download?platform=' + latestBinary.platform + '&version=' + latestBinary.version">
+      <a *ngIf="latestBinary" class="btn btn-dark btn-lg btn-download" [href]="'/api/clients/download?platform=' + latestBinary.platform + '&version=' + latestBinary.version">
         <span class="btn-label btn-label-main">
           Download OmniTrack for {{platform}}
         </span>
