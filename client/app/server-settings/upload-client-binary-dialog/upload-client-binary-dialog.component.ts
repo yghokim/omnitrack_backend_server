@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material';
 import { UploadEvent } from 'ngx-file-drop';
 import * as PkgReader from 'isomorphic-apk-reader';
-import * as AndroidVersionName from 'android-versions';
 import { getExtensionFromPath } from '../../../../shared_lib/utils';
+import { ClientBinaryUtil } from '../../../../omnitrack/core/client_binary_utils';
+import * as AndroidVersionName from 'android-versions';
 
 @Component({
   selector: 'app-upload-client-binary-dialog',
@@ -15,7 +16,8 @@ export class UploadClientBinaryDialogComponent implements OnInit {
   supportedExtensions = ['apk'];
 
   isBusy: boolean = false
-  loadedFile: File
+  loadedFile: File = null
+  loadedFileName: string = null
   parsedPackageInfo: any = null
   errorMessage: string = null
 
@@ -36,12 +38,14 @@ export class UploadClientBinaryDialogComponent implements OnInit {
     if(filteredList.length > 0)
     {
       const fileEntry = event.files[0]
-      console.log(fileEntry)
       const extension = getExtensionFromPath(fileEntry.fileEntry.name)
 
       fileEntry.fileEntry.file(file=>{
+        console.log("file loaded.")
+        console.log(file)
+        this.loadedFile = file
+        this.loadedFileName = file.name
         new PkgReader(file, extension, {withIcon: true}).parse((err, packageInfo)=>{
-          this.isBusy = false
           if(!err){
             switch(extension){
               case "apk":
@@ -52,8 +56,9 @@ export class UploadClientBinaryDialogComponent implements OnInit {
               break;
             }
             console.log(packageInfo)
-            this.loadedFile = file
             this.parsedPackageInfo = packageInfo
+            this.isBusy = false
+            console.log("done reading package file.")
           }
           else{
             console.log(err)
@@ -82,15 +87,16 @@ export class UploadClientBinaryDialogComponent implements OnInit {
   }
 
   getMinimumOSVersionString():string{
-    switch(this.parsedPackageInfo.platform)
-    {
-      case "Android":
-      const minSdk = AndroidVersionName.get(
-        this.parsedPackageInfo.usesSdk.minSdkVersion)
-      return "Android " + minSdk.semver + " (" + minSdk.name + ")"
-    }
+    return ClientBinaryUtil.getMinimumOSVersionString(this.parsedPackageInfo)
   }
 
+  getAppVersionName(): string{
+    return ClientBinaryUtil.getAppVersionName(this.parsedPackageInfo)
+  }
+
+  getAppVersionCode(): number{
+    return ClientBinaryUtil.getAppVersionCode(this.parsedPackageInfo)
+  }
 
   getCompiledOSVersionString():string{
     switch(this.parsedPackageInfo.platform)

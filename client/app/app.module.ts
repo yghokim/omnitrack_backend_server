@@ -21,6 +21,7 @@ import { TextInputDialogComponent } from './dialogs/text-input-dialog/text-input
 import { D3ChartFrameComponent } from './research/visualization/d3-chart-frame/d3-chart-frame.component';
 import { SVGEllipsisDirective } from './directives/svgellipsis.directive';
 import { TableCellValueComponent } from './components/table-cell-value/table-cell-value.component';
+import { ClientDownloadComponent } from './client-download/client-download.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { TableCellValueComponent } from './components/table-cell-value/table-cel
     NotFoundComponent,
     YesNoDialogComponent,
     TextInputDialogComponent,
-    BusyOverlayComponent
+    BusyOverlayComponent,
+    ClientDownloadComponent
   ],
   imports: [
     OAuthModule.forRoot(),

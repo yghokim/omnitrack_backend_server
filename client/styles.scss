@@ -265,6 +265,11 @@ body {
   padding-bottom: 0.2em;
 }
 
+.vertical-padding-normal{
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+
 
 
 .container-vertical-padding {
@@ -391,7 +396,6 @@ label.small.horizontal {
   margin-right: 1em;
 }
 
-
 .right-margin-1dot5em {
   margin-right: 1.5em;
 }
@@ -430,6 +434,14 @@ label.small.horizontal {
 
 .bottom-margin-2em {
   margin-bottom: 2em;
+}
+
+.top-margin-1em{
+  margin-top: 1em;
+}
+
+.top-margin-1dot5em{
+  margin-top: 1.5em;
 }
 
 small.info-text {

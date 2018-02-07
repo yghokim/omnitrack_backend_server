@@ -4,22 +4,48 @@
       Server Settings
     </div>
   </div>
-  
+
   <div class="card card-main">
-      <div class="card-header container-vertical-padding">
-        <div class="flex-container flex-align-items-center flex-stretch">
-          <span>OmniTrack Client Apps</span>
-          <button mat-raised-button color="primary" (click)="onUploadClicked()">Upload</button>
-        </div>
+    <div class="card-header container-vertical-padding">
+      <div class="flex-container flex-align-items-center flex-stretch">
+        <span>OmniTrack Client Apps</span>
+        <button mat-raised-button color="primary" (click)="onUploadClicked()">Upload</button>
+      </div>
     </div>
-    <mat-tab-group class="tab-group" (selectedTabChange)="onTabChanged($event)">
-        <mat-tab label="Android">
-          
-        </mat-tab>
+    <mat-tab-group *ngIf="binaryGroupList && binaryGroupList.length > 0" class="tab-group" (selectedTabChange)="onTabChanged($event)">
+      <mat-tab *ngFor="let binaryGroup of binaryGroupList" [label]="binaryGroup._id">
+        <table class="table table-data">
+          <thead>
+            <tr class="singleline">
+              <th>App Version</th>
+              <th>Minimum OS</th>
+              <th>File Size</th>
+              <th>Uploaded</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="singleline hoverable" *ngFor="let binary of binaryGroup.binaries">
+              <td>{{binary.version}}</td>
+              <td>{{binary.minimumOsVersionReadable}}</td>
+              <td>{{binary.fileSize | nxtPrettySize}}</td>
+              <td>{{binary.createdAt | date: 'short'}}</td>
+              <td class="button-cell">
+                <div class="text-right">
+                  <a [href]="'/api/clients/download?platform=' + binary.platform + '&version=' + binary.version" mat-icon-button>
+                    <mat-icon class="material-icons">file_download</mat-icon>
+                  </a>
+                  <button mat-icon-button>
+                    <mat-icon class="material-icons">delete</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </mat-tab>
     </mat-tab-group>
-    <table class="table table-data">
-    </table>
-    <div class="card-footer small">
+    <div class="card-footer small" *ngIf="isEmpty()===true">
       No app files are assigned in the server.
     </div>
   </div>

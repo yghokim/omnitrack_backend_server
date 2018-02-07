@@ -4,9 +4,13 @@
     <file-drop *ngIf="isBusy !== true && !parsedPackageInfo" customstyle="filedrop" (onFileDrop)="dropped($event)">
       <span class="text-color-accented">Drop file ({{supportedExtensions.join('/')}}) here</span>
     </file-drop>
-    <mat-progress-spinner *ngIf="isBusy === true" class="mx-auto" diameter="45" color="primary" mode="indeterminate"></mat-progress-spinner>
 
-    <mat-card *ngIf="isBusy !== true && !errorMessage && parsedPackageInfo">
+    <div *ngIf="isBusy === true" class="text-center vertical-padding-normal">
+      <mat-progress-spinner class="mx-auto" diameter="45" color="primary" mode="indeterminate"></mat-progress-spinner>
+      <div class="small top-margin-1em font-weight-bold">Reading File Information...</div>
+    </div>
+    
+    <mat-card *ngIf="parsedPackageInfo">
       <mat-card-header>
         <div mat-card-avatar class="app-icon" [style.background-image]="'url(' + parsedPackageInfo.icon + ')'"></div>
         <mat-card-title>
@@ -22,6 +26,12 @@
             <th>File Size</th>
             <td>
               {{loadedFile.size | nxtPrettySize}}
+            </td>
+          </tr>
+          <tr class="singleline">
+            <th>App version</th>
+            <td>
+              {{getAppVersionName()}}
             </td>
           </tr>
           <tr class="singleline">
@@ -42,7 +52,7 @@
 
     <hr>
     <div class="text-right">
-      <button mat-button>Cancel</button>
+      <button mat-button (click)="onCancelClicked()">Cancel</button>
       <button mat-raised-button [disabled]="!parsedPackageInfo" color="primary" (click)="onUploadClicked()">Upload</button>
     </div>
   </div>

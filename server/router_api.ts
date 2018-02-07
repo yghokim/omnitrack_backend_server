@@ -1,4 +1,3 @@
-import { ResearcherAuthService } from '../client/app/services/researcher.auth.service';
 import * as express from 'express';
 
 import OTSyncCtrl from './controllers/ot_sync_controller';
@@ -13,7 +12,8 @@ import OTUser from './models/ot_user';
 import User from './models/user';
 import AdminCtrl from './controllers/admin_controller';
 import BinaryStorageCtrl from './controllers/binary_storage_controller';
-import { experimentCtrl } from './controllers/research/ot_experiment_controller'; 
+import { experimentCtrl } from './controllers/research/ot_experiment_controller';
+import { clientBinaryCtrl } from './controllers/research/ot_client_binary_controller';
 import { Request } from 'express';
 import { Error } from 'mongoose';
 import { clientKeys } from "./app";
@@ -124,6 +124,10 @@ const router = express.Router();
   router.get('/research/experiments/history', assertSignedInMiddleware, researchCtrl.getExperimentHistoryOfUser)
 
   router.get('/research/invitations/public', assertSignedInMiddleware, experimentCtrl.getPublicInvitationList)
+
+  router.get('/clients/all', clientBinaryCtrl.getClientBinaries)
+
+  router.get('/clients/download', clientBinaryCtrl.downloadClientBinary)
 
   /*
     router.route('/items/count').get(catCtrl.count);

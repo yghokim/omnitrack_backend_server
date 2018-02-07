@@ -3,6 +3,7 @@ import OTItem from '../models/ot_item';
 import OTParticipant from '../models/ot_participant';
 import OTExperiment from '../models/ot_experiment';
 import OTItemMedia from '../models/ot_item_media';
+import OTClientBinary from '../models/ot_client_binary';
 import OTUser from '../models/ot_user';
 import { Express } from 'express';
 import * as path from 'path';

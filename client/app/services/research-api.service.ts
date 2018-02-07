@@ -198,4 +198,8 @@ export class ResearchApiService implements OnDestroy {
     formData.append("file", file, file.name)
     return this.http.post("api/research/clients/upload", formData, this.authorizedOptions).map(res=>res.json())
   }
+
+  getClientBinaries(): Observable<Array<any>>{
+    return this.http.get("api/clients/all").map(res=>res.json())
+  }
 }
