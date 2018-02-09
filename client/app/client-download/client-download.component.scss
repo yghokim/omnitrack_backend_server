@@ -30,7 +30,7 @@ $width-threshold: 991px;
   }
   .btn-download {
     border-radius: 500px;
-    z-index: 500;
+    z-index: 50000;
     position: absolute;
     bottom: 50px;
     padding-right: 2em;
@@ -42,8 +42,12 @@ $width-threshold: 991px;
       position: initial;
       margin-left: auto;
       margin-right: auto;
-      margin-bottom: 2em;
     }
+    
+    @media screen and (max-width: 500px){
+     font-size: 1em; 
+    }
+    
     .btn-label {
       font-weight: 100;
       .btn-label-main {}
@@ -72,7 +76,7 @@ $width-threshold: 991px;
       @media screen and (max-width: $width_threshold) {
         margin-bottom: -62px;
         left: 50%;
-        transform: translate(-50%);
+        transform: translate(-50%)scale(0.8);
       }
     }
     img {
@@ -147,6 +151,17 @@ $width-threshold: 991px;
         font-size: 12pt;
       }
     }
+
+    @media screen and (max-width: 500px){
+      .desc_headline{
+        font-size: 22pt;
+      }
+
+      .desc_message{
+        font-size: 13pt;
+        padding-top: 0px;
+      }
+    }
   }
 }
 
@@ -154,6 +169,10 @@ $width-threshold: 991px;
   margin-top: 1.2rem;
   padding-bottom: 0.5rem;
   color: #8a8573;
+
+  @media screen and (max-width: 500px){
+    font-size: 0.7em;
+  }
 }
 
 @keyframes fade {
