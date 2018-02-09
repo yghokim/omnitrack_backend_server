@@ -622,6 +622,11 @@ mat-form-field.mat-form-no-vertical-padding {
   }
 }
 
+.card-warning {
+  background: #ff5f45;
+  color: white;  
+}
+
 .card {
   table.table {
     th:first-child,
@@ -694,6 +699,10 @@ thead.singleline {
     &:last-child {
       padding-right: 0.2em;
     }
+  }
+
+  td.button-cell.right-padding:last-child{
+    padding-right: 1.25em;
   }
 }
 

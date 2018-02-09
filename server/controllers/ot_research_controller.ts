@@ -28,6 +28,24 @@ export default class OTResearchCtrl {
     }
   }
 
+  getResearchers = (req, res) => {
+    OTResearcher.find({}, { _id: 1, email: 1, alias: 1, account_approved: 1, createdAt: 1}).then(researchers => {
+      res.status(200).send(researchers || [])
+    }).catch(err=>{
+      console.log(err)
+      res.status(200).send(err)
+    })
+  }
+
+  setResearcherAccountApproved = (req, res) => {
+    OTResearcher.findByIdAndUpdate(req.params.researcherId, {account_approved: req.body.approved}, {new: false}).then(original=>{
+      res.status(200).send(original["account_approved"] !== req.body.approved)
+    }).catch(err=>{
+      console.log(err)
+      res.status(500).send(err)
+    })
+  }
+
   searchResearchers = (req, res) => {
     const researcherId = req.researcher.uid
     const searchTerm = req.query.term

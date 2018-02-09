@@ -153,7 +153,7 @@ export default class OTBinaryCtrl {
         if (binary) {
           res.download(this.makeClientFilePath(binary["platform"], binary["fileName"]), binary["originalFileName"], err => {
             if (err) {
-              res.status(500).send(err)
+              console.log(err)
             }
           })
         } else {

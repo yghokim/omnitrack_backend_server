@@ -35,6 +35,13 @@ export default class ServerModule {
         }
       )*/
 
+      //handle super users
+      OTResearcher.updateMany({email: {$in: env.super_users}, account_approved: {$ne: true}}, {account_approved: true}).then((updated)=>{
+        console.log(updated.nModified + " researchers became new superuser.")
+      }).catch(err=>{
+        console.log(err)
+      })
+
       OTClientBinary.find({}).then(
         binaries=>{
           binaries.forEach(binary => {
@@ -43,7 +50,9 @@ export default class ServerModule {
             binary.save().then()
           })
         }
-      )
+      ).catch(err=>{
+        console.log(err)
+      })
 
       OTParticipant.find({experimentRange: {$exists:false}, approvedAt: {$exists: true}}).then(
         participants=>
@@ -61,10 +70,12 @@ export default class ServerModule {
         }
       )
       
-      OTExperiment.collection.dropIndex("trackingPackages.key_1")
-      OTResearcher.collection.dropIndex("password_reset_token_1")
-      OTItem.collection.dropIndex("objectId_1")
-      OTTracker.collection.dropIndex("objectId_1")
+      OTExperiment.collection.dropIndex("trackingPackages.key_1").catch(err=>{})
+
+      OTResearcher.collection.dropIndex("password_reset_token_1").catch(err => {})
+      OTItem.collection.dropIndex("objectId_1").catch(err => {})
+      OTTracker.collection.dropIndex("objectId_1").catch(err => {})
+
     } catch (err) {
 
     }

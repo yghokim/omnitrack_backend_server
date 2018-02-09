@@ -49,4 +49,44 @@
       No app files are assigned in the server.
     </div>
   </div>
+
+  <div class="card card-main">
+    <div class="card-header">
+      Researchers
+    </div>
+    <table class="table table-data">
+      <thead>
+        <tr class="singleline">
+          <th>Email</th>
+          <th>Alias</th>
+          <th>Registered</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="singleline" *ngFor="let researcher of researchers">
+          <td>{{researcher.email}}</td>
+          <td>{{researcher.alias}}</td>
+          <td>{{researcher.createdAt | date: 'short'}}</td>
+          <td *ngIf="researcher._id !== myId" [ngSwitch]="researcher.account_approved">
+              <span *ngSwitchCase="true">
+                Approved
+              </span>
+              <span *ngSwitchCase="undefined">
+                Approval Pending
+                </span>
+              <span *ngSwitchCase="false">
+                Declined
+              </span>
+          </td>
+          <td  *ngIf="researcher._id !== myId" class="button-cell right-padding text-right">
+            <button class="btn btn-primary btn-sm" *ngIf="researcher.account_approved !== true" (click)="onSetResearcherApprovedStatus(researcher._id, true)">Approve</button>
+            <button class="btn btn-danger btn-sm"  *ngIf="researcher.account_approved !== false" (click)="onSetResearcherApprovedStatus(researcher._id, false)">Decline</button>
+            
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
