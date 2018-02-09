@@ -202,4 +202,8 @@ export class ResearchApiService implements OnDestroy {
   getClientBinaries(): Observable<Array<any>>{
     return this.http.get("api/clients/all").map(res=>res.json())
   }
+
+  removeClientBinary(binaryId: string): Observable<boolean>{
+    return this.http.delete("api/research/clients/" + binaryId, this.authorizedOptions)  .map(res => res.json())
+  }
 }

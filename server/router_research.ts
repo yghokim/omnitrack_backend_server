@@ -53,6 +53,7 @@ router.post('/auth/update', tokenAuth, researchAuthCtrl.update)
 router.post('/auth/verify', tokenAuth, researchAuthCtrl.verifyToken)
 
 router.post('/clients/upload', tokenAuth, clientBinaryCtrl.postClientBinaryFile)
+router.delete("/clients/:binaryId", tokenAuth, clientBinaryCtrl.removeClientBinary)
 
 router.get("/experiments/examples", experimentCtrl.getExampleExperimentList)
 router.post("/experiments/examples", tokenAuth, experimentCtrl.addExampleExperiment)

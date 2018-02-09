@@ -69,11 +69,11 @@ export function getExtensionFromPath(path: string, delimiter: string = '.'): str
 }
 
 interface Version {numbers: Array<number>, suffix: string}
-const versionNumberRegex = /(\d+)[\.\-\s]?/g
-const versionSuffixRegex = /[\-\s]([a-zA-Z0-9]+)/g
 
 function extractVersion(versionString: string): Version {
   const numbers = []
+  const versionNumberRegex = /(\d+)[\.\-\s]?/g
+  const versionSuffixRegex = /[\-\s]([a-zA-Z0-9]+)/g
 
   let match = null
   do {
@@ -96,10 +96,11 @@ export function compareVersions(versionString1: string, versionString2: string):
 
   const maxIndex = Math.max(version1.numbers.length, version2.numbers.length)
   for (let i = 0; i < maxIndex; i++) {
-    const value1 = version1.numbers.length < i ? version1.numbers[i] : -1
-    const value2 = version2.numbers.length < i ? version2.numbers[i] : -1
+    const value1 =  i < version1.numbers.length ? version1.numbers[i] : -1
+    const value2 =  i < version2.numbers.length ? version2.numbers[i] : -1
 
     if (value1 === value2) {
+      // console.log(i + "th number compare : " + value1 + " and " + value2 + " are the same. Continue to the next numbers.")
       continue
     } else {
       return value1 > value2 ? 1 : -1

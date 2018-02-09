@@ -5,6 +5,7 @@ import { ResearchApiService } from '../services/research-api.service';
 import { MatDialog } from '@angular/material';
 import { UploadClientBinaryDialogComponent } from './upload-client-binary-dialog/upload-client-binary-dialog.component';
 import { NotificationService } from '../services/notification.service';
+import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 
 @Component({
   selector: 'app-server-settings',
@@ -69,6 +70,17 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
           }
         }
         )
+    )
+  }
+
+  onRemoveBinaryClicked(binaryId: string){
+    this.internalSubscriptions.add(
+      this.dialog.open(YesNoDialogComponent, { data: { title: "Remove File", message: "Do you want to remove this file?<br>This process cannot be undone.", positiveLabel: "Delete", positiveColor: "warn", negativeColor: "primary" } }).beforeClose().filter(confirm => confirm === true).flatMap(()=>  
+      this.api.removeClientBinary(binaryId)).subscribe(
+        changed=>{
+          this.reloadClientBinaries()
+        }
+      )
     )
   }
 

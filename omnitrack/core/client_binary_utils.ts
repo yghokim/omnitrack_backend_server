@@ -30,5 +30,6 @@ export class ClientBinaryUtil{
       case "Android":
         return packageInfo.versionCode
     }
+    return null
   }
 }

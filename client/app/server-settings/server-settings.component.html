@@ -35,7 +35,7 @@
                   <a [href]="'/api/clients/download?platform=' + binary.platform + '&version=' + binary.version" mat-icon-button>
                     <mat-icon class="material-icons">file_download</mat-icon>
                   </a>
-                  <button mat-icon-button>
+                  <button mat-icon-button (click)="onRemoveBinaryClicked(binary._id)">
                     <mat-icon class="material-icons">delete</mat-icon>
                   </button>
                 </div>
