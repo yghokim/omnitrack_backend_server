@@ -607,7 +607,7 @@ mat-form-field.mat-form-no-vertical-padding {
 }
 
 .card {
-  table.table {
+  .table {
     th:first-child,
     td:first-child {
       padding-left: 1.25em;
@@ -621,7 +621,7 @@ mat-form-field.mat-form-no-vertical-padding {
 }
 
 .card-sm {
-  table.table {
+  .table {
     th:first-child,
     td:first-child {
       padding-left: 0.9em;
@@ -645,7 +645,7 @@ thead.singleline {
   }
 }
 
-.table.table-data {
+.table-data {
   font-size: 0.7em;
   .tag {
     font-size: 1.0em;
@@ -680,7 +680,7 @@ thead.singleline {
   }
 }
 
-table.table.no-horizontal-padding {
+.table.no-horizontal-padding {
   th:first-child,
   td:first-child {
     padding-left: 0em !important;
@@ -691,7 +691,7 @@ table.table.no-horizontal-padding {
   }
 }
 
-table.table.no-borders {
+.table.no-borders {
   td,
   th {
     border: hidden;

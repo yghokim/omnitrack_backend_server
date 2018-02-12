@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit } from "@angular/core";
 import { Subscription } from "rxjs/Subscription";
 import { ResearchApiService } from "../services/research-api.service";
 import { NotificationService } from "../services/notification.service";
@@ -9,6 +9,10 @@ import {
 } from "../../../omnitrack/core/db-entity-types";
 import TypedStringSerializer from "../../../omnitrack/core/typed_string_serializer";
 import AttributeManager from "../../../omnitrack/core/attributes/attribute.manager";
+import { MatTableDataSource, MatSort, MatPaginator } from '@angular/material';
+
+import { Element } from "@angular/compiler";
+import { BehaviorSubject } from "rxjs";
 
 @Component({
   selector: "app-experiment-data",
@@ -30,7 +34,11 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   private userTrackers: Array<ITrackerDbEntity> = [];
 
+  private trackerDataSource: MatTableDataSource<IItemDbEntity>;
+
   private trackerItems: Array<IItemDbEntity> = [];
+
+  @ViewChild(MatSort) sort: MatSort;
 
   private screenExpanded: boolean = false
 
@@ -128,6 +136,18 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
           )
           .subscribe(items => {
             this.trackerItems = items;
+            this.trackerDataSource = new MatTableDataSource(items)
+            this.trackerDataSource.sortingDataAccessor = (data: IItemDbEntity, sortHeaderId: string) => {
+              if(sortHeaderId === 'timestamp'){ return data.timestamp;}
+              for (let item of data.dataTable){
+                if(item.attrLocalId === sortHeaderId){
+                  if(item.sVal){return item.sVal;}
+                  else return '';
+                }
+              }
+              return '';
+            }
+            this.trackerDataSource.sort = this.sort;
           })
       );
     }
@@ -148,4 +168,9 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
       } else return deserializedValue;
     } else return null;
   }
+
+  getTrackerColumns(tracker: ITrackerDbEntity): any[]{
+    const temp = tracker.attributes.map((attribute)=>{return attribute.localId})
+    return temp.concat('timestamp')
+  }    
 }

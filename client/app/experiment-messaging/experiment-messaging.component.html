@@ -2,6 +2,46 @@
   <div class="card">
     <mat-tab-group class="tab-group" (selectedTabChange)="onTabChanged($event)">
       <mat-tab label="Messages">
+        <mat-table class = "table-data" [dataSource]="messageDataSource" matSort>
+
+          <ng-container matColumnDef="type">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Type </mat-header-cell>
+            <mat-cell *matCellDef="let object"> {{object.type}} </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="label">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Label </mat-header-cell>
+            <mat-cell *matCellDef="let object"> {{object.label}} </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="messageTitle">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Title </mat-header-cell>
+            <mat-cell *matCellDef="let object"> {{object.messageTitle}} </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="messageBody">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Message </mat-header-cell>
+            <mat-cell *matCellDef="let object"> {{object.messageBody}} </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="receiverRule">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Reciever Rule </mat-header-cell>
+            <mat-cell *matCellDef="let object"> {{object.receiverRule.type}} </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="receivers">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Receivers </mat-header-cell>
+            <mat-cell *matCellDef="let object"> {{makeReceiversText(object)}} </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="createdAt">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Composed </mat-header-cell>
+            <mat-cell *matCellDef="let object"> {{object.createdAt | date: 'short'}} </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="sentAt">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Sent </mat-header-cell>
+            <mat-cell *matCellDef="let object"> {{object.sentAt | date: 'short'}} </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="['type','label','messageTitle','messageBody','receiverRule','receivers', 'createdAt', 'sentAt']"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: ['type','label','messageTitle','messageBody','receiverRule','receivers', 'createdAt', 'sentAt'];"></mat-row>
+
+        </mat-table>
+        <!-- Old Messages Table
         <table class="table table-data">
           <thead>
             <th>Type</th>
@@ -30,9 +70,41 @@
 
             </tr>
           </tbody>
-        </table>
+        </table>-->
+
       </mat-tab>
       <mat-tab label="Drafts">
+        <mat-table class="table-data" #draftTable [dataSource] = "draftDataSource" matSort>
+            <ng-container matColumnDef="type">
+                <mat-header-cell *matHeaderCellDef mat-sort-header> Type </mat-header-cell>
+                <mat-cell *matCellDef="let object"> {{object.type}} </mat-cell>
+              </ng-container>
+              <ng-container matColumnDef="label">
+                <mat-header-cell *matHeaderCellDef mat-sort-header> Label </mat-header-cell>
+                <mat-cell *matCellDef="let object"> {{object.label}} </mat-cell>
+              </ng-container>
+              <ng-container matColumnDef="messageTitle">
+                <mat-header-cell *matHeaderCellDef mat-sort-header> Title </mat-header-cell>
+                <mat-cell *matCellDef="let object"> {{object.messageTitle}} </mat-cell>
+              </ng-container>
+              <ng-container matColumnDef="messageBody">
+                <mat-header-cell *matHeaderCellDef mat-sort-header> Message </mat-header-cell>
+                <mat-cell *matCellDef="let object"> {{object.messageBody}} </mat-cell>
+              </ng-container>
+              <ng-container matColumnDef="receiverRule">
+                <mat-header-cell *matHeaderCellDef mat-sort-header> Reciever Rule </mat-header-cell>
+                <mat-cell *matCellDef="let object"> {{object.receiverRule.type}} </mat-cell>
+              </ng-container>
+              <ng-container matColumnDef="createdAt">
+                <mat-header-cell *matHeaderCellDef mat-sort-header> Composed </mat-header-cell>
+                <mat-cell *matCellDef="let object"> {{object.createdAt | date: 'short'}} </mat-cell>
+              </ng-container>
+
+              <mat-header-row *matHeaderRowDef="['type','label','messageTitle','messageBody', 'receiverRule', 'createdAt']"></mat-header-row>
+              <mat-row *matRowDef="let row; columns: ['type','label','messageTitle','messageBody', 'receiverRule','createdAt'];"></mat-row>
+        </mat-table>
+        
+          <!-- Old Draft Table
           <table class="table table-data">
               <thead>
                 <th>Type</th>
@@ -57,7 +129,7 @@
     
                 </tr>
               </tbody>
-            </table>
+            </table>-->
       </mat-tab>
     </mat-tab-group>
     <div class="tabbar-header-right-container-absolute">

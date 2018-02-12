@@ -20,6 +20,24 @@
 
       </mat-tab>
     </mat-tab-group>
+     
+   <mat-table class="table table-data" [dataSource]="trackerDataSource" matSort *ngIf="selectedTracker">
+
+        <ng-container *ngFor="let col of selectedTracker.attributes" matColumnDef={{col.localId}}>
+          <mat-header-cell *matHeaderCellDef mat-sort-header> {{ col.name }} </mat-header-cell>
+          <mat-cell *matCellDef="let object"> {{this.getItemValue(object, col)}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="timestamp">
+          <mat-header-cell *matHeaderCellDef mat-sort-header> Logged At </mat-header-cell>
+          <mat-cell *matCellDef="let object"> {{object.timestamp | date: 'short'}} </mat-cell>
+        </ng-container>
+
+          <mat-header-row *matHeaderRowDef="getTrackerColumns(selectedTracker)"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: getTrackerColumns(selectedTracker);"></mat-row>
+    </mat-table>
+  
+<!-- Old Table
     <table class="table table-data" *ngIf="selectedTracker">
       <thead class="singleline">
         <th *ngFor="let attr of selectedTracker.attributes">
@@ -37,4 +55,4 @@
       </tbody>
     </table>
   </div>
-</div>
+</div>-->

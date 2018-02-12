@@ -1,13 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatTableDataSource, MatSort } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { ChooseInvitationDialogComponent } from '../dialogs/choose-invitation-dialog/choose-invitation-dialog.component';
 import { NewInvitationDialogComponent } from '../experiment-invitations/new-invitation-dialog/new-invitation-dialog.component';
 import "rxjs/add/observable/zip";
 import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
+
 
 @Component({
   selector: 'app-experiment-participants',
@@ -28,6 +29,11 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
   public hoveredParticipantId = null
 
   public isUserpoolAccessible: boolean = false
+  
+  public participantDataSource: MatTableDataSource<any>;
+  public userPoolDataSource: MatTableDataSource<any>;
+  @ViewChild(MatSort) participantSort: MatSort; 
+  @ViewChild('userpoolTable', {read: MatSort}) userPoolSort: MatSort;
 
   private readonly _internalSubscriptions = new Subscription()
 
@@ -92,6 +98,8 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
       this.userPoolSubscription = this.api.getUserPool().subscribe(userPool => {
         this.userPool = userPool
         this.isLoadingUserPool = false
+        this.userPoolDataSource = new MatTableDataSource(userPool)
+        this.setSortUsers();
       })
     }
   }
@@ -103,6 +111,8 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
         participants => {
           this.participants = participants
           this.isLoadingParticipants = false
+          this.participantDataSource = new MatTableDataSource(participants)
+          this.setSortParticipants();
         }
       )
     }
@@ -292,4 +302,65 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     } else { return null }
   }
 
+  setSortUsers(): void {
+    this.userPoolDataSource.sort = this.userPoolSort;
+    this.userPoolDataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
+      if(data){
+        switch(sortHeaderId) { 
+          case "status": { 
+            if(this.getParticipationStatusToThisExperimentOfUser(data)){return this.getParticipationStatusToThisExperimentOfUser(data);}
+            else if(this.isParticipatingInAnotherExperiment(data)){return "inAnotherExperiment";}
+            else return "";
+          } 
+          case "created": { if(data.accountCreationTime){return data.accountCreationTime;}
+            break; 
+          } 
+          case "signIn": { if(data.accountLastSignInTime){return data.accountLastSignInTime;} 
+            break; 
+          } 
+          case "userId": { if(data._id){return data._id;}
+            break; 
+          } 
+          case "email": { if(data.email){return data.email;} 
+            break; 
+          }  
+          case "demographic": { if(this.exractDemographics) return this.exractDemographics(data); break;
+          }
+        }
+      }
+    }
+  }
+  
+  setSortParticipants(): void {
+    this.participantDataSource.sort = this.participantSort;
+    this.participantDataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
+      if(data){
+        switch(sortHeaderId) { 
+          case "alias": { if(data.alias){return data.alias;}
+            break; 
+          } 
+          case "status": { 
+            if(data.isDenied){return  4;}
+            else if(!data.isDenied && !data.isConsentApproved){return 2;}
+            else if(data.dropped){return 3;}
+            else if(data.isConsentApproved && !data.dropped){ return 1;}
+            break;
+          } 
+          case "created": { if(data.user && data.user.accountCreationTime){return data.user.accountCreationTime;}
+            break; 
+          } 
+          case "signIn": { if(data.user && data.user.accountLastSignInTime){return data.user.accountLastSignInTime;} 
+            break; 
+          } 
+          case "userId": { if(data.user && data.user._id){return data.user._id;}
+            break; 
+          } 
+          default: { 
+            return ''; 
+          } 
+        } 
+      }
+      return ''; 
+    }
+  }
 }

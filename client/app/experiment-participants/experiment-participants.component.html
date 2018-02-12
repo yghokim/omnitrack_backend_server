@@ -3,8 +3,68 @@
     <mat-tab-group class="tab-group" (selectedTabChange)="onTabChanged($event)">
       <mat-tab label="Study Participants">
         <app-busy-overlay *ngIf="isLoadingParticipants" [scale]="0.5" [overlayClass]="'main'"></app-busy-overlay>
-        <table class="table table-data">
-          <thead>
+        <mat-table class = "table-data" [dataSource]="participantDataSource" matSort>
+            
+            <ng-container matColumnDef="alias">
+              <mat-header-cell *matHeaderCellDef mat-sort-header> Alias </mat-header-cell>
+              <mat-cell *matCellDef="let object"> {{object.alias || 'Not set'}} </mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
+              <mat-cell *matCellDef="let object"> 
+                  <div class="tag tag-danger" *ngIf="object.isDenied">Denied</div>
+                  <div class="tag tag-warning" *ngIf="!object.isDenied && !object.isConsentApproved">Invitation Pending</div>
+                  <div class="tag tag-danger" *ngIf="object.dropped == true">Dropped Out</div>
+                  <div class="tag tag-primary" *ngIf="object.isConsentApproved && object.dropped != true">In Experiment</div>
+              </mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="created">
+              <mat-header-cell *matHeaderCellDef mat-sort-header> Created </mat-header-cell>
+              <mat-cell *matCellDef="let object"> {{object.user.accountCreationTime | date: 'MMM dd, yyyy'}} </mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="signIn">
+              <mat-header-cell *matHeaderCellDef mat-sort-header> Signed In </mat-header-cell>
+              <mat-cell *matCellDef="let object"> {{object.user.accountLastSignInTime | date: 'MMM dd, yyyy'}} </mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="userId">
+              <mat-header-cell *matHeaderCellDef mat-sort-header> User UID </mat-header-cell>
+              <mat-cell *matCellDef="let object"> {{object.user._id}} </mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="button">
+              <mat-header-cell *matHeaderCellDef mat-sort-header> </mat-header-cell>
+              <mat-cell *matCellDef="let object"> 
+                  <div class="pull-right">
+                      <button mat-icon-button [matMenuTriggerFor]="menu">
+                        <mat-icon class="material-icons">more_vert</mat-icon>
+                      </button>
+                      <mat-menu #menu="matMenu" [ngSwitch]="getParticipationStatus(object)">
+                        <button mat-menu-item (click)="onChangeAliasClicked(object)">
+                          Change Alias
+                        </button>
+                        <button mat-menu-item *ngSwitchCase="'pending'" (click)="onCancelInvitationClicked(object._id)">
+                          <span>Cancel Invitation</span>
+                        </button>
+      
+                        <button mat-menu-item *ngSwitchCase="'participating'" (click)="onDropParticipantClicked(object._id)">
+                        <span>Drop Participant</span>
+                        </button>
+      
+                        <button mat-menu-item *ngSwitchCase="'dropped' || 'denied'" (click)="onRemoveParticipantEntryClicked(object._id)">
+                          <span>Remove Entry</span>
+                          </button>
+                      </mat-menu>
+                    </div>
+              </mat-cell>
+            </ng-container>
+
+            <mat-header-row *matHeaderRowDef="['alias','status','created','signIn','userId', 'button']"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: ['alias','status','created','signIn','userId', 'button'];"></mat-row>
+
+         </mat-table>
+       
+       <!--Old Table
+         <table class="table table-data">
+           <thead>
             <tr>
               <th>Alias</th>
               <th>Status</th>
@@ -45,7 +105,6 @@
                   <span>Drop Participant</span>
                   </button>
 
-
                   <button mat-menu-item *ngSwitchCase="'dropped' || 'denied'" (click)="onRemoveParticipantEntryClicked(participant._id)">
                     <span>Remove Entry</span>
                     </button>
@@ -53,7 +112,7 @@
               </div>
             </td>
           </tr>
-        </table>
+        </table>-->
         <div class="card-block card-footer horizontal-padding-narrow">
 
           <small *ngIf="participants== null" class="text-color-gray">Participants not loaded.</small>
@@ -69,6 +128,69 @@
       </mat-tab>
       <mat-tab label="The OmniTrack User Pool" [disabled] = "isUserpoolAccessible == false">
         <app-busy-overlay *ngIf="isLoadingUserPool" [scale]="0.5" [overlayClass]="'main'"></app-busy-overlay>
+        
+        <mat-table #userpoolTable [dataSource]="userPoolDataSource" matSort>
+
+          <ng-container matColumnDef="email">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Email </mat-header-cell>
+            <mat-cell *matCellDef="let object"> {{object.email | anonymizeEmail}} </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="status">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
+            <mat-cell *matCellDef="let object"> 
+                <div *ngIf="getParticipationStatusToThisExperimentOfUser(object)" [ngSwitch]="getParticipationStatusToThisExperimentOfUser(object)">
+                  <span *ngSwitchCase="'pending'" class="tag tag-warning">Invitation Pending</span>
+                  <span *ngSwitchCase="'participating'" class="tag tag-primary">In Experiment</span>
+                  <span *ngSwitchCase="'dropped'"  class="tag tag-danger">Dropped Out</span>
+                  <span *ngSwitchCase="'denied'"  class="tag tag-danger">Denied</span>
+                </div>
+                <div *ngIf="isParticipatingInAnotherExperiment(object)">
+                  <span class="tag tag-warning">In Other Experiments</span>
+                </div>
+           </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="demographic">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Demographic </mat-header-cell>
+            <mat-cell *matCellDef="let object"> {{exractDemographics(object)}} </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="created">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Created </mat-header-cell>
+            <mat-cell *matCellDef="let object"> {{object.accountCreationTime | date: 'MMM dd, yyyy'}} </mat-cell>
+          </ng-container> 
+          <ng-container matColumnDef="signIn">
+             <mat-header-cell *matHeaderCellDef mat-sort-header> Signed In </mat-header-cell>
+             <mat-cell *matCellDef="let object"> {{object.accountLastSignInTime | date: 'MMM dd, yyyy'}} </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="userId">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> User UID </mat-header-cell>
+            <mat-cell *matCellDef="let object"> {{object._id}} </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="button">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>  </mat-header-cell>
+            <mat-cell *matCellDef="let object"> 
+            <div class="pull-right">
+                <button mat-icon-button [matMenuTriggerFor]="menu">
+                  <mat-icon class="material-icons">more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                  <button mat-menu-item *ngIf="!getParticipationStatusToThisExperimentOfUser(object)" (click)="onSendInvitationClicked(object._id)">
+                    <span>Invite</span>
+                  </button>
+                  <button mat-menu-item (click)="onDeleteAccountClicked(object._id)">
+                    <span class="text-color-danger">Delete Account</span>
+                  </button>
+                </mat-menu>
+              </div>  
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="['email','status','demographic','created','signIn','userId', 'button']"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: ['email','status','demographic','created','signIn','userId', 'button'];"></mat-row>
+    
+
+        </mat-table>
+       
+        <!-- Old UserPool Table
         <table class="table table-data" (mouseleave)="hoveredRowIndex = -1">
           <thead>
             <tr>
@@ -115,7 +237,7 @@
             </td>
 
           </tr>
-        </table>
+        </table>-->
 
         <div class="card-block card-footer">
 
