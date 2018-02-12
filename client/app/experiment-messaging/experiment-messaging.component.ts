@@ -75,13 +75,13 @@ export class ExperimentMessagingComponent implements OnInit, OnDestroy {
     this.messageDataSource.sortingDataAccessor = (data: IResearchMessage, sortHeaderId: string) => {
       if(data){
         if(sortHeaderId === "receivers"){
-          return this.makeReceiversText(data)
+          return this.makeReceiversText(data) || ''
         }
         else if(sortHeaderId === "receiverRule"){
-          if(data.receiverRule) return data.receiverRule.type
+          if(data.receiverRule) return data.receiverRule.type || ''
         }
         else{
-          return data[sortHeaderId]
+          return data[sortHeaderId] || ''
         }
       }
       else return '';
