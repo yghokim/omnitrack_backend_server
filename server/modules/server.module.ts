@@ -3,6 +3,7 @@ import OTItem from '../models/ot_item';
 import OTParticipant from '../models/ot_participant';
 import OTExperiment from '../models/ot_experiment';
 import OTItemMedia from '../models/ot_item_media';
+import OTClientBinary from '../models/ot_client_binary';
 import OTUser from '../models/ot_user';
 import { Express } from 'express';
 import * as path from 'path';
@@ -34,6 +35,25 @@ export default class ServerModule {
         }
       )*/
 
+      //handle super users
+      OTResearcher.updateMany({email: {$in: env.super_users}, account_approved: {$ne: true}}, {account_approved: true}).then((updated)=>{
+        console.log(updated.nModified + " researchers became new superuser.")
+      }).catch(err=>{
+        console.log(err)
+      })
+
+      OTClientBinary.find({}).then(
+        binaries=>{
+          binaries.forEach(binary => {
+            binary["version"] = binary["version"].replace(/ /g, "-")
+            console.log(binary["version"])
+            binary.save().then()
+          })
+        }
+      ).catch(err=>{
+        console.log(err)
+      })
+
       OTParticipant.find({experimentRange: {$exists:false}, approvedAt: {$exists: true}}).then(
         participants=>
         {
@@ -50,10 +70,12 @@ export default class ServerModule {
         }
       )
       
-      OTExperiment.collection.dropIndex("trackingPackages.key_1")
-      OTResearcher.collection.dropIndex("password_reset_token_1")
-      OTItem.collection.dropIndex("objectId_1")
-      OTTracker.collection.dropIndex("objectId_1")
+      OTExperiment.collection.dropIndex("trackingPackages.key_1").catch(err=>{})
+
+      OTResearcher.collection.dropIndex("password_reset_token_1").catch(err => {})
+      OTItem.collection.dropIndex("objectId_1").catch(err => {})
+      OTTracker.collection.dropIndex("objectId_1").catch(err => {})
+
     } catch (err) {
 
     }

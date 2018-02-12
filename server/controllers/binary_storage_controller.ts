@@ -13,7 +13,7 @@ export default class BinaryStorageCtrl {
   private makeUserItemMediaStorage(userId: String, trackerId: String, itemId: String, attrLocalId: String, fileIdentifier: String): StorageEngine {
     return multer.diskStorage({
       destination: function (req, file, cb) {
-        cb(null, "storage/uploads/temp")
+        cb(null, "storage/temp/media")
       },
       filename: function (req, file, cb) {
         const tempName = userId + "_" + trackerId + itemId + attrLocalId + "_" + Date.now() + '.' + mime.getExtension(file.mimetype)

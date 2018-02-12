@@ -32,13 +32,13 @@ export class NotificationService {
     }
   }
 
-  registerGlobalBusyTag(tag: string){
-    this._globalBusyTags.add(tag)
+  registerGlobalBusyTag(badge: string){
+    this._globalBusyTags.add(badge)
     this.sendGlobalBusyFlag(true)
   }
 
-  unregisterGlobalBusyTag(tag: string){
-    if(this._globalBusyTags.delete(tag)){
+  unregisterGlobalBusyTag(badge: string){
+    if(this._globalBusyTags.delete(badge)){
       this.sendGlobalBusyFlag(this._globalBusyTags.size > 0)
     }
   }

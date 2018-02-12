@@ -1,9 +1,16 @@
 <div class="container">
+  <div *ngIf="isAccountApproved!==true" class="card card-main card-warning">
+    <div class="card-body text-center">
+      <span *ngIf="!isAccountApproved">Your account is not approved by the server administrators.</span>
+      <span *ngIf="isAccountApproved===true">Your account is DECLINED by the server administrators. Contact the administrators.</span>
+    </div>
+  </div>
+
   <div class="card card-main">
     <div class="card-header">
       Account Profile
     </div>
-    <div class="card-block">
+    <div class="card-body">
         <input id="prevent_autofill" type="text" style="display:none;" value="" name="prevent_autofill">
         <input id="password_fake" type="password" style="display:none;" value="" name="password_fake">
         
@@ -32,7 +39,7 @@
           </div>
         </div>
         <hr>
-        <div class="pull-right">
+        <div class="text-right">
           <button mat-raised-button color="primary" [disabled]="!isValid()" (click)="onSubmitClicked()">Change Information</button>
         </div>
     </div>

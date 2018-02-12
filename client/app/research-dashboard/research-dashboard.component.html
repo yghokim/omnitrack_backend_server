@@ -1,6 +1,6 @@
 <app-research-layout>
   <div header class="dropdown experiment" *ngIf="!isLoadingSelectedExperiment && api.getSelectedExperimentId()">
-    <button class="btn btn-secondary dropdown-toggle select-experiment" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+    <button class="btn btn-light dropdown-toggle select-experiment" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
       aria-expanded="false">
       {{selectedExperimentName}}
     </button>
@@ -11,12 +11,14 @@
       <a class="dropdown-item small dropdown-item-experiment" (click)="onExperimentSelected(exp._id)" *ngFor="let exp of guestExperimentInfos">{{exp.name}}</a>
       <div class="dropdown-divider"></div>
       <a class="dropdown-item small dropdown-item-experiment" [routerLink]="['/research/experiments']">Experiment List</a>
+
+      <a class="dropdown-item small dropdown-item-experiment" *ngIf="researcherPrevilage >= 1" [routerLink]="['/research/settings']">Server Settings</a>
     </div>
   </div>
   <!--<button type="button" class="btn btn-info btn-sm" i="plus">Add New Experiment</button>-->
 
 
-  <span header class="tag tag-primary tag-researcher-role flex-align-self-center left-margin-1em flex-container flex-align-items-center"
+  <span header class="badge badge-primary badge-researcher-role flex-align-self-center left-margin-1em flex-container flex-align-items-center"
     [ngClass]="(getMyRole() | async)" matTooltip="Your role in this experiment." matTooltipPosition="below">
     <span>{{getMyRole() | async}}</span>
     <mat-icon class="material-icons left-margin-dot2em text-size-1dot2em">help_outline</mat-icon>

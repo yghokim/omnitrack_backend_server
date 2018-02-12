@@ -20,8 +20,13 @@
   border-radius: 0px;
   font-weight: 500;
   font-size: 0.8em;
+  background: transparent;
   color: #575757;
   height: $research_header_height - 2px;
+
+  &:hover{
+    background: #f0f0f0;
+  }
 }
 
 #research_dashboard_wrapper{

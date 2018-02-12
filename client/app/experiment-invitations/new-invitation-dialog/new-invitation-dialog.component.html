@@ -1,9 +1,9 @@
 <div class="dialog dialog-mid">
   <div class="card-header">New Invitation</div>
-  <div class="card-block">
+  <div class="card-body">
     <mat-tab-group class="tab-group" (selectedTabChange)="onTabChanged($event)">
       <mat-tab label="Specific Group" [value] = "specificGroupType">
-        <div class="card-block">
+        <div class="card-body">
           <p>
             Participants will be assigned to the selected group.
           </p>
@@ -15,7 +15,7 @@
         </div>
       </mat-tab>
       <mat-tab label="Random Group" [value]="randomGroupType">
-        <div class="card-block">
+        <div class="card-body">
           <p>
             Participant will be randomly distributed to the selected groups.
           </p>
@@ -25,12 +25,12 @@
         </div>
       </mat-tab>
     </mat-tab-group>
-    <div class="card-block no-vertical-padding">
+    <div class="card-body no-vertical-padding">
       <hr>
       <mat-checkbox class="small" [checked]="isPublic" (change)="isPublic = $event.checked">Allow the OmniTrack users to access this invitation publicly</mat-checkbox>
     </div>
     <hr>
-    <div class="pull-right">
+    <div class="text-right">
       <button mat-raised-button color="primary" [disabled]="!isGenerateAvailable()" (click)="generate()">Generate</button>
     </div>
   </div>

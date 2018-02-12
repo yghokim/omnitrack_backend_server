@@ -56,11 +56,11 @@ export class TrackingDataService implements OnInit, OnDestroy{
     this._internalSubscriptions.unsubscribe()
   }
   
-  registerConsumer(tag: string):boolean{
-    console.log("try register tracking data consumer: " + tag)
+  registerConsumer(badge: string):boolean{
+    console.log("try register tracking data consumer: " + badge)
     const needRefresh = this.dataConsumerTags.size == 0
-    const appendedThisTime = !this.dataConsumerTags.has(tag)
-    this.dataConsumerTags.add(tag)
+    const appendedThisTime = !this.dataConsumerTags.has(badge)
+    this.dataConsumerTags.add(badge)
 
     if(needRefresh)
     {
@@ -73,9 +73,9 @@ export class TrackingDataService implements OnInit, OnDestroy{
     return appendedThisTime
   }
 
-  unregisterConsumer(tag: string): boolean{
-    console.log("try unregister tracking data consumer: " + tag)
-    const removedThisTime = this.dataConsumerTags.delete(tag)
+  unregisterConsumer(badge: string): boolean{
+    console.log("try unregister tracking data consumer: " + badge)
+    const removedThisTime = this.dataConsumerTags.delete(badge)
     return removedThisTime
   }
 

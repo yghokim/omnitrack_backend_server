@@ -1,6 +1,7 @@
 import * as jwt from "jsonwebtoken";
 import * as uuid from "uuid";
 import * as path from "path";
+import { ResearcherPrevilages } from '../../omnitrack/core/research/researcher';
 import OTResearcher from "../models/ot_researcher";
 
 import OTExperiment from "../models/ot_experiment";
@@ -34,6 +35,8 @@ export default class OTResearchAuthCtrl {
         uid: user._id,
         email: user.email,
         alias: user.alias,
+        approved: user.account_approved,
+        previlage: (env.super_users as Array<string> || []).indexOf(user.email) !== -1? ResearcherPrevilages.SUPERUSER : ResearcherPrevilages.NORMAL,
         exp: Math.floor(expiry.getTime() / 1000),
         iat: (iat || user.passwordSetAt || new Date()).getTime() / 1000
       },
@@ -81,7 +84,8 @@ export default class OTResearchAuthCtrl {
                     email: email,
                     hashed_password: hashedPassword,
                     passwordSetAt: new Date(),
-                    alias: alias
+                    alias: alias,
+                    account_approved: env.super_users.indexOf(email) !== -1? true : null
                   });
                   newResearcher
                     .save()
@@ -154,10 +158,6 @@ export default class OTResearchAuthCtrl {
     query: any,
     update: any
   ): Promise<string> {
-    console.log("query:");
-    console.log(query);
-    console.log("update:");
-    console.log(update);
     if (Object.keys(query).length > 0 && Object.keys(update).length > 0) {
       return OTResearcher.findOneAndUpdate(query, update, { new: true }).then(
         (researcher: any) => {
@@ -189,6 +189,7 @@ export default class OTResearchAuthCtrl {
     ) {
       OTResearcher.findById(req.researcher.uid).then((researcher: any) => {
         if (researcher) {
+          console.log("found researcher with uid")
           this.bcrypt.compare(
             req.body.originalPassword,
             researcher.hashed_password,

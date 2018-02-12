@@ -155,7 +155,7 @@ body {
   }
 }
 
-.tag-lg {
+.badge-lg {
   padding: 0.5rem;
 }
 
@@ -263,6 +263,11 @@ body {
 .vertical-padding-tiny {
   padding-top: 0.2em;
   padding-bottom: 0.2em;
+}
+
+.vertical-padding-normal{
+  padding-top: 1em;
+  padding-bottom: 1em;
 }
 
 
@@ -391,7 +396,6 @@ label.small.horizontal {
   margin-right: 1em;
 }
 
-
 .right-margin-1dot5em {
   margin-right: 1.5em;
 }
@@ -432,6 +436,14 @@ label.small.horizontal {
   margin-bottom: 2em;
 }
 
+.top-margin-1em{
+  margin-top: 1em;
+}
+
+.top-margin-1dot5em{
+  margin-top: 1.5em;
+}
+
 small.info-text {
   color: #575757;
   font-weight: bold;
@@ -446,6 +458,10 @@ mat-form-field.mat-form-no-vertical-padding {
   cursor: pointer;
 }
 
+.card{
+  margin-bottom: 1.5rem;
+}
+
 .card.card-component {
   border: none;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.17);
@@ -456,12 +472,12 @@ mat-form-field.mat-form-no-vertical-padding {
   }
 }
 
-.card-block.horizontal-padding-narrow {
+.card-body.horizontal-padding-narrow {
   padding-left: 0.8rem;
   padding-right: 0.8rem;
 }
 
-.card-block.vertical-padding-small{
+.card-body.vertical-padding-small{
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
@@ -491,7 +507,7 @@ mat-form-field.mat-form-no-vertical-padding {
   background: transparent;
   border: 3px dotted #afafaf;
   box-shadow: none;
-  .card-block {
+  .card-body {
     height: 100%;
     text-align: center;
   }
@@ -521,7 +537,7 @@ mat-form-field.mat-form-no-vertical-padding {
     color: white;
     font-weight: 300;
   }
-  &>.card-block {
+  &>.card-body {
     padding: 1.0rem;
   }
   p {
@@ -588,7 +604,7 @@ mat-form-field.mat-form-no-vertical-padding {
   .card-header {
     padding: .5rem 0.8rem;
   }
-  .card-block {
+  .card-body {
     font-size: 0.8em;
     padding: 0.9rem;
   }
@@ -604,6 +620,11 @@ mat-form-field.mat-form-no-vertical-padding {
     padding-right: 0.8rem;
     font-weight: 300;
   }
+}
+
+.card-warning {
+  background: #ff5f45;
+  color: white;  
 }
 
 .card {
@@ -647,7 +668,7 @@ thead.singleline {
 
 .table-data {
   font-size: 0.7em;
-  .tag {
+  .badge {
     font-size: 1.0em;
     font-weight: 400;
   }
@@ -657,6 +678,7 @@ thead.singleline {
     th {
       padding-top: 0.9em;
       padding-bottom: 0.9em;
+      border-bottom-width: 1px;
     }
   }
   tbody {
@@ -677,6 +699,10 @@ thead.singleline {
     &:last-child {
       padding-right: 0.2em;
     }
+  }
+
+  td.button-cell.right-padding:last-child{
+    padding-right: 1.25em;
   }
 }
 
@@ -745,7 +771,7 @@ $duration: 1.4s;
   animation: rotator $duration linear infinite;
 }
 
-.tag-researcher-role {
+.badge-researcher-role {
   padding: 0.5em;
   text-transform: capitalize;
   font-weight: 500;
@@ -754,6 +780,18 @@ $duration: 1.4s;
   }
   &.manager {
     background: #e97a9b;
+  }
+}
+
+.filedrop{
+  margin: auto;
+  border: 2px dotted #c2c2c2;
+  border-radius: 0.6rem;
+  background: #f0f0f0;
+  padding: 0.8rem;
+
+  & > .content{
+    height: inherit !important;
   }
 }
 

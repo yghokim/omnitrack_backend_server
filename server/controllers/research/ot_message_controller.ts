@@ -35,7 +35,7 @@ export default class OTResearchMessageCtrl {
     const emailApi = new this.mailer.SMTPApi()
     return Promise.all(emails.map(email => {
       const emailBody = new this.mailer.SendSmtpEmail()
-      emailBody.sender = {email: env.mailer.sender_email}
+      emailBody.sender = {email: env.mailer.sender_email, name: env.mailer.sender_name}
       emailBody.subject = messageTitle
       emailBody.htmlContent = messageBody
       emailBody.to = [{email: email}]

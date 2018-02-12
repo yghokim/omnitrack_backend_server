@@ -47,6 +47,8 @@ import { EngagementParticipantGroupDirective } from './research/visualization/en
 import { DeleteExperimentConfirmDialogComponent } from './dialogs/delete-experiment-confirm-dialog/delete-experiment-confirm-dialog.component';
 import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
 import { TableCellValueComponent } from './components/table-cell-value/table-cell-value.component';
+import { ServerSettingsComponent } from './server-settings/server-settings.component';
+import { UploadClientBinaryDialogComponent } from './server-settings/upload-client-binary-dialog/upload-client-binary-dialog.component';
 
 @NgModule({
   imports: [
@@ -95,6 +97,8 @@ import { TableCellValueComponent } from './components/table-cell-value/table-cel
     NewExperimentDialogComponent,
     EngagementParticipantGroupDirective,
     DeleteExperimentConfirmDialogComponent,
+    ServerSettingsComponent,
+    UploadClientBinaryDialogComponent,
   ],
   exports: [
     NouisliderModule,
@@ -135,7 +139,8 @@ import { TableCellValueComponent } from './components/table-cell-value/table-cel
     NewInvitationDialogComponent,
     AddCollaboratorDialogComponent,
     NewExperimentDialogComponent,
-    DeleteExperimentConfirmDialogComponent
+    DeleteExperimentConfirmDialogComponent,
+    UploadClientBinaryDialogComponent
   ]
 })
 export class ResearchModule { }

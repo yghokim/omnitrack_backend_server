@@ -9,14 +9,38 @@ import 'rxjs/add/operator/map';
 import { Subscription } from 'rxjs/Subscription';
 import { isNullOrBlank } from '../../../shared_lib/utils';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
+import { ResearcherPrevilages, IResearcherToken } from '../../../omnitrack/core/research/researcher';
 
 export class ResearcherAuthInfo {
+  static readonly NOT_SIGNED_IN = new ResearcherAuthInfo(null)
+
   constructor(
-    public readonly signedIn: boolean,
-    public readonly uid: string,
-    public readonly email: string,
-    public readonly alias: string
+    public readonly tokenInfo: IResearcherToken
   ) { }
+
+  get signedIn():boolean{
+    return this.tokenInfo!=null
+  }
+
+  get uid(): string{
+    return this.tokenInfo? this.tokenInfo.uid : null
+  }
+
+  get email(): string{
+    return this.tokenInfo? this.tokenInfo.email : null
+  }
+
+  get alias(): string{
+    return this.tokenInfo? this.tokenInfo.alias : null
+  }
+
+  get previlage(): number{
+    return this.tokenInfo? this.tokenInfo.previlage : -1
+  }
+
+  get approved(): boolean{
+    return this.tokenInfo? this.tokenInfo.approved : null
+  }
 }
 
 @Injectable()
@@ -31,7 +55,7 @@ export class ResearcherAuthService implements OnDestroy {
 
   jwtHelper: JwtHelper = new JwtHelper();
 
-  readonly currentResearcher = new BehaviorSubject<ResearcherAuthInfo>({ signedIn: false, uid: '', email: '', alias: '' });
+  readonly currentResearcher = new BehaviorSubject<ResearcherAuthInfo>(ResearcherAuthInfo.NOT_SIGNED_IN);
 
   readonly tokenSubject = new BehaviorSubject<string>(null)
 
@@ -107,7 +131,7 @@ export class ResearcherAuthService implements OnDestroy {
 
   private decodeAndSaveResearcherFromToken(token): any {
     const decoded = this.jwtHelper.decodeToken(token)
-    const decodedResearcher = new ResearcherAuthInfo(true, decoded.uid, decoded.email, decoded.alias)
+    const decodedResearcher = new ResearcherAuthInfo(decoded)
     this.currentResearcher.next(decodedResearcher)
     return decodedResearcher
   }
@@ -133,7 +157,7 @@ export class ResearcherAuthService implements OnDestroy {
     return Observable.defer(() => {
       localStorage.removeItem("omnitrack_researcher_token")
       this.tokenSubject.next(null)
-      this.currentResearcher.next({ signedIn: false, uid: '', email: '', alias: '' });
+      this.currentResearcher.next(ResearcherAuthInfo.NOT_SIGNED_IN);
       return Observable.of(true)
     })
   }

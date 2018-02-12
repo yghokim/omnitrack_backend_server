@@ -20,14 +20,14 @@ export default class SocketModule {
 
   }
 
-  private removeKeysWithValue(table: Map<string, [string]>, value: string){
+  private removeKeysWithValue(table: Map<string, Array<string>>, value: string){
     const keys = []
-    table.forEach((val, key, map) => {
+    table.forEach((val: Array<string>, key, map) => {
       let i
       do{
          i = val.indexOf(value)
          val.splice(i, 1)
-      }while(i != -1)
+      }while(i !== -1)
 
       if(val.length == 0)
       {

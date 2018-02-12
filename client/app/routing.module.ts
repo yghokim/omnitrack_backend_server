@@ -24,14 +24,18 @@ import { ComposeMessageComponent } from './experiment-messaging/compose-message/
 import { ResearchHomeFrameComponent } from './research-home-frame/research-home-frame.component';
 import { ExperimentListComponent } from './experiment-list/experiment-list.component';
 import { ResearcherAccountSettingsComponent } from './researcher-account-settings/researcher-account-settings.component';
+import { ServerSettingsComponent } from './server-settings/server-settings.component';
+import { ClientDownloadComponent } from './client-download/client-download.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'research', pathMatch: 'full' },
+  { path: '', redirectTo: 'downloads', pathMatch: 'full' },
+  { path: 'downloads', component: ClientDownloadComponent},
   { path: 'research', component: ResearchFrameComponent,
     children: [
       { path: '', component: ResearchHomeFrameComponent,
           children: [
             {path: '', component: ResearchMainComponent, canActivate: [ResearcherAuthGuardMain]},
+            { path: 'settings', component: ServerSettingsComponent, canActivate: [ResearcherAuthGuardSecure]},
             {path: 'signup', component: ResearchSignupComponent},
             { path: 'login', component: ResearchLoginComponent},
             { path: 'experiments', component: ExperimentListComponent, canActivate: [ResearcherAuthGuardSecure]},

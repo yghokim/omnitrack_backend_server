@@ -1,11 +1,12 @@
-.tag{
+.badge{
+  color: white;
   font-size: 0.9em;
   text-transform: capitalize;
-  &.tag-false{
+  &.badge-false{
     background: #f17c7c;
   }
 
-  &.tag-true{
+  &.badge-true{
     background: #5cd681;
   }
 }
