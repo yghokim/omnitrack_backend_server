@@ -38,7 +38,7 @@
           </ng-container>
 
           <mat-header-row *matHeaderRowDef="['type','label','messageTitle','messageBody','receiverRule','receivers', 'createdAt', 'sentAt']"></mat-header-row>
-          <mat-row *matRowDef="let row; columns: ['type','label','messageTitle','messageBody','receiverRule','receivers', 'createdAt', 'sentAt'];"></mat-row>
+          <mat-row class="hoverable" *matRowDef="let row; columns: ['type','label','messageTitle','messageBody','receiverRule','receivers', 'createdAt', 'sentAt'];"></mat-row>
 
         </mat-table>
         <!-- Old Messages Table
@@ -101,7 +101,7 @@
               </ng-container>
 
               <mat-header-row *matHeaderRowDef="['type','label','messageTitle','messageBody', 'receiverRule', 'createdAt']"></mat-header-row>
-              <mat-row *matRowDef="let row; columns: ['type','label','messageTitle','messageBody', 'receiverRule','createdAt'];"></mat-row>
+              <mat-row class="hoverable singleline" *matRowDef="let row; columns: ['type','label','messageTitle','messageBody', 'receiverRule','createdAt'];"></mat-row>
         </mat-table>
         
           <!-- Old Draft Table

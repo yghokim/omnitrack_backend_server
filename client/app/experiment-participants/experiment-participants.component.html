@@ -57,8 +57,8 @@
               </mat-cell>
             </ng-container>
 
-            <mat-header-row *matHeaderRowDef="['alias','status','created','signIn','userId', 'button']"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: ['alias','status','created','signIn','userId', 'button'];"></mat-row>
+            <mat-header-row class="no-right-padding" *matHeaderRowDef="['alias','status','created','signIn','userId', 'button']"></mat-header-row>
+            <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: ['alias','status','created','signIn','userId', 'button'];"></mat-row>
 
          </mat-table>
        
