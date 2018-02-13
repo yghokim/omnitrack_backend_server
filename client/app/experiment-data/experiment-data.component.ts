@@ -138,11 +138,10 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
             this.trackerItems = items;
             this.trackerDataSource = new MatTableDataSource(items)
             this.trackerDataSource.sortingDataAccessor = (data: IItemDbEntity, sortHeaderId: string) => {
-              if(sortHeaderId === 'timestamp'){ return data.timestamp;}
+              if(sortHeaderId === 'timestamp'){ return data.timestamp || '';}
               for (let item of data.dataTable){
                 if(item.attrLocalId === sortHeaderId){
-                  if(item.sVal){return item.sVal;}
-                  else return '';
+                  return item.sVal || '';
                 }
               }
               return '';
