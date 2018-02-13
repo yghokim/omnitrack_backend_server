@@ -61,6 +61,19 @@
             <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: ['alias','status','created','signIn','userId', 'button'];"></mat-row>
 
          </mat-table>
+         <div class="card-body card-footer horizontal-padding-narrow">
+ 
+           <small *ngIf="participants== null" class="text-color-gray">Participants not loaded.</small>
+           <small *ngIf="participants!= null && participants.length == 0" class="text-color-gray">No participants in server.</small>
+           <div *ngIf="participants!= null && participants.length > 0" class="text-color-gray flex-container flex-align-items-center">
+             <small class="right-margin-3em">Active Participants: {{activeParticipantCount()}}</small>
+             <small class="right-margin-3em">Pending Invitees: {{pendingInviteeCount()}}</small>
+             <small class="right-margin-3em">Dropped: {{droppedParticipantCount()}}</small>
+             
+           </div>
+ 
+         </div>
+       </mat-tab>
        
        <!--Old Table
          <table class="table table-data">
@@ -112,24 +125,11 @@
               </div>
             </td>
           </tr>
-        </table>
-        <div class="card-body card-footer horizontal-padding-narrow">
-
-          <small *ngIf="participants== null" class="text-color-gray">Participants not loaded.</small>
-          <small *ngIf="participants!= null && participants.length == 0" class="text-color-gray">No participants in server.</small>
-          <div *ngIf="participants!= null && participants.length > 0" class="text-color-gray flex-container flex-align-items-center">
-            <small class="right-margin-3em">Active Participants: {{activeParticipantCount()}}</small>
-            <small class="right-margin-3em">Pending Invitees: {{pendingInviteeCount()}}</small>
-            <small class="right-margin-3em">Dropped: {{droppedParticipantCount()}}</small>
-            
-          </div>
-
-        </div>
-      </mat-tab>
+        </table>-->
       <mat-tab label="The OmniTrack User Pool" [disabled] = "isUserpoolAccessible == false">
         <app-busy-overlay *ngIf="isLoadingUserPool" [scale]="0.5" [overlayClass]="'main'"></app-busy-overlay>
         
-        <mat-table #userpoolTable [dataSource]="userPoolDataSource" matSort>
+        <mat-table class = "table-data" #userpoolTable [dataSource]="userPoolDataSource" matSort>
 
           <ng-container matColumnDef="email">
             <mat-header-cell *matHeaderCellDef mat-sort-header> Email </mat-header-cell>
@@ -184,8 +184,8 @@
             </mat-cell>
           </ng-container>
 
-          <mat-header-row *matHeaderRowDef="['email','status','demographic','created','signIn','userId', 'button']"></mat-header-row>
-          <mat-row *matRowDef="let row; columns: ['email','status','demographic','created','signIn','userId', 'button'];"></mat-row>
+          <mat-header-row class="no-right-padding" *matHeaderRowDef="['email','status','demographic','created','signIn','userId', 'button']"></mat-header-row>
+          <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: ['email','status','demographic','created','signIn','userId', 'button'];"></mat-row>
     
 
         </mat-table>
