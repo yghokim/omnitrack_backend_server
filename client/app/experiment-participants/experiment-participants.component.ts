@@ -308,15 +308,24 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
       if(data){
         switch(sortHeaderId) { 
           case "status": { 
-            if(this.isParticipatingInAnotherExperiment(data)){return "inAnotherExperiment";}
-            else {return this.getParticipationStatusToThisExperimentOfUser(data) || '';}
+            if(this.getParticipationStatusToThisExperimentOfUser(data)){return this.getParticipationStatusToThisExperimentOfUser(data);}
+            else if(this.isParticipatingInAnotherExperiment(data)){return "inAnotherExperiment";}
+            else return "";
           } 
-          case "created": { return data.accountCreationTime || '';} 
-          case "signIn": { return data.accountLastSignInTime || ''; } 
-          case "userId": { return data._id || '';} 
-          case "email": { return data.email || ''; }  
-          case "demographic": { return this.exractDemographics(data)||''}
-          default: {return '';}
+          case "created": { if(data.accountCreationTime){return data.accountCreationTime;}
+            break; 
+          } 
+          case "signIn": { if(data.accountLastSignInTime){return data.accountLastSignInTime;} 
+            break; 
+          } 
+          case "userId": { if(data._id){return data._id;}
+            break; 
+          } 
+          case "email": { if(data.email){return data.email;} 
+            break; 
+          }  
+          case "demographic": { if(this.exractDemographics) return this.exractDemographics(data); break;
+          }
         }
       }
     }
@@ -327,7 +336,9 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     this.participantDataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
       if(data){
         switch(sortHeaderId) { 
-          case "alias": {return data.alias || '';} 
+          case "alias": { if(data.alias){return data.alias;}
+            break; 
+          } 
           case "status": { 
             if(data.isDenied){return  4;}
             else if(!data.isDenied && !data.isConsentApproved){return 2;}
@@ -335,10 +346,18 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
             else if(data.isConsentApproved && !data.dropped){ return 1;}
             break;
           } 
-          case "created": { if(data.user){return data.user.accountCreationTime || '';} break;} 
-          case "signIn": { if(data.user){return data.user.accountLastSignInTime || '';} break;} 
-          case "userId": { if(data.user){return data.user._id || '';} break;} 
-          default: {return '';} 
+          case "created": { if(data.user && data.user.accountCreationTime){return data.user.accountCreationTime;}
+            break; 
+          } 
+          case "signIn": { if(data.user && data.user.accountLastSignInTime){return data.user.accountLastSignInTime;} 
+            break; 
+          } 
+          case "userId": { if(data.user && data.user._id){return data.user._id;}
+            break; 
+          } 
+          default: { 
+            return ''; 
+          } 
         } 
       }
       return ''; 
