@@ -260,6 +260,10 @@ body {
   padding-bottom: 0;
 }
 
+.no-right-padding{
+  padding-right: 0 !important;
+}
+
 .vertical-padding-tiny {
   padding-top: 0.2em;
   padding-bottom: 0.2em;
@@ -628,7 +632,7 @@ mat-form-field.mat-form-no-vertical-padding {
 }
 
 .card {
-  table.table {
+  .table {
     th:first-child,
     td:first-child {
       padding-left: 1.25em;
@@ -642,7 +646,7 @@ mat-form-field.mat-form-no-vertical-padding {
 }
 
 .card-sm {
-  table.table {
+  .table {
     th:first-child,
     td:first-child {
       padding-left: 0.9em;
@@ -666,33 +670,49 @@ thead.singleline {
   }
 }
 
-.table.table-data {
+.table-data {
   font-size: 0.7em;
+  mat-cell{
+    font-size: 1.1em;
+  }
+
   .badge {
     font-size: 1.0em;
     font-weight: 400;
   }
-  thead {
+  thead, mat-header-row {
     background: #f8f8f8;
     td,
-    th {
+    th, mat-header-cell{
       padding-top: 0.9em;
       padding-bottom: 0.9em;
       border-bottom-width: 1px;
     }
   }
-  tbody {
-    color: #717171;
-    tr.hoverable:hover {
+
+  mat-header-row{
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  tbody, mat-row {
+    &, & > mat-cell{
+      color: #717171;
+    }
+
+    tr.hoverable:hover, &.hoverable:hover {
       background: #fafafa;
     }
   }
+
   td,
-  th {
-    padding-top: 1em;
-    padding-bottom: 1em;
+  th, mat-cell, mat-header-cell {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
   }
-  td.button-cell {
+  td.button-cell, mat-cell.button-cell, mat-header-cell.button-cell {
     padding-top: 0.5em;
     padding-bottom: 0.5em;
     padding-left: 0;
@@ -706,7 +726,7 @@ thead.singleline {
   }
 }
 
-table.table.no-horizontal-padding {
+.table.no-horizontal-padding {
   th:first-child,
   td:first-child {
     padding-left: 0em !important;
@@ -717,7 +737,7 @@ table.table.no-horizontal-padding {
   }
 }
 
-table.table.no-borders {
+.table.no-borders {
   td,
   th {
     border: hidden;

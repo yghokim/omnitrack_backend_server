@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { MatDialog, MatTableDataSource, MatSort } from '@angular/material';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ResearchApiService } from '../services/research-api.service';
 import { Subscription } from 'rxjs/Subscription';
@@ -16,6 +16,11 @@ export class ExperimentMessagingComponent implements OnInit, OnDestroy {
 
   private messageList: Array<IResearchMessage>
 
+  private messageDataSource: MatTableDataSource<IResearchMessage>
+  private draftDataSource: MatTableDataSource<IResearchMessage>
+  @ViewChild(MatSort) messageSort: MatSort;
+  @ViewChild('draftTable',{read: MatSort}) draftSort: MatSort;
+
   constructor(private api: ResearchApiService, private dialog: MatDialog, private router: Router, private activatedRoute: ActivatedRoute) {
   }
 
@@ -24,6 +29,11 @@ export class ExperimentMessagingComponent implements OnInit, OnDestroy {
       this.api.selectedExperimentService.flatMap(service=> service.getMessageList()).subscribe(
         messages=>{
           this.messageList = messages
+          this.messageDataSource = new MatTableDataSource(this.getMessageList())
+          this.draftDataSource = new MatTableDataSource(this.getDraftList())
+          this.messageDataSource.sort = this.messageSort
+          this.draftDataSource.sort = this.draftSort
+          this.setSorts();
         }
       )
     )
@@ -59,6 +69,24 @@ export class ExperimentMessagingComponent implements OnInit, OnDestroy {
 
   onNewMessageClicked() {
     this.router.navigate(['./new'], { relativeTo: this.activatedRoute })
+  }
+
+  setSorts(): void{
+    this.messageDataSource.sortingDataAccessor = (data: IResearchMessage, sortHeaderId: string) => {
+      if(data){
+        if(sortHeaderId === "receivers"){
+          return this.makeReceiversText(data) || ''
+        }
+        else if(sortHeaderId === "receiverRule"){
+          if(data.receiverRule) return data.receiverRule.type || ''
+        }
+        else{
+          return data[sortHeaderId] || ''
+        }
+      }
+      else return '';
+    }
+    this.draftDataSource.sortingDataAccessor = this.messageDataSource.sortingDataAccessor;
   }
 
 }

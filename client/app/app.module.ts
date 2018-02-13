@@ -23,6 +23,7 @@ import { SVGEllipsisDirective } from './directives/svgellipsis.directive';
 import { TableCellValueComponent } from './components/table-cell-value/table-cell-value.component';
 import { ClientDownloadComponent } from './client-download/client-download.component';
 
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -39,7 +40,7 @@ import { ClientDownloadComponent } from './client-download/client-download.compo
     BrowserModule,
     BrowserAnimationsModule,
     MaterialDesignModule,
-    ResearchModule,
+    ResearchModule
   ],
   providers: [
     NotificationService
