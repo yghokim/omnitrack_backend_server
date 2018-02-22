@@ -10,6 +10,12 @@ const PkgReader = require('isomorphic-apk-reader');
 const md5File = require('md5-file/promise');
 const fs = require("fs-extra");
 
+interface VersionUpdaterInfo{
+  latestVersion: string,
+  latestVersionCode: number,
+  url: string,
+  releaseNotes: Array<string>
+}
 
 export default class OTBinaryCtrl {
   private makeClientFilePath(platform: string, filename: string): string {
@@ -71,6 +77,7 @@ export default class OTBinaryCtrl {
                         .then(() => {
                           const model = {
                             version: ClientBinaryUtil.getAppVersionName(packageInfo),
+                            versionCode: ClientBinaryUtil.getAppVersionCode(packageInfo),
                             platform: packageInfo.platform,
                             fileSize: req.file.size,
                             minimumOsVersion: ClientBinaryUtil.getMinimumOSVersion(packageInfo),
@@ -105,13 +112,31 @@ export default class OTBinaryCtrl {
     }
   }
 
+  removeClientBinary = (req, res) => {
+    OTClientBinary.findByIdAndRemove(req.params.binaryId).then(
+      removedBinary => {
+        if(removedBinary){
+          fs.remove(this.makeClientFilePath(removedBinary["platform"], removedBinary["fileName"]), err => {
+            if(!err){
+              console.log(err)
+            }
+            res.status(200).send(true)
+          })
+        }
+        else{
+          res.status(200).send(false)
+        }
+      }
+    )
+  }
+
   getClientBinaries = (req, res) => {
     OTClientBinary.aggregate([{$group: {_id: "$platform", binaries: {$push: "$$ROOT"}}}])
     .then(
       platforms => {
         platforms.forEach(platform => {
           platform.binaries.sort((binary1, binary2) => {
-            return compareVersions(binary1.version, binary2.version)
+            return -compareVersions(binary1.version, binary2.version)
           })
         })
         res.status(200).send(platforms)
@@ -128,7 +153,7 @@ export default class OTBinaryCtrl {
         if (binary) {
           res.download(this.makeClientFilePath(binary["platform"], binary["fileName"]), binary["originalFileName"], err => {
             if (err) {
-              res.status(500).send(err)
+              console.log(err)
             }
           })
         } else {
@@ -140,6 +165,29 @@ export default class OTBinaryCtrl {
       console.log(err)
       res.status(500).send(err)
     })
+  }
+
+  getLatestVersionInfo = (req, res)=>{
+    const overrideHostAddress = req.query.host
+    OTClientBinary.find({platform: req.query.platform}).then(
+      binaries=>{
+        if(binaries && binaries.length > 0){
+          binaries.sort((binary1: any, binary2: any) => {
+            return -compareVersions(binary1.version, binary2.version)
+          })
+          const latestBinary = binaries[0]
+          const binaryInfo: VersionUpdaterInfo = {
+            latestVersion: latestBinary["version"],
+            latestVersionCode: latestBinary["versionCode"],
+            url: overrideHostAddress + "/api/clients/download?platform=" + req.query.platform + "&version=" + latestBinary["version"],
+            releaseNotes: []
+          }
+          console.log(binaryInfo)
+          res.status(200).send(binaryInfo)
+        }
+        else res.status(404).send({error: "NoBinaryForThisPlatform"})
+      }
+    )
   }
 
 }

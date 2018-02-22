@@ -12,6 +12,7 @@ import ot_tracker from './models/ot_tracker';
 import ot_trigger from './models/ot_trigger';
 import ot_item from './models/ot_item';
 import { trackingDataCtrl } from './controllers/research/ot_tracking_data_controller';
+import { ResearcherPrevilages } from '../omnitrack/core/research/researcher';
 const jwt = require('express-jwt');
 const OAuthServer = require('express-oauth-server');
 const router = express.Router()
@@ -21,84 +22,111 @@ const researchAuthCtrl = new OTResearchAuthCtrl()
 const adminCtrl = new AdminCtrl()
 const userCtrl = new OTUserCtrl()
 
-const tokenAuth = jwt({secret: env.jwt_secret, userProperty: 'researcher', isRevoked: (req, payload, done)=>{
-  OTResearcher.findById(payload.uid, (idFindErr, researcher) => {
-    if(idFindErr)
-    {
-      done(idFindErr, true)
-      return
-    }
-    else if(researcher)
-    {
-      if(payload.iat < (researcher["passwordSetAt"] || researcher["createdAt"]).getTime()/1000)
+function makeTokenAuthMiddleware(pipe: (reseaercher, parsedToken?)=>string = ()=>{return null}): any{
+  return jwt({secret: env.jwt_secret, userProperty: 'researcher', isRevoked: (req, payload, done)=>{
+    OTResearcher.findById(payload.uid, (idFindErr, researcher) => {
+      if(idFindErr)
       {
-        done("passwordChanged", true)
+        done(idFindErr, true)
+        return
       }
-      else done(null, false)
-    }
-    else done(null, true)
-  })
-}})
+      else if(researcher)
+      {
+        const pipeResult = pipe(researcher)
+        if(pipeResult){
+          done(pipeResult, true)
+        }
+        else if(payload.iat < (researcher["passwordSetAt"] || researcher["createdAt"]).getTime()/1000)
+        {
+          done("passwordChanged", true)
+        }
+        else done(null, false)
+      }
+      else done(null, true)
+    })
+  }})
+}
+
+const tokenApprovedAuth = makeTokenAuthMiddleware((researcher)=>{
+  switch(researcher["account_approved"]){
+    case true: return null;
+    case false: return "AccountDeclined";
+    case undefined: return "AccountApprovalPending"
+  }
+})
+
+const tokenAdminAuth = makeTokenAuthMiddleware((researcher)=>{
+  const previlage = (env.super_users as Array<string> || []).indexOf(researcher.email) !== -1? ResearcherPrevilages.SUPERUSER : ResearcherPrevilages.NORMAL
+
+  return previlage >= ResearcherPrevilages.ADMIN ? null : "NotAdmin"
+})
+
+const tokenSignedInAuth = makeTokenAuthMiddleware()
 
 /*
 router.post('/oauth/authorize', oauth.authorize())
 router.post('/oauth/token', oauth.token())
 */
 
-router.use("/secure", tokenAuth);
-
 router.post('/auth/authenticate', researchAuthCtrl.authenticate)
 router.post('/auth/register', researchAuthCtrl.registerResearcher)
-router.post('/auth/update', tokenAuth, researchAuthCtrl.update)
-router.post('/auth/verify', tokenAuth, researchAuthCtrl.verifyToken)
+router.post('/auth/update', tokenApprovedAuth, researchAuthCtrl.update)
+router.post('/auth/verify', tokenSignedInAuth, researchAuthCtrl.verifyToken)
 
-router.post('/clients/upload', tokenAuth, clientBinaryCtrl.postClientBinaryFile)
+//Admin API===================================================
+router.post('/clients/upload', tokenAdminAuth, clientBinaryCtrl.postClientBinaryFile)
+router.delete("/clients/:binaryId", tokenAdminAuth, clientBinaryCtrl.removeClientBinary)
+
+router.get('/researchers/all', tokenAdminAuth, researchCtrl.getResearchers)
+router.post('/researchers/:researcherId/approve', tokenAdminAuth, researchCtrl.setResearcherAccountApproved)
+//=============================================================
+
 
 router.get("/experiments/examples", experimentCtrl.getExampleExperimentList)
-router.post("/experiments/examples", tokenAuth, experimentCtrl.addExampleExperiment)
+router.post("/experiments/examples", tokenApprovedAuth, experimentCtrl.addExampleExperiment)
 
-router.post('/experiments/new', tokenAuth, experimentCtrl.createExperiment)
-router.get('/experiments/all', tokenAuth, experimentCtrl.getExperimentInformationsOfResearcher)
-router.get('/experiments/:experimentId', tokenAuth, experimentCtrl.getExperiment)
+router.post('/experiments/new', tokenApprovedAuth, experimentCtrl.createExperiment)
+router.get('/experiments/all', tokenApprovedAuth, experimentCtrl.getExperimentInformationsOfResearcher)
+router.get('/experiments/:experimentId', tokenApprovedAuth, experimentCtrl.getExperiment)
 
-router.post('/experiments/:experimentId/update', tokenAuth, experimentCtrl.updateExperiment)
+router.post('/experiments/:experimentId/update', tokenApprovedAuth, experimentCtrl.updateExperiment)
 
-router.post('/experiments/:experimentId/messages/new', tokenAuth, messageCtrl.enqueueMessage)
-router.get('/experiments/:experimentId/messages', tokenAuth, messageCtrl.getMessageList)
+router.post('/experiments/:experimentId/messages/new', tokenApprovedAuth, messageCtrl.enqueueMessage)
+router.get('/experiments/:experimentId/messages', tokenApprovedAuth, messageCtrl.getMessageList)
 
-router.post('/experiments/:experimentId/update', tokenAuth, experimentCtrl.updateExperiment)
-
-
-router.delete('/experiments/:experimentId', tokenAuth, experimentCtrl.removeExperiment)
+router.post('/experiments/:experimentId/update', tokenApprovedAuth, experimentCtrl.updateExperiment)
 
 
-router.post("/experiments/:experimentId/collaborators/new", tokenAuth, experimentCtrl.addCollaborator)
+router.delete('/experiments/:experimentId', tokenApprovedAuth, experimentCtrl.removeExperiment)
 
-router.post("/experiments/:experimentId/collaborators/update", tokenAuth, experimentCtrl.updateCollaboratorPermissions)
 
-router.get('/experiments/manager/:experimentId', tokenAuth, experimentCtrl.getManagerInfo)
+router.post("/experiments/:experimentId/collaborators/new", tokenApprovedAuth, experimentCtrl.addCollaborator)
 
-router.get('/experiments/:experimentId/invitations', tokenAuth, researchCtrl.getInvitations)
+router.post("/experiments/:experimentId/collaborators/update", tokenApprovedAuth, experimentCtrl.updateCollaboratorPermissions)
 
-router.get('/experiments/:experimentId/participants', tokenAuth, researchCtrl.getParticipants)
+router.get('/experiments/manager/:experimentId', tokenApprovedAuth, experimentCtrl.getManagerInfo)
 
-router.post('/experiments/:experimentId/invitations/new', tokenAuth, researchCtrl.addNewIntivation)
+router.get('/experiments/:experimentId/invitations', tokenApprovedAuth, researchCtrl.getInvitations)
 
-router.post('/experiments/:experimentId/invitations/send', tokenAuth, researchCtrl.sendInvitation)
+router.get('/experiments/:experimentId/participants', tokenApprovedAuth, researchCtrl.getParticipants)
 
-router.delete('/experiments/:experimentId/invitations/:invitationId', tokenAuth, researchCtrl.removeInvitation)
+router.post('/experiments/:experimentId/invitations/new', tokenApprovedAuth, researchCtrl.addNewIntivation)
 
-router.post('/users/notify/message', tokenAuth, researchCtrl.sendNotificationMessageToUser)
+router.post('/experiments/:experimentId/invitations/send', tokenApprovedAuth, researchCtrl.sendInvitation)
 
-router.delete('/participants/:participantId', tokenAuth, researchCtrl.removeParticipant)
+router.delete('/experiments/:experimentId/invitations/:invitationId', tokenApprovedAuth, researchCtrl.removeInvitation)
 
-router.post('/participants/:participantId/alias', tokenAuth, researchCtrl.changeParticipantAlias)
+router.post('/users/notify/message', tokenApprovedAuth, researchCtrl.sendNotificationMessageToUser)
 
-router.get("/researchers/search", tokenAuth, researchCtrl.searchResearchers)
+router.delete('/participants/:participantId', tokenApprovedAuth, researchCtrl.removeParticipant)
 
-router.delete("/users/:userId", tokenAuth, userCtrl.deleteAccount)
+router.post('/participants/:participantId/alias', tokenApprovedAuth, researchCtrl.changeParticipantAlias)
 
-router.delete("/participants/:participantId/drop", tokenAuth, researchCtrl.dropOutFromExperiment)
+router.get("/researchers/search", tokenApprovedAuth, researchCtrl.searchResearchers)
+
+router.delete("/users/:userId", tokenApprovedAuth, userCtrl.deleteAccount)
+
+router.delete("/participants/:participantId/drop", tokenApprovedAuth, researchCtrl.dropOutFromExperiment)
 
 
 //tracking data
@@ -112,7 +140,7 @@ new Array(
   )
 
 
-router.get("/users/all", tokenAuth, researchCtrl.getUsersWithPariticipantInformation)
+router.get("/users/all", tokenApprovedAuth, researchCtrl.getUsersWithPariticipantInformation)
 
 // debuging
 router.get("/debug/generate_participant_alias", researchCtrl.generateAliasOfParticipants)

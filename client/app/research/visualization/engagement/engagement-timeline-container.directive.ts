@@ -83,11 +83,16 @@ export class EngagementTimelineContainerDirective implements AfterContentInit {
 
     const minDayIndex = this._dayScale.domain()[0]
     const maxDayIndex = this._dayScale.domain()[1] - 1
-
+    
     const filteredItemBlocks = this._trackerRow.itemBlocks.filter(b => { return b.day >= minDayIndex && b.day <= maxDayIndex })
 
     const daySelection = d3.select(this.elementRef.nativeElement).selectAll("rect.day")
       .data(Array.from(new Array(maxDayIndex - minDayIndex + 1), (value, index) => { return index + minDayIndex }), (d:number)=>d.toString())
+
+    const toolTip = d3.select("body")
+      .append("div")
+      .attr("class", "noUi-tooltip")
+      .style("opacity",0.5);
 
     const dayEnter = daySelection.enter().append("rect").attr("class", "day")
       .attr("height", this._chartHeight)
@@ -140,6 +145,20 @@ export class EngagementTimelineContainerDirective implements AfterContentInit {
       .attr("rx", 3)
       .attr("ry", 3)
       .classed("over-threshold", block => block.items.length > this._maxItemCountThreshold)
+      .on("mouseover", function(d) {
+        toolTip.transition()
+          .duration(200)
+          .style("opacity", 0.9);          
+        toolTip.html("Logs: " + d.items.length)
+          .style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY - 28) + "px");
+       })
+     .on("mouseout", function(d) {
+        toolTip.transition()
+         .duration(200)
+         .style("opacity", 0);
+      });
+      
 
     const merged = chartEnter.merge(chartSelection)
 
@@ -154,7 +173,7 @@ export class EngagementTimelineContainerDirective implements AfterContentInit {
       .attr("height", b => this._chartHeight)
       .attr("y", block => -this._chartHeight / 2)
       .attr("fill", block => this._colorScale(block.items.length))
-
+             
     chartSelection.exit().
       transition().duration(500)
       .attr("opacity", 0).remove()

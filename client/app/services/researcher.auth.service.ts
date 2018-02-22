@@ -37,6 +37,10 @@ export class ResearcherAuthInfo {
   get previlage(): number{
     return this.tokenInfo? this.tokenInfo.previlage : -1
   }
+
+  get approved(): boolean{
+    return this.tokenInfo? this.tokenInfo.approved : null
+  }
 }
 
 @Injectable()

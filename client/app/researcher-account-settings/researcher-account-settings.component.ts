@@ -19,6 +19,8 @@ export class ResearcherAccountSettingsComponent implements OnInit, OnDestroy {
   private newPasswordConfirm: string = null
   private originalPassword: string = null
 
+  isAccountApproved: boolean
+
   constructor(private authService: ResearcherAuthService
   ) { }
 
@@ -28,10 +30,15 @@ export class ResearcherAccountSettingsComponent implements OnInit, OnDestroy {
       this.authService.currentResearcher.subscribe(
         researcher => {
           this.originalResearcher = researcher.tokenInfo
-          this.alias = deepclone(researcher.tokenInfo.alias)
-          this.originalPassword = null
-          this.newPassword = null
-          this.newPasswordConfirm = null
+
+          if (researcher.tokenInfo) {
+            this.alias = deepclone(researcher.tokenInfo.alias)
+            this.originalPassword = null
+            this.newPassword = null
+            this.newPasswordConfirm = null
+
+            this.isAccountApproved = researcher.tokenInfo.approved
+          }
         }
       )
     )
@@ -42,13 +49,16 @@ export class ResearcherAccountSettingsComponent implements OnInit, OnDestroy {
   }
 
   isValid(): boolean {
-    if (isNullOrBlank(this.newPassword)) {
-      //alias should be different
-      return !isNullOrBlank(this.alias) && this.originalResearcher.alias !== this.alias
+    if (this.originalResearcher) {
+      if (isNullOrBlank(this.newPassword)) {
+        //alias should be different
+        return !isNullOrBlank(this.alias) && this.originalResearcher.alias !== this.alias
+      }
+      else {
+        return this.newPassword.length >= 6 && this.newPassword === this.newPasswordConfirm && this.originalPassword && this.originalPassword.length > 0
+      }
     }
-    else {
-      return this.newPassword.length >= 6 && this.newPassword === this.newPasswordConfirm && this.originalPassword && this.originalPassword.length > 0
-    }
+    else return false
   }
 
   onSubmitClicked() {
@@ -56,7 +66,7 @@ export class ResearcherAccountSettingsComponent implements OnInit, OnDestroy {
       this._internalSubscriptions.add(
         this.authService.updateInfo(this.alias, this.newPassword, this.originalPassword).subscribe(newResearcher => {
           console.log(newResearcher)
-          
+
         })
       )
     }

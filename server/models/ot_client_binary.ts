@@ -2,6 +2,7 @@ import * as mongoose from 'mongoose';
 
 const otClientBinarySchema = new mongoose.Schema({
   version: {type: String, required: true},
+  versionCode: {type: Number, default: 0},
   platform: {type: String, enum: ['Android', 'iOS']},
   fileSize: {type: Number, required: true},
   minimumOsVersion: {type: String},

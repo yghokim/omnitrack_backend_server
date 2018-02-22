@@ -165,4 +165,6 @@ const router = express.Router();
 
   router.get('/clients/download', clientBinaryCtrl.downloadClientBinary)
 
+  router.get('/clients/latest', clientBinaryCtrl.getLatestVersionInfo)
+
   export default router;

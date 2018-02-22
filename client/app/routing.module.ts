@@ -28,7 +28,7 @@ import { ServerSettingsComponent } from './server-settings/server-settings.compo
 import { ClientDownloadComponent } from './client-download/client-download.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'research', pathMatch: 'full' },
+  { path: '', redirectTo: 'downloads', pathMatch: 'full' },
   { path: 'downloads', component: ClientDownloadComponent},
   { path: 'research', component: ResearchFrameComponent,
     children: [

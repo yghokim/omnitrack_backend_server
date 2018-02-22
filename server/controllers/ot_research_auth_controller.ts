@@ -35,7 +35,8 @@ export default class OTResearchAuthCtrl {
         uid: user._id,
         email: user.email,
         alias: user.alias,
-        previlage: (env.super_users as Array<string> || []).indexOf(user.email) != -1? ResearcherPrevilages.SUPERUSER : ResearcherPrevilages.NORMAL,
+        approved: user.account_approved,
+        previlage: (env.super_users as Array<string> || []).indexOf(user.email) !== -1? ResearcherPrevilages.SUPERUSER : ResearcherPrevilages.NORMAL,
         exp: Math.floor(expiry.getTime() / 1000),
         iat: (iat || user.passwordSetAt || new Date()).getTime() / 1000
       },
@@ -83,7 +84,8 @@ export default class OTResearchAuthCtrl {
                     email: email,
                     hashed_password: hashedPassword,
                     passwordSetAt: new Date(),
-                    alias: alias
+                    alias: alias,
+                    account_approved: env.super_users.indexOf(email) !== -1? true : null
                   });
                   newResearcher
                     .save()
@@ -156,10 +158,6 @@ export default class OTResearchAuthCtrl {
     query: any,
     update: any
   ): Promise<string> {
-    console.log("query:");
-    console.log(query);
-    console.log("update:");
-    console.log(update);
     if (Object.keys(query).length > 0 && Object.keys(update).length > 0) {
       return OTResearcher.findOneAndUpdate(query, update, { new: true }).then(
         (researcher: any) => {
@@ -180,9 +178,6 @@ export default class OTResearchAuthCtrl {
   update = (req, res) => {
     const query: any = { _id: req.researcher.uid };
     const update: any = {};
-
-    console.log(req.researcher)
-    console.log(req.body)
 
     if (!isNullOrBlank(req.body.alias)) {
       update.alias = req.body.alias;

@@ -10,5 +10,6 @@ export interface IResearcherToken{
   alias: string,
   previlage: number,
   exp: number,
-  iat: number
+  iat: number,
+  approved: boolean,
 }

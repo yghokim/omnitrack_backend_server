@@ -1,4 +1,11 @@
 <div class="container">
+  <div *ngIf="isAccountApproved!==true" class="card card-main card-warning">
+    <div class="card-body text-center">
+      <span *ngIf="!isAccountApproved">Your account is not approved by the server administrators.</span>
+      <span *ngIf="isAccountApproved===true">Your account is DECLINED by the server administrators. Contact the administrators.</span>
+    </div>
+  </div>
+
   <div class="card card-main">
     <div class="card-header">
       Account Profile

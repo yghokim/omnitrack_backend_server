@@ -24,6 +24,7 @@ import { TableCellValueComponent } from './components/table-cell-value/table-cel
 import { ClientDownloadComponent } from './client-download/client-download.component';
 import { EndUserModule } from './end-user.module';
 
+
 @NgModule({
   declarations: [
     AppComponent,

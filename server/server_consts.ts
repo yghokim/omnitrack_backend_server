@@ -14,6 +14,9 @@ export default class ServerConstants {
   static readonly PUSH_DATA_TYPE_FULL_SYNC = "full_sync"
   static readonly PUSH_DATA_TYPE_SIGN_OUT = "sign_out"
   static readonly PUSH_DATA_TYPE_DUMP_DB = "dump_db"
+  static readonly PUSH_DATA_TYPE_REFRESH_RESEARCH = "refresh_research"
+  static readonly PUSH_DATA_TYPE_CLIENT_UPDATED = "refresh_client_updated"
+  
 
   static getSyncTypeFromModel(model: any){
     switch(model){
