@@ -17,6 +17,8 @@ import { clientBinaryCtrl } from './controllers/research/ot_client_binary_contro
 import { Request } from 'express';
 import { Error } from 'mongoose';
 import { clientKeys } from "./app";
+import BaseCtrl from './controllers/base';
+import UserBelongingCtrl from './controllers/user_belongings_base';
 
 const router = express.Router();
 
@@ -99,6 +101,25 @@ const router = express.Router();
   router.post('/user/report', assertSignedInMiddleware, userCtrl.postReport)
   router.delete('/user', assertSignedInMiddleware, userCtrl.deleteAccount)
 
+  // REST API
+  const restCtrlDict: Map<string, UserBelongingCtrl> = new Map([
+    ["trackers", trackerCtrl],
+    ["items", itemCtrl],
+    ["triggers", triggerCtrl]
+  ])
+
+  restCtrlDict.forEach( (ctrl, key) => {
+    router.route('/' + key + "/:id")
+      .get(firebaseMiddleware.auth, ctrl.get)
+      .put(firebaseMiddleware.auth, ctrl.update)
+    router.route('/' + key + "/all").get(firebaseMiddleware.auth, ctrl.getAllOfUser)
+    router.route("/" + key).post(firebaseMiddleware.auth, ctrl.insert)
+  } )
+
+  // Items
+  router.route("/trackers/:trackerId/items").get(firebaseMiddleware.auth, itemCtrl.getAllOfTracker)
+
+  /*
   router.route('/items/all').get(itemCtrl.getAll)
   router.route('/users/all').get(userCtrl.getAll)
   router.route('/trackers/all').get(trackerCtrl.getAll)
@@ -109,7 +130,7 @@ const router = express.Router();
   router.route('/users/destroy').get(userCtrl.destroy)
   router.route('/trackers/destroy').get(trackerCtrl.destroy)
   router.route('/items/destroy').get(itemCtrl.destroy)
-  router.route('/triggers/destroy').get(triggerCtrl.destroy)
+  router.route('/triggers/destroy').get(triggerCtrl.destroy)*/
 
   // binary
   router.post('/upload/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier', assertSignedInMiddleware, storageCtrl.uploadItemMedia)
@@ -128,22 +149,5 @@ const router = express.Router();
   router.get('/clients/all', clientBinaryCtrl.getClientBinaries)
 
   router.get('/clients/download', clientBinaryCtrl.downloadClientBinary)
-
-  /*
-    router.route('/items/count').get(catCtrl.count);
-    router.route('/cat').post(catCtrl.insert);
-    router.route('/cat/:id').get(catCtrl.get);
-    router.route('/cat/:id').put(catCtrl.update);
-    router.route('/cat/:id').delete(catCtrl.delete);*/
-
-  // Users
-  // router.route('/login').post(userCtrl.login);
-  // router.route('/users').get(userCtrl.getAll);
-  // router.route('/users/count').get(userCtrl.count);
-  // router.route('/user').post(userCtrl.insert);
-  // router.route('/user/:id').get(userCtrl.get);
-  // router.route('/user/:id').put(userCtrl.update);
-  // router.route('/user/:id').delete(userCtrl.delete);
-
 
   export default router;

@@ -1,4 +1,5 @@
 import { Model } from "mongoose";
+import { Request, Response } from "express";
 
 abstract class BaseCtrl {
 
@@ -6,6 +7,10 @@ abstract class BaseCtrl {
 
   protected preprocessBeforeInsertToDb(singleQueryObject: any): any {
     return singleQueryObject
+  }
+
+  protected preprocessSingleQuery(queryObject: any, req: Request, res: Response): any {
+    return queryObject
   }
 
   // Get all
@@ -41,7 +46,7 @@ abstract class BaseCtrl {
 
   // Get by id
   get = (req, res) => {
-    this.model.findOne({ _id: req.params.id }, (err, obj) => {
+    this.model.findOne(this.preprocessSingleQuery({ _id: req.params.id }, req, res), (err, obj) => {
       if (err) { return console.error(err); }
       res.json(obj);
     });
@@ -49,7 +54,7 @@ abstract class BaseCtrl {
 
   // Update by id
   update = (req, res) => {
-    this.model.findOneAndUpdate({ _id: req.params.id }, req.body, (err) => {
+    this.model.findOneAndUpdate(this.preprocessSingleQuery({ _id: req.params.id }, req, res), req.body, (err) => {
       if (err) { return console.error(err); }
       res.sendStatus(200);
     });
@@ -57,7 +62,7 @@ abstract class BaseCtrl {
 
   // Delete by id
   delete = (req, res) => {
-    this.model.findOneAndRemove({ _id: req.params.id }, (err) => {
+    this.model.findOneAndRemove(this.preprocessSingleQuery({ _id: req.params.id }, req, res), (err) => {
       if (err) { return console.error(err); }
       res.sendStatus(200);
     });

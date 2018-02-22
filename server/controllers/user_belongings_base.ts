@@ -6,6 +6,11 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
 
   protected abstract syncType: string
 
+  protected preprocessSingleQuery(queryObject: any, req: Request, res: Response): any {
+    queryObject["user"] = res.locals.user.uid
+    return queryObject
+  }
+
   getAllByUser(userId: String): any {
     return this.model.find({ 'user': userId })
   }
@@ -134,5 +139,20 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
         } else { res.status(200).send([]) }
       }
     } else { res.status(400).send({ error: "No user id was passed." }) }
+  }
+
+  getAllOfUser = (req, res) => {
+    this.getAllByUser(res.locals.user.uid).then(
+      documents => {
+        if (documents != null) {
+          res.status(200).send(documents)
+        } else {
+          res.status(200).send([])
+        }
+      }
+    ).catch( ex => {
+      console.log(ex)
+      res.status(500).send({error: ex})
+    })
   }
 }

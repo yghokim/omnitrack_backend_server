@@ -23,9 +23,9 @@ export class ResearchApiService implements OnDestroy {
 
   private readonly _selectedExperimentService = new BehaviorSubject<ExperimentService>(null)
 
-  public readonly selectedExperimentService: Observable<ExperimentService> = this._selectedExperimentService.filter(s => { return s != null })
+  public readonly selectedExperimentService: Observable<ExperimentService> = this._selectedExperimentService.filter(s => s != null)
 
-  get selectedExperimentServiceSync(): ExperimentService{
+  get selectedExperimentServiceSync(): ExperimentService {
     return this._selectedExperimentService.getValue()
   }
 
@@ -50,7 +50,7 @@ export class ResearchApiService implements OnDestroy {
 
     this._internalSubscriptions.add(
       this.socketService.onConnected
-      .combineLatest(this.authService.tokenSubject, (socket, token) => { return { token: token, socket: socket } })
+      .combineLatest(this.authService.tokenSubject, (socket, token) => ({ token: token, socket: socket }))
       .subscribe(
         res => {
           console.log("socket or token was refreshed.")
@@ -69,7 +69,7 @@ export class ResearchApiService implements OnDestroy {
                         break;
                     }
                     break;
-                  
+
                     case SocketConstants.MODEL_EXPERIMENT:
                     this.loadExperimentList()
                     break;
@@ -78,13 +78,13 @@ export class ResearchApiService implements OnDestroy {
             }
           })
 
-          res.socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER, (data)=>{
+          res.socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER, (data) => {
             console.log("received update researcher socket event.")
-            if(data instanceof Array){
+            if (data instanceof Array) {
               data.forEach(datum => {
-                switch(datum.model){
+                switch (datum.model) {
                   case SocketConstants.MODEL_EXPERIMENT:
-                    this.loadExperimentList()  
+                    this.loadExperimentList()
                   break;
                 }
               })
@@ -133,13 +133,13 @@ export class ResearchApiService implements OnDestroy {
     return this._experimentListSubject.filter(res => res != null)
   }
 
-  getExampleExperimentList(): Observable<Array<ExampleExperimentInfo>>{
+  getExampleExperimentList(): Observable<Array<ExampleExperimentInfo>> {
     return this.http.get("/api/research/experiments/examples").map(res => { console.log(res.json()); return res.json() })
   }
 
-  addExampleExperimentAndGetId(key: string): Observable<string>{
+  addExampleExperimentAndGetId(key: string): Observable<string> {
     console.log(this.authorizedOptions)
-    return this.http.post("/api/research/experiments/examples", {exampleKey: key}, this.authorizedOptions).map(res =>res.json())
+    return this.http.post("/api/research/experiments/examples", {exampleKey: key}, this.authorizedOptions).map(res => res.json())
   }
 
   getSelectedExperimentId(): string {
@@ -170,36 +170,36 @@ export class ResearchApiService implements OnDestroy {
       })
   }
 
-  createExperiment(info: any): Observable<any>{
+  createExperiment(info: any): Observable<any> {
     return this.http.post("/api/research/experiments/new", info, this.authorizedOptions)
-      .map(res=>{
+      .map(res => {
         return res.json()
       })
   }
 
-  removeExperiment(experimentId: string): Observable<boolean>{
-    return this.http.delete("/api/research/experiments/" + experimentId, this.authorizedOptions).map(res=>res.json())
+  removeExperiment(experimentId: string): Observable<boolean> {
+    return this.http.delete("/api/research/experiments/" + experimentId, this.authorizedOptions).map(res => res.json())
   }
 
-  searchResearchers(term: string, excludeSelf): Observable<Array<{_id: string, email: string, alias: string}>>{
+  searchResearchers(term: string, excludeSelf): Observable<Array<{_id: string, email: string, alias: string}>> {
     return this.http.get("/api/research/researchers/search", {headers: this.tokenHeaders, params: { term: term, excludeSelf: excludeSelf }}).map(res => res.json())
   }
 
-  makeAuthorizedRequestOptions(query: any): RequestOptions{
+  makeAuthorizedRequestOptions(query: any): RequestOptions {
     return  new RequestOptions({ headers: this.tokenHeaders, params: query })
   }
 
-  updateExperiment(experimentId: string, update: any): Observable<boolean>{
-    return this.http.post("api/research/experiments/" + experimentId + "/update", update, this.authorizedOptions).map(res=>res.json().updated)
+  updateExperiment(experimentId: string, update: any): Observable<boolean> {
+    return this.http.post("api/research/experiments/" + experimentId + "/update", update, this.authorizedOptions).map(res => res.json().updated)
   }
 
-  uploadClientBinary(file: File): Observable<boolean>{
+  uploadClientBinary(file: File): Observable<boolean> {
     const formData: FormData = new FormData()
     formData.append("file", file, file.name)
-    return this.http.post("api/research/clients/upload", formData, this.authorizedOptions).map(res=>res.json())
+    return this.http.post("api/research/clients/upload", formData, this.authorizedOptions).map(res => res.json())
   }
 
-  getClientBinaries(): Observable<Array<any>>{
-    return this.http.get("api/clients/all").map(res=>res.json())
+  getClientBinaries(): Observable<Array<any>> {
+    return this.http.get("api/clients/all").map(res => res.json())
   }
 }
