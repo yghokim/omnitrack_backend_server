@@ -22,6 +22,7 @@ import { D3ChartFrameComponent } from './research/visualization/d3-chart-frame/d
 import { SVGEllipsisDirective } from './directives/svgellipsis.directive';
 import { TableCellValueComponent } from './components/table-cell-value/table-cell-value.component';
 import { ClientDownloadComponent } from './client-download/client-download.component';
+import { EndUserModule } from './end-user.module';
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import { ClientDownloadComponent } from './client-download/client-download.compo
     BrowserAnimationsModule,
     MaterialDesignModule,
     ResearchModule,
+    EndUserModule
   ],
   providers: [
     NotificationService

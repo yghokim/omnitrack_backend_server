@@ -134,7 +134,7 @@ import { UploadClientBinaryDialogComponent } from './server-settings/upload-clie
     ResearchApiService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  entryComponents:[
+  entryComponents: [
     ChooseInvitationDialogComponent,
     NewInvitationDialogComponent,
     AddCollaboratorDialogComponent,

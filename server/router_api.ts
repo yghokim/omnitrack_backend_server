@@ -19,6 +19,8 @@ import { Error } from 'mongoose';
 import { clientKeys } from "./app";
 import BaseCtrl from './controllers/base';
 import UserBelongingCtrl from './controllers/user_belongings_base';
+import * as fs from 'fs-extra';
+import * as path from 'path';
 
 const router = express.Router();
 
@@ -69,6 +71,19 @@ const router = express.Router();
   }
 
   const assertSignedInMiddleware = [firebaseMiddleware.auth, omnitrackDeviceCheckMiddleware]
+
+  router.route('/configs/firebase-client').get((req, res) => {
+    fs.readJson(path.join(__dirname, "../../../credentials/firebase-client-config.json"), (err, configJson) => {
+      if (err) {
+        console.log(err)
+        res.status(404).send(null)
+      } else {
+        console.log("Firebase auth client config: ")
+        console.log(configJson)
+        res.status(200).send(configJson)
+      }
+    })
+  })
 
   // admin
   router.route('/admin/package/extract').get(adminCtrl.extractPredefinedPackage)
