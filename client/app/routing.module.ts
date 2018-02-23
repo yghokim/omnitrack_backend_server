@@ -26,10 +26,20 @@ import { ExperimentListComponent } from './experiment-list/experiment-list.compo
 import { ResearcherAccountSettingsComponent } from './researcher-account-settings/researcher-account-settings.component';
 import { ServerSettingsComponent } from './server-settings/server-settings.component';
 import { ClientDownloadComponent } from './client-download/client-download.component';
+import { EndUserFrameComponent } from './end-user/end-user-frame/end-user-frame.component';
+import { EndUserHomeComponent } from './end-user/end-user-home/end-user-home.component';
+import { EndUserSignInComponent } from './end-user/end-user-sign-in/end-user-sign-in.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'downloads', pathMatch: 'full' },
   { path: 'downloads', component: ClientDownloadComponent},
+
+  { path: 'tracking', component: EndUserFrameComponent, 
+    children: [
+      {path: '', component: EndUserHomeComponent},
+      {path: 'login', component: EndUserSignInComponent}
+    ]},
+
   { path: 'research', component: ResearchFrameComponent,
     children: [
       { path: '', component: ResearchHomeFrameComponent,

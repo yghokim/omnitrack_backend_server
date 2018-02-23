@@ -72,19 +72,6 @@ const router = express.Router();
 
   const assertSignedInMiddleware = [firebaseMiddleware.auth, omnitrackDeviceCheckMiddleware]
 
-  router.route('/configs/firebase-client').get((req, res) => {
-    fs.readJson(path.join(__dirname, "../../../credentials/firebase-client-config.json"), (err, configJson) => {
-      if (err) {
-        console.log(err)
-        res.status(404).send(null)
-      } else {
-        console.log("Firebase auth client config: ")
-        console.log(configJson)
-        res.status(200).send(configJson)
-      }
-    })
-  })
-
   // admin
   router.route('/admin/package/extract').get(adminCtrl.extractPredefinedPackage)
   router.route('/admin/package/inject/:userId/:packageName?').get(adminCtrl.injectPackageToUser)
