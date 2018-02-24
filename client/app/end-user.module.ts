@@ -8,7 +8,10 @@ import { EndUserFrameComponent } from './end-user/end-user-frame/end-user-frame.
 import { MaterialDesignModule } from './material-design.module';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireAuthModule } from 'angularfire2/auth';
-import { firebase_client_config } from '../../credentials/firebase-client-config';
+import { firebase } from '../credentials/firebase-client-config';
+import { EndUserApiService } from './end-user/services/end-user-api.service';
+import { EndUserAuthCheckGuard } from './end-user/services/end-user-auth-check.guard';
+import { EndUserAuthToMainGuard } from './end-user/services/end-user-auth-to-main.guard';
 
 @NgModule({
   imports: [
@@ -16,14 +19,14 @@ import { firebase_client_config } from '../../credentials/firebase-client-config
     SharedModule,
     MaterialDesignModule,
     RoutingModule,
-    AngularFireModule.initializeApp(firebase_client_config),
+    AngularFireModule.initializeApp(firebase),
     AngularFireAuthModule
   ],
   exports: [
 
   ],
   declarations: [EndUserHomeComponent, EndUserSignInComponent, EndUserFrameComponent],
-  providers: [],
+  providers: [EndUserApiService, EndUserAuthCheckGuard, EndUserAuthToMainGuard],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: []
 })

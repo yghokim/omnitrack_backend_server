@@ -29,6 +29,8 @@ import { ClientDownloadComponent } from './client-download/client-download.compo
 import { EndUserFrameComponent } from './end-user/end-user-frame/end-user-frame.component';
 import { EndUserHomeComponent } from './end-user/end-user-home/end-user-home.component';
 import { EndUserSignInComponent } from './end-user/end-user-sign-in/end-user-sign-in.component';
+import { EndUserAuthCheckGuard } from './end-user/services/end-user-auth-check.guard';
+import { EndUserAuthToMainGuard } from './end-user/services/end-user-auth-to-main.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: 'downloads', pathMatch: 'full' },
@@ -36,8 +38,9 @@ const routes: Routes = [
 
   { path: 'tracking', component: EndUserFrameComponent, 
     children: [
-      {path: '', component: EndUserHomeComponent},
-      {path: 'login', component: EndUserSignInComponent}
+      {path: '', redirectTo: 'home', pathMatch: "full"},
+      {path: 'home', component: EndUserHomeComponent, canActivate: [EndUserAuthCheckGuard], data: {title: "Home"}},
+      {path: 'login', component: EndUserSignInComponent, canActivate: [EndUserAuthToMainGuard], data: {title: "Login"}}
     ]},
 
   { path: 'research', component: ResearchFrameComponent,

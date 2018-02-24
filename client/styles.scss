@@ -295,6 +295,10 @@ body {
   }
 }
 
+.flex-filler {
+  flex: 1 1 auto;
+}
+
 .flex-container.flex-container-wrap {
   flex-wrap: wrap;
 }

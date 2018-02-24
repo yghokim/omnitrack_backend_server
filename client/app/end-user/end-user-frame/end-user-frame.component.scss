@@ -1,0 +1,40 @@
+.header-bar {
+  height: 60px;
+  background: #ffffff;
+  padding-left: 0.5rem;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  .omnitrack-icon {
+    height: 70%;
+  }
+
+  .title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #575757;
+    margin-left: 0.5rem;
+  }
+
+  .profile-container {
+    height: 100%;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    cursor: pointer;
+
+    .profile {
+      height: 75%;
+      .thumbnail {
+        margin-left: 0.7rem;
+        height: 100%;
+        overflow: hidden;
+        border-radius: 50%;
+        img {
+          height: 100%;
+        }
+      }
+    }
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
+  }
+}

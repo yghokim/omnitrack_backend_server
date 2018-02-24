@@ -1,0 +1,29 @@
+<div>
+  <div *ngIf="auth.authState | async as user" id="signed-in-header">
+    <div class="header-bar flex-container flex-align-items-center">
+      <img class="omnitrack-icon" src="assets/omnitrack_logo_icon.svg">
+      <span class="title">
+        {{title}}
+      </span>
+      <div class="flex-filler"></div>
+      <div class="profile-container flex-container flex-align-items-center" *ngIf="user" 
+        [matMenuTriggerFor]="profileMenu" >
+
+        <div class="flex-container flex-align-items-center profile">
+          <div class="text-right">
+            <div class="small font-weight-bold">{{user.displayName}}</div>
+            <div class="small">{{user.email}}</div>
+          </div>
+
+          <div class="thumbnail">
+            <img [src]="user.photoURL">
+          </div>
+        </div>
+      </div>
+      <mat-menu [overlapTrigger]="false" #profileMenu="matMenu">
+        <button mat-menu-item (click)="signOutClicked()">Sign Out</button>
+      </mat-menu>
+    </div>
+  </div>
+  <router-outlet></router-outlet>
+</div>

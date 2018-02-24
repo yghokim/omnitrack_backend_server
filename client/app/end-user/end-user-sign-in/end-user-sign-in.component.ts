@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { AngularFireAuth } from 'angularfire2/auth';
 import * as firebase from 'firebase/app';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-end-user-sign-in',
@@ -12,11 +13,12 @@ export class EndUserSignInComponent implements OnInit, OnDestroy, AfterViewInit 
 
   private readonly _internalSubscriptions = new Subscription()
 
-  constructor(private authService: AngularFireAuth ) {
+  constructor(private router: Router, private authService: AngularFireAuth ) {
     this._internalSubscriptions.add(
       authService.authState.subscribe(user => {
-        if(user!=null){
+        if(user){
           console.log(user)
+          router.navigate(["tracking/home"])
         }
       })
     )
