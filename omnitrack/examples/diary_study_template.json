@@ -8,7 +8,7 @@
       "name": "생산성 로그",
       "color": -6333198,
       "objectId": "%{TRACKER_1}%",
-      "lockedProperties": {"delete": true},
+      "lockedProperties": { "delete": true },
       "flags": { "injected": true, "injectionId": "Ab0ksQyh" },
       "attributes": [
         {
@@ -32,7 +32,7 @@
           "fallbackPolicy": 3,
           "fallbackPreset": null,
           "connection": null,
-          "lockedProperties": {"delete": true, "visibility": true},
+          "lockedProperties": { "delete": true, "edit": true, "visibility": true },
           "flags": { "injected": true, "injectionId": "OZLc8BKS" }
         },
         {
@@ -49,7 +49,7 @@
           "fallbackPolicy": 1,
           "fallbackPreset": null,
           "connection": null,
-          "lockedProperties": {"delete": true, "visibility": true},
+          "lockedProperties": { "delete": true, "visibility": true },
           "flags": { "injected": true, "injectionId": "UDTGuxJm" }
         },
         {
@@ -70,22 +70,30 @@
           "localId": "%{ATTRIBUTE_LOCAL_4}%",
           "type": 0,
           "trackerId": "%{TRACKER_1}%",
-          "name": "일한 시간",
+          "name": "일한 시간 (분)",
           "isRequired": true,
           "position": 0,
           "fallbackPolicy": 1,
           "fallbackPreset": null,
           "connection": null,
-          "lockedProperties": {"delete": true, "visibility": true},
+          "lockedProperties": { "delete": true, "visibility": true },
           "flags": { "injected": true, "injectionId": "uyMhOEin" }
         },
         {
           "isHidden": false,
           "isInTrashcan": false,
-          "properties": [],
+          "properties": [
+            { "key": "multiSelection", "sVal": "true" },
+            { "key": "allowAppendingFromView", "sVal": "true" },
+            {
+              "key": "entries",
+              "sVal":
+                "{\"seed\":1,\"entries\":[{\"id\":0,\"val\":\"서류처리\"}, {\"id\":1,\"val\":\"이메일 쓰기\"}]}"
+            }
+          ],
           "objectId": "%{ATTRIBUTE_7}%",
           "localId": "%{ATTRIBUTE_LOCAL_7}%",
-          "type": 3,
+          "type": 6,
           "trackerId": "%{TRACKER_1}%",
           "name": "한 일",
           "isRequired": true,
@@ -93,7 +101,7 @@
           "fallbackPolicy": 0,
           "fallbackPreset": null,
           "connection": null,
-          "lockedProperties": {"delete": true, "visibility": true},
+          "lockedProperties": { "delete": true, "visibility": true },
           "flags": { "injected": true, "injectionId": "3CVBwMM1" }
         },
         {
@@ -117,7 +125,7 @@
           "fallbackPolicy": 0,
           "fallbackPreset": null,
           "connection": null,
-          "lockedProperties": {"delete": true, "visibility": true},
+          "lockedProperties": { "delete": true, "edit": false, "visibility": true },
           "flags": { "injected": true, "injectionId": "QizUYovc" }
         },
         {
@@ -134,7 +142,7 @@
           "fallbackPolicy": 0,
           "fallbackPreset": null,
           "connection": null,
-          "lockedProperties": {"delete": true, "visibility": true},
+          "lockedProperties": { "delete": true, "visibility": true },
           "flags": { "injected": true, "injectionId": "9hwQHamo" }
         },
         {
@@ -142,6 +150,7 @@
           "isInTrashcan": false,
           "properties": [
             { "key": "multiSelection", "sVal": "false" },
+            { "key": "allowAppendingFromView", "sVal": "true" },
             {
               "key": "entries",
               "sVal":
@@ -241,7 +250,11 @@
           "fallbackPolicy": 1,
           "fallbackPreset": null,
           "connection": null,
-          "lockedProperties": {"delete":true, "edit":true, "visibility":true},
+          "lockedProperties": {
+            "delete": true,
+            "edit": true,
+            "visibility": true
+          },
           "flags": { "injected": true, "injectionId": "Ac4gSN0C" }
         },
         {
@@ -258,7 +271,11 @@
           "fallbackPolicy": 0,
           "fallbackPreset": null,
           "connection": null,
-          "lockedProperties": {"delete":true, "edit":true, "visibility":true},
+          "lockedProperties": {
+            "delete": true,
+            "edit": true,
+            "visibility": true
+          },
           "flags": { "injected": true, "injectionId": "syXB4sIp" }
         }
       ],
@@ -268,7 +285,7 @@
       "name": "생산성 로그 누락일지",
       "color": -38203,
       "objectId": "%{TRACKER_0}%",
-      "lockedProperties": {"delete": true},
+      "lockedProperties": { "delete": true },
       "flags": { "injected": true, "injectionId": "gGv9WCm3" }
     }
   ],
@@ -297,7 +314,7 @@
       },
       "action": { "level": 0 },
       "lastTriggeredTime": null,
-      "lockedProperties": {"edit":true, "delete": true},
+      "lockedProperties": { "edit": true, "delete": true },
       "script":
         "todayLogCountOf(\"%{TRACKER_0}%\") ==0 && todayLogCountOf(\"%{TRACKER_1}%\") == 0",
       "objectId": "%{TRIGGER_0}%",

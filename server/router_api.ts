@@ -114,8 +114,7 @@ const router = express.Router();
     router.route('/' + key + "/:id")
       .get(firebaseMiddleware.auth, ctrl.get)
       .put(firebaseMiddleware.auth, ctrl.update)
-    router.route('/' + key + "/all").get(firebaseMiddleware.auth, ctrl.getAllOfUser)
-    router.route("/" + key).post(firebaseMiddleware.auth, ctrl.insert)
+    router.route('/' + key).get(firebaseMiddleware.auth, ctrl.getAllOfUser).post(firebaseMiddleware.auth, ctrl.insert)
   } )
 
   // Items

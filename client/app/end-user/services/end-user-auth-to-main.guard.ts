@@ -16,10 +16,10 @@ export class EndUserAuthToMainGuard implements CanActivate {
 
       console.log("Check the end-user auth status:")
       console.log(user)
-      
+
       if(user != null){
-        if(state.url != "/tracking/home"){
-          this.router.navigate(["/tracking/home"])
+        if(state.url != "/tracking"){
+          this.router.navigate(["/tracking"])
         }
       }
       return true

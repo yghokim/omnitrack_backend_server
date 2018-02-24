@@ -12,6 +12,9 @@ import { firebase } from '../credentials/firebase-client-config';
 import { EndUserApiService } from './end-user/services/end-user-api.service';
 import { EndUserAuthCheckGuard } from './end-user/services/end-user-auth-check.guard';
 import { EndUserAuthToMainGuard } from './end-user/services/end-user-auth-to-main.guard';
+import { EndUserDashboardComponent } from './end-user/end-user-dashboard/end-user-dashboard.component';
+import { EndUserTrackerListComponent } from './end-user/end-user-tracker-list/end-user-tracker-list.component';
+import { EndUserTriggerListComponent } from './end-user/end-user-trigger-list/end-user-trigger-list.component';
 
 @NgModule({
   imports: [
@@ -25,7 +28,7 @@ import { EndUserAuthToMainGuard } from './end-user/services/end-user-auth-to-mai
   exports: [
 
   ],
-  declarations: [EndUserHomeComponent, EndUserSignInComponent, EndUserFrameComponent],
+  declarations: [EndUserHomeComponent, EndUserSignInComponent, EndUserFrameComponent, EndUserDashboardComponent, EndUserTrackerListComponent, EndUserTriggerListComponent],
   providers: [EndUserApiService, EndUserAuthCheckGuard, EndUserAuthToMainGuard],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: []

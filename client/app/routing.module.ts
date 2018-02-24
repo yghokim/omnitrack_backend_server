@@ -31,6 +31,9 @@ import { EndUserHomeComponent } from './end-user/end-user-home/end-user-home.com
 import { EndUserSignInComponent } from './end-user/end-user-sign-in/end-user-sign-in.component';
 import { EndUserAuthCheckGuard } from './end-user/services/end-user-auth-check.guard';
 import { EndUserAuthToMainGuard } from './end-user/services/end-user-auth-to-main.guard';
+import { EndUserDashboardComponent } from './end-user/end-user-dashboard/end-user-dashboard.component';
+import { EndUserTrackerListComponent } from './end-user/end-user-tracker-list/end-user-tracker-list.component';
+import { EndUserTriggerListComponent } from './end-user/end-user-trigger-list/end-user-trigger-list.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'downloads', pathMatch: 'full' },
@@ -38,8 +41,15 @@ const routes: Routes = [
 
   { path: 'tracking', component: EndUserFrameComponent, 
     children: [
-      {path: '', redirectTo: 'home', pathMatch: "full"},
-      {path: 'home', component: EndUserHomeComponent, canActivate: [EndUserAuthCheckGuard], data: {title: "Home"}},
+      {
+        path: '', component: EndUserHomeComponent, canActivate: [EndUserAuthCheckGuard], data: {title: "OmniTrack"},
+        children:[
+          { path: '', redirectTo: 'dashboard', pathMatch: 'full'},
+          { path: 'dashboard', component: EndUserDashboardComponent },
+          { path: 'trackers', component: EndUserTrackerListComponent },
+          { path: 'triggers', component: EndUserTriggerListComponent }
+        ]
+      },
       {path: 'login', component: EndUserSignInComponent, canActivate: [EndUserAuthToMainGuard], data: {title: "Login"}}
     ]},
 

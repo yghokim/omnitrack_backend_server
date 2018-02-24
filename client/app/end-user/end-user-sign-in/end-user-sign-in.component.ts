@@ -18,7 +18,7 @@ export class EndUserSignInComponent implements OnInit, OnDestroy, AfterViewInit 
       authService.authState.subscribe(user => {
         if(user){
           console.log(user)
-          router.navigate(["tracking/home"])
+          router.navigate(["tracking"])
         }
       })
     )

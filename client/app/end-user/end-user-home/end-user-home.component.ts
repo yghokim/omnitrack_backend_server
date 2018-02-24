@@ -7,6 +7,21 @@ import { Component, OnInit } from '@angular/core';
 })
 export class EndUserHomeComponent implements OnInit {
 
+  tablinks = [
+    {
+      label: "Dashboard",
+      path: "/tracking/dashboard"
+    },
+    {
+      label: "Trackers",
+      path: "/tracking/trackers"
+    },
+    {
+      label: "Triggers",
+      path: "/tracking/triggers"
+    }
+  ]
+
   constructor() { }
 
   ngOnInit() {
