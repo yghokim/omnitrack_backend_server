@@ -29,7 +29,9 @@ export class ProductivityDashboardComponent implements OnInit {
     if (trackingSet) {
       const logs: Array<ProductivityLog> = []
       trackingSet.items.forEach(item => {
-        const pivotType : number = this.getAttributeValueByInjectionId(trackingSet.tracker, item, this.INJECTION_ID_PIVOT_TYPE);
+        const _pivotType : Array<number> = this.getAttributeValueByInjectionId(trackingSet.tracker, item, this.INJECTION_ID_PIVOT_TYPE);
+        const pivotType : number = (_pivotType && _pivotType.length > 0)? _pivotType[0] : null
+
         const pivotTime : TimePoint = this.getAttributeValueByInjectionId(trackingSet.tracker, item, this.INJECTION_ID_PIVOT_TIME);
         
         const _duration = this.getAttributeValueByInjectionId(trackingSet.tracker, item, this.INJECTION_ID_DURATION);
@@ -37,8 +39,8 @@ export class ProductivityDashboardComponent implements OnInit {
         const duration: number = _duration? Number(_duration.toString()) : null
 
         const productivity : Array<number> = this.getAttributeValueByInjectionId(trackingSet.tracker, item, this.INJECTION_ID_PRODUCTIVITY);
-        
-        if(pivotType && pivotTime && duration && productivity && productivity.length > 0){
+
+        if(pivotType!=null && pivotTime!=null && duration!=null && productivity!=null && productivity.length > 0){
           const pivotMoment = pivotTime.toMoment()
           var startMoment: Moment
           var endMoment: Moment
