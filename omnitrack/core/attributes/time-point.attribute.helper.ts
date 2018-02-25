@@ -25,7 +25,7 @@ export default class TimePointAttributeHelper extends AttributeHelper {
         break;
       }
 
-      return moment(value.timestamp).tz(value.timezone).format(format)
+      return value.toMoment().format(format)
       + " " + moment().tz(value.timezone).format("z")
     }
     else{

@@ -1,5 +1,15 @@
+import * as moment from 'moment-timezone';
+
 export class TimePoint {
   constructor(public timestamp: number, public timezone: string) {}
+
+  toMoment(): moment.Moment{
+    return moment(this.timestamp).tz(this.timezone)
+  }
+
+  toDate(): Date{
+    return this.toMoment().toDate()
+  }
 }
 
 export class TimeSpan {

@@ -19,6 +19,7 @@ export default class TypedStringSerializer {
   static readonly TYPENAME_SERVERFILE = "SF"
 
   static deserialize(typedString: string): any {
+    if(!typedString) return null
 
     const typeLength = parseInt(typedString[0])
     const typeName = typedString.substr(1, typeLength)

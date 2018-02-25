@@ -70,7 +70,7 @@
           "localId": "%{ATTRIBUTE_LOCAL_4}%",
           "type": 0,
           "trackerId": "%{TRACKER_1}%",
-          "name": "일한 시간 (분)",
+          "name": "소요시간 (분)",
           "isRequired": true,
           "position": 0,
           "fallbackPolicy": 1,

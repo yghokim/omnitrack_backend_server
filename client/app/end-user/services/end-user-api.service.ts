@@ -6,6 +6,7 @@ import {
   ITrackerDbEntity,
   IItemDbEntity
 } from "../../../../omnitrack/core/db-entity-types";
+import 'rxjs/add/operator/combineLatest';
 import { Http, Headers, RequestOptions } from "@angular/http";
 import { Observable } from "rxjs/Observable";
 
@@ -22,16 +23,21 @@ export class EndUserApiService implements OnDestroy {
   >();
 
   private tokenHeaders: Headers;
-  private authorizedOptions: RequestOptions;
+  private authorizedOptions = new BehaviorSubject<RequestOptions>(null);
+
+  private authRequestOptions = this.auth.authState.combineLatest(this.authorizedOptions.filter(o=>o != null), (user, options)=>{return {user: user, options: options}})
 
   constructor(private auth: AngularFireAuth, private http: Http) {
     this._internalSubscriptions.add(
       auth.idToken.subscribe(token => {
         if (token) {
           this.tokenHeaders = new Headers({ Authorization: "Bearer " + token });
-          this.authorizedOptions = new RequestOptions({
+          this.authorizedOptions.next(new RequestOptions({
             headers: this.tokenHeaders
-          });
+          }))
+        }else{
+          this.tokenHeaders = null
+          this.authorizedOptions = null
         }
       })
     );
@@ -43,12 +49,12 @@ export class EndUserApiService implements OnDestroy {
 
   private loadChildren<T>(path: string, subject: BehaviorSubject<T>) {
     this._internalSubscriptions.add(
-      this.auth.authState
-        .flatMap(user => {
-          if (user) {
+      this.authRequestOptions
+        .flatMap(result => {
+          if (result.user) {
             return this.http
-              .get("/api/" + path, this.authorizedOptions)
-              .map(res => res.json());
+              .get("/api/" + path, result.options)
+              .map(res => res.json().filter(t => t.removed !== true));
           } else {
             return Observable.of([]);
           }
@@ -70,12 +76,12 @@ export class EndUserApiService implements OnDestroy {
 
   loadItemsofTracker(trackerId: string){
     this._internalSubscriptions.add(
-      this.auth.authState
-        .flatMap(user => {
-          if (user) {
+      this.authRequestOptions
+        .flatMap(result => {
+          if (result.user) {
             return this.http
-              .get("/api/trackers/" + trackerId + "/items", this.authorizedOptions)
-              .map(res => res.json());
+              .get("/api/trackers/" + trackerId + "/items", result.options)
+              .map(res => res.json().filter(t => t.removed !== true));
           } else {
             return Observable.of([]);
           }
