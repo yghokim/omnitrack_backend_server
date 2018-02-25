@@ -1,0 +1,30 @@
+<div class="text-center vertical-padding-normal" *ngIf="!logs || logs.length === 0">
+  <small class="font-weight-bold text-color-lightgray">생산성 기록이 없습니다.</small>
+</div>
+<div *ngIf="logs && logs.length > 0">
+  <div class="flex-container flex-align-items-center">
+    <small>전체 로그 수: {{logs.length}}</small>
+    <div class="flex-filler"></div>
+    <div class="productivity-legend flex-container flex-align-items-center vertical-padding-normal">
+      <span class="label-left">보통</span>
+      <div class="cell" *ngFor="let i of [0,1,2]" [style.background-color]="productivityColorScale(i)"></div>
+      <span class="label-right">매우 생산적</span>
+    </div>
+  </div>
+
+  <app-productivity-timeline [productivityColorScale]="productivityColorScale" [logs]="logs"></app-productivity-timeline>
+
+  <div class="flex-container flex-container-wrap flex-padded-content flex-container-responsive-columns_two">
+    <div>
+      <div class="card card-main">
+        <div class="card-header">생산성 로그 수</div>
+      </div>
+    </div>
+    <div>
+      <div class="card card-main">
+        <div class="card-header">생산성 로그 수</div>
+      </div>
+    </div>
+  </div>
+
+</div>

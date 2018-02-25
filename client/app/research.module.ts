@@ -36,9 +36,7 @@ import { ResearchLayoutComponent } from './layouts/research-layout/research-layo
 import { ResearchHomeFrameComponent } from './research-home-frame/research-home-frame.component';
 import { ExperimentListComponent } from './experiment-list/experiment-list.component';
 import { ResearcherAccountSettingsComponent } from './researcher-account-settings/researcher-account-settings.component';
-import { ChartFrameComponent } from './research/visualization/chart-frame/chart-frame.component';
 import { EngagementComponent } from './research/visualization/engagement/engagement.component';
-import { D3ChartFrameComponent } from './research/visualization/d3-chart-frame/d3-chart-frame.component';
 import { EngagementTimelineContainerDirective } from './research/visualization/engagement/engagement-timeline-container.directive';
 import { SVGEllipsisDirective } from './directives/svgellipsis.directive';
 import { NouisliderModule, NouisliderComponent } from 'ng2-nouislider';
@@ -54,7 +52,6 @@ import { UploadClientBinaryDialogComponent } from './server-settings/upload-clie
   imports: [
     CommonModule,
     SharedModule,
-    MaterialDesignModule,
     RoutingModule,
     ClipboardModule,
     NouisliderModule,
@@ -89,9 +86,7 @@ import { UploadClientBinaryDialogComponent } from './server-settings/upload-clie
     ResearchHomeFrameComponent,
     ExperimentListComponent,
     ResearcherAccountSettingsComponent,
-    ChartFrameComponent,
     EngagementComponent,
-    D3ChartFrameComponent,
     EngagementTimelineContainerDirective,
     SVGEllipsisDirective,
     NewExperimentDialogComponent,
@@ -123,8 +118,7 @@ import { UploadClientBinaryDialogComponent } from './server-settings/upload-clie
     AnonymizeEmailPipe,
     ResearchLayoutComponent,
     ResearchHomeFrameComponent,
-    ResearcherAccountSettingsComponent,
-    D3ChartFrameComponent
+    ResearcherAccountSettingsComponent
   ],
   providers: [
     ResearcherAuthGuardSecure,

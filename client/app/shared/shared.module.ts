@@ -10,6 +10,10 @@ import { TableCellValueComponent } from '../components/table-cell-value/table-ce
 import { FileDropModule } from 'ngx-file-drop';
 import {PrettySizeModule} from 'angular-pretty-size';
 import { ProductivityTimelineComponent } from '../shared-visualization/custom/productivity-timeline/productivity-timeline.component';
+import { D3ChartFrameComponent } from '../shared-visualization/d3-chart-frame/d3-chart-frame.component';
+import { ChartFrameComponent } from '../shared-visualization/chart-frame/chart-frame.component';
+import { MaterialDesignModule } from '../material-design.module';
+import { ProductivityDashboardComponent } from '../shared-visualization/custom/productivity-dashboard/productivity-dashboard.component';
 
 @NgModule({
   imports: [
@@ -18,6 +22,7 @@ import { ProductivityTimelineComponent } from '../shared-visualization/custom/pr
     ReactiveFormsModule,
     HttpModule,
     FileDropModule,
+    MaterialDesignModule,
     PrettySizeModule,
     ChartModule
   ],
@@ -28,19 +33,26 @@ import { ProductivityTimelineComponent } from '../shared-visualization/custom/pr
     ReactiveFormsModule,
     HttpModule,
     FileDropModule,
+    MaterialDesignModule,
     PrettySizeModule,
     ChartModule,
     // Shared Components
     ToastComponent,
     LoadingComponent,
     TableCellValueComponent,
+    ChartFrameComponent,
+    D3ChartFrameComponent,
+    ProductivityDashboardComponent,
     ProductivityTimelineComponent
   ],
   declarations: [
     ToastComponent,
     LoadingComponent,
     TableCellValueComponent,
-    ProductivityTimelineComponent
+    ChartFrameComponent,
+    D3ChartFrameComponent,
+    ProductivityTimelineComponent,
+    ProductivityDashboardComponent
   ],
   providers: [
     ToastComponent

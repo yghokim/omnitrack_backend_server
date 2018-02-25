@@ -1,3 +1,8 @@
-<div class="text-center vertical-padding-normal" *ngIf="!logs || logs.length === 0">
-  <small class="font-weight-bold text-color-lightgray">생산성 기록이 없습니다.</small>
-</div>
+<app-d3-chart-frame title="생산성 타임라인" [isBusy]="isBusy" [visualizationAreaHeight]="visualizationAreaHeight" (visualizationAreaWidthChanged)="visualizationWidth.next($event)">
+  <svg:g visualization #chartMainGroup [attr.transform]="makeTranslate(padding.left, padding.top)">
+
+  </svg:g>
+
+  <svg:g visualization #yAxisGroup [attr.transform]="makeTranslate(padding.left,padding.top)"></svg:g>
+  <svg:g visualization #xAxisGroup [attr.transform]="makeTranslate(padding.left, padding.top)"></svg:g>
+</app-d3-chart-frame>

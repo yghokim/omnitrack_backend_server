@@ -325,6 +325,21 @@ body {
   }
 }
 
+.flex-container.flex-container-responsive-columns_two {
+  &>* {
+    width: 50%; // Medium devices (tablets, less than 992px)
+    @media screen and (max-width: 575px) {
+      width: 100%
+    } // Small devices (landscape phones, less than 768px)
+    @media screen and (max-width: 767px) {
+      width: 100%
+    }
+  }
+}
+
+
+
+
 .flex-container.flex-container-col3 {
   &>* {
     width: 33%;

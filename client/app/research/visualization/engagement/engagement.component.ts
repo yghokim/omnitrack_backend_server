@@ -45,12 +45,12 @@ EngagementData
 
   private readonly _internalSubscriptions = new Subscription();
 
-  private readonly visualizationWidth = new Subject<number>();
+  readonly visualizationWidth = new Subject<number>();
   private mainChartAreaWidth: number = 0
 
   private itemCountRangeMax: number = 5
 
-  private visualizationAreaHeight = 100
+  visualizationAreaHeight = 100
 
   private hatchPatterns = [
     {

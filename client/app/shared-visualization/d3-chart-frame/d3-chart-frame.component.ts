@@ -2,8 +2,7 @@ import { Component, OnInit, Input, Output, AfterViewInit, ViewChild, ElementRef,
 
 @Component({
   selector: 'app-d3-chart-frame',
-  templateUrl: './d3-chart-frame.component.html',
-  styleUrls: ['./d3-chart-frame.component.scss']
+  templateUrl: './d3-chart-frame.component.html'
 })
 export class D3ChartFrameComponent implements OnInit, AfterViewInit {
 
@@ -14,7 +13,7 @@ export class D3ChartFrameComponent implements OnInit, AfterViewInit {
 
   @Output() visualizationAreaWidthChanged: EventEmitter<number> = new EventEmitter(true)
 
-  private lastVisualizationAreaWidth = null
+  lastVisualizationAreaWidth = null
 
   @ViewChild('mainContainer') mainContainer: ElementRef
 

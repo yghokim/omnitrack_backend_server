@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from "@angular/core";
 import { EndUserApiService } from "../services/end-user-api.service";
 import { ITrackerDbEntity, IItemDbEntity } from "../../../../omnitrack/core/db-entity-types";
 import { Subscription } from "rxjs/Subscription";
-import { TrackingSet } from "../../shared-visualization/custom/productivity-timeline/productivity-timeline.component";
+import { TrackingSet } from "../../shared-visualization/custom/productivity-dashboard/productivity-dashboard.component";
 
 @Component({
   selector: "app-end-user-dashboard",

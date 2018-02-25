@@ -20,7 +20,6 @@ import { EndUserTriggerListComponent } from './end-user/end-user-trigger-list/en
   imports: [
     CommonModule,
     SharedModule,
-    MaterialDesignModule,
     RoutingModule,
     AngularFireModule.initializeApp(firebase),
     AngularFireAuthModule
