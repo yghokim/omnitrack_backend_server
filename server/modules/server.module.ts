@@ -116,7 +116,7 @@ export default class ServerModule {
                 console.log(entry)
 
                 entry.isProcessed = true
-                OTItemMedia.collection.updateOne({ _id: entry._id }, entry).then(
+                OTItemMedia.collection.findOneAndUpdate({ _id: entry._id }, entry).then(
                   () => {
                     done()
                   })
