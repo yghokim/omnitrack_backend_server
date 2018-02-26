@@ -166,7 +166,7 @@ export default class BinaryStorageCtrl {
             }
           }
 
-          res.download(req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(media.userId, trackerId, itemId) + "/" + fileName, fileName,
+          res.download(req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(media.user, trackerId, itemId) + "/" + fileName, fileName,
             (err2) => {
               if (err2 == null) {
                 console.log("item media download complete")
