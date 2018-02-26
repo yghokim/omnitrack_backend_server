@@ -19,6 +19,7 @@ export class ProductivityDashboardComponent implements OnInit {
   private readonly INJECTION_ID_PRODUCTIVITY = "QizUYovc";
 
   private trackingSet: TrackingSet;
+  decodedItems: Array<DecodedItem> = [];
   logs: Array<ProductivityLog> = [];
   dailyEntryLogs : Array<ProductivityEntryPerDay> = [];
 
@@ -29,6 +30,7 @@ export class ProductivityDashboardComponent implements OnInit {
     this.trackingSet = trackingSet;
 
     if (trackingSet) {
+      const decodedItems: Array<DecodedItem> = []
       const logs: Array<ProductivityLog> = []
       const dailyLogs: Array<ProductivityEntryPerDay> = []
       trackingSet.items.forEach(item => {
@@ -41,9 +43,14 @@ export class ProductivityDashboardComponent implements OnInit {
 
         const duration: number = _duration? Number(_duration.toString()) : null
 
-        const productivity : Array<number> = this.getAttributeValueByInjectionId(trackingSet.tracker, item, this.INJECTION_ID_PRODUCTIVITY);
+        const _productivity : Array<number> = this.getAttributeValueByInjectionId(trackingSet.tracker, item, this.INJECTION_ID_PRODUCTIVITY);
 
-        if(pivotType!=null && pivotTime!=null && duration!=null && productivity!=null && productivity.length > 0){
+        const productivity = (_productivity && _productivity.length > 0) ? _productivity[0] : null
+
+        if(pivotType!=null && pivotTime!=null && duration!=null && productivity!=null){
+          //put decoded items
+          decodedItems.push({productivity: productivity, duration: duration, item: item})
+          
           const pivotMoment = pivotTime.toMoment()
           var startMoment: Moment
           var endMoment: Moment
@@ -81,7 +88,7 @@ export class ProductivityDashboardComponent implements OnInit {
               dateStart: startDayStart.toDate().getTime(),
               fromDateRatio: startRatio,
               toDateRatio: Math.min(endDiffRatio, 1),
-              productivity: productivity[0],
+              productivity: productivity,
               item: item
             }
           )
@@ -93,7 +100,7 @@ export class ProductivityDashboardComponent implements OnInit {
                 dateStart: startDayStart.clone().add(1 + i, 'day').toDate().getTime(),
                 fromDateRatio: 0,
                 toDateRatio: Math.min(endDiffRatio - (1+i), 1),
-                productivity: productivity[0],
+                productivity: productivity,
                 item: item
               }
             )
@@ -105,6 +112,7 @@ export class ProductivityDashboardComponent implements OnInit {
 
       this.logs = logs
       this.dailyEntryLogs = dailyLogs
+      this.decodedItems = decodedItems
     }
   }
 
@@ -142,6 +150,12 @@ export type TrackingSet = {
 /* This log is not 1:1 matched with the items. 
  * The items can be divided into multiple logs if the range exceeds the day.
 */
+
+export type DecodedItem = {
+  productivity: number,
+  duration: number,
+  item: IItemDbEntity
+}
 
 export class ProductivityLog {
   dateStart: number;

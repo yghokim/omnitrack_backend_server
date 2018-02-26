@@ -5,6 +5,8 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { D3Helper } from '../../d3-helper';
 import * as moment from 'moment-timezone';
 import * as groupArray from 'group-array';
+import { merge } from '../../../../../shared_lib/utils';
+import { HighChartsHelper } from '../../highcharts-helper';
 
 @Component({
   selector: 'app-productivity-entry-per-day',
@@ -26,52 +28,40 @@ export class ProductivityEntryPerDayComponent implements OnInit {
     groups.sort((a, b) => a.date.getTime() - b.date.getTime())
     console.log(groups)
 
-    this.chart = new Chart({
-      chart: { type: 'column', height: '70%' },
+    const chartOptions = HighChartsHelper.makeDefaultChartOptions('column')
+    chartOptions.tooltip = {
+      valueSuffix: ' 개의 기록'
+    }
+
+    chartOptions.xAxis = {
+      categories: days,
+      labels:{
+        formatter: function(){
+          console.log("chart label" + this)
+          return moment(this.value).format("MM/DD")
+        }
+      }
+    }
+    chartOptions.yAxis = {
+      allowDecimals: false,
+      min: 0,
       title: {
-        text: '',
-        style: {
-          display: 'none'
-        }
-      }, 
-      subtitle: {
-        text: '',
-        style: {
-          display: 'none'
-        }
+        text: "로그 수",
+        margin:5
       },
-      colors: ['#84315d'],
-      credits: { enabled: false },
-      tooltip: {
-        valueSuffix: ' 개의 기록'
-      },
-      xAxis: {
-        categories: days,
-        labels:{
-          formatter: function(){
-            return moment(this.value).format("MM/DD")
-          }
-        }
-      },
-      yAxis: {
-        allowDecimals: false,
-        min: 0,
-        title: {
-          text: "로그 수",
-          margin:5
-        },
-        labels: {
-          padding: 0
-        }
-      },
-      legend: {
-        enabled: false
-      },
-      series: [{
-        name: "생산성 로그",
-        data: groups.map(g=>g.logs.length)
-      }],
-    })
+      labels: {
+        padding: 0
+      }
+    }
+    chartOptions.legend = {
+      enabled: false
+    }
+    chartOptions.series = [{
+      name: "생산성 로그",
+      data: groups.map(g=>g.logs.length)
+    }]
+
+    this.chart = new Chart(chartOptions)
   }
 
   public chart
