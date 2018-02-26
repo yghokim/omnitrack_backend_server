@@ -16,14 +16,10 @@
 
   <div class="flex-container flex-container-wrap flex-padded-content flex-container-responsive-columns_two">
     <div>
-      <div class="card card-main">
-        <div class="card-header">생산성 로그 수</div>
-      </div>
+      <app-productivity-entry-per-day [logs] = "dailyEntryLogs"></app-productivity-entry-per-day>
     </div>
     <div>
-      <div class="card card-main">
-        <div class="card-header">생산성 로그 수</div>
-      </div>
+      <app-productivity-duration-stacked-bar-chart></app-productivity-duration-stacked-bar-chart>
     </div>
   </div>
 

@@ -5,6 +5,7 @@ import d3 = require('d3');
 import { TimePoint } from '../../../../../omnitrack/core/datatypes/field_datatypes';
 import { Moment } from 'moment';
 import { ScaleLinear } from 'd3';
+import { ProductivityEntryPerDay } from '../productivity-entry-per-day/productivity-entry-per-day.component';
 
 @Component({
   selector: 'app-productivity-dashboard',
@@ -19,6 +20,7 @@ export class ProductivityDashboardComponent implements OnInit {
 
   private trackingSet: TrackingSet;
   logs: Array<ProductivityLog> = [];
+  dailyEntryLogs : Array<ProductivityEntryPerDay> = [];
 
   productivityColorScale: ScaleLinear<d3.RGBColor, string>
 
@@ -28,6 +30,7 @@ export class ProductivityDashboardComponent implements OnInit {
 
     if (trackingSet) {
       const logs: Array<ProductivityLog> = []
+      const dailyLogs: Array<ProductivityEntryPerDay> = []
       trackingSet.items.forEach(item => {
         const _pivotType : Array<number> = this.getAttributeValueByInjectionId(trackingSet.tracker, item, this.INJECTION_ID_PIVOT_TYPE);
         const pivotType : number = (_pivotType && _pivotType.length > 0)? _pivotType[0] : null
@@ -63,7 +66,16 @@ export class ProductivityDashboardComponent implements OnInit {
           const startRatio = startMoment.diff(startDayStart, 'day', true)
           const endDiffRatio = endMoment.diff(startDayStart, 'day', true)
           const numDaysBetween = Math.floor(endDiffRatio)
+
+          //Make daily entry logs
+          const dominantDate = (startRatio + endDiffRatio)*.5 <= 1? startDayStart.toDate() : endMoment.clone().startOf('day').toDate()
+          dailyLogs.push({
+            date: dominantDate,
+            dateNumber: dominantDate.getTime(),
+            item: item
+          })
           
+          //Make timeline logs
           logs.push(
             {
               dateStart: startDayStart.toDate().getTime(),
@@ -92,6 +104,7 @@ export class ProductivityDashboardComponent implements OnInit {
       });
 
       this.logs = logs
+      this.dailyEntryLogs = dailyLogs
     }
   }
 

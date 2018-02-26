@@ -60,14 +60,7 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
 
     if (logs) {
       if (logs.length > 0) {
-        const dates = logs.map(log => log.dateStart)
-        const minDate = d3.min(dates, (date) => date)
-        const maxDate = d3.max(dates, (date) => date)
-
-        console.log("min : " + minDate)
-        console.log("max : " + maxDate)
-
-        const days = d3.timeDays(new Date(minDate), moment(maxDate).add(1, 'd').toDate()).map(d => d.getTime())
+        const days = D3Helper.makeDateSequence(logs.map(log => new Date(log.dateStart))).map(d => d.getTime())
 
         const grouped = groupArray(logs, "dateStart")
 
