@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { Http, Headers, RequestOptions } from '@angular/http';
+import { Http, Headers, RequestOptions, Response } from '@angular/http';
 import { ResearcherAuthService } from './researcher.auth.service';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/publishReplay';
@@ -213,5 +213,10 @@ export class ResearchApiService implements OnDestroy {
 
   removeClientBinary(binaryId: string): Observable<boolean> {
     return this.http.delete("api/research/clients/" + binaryId, this.authorizedOptions)  .map(res => res.json())
+  }
+
+  getMedia(trackerId: string, attributeLocalId: string, itemId: string, processingType: string /*"original" | "thumb" | "thumb_retina" */): Observable<Response> {
+    //:trackerId/:itemId/:attrLocalId/:fileIdentifier
+    return this.http.get("api/research/files/item_media/" + trackerId + "/" + itemId + "/" + attributeLocalId + "/" + "0" + "/" + processingType, this.authorizedOptions)
   }
 }

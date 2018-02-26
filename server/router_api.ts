@@ -133,6 +133,8 @@ const router = express.Router();
   router.route('/items/destroy').get(itemCtrl.destroy)
   router.route('/triggers/destroy').get(triggerCtrl.destroy)*/
 
+  router.route('/media/all').get(storageCtrl.getAll)
+
   // binary
   router.post('/upload/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier', assertSignedInMiddleware, storageCtrl.uploadItemMedia)
   router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', assertSignedInMiddleware, storageCtrl.downloadItemMedia)
