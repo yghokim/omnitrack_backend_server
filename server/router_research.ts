@@ -13,6 +13,7 @@ import ot_trigger from './models/ot_trigger';
 import ot_item from './models/ot_item';
 import { trackingDataCtrl } from './controllers/research/ot_tracking_data_controller';
 import { ResearcherPrevilages } from '../omnitrack/core/research/researcher';
+import BinaryStorageCtrl from './controllers/binary_storage_controller';
 const jwt = require('express-jwt');
 const OAuthServer = require('express-oauth-server');
 const router = express.Router()
@@ -21,6 +22,7 @@ const researchCtrl = new OTResearchCtrl()
 const researchAuthCtrl = new OTResearchAuthCtrl()
 const adminCtrl = new AdminCtrl()
 const userCtrl = new OTUserCtrl()
+const storageCtrl = new BinaryStorageCtrl()
 
 function makeTokenAuthMiddleware(pipe: (reseaercher, parsedToken?)=>string = ()=>{return null}): any{
   return jwt({secret: env.jwt_secret, userProperty: 'researcher', isRevoked: (req, payload, done)=>{
@@ -138,6 +140,8 @@ new Array(
       router.get('/experiments/:experimentId/data/' + info.url, trackingDataCtrl.getChildrenOfExperiment(info.model))
     }
   )
+
+  router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', tokenApprovedAuth, storageCtrl.downloadItemMedia)
 
 
 router.get("/users/all", tokenApprovedAuth, researchCtrl.getUsersWithPariticipantInformation)

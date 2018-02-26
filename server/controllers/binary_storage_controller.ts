@@ -25,6 +25,16 @@ export default class BinaryStorageCtrl {
     })
   }
 
+  getAll = (req, res) => {
+    OTItemMedia.find({}).then(
+      media=>{
+        res.status(200).send(media)
+      }
+    ).catch(err=>{
+      res.status(500).send(err)
+    })
+  }
+
   uploadItemMedia = (req: Request, res: Response) => {
     const userId = res.locals.user.uid
     if (userId != null) {
@@ -120,9 +130,8 @@ export default class BinaryStorageCtrl {
     }
   }
 
-  downloadItemMedia = (req: Request, res: Response) => {
-    const userId = res.locals.user.uid
-    if (userId != null) {
+  downloadItemMedia = (req: any, res: Response) => {
+    if(res.locals.user || req.researcher) {
       const trackerId = req.params.trackerId
       const attrLocalId = req.params.attrLocalId
       const itemId = req.params.itemId
@@ -131,17 +140,20 @@ export default class BinaryStorageCtrl {
 
       OTItemMedia.collection.findOne({
         tracker: trackerId,
-        user: userId,
         attrLocalId: attrLocalId,
         item: itemId,
         fileIdentifier: fileIdentifier
       }, (err, media) => {
+        console.log("found one media")
+        console.log(err)
+        console.log(media)
         if (err) {
           res.status(500).send({ error: err })
           return
         }
 
         if (media) {
+          console.log("found media")
           let fileName: string = media.originalFileName
           if (media.isProcessed) {
             switch (processingType) {
@@ -154,7 +166,7 @@ export default class BinaryStorageCtrl {
             }
           }
 
-          res.download(req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(userId, trackerId, itemId) + "/" + fileName, fileName,
+          res.download(req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(media.userId, trackerId, itemId) + "/" + fileName, fileName,
             (err2) => {
               if (err2 == null) {
                 console.log("item media download complete")

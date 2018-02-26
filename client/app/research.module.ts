@@ -47,6 +47,7 @@ import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
 import { TableCellValueComponent } from './components/table-cell-value/table-cell-value.component';
 import { ServerSettingsComponent } from './server-settings/server-settings.component';
 import { UploadClientBinaryDialogComponent } from './server-settings/upload-client-binary-dialog/upload-client-binary-dialog.component';
+import { ImageCellComponent } from './experiment-data/image-cell/image-cell.component';
 
 @NgModule({
   imports: [
@@ -94,6 +95,7 @@ import { UploadClientBinaryDialogComponent } from './server-settings/upload-clie
     DeleteExperimentConfirmDialogComponent,
     ServerSettingsComponent,
     UploadClientBinaryDialogComponent,
+    ImageCellComponent,
   ],
   exports: [
     NouisliderModule,

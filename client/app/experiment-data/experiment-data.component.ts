@@ -13,6 +13,9 @@ import { MatTableDataSource, MatSort, MatPaginator } from '@angular/material';
 
 import { Element } from "@angular/compiler";
 import { BehaviorSubject } from "rxjs";
+import attributeTypes from "../../../omnitrack/core/attributes/attribute-types";
+import { Response } from "@angular/http";
+import { Observable } from "rxjs/Observable";
 
 @Component({
   selector: "app-experiment-data",
@@ -152,7 +155,11 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     }
   }
 
-  getItemValue(item: IItemDbEntity, attr: IAttributeDbEntity): any {
+  isImageAttribute(attr: IAttributeDbEntity):boolean{
+    return attr.type === attributeTypes.ATTR_TYPE_IMAGE
+  }
+
+  getItemValue(item: IItemDbEntity, attr: IAttributeDbEntity, tryFormatted: boolean): any {
     const tableEntry = item.dataTable.find(
       entry => entry.attrLocalId === attr.localId
     );
@@ -161,13 +168,13 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
       const deserializedValue = TypedStringSerializer.deserialize(
         tableEntry.sVal
       );
-      if (helper) {
+      if (helper && tryFormatted === true) {
         const formatted = helper.formatAttributeValue(attr, deserializedValue);
         return formatted;
       } else return deserializedValue;
     } else return null;
   }
-
+  
   getTrackerColumns(tracker: ITrackerDbEntity): any[]{
     const temp = tracker.attributes.map((attribute)=>{return attribute.localId})
     return temp.concat('timestamp')
