@@ -95,7 +95,7 @@ import { ImageCellComponent } from './experiment-data/image-cell/image-cell.comp
     DeleteExperimentConfirmDialogComponent,
     ServerSettingsComponent,
     UploadClientBinaryDialogComponent,
-    ImageCellComponent,
+    ImageCellComponent
   ],
   exports: [
     NouisliderModule,

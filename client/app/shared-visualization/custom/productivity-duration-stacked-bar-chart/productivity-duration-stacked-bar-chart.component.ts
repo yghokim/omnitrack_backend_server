@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { IItemDbEntity } from '../../../../../omnitrack/core/db-entity-types';
-import { DecodedItem } from '../productivity-dashboard/productivity-dashboard.component';
+import { DecodedItem, ProductivityHelper } from '../productivity-dashboard/productivity-dashboard.component';
 import d3 = require('d3');
 import { Chart } from 'angular-highcharts';
 import { merge } from '../../../../../shared_lib/utils';
@@ -52,22 +52,8 @@ export class ProductivityDurationStackedBarChartComponent implements OnInit {
         return bin ? bin.length : 0
       })
 
-      var productivityColor = ""
-      var productivityLabel = ""
-      switch (productivity.toString()) {
-        case "0":
-          productivityLabel = "보통"
-          productivityColor = "rgb(243, 220, 117)"
-          break;
-        case "1":
-          productivityLabel = "생산적"
-          productivityColor = "rgb(91, 189, 146)"
-          break;
-        case "2":
-          productivityLabel = "매우 생산적"
-          productivityColor = "rgb(35, 135, 160)"
-          break;
-      }
+      var productivityColor = ProductivityHelper.getProductivityColor(Number.parseInt(productivity))
+      var productivityLabel = ProductivityHelper.getProductivityLabel(Number.parseInt(productivity))
 
       series.push({
         name: productivityLabel,

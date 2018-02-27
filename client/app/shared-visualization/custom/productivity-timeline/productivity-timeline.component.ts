@@ -15,12 +15,14 @@ import * as bigdecimal from 'bigdecimal';
 import d3 = require("d3");
 import { ScaleLinear, ScaleBand } from 'd3-scale'
 import { ScaleOrdinal, Axis } from "d3";
-import { ProductivityLog } from "../productivity-dashboard/productivity-dashboard.component";
+import { ProductivityLog, ProductivityHelper } from "../productivity-dashboard/productivity-dashboard.component";
 import { Subject } from "rxjs/Subject";
 import { D3Helper } from "../../d3-helper";
 import { Subscription } from "rxjs/Subscription";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import * as _s from 'underscore.string';
+import * as $ from 'jquery';
+import 'bootstrap';
 
 @Component({
   selector: "app-productivity-timeline",
@@ -48,7 +50,7 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
 
   private readonly dateScale: ScaleBand<number> = d3.scaleBand<number>().paddingInner(0.1).paddingOuter(0.05)
 
-  private readonly dateAxis: Axis<number | {valueOf(): number }>
+  private readonly dateAxis: Axis<number | { valueOf(): number }>
 
   data = new BehaviorSubject<ProductivityTimelineData>(null)
 
@@ -65,10 +67,10 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
         const grouped = groupArray(logs, "dateStart")
 
         const groups = Array<ProductivityLogGroup>()
-        for(let date of Object.keys(grouped)) {
-          groups.push({day: Number.parseInt(date), logs: grouped[date]})
+        for (let date of Object.keys(grouped)) {
+          groups.push({ day: Number.parseInt(date), logs: grouped[date] })
         }
-        this.data.next({days: days, groups: groups})
+        this.data.next({ days: days, groups: groups })
       }
 
     }
@@ -110,14 +112,14 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
 
     this.dateAxis = d3.axisLeft(this.dateScale)
       .tickSize(0).tickPadding(5)
-      .tickFormat(d=>{
+      .tickFormat(d => {
         return moment(d).format("YYYY-MM-DD")
       })
   }
 
   ngOnInit() {
     this._internalSubscriptions.add(
-      this.visualizationWidth.combineLatest(this.data.filter(d=>d!=null), (width, data) => { return { data: data, width: width } }).subscribe(
+      this.visualizationWidth.combineLatest(this.data.filter(d => d != null), (width, data) => { return { data: data, width: width } }).subscribe(
         data => {
           this.updateChart(data.data, data.width)
         }
@@ -153,41 +155,95 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
       })
 
     const mainSelection = d3.select(this.chartMainGroup.nativeElement)
-    
+
     const groupSelection = mainSelection.selectAll("g.dayline").data(data.groups)
 
     const enter = groupSelection.enter().append("g")
       .attr("class", "dayline")
-      .attr("transform", d=>{ return D3Helper.makeTranslate(0, this.dateScale(d.day) ) })
+      .attr("transform", d => { return D3Helper.makeTranslate(0, this.dateScale(d.day)) })
 
     enter.append("rect")
       .attr("class", "background")
       .attr("fill", "#f0f0f0")
 
-    mainSelection.selectAll("rect.background")  
+    mainSelection.selectAll("rect.background")
       .attr("height", this.dateScale.bandwidth())
       .attr("width", width - this.padding.left - this.padding.right)
 
     groupSelection.exit().remove()
 
     const durationCellSelection = groupSelection.merge(enter)
-      .selectAll("rect.duration").data(d=>{ return d.logs })
-    
+      .selectAll("rect.duration").data(d => { return d.logs })
+
     const durationEnter = durationCellSelection.enter().append("rect")
       .attr("class", "duration")
       .attr("height", this.dateScale.bandwidth())
-      .attr("x", d => (this.timeOfDayScale(d.fromDateRatio) + this.timeOfDayScale(d.toDateRatio))*.5 )
+      .attr("x", d => (this.timeOfDayScale(d.fromDateRatio) + this.timeOfDayScale(d.toDateRatio)) * .5)
+      /*These are for Bootstrap tooltips=================*/
+      .attr("data-html", true)
+      .attr("data-offset", 5)
+      .attr("data-placement", 'auto')
+      .attr("data-title", (d: ProductivityLog) => {
+        const body = $("<div></div>")
+
+        const format = "A hh:mm"
+        const startMoment = moment(d.dateStart).add(24* 3600 * d.fromDateRatio, "s")
+        const endMoment = moment(d.dateStart).add(24*3600*d.toDateRatio, "s")
+        
+        body.append("<b class='bottom-margin-dot5em'>" + startMoment.format(format) + " ~ " + endMoment.format(format) + "</b>")
+
+        const tableBody = $("<table class='tooltip-content'></table>")
+        const taskLine = $("<tr></tr>").append("<th>한 일</th>").append("<td>" + d.decodedItem.tasks.map(task => "<span class='badge badge-light'>" + task + "</span>").join(" ") + "</td>")
+
+        const rationaleLine = $("<tr></tr>")
+          .append("<th>생산성</th>")
+          .append("<td><b>" + ProductivityHelper.getProductivityLabel(d.decodedItem.productivity) + "</b><br><span>" + d.decodedItem.rationale + "</span></td>")
+        
+        const placeLine = $("<tr></tr>")
+          .append("<th>장소</th>")
+          .append("<td>" + d.decodedItem.location + "</td>")
+
+        const devicesLine = $("<tr></tr>")
+          .append("<th>기기</th>")
+        
+          if(d.decodedItem.usedDevices.length == 0){
+            devicesLine.append("<td>사용 안함</td>")
+          }else{
+            devicesLine.append("<td>" + d.decodedItem.usedDevices.map(device => "<span class='badge badge-light'>" + device + "</span>").join(" ") + "</td>")
+          }
+        tableBody.append(taskLine)
+        tableBody.append(rationaleLine)
+        tableBody.append(placeLine)
+        tableBody.append(devicesLine)
+
+        body.append(tableBody)
+
+        return body.html()
+      })
+      /*=================================================*/
+      .on('mouseenter', (d, i, nodes) => {
+        d3.select(nodes[i])
+          .attr("opacity", 0.8)
+      })
+      .on('mouseleave', (d, i, nodes) => {
+        d3.select(nodes[i])
+          .attr("opacity", 1.0)
+      })
+
+    const jSelection = $("rect.duration") as any
+    jSelection.tooltip()
+
 
     durationCellSelection.merge(durationEnter)
       .transition()
       .duration(800)
-      .attr("fill", d=> this.productivityColorScale(d.productivity))
+      .attr("fill", d => this.productivityColorScale(d.productivity))
       .attr("x", d => this.timeOfDayScale(d.fromDateRatio) + 0.5)
       .attr("rx", 3)
       .attr("ry", 3)
       .attr("width", d => (this.timeOfDayScale(d.toDateRatio) - this.timeOfDayScale(d.fromDateRatio)) - 1)
 
-      
+
 
     durationCellSelection.exit().remove()
   }

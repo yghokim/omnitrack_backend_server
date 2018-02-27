@@ -22,13 +22,14 @@ export class ProductivityDashboardComponent implements OnInit {
   private readonly INJECTION_ID_TASKS = "3CVBwMM1";
   private readonly INJECTION_ID_USED_DEVICES = "KJeafavG";
   private readonly INJECTION_ID_LOCATION = "ztoRgnIY";
+  private readonly INJECTION_ID_RATIONALE = "9hwQHamo";
   
 
   private trackingSet: TrackingSet;
   decodedItems: Array<DecodedItem> = [];
   logs: Array<ProductivityLog> = [];
 
-  productivityColorScale: ScaleLinear<d3.RGBColor, string>
+  productivityColorScale: ScaleLinear<d3.RGBColor, string> = ProductivityHelper.productivityColorScale
 
   @Input("trackingSet")
   set _trackingSet(trackingSet: TrackingSet) {
@@ -40,9 +41,6 @@ export class ProductivityDashboardComponent implements OnInit {
       const locationEntries = this.getChoiceEntryListByAttrInjectionId(trackingSet.tracker, this.INJECTION_ID_LOCATION)
       const deviceEntries = this.getChoiceEntryListByAttrInjectionId(trackingSet.tracker, this.INJECTION_ID_USED_DEVICES)
 
-      console.log(taskEntries)
-      console.log(locationEntries)
-      console.log(deviceEntries)
 
       const decodedItems: Array<DecodedItem> = []
       const logs: Array<ProductivityLog> = []
@@ -59,6 +57,8 @@ export class ProductivityDashboardComponent implements OnInit {
         const _productivity : Array<number> = this.getAttributeValueByInjectionId(trackingSet.tracker, item, this.INJECTION_ID_PRODUCTIVITY);
 
         const productivity = (_productivity && _productivity.length > 0) ? _productivity[0] : null
+
+        const rationale = this.getAttributeValueByInjectionId(trackingSet.tracker, item, this.INJECTION_ID_RATIONALE)
 
         if(pivotType!=null && pivotTime!=null && duration!=null && productivity!=null){
           
@@ -92,17 +92,21 @@ export class ProductivityDashboardComponent implements OnInit {
           //Make daily entry logs
           const dominantDate = (startRatio + endDiffRatio)*.5 <= 1? startDayStart.toDate() : endMoment.clone().startOf('day').toDate()
           
+          const decoded = {
+            productivity: productivity, 
+            duration: duration, 
+            dominantDate: dominantDate,
+            dominantDateNumber: dominantDate.getTime(),
+            usedDevices: _deviceIds? _deviceIds.map(id => deviceEntries.entries.find(d => d.id=== id).val) : [],
+            location: (_locationIds && _locationIds.length > 0)? locationEntries.entries.find(l => l.id === _locationIds[0]).val : null,
+            tasks: _taskIds ? _taskIds.map(id => taskEntries.entries.find(d => d.id === id).val) : [],
+            rationale: rationale,
+            item: item
+          }
+
           decodedItems.push(
-            {
-              productivity: productivity, 
-              duration: duration, 
-              dominantDate: dominantDate,
-              dominantDateNumber: dominantDate.getTime(),
-              usedDevices: _deviceIds? _deviceIds.map(id => deviceEntries.entries.find(d => d.id=== id).val) : [],
-              location: (_locationIds && _locationIds.length > 0)? locationEntries.entries.find(l => l.id === _locationIds[0]).val : null,
-              tasks: _taskIds ? _taskIds.map(id => taskEntries.entries.find(d => d.id === id).val) : [],
-              item: item
-            })
+            decoded
+          )
           
           //Make timeline logs
           logs.push(
@@ -111,7 +115,7 @@ export class ProductivityDashboardComponent implements OnInit {
               fromDateRatio: startRatio,
               toDateRatio: Math.min(endDiffRatio, 1),
               productivity: productivity,
-              item: item
+              decodedItem: decoded
             }
           )
 
@@ -123,7 +127,7 @@ export class ProductivityDashboardComponent implements OnInit {
                 fromDateRatio: 0,
                 toDateRatio: Math.min(endDiffRatio - (1+i), 1),
                 productivity: productivity,
-                item: item
+                decodedItem: decoded
               }
             )
           }
@@ -160,8 +164,6 @@ export class ProductivityDashboardComponent implements OnInit {
   }
 
   constructor() {
-
-    this.productivityColorScale = d3.scaleLinear<d3.RGBColor, number>().domain([0, 2]).interpolate(d3.interpolateHcl).range([d3.rgb("rgb(243, 220, 117)"), d3.rgb("#2387a0")])
   }
 
   ngOnInit() {}
@@ -179,9 +181,10 @@ export type TrackingSet = {
 export type DecodedItem = {
   productivity: number,
   duration: number,
-  usedDevices: ArrayLike<string>,
-  tasks: ArrayLike<string>,
+  usedDevices: Array<string>,
+  tasks: Array<string>,
   location: string,
+  rationale: string,
   dominantDate: Date,
   dominantDateNumber: number,
   item: IItemDbEntity
@@ -192,10 +195,26 @@ export class ProductivityLog {
   fromDateRatio: number;
   toDateRatio: number;
   productivity: number;
-  item: IItemDbEntity;
+  decodedItem: DecodedItem;
 }
 
 export interface ProductivityTimelineData {
   logs: Array<ProductivityLog>
 
+}
+
+export class ProductivityHelper{
+  static readonly productivityColorScale: ScaleLinear<d3.RGBColor, string> = d3.scaleLinear<d3.RGBColor, number>().domain([0, 2]).interpolate(d3.interpolateHcl).range([d3.rgb("rgb(243, 220, 117)"), d3.rgb("#2387a0")])
+
+  static getProductivityColor(productivity: number): string{
+    return this.productivityColorScale(productivity)
+  }
+
+  static getProductivityLabel(productivity: number): string{
+    switch (productivity.toString()) {
+      case "0": return "보통"
+      case "1": return "생산적"
+      case "2": return "매우 생산적"
+    }
+  }
 }
