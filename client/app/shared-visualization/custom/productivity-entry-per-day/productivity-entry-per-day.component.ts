@@ -7,6 +7,7 @@ import * as moment from 'moment-timezone';
 import * as groupArray from 'group-array';
 import { merge } from '../../../../../shared_lib/utils';
 import { HighChartsHelper } from '../../highcharts-helper';
+import { DecodedItem } from '../productivity-dashboard/productivity-dashboard.component';
 
 @Component({
   selector: 'app-productivity-entry-per-day',
@@ -17,12 +18,12 @@ export class ProductivityEntryPerDayComponent implements OnInit {
 
   private readonly data = new BehaviorSubject<ProductivityEntryPerDayData>(null)
 
-  @Input("logs")
-  set _logs(logs: Array<ProductivityEntryPerDay>) {
-    const days = D3Helper.makeDateSequence(logs.map(l => l.date))
+  @Input("decodedItems")
+  set _logs(logs: Array<DecodedItem>) {
+    const days = D3Helper.makeDateSequence(logs.map(l => l.dominantDate))
     console.log(days)
     const groups = days.map(day => {
-      return {date: day, logs: logs.filter(l => l.dateNumber === day.getTime()) }
+      return {date: day, logs: logs.filter(l => l.dominantDateNumber === day.getTime()) }
     })
 
     groups.sort((a, b) => a.date.getTime() - b.date.getTime())
@@ -74,12 +75,6 @@ export class ProductivityEntryPerDayComponent implements OnInit {
 }
 
 export type ProductivityEntryPerDayData = {
-  logs: Array<{ date: Date, logs: Array<ProductivityEntryPerDay> }>,
+  logs: Array<{ date: Date, logs: Array<DecodedItem> }>,
   days: Array<Date>
-}
-
-export type ProductivityEntryPerDay = {
-  item: IItemDbEntity,
-  date: Date,
-  dateNumber: number
 }

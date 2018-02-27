@@ -5,7 +5,9 @@ import d3 = require('d3');
 import { TimePoint } from '../../../../../omnitrack/core/datatypes/field_datatypes';
 import { Moment } from 'moment';
 import { ScaleLinear } from 'd3';
-import { ProductivityEntryPerDay } from '../productivity-entry-per-day/productivity-entry-per-day.component';
+import PropertyHelperManager from '../../../../../omnitrack/core/properties/property.helper.manager';
+import { EPropertyType } from '../../../../../omnitrack/core/properties/property.types';
+import ChoiceAttributeHelper from '../../../../../omnitrack/core/attributes/choice.attribute.helper';
 
 @Component({
   selector: 'app-productivity-dashboard',
@@ -17,11 +19,14 @@ export class ProductivityDashboardComponent implements OnInit {
   private readonly INJECTION_ID_PIVOT_TIME = "UDTGuxJm";
   private readonly INJECTION_ID_DURATION = "uyMhOEin";
   private readonly INJECTION_ID_PRODUCTIVITY = "QizUYovc";
+  private readonly INJECTION_ID_TASKS = "3CVBwMM1";
+  private readonly INJECTION_ID_USED_DEVICES = "KJeafavG";
+  private readonly INJECTION_ID_LOCATION = "ztoRgnIY";
+  
 
   private trackingSet: TrackingSet;
   decodedItems: Array<DecodedItem> = [];
   logs: Array<ProductivityLog> = [];
-  dailyEntryLogs : Array<ProductivityEntryPerDay> = [];
 
   productivityColorScale: ScaleLinear<d3.RGBColor, string>
 
@@ -30,9 +35,17 @@ export class ProductivityDashboardComponent implements OnInit {
     this.trackingSet = trackingSet;
 
     if (trackingSet) {
+
+      const taskEntries = this.getChoiceEntryListByAttrInjectionId(trackingSet.tracker, this.INJECTION_ID_TASKS)
+      const locationEntries = this.getChoiceEntryListByAttrInjectionId(trackingSet.tracker, this.INJECTION_ID_LOCATION)
+      const deviceEntries = this.getChoiceEntryListByAttrInjectionId(trackingSet.tracker, this.INJECTION_ID_USED_DEVICES)
+
+      console.log(taskEntries)
+      console.log(locationEntries)
+      console.log(deviceEntries)
+
       const decodedItems: Array<DecodedItem> = []
       const logs: Array<ProductivityLog> = []
-      const dailyLogs: Array<ProductivityEntryPerDay> = []
       trackingSet.items.forEach(item => {
         const _pivotType : Array<number> = this.getAttributeValueByInjectionId(trackingSet.tracker, item, this.INJECTION_ID_PIVOT_TYPE);
         const pivotType : number = (_pivotType && _pivotType.length > 0)? _pivotType[0] : null
@@ -48,9 +61,11 @@ export class ProductivityDashboardComponent implements OnInit {
         const productivity = (_productivity && _productivity.length > 0) ? _productivity[0] : null
 
         if(pivotType!=null && pivotTime!=null && duration!=null && productivity!=null){
-          //put decoded items
-          decodedItems.push({productivity: productivity, duration: duration, item: item})
           
+          const _taskIds = this.getAttributeValueByInjectionId(trackingSet.tracker, item, this.INJECTION_ID_TASKS);
+          const _locationIds = this.getAttributeValueByInjectionId(trackingSet.tracker, item, this.INJECTION_ID_LOCATION)
+          const _deviceIds = this.getAttributeValueByInjectionId(trackingSet.tracker, item, this.INJECTION_ID_USED_DEVICES)
+
           const pivotMoment = pivotTime.toMoment()
           var startMoment: Moment
           var endMoment: Moment
@@ -76,11 +91,18 @@ export class ProductivityDashboardComponent implements OnInit {
 
           //Make daily entry logs
           const dominantDate = (startRatio + endDiffRatio)*.5 <= 1? startDayStart.toDate() : endMoment.clone().startOf('day').toDate()
-          dailyLogs.push({
-            date: dominantDate,
-            dateNumber: dominantDate.getTime(),
-            item: item
-          })
+          
+          decodedItems.push(
+            {
+              productivity: productivity, 
+              duration: duration, 
+              dominantDate: dominantDate,
+              dominantDateNumber: dominantDate.getTime(),
+              usedDevices: _deviceIds? _deviceIds.map(id => deviceEntries.entries.find(d => d.id=== id).val) : [],
+              location: (_locationIds && _locationIds.length > 0)? locationEntries.entries.find(l => l.id === _locationIds[0]).val : null,
+              tasks: _taskIds ? _taskIds.map(id => taskEntries.entries.find(d => d.id === id).val) : [],
+              item: item
+            })
           
           //Make timeline logs
           logs.push(
@@ -111,9 +133,12 @@ export class ProductivityDashboardComponent implements OnInit {
       });
 
       this.logs = logs
-      this.dailyEntryLogs = dailyLogs
       this.decodedItems = decodedItems
     }
+  }
+
+  getChoiceEntryListByAttrInjectionId(tracker: ITrackerDbEntity, injectionId: string): any{
+    return PropertyHelperManager.getHelper(EPropertyType.ChoiceEntryList).deserializePropertyValue(tracker.attributes.find(attr => attr.flags.injectionId === injectionId).properties.find(prop=>prop.key == ChoiceAttributeHelper.PROPERTY_ENTRIES).sVal)
   }
 
   getAttributeValueByInjectionId(
@@ -154,6 +179,11 @@ export type TrackingSet = {
 export type DecodedItem = {
   productivity: number,
   duration: number,
+  usedDevices: ArrayLike<string>,
+  tasks: ArrayLike<string>,
+  location: string,
+  dominantDate: Date,
+  dominantDateNumber: number,
   item: IItemDbEntity
 }
 
