@@ -22,7 +22,6 @@ export class ProductivityDurationPerVariableComponent implements OnInit {
     const targetValues = data.isArray === true ? 
       unique(decodedItems.map(item => item[data.variableName]).reduce((flat, arr)=>{ return flat.concat(arr) }))
       : unique(decodedItems.map(item => item[data.variableName]) as any)
-      console.log(targetValues)
     
     const productivities = unique(decodedItems.map(item => item.productivity));
     productivities.sort();
@@ -31,7 +30,6 @@ export class ProductivityDurationPerVariableComponent implements OnInit {
     for (let target of Object.keys(variableGrouped)) {
       const totalDuration = d3.sum(variableGrouped[target], (d: any) => d.duration);
       const productivityGrouped = groupArray(variableGrouped[target], "productivity");
-      console.log(productivityGrouped);
       const logsPerProductivity = productivities.map(productivity => {
         const arr = productivityGrouped[productivity.toString()]
         return {
@@ -41,16 +39,14 @@ export class ProductivityDurationPerVariableComponent implements OnInit {
           ) : 0
         };
       });
-      console.log(logsPerProductivity);
       variableBasedArray.push({target: target, totalDuration: totalDuration, logsPerProductivity: logsPerProductivity})
     }
 
     variableBasedArray.sort((a, b) => b.totalDuration - a.totalDuration )
-    console.log(variableBasedArray)
     
     const chartOptions = HighChartsHelper.makeDefaultChartOptions('bar', '70%')
     chartOptions.xAxis = {
-      categories: targetValues
+      categories: variableBasedArray.map(elm => elm.target)
     }
 
     chartOptions.yAxis = {
