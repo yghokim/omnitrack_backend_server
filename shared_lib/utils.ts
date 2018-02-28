@@ -120,3 +120,30 @@ export function compareVersions(versionString1: string, versionString2: string):
     return -1
   } else { return 0 }
 }
+
+export function groupArrayByVariable(array, variableName): any{
+  const result = {}
+
+  array.forEach(elm => {
+    if(Array.isArray(elm[variableName]) === true)
+    {
+      elm[variableName].forEach(value=>{
+        if(result[value]){
+          result[value].push(elm)
+        }
+        else{
+          result[value] = [elm]
+        }
+      })
+    }
+    else{
+      if(result[elm[variableName]]){
+        result[elm[variableName]].push(elm)
+      }
+      else{
+        result[elm[variableName]] = [elm]
+      }
+    }
+  })
+  return result
+}

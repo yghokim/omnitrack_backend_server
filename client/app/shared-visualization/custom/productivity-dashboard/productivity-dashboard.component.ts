@@ -311,4 +311,37 @@ export class ProductivityHelper {
       return hour + "시간" + " " + minute + "분";
     }
   }
+
+  static extractDurationBinsAndHistogram(decodedItems: Array<DecodedItem>): {ranges: Array<{ from: number, to: number }>, hist: any}{
+    const durationRange = d3.extent<number>(decodedItems.map(d => d.duration))
+
+    const maxTickCount = 10
+    var currentTickUnit = 0.5
+    while ((durationRange[1] / 60) / currentTickUnit > maxTickCount - 1) {
+      currentTickUnit *= 2
+    }
+    var numTicks = 1
+    while (durationRange[1] / 60 >= numTicks * currentTickUnit) {
+      numTicks++
+    }
+
+    const binBounds = d3.range(0, 60 * (numTicks + 1) * currentTickUnit, currentTickUnit * 60)
+
+    const durationRanges = Array<{ from: number, to: number }>()
+    for (let i = 0; i < binBounds.length - 1; i++) {
+      durationRanges.push({ from: binBounds[i], to: binBounds[i + 1] })
+    }
+
+    const hist = d3.histogram<DecodedItem, number>().value((d, i, data) => d.duration).thresholds(binBounds)
+    return {ranges: durationRanges, hist: hist}
+  }
+
+  static timeRangeToText(range: {from:number, to: number}): string
+  {
+    if (range.from <= 0) {
+      return "<" + (range.to / 60).toFixed(1) + "시간"
+    } else {
+      return (range.from / 60).toFixed(1) + " ~ " + (range.to / 60).toFixed(1) + "시간"
+    }
+  }
 }

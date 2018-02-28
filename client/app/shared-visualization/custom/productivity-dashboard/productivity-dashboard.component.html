@@ -14,9 +14,9 @@
 
   <app-productivity-timeline [productivityColorScale]="productivityColorScale" [logs]="logs"></app-productivity-timeline>
 
-  <div class="flex-container flex-container-wrap flex-padded-content flex-container-responsive-columns_two">
+  <div class="columned-chart-group flex-container flex-container-wrap flex-padded-content flex-container-responsive-columns_two">
     <div>
-      <app-productivity-entry-per-day [decodedItems] = "decodedItems"></app-productivity-entry-per-day>
+      <app-productivity-entry-per-day [decodedItems]="decodedItems"></app-productivity-entry-per-day>
     </div>
     <div>
       <app-productivity-duration-stacked-bar-chart [decodedItems]="decodedItems"></app-productivity-duration-stacked-bar-chart>
@@ -24,14 +24,14 @@
     <div>
       <app-productivity-duration-per-variable title="장소별 작업시간" [data]="{'decodedItems': decodedItems, 'variableName': 'location', 'isArray': false}"></app-productivity-duration-per-variable>
     </div>
-    
+
     <div>
-        <app-productivity-duration-per-variable title="기기별 작업시간" [data]="{'decodedItems': decodedItems, 'variableName': 'usedDevices', 'isArray': true}"></app-productivity-duration-per-variable>
-      </div>
+      <app-productivity-duration-per-variable title="기기별 작업시간" [data]="{'decodedItems': decodedItems, 'variableName': 'usedDevices', 'isArray': true}"></app-productivity-duration-per-variable>
+    </div>
   </div>
 
-  <div class="flex-container flex-container-wrap flex-padded-content flex-container-responsive-columns_two" style="margin-top:0.8rem">
-    
-  </div>
+  <app-productivity-task-heatmap [decodedItems]="decodedItems"></app-productivity-task-heatmap>
+
+
 
 </div>

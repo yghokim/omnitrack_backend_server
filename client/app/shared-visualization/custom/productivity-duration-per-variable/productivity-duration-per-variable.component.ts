@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from "@angular/core";
 import { DecodedItem, ProductivityHelper } from '../productivity-dashboard/productivity-dashboard.component';
 import d3 = require("d3");
-import { unique } from "../../../../../shared_lib/utils";
+import { unique, groupArrayByVariable } from "../../../../../shared_lib/utils";
 import * as groupArray from "group-array";
 import { HighChartsHelper } from '../../highcharts-helper';
 import { Chart } from "angular-highcharts";
@@ -26,7 +26,7 @@ export class ProductivityDurationPerVariableComponent implements OnInit {
     
     const productivities = unique(decodedItems.map(item => item.productivity));
     productivities.sort();
-    const variableGrouped = this.groupArrayByVariable(decodedItems, data.variableName);
+    const variableGrouped = groupArrayByVariable(decodedItems, data.variableName);
     const variableBasedArray = Array<{target: string, totalDuration: number, logsPerProductivity: Array<any>}>()
     for (let target of Object.keys(variableGrouped)) {
       const totalDuration = d3.sum(variableGrouped[target], (d: any) => d.duration);
@@ -105,31 +105,4 @@ export class ProductivityDurationPerVariableComponent implements OnInit {
   constructor() {}
 
   ngOnInit() {}
-
-  private groupArrayByVariable(array, variableName): any{
-    const result = {}
-
-    array.forEach(elm => {
-      if(Array.isArray(elm[variableName]) === true)
-      {
-        elm[variableName].forEach(value=>{
-          if(result[value]){
-            result[value].push(elm)
-          }
-          else{
-            result[value] = [elm]
-          }
-        })
-      }
-      else{
-        if(result[elm[variableName]]){
-          result[elm[variableName]].push(elm)
-        }
-        else{
-          result[elm[variableName]] = [elm]
-        }
-      }
-    })
-    return result
-  }
 }

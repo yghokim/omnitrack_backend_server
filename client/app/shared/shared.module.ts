@@ -2,7 +2,8 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { ChartModule } from 'angular-highcharts';
+import { ChartModule, HIGHCHARTS_MODULES } from 'angular-highcharts';
+import * as heatmap from 'highcharts/modules/heatmap.src';
 
 import { ToastComponent } from './toast/toast.component';
 import { LoadingComponent } from './loading/loading.component';
@@ -17,6 +18,7 @@ import { ProductivityDashboardComponent } from '../shared-visualization/custom/p
 import { ProductivityEntryPerDayComponent } from '../shared-visualization/custom/productivity-entry-per-day/productivity-entry-per-day.component';
 import { ProductivityDurationStackedBarChartComponent } from '../shared-visualization/custom/productivity-duration-stacked-bar-chart/productivity-duration-stacked-bar-chart.component';
 import { ProductivityDurationPerVariableComponent } from '../shared-visualization/custom/productivity-duration-per-variable/productivity-duration-per-variable.component';
+import { ProductivityTaskHeatmapComponent } from '../shared-visualization/custom/productivity-task-heatmap/productivity-task-heatmap.component';
 
 @NgModule({
   imports: [
@@ -59,10 +61,12 @@ import { ProductivityDurationPerVariableComponent } from '../shared-visualizatio
     ProductivityDashboardComponent,
     ProductivityEntryPerDayComponent,
     ProductivityDurationStackedBarChartComponent,
-    ProductivityDurationPerVariableComponent
+    ProductivityDurationPerVariableComponent,
+    ProductivityTaskHeatmapComponent
   ],
   providers: [
-    ToastComponent
+    ToastComponent,
+    {provide: HIGHCHARTS_MODULES, useFactory:()=>[heatmap]}
   ]
 })
 export class SharedModule { }
