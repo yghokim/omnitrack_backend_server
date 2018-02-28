@@ -30,8 +30,7 @@ import { EndUserModule } from './end-user.module';
     NotFoundComponent,
     YesNoDialogComponent,
     TextInputDialogComponent,
-    BusyOverlayComponent,
-    ClientDownloadComponent
+    BusyOverlayComponent
   ],
   imports: [
     OAuthModule.forRoot(),

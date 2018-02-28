@@ -17,7 +17,6 @@ export class ProductivityDurationStackedBarChartComponent implements OnInit {
 
   @Input('decodedItems')
   set _decodedItems(decodedItems: Array<DecodedItem>) {
-    console.log(decodedItems)
     const durationRange = d3.extent<number>(decodedItems.map(d => d.duration))
 
     const maxTickCount = 10
@@ -30,7 +29,6 @@ export class ProductivityDurationStackedBarChartComponent implements OnInit {
       numTicks++
     }
 
-    console.log("tickUnit: " + currentTickUnit + ", numTicks: " + numTicks)
     const binBounds = d3.range(0, 60 * (numTicks + 1) * currentTickUnit, currentTickUnit * 60)
 
     const durationRanges = Array<{ from: number, to: number }>()
@@ -43,7 +41,6 @@ export class ProductivityDurationStackedBarChartComponent implements OnInit {
 
     const series = []
     const productivityGrouped = groupArray(decodedItems, "productivity")
-    console.log(productivityGrouped)
     for (let productivity of Object.keys(productivityGrouped)) {
       const binned = hist(productivityGrouped[productivity])
 
@@ -61,8 +58,6 @@ export class ProductivityDurationStackedBarChartComponent implements OnInit {
         color: productivityColor
       })
     }
-
-    console.log(series)
 
     const chartOptions = HighChartsHelper.makeDefaultChartOptions('column')
 

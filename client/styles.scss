@@ -167,6 +167,11 @@ body {
   margin-bottom: 10px;
 }
 
+a.no-text-effect{
+  text-decoration: initial;
+  color: inherit;
+}
+
 .research-main-fixed-header {
   position: fixed;
   z-index: 10;
@@ -297,7 +302,11 @@ body {
   padding-bottom: 1em;
 }
 
-
+.hide_on_mobile{
+  @media screen and (max-width: 575px) {
+    display: none !important;
+  } // Small devices (landscape phones, less than 768px)
+}
 
 .container-vertical-padding {
   padding-top: 0.5em;

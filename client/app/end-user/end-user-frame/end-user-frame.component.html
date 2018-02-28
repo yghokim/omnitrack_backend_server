@@ -10,7 +10,7 @@
         [matMenuTriggerFor]="profileMenu" >
 
         <div class="flex-container flex-align-items-center profile">
-          <div class="text-right">
+          <div class="text-right profile-text hide_on_mobile">
             <div class="small font-weight-bold">{{user.displayName}}</div>
             <div class="small">{{user.email}}</div>
           </div>
@@ -21,6 +21,7 @@
         </div>
       </div>
       <mat-menu [overlapTrigger]="false" #profileMenu="matMenu">
+        <a class="no-text-effect" mat-menu-item [routerLink]="['/downloads']">Client Download</a>
         <button mat-menu-item (click)="signOutClicked()">Sign Out</button>
       </mat-menu>
     </div>

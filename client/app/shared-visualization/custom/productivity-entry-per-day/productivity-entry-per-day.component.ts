@@ -21,13 +21,11 @@ export class ProductivityEntryPerDayComponent implements OnInit {
   @Input("decodedItems")
   set _logs(logs: Array<DecodedItem>) {
     const days = D3Helper.makeDateSequence(logs.map(l => l.dominantDate))
-    console.log(days)
     const groups = days.map(day => {
       return {date: day, logs: logs.filter(l => l.dominantDateNumber === day.getTime()) }
     })
 
     groups.sort((a, b) => a.date.getTime() - b.date.getTime())
-    console.log(groups)
 
     const chartOptions = HighChartsHelper.makeDefaultChartOptions('column')
     chartOptions.tooltip = {
@@ -38,7 +36,6 @@ export class ProductivityEntryPerDayComponent implements OnInit {
       categories: days,
       labels:{
         formatter: function(){
-          console.log("chart label" + this)
           return moment(this.value).format("MM/DD")
         }
       }

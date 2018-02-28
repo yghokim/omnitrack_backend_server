@@ -76,7 +76,6 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
     }
 
     this.isBusy = false
-    console.log(logs)
   }
 
   @ViewChild("xAxisGroup") xAxisGroup: ElementRef

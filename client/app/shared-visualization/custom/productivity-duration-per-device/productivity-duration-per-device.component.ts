@@ -10,7 +10,6 @@ export class ProductivityDurationPerDeviceComponent implements OnInit {
 
   @Input('decodedItems')
   set _decodedItems(decodedItems: Array<DecodedItem>) {
-    console.log(decodedItems)
   }
 
   public chart

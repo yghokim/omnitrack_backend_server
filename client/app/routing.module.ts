@@ -36,7 +36,7 @@ import { EndUserTrackerListComponent } from './end-user/end-user-tracker-list/en
 import { EndUserTriggerListComponent } from './end-user/end-user-trigger-list/end-user-trigger-list.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'downloads', pathMatch: 'full' },
+  { path: '', redirectTo: 'downloads', pathMatch: 'full', canActivate: [EndUserAuthToMainGuard] },
   { path: 'downloads', component: ClientDownloadComponent},
 
   { path: 'tracking', component: EndUserFrameComponent, 
