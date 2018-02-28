@@ -49,7 +49,9 @@ export class ProductivityEntryPerDayComponent implements OnInit {
       },
       labels: {
         padding: 0
-      }
+      },
+      minorTicks: true,
+      minorTickInterval: 1
     }
     chartOptions.legend = {
       enabled: false

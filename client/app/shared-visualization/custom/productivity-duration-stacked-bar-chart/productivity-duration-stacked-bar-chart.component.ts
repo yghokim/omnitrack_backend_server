@@ -94,7 +94,9 @@ export class ProductivityDurationStackedBarChartComponent implements OnInit {
       },
       labels: {
         padding: 0
-      }
+      },
+      minorTicks: true,
+      minorTickInterval: 1
     }
     chartOptions.series = series
 

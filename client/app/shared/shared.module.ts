@@ -16,7 +16,7 @@ import { MaterialDesignModule } from '../material-design.module';
 import { ProductivityDashboardComponent } from '../shared-visualization/custom/productivity-dashboard/productivity-dashboard.component';
 import { ProductivityEntryPerDayComponent } from '../shared-visualization/custom/productivity-entry-per-day/productivity-entry-per-day.component';
 import { ProductivityDurationStackedBarChartComponent } from '../shared-visualization/custom/productivity-duration-stacked-bar-chart/productivity-duration-stacked-bar-chart.component';
-import { ProductivityDurationPerLocationComponent } from '../shared-visualization/custom/productivity-duration-per-location/productivity-duration-per-location.component';
+import { ProductivityDurationPerVariableComponent } from '../shared-visualization/custom/productivity-duration-per-variable/productivity-duration-per-variable.component';
 
 @NgModule({
   imports: [
@@ -47,7 +47,7 @@ import { ProductivityDurationPerLocationComponent } from '../shared-visualizatio
     D3ChartFrameComponent,
     ProductivityDashboardComponent,
     ProductivityTimelineComponent,
-    ProductivityDurationPerLocationComponent
+    ProductivityDurationPerVariableComponent
   ],
   declarations: [
     ToastComponent,
@@ -59,7 +59,7 @@ import { ProductivityDurationPerLocationComponent } from '../shared-visualizatio
     ProductivityDashboardComponent,
     ProductivityEntryPerDayComponent,
     ProductivityDurationStackedBarChartComponent,
-    ProductivityDurationPerLocationComponent
+    ProductivityDurationPerVariableComponent
   ],
   providers: [
     ToastComponent

@@ -22,8 +22,12 @@
       <app-productivity-duration-stacked-bar-chart [decodedItems]="decodedItems"></app-productivity-duration-stacked-bar-chart>
     </div>
     <div>
-      <app-productivity-duration-per-location [decodedItems]="decodedItems"></app-productivity-duration-per-location>
+      <app-productivity-duration-per-variable title="장소별 작업시간" [data]="{'decodedItems': decodedItems, 'variableName': 'location', 'isArray': false}"></app-productivity-duration-per-variable>
     </div>
+    
+    <div>
+        <app-productivity-duration-per-variable title="기기별 작업시간" [data]="{'decodedItems': decodedItems, 'variableName': 'usedDevices', 'isArray': true}"></app-productivity-duration-per-variable>
+      </div>
   </div>
 
   <div class="flex-container flex-container-wrap flex-padded-content flex-container-responsive-columns_two" style="margin-top:0.8rem">
