@@ -52,7 +52,7 @@ export class ProductivityTaskHeatmapComponent implements OnInit {
       });
     });
 
-    const chartOptions = HighChartsHelper.makeDefaultChartOptions("heatmap");
+    const chartOptions = HighChartsHelper.makeDefaultChartOptions("heatmap", this.getChartHeightParam(this.mainContainer.nativeElement.clientWidth));
 
     chartOptions.xAxis = {
       categories: taskBasedArray.map(elm => elm.task)
@@ -108,6 +108,12 @@ export class ProductivityTaskHeatmapComponent implements OnInit {
   }
 
   onWidth(width: number){
-    this.chart.options.chart.height = width >= 500? "40%" : null
+    this.chart.options.chart.height = this.getChartHeightParam(width)
   }
+
+  private getChartHeightParam(width: number){
+    return width >= 500? "40%" : null
+  }
+
+
 }
