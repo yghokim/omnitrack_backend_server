@@ -1,0 +1,19 @@
+<div class="container">
+  <div class="card card-main">
+    <div class="card-header text-center">
+      <div class="flex-container flex-align-items-center" style="min-width:50%">
+        <button mat-button (click)="onNavClicked(-1)">
+          <span class="material-icons">keyboard_arrow_left</span>
+        </button>
+        <mat-select [(value)]="selectedParticipantId" required="true" (selectionChange)="onParticipantSelectionChanged($event)">
+          <mat-option *ngFor="let participant of participants" [value]="participant._id">
+            <b>{{participant.alias}}</b> (Started {{participant.approvedAt | date: 'short'}})</mat-option>
+        </mat-select>
+        <button mat-button (click)="onNavClicked(+1)">
+          <span class="material-icons">keyboard_arrow_right</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <app-productivity-dashboard [trackingSet]="productivityTrackingSet"></app-productivity-dashboard>
+</div>
