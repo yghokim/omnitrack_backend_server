@@ -52,6 +52,11 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
           icon: 'timeline'
         },
         {
+          name: 'Detailed Overview',
+          key: 'detailed-overview',
+          icon: 'timeline'
+        },
+        {
           name: 'Self-Tracking Data',
           key: 'tracking-data',
           icon: 'view_list'

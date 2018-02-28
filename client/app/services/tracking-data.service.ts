@@ -87,8 +87,6 @@ export class TrackingDataService implements OnInit, OnDestroy{
     this._internalSubscriptions.add(
       this.http.get(this.makeEntitiesQueryUrl(modelPath), this.api.makeAuthorizedRequestOptions({userId: userId})).subscribe(
         entities=>{
-          console.log('loadedEntity:')
-          console.log(entities.json())
           subject.next(entities.json())
         }
       )
