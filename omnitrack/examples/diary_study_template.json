@@ -304,7 +304,7 @@
       "user": "%{OWNER_0}%",
       "condition": {
         "endAt": null,
-        "dow": 127,
+        "dow": 62,
         "repeat": true,
         "iEndHr": 12,
         "iStartHr": 9,
