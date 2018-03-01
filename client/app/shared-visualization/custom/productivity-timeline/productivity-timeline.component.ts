@@ -36,6 +36,7 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
   readonly ROW_HEIGHT = 40
 
   readonly TIME_OF_DAY_TICKS = [0, 3 / 24, 6 / 24, 9 / 24, 12 / 24, 15 / 24, 18 / 24, 21 / 24, 1]
+  readonly TIME_OF_DAY_MINORTICKS = d3.range(0, 1, 1/24)
 
   private readonly _internalSubscriptions = new Subscription()
 
@@ -171,6 +172,7 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
 
     groupSelection.exit().remove()
 
+
     const durationCellSelection = groupSelection.merge(enter)
       .selectAll("rect.duration").data(d => { return d.logs })
 
@@ -245,6 +247,22 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
 
 
     durationCellSelection.exit().remove()
+
+    
+    enter.append("g")
+      .attr("class", "ticks")
+      .attr("pointer-events", "none")
+      .selectAll("line.tick").data(this.TIME_OF_DAY_TICKS.slice(1, this.TIME_OF_DAY_TICKS.length-1)).enter().append("line").attr("class", "tick")
+
+      console.log("ticks")
+      mainSelection.selectAll("line.tick")
+        .attr("x1", (d: any) => this.timeOfDayScale(d))
+        .attr("x2", (d: any) => this.timeOfDayScale(d))
+        .attr("y1", 0)
+        .attr("y2", this.dateScale.bandwidth())
+        .attr("stroke", "#000")
+        .attr("opacity", 0.12)
+        .attr("stroke-width", "1px")
   }
 
   makeTranslate(x: number, y: number): string {
