@@ -1,7 +1,9 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Inject } from '@angular/core';
 import { ITrackerDbEntity, IAttributeDbEntity } from '../../../../omnitrack/core/db-entity-types';
 import { ResearchApiService } from '../../services/research-api.service';
 import { Subscription } from 'rxjs/Subscription';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { ImageViewDialog } from './image-view-dialog/image-view-dialog.component';
 
 @Component({
   selector: 'app-image-cell',
@@ -11,6 +13,13 @@ import { Subscription } from 'rxjs/Subscription';
 export class ImageCellComponent implements OnInit {
 
   private _internalSubscriptions = new Subscription();
+  private imageSource: String;
+  private imageToShow: any;
+
+  constructor(private api: ResearchApiService, public dialog: MatDialog) { }
+
+  ngOnInit() {
+  }
 
   @Input("mediaInfo")
   set _mediaInfo(info: {trackerId: string, attributeLocalId: string, itemId: string }){
@@ -18,16 +27,30 @@ export class ImageCellComponent implements OnInit {
     console.log(info.itemId)
     this._internalSubscriptions.add(
       this.api.getMedia(info.trackerId, info.attributeLocalId, info.itemId, "original").subscribe(response => {
-        console.log(response)
+        this.createImageFromBlob(response);
       }, err => {
         console.log("image media load error: " + err)
       })
     )
   }
 
-  constructor(private api: ResearchApiService) { }
+  createImageFromBlob(image: Blob) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+       this.imageToShow = reader.result;
+    }, false);
 
-  ngOnInit() {
+    if (image) {
+       reader.readAsDataURL(image);
+    }
   }
 
+  openImage(): void {
+    let dialogRef = this.dialog.open(ImageViewDialog, {
+      data: {image: this.imageToShow }
+    });
+  }
+
+
 }
+

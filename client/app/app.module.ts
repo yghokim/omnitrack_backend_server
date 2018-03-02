@@ -22,6 +22,7 @@ import { SVGEllipsisDirective } from './directives/svgellipsis.directive';
 import { TableCellValueComponent } from './components/table-cell-value/table-cell-value.component';
 import { ClientDownloadComponent } from './client-download/client-download.component';
 import { EndUserModule } from './end-user.module';
+import { ImageViewDialog } from './experiment-data/image-cell/image-view-dialog/image-view-dialog.component';
 
 
 @NgModule({
@@ -30,7 +31,9 @@ import { EndUserModule } from './end-user.module';
     NotFoundComponent,
     YesNoDialogComponent,
     TextInputDialogComponent,
-    BusyOverlayComponent
+    BusyOverlayComponent,
+    ClientDownloadComponent,
+    ImageViewDialog
   ],
   imports: [
     OAuthModule.forRoot(),
@@ -47,7 +50,8 @@ import { EndUserModule } from './end-user.module';
   ],
   entryComponents: [
     YesNoDialogComponent,
-    TextInputDialogComponent
+    TextInputDialogComponent,
+    ImageViewDialog
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent]
