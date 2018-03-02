@@ -125,7 +125,7 @@
           "fallbackPolicy": 0,
           "fallbackPreset": null,
           "connection": null,
-          "lockedProperties": { "delete": true, "edit": false, "visibility": true },
+          "lockedProperties": { "delete": true, "edit": true, "visibility": true },
           "flags": { "injected": true, "injectionId": "QizUYovc" }
         },
         {
@@ -164,7 +164,7 @@
           "name": "일한 장소",
           "isRequired": false,
           "position": 0,
-          "fallbackPolicy": 0,
+          "fallbackPolicy": 1,
           "fallbackPreset": null,
           "connection": null,
           "flags": { "injected": true, "injectionId": "ztoRgnIY" }
@@ -174,6 +174,7 @@
           "isInTrashcan": false,
           "properties": [
             { "key": "multiSelection", "sVal": "true" },
+            { "key": "allowAppendingFromView", "sVal": "true" },
             {
               "key": "entries",
               "sVal":
@@ -190,6 +191,7 @@
           "fallbackPolicy": 0,
           "fallbackPreset": null,
           "connection": null,
+          "lockedProperties": { "delete": true, "visibility": true },
           "flags": { "injected": true, "injectionId": "KJeafavG" }
         },
         {
@@ -302,7 +304,7 @@
       "user": "%{OWNER_0}%",
       "condition": {
         "endAt": null,
-        "dow": 127,
+        "dow": 62,
         "repeat": true,
         "iEndHr": 12,
         "iStartHr": 9,

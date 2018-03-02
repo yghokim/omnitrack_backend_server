@@ -15,6 +15,7 @@ import { EndUserAuthToMainGuard } from './end-user/services/end-user-auth-to-mai
 import { EndUserDashboardComponent } from './end-user/end-user-dashboard/end-user-dashboard.component';
 import { EndUserTrackerListComponent } from './end-user/end-user-tracker-list/end-user-tracker-list.component';
 import { EndUserTriggerListComponent } from './end-user/end-user-trigger-list/end-user-trigger-list.component';
+import { ClientDownloadComponent } from './client-download/client-download.component';
 
 @NgModule({
   imports: [
@@ -27,7 +28,15 @@ import { EndUserTriggerListComponent } from './end-user/end-user-trigger-list/en
   exports: [
 
   ],
-  declarations: [EndUserHomeComponent, EndUserSignInComponent, EndUserFrameComponent, EndUserDashboardComponent, EndUserTrackerListComponent, EndUserTriggerListComponent],
+  declarations: [
+    EndUserHomeComponent, 
+    EndUserSignInComponent, 
+    EndUserFrameComponent, 
+    EndUserDashboardComponent, 
+    EndUserTrackerListComponent, 
+    EndUserTriggerListComponent,
+    ClientDownloadComponent
+  ],
   providers: [EndUserApiService, EndUserAuthCheckGuard, EndUserAuthToMainGuard],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: []

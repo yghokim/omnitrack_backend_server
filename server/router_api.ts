@@ -120,12 +120,13 @@ const router = express.Router();
   // Items
   router.route("/trackers/:trackerId/items").get(firebaseMiddleware.auth, itemCtrl.getAllOfTracker)
 
-  /*
-  router.route('/items/all').get(itemCtrl.getAll)
-  router.route('/users/all').get(userCtrl.getAll)
-  router.route('/trackers/all').get(trackerCtrl.getAll)
-  router.route('/triggers/all').get(triggerCtrl.getAll)
+  
+router.route('/debug/items/all').get(itemCtrl.getAll)
+router.route('/debug/users/all').get(userCtrl.getAll)
+router.route('/debug/trackers/all').get(trackerCtrl.getAll)
+router.route('/debug/triggers/all').get(triggerCtrl.getAll)
 
+  /*
   router.route('/usage/logs/').get(usageLogCtrl.getAll)
 
   router.route('/users/destroy').get(userCtrl.destroy)

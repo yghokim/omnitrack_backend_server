@@ -5,6 +5,9 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { D3Helper } from '../../d3-helper';
 import * as moment from 'moment-timezone';
 import * as groupArray from 'group-array';
+import { merge } from '../../../../../shared_lib/utils';
+import { HighChartsHelper } from '../../highcharts-helper';
+import { DecodedItem } from '../productivity-dashboard/productivity-dashboard.component';
 
 @Component({
   selector: 'app-productivity-entry-per-day',
@@ -15,63 +18,50 @@ export class ProductivityEntryPerDayComponent implements OnInit {
 
   private readonly data = new BehaviorSubject<ProductivityEntryPerDayData>(null)
 
-  @Input("logs")
-  set _logs(logs: Array<ProductivityEntryPerDay>) {
-    const days = D3Helper.makeDateSequence(logs.map(l => l.date))
-    console.log(days)
+  @Input("decodedItems")
+  set _logs(logs: Array<DecodedItem>) {
+    const days = D3Helper.makeDateSequence(logs.map(l => l.dominantDate))
     const groups = days.map(day => {
-      return {date: day, logs: logs.filter(l => l.dateNumber === day.getTime()) }
+      return {date: day, logs: logs.filter(l => l.dominantDateNumber === day.getTime()) }
     })
 
     groups.sort((a, b) => a.date.getTime() - b.date.getTime())
-    console.log(groups)
 
-    this.chart = new Chart({
-      chart: { type: 'column', height: '70%' },
+    const chartOptions = HighChartsHelper.makeDefaultChartOptions('column')
+    chartOptions.tooltip = {
+      valueSuffix: ' 개의 기록'
+    }
+
+    chartOptions.xAxis = {
+      categories: days,
+      labels:{
+        formatter: function(){
+          return moment(this.value).format("MM/DD")
+        }
+      }
+    }
+    chartOptions.yAxis = {
+      allowDecimals: false,
+      min: 0,
       title: {
-        text: '',
-        style: {
-          display: 'none'
-        }
-      }, 
-      subtitle: {
-        text: '',
-        style: {
-          display: 'none'
-        }
+        text: "로그 수",
+        margin:5
       },
-      colors: ['#84315d'],
-      credits: { enabled: false },
-      tooltip: {
-        valueSuffix: ' 개의 기록'
+      labels: {
+        padding: 0
       },
-      xAxis: {
-        categories: days,
-        labels:{
-          formatter: function(){
-            return moment(this.value).format("MM/DD")
-          }
-        }
-      },
-      yAxis: {
-        allowDecimals: false,
-        min: 0,
-        title: {
-          text: "로그 수",
-          margin:5
-        },
-        labels: {
-          padding: 0
-        }
-      },
-      legend: {
-        enabled: false
-      },
-      series: [{
-        name: "생산성 로그",
-        data: groups.map(g=>g.logs.length)
-      }],
-    })
+      minorTicks: true,
+      minorTickInterval: 1
+    }
+    chartOptions.legend = {
+      enabled: false
+    }
+    chartOptions.series = [{
+      name: "생산성 로그",
+      data: groups.map(g=>g.logs.length)
+    }]
+
+    this.chart = new Chart(chartOptions)
   }
 
   public chart
@@ -84,12 +74,6 @@ export class ProductivityEntryPerDayComponent implements OnInit {
 }
 
 export type ProductivityEntryPerDayData = {
-  logs: Array<{ date: Date, logs: Array<ProductivityEntryPerDay> }>,
+  logs: Array<{ date: Date, logs: Array<DecodedItem> }>,
   days: Array<Date>
-}
-
-export type ProductivityEntryPerDay = {
-  item: IItemDbEntity,
-  date: Date,
-  dateNumber: number
 }

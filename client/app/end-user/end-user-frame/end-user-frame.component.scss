@@ -20,10 +20,14 @@
     padding-right: 0.8rem;
     cursor: pointer;
 
+
     .profile {
       height: 75%;
+
+      .profile-text{
+        margin-right: 0.7rem;
+      }
       .thumbnail {
-        margin-left: 0.7rem;
         height: 100%;
         overflow: hidden;
         border-radius: 50%;

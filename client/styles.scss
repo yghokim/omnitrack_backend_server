@@ -121,6 +121,29 @@ $visualization_heatmap_color_overflow: #173958;
   display: none;
 }
 
+.tooltip{
+  .arrow{
+  }
+  .tooltip-inner {
+    max-width: 300px;
+    /* If max-width does not work, try using width instead */
+    table.tooltip-content{
+
+      th, td{
+        text-align: left;
+        vertical-align: top;
+        padding-bottom: 0.5rem;
+      }
+    
+      th{
+        opacity: 0.75;
+        padding-right: 1rem;
+        white-space: nowrap;
+      }
+    }
+  }
+}
+
 $research_header_height: 45px;
 $research_sidebar_width: 185px;
 html {
@@ -142,6 +165,11 @@ body {
   background: initial;
   margin-top: 0px;
   margin-bottom: 10px;
+}
+
+a.no-text-effect{
+  text-decoration: initial;
+  color: inherit;
 }
 
 .research-main-fixed-header {
@@ -235,7 +263,7 @@ body {
 }
 
 .no-margin-bottom {
-  margin-bottom: 0;
+  margin-bottom: 0 !important;
 }
 
 .no-padding {
@@ -274,7 +302,11 @@ body {
   padding-bottom: 1em;
 }
 
-
+.hide_on_mobile{
+  @media screen and (max-width: 575px) {
+    display: none !important;
+  } // Small devices (landscape phones, less than 768px)
+}
 
 .container-vertical-padding {
   padding-top: 0.5em;

@@ -34,7 +34,6 @@ export class EndUserDashboardComponent implements OnInit, OnDestroy {
           this._internalSubscriptions.add(
             this.api.getItemsOfTracker(productivityTracker._id).subscribe(
               items=>{
-                console.log(items)
                 this.productivityTrackingSet = {tracker: productivityTracker, items: items}
               }
             )

@@ -7,6 +7,8 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class ChartFrameComponent implements OnInit {
 
+  @Input() cardClass: any = {}
+
   @Input() title: string = ""
 
   @Input() isBusy: boolean = true

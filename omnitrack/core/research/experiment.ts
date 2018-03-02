@@ -10,6 +10,7 @@ export class ExperimentConstants{
   static readonly PAGE_GROUPS = "groups"
   static readonly PAGE_OMNITRACK = "omnitrack"
   static readonly PAGE_SETTINGS = "settings"
+  static readonly PAGE_DETAILED_OVERVIEW = "detailed-overview"
   
 }
 
@@ -47,6 +48,7 @@ export class ExperimentPermissions{
     this.allowedPages[ExperimentConstants.PAGE_GROUPS] = true
     this.allowedPages[ExperimentConstants.PAGE_OMNITRACK] = true
     this.allowedPages[ExperimentConstants.PAGE_INVITATIONS] = true
+    this.allowedPages[ExperimentConstants.PAGE_DETAILED_OVERVIEW] = true
   }
 
   static fromJson(json: any): ExperimentPermissions{

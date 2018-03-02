@@ -28,22 +28,22 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   private userSubscriptions = new Subscription();
   private trackerSubscriptions = new Subscription();
 
-  private participants: Array<any> = [];
+  public participants: Array<any> = [];
 
-  private selectedParticipantId: string;
-  private selectedTracker: ITrackerDbEntity;
+  public selectedParticipantId: string;
+  public selectedTracker: ITrackerDbEntity;
 
-  private selectedTrackerIndex: number = 0;
+  public selectedTrackerIndex: number = 0;
 
-  private userTrackers: Array<ITrackerDbEntity> = [];
+  public userTrackers: Array<ITrackerDbEntity> = [];
 
-  private trackerDataSource: MatTableDataSource<IItemDbEntity>;
+  public trackerDataSource: MatTableDataSource<IItemDbEntity>;
 
-  private trackerItems: Array<IItemDbEntity> = [];
+  public trackerItems: Array<IItemDbEntity> = [];
 
   @ViewChild(MatSort) sort: MatSort;
 
-  private screenExpanded: boolean = false
+  public screenExpanded: boolean = false
 
   private tableSchema: Array<{
     localId: string;
@@ -174,7 +174,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
       } else return deserializedValue;
     } else return null;
   }
-  
+
   getTrackerColumns(tracker: ITrackerDbEntity): any[]{
     const temp = tracker.attributes.map((attribute)=>{return attribute.localId})
     return temp.concat('timestamp')
