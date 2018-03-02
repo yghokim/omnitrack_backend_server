@@ -1,2 +1,2 @@
- <img class="img-thumbnail" [src]="imageToShow" (click)="openImage()">
+ <img *ngIf="imageToShow" class="img-thumbnail" [src]="imageToShow" (click)="openImage()">
 
