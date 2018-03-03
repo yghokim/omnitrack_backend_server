@@ -5,7 +5,7 @@
         <button mat-button (click)="onNavClicked(-1)">
           <span class="material-icons">keyboard_arrow_left</span>
         </button>
-        <mat-select [(value)]="selectedParticipantId" required="true" (selectionChange)="onParticipantSelectionChanged($event)">
+        <mat-select [(value)]="selectedParticipantId" required="true">
           <mat-option *ngFor="let participant of participants" [value]="participant._id">
             <b>{{participant.alias}}</b> (Started {{participant.approvedAt | date: 'short'}})</mat-option>
         </mat-select>

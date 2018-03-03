@@ -32,7 +32,6 @@ import { ImageViewDialog } from './experiment-data/image-cell/image-view-dialog/
     YesNoDialogComponent,
     TextInputDialogComponent,
     BusyOverlayComponent,
-    ClientDownloadComponent,
     ImageViewDialog
   ],
   imports: [

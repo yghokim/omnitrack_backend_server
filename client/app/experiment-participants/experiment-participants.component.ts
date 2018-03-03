@@ -29,11 +29,11 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
   public hoveredParticipantId = null
 
   public isUserpoolAccessible: boolean = false
-  
+
   public participantDataSource: MatTableDataSource<any>;
   public userPoolDataSource: MatTableDataSource<any>;
-  @ViewChild(MatSort) participantSort: MatSort; 
-  @ViewChild('userpoolTable', {read: MatSort}) userPoolSort: MatSort;
+  @ViewChild(MatSort) participantSort: MatSort;
+  @ViewChild('userpoolTable', { read: MatSort }) userPoolSort: MatSort;
 
   private readonly _internalSubscriptions = new Subscription()
 
@@ -47,19 +47,19 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.flatMap(expService => expService.getMyPermissions())
         .subscribe(
-          permissions=>{
-            if(permissions){
+          permissions => {
+            if (permissions) {
               this.isUserpoolAccessible = permissions.access.userPool
             }
           }
         )
-    )    
+    )
   }
 
   ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
-    if(this.userPoolSubscription) this.userPoolSubscription.unsubscribe()
-    if(this.participantsSubscription) this.participantsSubscription.unsubscribe()
+    if (this.userPoolSubscription) this.userPoolSubscription.unsubscribe()
+    if (this.participantsSubscription) this.participantsSubscription.unsubscribe()
   }
 
   activeParticipantCount() {
@@ -142,7 +142,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
                   })
                 }
               }
-              )
+            )
           } else {
             // No invitation. Ask to make the invitation.
             this.dialog.open(YesNoDialogComponent, {
@@ -212,11 +212,11 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
         if (ok === true) {
           this.api.selectedExperimentService.flatMap(expService => expService.removeParticipant(participantId))
             .subscribe(
-            removed => {
-              if (removed) {
-                this.participants.splice(this.participants.findIndex(part => part._id === participantId), 1)
+              removed => {
+                if (removed) {
+                  this.participants.splice(this.participants.findIndex(part => part._id === participantId), 1)
+                }
               }
-            }
             )
         }
       })
@@ -237,17 +237,17 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
         if (ok === true) {
           this.api.selectedExperimentService.flatMap(expService => expService.dropParticipant(participantId))
             .subscribe(
-            removed => {
-              if (removed) {
-                this.participants.splice(this.participants.findIndex(part => part._id === participantId), 1)
-              }
-            })
+              removed => {
+                if (removed) {
+                  this.participants.splice(this.participants.findIndex(part => part._id === participantId), 1)
+                }
+              })
         }
       })
     )
   }
 
-  onChangeAliasClicked(participant: any){
+  onChangeAliasClicked(participant: any) {
     this._internalSubscriptions.add(
       this.dialog.open(TextInputDialogComponent, {
         data: {
@@ -255,9 +255,9 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
           positiveLabel: "Change",
           prefill: participant.alias,
           placeholder: "Insert new alias",
-          validator: (text)=>{ 
+          validator: (text) => {
             return (text || "").length > 0 && text.trim() !== participant.alias
-           },
+          },
           submit: (text) => this.api.selectedExperimentService.flatMap(service => service.changeParticipantAlias(participant._id, text.trim()))
         }
       }).afterClosed().subscribe(
@@ -279,7 +279,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
 
   isParticipatingInAnotherExperiment(user: any): any {
-    return user.participantIdentities.find(participant => !participant.isDenied && participant.isConsentApproved && participant.invitation.experiment._id !== this.api.getSelectedExperimentId()) != null
+    return user.participantIdentities.find(participant => !participant.isDenied && participant.isConsentApproved && participant.invitation && participant.invitation.experiment._id !== this.api.getSelectedExperimentId()) != null
   }
 
   getParticipationStatus(participant: any): string {
@@ -296,7 +296,12 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
   }
 
   getParticipationStatusToThisExperimentOfUser(user: any): string {
-    const participant = user.participantIdentities.find(participant => participant.invitation.experiment._id === this.api.getSelectedExperimentId())
+    const participant = user.participantIdentities.find(participant => {
+      if (participant.invitation !== null) {
+        return participant.invitation.experiment._id === this.api.getSelectedExperimentId()
+      } else return false
+    })
+
     if (participant) {
       return this.getParticipationStatus(participant)
     } else { return null }
@@ -305,43 +310,43 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
   setSortUsers(): void {
     this.userPoolDataSource.sort = this.userPoolSort;
     this.userPoolDataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
-      if(data){
-        switch(sortHeaderId) { 
-          case "status": { 
-            if(this.isParticipatingInAnotherExperiment(data)){return "inAnotherExperiment";}
-            else {return this.getParticipationStatusToThisExperimentOfUser(data) || '';}
-          } 
-          case "created": { return data.accountCreationTime || '';} 
-          case "signIn": { return data.accountLastSignInTime || ''; } 
-          case "userId": { return data._id || '';} 
-          case "email": { return data.email || ''; }  
-          case "demographic": { return this.exractDemographics(data)||''}
-          default: {return '';}
+      if (data) {
+        switch (sortHeaderId) {
+          case "status": {
+            if (this.isParticipatingInAnotherExperiment(data)) { return "inAnotherExperiment"; }
+            else { return this.getParticipationStatusToThisExperimentOfUser(data) || ''; }
+          }
+          case "created": { return data.accountCreationTime || ''; }
+          case "signIn": { return data.accountLastSignInTime || ''; }
+          case "userId": { return data._id || ''; }
+          case "email": { return data.email || ''; }
+          case "demographic": { return this.exractDemographics(data) || '' }
+          default: { return ''; }
         }
       }
     }
   }
-  
+
   setSortParticipants(): void {
     this.participantDataSource.sort = this.participantSort;
     this.participantDataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
-      if(data){
-        switch(sortHeaderId) { 
-          case "alias": {return data.alias || '';} 
-          case "status": { 
-            if(data.isDenied){return  4;}
-            else if(!data.isDenied && !data.isConsentApproved){return 2;}
-            else if(data.dropped){return 3;}
-            else if(data.isConsentApproved && !data.dropped){ return 1;}
+      if (data) {
+        switch (sortHeaderId) {
+          case "alias": { return data.alias || ''; }
+          case "status": {
+            if (data.isDenied) { return 4; }
+            else if (!data.isDenied && !data.isConsentApproved) { return 2; }
+            else if (data.dropped) { return 3; }
+            else if (data.isConsentApproved && !data.dropped) { return 1; }
             break;
-          } 
-          case "created": { if(data.user){return data.user.accountCreationTime || '';} break;} 
-          case "signIn": { if(data.user){return data.user.accountLastSignInTime || '';} break;} 
-          case "userId": { if(data.user){return data.user._id || '';} break;} 
-          default: {return '';} 
-        } 
+          }
+          case "created": { if (data.user) { return data.user.accountCreationTime || ''; } break; }
+          case "signIn": { if (data.user) { return data.user.accountLastSignInTime || ''; } break; }
+          case "userId": { if (data.user) { return data.user._id || ''; } break; }
+          default: { return ''; }
+        }
       }
-      return ''; 
+      return '';
     }
   }
 }

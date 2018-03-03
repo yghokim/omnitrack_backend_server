@@ -22,7 +22,7 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
     if (this._selectedParticipantId !== participantId) {
       this._selectedParticipantId = participantId
       if (participantId != null) {
-        const participant = this.participants.find(p => p._id)
+        const participant = this.participants.find(p => p._id === participantId)
         const userId = participant.user._id
         if (this._trackingSetLoadingSubscriptions) {
           this._trackingSetLoadingSubscriptions.unsubscribe()
@@ -33,8 +33,6 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
           return dataService.getTrackersOfUser(userId).map(trackers => {
             return trackers.find(tracker => tracker.flags.injectionId === "Ab0ksQyh")
           }).filter(tracker => { return tracker !== null }).flatMap(productivityTracker => {
-            console.log("productivityTracker:")
-            console.log(productivityTracker)
             if (productivityTracker) {
               return dataService.getItemsOfTracker(productivityTracker._id).map(items => {
                 return { tracker: productivityTracker, items: items }
