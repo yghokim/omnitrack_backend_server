@@ -1,6 +1,6 @@
 <div class="container">
   <div class="card">
-    <mat-tab-group class="tab-group" (selectedTabChange)="onTabChanged($event)">
+    <mat-tab-group [dynamicHeight]="true" class="tab-group" (selectedTabChange)="onTabChanged($event)">
       <mat-tab label="Study Participants">
         <app-busy-overlay *ngIf="isLoadingParticipants" [scale]="0.5" [overlayClass]="'main'"></app-busy-overlay>
         <mat-table class = "table-data" [dataSource]="participantDataSource" matSort>
@@ -18,10 +18,17 @@
                   <div class="tag tag-primary" *ngIf="object.isConsentApproved && object.dropped != true">In Experiment</div>
               </mat-cell>
             </ng-container>
+            <ng-container matColumnDef="started">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Started</mat-header-cell>
+              <mat-cell *matCellDef="let object">{{object.approvedAt | date: 'MMM dd, yyyy (EE)'}}</mat-cell>
+            </ng-container>
+            
+            <!--
             <ng-container matColumnDef="created">
               <mat-header-cell *matHeaderCellDef mat-sort-header> Created </mat-header-cell>
               <mat-cell *matCellDef="let object"> {{object.user.accountCreationTime | date: 'MMM dd, yyyy'}} </mat-cell>
             </ng-container>
+            -->
             <ng-container matColumnDef="signIn">
               <mat-header-cell *matHeaderCellDef mat-sort-header> Signed In </mat-header-cell>
               <mat-cell *matCellDef="let object"> {{object.user.accountLastSignInTime | date: 'MMM dd, yyyy'}} </mat-cell>
@@ -57,8 +64,8 @@
               </mat-cell>
             </ng-container>
 
-            <mat-header-row class="no-right-padding" *matHeaderRowDef="['alias','status','created','signIn','userId', 'button']"></mat-header-row>
-            <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: ['alias','status','created','signIn','userId', 'button'];"></mat-row>
+            <mat-header-row class="no-right-padding" *matHeaderRowDef="['alias','status','started','signIn','userId', 'button']"></mat-header-row>
+            <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: ['alias','status','started','signIn','userId', 'button'];"></mat-row>
 
          </mat-table>
          <div class="card-body card-footer horizontal-padding-narrow">

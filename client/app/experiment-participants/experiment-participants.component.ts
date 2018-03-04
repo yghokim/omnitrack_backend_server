@@ -340,6 +340,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
             else if (data.isConsentApproved && !data.dropped) { return 1; }
             break;
           }
+          case "started": { return data.approvedAt || '' }
           case "created": { if (data.user) { return data.user.accountCreationTime || ''; } break; }
           case "signIn": { if (data.user) { return data.user.accountLastSignInTime || ''; } break; }
           case "userId": { if (data.user) { return data.user._id || ''; } break; }
