@@ -60,7 +60,6 @@ export class EndUserApiService implements OnDestroy {
           }
         })
         .subscribe(children => {
-          console.log(children);
           subject.next(children);
         })
     );
@@ -87,7 +86,6 @@ export class EndUserApiService implements OnDestroy {
           }
         })
         .subscribe(children => {
-          console.log(children);
           (this.getItemsOfTracker(trackerId) as BehaviorSubject<Array<IItemDbEntity>>).next(children)
         })
     );

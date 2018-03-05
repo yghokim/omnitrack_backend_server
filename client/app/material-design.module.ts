@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialogModule, MatTableModule, MatSortModule, MatTabsModule, MatCheckboxModule, MatRadioModule, MatMenuModule, MatIconRegistry, MatButtonModule, MatSelectModule, MatInputModule, MatTooltipModule, MatDatepickerModule, MatNativeDateModule, MatSnackBarModule, MatProgressBarModule, MatProgressSpinnerModule, MatAutocompleteModule, MatChipsModule, MatGridListModule, MatCardModule, MatSlideToggleModule } from '@angular/material';
+import { MatDialogModule, MatTableModule, MatSortModule, MatTabsModule, MatCheckboxModule, MatRadioModule, MatMenuModule, MatIconRegistry, MatButtonModule, MatSelectModule, MatInputModule, MatTooltipModule, MatDatepickerModule, MatNativeDateModule, MatSnackBarModule, MatProgressBarModule, MatProgressSpinnerModule, MatAutocompleteModule, MatChipsModule, MatGridListModule, MatCardModule, MatSlideToggleModule, MatDividerModule } from '@angular/material';
 
 @NgModule({
   imports: [
@@ -13,6 +13,7 @@ import { MatDialogModule, MatTableModule, MatSortModule, MatTabsModule, MatCheck
     MatButtonModule,
     MatSelectModule,
     MatInputModule,
+    MatDividerModule,
     MatTooltipModule,
     MatDatepickerModule,
     MatNativeDateModule,
@@ -48,7 +49,8 @@ import { MatDialogModule, MatTableModule, MatSortModule, MatTabsModule, MatCheck
     MatCardModule,
     MatSlideToggleModule,
     MatTableModule,
-    MatSortModule
+    MatSortModule,
+    MatDividerModule
   ],
    providers: [
     MatIconRegistry]

@@ -1,27 +1,40 @@
 <div class="container">
   <div class="card">
-    <mat-tab-group class="tab-group" (selectedTabChange)="onTabChanged($event)">
+    <mat-tab-group [dynamicHeight]="true" class="tab-group" (selectedTabChange)="onTabChanged($event)">
       <mat-tab label="Study Participants">
         <app-busy-overlay *ngIf="isLoadingParticipants" [scale]="0.5" [overlayClass]="'main'"></app-busy-overlay>
         <mat-table class = "table-data" [dataSource]="participantDataSource" matSort>
             
             <ng-container matColumnDef="alias">
               <mat-header-cell *matHeaderCellDef mat-sort-header> Alias </mat-header-cell>
-              <mat-cell *matCellDef="let object"> {{object.alias || 'Not set'}} </mat-cell>
+              <mat-cell *matCellDef="let object" [matTooltip]="object.alias"> {{object.alias || 'Not set'}} </mat-cell>
             </ng-container>
+
+            <ng-container matColumnDef="email">
+              <mat-header-cell *matHeaderCellDef mat-sort-header> Email </mat-header-cell>
+              <mat-cell class="text-truncate" [matTooltip]="object.user.email" *matCellDef="let object"> {{object.user.email || ''}} </mat-cell>
+            </ng-container>
+
             <ng-container matColumnDef="status">
               <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
               <mat-cell *matCellDef="let object"> 
-                  <div class="tag tag-danger" *ngIf="object.isDenied">Denied</div>
-                  <div class="tag tag-warning" *ngIf="!object.isDenied && !object.isConsentApproved">Invitation Pending</div>
-                  <div class="tag tag-danger" *ngIf="object.dropped == true">Dropped Out</div>
-                  <div class="tag tag-primary" *ngIf="object.isConsentApproved && object.dropped != true">In Experiment</div>
+                  <div class="badge badge-danger" *ngIf="object.isDenied">Denied</div>
+                  <div class="badge badge-warning" *ngIf="!object.isDenied && !object.isConsentApproved">Invitation Pending</div>
+                  <div class="badge badge-danger" *ngIf="object.dropped == true">Dropped Out</div>
+                  <div class="badge badge-primary" *ngIf="object.isConsentApproved && object.dropped != true">In Experiment</div>
               </mat-cell>
             </ng-container>
+            <ng-container matColumnDef="started">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Started</mat-header-cell>
+              <mat-cell *matCellDef="let object">{{object.approvedAt | date: 'MMM dd, yyyy (EE)'}}</mat-cell>
+            </ng-container>
+            
+            <!--
             <ng-container matColumnDef="created">
               <mat-header-cell *matHeaderCellDef mat-sort-header> Created </mat-header-cell>
               <mat-cell *matCellDef="let object"> {{object.user.accountCreationTime | date: 'MMM dd, yyyy'}} </mat-cell>
             </ng-container>
+            -->
             <ng-container matColumnDef="signIn">
               <mat-header-cell *matHeaderCellDef mat-sort-header> Signed In </mat-header-cell>
               <mat-cell *matCellDef="let object"> {{object.user.accountLastSignInTime | date: 'MMM dd, yyyy'}} </mat-cell>
@@ -57,8 +70,8 @@
               </mat-cell>
             </ng-container>
 
-            <mat-header-row class="no-right-padding" *matHeaderRowDef="['alias','status','created','signIn','userId', 'button']"></mat-header-row>
-            <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: ['alias','status','created','signIn','userId', 'button'];"></mat-row>
+            <mat-header-row class="no-right-padding" *matHeaderRowDef="['alias', 'email', 'status','started','signIn','userId', 'button']"></mat-header-row>
+            <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: ['alias', 'email', 'status','started','signIn','userId', 'button'];"></mat-row>
 
          </mat-table>
          <div class="card-body card-footer horizontal-padding-narrow">
@@ -133,19 +146,19 @@
 
           <ng-container matColumnDef="email">
             <mat-header-cell *matHeaderCellDef mat-sort-header> Email </mat-header-cell>
-            <mat-cell *matCellDef="let object"> {{object.email | anonymizeEmail}} </mat-cell>
+            <mat-cell *matCellDef="let object"> {{object.email}} </mat-cell>
           </ng-container>
           <ng-container matColumnDef="status">
             <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
             <mat-cell *matCellDef="let object"> 
                 <div *ngIf="getParticipationStatusToThisExperimentOfUser(object)" [ngSwitch]="getParticipationStatusToThisExperimentOfUser(object)">
-                  <span *ngSwitchCase="'pending'" class="tag tag-warning">Invitation Pending</span>
-                  <span *ngSwitchCase="'participating'" class="tag tag-primary">In Experiment</span>
-                  <span *ngSwitchCase="'dropped'"  class="tag tag-danger">Dropped Out</span>
-                  <span *ngSwitchCase="'denied'"  class="tag tag-danger">Denied</span>
+                  <span *ngSwitchCase="'pending'" class="badge badge-warning">Invitation Pending</span>
+                  <span *ngSwitchCase="'participating'" class="badge badge-primary">In Experiment</span>
+                  <span *ngSwitchCase="'dropped'"  class="badge badge-danger">Dropped Out</span>
+                  <span *ngSwitchCase="'denied'"  class="badge badge-danger">Denied</span>
                 </div>
                 <div *ngIf="isParticipatingInAnotherExperiment(object)">
-                  <span class="tag tag-warning">In Other Experiments</span>
+                  <span class="badge badge-warning">In Other Experiments</span>
                 </div>
            </mat-cell>
           </ng-container>

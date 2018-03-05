@@ -34,9 +34,10 @@ import { EndUserAuthToMainGuard } from './end-user/services/end-user-auth-to-mai
 import { EndUserDashboardComponent } from './end-user/end-user-dashboard/end-user-dashboard.component';
 import { EndUserTrackerListComponent } from './end-user/end-user-tracker-list/end-user-tracker-list.component';
 import { EndUserTriggerListComponent } from './end-user/end-user-trigger-list/end-user-trigger-list.component';
+import { PerParticipantVisualizationDashboardComponent } from './research/visualization/per-participant-visualization-dashboard/per-participant-visualization-dashboard.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'downloads', pathMatch: 'full' },
+  { path: '', redirectTo: 'downloads', pathMatch: 'full', canActivate: [EndUserAuthToMainGuard] },
   { path: 'downloads', component: ClientDownloadComponent},
 
   { path: 'tracking', component: EndUserFrameComponent, 
@@ -70,6 +71,7 @@ const routes: Routes = [
         children: [
           { path: '', redirectTo: 'overview', pathMatch: "full"},
           { path: 'overview', component: ExperimentOverviewComponent, data: {title: 'Overview', showTitleBar:false}},
+          { path: 'detailed-overview', component: PerParticipantVisualizationDashboardComponent, data: {title: 'Per-participant Overview'}},
           { path: 'messaging', component: ExperimentMessagingComponent, data: {title: "Messaging"}},
           { path: 'messaging/new', component: ComposeMessageComponent, data: {title: "Compose Message", backTitle: "Messaging", backNavigationUrl: './messaging'}},
           { path: 'tracking-data', component: ExperimentDataComponent, data: {title: 'Tracking Data'}},

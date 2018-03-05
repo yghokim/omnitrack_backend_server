@@ -40,7 +40,11 @@ export function isNullOrBlank(obj: string): boolean {
   return obj == null || obj.trim().length === 0
 }
 
-
+export function unique(arr: Array<any>): Array<any>{
+  return arr.filter((item, i, a)=>{
+    return i == a.indexOf(item)
+  })
+}
 
 export function diffDaysBetweenTwoMoments(a: Moment, b: Moment, includeWeekends: boolean): number {
 
@@ -115,4 +119,31 @@ export function compareVersions(versionString1: string, versionString2: string):
   } else if (version1.suffix && !version2.suffix) {
     return -1
   } else { return 0 }
+}
+
+export function groupArrayByVariable(array, variableName): any{
+  const result = {}
+
+  array.forEach(elm => {
+    if(Array.isArray(elm[variableName]) === true)
+    {
+      elm[variableName].forEach(value=>{
+        if(result[value]){
+          result[value].push(elm)
+        }
+        else{
+          result[value] = [elm]
+        }
+      })
+    }
+    else{
+      if(result[elm[variableName]]){
+        result[elm[variableName]].push(elm)
+      }
+      else{
+        result[elm[variableName]] = [elm]
+      }
+    }
+  })
+  return result
 }

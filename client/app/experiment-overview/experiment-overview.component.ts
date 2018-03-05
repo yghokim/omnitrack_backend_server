@@ -71,7 +71,7 @@ export class ExperimentOverviewComponent implements OnInit {
             const today = moment().endOf("day")
             const numDays = diffDaysBetweenTwoMoments(today, moment(earliestExperimentStart).startOf("day"), project.scope.includeWeekends) + 1
 
-            this.dayIndexMax = numDays-1
+            this.dayIndexMax = Math.max(1, numDays-1)
           }
         }
       )
