@@ -1,0 +1,7 @@
+<div class="flex-container flex-align-items-center text-right">
+  <div class="vertical-padding-normal">
+    <small>Synchronized at</small><br>
+    <small>{{(trackingDataService.lastSynchronizedAt | async) | date: 'yyyy-MM-dd hh:mm:ss'}}</small>
+  </div>
+  <button *ngIf="trackingDataService" class="button-sync" mat-button (click)="trackingDataService.reloadAll()"><span class="material-icons">sync</span></button>
+</div>
