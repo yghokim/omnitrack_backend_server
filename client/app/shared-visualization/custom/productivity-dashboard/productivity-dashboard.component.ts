@@ -165,7 +165,11 @@ export class ProductivityDashboardComponent implements OnInit {
             dominantDateNumber: dominantDate.getTime(),
             usedDevices: _deviceIds
               ? _deviceIds.map(
-                  id => deviceEntries.entries.find(d => d.id === id).val
+                  id =>{
+                    const match = deviceEntries.entries.find(d => d.id === id)
+                    if(match) return match.val
+                    else return "선택지 삭제됨"
+                  }
                 )
               : [],
             location:
@@ -175,7 +179,11 @@ export class ProductivityDashboardComponent implements OnInit {
                 : null,
             tasks: _taskIds
               ? _taskIds.map(
-                  id => taskEntries.entries.find(d => d.id === id).val
+                  id => {
+                    const match = taskEntries.entries.find(d => d.id === id)
+                    if(match) return match.val
+                    else return "선택지 삭제됨"
+                  }
                 )
               : [],
             rationale: rationale,
