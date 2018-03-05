@@ -1,8 +1,31 @@
-<app-d3-chart-frame title="생산성 타임라인" [isBusy]="isBusy" [visualizationAreaHeight]="visualizationAreaHeight" (visualizationAreaWidthChanged)="visualizationWidth.next($event)">
-  <svg:g visualization #chartMainGroup [attr.transform]="makeTranslate(padding.left, padding.top)">
-
-  </svg:g>
-
-  <svg:g visualization #yAxisGroup [attr.transform]="makeTranslate(padding.left,padding.top)"></svg:g>
+<app-d3-chart-frame title="생산성 타임라인" [isBusy]="isBusy" [visualizationAreaHeight]="padding.top" (visualizationAreaWidthChanged)="visualizationWidth.next($event)">
+  <div header>
+    <div class="btn-group selectable" role="group">
+      <button type='button' class='btn btn-sm btn-light' 
+        *ngFor="let mode of chartModes" 
+        [ngClass] = "{'active': selectedChartMode === mode.key}"
+        (click)="selectedChartMode = mode.key">{{mode.label}}</button>
+    </div>
+  </div>
   <svg:g visualization #xAxisGroup [attr.transform]="makeTranslate(padding.left, padding.top)"></svg:g>
+  <div class="flex-container flex-align-items-center" under-visualization *ngFor="let group of (data | async).groups">
+    <div class="label-day" [attr.width] = "padding.left + 'px'">
+      {{group.day | date: 'MM-dd (EEE)'}}
+    </div>
+    <div class="chart-area flex-filler text-right" [style.padding-right]="padding.right + 'px'">
+      <svg *ngIf="group.logs && group.logs.length > 0" class="dayline-container" [attr.width]="timelineAreaWidth + 'px'" [attr.height] = "ROW_HEIGHT">
+        <svg:g appProductivityTimelineDay class="dayline"
+          [width]="timelineAreaWidth"
+          [height]="ROW_HEIGHT"
+          [scale]="timeOfDayScale"
+          [group]="group"
+          [mode]="selectedChartMode">
+        </svg:g>
+      </svg>
+      <div class="no-log-fallback flex-container flex-align-items-center" [ngStyle]="{'width': timelineAreaWidth + 'px', 'height': ROW_HEIGHT + 'px'}" *ngIf="!group.logs || group.logs.length==0">
+        <span style="
+        flex: 1;">생산성 로그 없음</span>
+      </div>
+    </div>
+  </div>
 </app-d3-chart-frame>

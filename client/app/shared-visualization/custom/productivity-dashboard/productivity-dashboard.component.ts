@@ -5,7 +5,7 @@ import {
 } from "../../../../../omnitrack/core/db-entity-types";
 import TypedStringSerializer from "../../../../../omnitrack/core/typed_string_serializer";
 import d3 = require("d3");
-import { TimePoint } from "../../../../../omnitrack/core/datatypes/field_datatypes";
+import { TimePoint, ServerFile } from "../../../../../omnitrack/core/datatypes/field_datatypes";
 import { Moment } from "moment";
 import { ScaleLinear } from "d3";
 import PropertyHelperManager from "../../../../../omnitrack/core/properties/property.helper.manager";
@@ -26,6 +26,8 @@ export class ProductivityDashboardComponent implements OnInit {
   private readonly INJECTION_ID_USED_DEVICES = "KJeafavG";
   private readonly INJECTION_ID_LOCATION = "ztoRgnIY";
   private readonly INJECTION_ID_RATIONALE = "9hwQHamo";
+  private readonly INJECTION_ID_MOOD = "BuzCGUEt";
+  private readonly INJECTION_ID_PHOTO = "YNtFn97k";
 
   private trackingSet: TrackingSet;
   decodedItems: Array<DecodedItem> = [];
@@ -97,6 +99,10 @@ export class ProductivityDashboardComponent implements OnInit {
           item,
           this.INJECTION_ID_RATIONALE
         );
+
+        const photo = this.getAttributeValueByInjectionId(trackingSet.tracker, item, this.INJECTION_ID_PHOTO)
+
+        const mood = this.getAttributeValueByInjectionId(trackingSet.tracker, item, this.INJECTION_ID_MOOD)
 
         if (
           pivotType != null &&
@@ -173,6 +179,8 @@ export class ProductivityDashboardComponent implements OnInit {
                 )
               : [],
             rationale: rationale,
+            mood: mood? (mood.upper / mood.under) : null,
+            photo: photo,
             item: item
           };
 
@@ -263,6 +271,8 @@ export type DecodedItem = {
   tasks: Array<string>;
   location: string;
   rationale: string;
+  mood?: number,
+  photo?: ServerFile,
   dominantDate: Date;
   dominantDateNumber: number;
   item: IItemDbEntity;
@@ -281,6 +291,10 @@ export interface ProductivityTimelineData {
 }
 
 export class ProductivityHelper {
+
+  static readonly TIME_OF_DAY_TICKS = [0, 3 / 24, 6 / 24, 9 / 24, 12 / 24, 15 / 24, 18 / 24, 21 / 24, 1]
+  static readonly TIME_OF_DAY_MINORTICKS = d3.range(0, 1, 1/24)
+
   static readonly productivityColorScale: ScaleLinear<d3.RGBColor, string> = d3
     .scaleLinear<d3.RGBColor, number>()
     .domain([0, 2])

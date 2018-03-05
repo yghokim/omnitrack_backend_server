@@ -19,6 +19,7 @@ import { ProductivityEntryPerDayComponent } from '../shared-visualization/custom
 import { ProductivityDurationStackedBarChartComponent } from '../shared-visualization/custom/productivity-duration-stacked-bar-chart/productivity-duration-stacked-bar-chart.component';
 import { ProductivityDurationPerVariableComponent } from '../shared-visualization/custom/productivity-duration-per-variable/productivity-duration-per-variable.component';
 import { ProductivityTaskHeatmapComponent } from '../shared-visualization/custom/productivity-task-heatmap/productivity-task-heatmap.component';
+import { ProductivityTimelineDayDirective } from '../shared-visualization/custom/productivity-timeline/productivity-timeline-day.directive';
 
 @NgModule({
   imports: [
@@ -62,7 +63,8 @@ import { ProductivityTaskHeatmapComponent } from '../shared-visualization/custom
     ProductivityEntryPerDayComponent,
     ProductivityDurationStackedBarChartComponent,
     ProductivityDurationPerVariableComponent,
-    ProductivityTaskHeatmapComponent
+    ProductivityTaskHeatmapComponent,
+    ProductivityTimelineDayDirective
   ],
   providers: [
     ToastComponent,

@@ -35,28 +35,33 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
 
   readonly ROW_HEIGHT = 40
 
-  readonly TIME_OF_DAY_TICKS = [0, 3 / 24, 6 / 24, 9 / 24, 12 / 24, 15 / 24, 18 / 24, 21 / 24, 1]
-  readonly TIME_OF_DAY_MINORTICKS = d3.range(0, 1, 1/24)
-
   private readonly _internalSubscriptions = new Subscription()
 
   readonly visualizationWidth = new Subject<number>();
   visualizationAreaHeight = 100
+  timelineAreaWidth = 0
 
-  padding = { left: 80, top: 20, right: 10, bottom: 0 }
+  padding = { left: 90, top: 20, right: 10, bottom: 0 }
 
-  private readonly timeOfDayScale: ScaleLinear<number, number> = d3.scaleLinear().domain([0, 1])
+  readonly timeOfDayScale: ScaleLinear<number, number> = d3.scaleLinear().domain([0, 1])
 
   private readonly timeOfDayAxis: Axis<number | { valueOf(): number }>
 
-  private readonly dateScale: ScaleBand<number> = d3.scaleBand<number>().paddingInner(0.1).paddingOuter(0.05)
-
-  private readonly dateAxis: Axis<number | { valueOf(): number }>
-
   data = new BehaviorSubject<ProductivityTimelineData>(null)
 
-  @Input()
-  productivityColorScale: ScaleLinear<d3.RGBColor, string>
+  //productivity | mood
+  chartModes = [
+    {
+      key: 'productivity',
+      label: '생산성'
+    },
+    {
+      key: 'mood',
+      label: '행복도'
+    }
+  ]
+
+  selectedChartMode: string = 'productivity'
 
   @Input("logs")
   set _logs(logs: Array<ProductivityLog>) {
@@ -67,11 +72,9 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
 
         const grouped = groupArray(logs, "dateStart")
 
-        const groups = Array<ProductivityLogGroup>()
-        for (let date of Object.keys(grouped)) {
-          groups.push({ day: Number.parseInt(date), logs: grouped[date] })
-        }
-        this.data.next({ days: days, groups: groups })
+        this.data.next({days: days, groups: days.map(day => {
+          return {day: day, logs: grouped[day.toString()]}
+        })})
       }
 
     }
@@ -80,13 +83,12 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
   }
 
   @ViewChild("xAxisGroup") xAxisGroup: ElementRef
-  @ViewChild("yAxisGroup") yAxisGroup: ElementRef
   @ViewChild("chartMainGroup") chartMainGroup: ElementRef
 
   constructor() {
     this.timeOfDayAxis = d3.axisTop(this.timeOfDayScale)
       .tickSize(0).tickPadding(5)
-      .tickValues(this.TIME_OF_DAY_TICKS)
+      .tickValues(ProductivityHelper.TIME_OF_DAY_TICKS)
       .tickFormat((d: number) => {
         switch (d) {
           case 1:
@@ -109,12 +111,6 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
             return result
         }
       })
-
-    this.dateAxis = d3.axisLeft(this.dateScale)
-      .tickSize(0).tickPadding(5)
-      .tickFormat(d => {
-        return moment(d).format("YYYY-MM-DD")
-      })
   }
 
   ngOnInit() {
@@ -131,12 +127,20 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
+  getGroupOfDay(day: number, data: ProductivityTimelineData): ProductivityLogGroup{
+    if(data)
+    {
+      return data.groups.find(g => g.day === day)
+    }else return null
+  }
+
   updateChart(data: ProductivityTimelineData, width: number) {
+
     this.visualizationAreaHeight = this.padding.top + this.padding.bottom + data.days.length * this.ROW_HEIGHT
 
-    this.timeOfDayScale.range([0, width - this.padding.left - this.padding.right])
+    this.timelineAreaWidth = width - this.padding.left - this.padding.right
 
-    this.dateScale.domain(data.days).range([0, data.days.length * this.ROW_HEIGHT])
+    this.timeOfDayScale.range([0, this.timelineAreaWidth])
 
     d3.select(this.xAxisGroup.nativeElement)
       .call(this.timeOfDayAxis)
@@ -144,23 +148,9 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
         selection.select(".domain").attr("opacity", "0.3")
       })
 
-    d3.select(this.yAxisGroup.nativeElement)
-      .call(this.dateAxis)
-      .call(selection => {
-        selection.selectAll(".tick text")
-          .attr("font-size", "13px")
-          .attr("fill", "#757575")
-          .attr("font-weight", "400")
-        selection.select(".domain").remove()
-      })
 
+      /*
     const mainSelection = d3.select(this.chartMainGroup.nativeElement)
-
-    const groupSelection = mainSelection.selectAll("g.dayline").data(data.groups)
-
-    const enter = groupSelection.enter().append("g")
-      .attr("class", "dayline")
-      .attr("transform", d => { return D3Helper.makeTranslate(0, this.dateScale(d.day)) })
 
     enter.append("rect")
       .attr("class", "background")
@@ -180,7 +170,6 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
       .attr("class", "duration")
       .attr("height", this.dateScale.bandwidth())
       .attr("x", d => (this.timeOfDayScale(d.fromDateRatio) + this.timeOfDayScale(d.toDateRatio)) * .5)
-      /*These are for Bootstrap tooltips=================*/
       .attr("data-html", true)
       .attr("data-offset", 5)
       .attr("data-placement", 'auto')
@@ -221,7 +210,6 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
 
         return body.html()
       })
-      /*=================================================*/
       .on('mouseenter', (d, i, nodes) => {
         d3.select(nodes[i])
           .attr("opacity", 0.8)
@@ -263,6 +251,8 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
         .attr("stroke", "#000")
         .attr("opacity", 0.12)
         .attr("stroke-width", "1px")
+
+        */
   }
 
   makeTranslate(x: number, y: number): string {
@@ -275,7 +265,7 @@ type ProductivityTimelineData = {
   groups: Array<ProductivityLogGroup>
 }
 
-type ProductivityLogGroup = {
+export type ProductivityLogGroup = {
   day: number,
   logs: Array<ProductivityLog>
 }
