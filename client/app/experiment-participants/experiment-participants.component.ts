@@ -333,6 +333,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
       if (data) {
         switch (sortHeaderId) {
           case "alias": { return data.alias || ''; }
+          case "email": { if (data.user) {  return data.user.email || ''; } break; }
           case "status": {
             if (data.isDenied) { return 4; }
             else if (!data.isDenied && !data.isConsentApproved) { return 2; }
