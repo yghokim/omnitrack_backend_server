@@ -220,6 +220,24 @@ export default class OTResearchCtrl {
       )
   }
 
+  updateParticipant = (req, res)=>{
+    const participantId = req.params.participantId
+    const update = req.body.update
+    OTParticipant.findByIdAndUpdate(participantId, update, {new: false}).then(
+      updated => {
+        if(updated){
+          app.socketModule().sendUpdateNotificationToExperimentSubscribers(updated["experiment"], {model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_EDITED})
+          res.status(200).send(updated)
+        }
+        else{
+          res.status(404).send("No such participant with id " + participantId)
+        }
+      }
+    ).catch(err=>{
+      res.status(500).send(err)
+    })
+  }
+
   getUsersWithPariticipantInformation = (req, res) => {
     OTUser.find({}).populate({
       path: 'participantIdentities',

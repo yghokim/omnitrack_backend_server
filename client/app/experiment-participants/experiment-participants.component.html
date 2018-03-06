@@ -24,8 +24,20 @@
                   <div class="badge badge-primary" *ngIf="object.isConsentApproved && object.dropped != true">In Experiment</div>
               </mat-cell>
             </ng-container>
-            <ng-container matColumnDef="started">
-              <mat-header-cell *matHeaderCellDef mat-sort-header>Started</mat-header-cell>
+
+            <ng-container matColumnDef="rangeStart">
+                <mat-header-cell *matHeaderCellDef mat-sort-header>Count From</mat-header-cell>
+                <mat-cell *matCellDef="let object">
+                    <mat-form-field style="display: none">
+                        <input matInput [matDatepicker]="experimentRangeStartPicker" placeholder="Choose a date" [value]="object.experimentRange.from"
+                        (dateChange)="onChangeExperimentRangeStartInput($event.value, object)">
+                        <mat-datepicker touchUi="true" #experimentRangeStartPicker></mat-datepicker>
+                      </mat-form-field>
+                  <button mat-button class="table-cell-clickable-text" (click)="experimentRangeStartPicker.open()">{{object.experimentRange.from | date: 'MMM dd, yyyy (EE)'}}</button></mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="joined">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Joined Exp</mat-header-cell>
               <mat-cell *matCellDef="let object">{{object.approvedAt | date: 'MMM dd, yyyy (EE)'}}</mat-cell>
             </ng-container>
             
@@ -34,17 +46,17 @@
               <mat-header-cell *matHeaderCellDef mat-sort-header> Created </mat-header-cell>
               <mat-cell *matCellDef="let object"> {{object.user.accountCreationTime | date: 'MMM dd, yyyy'}} </mat-cell>
             </ng-container>
-            -->
             <ng-container matColumnDef="signIn">
               <mat-header-cell *matHeaderCellDef mat-sort-header> Signed In </mat-header-cell>
               <mat-cell *matCellDef="let object"> {{object.user.accountLastSignInTime | date: 'MMM dd, yyyy'}} </mat-cell>
             </ng-container>
+            -->
             <ng-container matColumnDef="userId">
               <mat-header-cell *matHeaderCellDef mat-sort-header> User UID </mat-header-cell>
               <mat-cell *matCellDef="let object"> {{object.user._id}} </mat-cell>
             </ng-container>
             <ng-container matColumnDef="button">
-              <mat-header-cell *matHeaderCellDef mat-sort-header> </mat-header-cell>
+              <mat-header-cell *matHeaderCellDef> </mat-header-cell>
               <mat-cell *matCellDef="let object"> 
                   <div class="pull-right">
                       <button mat-icon-button [matMenuTriggerFor]="menu">
@@ -70,8 +82,8 @@
               </mat-cell>
             </ng-container>
 
-            <mat-header-row class="no-right-padding" *matHeaderRowDef="['alias', 'email', 'status','started','signIn','userId', 'button']"></mat-header-row>
-            <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: ['alias', 'email', 'status','started','signIn','userId', 'button'];"></mat-row>
+            <mat-header-row class="no-right-padding" *matHeaderRowDef="PARTICIPANT_COLUMNS"></mat-header-row>
+            <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: PARTICIPANT_COLUMNS;"></mat-row>
 
          </mat-table>
          <div class="card-body card-footer horizontal-padding-narrow">
@@ -197,8 +209,8 @@
             </mat-cell>
           </ng-container>
 
-          <mat-header-row class="no-right-padding" *matHeaderRowDef="['email','status','demographic','created','signIn','userId', 'button']"></mat-header-row>
-          <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: ['email','status','demographic','created','signIn','userId', 'button'];"></mat-row>
+          <mat-header-row class="no-right-padding" *matHeaderRowDef="USER_COLUMNS"></mat-header-row>
+          <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: USER_COLUMNS;"></mat-row>
     
 
         </mat-table>
@@ -263,6 +275,5 @@
     </mat-tab-group>
 
   </div>
-
 
 </div>

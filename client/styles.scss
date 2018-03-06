@@ -33,15 +33,9 @@ $color_pointed_darker: #20acac;
 $color_dark_gray: #575757;
 $visualization_encoded_color: #109ed7;
 $visualization_encoded_color_thicker: #077baa;
-
-
 $visualization_heatmap_color_lightest: #cceb77;
 $visualization_heatmap_color_darkest: #2387a0;
 $visualization_heatmap_color_overflow: #173958;
-
-
-
-
 @mixin horizontal-gradient($from, $to, $stop: 100%) {
   /* fallback/image non-cover color */
   background-color: $from;
@@ -93,13 +87,13 @@ $visualization_heatmap_color_overflow: #173958;
   }
 }
 
-.noUi-target{
+.noUi-target {
   background: #E7E7E7;
   border-radius: 16px;
   border: none;
 }
 
-.noUi-connect{
+.noUi-connect {
   background: $color_accent;
 }
 
@@ -121,21 +115,19 @@ $visualization_heatmap_color_overflow: #173958;
   display: none;
 }
 
-.tooltip{
-  .arrow{
-  }
+.tooltip {
+  .arrow {}
   .tooltip-inner {
     max-width: 300px;
     /* If max-width does not work, try using width instead */
-    table.tooltip-content{
-
-      th, td{
+    table.tooltip-content {
+      th,
+      td {
         text-align: left;
         vertical-align: top;
         padding-bottom: 0.5rem;
       }
-    
-      th{
+      th {
         opacity: 0.75;
         padding-right: 1rem;
         white-space: nowrap;
@@ -167,7 +159,7 @@ body {
   margin-bottom: 10px;
 }
 
-a.no-text-effect{
+a.no-text-effect {
   text-decoration: initial;
   color: inherit;
 }
@@ -288,7 +280,7 @@ a.no-text-effect{
   padding-bottom: 0;
 }
 
-.no-right-padding{
+.no-right-padding {
   padding-right: 0 !important;
 }
 
@@ -297,12 +289,12 @@ a.no-text-effect{
   padding-bottom: 0.2em;
 }
 
-.vertical-padding-normal{
+.vertical-padding-normal {
   padding-top: 1em;
   padding-bottom: 1em;
 }
 
-.hide_on_mobile{
+.hide_on_mobile {
   @media screen and (max-width: 575px) {
     display: none !important;
   } // Small devices (landscape phones, less than 768px)
@@ -321,8 +313,7 @@ a.no-text-effect{
   &>.flex-element-fill {
     flex: 1;
   }
-
-  &>.flex-align-self-start{
+  &>.flex-align-self-start {
     align-self: flex-start;
   }
 }
@@ -368,9 +359,6 @@ a.no-text-effect{
     }
   }
 }
-
-
-
 
 .flex-container.flex-container-col3 {
   &>* {
@@ -446,7 +434,6 @@ label.small.horizontal {
   font-size: 1.2em;
 }
 
-
 .right-margin-1em {
   margin-right: 1em;
 }
@@ -491,11 +478,11 @@ label.small.horizontal {
   margin-bottom: 2em;
 }
 
-.top-margin-1em{
+.top-margin-1em {
   margin-top: 1em;
 }
 
-.top-margin-1dot5em{
+.top-margin-1dot5em {
   margin-top: 1.5em;
 }
 
@@ -513,7 +500,7 @@ mat-form-field.mat-form-no-vertical-padding {
   cursor: pointer;
 }
 
-.card{
+.card {
   margin-bottom: 1.5rem;
 }
 
@@ -532,7 +519,7 @@ mat-form-field.mat-form-no-vertical-padding {
   padding-right: 0.8rem;
 }
 
-.card-body.vertical-padding-small{
+.card-body.vertical-padding-small {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
@@ -571,12 +558,26 @@ mat-form-field.mat-form-no-vertical-padding {
   }
 }
 
-.btn-group.selectable{
-  .btn.active{
+button.table-cell-clickable-text {
+  min-width: initial !important;
+  overflow: initial !important;
+  white-space: initial !important;
+  font-size: 0.75rem !important;
+  padding: 0 !important;
+  padding-right: 0px !important;
+  padding-left: 0px !important;
+  padding-right: 0.25rem !important;
+  padding-left: 0.25rem !important;
+  line-height: initial !important;
+  font-weight: initial;
+}
+
+.btn-group.selectable {
+  .btn.active {
     background: #feb952;
     color: white;
-    text-shadow: 0px 1px 1px rgba(0,0,0,0.3);
-    box-shadow: 0px 1px 1px rgba(50,0,0,0.3) inset;
+    text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 1px 1px rgba(50, 0, 0, 0.3) inset;
     border: hidden;
   }
 }
@@ -590,8 +591,12 @@ mat-form-field.mat-form-no-vertical-padding {
   }
 }
 
-.text-align-center{
+.text-align-center {
   text-align: center;
+}
+
+mat-dialog-container .dialog{
+  margin: -24px;
 }
 
 .dialog {
@@ -612,10 +617,8 @@ mat-form-field.mat-form-no-vertical-padding {
       margin-bottom: 0;
     }
   }
-
-  &.dialog-mid{
+  &.dialog-mid {
     width: 500px;
-
     @media screen and (max-width: 575px) {
       min-width: initial;
     }
@@ -689,7 +692,7 @@ mat-form-field.mat-form-no-vertical-padding {
 
 .card-warning {
   background: #ff5f45;
-  color: white;  
+  color: white;
 }
 
 .card {
@@ -733,47 +736,51 @@ thead.singleline {
 
 .table-data {
   font-size: 0.7em;
-  mat-cell{
+  mat-cell {
     font-size: 1.1em;
   }
-
   .badge {
     font-size: 1.0em;
     font-weight: 400;
   }
-  thead, mat-header-row {
+  thead,
+  mat-header-row {
     background: #f8f8f8;
     td,
-    th, mat-header-cell{
+    th,
+    mat-header-cell {
       padding-top: 0.9em;
       padding-bottom: 0.9em;
       border-bottom-width: 1px;
     }
   }
-
-  mat-header-row{
+  mat-header-row {
     padding-top: 0;
     padding-bottom: 0;
   }
-
-  tbody, mat-row {
-    &, & > mat-cell{
+  tbody,
+  mat-row {
+    &,
+    &>mat-cell {
       color: #717171;
     }
-
-    tr.hoverable:hover, &.hoverable:hover {
+    tr.hoverable:hover,
+    &.hoverable:hover {
       background: #fafafa;
     }
   }
-
   td,
-  th, mat-cell, mat-header-cell {
+  th,
+  mat-cell,
+  mat-header-cell {
     padding-top: 0.5em;
     padding-bottom: 0.5em;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
-  td.button-cell, mat-cell.button-cell, mat-header-cell.button-cell {
+  td.button-cell,
+  mat-cell.button-cell,
+  mat-header-cell.button-cell {
     padding-top: 0.5em;
     padding-bottom: 0.5em;
     padding-left: 0;
@@ -781,8 +788,7 @@ thead.singleline {
       padding-right: 0.2em;
     }
   }
-
-  td.button-cell.right-padding:last-child{
+  td.button-cell.right-padding:last-child {
     padding-right: 1.25em;
   }
 }
@@ -815,9 +821,6 @@ thead.singleline {
   padding-right: 1.5em;
 }
 
-mat-dialog-container.mat-dialog-container {
-  padding: 0;
-}
 
 .global-page-title {
   font-weight: 300;
@@ -864,14 +867,13 @@ $duration: 1.4s;
   }
 }
 
-.filedrop{
+.filedrop {
   margin: auto;
   border: 2px dotted #c2c2c2;
   border-radius: 0.6rem;
   background: #f0f0f0;
   padding: 0.8rem;
-
-  & > .content{
+  &>.content {
     height: inherit !important;
   }
 }

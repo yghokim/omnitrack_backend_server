@@ -8,6 +8,7 @@ import { ChooseInvitationDialogComponent } from '../dialogs/choose-invitation-di
 import { NewInvitationDialogComponent } from '../experiment-invitations/new-invitation-dialog/new-invitation-dialog.component';
 import "rxjs/add/observable/zip";
 import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
+import { NotificationService } from '../services/notification.service';
 
 
 @Component({
@@ -16,6 +17,9 @@ import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-inpu
   styleUrls: ['./experiment-participants.component.scss']
 })
 export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
+
+  readonly PARTICIPANT_COLUMNS = ['alias', 'email', 'status', 'rangeStart', 'joined', 'userId', 'button']
+  readonly USER_COLUMNS = ['email','status','demographic','created','signIn','userId', 'button']
 
   public userPool: Array<any>
   public userPoolSubscription: Subscription = null
@@ -39,6 +43,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
   constructor(
     public api: ResearchApiService,
+    private notificationService: NotificationService,
     private dialog: MatDialog
   ) { }
 
@@ -268,6 +273,18 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     )
   }
 
+  onChangeExperimentRangeStartInput(newDate: Date, participant){
+    this._internalSubscriptions.add(
+    this.api.selectedExperimentService.flatMap(service=>service.updateParticipant(participant._id, {"experimentRange.from": newDate.getTime()})).subscribe(
+      newParticipant=>{
+        this.notificationService.pushSnackBarMessage({message: "Modified the experiment start date of the participant."})
+      },
+      err=>{
+        console.log(err)
+      }
+    ))
+  }
+
   exractDemographics(user) {
     if (user.activatedRoles) {
       const role = user.activatedRoles.find(r => r.role === "ServiceUser")
@@ -341,9 +358,9 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
             else if (data.isConsentApproved && !data.dropped) { return 1; }
             break;
           }
-          case "started": { return data.approvedAt || '' }
+          case "rangeStart": { if(data.experimentRange){ return data.experimentRange.from } break; } 
+          case "joined": { return data.approvedAt || '' }
           case "created": { if (data.user) { return data.user.accountCreationTime || ''; } break; }
-          case "signIn": { if (data.user) { return data.user.accountLastSignInTime || ''; } break; }
           case "userId": { if (data.user) { return data.user._id || ''; } break; }
           default: { return ''; }
         }

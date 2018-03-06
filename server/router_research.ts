@@ -124,6 +124,8 @@ router.delete('/participants/:participantId', tokenApprovedAuth, researchCtrl.re
 
 router.post('/participants/:participantId/alias', tokenApprovedAuth, researchCtrl.changeParticipantAlias)
 
+router.post('/participants/:participantId/update', tokenApprovedAuth, researchCtrl.updateParticipant)
+
 router.get("/researchers/search", tokenApprovedAuth, researchCtrl.searchResearchers)
 
 router.delete("/users/:userId", tokenApprovedAuth, userCtrl.deleteAccount)
