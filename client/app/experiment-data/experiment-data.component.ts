@@ -70,6 +70,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
         })
         .flatMap(service => service.getParticipants())
         .subscribe(participants => {
+          participants.sort((a,b)=>{return new Date(a.experimentRange.from).getTime() - new Date(b.experimentRange.from).getTime()})
           this.participants = participants;
           if (this.participants.length > 0) {
             this.selectedParticipantId = this.participants[0]._id;

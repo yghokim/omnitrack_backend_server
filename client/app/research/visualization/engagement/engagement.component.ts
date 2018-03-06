@@ -260,6 +260,7 @@ EngagementData
               earliestExperimentStart = Math.min(earliestExperimentStart, experimentRangeStart)
             }
 
+            console.log("startDate: " + participant.experimentRange.from + " => startOf: " + moment(participant.experimentRange.from).startOf("day").toISOString())
             const startDate = moment(participant.experimentRange.from).startOf("day")
             const numDays = diffDaysBetweenTwoMoments(today, startDate, project.scope.includeWeekends) + 1
 

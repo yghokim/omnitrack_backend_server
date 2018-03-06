@@ -8,7 +8,7 @@
       <div class="flex-container flex-align-items-center flex-stretch">
         <mat-form-field class="mat-form-no-vertical-padding">
           <mat-select [(value)]="selectedParticipantId" required="true" (selectionChange)="onParticipantSelectionChanged($event)">
-            <mat-option *ngFor="let participant of participants" [value]="participant._id">{{participant.alias}}</mat-option>
+            <mat-option *ngFor="let participant of participants" [value]="participant._id">{{participant.alias}} ({{participant.experimentRange.from | date: 'yyyy-MM-dd'}})</mat-option>
           </mat-select>
         </mat-form-field>
         <button mat-icon-button [matTooltip]="screenExpanded===true? 'contract' : 'expand'"  (click)="screenExpanded = !screenExpanded">

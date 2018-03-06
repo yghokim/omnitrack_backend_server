@@ -126,9 +126,10 @@ router.route('/debug/users/all').get(userCtrl.getAll)
 router.route('/debug/trackers/all').get(trackerCtrl.getAll)
 router.route('/debug/triggers/all').get(triggerCtrl.getAll)
 
-  /*
-  router.route('/usage/logs/').get(usageLogCtrl.getAll)
+  router.route('/debug/logs').get(usageLogCtrl.getAll)
+  router.route('/debug/:userId/logs').get(usageLogCtrl.getLogsOfUser)
 
+  /*
   router.route('/users/destroy').get(userCtrl.destroy)
   router.route('/trackers/destroy').get(trackerCtrl.destroy)
   router.route('/items/destroy').get(itemCtrl.destroy)
