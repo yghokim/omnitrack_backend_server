@@ -9,6 +9,7 @@ import { IJoinedExperimentInfo, ExperimentPermissions } from '../../../omnitrack
 import { Document } from 'mongoose';
 import app from '../../app';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
+import { MessageData } from '../../modules/push.module';
 
 
 export default class OTExperimentCtrl {
@@ -320,6 +321,16 @@ export default class OTExperimentCtrl {
       }
     ).catch(err=>{
       console.log(err)
+      res.status(500).send(err)
+    })
+  }
+
+  sendPushCommand = (req, res) => {
+    const userIds = req.query.userIds
+    const command = req.query.command
+    app.pushModule().sendDataMessageToUser(userIds, new MessageData(command)).then(result=>{
+      res.status(200).send(result)
+    }).catch(err=>{
       res.status(500).send(err)
     })
   }
