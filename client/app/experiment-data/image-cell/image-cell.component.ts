@@ -47,6 +47,8 @@ export class ImageCellComponent implements OnInit {
 
   openImage(): void {
     let dialogRef = this.dialog.open(ImageViewDialog, {
+      width: 'auto',
+      height: '100%',
       data: {image: this.imageToShow }
     });
   }

@@ -159,6 +159,10 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     return attr.type === attributeTypes.ATTR_TYPE_IMAGE
   }
 
+  isAudioAttribute(attr: IAttributeDbEntity):boolean{
+    return attr.type === attributeTypes.ATTR_TYPE_AUDIO
+  }
+
   getItemValue(item: IItemDbEntity, attr: IAttributeDbEntity, tryFormatted: boolean): any {
     const tableEntry = item.dataTable.find(
       entry => entry.attrLocalId === attr.localId
