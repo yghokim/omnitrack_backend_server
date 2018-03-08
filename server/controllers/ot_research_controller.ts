@@ -95,9 +95,12 @@ export default class OTResearchCtrl {
       select: '_id name'
     }).then(
       participants => {
-        const list = participants.map(participant => { return { id: participant["experiment"]._id, name: participant["experiment"].name, joinedAt: participant["approvedAt"].getTime(), droppedAt: participant["dropped"] == true ? participant["droppedAt"].getTime() : null } as IJoinedExperimentInfo })
-
-        console.log(list)
+        const list = participants.map(participant => { return { 
+          id: participant["experiment"]._id, 
+          name: participant["experiment"].name, 
+          experimentRangeStart: participant["experimentRange"].from? participant["experimentRange"].from.getTime() : participant["approvedAt"].getTime(),
+          joinedAt: participant["approvedAt"].getTime(), 
+          droppedAt: participant["dropped"] == true ? participant["droppedAt"].getTime() : null } as IJoinedExperimentInfo })
 
         res.status(200).send(
           list
@@ -218,6 +221,24 @@ export default class OTResearchCtrl {
         res.status(500).send({ error: err })
       }
       )
+  }
+
+  updateParticipant = (req, res)=>{
+    const participantId = req.params.participantId
+    const update = req.body.update
+    OTParticipant.findByIdAndUpdate(participantId, update, {new: false}).then(
+      updated => {
+        if(updated){
+          app.socketModule().sendUpdateNotificationToExperimentSubscribers(updated["experiment"], {model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_EDITED})
+          res.status(200).send(updated)
+        }
+        else{
+          res.status(404).send("No such participant with id " + participantId)
+        }
+      }
+    ).catch(err=>{
+      res.status(500).send(err)
+    })
   }
 
   getUsersWithPariticipantInformation = (req, res) => {

@@ -19,6 +19,7 @@ export class TrackingDataService implements OnInit, OnDestroy{
   readonly triggers = new BehaviorSubject<Array<ITriggerDbEntity>>([])
   readonly items = new BehaviorSubject<Array<IItemDbEntity>>([])
   
+  readonly lastSynchronizedAt = new BehaviorSubject<number>(null)
 
   get hasConsumers(): boolean{
     return this.dataConsumerTags.size > 0
@@ -88,6 +89,7 @@ export class TrackingDataService implements OnInit, OnDestroy{
       this.http.get(this.makeEntitiesQueryUrl(modelPath), this.api.makeAuthorizedRequestOptions({userId: userId})).subscribe(
         entities=>{
           subject.next(entities.json())
+          this.lastSynchronizedAt.next(new Date().getTime())
         }
       )
     )
@@ -103,6 +105,12 @@ export class TrackingDataService implements OnInit, OnDestroy{
 
   reloadTriggers(){
     this.reloadEntities("triggers", this.triggers, null)
+  }
+
+  reloadAll(){
+    this.reloadTrackers()
+    this.reloadItems()
+    this.reloadTriggers()
   }
 
   getTrackersOfUser(userId: string | Array<string>): Observable<Array<ITrackerDbEntity>>{

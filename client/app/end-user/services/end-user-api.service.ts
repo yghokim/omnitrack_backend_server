@@ -20,12 +20,12 @@ export class EndUserApiService implements OnDestroy {
   private readonly itemsPerTrackerDict = new Map<
     string,
     BehaviorSubject<Array<IItemDbEntity>>
-  >();
+    >();
 
   private tokenHeaders: Headers;
   private authorizedOptions = new BehaviorSubject<RequestOptions>(null);
 
-  private authRequestOptions = this.auth.authState.combineLatest(this.authorizedOptions.filter(o=>o != null), (user, options)=>{return {user: user, options: options}})
+  private authRequestOptions = this.auth.authState.combineLatest(this.authorizedOptions.filter(o => o != null), (user, options) => { return { user: user, options: options } })
 
   constructor(private auth: AngularFireAuth, private http: Http) {
     this._internalSubscriptions.add(
@@ -35,7 +35,7 @@ export class EndUserApiService implements OnDestroy {
           this.authorizedOptions.next(new RequestOptions({
             headers: this.tokenHeaders
           }))
-        }else{
+        } else {
           this.tokenHeaders = null
           this.authorizedOptions = null
         }
@@ -73,7 +73,7 @@ export class EndUserApiService implements OnDestroy {
     this.loadChildren("triggers", this.triggers);
   }
 
-  loadItemsofTracker(trackerId: string){
+  loadItemsofTracker(trackerId: string) {
     this._internalSubscriptions.add(
       this.authRequestOptions
         .flatMap(result => {
@@ -91,14 +91,23 @@ export class EndUserApiService implements OnDestroy {
     );
   }
 
-  getItemsOfTracker(trackerId: string): Observable<Array<IItemDbEntity>>{
-    if(this.itemsPerTrackerDict.has(trackerId)){
+  getItemsOfTracker(trackerId: string): Observable<Array<IItemDbEntity>> {
+    if (this.itemsPerTrackerDict.has(trackerId)) {
       return this.itemsPerTrackerDict.get(trackerId)
     }
-    else{
+    else {
       const newSubject = new BehaviorSubject<Array<IItemDbEntity>>([])
       this.itemsPerTrackerDict.set(trackerId, newSubject)
       return newSubject
     }
+  }
+
+  getExperimentParticipationList(): Observable<Array<any>> {
+    return this.authRequestOptions.flatMap(result => {
+      if (result.user) {
+        return this.http.get('/api/research/experiments/history', result.options).map(list => list.json())
+      }
+      else return Observable.of([])
+    })
   }
 }

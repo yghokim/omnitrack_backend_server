@@ -25,8 +25,11 @@ export class ProductivityDurationStackedBarChartComponent implements OnInit {
     for (let productivity of Object.keys(productivityGrouped)) {
       const binned = extractedDurationHistogram.hist(productivityGrouped[productivity])
 
-      const completeBins = extractedDurationHistogram.ranges.map(range => {
-        const bin = binned.find((bin) => Math.abs(bin.x0 - range.from) < 0.00001)
+      const completeBins = extractedDurationHistogram.ranges.map((range, completeBinIndex, arr) => {
+        
+        const bin = binned.find((bin) => {
+          return completeBinIndex === arr.length -1? range.from <= bin.x0 && range.to >= bin.x1 : range.from <= bin.x0 && range.to > bin.x1
+        })
         return bin ? bin.length : 0
       })
 

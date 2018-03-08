@@ -26,5 +26,14 @@ export default class OTUsageLogCtrl extends BaseCtrl {
     })
   }
 
+  getLogsOfUser = (req, res) => {
+    const userId = req.params.userId
+    OTUsageLog.find({user: userId}).then(logs=>{
+      res.status(200).send(logs || [])
+    }).catch(err=>{
+      res.status(500).send(err)
+    })
+  }
+
 
 }

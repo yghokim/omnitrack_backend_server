@@ -124,6 +124,8 @@ router.delete('/participants/:participantId', tokenApprovedAuth, researchCtrl.re
 
 router.post('/participants/:participantId/alias', tokenApprovedAuth, researchCtrl.changeParticipantAlias)
 
+router.post('/participants/:participantId/update', tokenApprovedAuth, researchCtrl.updateParticipant)
+
 router.get("/researchers/search", tokenApprovedAuth, researchCtrl.searchResearchers)
 
 router.delete("/users/:userId", tokenApprovedAuth, userCtrl.deleteAccount)
@@ -153,5 +155,6 @@ router.get('/debug/remove_researcher/:researcherId', adminCtrl.removeResearcher)
 router.get('/debug/push_users', adminCtrl.pushUsers)
 router.get('/debug/participants/all', researchCtrl.getallParticipants)
 router.get('/debug/restore_experiment_data/:experimentId', experimentCtrl.restoreExperimentTrackingEntities)
+router.get('/debug/push_command', experimentCtrl.sendPushCommand)
 
 export default router;

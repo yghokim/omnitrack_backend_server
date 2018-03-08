@@ -6,14 +6,21 @@ export class D3Helper {
     return "translate(" + x + ", " + y + ")"
   }
 
-  static makeDateSequence(dates: Array<Date>, includeToday: boolean = true): Array<Date> {
-    const minDate = d3.min(dates, (date) => date)
+  static makeDateSequence(dates: Array<Date>, includeToday: boolean = true, overrideStartDate: number = null): Array<Date> {
+    var minDate = d3.min(dates, (date) => date)
     var maxDate = d3.max(dates, (date) => date)
     
     if(includeToday){
       const today = moment().startOf('day').toDate()
       if(maxDate.getTime() < today.getTime()){
         maxDate = today
+      }
+    }
+
+    if(overrideStartDate){
+      const startDate = moment(overrideStartDate).startOf('day').toDate()
+      if(minDate.getTime() > startDate.getTime()){
+        minDate = startDate
       }
     }
 
