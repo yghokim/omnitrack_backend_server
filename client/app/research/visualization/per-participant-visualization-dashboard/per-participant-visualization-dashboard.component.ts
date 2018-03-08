@@ -31,15 +31,14 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
           expService => expService.trackingDataService
         ).flatMap(dataService => {
           return dataService.getTrackersOfUser(userId).map(trackers => {
-            return trackers.find(tracker => tracker.flags.injectionId === "Ab0ksQyh")
-          }).filter(tracker => { return tracker !== null }).flatMap(productivityTracker => {
-            if (productivityTracker) {
-              return dataService.getItemsOfTracker(productivityTracker._id).map(items => {
-                return { tracker: productivityTracker, items: items }
+            const productivityTracker = trackers.find(tracker => tracker.flags.injectionId === "Ab0ksQyh")
+            const omitLogTracker = trackers.find(tracker => tracker.flags.injectionId === "gGv9WCm3")
+            return {productivityTracker: productivityTracker, omitLogTracker: omitLogTracker} 
+          }).flatMap(trackers => {
+            if(trackers.productivityTracker==null){return Observable.of(null)}
+            else return Observable.zip(dataService.getItemsOfTracker(trackers.productivityTracker._id), trackers.omitLogTracker? dataService.getItemsOfTracker(trackers.omitLogTracker._id) : Observable.of([])).map(itemSets => {
+                return { tracker: trackers.productivityTracker, items: itemSets[0], omitLogTracker: trackers.omitLogTracker, omitLogs: itemSets[1], overrideStartDate: participant.experimentRange.from } as TrackingSet
               })
-            } else {
-              return Observable.of(null)
-            }
           })
         }).subscribe(
           trackingSet => {

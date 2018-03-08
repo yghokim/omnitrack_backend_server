@@ -147,7 +147,7 @@ router.route('/debug/triggers/all').get(triggerCtrl.getAll)
 
   router.post("/research/experiment/:experimentId/dropout", assertSignedInMiddleware, researchCtrl.dropOutFromExperiment)
 
-  router.get('/research/experiments/history', assertSignedInMiddleware, researchCtrl.getExperimentHistoryOfUser)
+  router.get('/research/experiments/history', firebaseMiddleware.auth, researchCtrl.getExperimentHistoryOfUser)
 
   router.get('/research/invitations/public', assertSignedInMiddleware, experimentCtrl.getPublicInvitationList)
 

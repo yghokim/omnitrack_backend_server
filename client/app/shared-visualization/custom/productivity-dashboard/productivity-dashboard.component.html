@@ -12,7 +12,7 @@
     </div>
   </div>
 
-  <app-productivity-timeline [logs]="logs"></app-productivity-timeline>
+  <app-productivity-timeline [data]="{'logs':logs, 'omitLogs': omitLogs, 'overrideStartDate': overrideStartDate}"></app-productivity-timeline>
 
   <div class="columned-chart-group flex-container flex-container-wrap flex-padded-content flex-container-responsive-columns_two">
     <div>

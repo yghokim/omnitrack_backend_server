@@ -25,9 +25,6 @@ export class ProductivityDurationStackedBarChartComponent implements OnInit {
     for (let productivity of Object.keys(productivityGrouped)) {
       const binned = extractedDurationHistogram.hist(productivityGrouped[productivity])
 
-      console.log("binned:")
-      console.log(binned)
-
       const completeBins = extractedDurationHistogram.ranges.map((range, completeBinIndex, arr) => {
         
         const bin = binned.find((bin) => {

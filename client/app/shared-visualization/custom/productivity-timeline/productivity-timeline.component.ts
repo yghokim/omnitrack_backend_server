@@ -15,7 +15,7 @@ import * as bigdecimal from 'bigdecimal';
 import d3 = require("d3");
 import { ScaleLinear, ScaleBand } from 'd3-scale'
 import { ScaleOrdinal, Axis } from "d3";
-import { ProductivityLog, ProductivityHelper } from "../productivity-dashboard/productivity-dashboard.component";
+import { ProductivityLog, ProductivityHelper, OmitLog } from "../productivity-dashboard/productivity-dashboard.component";
 import { Subject } from "rxjs/Subject";
 import { D3Helper } from "../../d3-helper";
 import { Subscription } from "rxjs/Subscription";
@@ -63,18 +63,23 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
 
   selectedChartMode: string = 'productivity'
 
-  @Input("logs")
-  set _logs(logs: Array<ProductivityLog>) {
+  @Input("data")
+  set _logs(data: { logs: Array<ProductivityLog>, omitLogs: Array<OmitLog>, overrideStartDate?: number }) {
 
-    if (logs) {
-      if (logs.length > 0) {
-        const days = D3Helper.makeDateSequence(logs.map(log => new Date(log.dateStart))).map(d => d.getTime())
+    if (data) {
+      if (data.logs) {
+        if (data.logs.length > 0) {
+          const days = D3Helper.makeDateSequence(data.logs.map(log => new Date(log.dateStart)), true, data.overrideStartDate).map(d => d.getTime())
 
-        const grouped = groupArray(logs, "dateStart")
+          const grouped = groupArray(data.logs, "dateStart")
 
-        this.data.next({days: days, groups: days.map(day => {
-          return {day: day, logs: grouped[day.toString()]}
-        })})
+          this.data.next({
+            days: days, groups: days.map(day => {
+              const omitLog = data.omitLogs? data.omitLogs.find(l=>l.dateStart === day) : null
+              return { day: day, logs: grouped[day.toString()], omitNote: data.omitLogs && omitLog ? omitLog.note : null }
+            })
+          })
+        }
       }
 
     }
@@ -127,11 +132,10 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
-  getGroupOfDay(day: number, data: ProductivityTimelineData): ProductivityLogGroup{
-    if(data)
-    {
+  getGroupOfDay(day: number, data: ProductivityTimelineData): ProductivityLogGroup {
+    if (data) {
       return data.groups.find(g => g.day === day)
-    }else return null
+    } else return null
   }
 
   updateChart(data: ProductivityTimelineData, width: number) {
@@ -147,116 +151,19 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
       .call(selection => {
         selection.select(".domain").attr("opacity", "0.3")
       })
-
-
-      /*
-    const mainSelection = d3.select(this.chartMainGroup.nativeElement)
-
-    enter.append("rect")
-      .attr("class", "background")
-      .attr("fill", "#f0f0f0")
-
-    mainSelection.selectAll("rect.background")
-      .attr("height", this.dateScale.bandwidth())
-      .attr("width", width - this.padding.left - this.padding.right)
-
-    groupSelection.exit().remove()
-
-
-    const durationCellSelection = groupSelection.merge(enter)
-      .selectAll("rect.duration").data(d => { return d.logs })
-
-    const durationEnter = durationCellSelection.enter().append("rect")
-      .attr("class", "duration")
-      .attr("height", this.dateScale.bandwidth())
-      .attr("x", d => (this.timeOfDayScale(d.fromDateRatio) + this.timeOfDayScale(d.toDateRatio)) * .5)
-      .attr("data-html", true)
-      .attr("data-offset", 5)
-      .attr("data-placement", 'auto')
-      .attr("data-title", (d: ProductivityLog) => {
-        const body = $("<div></div>")
-
-        const format = "A hh:mm"
-        const startMoment = moment(d.dateStart).add(24* 3600 * d.fromDateRatio, "s")
-        const endMoment = moment(d.dateStart).add(24*3600*d.toDateRatio, "s")
-        
-        body.append("<b class='bottom-margin-dot5em'>" + startMoment.format(format) + " ~ " + endMoment.format(format) + "</b>")
-
-        const tableBody = $("<table class='tooltip-content'></table>")
-        const taskLine = $("<tr></tr>").append("<th>한 일</th>").append("<td>" + d.decodedItem.tasks.map(task => "<span class='badge badge-light'>" + task + "</span>").join(" ") + "</td>")
-
-        const rationaleLine = $("<tr></tr>")
-          .append("<th>생산성</th>")
-          .append("<td><b>" + ProductivityHelper.getProductivityLabel(d.decodedItem.productivity) + "</b><br><span>" + d.decodedItem.rationale + "</span></td>")
-        
-        const placeLine = $("<tr></tr>")
-          .append("<th>장소</th>")
-          .append("<td>" + d.decodedItem.location + "</td>")
-
-        const devicesLine = $("<tr></tr>")
-          .append("<th>기기</th>")
-        
-          if(d.decodedItem.usedDevices.length == 0){
-            devicesLine.append("<td>사용 안함</td>")
-          }else{
-            devicesLine.append("<td>" + d.decodedItem.usedDevices.map(device => "<span class='badge badge-light'>" + device + "</span>").join(" ") + "</td>")
-          }
-        tableBody.append(taskLine)
-        tableBody.append(rationaleLine)
-        tableBody.append(placeLine)
-        tableBody.append(devicesLine)
-
-        body.append(tableBody)
-
-        return body.html()
-      })
-      .on('mouseenter', (d, i, nodes) => {
-        d3.select(nodes[i])
-          .attr("opacity", 0.8)
-      })
-      .on('mouseleave', (d, i, nodes) => {
-        d3.select(nodes[i])
-          .attr("opacity", 1.0)
-      })
-
-    const jSelection = $("rect.duration") as any
-    jSelection.tooltip()
-
-
-    durationCellSelection.merge(durationEnter)
-      .transition()
-      .duration(800)
-      .attr("fill", d => this.productivityColorScale(d.productivity))
-      .attr("x", d => this.timeOfDayScale(d.fromDateRatio) + 0.5)
-      .attr("rx", 3)
-      .attr("ry", 3)
-      .attr("width", d => (this.timeOfDayScale(d.toDateRatio) - this.timeOfDayScale(d.fromDateRatio)) - 1)
-
-
-
-    durationCellSelection.exit().remove()
-
-    
-    enter.append("g")
-      .attr("class", "ticks")
-      .attr("pointer-events", "none")
-      .selectAll("line.tick").data(this.TIME_OF_DAY_TICKS.slice(1, this.TIME_OF_DAY_TICKS.length-1)).enter().append("line").attr("class", "tick")
-
-      console.log("ticks")
-      mainSelection.selectAll("line.tick")
-        .attr("x1", (d: any) => this.timeOfDayScale(d))
-        .attr("x2", (d: any) => this.timeOfDayScale(d))
-        .attr("y1", 0)
-        .attr("y2", this.dateScale.bandwidth())
-        .attr("stroke", "#000")
-        .attr("opacity", 0.12)
-        .attr("stroke-width", "1px")
-
-        */
   }
 
   makeTranslate(x: number, y: number): string {
     return D3Helper.makeTranslate(x, y)
+  }
+
+  isWeekend(dateStart: number): boolean{
+    const dayOfWeek = this.getDayOfWeek(dateStart)
+    return dayOfWeek === 6 || dayOfWeek === 7
+  }
+
+  getDayOfWeek(dateStart: number): number{
+    return moment(dateStart).isoWeekday()
   }
 }
 
@@ -267,5 +174,6 @@ type ProductivityTimelineData = {
 
 export type ProductivityLogGroup = {
   day: number,
-  logs: Array<ProductivityLog>
+  logs: Array<ProductivityLog>,
+  omitNote: string
 }

@@ -29,20 +29,27 @@ export class ProductivityDashboardComponent implements OnInit {
   private readonly INJECTION_ID_MOOD = "BuzCGUEt";
   private readonly INJECTION_ID_PHOTO = "YNtFn97k";
 
+  private readonly INJECTION_ID_OMIT_DATE = "Ac4gSN0C";
+  private readonly INJECTION_ID_OMIT_NOTE = "syXB4sIp";
+  
+
   private trackingSet: TrackingSet;
   decodedItems: Array<DecodedItem> = [];
   logs: Array<ProductivityLog> = [];
+  omitLogs: Array<OmitLog> = [];
+  overrideStartDate: number
 
   productivityColorScale: ScaleLinear<
     d3.RGBColor,
     string
-  > = ProductivityHelper.productivityColorScale;
+    > = ProductivityHelper.productivityColorScale;
 
   @Input("trackingSet")
   set _trackingSet(trackingSet: TrackingSet) {
     this.trackingSet = trackingSet;
 
     if (trackingSet) {
+      this.overrideStartDate = trackingSet.overrideStartDate
       const taskEntries = this.getChoiceEntryListByAttrInjectionId(
         trackingSet.tracker,
         this.INJECTION_ID_TASKS
@@ -85,11 +92,11 @@ export class ProductivityDashboardComponent implements OnInit {
 
         const _productivity: Array<
           number
-        > = this.getAttributeValueByInjectionId(
-          trackingSet.tracker,
-          item,
-          this.INJECTION_ID_PRODUCTIVITY
-        );
+          > = this.getAttributeValueByInjectionId(
+            trackingSet.tracker,
+            item,
+            this.INJECTION_ID_PRODUCTIVITY
+          );
 
         const productivity =
           _productivity && _productivity.length > 0 ? _productivity[0] : null;
@@ -154,9 +161,9 @@ export class ProductivityDashboardComponent implements OnInit {
             (startRatio + endDiffRatio) * 0.5 <= 1
               ? startDayStart.toDate()
               : endMoment
-                  .clone()
-                  .startOf("day")
-                  .toDate();
+                .clone()
+                .startOf("day")
+                .toDate();
 
           const decoded = {
             productivity: productivity,
@@ -165,29 +172,29 @@ export class ProductivityDashboardComponent implements OnInit {
             dominantDateNumber: dominantDate.getTime(),
             usedDevices: _deviceIds
               ? _deviceIds.map(
-                  id =>{
-                    const match = deviceEntries.entries.find(d => d.id === id)
-                    if(match) return match.val
-                    else return "선택지 삭제됨"
-                  }
-                )
+                id => {
+                  const match = deviceEntries.entries.find(d => d.id === id)
+                  if (match) return match.val
+                  else return "선택지 삭제됨"
+                }
+              )
               : [],
             location:
               _locationIds && _locationIds.length > 0
                 ? locationEntries.entries.find(l => l.id === _locationIds[0])
-                    .val
+                  .val
                 : null,
             tasks: _taskIds
               ? _taskIds.map(
-                  id => {
-                    const match = taskEntries.entries.find(d => d.id === id)
-                    if(match) return match.val
-                    else return "선택지 삭제됨"
-                  }
-                )
+                id => {
+                  const match = taskEntries.entries.find(d => d.id === id)
+                  if (match) return match.val
+                  else return "선택지 삭제됨"
+                }
+              )
               : [],
             rationale: rationale,
-            mood: mood? (mood.upper / mood.under) : null,
+            mood: mood ? (mood.upper / mood.under) : null,
             photo: photo,
             item: item
           };
@@ -219,6 +226,23 @@ export class ProductivityDashboardComponent implements OnInit {
         } else {
         }
       });
+
+      if (trackingSet.omitLogTracker) {
+        this.omitLogs = trackingSet.omitLogs.map(logItem => {
+          const date: TimePoint = this.getAttributeValueByInjectionId(
+            trackingSet.omitLogTracker,
+            logItem,
+            this.INJECTION_ID_OMIT_DATE
+          );
+
+          const note: string = this.getAttributeValueByInjectionId(
+            trackingSet.omitLogTracker,
+            logItem,
+            this.INJECTION_ID_OMIT_NOTE
+          );
+          return {dateStart: date.toMoment().startOf('day').toDate().getTime(), note: note}
+        })
+      }
 
       this.logs = logs;
       this.decodedItems = decodedItems;
@@ -258,14 +282,17 @@ export class ProductivityDashboardComponent implements OnInit {
     } else return null;
   }
 
-  constructor() {}
+  constructor() { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 }
 
 export type TrackingSet = {
-  tracker: ITrackerDbEntity;
-  items: Array<IItemDbEntity>;
+  overrideStartDate?: number,
+  tracker: ITrackerDbEntity,
+  items: Array<IItemDbEntity>,
+  omitLogTracker: ITrackerDbEntity,
+  omitLogs: Array<IItemDbEntity>
 };
 
 /* This log is not 1:1 matched with the items. 
@@ -294,6 +321,11 @@ export class ProductivityLog {
   decodedItem: DecodedItem;
 }
 
+export class OmitLog {
+  dateStart: number;
+  note: string;
+}
+
 export interface ProductivityTimelineData {
   logs: Array<ProductivityLog>;
 }
@@ -301,7 +333,7 @@ export interface ProductivityTimelineData {
 export class ProductivityHelper {
 
   static readonly TIME_OF_DAY_TICKS = [0, 3 / 24, 6 / 24, 9 / 24, 12 / 24, 15 / 24, 18 / 24, 21 / 24, 1]
-  static readonly TIME_OF_DAY_MINORTICKS = d3.range(0, 1, 1/24)
+  static readonly TIME_OF_DAY_MINORTICKS = d3.range(0, 1, 1 / 24)
 
   static readonly productivityColorScale: ScaleLinear<d3.RGBColor, string> = d3
     .scaleLinear<d3.RGBColor, number>()
@@ -334,7 +366,7 @@ export class ProductivityHelper {
     }
   }
 
-  static extractDurationBinsAndHistogram(decodedItems: Array<DecodedItem>): {ranges: Array<{ from: number, to: number }>, hist: any}{
+  static extractDurationBinsAndHistogram(decodedItems: Array<DecodedItem>): { ranges: Array<{ from: number, to: number }>, hist: any } {
     const durationRange = d3.extent<number>(decodedItems.map(d => d.duration))
 
     const maxTickCount = 10
@@ -355,11 +387,10 @@ export class ProductivityHelper {
     }
 
     const hist = d3.histogram<DecodedItem, number>().value((d, i, data) => d.duration).thresholds(binBounds)
-    return {ranges: durationRanges, hist: hist}
+    return { ranges: durationRanges, hist: hist }
   }
 
-  static timeRangeToText(range: {from:number, to: number}): string
-  {
+  static timeRangeToText(range: { from: number, to: number }): string {
     if (range.from <= 0) {
       return "<" + (range.to / 60).toFixed(1) + "시간"
     } else {

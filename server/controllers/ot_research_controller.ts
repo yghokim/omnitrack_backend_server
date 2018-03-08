@@ -95,9 +95,12 @@ export default class OTResearchCtrl {
       select: '_id name'
     }).then(
       participants => {
-        const list = participants.map(participant => { return { id: participant["experiment"]._id, name: participant["experiment"].name, joinedAt: participant["approvedAt"].getTime(), droppedAt: participant["dropped"] == true ? participant["droppedAt"].getTime() : null } as IJoinedExperimentInfo })
-
-        console.log(list)
+        const list = participants.map(participant => { return { 
+          id: participant["experiment"]._id, 
+          name: participant["experiment"].name, 
+          experimentRangeStart: participant["experimentRange"].from? participant["experimentRange"].from.getTime() : participant["approvedAt"].getTime(),
+          joinedAt: participant["approvedAt"].getTime(), 
+          droppedAt: participant["dropped"] == true ? participant["droppedAt"].getTime() : null } as IJoinedExperimentInfo })
 
         res.status(200).send(
           list
