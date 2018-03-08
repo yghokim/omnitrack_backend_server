@@ -57,9 +57,13 @@ export function diffDaysBetweenTwoMoments(a: Moment, b: Moment, includeWeekends:
     let diff =  0
     while (aStart.diff(bStart) >= 1) {
       bStart.add(1, "day")
-      if (bStart.isoWeekday() !== 6 && bStart.isoWeekday() !== 7) {
+      if (bStart.isoWeekday() < 6) {
         diff++
       }
+    }
+
+    if(b.isoWeekday()>=6){
+      diff--
     }
     return diff
   }
