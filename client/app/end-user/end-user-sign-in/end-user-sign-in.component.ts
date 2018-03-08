@@ -17,7 +17,6 @@ export class EndUserSignInComponent implements OnInit, OnDestroy, AfterViewInit 
     this._internalSubscriptions.add(
       authService.authState.subscribe(user => {
         if(user){
-          console.log(user)
           router.navigate(["tracking"])
         }
       })
@@ -27,8 +26,6 @@ export class EndUserSignInComponent implements OnInit, OnDestroy, AfterViewInit 
   login() {
     this.authService.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(
       result=>{
-        console.log("signin popup result:")
-        console.log(result)
       }
     )
   }

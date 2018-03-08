@@ -23,12 +23,10 @@ export class ProductivityDurationStackedBarChartComponent implements OnInit {
     const series = []
     const productivityGrouped = groupArray(decodedItems, "productivity")
     for (let productivity of Object.keys(productivityGrouped)) {
-      const binned = extractedDurationHistogram.hist(productivityGrouped[productivity])
-
       const completeBins = extractedDurationHistogram.ranges.map((range, completeBinIndex, arr) => {
         
-        const bin = binned.find((bin) => {
-          return completeBinIndex === arr.length -1? range.from <= bin.x0 && range.to >= bin.x1 : range.from <= bin.x0 && range.to > bin.x1
+        const bin = productivityGrouped[productivity].filter(item => {
+          return completeBinIndex === arr.length -1? range.from <= item.duration && range.to >= item.duration : range.from <= item.duration && range.to > item.duration
         })
         return bin ? bin.length : 0
       })
@@ -42,7 +40,6 @@ export class ProductivityDurationStackedBarChartComponent implements OnInit {
         color: productivityColor
       })
     }
-
     const chartOptions = HighChartsHelper.makeDefaultChartOptions('column')
 
     chartOptions.tooltip = {
