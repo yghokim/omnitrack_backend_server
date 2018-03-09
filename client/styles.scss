@@ -211,6 +211,10 @@ a.no-text-effect {
   color: #575757;
 }
 
+.text-color-gray{
+  color: #757575;
+}
+
 .page-info-message {
   text-align: center;
   font-size: 0.9rem;
@@ -380,6 +384,10 @@ a.no-text-effect {
 
 .flex-container.flex-align-items-center {
   align-items: center;
+}
+
+.flex-container.flex-align-items-baseline {
+  align-items: baseline;
 }
 
 .flex-align-self-center {

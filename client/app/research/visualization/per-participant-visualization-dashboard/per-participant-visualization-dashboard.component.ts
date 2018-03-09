@@ -1,8 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { ResearchApiService } from '../../../services/research-api.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { TrackingSet } from '../../../shared-visualization/custom/productivity-dashboard/productivity-dashboard.component';
+import * as html2canvas from 'html2canvas';
+import * as FileSaver from 'file-saver'; 
+import * as moment from 'moment-timezone';
 
 @Component({
   selector: 'app-per-participant-visualization-dashboard',
@@ -10,6 +13,8 @@ import { TrackingSet } from '../../../shared-visualization/custom/productivity-d
   styleUrls: ['./per-participant-visualization-dashboard.component.scss']
 })
 export class PerParticipantVisualizationDashboardComponent implements OnInit, OnDestroy {
+
+  public isProcessingImageCapture = false
 
   private _internalSubscriptions = new Subscription()
   private _trackingSetLoadingSubscriptions: Subscription = null
@@ -49,9 +54,20 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
     }
   }
 
+  @ViewChild("dashboard") dashboardRef: ElementRef
+
+  now: Date = new Date()
+
   public get selectedParticipantId(): string {
     return this._selectedParticipantId
   }
+
+  public get selectedParticipant(): any{
+    if(this.participants){
+      return this.participants.find(p => p._id === this.selectedParticipantId)
+    }
+    else return null
+  } 
 
   constructor(private api: ResearchApiService) {
   }
@@ -97,5 +113,20 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
     }
   }
 
-
+  downloadToImage(){
+    this.isProcessingImageCapture = true
+    console.log("try convert the dashboard to canvas...")
+    html2canvas(this.dashboardRef.nativeElement, {scale: 1.5} as any).then(
+      canvas => {
+        this.isProcessingImageCapture = false
+        canvas.toBlob(blob=>{
+          console.log('image file size: ' + blob.size)
+          FileSaver.saveAs(blob, "productivity_report_" + moment().format("YYYY-MM-DDThh-mm") + ".png")
+        }, 'image/png')
+      }
+    ).catch(err=>{
+      this.isProcessingImageCapture = false
+      console.log(err)
+    })
+  }
 }
