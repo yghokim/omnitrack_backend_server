@@ -4,7 +4,7 @@ import {
   ITrackerDbEntity
 } from "../../../../../omnitrack/core/db-entity-types";
 import TypedStringSerializer from "../../../../../omnitrack/core/typed_string_serializer";
-import d3 = require("d3");
+import * as d3 from "d3";
 import { TimePoint, ServerFile } from "../../../../../omnitrack/core/datatypes/field_datatypes";
 import { Moment } from "moment";
 import { ScaleLinear } from "d3";

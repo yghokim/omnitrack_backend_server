@@ -8,7 +8,7 @@ import { EndUserApiService } from '../services/end-user-api.service';
 })
 export class EndUserTriggerListComponent implements OnInit {
 
-  constructor(private api: EndUserApiService) {
+  constructor(public api: EndUserApiService) {
 
    }
 

@@ -8,18 +8,18 @@ import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
 })
 export class YesNoDialogComponent implements OnInit {
 
-  private title = ""
-  private message = ""
+  public title = ""
+  public message = ""
 
-  private positiveButtonClass = this.data.positiveButtonClass || ""
-  private negativeButtonClass = this.data.negativeButtonClass || ""
-  private positiveLabel = this.data.positiveLabel || "Yes"
-  private negativeLabel = this.data.negativeLabel || "No"
-  private positiveColor = this.data.positiveColor || "primary"
-  private negativeColor = this.data.negativeColor || "accent"
+  public positiveButtonClass = this.data.positiveButtonClass || ""
+  public negativeButtonClass = this.data.negativeButtonClass || ""
+  public positiveLabel = this.data.positiveLabel || "Yes"
+  public negativeLabel = this.data.negativeLabel || "No"
+  public positiveColor = this.data.positiveColor || "primary"
+  public negativeColor = this.data.negativeColor || "accent"
 
 
-  constructor(private dialogRef: MatDialogRef<YesNoDialogComponent>,
+  constructor(public dialogRef: MatDialogRef<YesNoDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
      }
 

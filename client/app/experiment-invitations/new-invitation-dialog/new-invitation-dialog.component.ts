@@ -10,12 +10,15 @@ import { ResearchApiService } from '../../services/research-api.service';
 })
 export class NewInvitationDialogComponent implements OnInit {
 
-  private isBusy = true
+  public isBusy = true
 
-  private selectedTypeKey = AInvitation.SpecificGroupType
-  private groups: Array<any>
-  private selectedGroupId: string
-  private selectedGroupIds: Array<string> = []
+  public selectedTypeKey = AInvitation.SpecificGroupType
+  public groups: Array<any>
+  public selectedGroupId: string
+  public selectedGroupIds: Array<string> = []
+
+  public specificGroupType = AInvitation.SpecificGroupType
+  public randomGroupType = AInvitation.RandomGroupType
 
   isPublic: boolean = false
 

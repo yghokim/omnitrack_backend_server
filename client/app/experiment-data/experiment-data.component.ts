@@ -12,7 +12,7 @@ import AttributeManager from "../../../omnitrack/core/attributes/attribute.manag
 import { MatTableDataSource, MatSort, MatPaginator } from '@angular/material';
 
 import { Element } from "@angular/compiler";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import attributeTypes from "../../../omnitrack/core/attributes/attribute-types";
 import { Response } from "@angular/http";
 import { Observable } from "rxjs/Observable";

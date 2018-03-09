@@ -11,21 +11,21 @@ import { Subscription } from 'rxjs/Subscription'
 })
 export class TextInputDialogComponent implements OnInit, OnDestroy {
 
-  private title = ""
-  private message = ""
-  private placeholder = "Insert text"
-  private textValue = ""
+  public title = ""
+  public message = ""
+  public placeholder = "Insert text"
+  public textValue = ""
   private validator: (text: string) => boolean
   private submit: (text: string) => Observable<any>
 
-  private positiveButtonClass = this.data.positiveButtonClass || ""
-  private negativeButtonClass = this.data.negativeButtonClass || ""
-  private positiveLabel = this.data.positiveLabel || "Yes"
-  private negativeLabel = this.data.negativeLabel || "No"
-  private positiveColor = this.data.positiveColor || "primary"
-  private negativeColor = this.data.negativeColor || "accent"
+  public positiveButtonClass = this.data.positiveButtonClass || ""
+  public negativeButtonClass = this.data.negativeButtonClass || ""
+  public positiveLabel = this.data.positiveLabel || "Yes"
+  public negativeLabel = this.data.negativeLabel || "No"
+  public positiveColor = this.data.positiveColor || "primary"
+  public negativeColor = this.data.negativeColor || "accent"
 
-  private submitErrorMessage: string = null
+  public submitErrorMessage: string = null
 
   private _internalSubscriptions = new Subscription()
 

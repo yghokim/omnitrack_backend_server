@@ -14,7 +14,7 @@ export class ImageCellComponent implements OnInit {
 
   private _internalSubscriptions = new Subscription();
   private imageSource: String;
-  private imageToShow: any;
+  public imageToShow: any;
 
   constructor(private api: ResearchApiService, public dialog: MatDialog) { }
 

@@ -16,8 +16,8 @@ export class ExperimentMessagingComponent implements OnInit, OnDestroy {
 
   private messageList: Array<IResearchMessage>
 
-  private messageDataSource: MatTableDataSource<IResearchMessage>
-  private draftDataSource: MatTableDataSource<IResearchMessage>
+  public messageDataSource: MatTableDataSource<IResearchMessage>
+  public draftDataSource: MatTableDataSource<IResearchMessage>
   @ViewChild(MatSort) messageSort: MatSort;
   @ViewChild('draftTable',{read: MatSort}) draftSort: MatSort;
 

@@ -2,7 +2,7 @@ import { Directive, ElementRef, Input } from '@angular/core';
 import { ScaleLinear } from 'd3';
 import { ProductivityLogGroup } from './productivity-timeline.component';
 import { ProductivityHelper, ProductivityLog } from '../productivity-dashboard/productivity-dashboard.component';
-import d3 = require('d3');
+import * as d3 from 'd3';
 import * as moment from 'moment-timezone';
 
 @Directive({
@@ -10,7 +10,7 @@ import * as moment from 'moment-timezone';
 })
 export class ProductivityTimelineDayDirective {
 
-  readonly moodScale: ScaleLinear<number, number> = d3.scaleLinear().domain([-1, 1])
+  readonly moodScale: ScaleLinear<number, number> = d3.scaleLinear().domain([0, 1])
 
   timeOfDayScale: ScaleLinear<number, number>
   @Input('scale')
@@ -168,7 +168,7 @@ export class ProductivityTimelineDayDirective {
         case 'mood':
           durationUpdate.attr("fill", d => {
             if(d.decodedItem.mood){
-              return d.decodedItem.mood > 0? "#60cb78" : "#ea8271"
+              return d.decodedItem.mood > 0.5? "#60cb78" : "#ea8271"
             }
             else return "transparent"
           })
@@ -176,14 +176,14 @@ export class ProductivityTimelineDayDirective {
             .attr("y", (d: ProductivityLog) => {
               if(d.decodedItem.mood)
               {
-                return Math.min(this.moodScale(0), this.moodScale(d.decodedItem.mood))
+                return Math.min(this.moodScale(0.5), this.moodScale(d.decodedItem.mood))
               }
               else return this.height/2
             })
             .attr("height", (d: ProductivityLog)=>{
               if(d.decodedItem.mood)
               {
-                return Math.abs(this.moodScale(0) - this.moodScale(d.decodedItem.mood))
+                return Math.abs(this.moodScale(0.5) - this.moodScale(d.decodedItem.mood))
               }else return 0
             })
             .attr("rx", 0)

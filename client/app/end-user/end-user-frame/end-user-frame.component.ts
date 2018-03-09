@@ -18,7 +18,7 @@ export class EndUserFrameComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
 
-  constructor(private notificationService: NotificationService, private snackBar: MatSnackBar, private auth: AngularFireAuth, private dialog: MatDialog, private router: Router) {
+  constructor(private notificationService: NotificationService, private snackBar: MatSnackBar, public auth: AngularFireAuth, private dialog: MatDialog, private router: Router) {
     this._internalSubscriptions.add(
       this.router.events.filter(ev => ev instanceof NavigationEnd)
         .map(_ => this.router.routerState.root)

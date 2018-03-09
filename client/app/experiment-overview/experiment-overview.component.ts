@@ -38,7 +38,7 @@ export class ExperimentOverviewComponent implements OnInit {
 
   constructor(
     private api: ResearchApiService,
-    private configuration: ResearchVisualizationQueryConfigurationService) {
+    public configuration: ResearchVisualizationQueryConfigurationService) {
       
   }
 

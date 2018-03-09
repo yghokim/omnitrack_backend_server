@@ -14,8 +14,8 @@ export class ResearcherAccountSettingsComponent implements OnInit, OnDestroy {
 
   private originalResearcher: any
 
-  private alias: string = null
-  private newPassword: string = null
+  public alias: string = null
+  public newPassword: string = null
   private newPasswordConfirm: string = null
   private originalPassword: string = null
 

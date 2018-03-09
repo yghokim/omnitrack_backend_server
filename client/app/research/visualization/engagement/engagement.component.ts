@@ -52,7 +52,7 @@ EngagementData
 
   visualizationAreaHeight = 100
 
-  private hatchPatterns = [
+  public hatchPatterns = [
     {
       id: "no-log",
       size: 7,
@@ -205,7 +205,7 @@ EngagementData
 
   }
 
-  private colorLegends(): Array<{color: string, value: string}>{
+  public colorLegends(): Array<{color: string, value: string}>{
     const array = []
     for(let i = 1; i <= this.itemCountRangeMax; i++)
     {

@@ -19,9 +19,9 @@ export class ResearcherSearchComponentComponent implements OnInit, OnDestroy {
   private readonly _internalSubscriptions = new Subscription()
   private readonly searchTerm = new Subject<string>()
 
-  private readonly formControl = new FormControl()
+  public readonly formControl = new FormControl()
 
-  private searchResults = []
+  public searchResults = []
 
   constructor(private api: ResearchApiService) { 
 

@@ -12,7 +12,7 @@ import * as groupArray from 'group-array';
 import * as moment from 'moment-timezone';
 import { Moment } from "moment";
 import * as bigdecimal from 'bigdecimal';
-import d3 = require("d3");
+import * as d3 from "d3";
 import { ScaleLinear, ScaleBand } from 'd3-scale'
 import { ScaleOrdinal, Axis } from "d3";
 import { ProductivityLog, ProductivityHelper, OmitLog } from "../productivity-dashboard/productivity-dashboard.component";
