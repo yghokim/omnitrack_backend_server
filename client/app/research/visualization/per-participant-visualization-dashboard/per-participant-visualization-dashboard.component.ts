@@ -121,7 +121,7 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
         this.isProcessingImageCapture = false
         canvas.toBlob(blob=>{
           console.log('image file size: ' + blob.size)
-          FileSaver.saveAs(blob, "productivity_report_" + moment().format("YYYY-MM-DDThh-mm") + ".png")
+          FileSaver.saveAs(blob, "productivity_report_" + this.selectedParticipant.user.email.split('@')[0] + "_" + moment().format("YYYY-MM-DDThh-mm") + ".png")
         }, 'image/png')
       }
     ).catch(err=>{
