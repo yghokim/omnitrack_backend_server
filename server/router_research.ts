@@ -139,7 +139,7 @@ new Array(
   {url:"triggers", model: ot_trigger}, 
   {url:"items", model: ot_item}).forEach(
     info=>{
-      router.get('/experiments/:experimentId/data/' + info.url, trackingDataCtrl.getChildrenOfExperiment(info.model))
+      router.get('/experiments/:experimentId/data/' + info.url, tokenApprovedAuth, trackingDataCtrl.getChildrenOfExperiment(info.model))
     }
   )
 
