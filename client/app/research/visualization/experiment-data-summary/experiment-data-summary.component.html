@@ -1,18 +1,46 @@
 <ng-template #digitgroup let-title="title" let-content="content" let-sub="sub">
-    <div class="statistics-element">
-        <b>{{title}}</b><br>
-        <span class="digit">{{content}}</span> 
-        <span *ngIf="sub" class="sub">{{sub}}</span>
-      </div>
+  <div class="statistics-element">
+    <b>{{title}}</b>
+    <br>
+    <span class="digit">{{content}}</span>
+    <span *ngIf="sub" class="sub">{{sub}}</span>
+  </div>
 </ng-template>
 
 <div class="card card-main">
   <div class="card-header">Summary</div>
-  <div class="card-body">
     <div class="list-flex-wrap">
-        <ng-container *ngTemplateOutlet="digitgroup;context:{'title': 'Total Log Count', 'content': totalLogCount}"></ng-container>
-        <ng-container *ngTemplateOutlet="digitgroup;context:{'title': 'Logs per Participant', 'content': logsPerParticipant.toFixed(2), 'sub': '(SD=' + logsPerParticipantStDev.toFixed(2) + ')'}"></ng-container>
-        
+     
+      <div class="statistics-element" *ngIf="statisticsPerTracker && statisticsPerTracker.length > 0">
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th>Tracker</th>
+              <th># Logs</th>
+              <th>N</th>
+              <th>Mean</th>
+              <th>SD</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of statisticsPerTracker">
+              <th>{{row.trackerName}}</th>
+              <td class="text-color-darkgray">
+                <b>{{row.total}}</b>
+              </td>
+              <td class="text-color-darkgray">{{row.count}}</td>
+              <td class="text-color-darkgray">{{row.mean.toFixed(2)}}</td>
+              <td class="text-color-darkgray">{{row.stdev.toFixed(2)}}</td>
+            </tr>
+            <tr class="thead-light">
+              <th>Total</th>
+              <th class="text-color-darkgray">{{totalLogCount}}</th>
+              <th class="text-color-darkgray">{{numParticipants}}</th>
+              <th class="text-color-darkgray">{{logsPerParticipant.toFixed(2)}}</th>
+              <th class="text-color-darkgray">{{logsPerParticipantStDev.toFixed(2)}}</th>
+            </tr>
+          </tbody>
+        </table>
     </div>
   </div>
 </div>

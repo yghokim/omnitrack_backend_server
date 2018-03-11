@@ -3,6 +3,7 @@ import { ResearchVisualizationQueryConfigurationService, FilteredExperimentDatas
 import { ResearchApiService } from '../../../services/research-api.service';
 import { Subscription } from 'rxjs/Subscription';
 import * as d3 from 'd3';
+import { unique, isNullOrBlank } from '../../../../../shared_lib/utils';
 
 @Component({
   selector: 'app-experiment-data-summary',
@@ -16,6 +17,9 @@ export class ExperimentDataSummaryComponent implements OnInit, OnDestroy {
   public totalLogCount: number = 0
   public logsPerParticipant: number = 0
   public logsPerParticipantStDev: number = 0
+  public numParticipants: number = 0
+
+  public statisticsPerTracker: Array<{trackerName: string, total: number, mean: number, stdev: number, count: number}>
   
 
   constructor(
@@ -29,14 +33,56 @@ export class ExperimentDataSummaryComponent implements OnInit, OnDestroy {
       this.queryConfigService.dayIndexRange().combineLatest(this.queryConfigService.filteredDatesetSubject, (range, data: FilteredExperimentDataset)=>{
         return {range: range, data: data}
       }).subscribe(dataAndRange=>{
-          const logCountPerParticipant = dataAndRange.data.data.map(row => {
-            return d3.sum(row.trackingData, (trackerRow)=>{
-              return trackerRow.decodedItems.filter(item => {return item.day >= dataAndRange.range[0] && item.day <= dataAndRange.range[1] }).length
+          const processed = dataAndRange.data.data.map(row => {
+            return row.trackingData.map((trackerRow)=>{
+              return {
+                tracker: trackerRow.tracker,
+                logCount: trackerRow.decodedItems.filter(item => {return item.day >= dataAndRange.range[0] && item.day <= dataAndRange.range[1] }).length
+              }
             })
           })
+          
+          const trackerFlagIds = []
+          dataAndRange.data.data.forEach(r => {
+            r.trackingData.forEach(trackerRow => {
+              if(trackerRow.tracker.flags && trackerRow.tracker.flags.injectionId){
+                trackerFlagIds.push(trackerRow.tracker.flags.injectionId)
+              }
+            })
+          })
+          const trackerPivotedLogCountPerParticipant = unique(trackerFlagIds).map(injectionId=>{
+            var trackerName = ""
+            const logCountPerParticipant = processed.map(p=>{
+              const items = p.find(t=>{
+                const match = t.tracker.flags && t.tracker.flags.injectionId === injectionId
+                if(match === true){
+                  if(isNullOrBlank(t.tracker.name)!==true){
+                    trackerName = t.tracker.name
+                  }
+                }
+                return match})
+              if(items){
+                return items.logCount
+              }else return 0
+            })
+            return {trackerName: trackerName, logCountPerParticipant: logCountPerParticipant}
+          })
+
+          const logCountPerParticipant = processed.map(p => d3.sum(p, r=> r.logCount))
           this.totalLogCount = d3.sum(logCountPerParticipant)
           this.logsPerParticipant = d3.mean(logCountPerParticipant)
           this.logsPerParticipantStDev = d3.deviation(logCountPerParticipant)
+          this.numParticipants = logCountPerParticipant.length
+
+          this.statisticsPerTracker = trackerPivotedLogCountPerParticipant.map(row=>{
+            return {
+              trackerName: row.trackerName,
+              total: d3.sum(row.logCountPerParticipant),
+              mean: d3.mean(row.logCountPerParticipant),
+              stdev: d3.deviation(row.logCountPerParticipant),
+              count: row.logCountPerParticipant.length
+            }
+          })
       })
     )
   }
