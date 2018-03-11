@@ -1,0 +1,18 @@
+<ng-template #digitgroup let-title="title" let-content="content" let-sub="sub">
+    <div class="statistics-element">
+        <b>{{title}}</b><br>
+        <span class="digit">{{content}}</span> 
+        <span *ngIf="sub" class="sub">{{sub}}</span>
+      </div>
+</ng-template>
+
+<div class="card card-main">
+  <div class="card-header">Summary</div>
+  <div class="card-body">
+    <div class="list-flex-wrap">
+        <ng-container *ngTemplateOutlet="digitgroup;context:{'title': 'Total Log Count', 'content': totalLogCount}"></ng-container>
+        <ng-container *ngTemplateOutlet="digitgroup;context:{'title': 'Logs per Participant', 'content': logsPerParticipant.toFixed(2), 'sub': '(SD=' + logsPerParticipantStDev.toFixed(2) + ')'}"></ng-container>
+        
+    </div>
+  </div>
+</div>

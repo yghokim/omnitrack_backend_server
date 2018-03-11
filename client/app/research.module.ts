@@ -49,6 +49,7 @@ import { UploadClientBinaryDialogComponent } from './server-settings/upload-clie
 import { ImageCellComponent } from './experiment-data/image-cell/image-cell.component';
 import { PerParticipantVisualizationDashboardComponent } from './research/visualization/per-participant-visualization-dashboard/per-participant-visualization-dashboard.component';
 import { TrackingDataSynchronizerWidgetComponent } from './research/tracking-data-synchronizer-widget/tracking-data-synchronizer-widget.component';
+import { ExperimentDataSummaryComponent } from './research/visualization/experiment-data-summary/experiment-data-summary.component';
 
 @NgModule({
   imports: [
@@ -97,7 +98,8 @@ import { TrackingDataSynchronizerWidgetComponent } from './research/tracking-dat
     UploadClientBinaryDialogComponent,
     ImageCellComponent,
     PerParticipantVisualizationDashboardComponent,
-    TrackingDataSynchronizerWidgetComponent
+    TrackingDataSynchronizerWidgetComponent,
+    ExperimentDataSummaryComponent
   ],
   exports: [
     NouisliderModule,
@@ -123,7 +125,8 @@ import { TrackingDataSynchronizerWidgetComponent } from './research/tracking-dat
     ResearchLayoutComponent,
     ResearchHomeFrameComponent,
     ResearcherAccountSettingsComponent,
-    TrackingDataSynchronizerWidgetComponent
+    TrackingDataSynchronizerWidgetComponent,
+    ExperimentDataSummaryComponent
   ],
   providers: [
     ResearcherAuthGuardSecure,
