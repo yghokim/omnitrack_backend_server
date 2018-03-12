@@ -61,7 +61,6 @@ export class ExperimentService {
 
           socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_EXPERIMENT, (data) => {
             console.log("received updated/experiment websocket event.")
-            console.log(data)
             if (data instanceof Array) {
               data.forEach(datum => {
                 if (datum.model) {

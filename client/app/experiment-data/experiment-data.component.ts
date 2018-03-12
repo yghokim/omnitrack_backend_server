@@ -156,6 +156,13 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     }
   }
 
+  getItemCountOfTracker(trackerId: string): Observable<number>{
+    return this.api.selectedExperimentService
+          .flatMap(service =>
+            service.trackingDataService.getItemsOfTracker(trackerId).map(items => items.length)
+          )
+  }
+
   isImageAttribute(attr: IAttributeDbEntity):boolean{
     return attr.type === attributeTypes.ATTR_TYPE_IMAGE
   }

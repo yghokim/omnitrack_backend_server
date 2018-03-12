@@ -17,7 +17,7 @@
       </div>
     </div>
     <mat-tab-group class="tab-group" [(selectedIndex)]="selectedTrackerIndex" (selectedTabChange)="onTrackerTabChanged($event)">
-      <mat-tab *ngFor="let tracker of userTrackers" [label]="tracker.name" [value]="tracker._id">
+      <mat-tab *ngFor="let tracker of userTrackers" [label]="tracker.name + '(' + (getItemCountOfTracker(tracker._id) | async) + ')'" [value]="tracker._id">
 
       </mat-tab>
     </mat-tab-group>

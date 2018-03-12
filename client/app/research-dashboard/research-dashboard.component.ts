@@ -129,7 +129,6 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
         })
         .flatMap(route => route.data)
         .subscribe(data => {
-          console.log(data)
           this.headerTitle = data['title'];
           this.upperHeaderTitle = data['backTitle'];
           this.backNavigationUrl = data['backNavigationUrl'];

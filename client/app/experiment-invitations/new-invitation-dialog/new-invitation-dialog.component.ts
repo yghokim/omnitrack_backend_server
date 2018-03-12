@@ -37,20 +37,6 @@ export class NewInvitationDialogComponent implements OnInit {
       }
       this.selectedGroupIds = this.groups.map(g => g._id)
     }
-    /*
-    this.api.selectedExperimentService.flatMap(service => {
-      console.log(service)
-      return service.getExperiment()}).subscribe(
-      exp => {
-        console.log(exp)
-        this.isBusy = false
-        this.groups = exp.groups
-        if (this.groups.length > 0) {
-          this.selectedGroupId = this.groups[0]._id
-        }
-        this.selectedGroupIds = this.groups.map(g => g._id)
-      }
-    )*/
   }
 
   onTabChanged(event) {

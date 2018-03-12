@@ -81,7 +81,6 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
       }).subscribe(
         participants => {
           this.participants = participants
-          console.log(participants)
           if (!this.selectedParticipantId && this.participants.length > 0) {
             this.selectedParticipantId = participants[0]._id
           }

@@ -80,7 +80,6 @@ export class ResearcherAuthService implements OnDestroy {
                 })
                 project.socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER, (data) => {
                   console.log("received a updated/researcher websocket event")
-                  console.log(data)
                 })
               }
               else {

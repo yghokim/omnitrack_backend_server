@@ -58,7 +58,6 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
     this.internalSubscriptions.add(
       this.api.getAllResearchers().subscribe(
         researchers => {
-          console.log(researchers)
           this.researchers = researchers
         }
       )
