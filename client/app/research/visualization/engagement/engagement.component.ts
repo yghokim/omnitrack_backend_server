@@ -17,7 +17,7 @@ import { IItemDbEntity } from "../../../../../omnitrack/core/db-entity-types";
 import { EngagementTimelineContainerDirective } from "./engagement-timeline-container.directive";
 import * as groupArray from 'group-array';
 import { Moment } from "moment-timezone";
-import { diffDaysBetweenTwoMoments } from "../../../../../shared_lib/utils";
+import { diffDaysBetweenTwoMoments, aliasCompareFunc } from "../../../../../shared_lib/utils";
 
 @Component({
   selector: "app-engagement",
@@ -42,6 +42,39 @@ EngagementData
 
   readonly PARTICIPANT_MINIMUM_HEIGHT = 20
   readonly TRACKER_ROW_HEIGHT = 20
+
+  readonly NORMAL_ALIAS_COMPARE = aliasCompareFunc()
+  readonly LOG_COUNT_COMPARE = (a: ParticipantRow, b: ParticipantRow)=>{
+    return d3.sum(b.trackingDataList.map(t=>t.itemCountInRange)) - d3.sum(a.trackingDataList.map(t=>t.itemCountInRange))
+  }
+
+  readonly SORT_METHODS = [
+    {
+      label: "Experiment Start",
+      sortFunc: (a:ParticipantRow, b:ParticipantRow)=>{
+        const dateSort = b.daysSinceStart - a.daysSinceStart
+        if(dateSort === 0){
+          const countSort = this.LOG_COUNT_COMPARE(a, b)
+          if(countSort === 0){
+            return this.NORMAL_ALIAS_COMPARE(a.alias, b.alias)
+          }
+          else return countSort
+        }else return dateSort
+      }
+    },
+    {
+      label: "Alias",
+      sortFunc: (a:ParticipantRow, b:ParticipantRow)=>{
+        return this.NORMAL_ALIAS_COMPARE(a.alias, b.alias)
+      }
+    },
+    {
+      label: "Log Count",
+      sortFunc: this.LOG_COUNT_COMPARE
+    }
+  ]
+
+  public sortMethodIndex = 0
 
   private readonly _internalSubscriptions = new Subscription();
 
@@ -134,9 +167,17 @@ EngagementData
 
         const trackerNameElements = $('.tracker-name') as any
         trackerNameElements.tooltip()
+
+        this.onSortMethodChanged(this.sortMethodIndex)
       })
     );
 
+  }
+
+  public onSortMethodChanged(index: number){
+    if(this.data){
+      this.data.participantList.sort(this.SORT_METHODS[index].sortFunc)
+    }
   }
 
   public colorLegends(): Array<{ color: string, value: string }> {

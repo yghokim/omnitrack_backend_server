@@ -1,9 +1,16 @@
 <app-d3-chart-frame title="Engagement" [isBusy]="isBusy" [visualizationAreaHeight]="visualizationAreaHeight" (visualizationAreaWidthChanged)="visualizationWidth.next($event)">
   <div header>
   </div>
-  <div upper-visualization class="float-right legend-container">
+  <div upper-visualization class="flex-container flex-align-items-center">
+    <mat-form-field>
+      <mat-select [(value)]="sortMethodIndex" (selectionChange)="onSortMethodChanged($event.value)">
+        <mat-option *ngFor="let option of SORT_METHODS; let i = index" [value]="i">
+          {{option.label}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div class="flex-filler"></div>
     <div class="flex-container flex-align-items-center">
-
       <small class="right-margin-dot5em flex-align-self-start">Number of Logs: </small>
       <div *ngFor="let legendCell of colorLegends()" class="legend-cell">
         <div class="legend-color" [style.background]="legendCell.color"></div>
@@ -11,54 +18,27 @@
       </div>
     </div>
   </div>
-  <svg:pattern visualization *ngFor="let pattern of hatchPatterns"
-    [attr.id]="pattern.id" [attr.width]="pattern.size" [attr.height]="pattern.size" patternUnits="userSpaceOnUse">
+  <svg:pattern visualization *ngFor="let pattern of hatchPatterns" [attr.id]="pattern.id" [attr.width]="pattern.size" [attr.height]="pattern.size"
+    patternUnits="userSpaceOnUse">
     <svg:path [ngClass]="pattern.pathClass" [attr.d]="'M-1,1 l2,-2 M0,' + pattern.size + 'l' + pattern.size + ',-' + pattern.size + ' M' + (pattern.size-1)+','+(pattern.size+1)+ ' l2,-2'"></svg:path>
   </svg:pattern>
   <svg:g visualization #chartMainGroup [attr.transform]="makeTranslate(Y_AXIS_WIDTH, X_AXIS_HEIGHT)">
-    <svg:g 
-      engagementParticipantGroup 
-      *ngFor="let participant of data.participantList let index = index" 
-      class="participant" 
-      [height]="calcHeightOfParticipantRow(participant)"
-      [dayScale]="dayAxisScale"
-      [dayIndexRange]="dayIndexRange"
-      [participantRow]="participant"
+    <svg:g engagementParticipantGroup *ngFor="let participant of data.participantList let index = index" class="participant"
+      [height]="calcHeightOfParticipantRow(participant)" [dayScale]="dayAxisScale" [dayIndexRange]="dayIndexRange" [participantRow]="participant"
       [attr.transform]="makeParticipantRowTransform(participant, index)">
       <svg:text class="participant-alias" font-size="12px" text-anchor="end" dominant-baseline="middle" alignment-baseline="middle"
-        [matTooltip]="participant.email"
-        [matTooltipPosition]="'above'"
-        [attr.transform]="makeTranslate(-5-TRACKER_NAME_WIDTH, calcHeightOfParticipantRow(participant)/2)">{{participant.alias}}</svg:text>
-      <svg:line class="participant-alias-separator"
-        [attr.x1]="-TRACKER_NAME_WIDTH"
-        [attr.x2]="-TRACKER_NAME_WIDTH"
-        y1="0"
-        [attr.y2]="calcHeightOfParticipantRow(participant)"
-        stroke="#b5b5b5"
-        strokeWidth="1"
-      ></svg:line>
-      
-      <svg:g class="tracker" *ngFor="let tracker of participant.trackingDataList let index = index"
-        [attr.transform]="makeTranslate(0, index * (TRACKER_ROW_HEIGHT + TRACKER_MARGIN))">
-        <svg:text class="tracker-name" font-size="10px" dominant-baseline="middle" 
-          alignment-baseline="middle"
-          [matTooltip]="tracker.trackerName + ': ' +tracker.itemCountInRange"
-          [matTooltipPosition] ="'above'"
-          [ellipsis]="TRACKER_NAME_WIDTH-3"
-          [text]="tracker.trackerName"
-          matTooltipPosition="left"
+        [matTooltip]="participant.email" [matTooltipPosition]="'above'" [attr.transform]="makeTranslate(-5-TRACKER_NAME_WIDTH, calcHeightOfParticipantRow(participant)/2)">{{participant.alias}}</svg:text>
+      <svg:line class="participant-alias-separator" [attr.x1]="-TRACKER_NAME_WIDTH" [attr.x2]="-TRACKER_NAME_WIDTH" y1="0" [attr.y2]="calcHeightOfParticipantRow(participant)"
+        stroke="#b5b5b5" strokeWidth="1"></svg:line>
+
+      <svg:g class="tracker" *ngFor="let tracker of participant.trackingDataList let index = index" [attr.transform]="makeTranslate(0, index * (TRACKER_ROW_HEIGHT + TRACKER_MARGIN))">
+        <svg:text class="tracker-name" font-size="10px" dominant-baseline="middle" alignment-baseline="middle" [matTooltip]="tracker.trackerName + ': ' +tracker.itemCountInRange"
+          [matTooltipPosition]="'above'" [ellipsis]="TRACKER_NAME_WIDTH-3" [text]="tracker.trackerName" matTooltipPosition="left"
           [attr.transform]="makeTranslate(-TRACKER_NAME_WIDTH+3, TRACKER_ROW_HEIGHT/2)"></svg:text>
 
-        <svg:g class="timeline-container" engagementTimelineContainer 
-          [chartHeight]="TRACKER_ROW_HEIGHT" 
-          [numBlocksPerDay]="NUM_BLOCKS_PER_DAY"
-          [dayScale]="dayAxisScale"
-          [colorScale]="colorScale"
-          [maxItemCountThreshold]="itemCountRangeMax"
-          [dayIndexRange]="dayIndexRange"
-          [chartWidth]="mainChartAreaWidth"
-          [tracker]="tracker"
-          [attr.transform]="makeTranslate(0,TRACKER_ROW_HEIGHT/2)"></svg:g> 
+        <svg:g class="timeline-container" engagementTimelineContainer [chartHeight]="TRACKER_ROW_HEIGHT" [numBlocksPerDay]="NUM_BLOCKS_PER_DAY"
+          [dayScale]="dayAxisScale" [colorScale]="colorScale" [maxItemCountThreshold]="itemCountRangeMax" [dayIndexRange]="dayIndexRange"
+          [chartWidth]="mainChartAreaWidth" [tracker]="tracker" [attr.transform]="makeTranslate(0,TRACKER_ROW_HEIGHT/2)"></svg:g>
       </svg:g>
     </svg:g>
   </svg:g>
