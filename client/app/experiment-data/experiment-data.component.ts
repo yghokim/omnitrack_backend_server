@@ -16,6 +16,7 @@ import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import attributeTypes from "../../../omnitrack/core/attributes/attribute-types";
 import { Response } from "@angular/http";
 import { Observable } from "rxjs/Observable";
+import { aliasCompareFunc } from "../../../shared_lib/utils";
 
 @Component({
   selector: "app-experiment-data",
@@ -70,7 +71,10 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
         })
         .flatMap(service => service.getParticipants())
         .subscribe(participants => {
-          participants.sort((a,b)=>{return new Date(a.experimentRange.from).getTime() - new Date(b.experimentRange.from).getTime()})
+          /*
+          participants.sort((a,b)=>{return new Date(a.experimentRange.from).getTime() - new Date(b.experimentRange.from).getTime()})*/
+          const sortFunc = aliasCompareFunc(false)
+          participants.sort((a,b)=>{return sortFunc(a.alias, b.alias) })
           this.participants = participants;
           if (this.participants.length > 0) {
             this.selectedParticipantId = this.participants[0]._id;

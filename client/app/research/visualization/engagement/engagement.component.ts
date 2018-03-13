@@ -124,6 +124,16 @@ EngagementData
             }
           )
         //-------------------------------
+
+        project.data.participantList.forEach(participantRow=>{
+          participantRow.trackingDataList.forEach(trackerRow=>{
+            trackerRow.itemCountInRange = trackerRow.itemDayIndices.filter(day => day >=project.range[0] && day <= project.range[1]).length
+
+          })
+        })
+
+        const trackerNameElements = $('.tracker-name') as any
+        trackerNameElements.tooltip()
       })
     );
 
@@ -177,7 +187,11 @@ EngagementData
             }
 
             return {
-              trackerName: trackerRow.tracker.name.toString(), trackerId: trackerRow.tracker._id.toString(), itemBlocks: itemBlocks
+              trackerName: trackerRow.tracker.name.toString(), 
+              trackerId: trackerRow.tracker._id.toString(), 
+              itemBlocks: itemBlocks,
+              itemDayIndices: trackerRow.decodedItems.map(item => item.day),
+              itemCountInRange: trackerRow.decodedItems.length
             }
           })
 
@@ -191,6 +205,7 @@ EngagementData
 
           return {
             participantId: participantData.participant._id.toString(),
+            email: participantData.participant.user.email,
             alias: participantData.participant.alias,
             daysSinceStart: participantData.numDays,
             noLogDayIndices: noLogDayIndices,
@@ -214,11 +229,13 @@ export type TrackerRow = {
   trackerName: string,
   trackerId: string,
   itemBlocks: Array<ItemBlockRow>,
+  itemDayIndices: Array<number>,
+  itemCountInRange: number
 }
 
 export type ParticipantRow = {
   participantId: string, alias: string, daysSinceStart: number,
-
+  email: string,
   noLogDayIndices: Array<number>, trackingDataList: Array<TrackerRow>
 }
 

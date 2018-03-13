@@ -26,6 +26,8 @@
       [participantRow]="participant"
       [attr.transform]="makeParticipantRowTransform(participant, index)">
       <svg:text class="participant-alias" font-size="12px" text-anchor="end" dominant-baseline="middle" alignment-baseline="middle"
+        [matTooltip]="participant.email"
+        [matTooltipPosition]="'above'"
         [attr.transform]="makeTranslate(-5-TRACKER_NAME_WIDTH, calcHeightOfParticipantRow(participant)/2)">{{participant.alias}}</svg:text>
       <svg:line class="participant-alias-separator"
         [attr.x1]="-TRACKER_NAME_WIDTH"
@@ -40,9 +42,10 @@
         [attr.transform]="makeTranslate(0, index * (TRACKER_ROW_HEIGHT + TRACKER_MARGIN))">
         <svg:text class="tracker-name" font-size="10px" dominant-baseline="middle" 
           alignment-baseline="middle"
+          [matTooltip]="tracker.trackerName + ': ' +tracker.itemCountInRange"
+          [matTooltipPosition] ="'above'"
           [ellipsis]="TRACKER_NAME_WIDTH-3"
           [text]="tracker.trackerName"
-          [matTooltip]="tracker.trackerName"
           matTooltipPosition="left"
           [attr.transform]="makeTranslate(-TRACKER_NAME_WIDTH+3, TRACKER_ROW_HEIGHT/2)"></svg:text>
 

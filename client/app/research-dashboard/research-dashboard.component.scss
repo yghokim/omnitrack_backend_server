@@ -29,11 +29,16 @@
   }
 }
 
-#research_dashboard_wrapper{
+#research-dashboard-wrapper{
   padding-left: $research_sidebar_width;
   padding-top: $research_header_height;
 
-  #research_column_sidebar{
+  @media print{
+    padding-left: initial;
+    padding-top: initial;
+  }
+
+  #research-column-sidebar{
     width: $research_sidebar_width;
     background: #393939;
     position: fixed;
@@ -41,6 +46,10 @@
     left:0;
     top: $research_header_height;
     overflow-y: auto;
+
+    @media print{
+      display: none;
+    }
 
     .nav-subtitle{
       text-transform: uppercase;

@@ -1,5 +1,11 @@
 @import '../../../styles.scss';
 
+@media print{
+  #research-header {
+    display: none;
+  }
+}
+
 #research-header{
   height: $research_header_height;
   position: fixed;
