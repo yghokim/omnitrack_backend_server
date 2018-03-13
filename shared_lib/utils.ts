@@ -42,7 +42,7 @@ export function isNullOrBlank(obj: string): boolean {
 
 export function unique(arr: Array<any>): Array<any> {
   return arr.filter((item, i, a) => {
-    return i == a.indexOf(item)
+    return i === a.indexOf(item)
   })
 }
 
@@ -92,9 +92,6 @@ function extractVersion(versionString: string): Version {
   } while (match)
 
   const suffixes = versionSuffixRegex.exec(versionString)
-  console.log("parse " + versionString)
-  console.log(numbers)
-  console.log(suffixes)
   return { numbers: numbers, suffix: suffixes ? suffixes[1] : null }
 }
 
@@ -126,16 +123,16 @@ export function compareVersions(versionString1: string, versionString2: string):
 }
 
 class DecodedParticipantAlias {
-  prefix: string = ""
-  code: number = 0
+  prefix = ""
+  code = 0
   constructor(public readonly alias: string) {
-    const matches = /([a-zA-Z\#\@\$]+)[\-_]+?([0-9]+)?/g.exec(alias)
+    const matches = /([a-zA-Z\#\@\$]+)[\-_]?([0-9]+)?/g.exec(alias)
     if (matches) {
       if (matches.length > 1) {
         this.prefix = matches[1]
       }
 
-      if(matches.length > 2) {
+      if (matches.length > 2) {
         this.code = Number.parseInt(matches[2])
       }
     }
@@ -155,17 +152,14 @@ export function aliasCompareFunc(reverse: boolean = false): (a: string, b: strin
     } else {
       if (aDecoded.code > bDecoded.code) {
         sort = 1
-      }
-      else if (aDecoded.code < bDecoded.code) {
+      } else if (aDecoded.code < bDecoded.code) {
         sort = -1
-      }
-      else sort = 0
+      } else { sort = 0 }
     }
 
     if (reverse === true) {
       return sort * -1
-    }
-    else return sort
+    } else { return sort }
   }
 }
 
@@ -177,17 +171,14 @@ export function groupArrayByVariable(array, variableName): any {
       elm[variableName].forEach(value => {
         if (result[value]) {
           result[value].push(elm)
-        }
-        else {
+        } else {
           result[value] = [elm]
         }
       })
-    }
-    else {
+    } else {
       if (result[elm[variableName]]) {
         result[elm[variableName]].push(elm)
-      }
-      else {
+      } else {
         result[elm[variableName]] = [elm]
       }
     }

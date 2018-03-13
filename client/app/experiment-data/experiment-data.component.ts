@@ -34,7 +34,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   public selectedParticipantId: string;
   public selectedTracker: ITrackerDbEntity;
 
-  public selectedTrackerIndex: number = 0;
+  public selectedTrackerIndex = 0;
 
   public userTrackers: Array<ITrackerDbEntity> = [];
 
@@ -44,7 +44,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   @ViewChild(MatSort) sort: MatSort;
 
-  public screenExpanded: boolean = false
+  public screenExpanded = false
 
   private tableSchema: Array<{
     localId: string;
@@ -74,7 +74,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
           /*
           participants.sort((a,b)=>{return new Date(a.experimentRange.from).getTime() - new Date(b.experimentRange.from).getTime()})*/
           const sortFunc = aliasCompareFunc(false)
-          participants.sort((a,b)=>{return sortFunc(a.alias, b.alias) })
+          participants.sort((a, b) => sortFunc(a.alias, b.alias))
           this.participants = participants;
           if (this.participants.length > 0) {
             this.selectedParticipantId = this.participants[0]._id;
@@ -97,7 +97,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     this.userSubscriptions.unsubscribe();
   }
 
-  onExpandButtonClicked(){
+  onExpandButtonClicked() {
     this.screenExpanded = !this.screenExpanded
   }
 
@@ -111,7 +111,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   }
 
   private onSelectedParticipantIdChanged(newParticipantId: string) {
-    const userId = this.participants.find(p => p._id == newParticipantId).user
+    const userId = this.participants.find(p => p._id === newParticipantId).user
       ._id;
     this.userSubscriptions.unsubscribe();
     this.userSubscriptions = new Subscription();
@@ -132,7 +132,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   }
 
   private onSelectedTrackerChanged(tracker: ITrackerDbEntity) {
-    if (this.selectedTracker != tracker) {
+    if (this.selectedTracker !== tracker) {
       this.selectedTracker = tracker;
 
       this.trackerSubscriptions.unsubscribe();
@@ -146,9 +146,9 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
             this.trackerItems = items;
             this.trackerDataSource = new MatTableDataSource(items)
             this.trackerDataSource.sortingDataAccessor = (data: IItemDbEntity, sortHeaderId: string) => {
-              if(sortHeaderId === 'timestamp'){ return data.timestamp || '';}
-              for (let item of data.dataTable){
-                if(item.attrLocalId === sortHeaderId){
+              if (sortHeaderId === 'timestamp') { return data.timestamp || ''; }
+              for (const item of data.dataTable) {
+                if (item.attrLocalId === sortHeaderId) {
                   return item.sVal || '';
                 }
               }
@@ -160,14 +160,14 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     }
   }
 
-  getItemCountOfTracker(trackerId: string): Observable<number>{
+  getItemCountOfTracker(trackerId: string): Observable<number> {
     return this.api.selectedExperimentService
           .flatMap(service =>
             service.trackingDataService.getItemsOfTracker(trackerId).map(items => items.length)
           )
   }
 
-  isImageAttribute(attr: IAttributeDbEntity):boolean{
+  isImageAttribute(attr: IAttributeDbEntity): boolean {
     return attr.type === attributeTypes.ATTR_TYPE_IMAGE
   }
 
@@ -183,12 +183,12 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
       if (helper && tryFormatted === true) {
         const formatted = helper.formatAttributeValue(attr, deserializedValue);
         return formatted;
-      } else return deserializedValue;
-    } else return null;
+      } else { return deserializedValue; }
+    } else { return null; }
   }
 
-  getTrackerColumns(tracker: ITrackerDbEntity): any[]{
-    const temp = tracker.attributes.map((attribute)=>{return attribute.localId})
+  getTrackerColumns(tracker: ITrackerDbEntity): any[] {
+    const temp = tracker.attributes.map((attribute) => attribute.localId)
     return temp.concat('timestamp')
-  }    
+  }
 }
