@@ -8,6 +8,7 @@ import { TrackingDataService } from '../../../services/tracking-data.service';
 import { ResearchApiService } from "../../../services/research-api.service";
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import * as d3 from 'd3';
+import * as d3chromatic from 'd3-scale-chromatic';
 import { ScaleLinear } from 'd3-scale'
 import { Subject } from "rxjs/Subject";
 import { D3VisualizationBaseComponent } from "../d3-visualization-base.component";
@@ -30,6 +31,8 @@ EngagementData
 
   isBusy = true;
 
+  readonly GLOBAL_PADDING_RIGHT = 8
+
   readonly X_AXIS_HEIGHT = 20
   readonly Y_AXIS_WIDTH = 120
   readonly TRACKER_NAME_WIDTH = 70
@@ -39,9 +42,13 @@ EngagementData
 
   readonly NUM_BLOCKS_PER_DAY = 4
 
+  readonly COUNT_CHART_LEFT_MARGIN = 5
+  readonly COUNT_CHART_WIDTH = 120
 
   readonly PARTICIPANT_MINIMUM_HEIGHT = 20
   readonly TRACKER_ROW_HEIGHT = 20
+
+  readonly trackerColorScale = d3.scaleOrdinal(d3chromatic.schemeCategory10)
 
   readonly NORMAL_ALIAS_COMPARE = aliasCompareFunc()
   readonly LOG_COUNT_COMPARE = (a: ParticipantRow, b: ParticipantRow)=>{
@@ -79,7 +86,8 @@ EngagementData
   private readonly _internalSubscriptions = new Subscription();
 
   readonly visualizationWidth = new Subject<number>();
-  public mainChartAreaWidth: number = 0
+  public timelineChartArea = {width: 0, x: this.Y_AXIS_WIDTH}
+  public countChartArea = {width: this.COUNT_CHART_WIDTH, x: 0}
 
   public itemCountRangeMax: number = 5
 
@@ -95,12 +103,16 @@ EngagementData
 
   public dayIndexRange: Array<number>
 
+  @ViewChild("countAxisGroup") countAxisGroup: ElementRef
   @ViewChild("xAxisGroup") xAxisGroup: ElementRef
   @ViewChild("yAxisGroup") yAxisGroup: ElementRef
   @ViewChild("chartMainGroup") chartMainGroup: ElementRef
 
   public readonly dayAxisScale: ScaleLinear<number, number>
   public readonly dayAxis: Axis<number | { valueOf(): number }>
+
+  public readonly countAxisScale: ScaleLinear<number, number>
+  public readonly countAxis: Axis<number | { valueOf(): number}>
 
   public readonly colorScale: ScaleLinear<d3.RGBColor, string>
 
@@ -114,6 +126,10 @@ EngagementData
     this.dayAxis = d3.axisTop(this.dayAxisScale)
       .tickSize(0).tickPadding(5)
       .tickFormat((d: number) => d === 0 || (d - Math.floor(d) > 0.01) || (d > this.dayAxisScale.domain()[1] || d <= this.dayAxisScale.domain()[0]) ? null : d.toString())
+
+    this.countAxisScale = d3.scaleLinear().domain([0, 10]).range([0, this.COUNT_CHART_WIDTH])
+    this.countAxis = d3.axisTop(this.countAxisScale)
+      .tickSize(0).tickPadding(5)
 
     this.colorScale = d3.scaleLinear<d3.RGBColor, number>().domain([1, this.itemCountRangeMax]).interpolate(d3.interpolateHcl).range([d3.rgb("rgb(243, 220, 117)"), d3.rgb("#2387a0")])
 
@@ -132,7 +148,9 @@ EngagementData
       }), this.visualizationWidth, (data, range, width) => {
         return { data: data, range: range, width: width }
       }).subscribe(project => {
-        this.mainChartAreaWidth = project.width - this.Y_AXIS_WIDTH
+        this.timelineChartArea.width = project.width - this.Y_AXIS_WIDTH - this.COUNT_CHART_WIDTH - this.COUNT_CHART_LEFT_MARGIN - this.GLOBAL_PADDING_RIGHT
+
+        this.countChartArea.x = this.timelineChartArea.x + this.timelineChartArea.width + this.COUNT_CHART_LEFT_MARGIN
 
         //calculate height================
         if (project.data.participantList.length > 0) {
@@ -145,8 +163,35 @@ EngagementData
         }
         //-----------------------------
 
+        //calculate count====================
+        let maxItemCount
+        let trackerInjectionIds = []
+        project.data.participantList.forEach(participantRow=>{
+          participantRow.trackingDataList.forEach(trackerRow=>{
+            
+            if(trackerRow.trackerInjectionId && trackerInjectionIds.indexOf(trackerRow.trackerInjectionId) === -1){
+              trackerInjectionIds.push(trackerRow.trackerInjectionId)
+            }
+
+            trackerRow.itemCountInRange = trackerRow.itemDayIndices.filter(day => day >=project.range[0] && day <= project.range[1]).length
+            if(!maxItemCount)
+            {
+              maxItemCount = trackerRow.itemCountInRange
+            }else{
+              maxItemCount = Math.max(maxItemCount, trackerRow.itemCountInRange)
+            }
+          })
+        })
+        //====================================
+
         //update axis========================
-        this.dayAxisScale.domain([project.range[0], project.range[1] + 1]).range([0, project.width - this.Y_AXIS_WIDTH])
+        this.trackerColorScale.domain(trackerInjectionIds)
+        if(trackerInjectionIds.length > 0){
+          console.log(d3.schemeDark2)
+        console.log(this.trackerColorScale(trackerInjectionIds[0]))
+        }
+
+        this.dayAxisScale.domain([project.range[0], project.range[1] + 1]).range([0, this.timelineChartArea.width])
         d3.select(this.xAxisGroup.nativeElement)
           .transition()
           .duration(500)
@@ -156,14 +201,28 @@ EngagementData
                 .attr("transform", this.makeTranslate(-(this.dayAxisScale(1) - this.dayAxisScale(0)) / 2, 0))
             }
           )
+
+        this.countAxisScale.domain([0, maxItemCount]).nice()
+        d3.select(this.countAxisGroup.nativeElement)
+          .transition()
+          .duration(500)
+          .call(this.countAxis)
         //-------------------------------
 
-        project.data.participantList.forEach(participantRow=>{
-          participantRow.trackingDataList.forEach(trackerRow=>{
-            trackerRow.itemCountInRange = trackerRow.itemDayIndices.filter(day => day >=project.range[0] && day <= project.range[1]).length
-
+        $("rect.bar-background")
+          .hover((ev)=>{
+            const bar = $(ev.target.parentElement).find("rect.bar-count")
+            switch(ev.type){
+              case "mouseenter":
+              ev.target.setAttribute("fill", "#f0f0f0")
+              bar.attr("stroke-width", 1)
+              break;
+              case "mouseleave":
+              ev.target.setAttribute("fill", "transparent")
+              bar.attr("stroke-width", 0)
+              break;
+            }
           })
-        })
 
         const trackerNameElements = $('.tracker-name') as any
         trackerNameElements.tooltip()
@@ -172,6 +231,10 @@ EngagementData
       })
     );
 
+  }
+
+  public toDarkerColor(color:string): string{
+    return d3.hsl(color).darker(2).toString()
   }
 
   public onSortMethodChanged(index: number){
@@ -230,6 +293,7 @@ EngagementData
             return {
               trackerName: trackerRow.tracker.name.toString(), 
               trackerId: trackerRow.tracker._id.toString(), 
+              trackerInjectionId: trackerRow.tracker.flags.injectionId,
               itemBlocks: itemBlocks,
               itemDayIndices: trackerRow.decodedItems.map(item => item.day),
               itemCountInRange: trackerRow.decodedItems.length
@@ -269,6 +333,7 @@ export type ItemBlockRow = {
 export type TrackerRow = {
   trackerName: string,
   trackerId: string,
+  trackerInjectionId?: string,
   itemBlocks: Array<ItemBlockRow>,
   itemDayIndices: Array<number>,
   itemCountInRange: number

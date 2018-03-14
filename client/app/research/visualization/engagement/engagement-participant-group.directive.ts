@@ -47,7 +47,7 @@ export class EngagementParticipantGroupDirective implements AfterContentInit {
 
     const joined = d3.select(this.elementRef.nativeElement).selectAll("rect.no-log-day")
       .data(this._participantRow.noLogDayIndices.filter(d=>{
-        return d <= this._dayScale.domain()[1] && d >= this._dayScale.domain()[0]
+        return d < this._dayScale.domain()[1] && d >= this._dayScale.domain()[0]
       }), (d:number, i)=>d.toFixed(0))
 
     const cellWidth = this._dayScale(1) - this._dayScale(0) - 2

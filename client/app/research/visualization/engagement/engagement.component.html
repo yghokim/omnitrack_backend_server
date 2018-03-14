@@ -38,10 +38,31 @@
 
         <svg:g class="timeline-container" engagementTimelineContainer [chartHeight]="TRACKER_ROW_HEIGHT" [numBlocksPerDay]="NUM_BLOCKS_PER_DAY"
           [dayScale]="dayAxisScale" [colorScale]="colorScale" [maxItemCountThreshold]="itemCountRangeMax" [dayIndexRange]="dayIndexRange"
-          [chartWidth]="mainChartAreaWidth" [tracker]="tracker" [attr.transform]="makeTranslate(0,TRACKER_ROW_HEIGHT/2)"></svg:g>
+          [chartWidth]="timelineChartArea.width" [tracker]="tracker" [attr.transform]="makeTranslate(0,TRACKER_ROW_HEIGHT/2)"></svg:g>
+        <svg:g class="count-container" [attr.transform]="makeTranslate(countChartArea.x - Y_AXIS_WIDTH, 0)">
+          <svg:rect class="bar-background"
+              [attr.height]="TRACKER_ROW_HEIGHT"
+              [attr.width]="COUNT_CHART_WIDTH"
+              fill="transparent"
+              [matTooltip]="tracker.trackerName + ': ' + tracker.itemCountInRange + ' logs'"
+              />
+          <svg:rect
+            class="bar-count"
+            pointer-events="none"
+            x="0"
+            y="0"
+            [attr.fill]="trackerColorScale(tracker.trackerInjectionId)"
+            [attr.stroke]="toDarkerColor(trackerColorScale(tracker.trackerInjectionId))"
+            stroke-width="0"
+            [attr.width]="countAxisScale(tracker.itemCountInRange)"
+            [attr.height]="TRACKER_ROW_HEIGHT"
+          />
+        </svg:g>
+        
       </svg:g>
     </svg:g>
   </svg:g>
+  <svg:g visualization #countAxisGroup [attr.transform]="makeTranslate(countChartArea.x, X_AXIS_HEIGHT)"></svg:g>
   <svg:g visualization #yAxisGroup></svg:g>
   <svg:g visualization #xAxisGroup [attr.transform]="makeTranslate(Y_AXIS_WIDTH, X_AXIS_HEIGHT)"></svg:g>
 </app-d3-chart-frame>
