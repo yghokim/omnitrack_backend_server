@@ -5,7 +5,7 @@ import OTItemCtrl from './controllers/ot_item_controller';
 import OTTrackerCtrl from './controllers/ot_tracker_controller';
 import OTTriggerCtrl from './controllers/ot_trigger_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
-import OTUsageLogCtrl from './controllers/ot_usage_log_controller';
+import { OTUsageLogCtrl } from './controllers/ot_usage_log_controller';
 import OTResearchCtrl from './controllers/ot_research_controller';
 import UserCtrl from './controllers/user';
 import OTUser from './models/ot_user';

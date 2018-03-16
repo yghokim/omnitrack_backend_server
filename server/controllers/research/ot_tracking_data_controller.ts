@@ -33,7 +33,7 @@ export default class TrackingDataCtrl {
     return OTParticipant.find({
       experiment: experimentId,
       isDenied: { $ne: true }, isConsentApproved: true, dropped: { $ne: true }
-    }, { _id: 1, user: 1 }).then(
+    }, { _id: 1, user: 1 }).lean().then(
       participants => {
         if (participants.length > 0) {
           const condition = { user: { $in: participants.map(p => p["user"]) } }
@@ -57,7 +57,7 @@ export default class TrackingDataCtrl {
             }else{
               condition["flags.experiment"] = experimentId
             }
-            return (model as any).find(condition)
+            return (model as any).find(condition).lean()
           } else {
             
           }

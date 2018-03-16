@@ -1,47 +1,61 @@
-<div class="container">
+<div [ngClass]="screenExpanded===true? 'container-fluid' : 'container'">
   <div class="card">
     <mat-tab-group [dynamicHeight]="true" class="tab-group" (selectedTabChange)="onTabChanged($event)">
       <mat-tab label="Study Participants">
         <app-busy-overlay *ngIf="isLoadingParticipants" [scale]="0.5" [overlayClass]="'main'"></app-busy-overlay>
-        <mat-table class = "table-data" [dataSource]="participantDataSource" matSort>
-            
-            <ng-container matColumnDef="alias">
-              <mat-header-cell *matHeaderCellDef mat-sort-header> Alias </mat-header-cell>
-              <mat-cell *matCellDef="let object" [matTooltip]="object.alias"> {{object.alias || 'Not set'}} </mat-cell>
-            </ng-container>
+        <mat-table class="table-data" [dataSource]="participantDataSource" matSort>
 
-            <ng-container matColumnDef="email">
-              <mat-header-cell *matHeaderCellDef mat-sort-header> Email </mat-header-cell>
-              <mat-cell class="text-truncate" [matTooltip]="object.user.email" *matCellDef="let object"> {{object.user.email || ''}} </mat-cell>
-            </ng-container>
+          <ng-container matColumnDef="alias">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Alias </mat-header-cell>
+            <mat-cell *matCellDef="let object" [matTooltip]="object.alias"> {{object.alias || 'Not set'}} </mat-cell>
+          </ng-container>
 
-            <ng-container matColumnDef="status">
-              <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
-              <mat-cell *matCellDef="let object"> 
-                  <div class="badge badge-danger" *ngIf="object.isDenied">Denied</div>
-                  <div class="badge badge-warning" *ngIf="!object.isDenied && !object.isConsentApproved">Invitation Pending</div>
-                  <div class="badge badge-danger" *ngIf="object.dropped == true">Dropped Out</div>
-                  <div class="badge badge-primary" *ngIf="object.isConsentApproved && object.dropped != true">In Experiment</div>
-              </mat-cell>
-            </ng-container>
+          <ng-container matColumnDef="email">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Email </mat-header-cell>
+            <mat-cell class="text-truncate" [matTooltip]="object.user.email" *matCellDef="let object"> {{object.user.email || ''}} </mat-cell>
+          </ng-container>
 
-            <ng-container matColumnDef="rangeStart">
-                <mat-header-cell *matHeaderCellDef mat-sort-header>Count From</mat-header-cell>
-                <mat-cell *matCellDef="let object">
-                    <mat-form-field style="display: none">
-                        <input matInput [matDatepicker]="experimentRangeStartPicker" placeholder="Choose a date" [value]="object.experimentRange.from"
-                        (dateChange)="onChangeExperimentRangeStartInput($event.value, object)">
-                        <mat-datepicker touchUi="true" #experimentRangeStartPicker></mat-datepicker>
-                      </mat-form-field>
-                  <button mat-button class="table-cell-clickable-text" (click)="experimentRangeStartPicker.open()">{{object.experimentRange.from | date: 'MMM dd, yyyy (EE)'}}</button></mat-cell>
-            </ng-container>
+          <ng-container matColumnDef="status">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
+            <mat-cell *matCellDef="let object">
+              <div class="badge badge-danger" *ngIf="object.isDenied">Denied</div>
+              <div class="badge badge-warning" *ngIf="!object.isDenied && !object.isConsentApproved">Invitation Pending</div>
+              <div class="badge badge-danger" *ngIf="object.dropped == true">Dropped Out</div>
+              <div class="badge badge-primary" *ngIf="object.isConsentApproved && object.dropped != true">In Experiment</div>
+            </mat-cell>
+          </ng-container>
 
-            <ng-container matColumnDef="joined">
-              <mat-header-cell *matHeaderCellDef mat-sort-header>Joined Exp</mat-header-cell>
-              <mat-cell *matCellDef="let object">{{object.approvedAt | date: 'MMM dd, yyyy (EE)'}}</mat-cell>
-            </ng-container>
-            
-            <!--
+          <ng-container matColumnDef="rangeStart">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Count From</mat-header-cell>
+            <mat-cell *matCellDef="let object">
+              <mat-form-field style="display: none">
+                <input matInput [matDatepicker]="experimentRangeStartPicker" placeholder="Choose a date" [value]="object.experimentRange.from"
+                  (dateChange)="onChangeExperimentRangeStartInput($event.value, object)">
+                <mat-datepicker touchUi="true" #experimentRangeStartPicker></mat-datepicker>
+              </mat-form-field>
+              <button mat-button class="table-cell-clickable-text" (click)="experimentRangeStartPicker.open()">{{object.experimentRange.from | date: 'MMM dd, yyyy (EE)'}}</button>
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="joined">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Joined Exp</mat-header-cell>
+            <mat-cell *matCellDef="let object">{{object.approvedAt | date: 'MMM dd, yyyy (EE)'}}</mat-cell>
+          </ng-container>
+
+          
+          <ng-container matColumnDef="lastSync">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Last Sync</mat-header-cell>
+            <mat-cell *matCellDef="let object">
+              <span *ngIf="object.lastSyncTimestamp">{{object.lastSyncTimestamp | date: 'MMM dd, yyyy'}}<br>{{object.lastSyncTimestamp | date: 'h:mm a'}}</span>
+              <span *ngIf="!object.lastSyncTimestamp" class="text-color-danger">None</span></mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="lastSession">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Last Session</mat-header-cell>
+            <mat-cell *matCellDef="let object"><span *ngIf="object.lastSessionTimestamp">{{object.lastSessionTimestamp | date: 'MMM dd, yyyy'}}<br>{{object.lastSessionTimestamp | date: 'h:mm a'}}</span><span *ngIf="!object.lastSessionTimestamp" class="text-color-danger">None</span></mat-cell>
+          </ng-container>
+
+          <!--
             <ng-container matColumnDef="created">
               <mat-header-cell *matHeaderCellDef mat-sort-header> Created </mat-header-cell>
               <mat-cell *matCellDef="let object"> {{object.user.accountCreationTime | date: 'MMM dd, yyyy'}} </mat-cell>
@@ -51,110 +65,59 @@
               <mat-cell *matCellDef="let object"> {{object.user.accountLastSignInTime | date: 'MMM dd, yyyy'}} </mat-cell>
             </ng-container>
             -->
-            <ng-container matColumnDef="userId">
-              <mat-header-cell *matHeaderCellDef mat-sort-header> User UID </mat-header-cell>
-              <mat-cell *matCellDef="let object"> {{object.user._id}} </mat-cell>
-            </ng-container>
-            <ng-container matColumnDef="button">
-              <mat-header-cell *matHeaderCellDef> </mat-header-cell>
-              <mat-cell *matCellDef="let object"> 
-                  <div class="pull-right">
-                      <button mat-icon-button [matMenuTriggerFor]="menu">
-                        <mat-icon class="material-icons">more_vert</mat-icon>
-                      </button>
-                      <mat-menu #menu="matMenu" [ngSwitch]="getParticipationStatus(object)">
-                        <button mat-menu-item (click)="onChangeAliasClicked(object)">
-                          Change Alias
-                        </button>
-                        <button mat-menu-item *ngSwitchCase="'pending'" (click)="onCancelInvitationClicked(object._id)">
-                          <span>Cancel Invitation</span>
-                        </button>
-      
-                        <button mat-menu-item *ngSwitchCase="'participating'" (click)="onDropParticipantClicked(object._id)">
-                        <span>Drop Participant</span>
-                        </button>
-      
-                        <button mat-menu-item *ngSwitchCase="'dropped' || 'denied'" (click)="onRemoveParticipantEntryClicked(object._id)">
-                          <span>Remove Entry</span>
-                          </button>
-                      </mat-menu>
-                    </div>
-              </mat-cell>
-            </ng-container>
-
-            <mat-header-row class="no-right-padding" *matHeaderRowDef="PARTICIPANT_COLUMNS"></mat-header-row>
-            <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: PARTICIPANT_COLUMNS;"></mat-row>
-
-         </mat-table>
-         <div class="card-body card-footer horizontal-padding-narrow">
- 
-           <small *ngIf="participants== null" class="text-color-gray">Participants not loaded.</small>
-           <small *ngIf="participants!= null && participants.length == 0" class="text-color-gray">No participants in server.</small>
-           <div *ngIf="participants!= null && participants.length > 0" class="text-color-gray flex-container flex-align-items-center">
-             <small class="right-margin-3em">Active Participants: {{activeParticipantCount()}}</small>
-             <small class="right-margin-3em">Pending Invitees: {{pendingInviteeCount()}}</small>
-             <small class="right-margin-3em">Dropped: {{droppedParticipantCount()}}</small>
-             
-           </div>
- 
-         </div>
-       </mat-tab>
-       
-       <!--Old Table
-         <table class="table table-data">
-           <thead>
-            <tr>
-              <th>Alias</th>
-              <th>Status</th>
-              <th>Created</th>
-              <th>Signed In</th>
-              <th>User UID</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tr class="hoverable singleline" *ngFor="let participant of participants let index = index" (mouseLeave)="hoveredRowIndex = -1"
-            (mouseOver)="hoveredRowIndex = index">
-            <td [class.text-color-lightgray]="!participant.alias">{{participant.alias || 'Not set'}}</td>
-            <td>
-              <div class="badge badge-danger" *ngIf="participant.isDenied">Denied</div>
-              <div class="badge badge-warning" *ngIf="!participant.isDenied && !participant.isConsentApproved">Invitation Pending</div>
-              <div class="badge badge-danger" *ngIf="participant.dropped == true">Dropped Out</div>
-              <div class="badge badge-primary" *ngIf="participant.isConsentApproved && participant.dropped != true">In Experiment</div>
-              
-            </td>
-            <td>{{participant.user.accountCreationTime | date: 'MMM dd, yyyy'}}</td>
-            <td>{{participant.user.accountLastSignInTime | date: 'MMM dd, yyyy'}}</td>
-
-            <td>{{participant.user._id}}</td>
-            <td class="button-cell">
-              <div class="text-right">
+          <ng-container matColumnDef="userId">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> User UID </mat-header-cell>
+            <mat-cell *matCellDef="let object"> {{object.user._id}} </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="button">
+            <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+            <mat-cell *matCellDef="let object">
+              <div class="pull-right">
                 <button mat-icon-button [matMenuTriggerFor]="menu">
                   <mat-icon class="material-icons">more_vert</mat-icon>
                 </button>
-                <mat-menu #menu="matMenu" [ngSwitch]="getParticipationStatus(participant)">
-                  <button mat-menu-item (click)="onChangeAliasClicked(participant)">
+                <mat-menu #menu="matMenu" [ngSwitch]="getParticipationStatus(object)">
+                  <button mat-menu-item (click)="onChangeAliasClicked(object)">
                     Change Alias
                   </button>
-                  <button mat-menu-item *ngSwitchCase="'pending'" (click)="onCancelInvitationClicked(participant._id)">
+                  <button mat-menu-item *ngSwitchCase="'pending'" (click)="onCancelInvitationClicked(object._id)">
                     <span>Cancel Invitation</span>
                   </button>
 
-                  <button mat-menu-item *ngSwitchCase="'participating'" (click)="onDropParticipantClicked(participant._id)">
-                  <span>Drop Participant</span>
+                  <button mat-menu-item *ngSwitchCase="'participating'" (click)="onDropParticipantClicked(object._id)">
+                    <span>Drop Participant</span>
                   </button>
 
-                  <button mat-menu-item *ngSwitchCase="'dropped' || 'denied'" (click)="onRemoveParticipantEntryClicked(participant._id)">
+                  <button mat-menu-item *ngSwitchCase="'dropped' || 'denied'" (click)="onRemoveParticipantEntryClicked(object._id)">
                     <span>Remove Entry</span>
-                    </button>
+                  </button>
                 </mat-menu>
               </div>
-            </td>
-          </tr>
-        </table>-->
-      <mat-tab label="The OmniTrack User Pool" [disabled] = "isUserpoolAccessible == false">
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row class="no-right-padding" *matHeaderRowDef="PARTICIPANT_COLUMNS"></mat-header-row>
+          <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: PARTICIPANT_COLUMNS;"></mat-row>
+
+        </mat-table>
+        <div class="card-body card-footer horizontal-padding-narrow">
+
+          <small *ngIf="participants== null" class="text-color-gray">Participants not loaded.</small>
+          <small *ngIf="participants!= null && participants.length == 0" class="text-color-gray">No participants in server.</small>
+          <div *ngIf="participants!= null && participants.length > 0" class="text-color-gray flex-container flex-align-items-center">
+            <small class="right-margin-3em">Active Participants: {{activeParticipantCount()}}</small>
+            <small class="right-margin-3em">Pending Invitees: {{pendingInviteeCount()}}</small>
+            <small class="right-margin-3em">Dropped: {{droppedParticipantCount()}}</small>
+
+          </div>
+
+        </div>
+      </mat-tab>
+
+      <mat-tab label="The OmniTrack User Pool" [disabled]="isUserpoolAccessible == false">
         <app-busy-overlay *ngIf="isLoadingUserPool" [scale]="0.5" [overlayClass]="'main'"></app-busy-overlay>
-        
-        <mat-table class = "table-data" #userpoolTable [dataSource]="userPoolDataSource" matSort>
+
+        <mat-table class="table-data" #userpoolTable [dataSource]="userPoolDataSource" matSort>
 
           <ng-container matColumnDef="email">
             <mat-header-cell *matHeaderCellDef mat-sort-header> Email </mat-header-cell>
@@ -162,17 +125,17 @@
           </ng-container>
           <ng-container matColumnDef="status">
             <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
-            <mat-cell *matCellDef="let object"> 
-                <div *ngIf="getParticipationStatusToThisExperimentOfUser(object)" [ngSwitch]="getParticipationStatusToThisExperimentOfUser(object)">
-                  <span *ngSwitchCase="'pending'" class="badge badge-warning">Invitation Pending</span>
-                  <span *ngSwitchCase="'participating'" class="badge badge-primary">In Experiment</span>
-                  <span *ngSwitchCase="'dropped'"  class="badge badge-danger">Dropped Out</span>
-                  <span *ngSwitchCase="'denied'"  class="badge badge-danger">Denied</span>
-                </div>
-                <div *ngIf="isParticipatingInAnotherExperiment(object)">
-                  <span class="badge badge-warning">In Other Experiments</span>
-                </div>
-           </mat-cell>
+            <mat-cell *matCellDef="let object">
+              <div *ngIf="getParticipationStatusToThisExperimentOfUser(object)" [ngSwitch]="getParticipationStatusToThisExperimentOfUser(object)">
+                <span *ngSwitchCase="'pending'" class="badge badge-warning">Invitation Pending</span>
+                <span *ngSwitchCase="'participating'" class="badge badge-primary">In Experiment</span>
+                <span *ngSwitchCase="'dropped'" class="badge badge-danger">Dropped Out</span>
+                <span *ngSwitchCase="'denied'" class="badge badge-danger">Denied</span>
+              </div>
+              <div *ngIf="isParticipatingInAnotherExperiment(object)">
+                <span class="badge badge-warning">In Other Experiments</span>
+              </div>
+            </mat-cell>
           </ng-container>
           <ng-container matColumnDef="demographic">
             <mat-header-cell *matHeaderCellDef mat-sort-header> Demographic </mat-header-cell>
@@ -181,19 +144,19 @@
           <ng-container matColumnDef="created">
             <mat-header-cell *matHeaderCellDef mat-sort-header> Created </mat-header-cell>
             <mat-cell *matCellDef="let object"> {{object.accountCreationTime | date: 'MMM dd, yyyy'}} </mat-cell>
-          </ng-container> 
+          </ng-container>
           <ng-container matColumnDef="signIn">
-             <mat-header-cell *matHeaderCellDef mat-sort-header> Signed In </mat-header-cell>
-             <mat-cell *matCellDef="let object"> {{object.accountLastSignInTime | date: 'MMM dd, yyyy'}} </mat-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Signed In </mat-header-cell>
+            <mat-cell *matCellDef="let object"> {{object.accountLastSignInTime | date: 'MMM dd, yyyy'}} </mat-cell>
           </ng-container>
           <ng-container matColumnDef="userId">
             <mat-header-cell *matHeaderCellDef mat-sort-header> User UID </mat-header-cell>
             <mat-cell *matCellDef="let object"> {{object._id}} </mat-cell>
           </ng-container>
           <ng-container matColumnDef="button">
-            <mat-header-cell *matHeaderCellDef mat-sort-header>  </mat-header-cell>
-            <mat-cell *matCellDef="let object"> 
-            <div class="pull-right">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> </mat-header-cell>
+            <mat-cell *matCellDef="let object">
+              <div class="pull-right">
                 <button mat-icon-button [matMenuTriggerFor]="menu">
                   <mat-icon class="material-icons">more_vert</mat-icon>
                 </button>
@@ -205,64 +168,14 @@
                     <span class="text-color-danger">Delete Account</span>
                   </button>
                 </mat-menu>
-              </div>  
+              </div>
             </mat-cell>
           </ng-container>
 
           <mat-header-row class="no-right-padding" *matHeaderRowDef="USER_COLUMNS"></mat-header-row>
           <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: USER_COLUMNS;"></mat-row>
-    
 
         </mat-table>
-       
-        <!-- Old UserPool Table
-        <table class="table table-data" (mouseleave)="hoveredRowIndex = -1">
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Status</th>
-              <th>Demographic</th>
-              <th>Created</th>
-              <th>Signed In</th>
-              <th>User UID</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tr class="hoverable singleline" *ngFor="let user of userPool let index = index" (mouseleave)="hoveredRowIndex = -1" (mouseover)="hoveredRowIndex = index">
-            <td>{{user.email | anonymizeEmail}}</td>
-            <td>
-              <div *ngIf="getParticipationStatusToThisExperimentOfUser(user)" [ngSwitch]="getParticipationStatusToThisExperimentOfUser(user)">
-                <span *ngSwitchCase="'pending'" class="badge badge-warning">Invitation Pending</span>
-                <span *ngSwitchCase="'participating'" class="badge badge-primary">In Experiment</span>
-                <span *ngSwitchCase="'dropped'"  class="badge badge-danger">Dropped Out</span>
-                <span *ngSwitchCase="'denied'"  class="badge badge-danger">Denied</span>
-              </div>
-              <div *ngIf="isParticipatingInAnotherExperiment(user)">
-                <span class="badge badge-warning">In Other Experiments</span>
-              </div>
-            </td>
-            <td>{{exractDemographics(user)}}</td>
-            <td>{{user.accountCreationTime | date: 'MMM dd, yyyy'}}</td>
-            <td>{{user.accountLastSignInTime | date: 'MMM dd, yyyy'}}</td>
-            <td>{{user._id}}</td>
-            <td class="button-cell">
-              <div class="text-right" [style.visibility]="hoveredRowIndex != index? 'hidden' : 'inherit'">
-                <button mat-icon-button [matMenuTriggerFor]="menu">
-                  <mat-icon class="material-icons">more_vert</mat-icon>
-                </button>
-                <mat-menu #menu="matMenu">
-                  <button mat-menu-item *ngIf="!getParticipationStatusToThisExperimentOfUser(user)" (click)="onSendInvitationClicked(user._id)">
-                    <span>Invite</span>
-                  </button>
-                  <button mat-menu-item (click)="onDeleteAccountClicked(user._id)">
-                    <span class="text-color-danger">Delete Account</span>
-                  </button>
-                </mat-menu>
-              </div>
-            </td>
-
-          </tr>
-        </table>-->
 
         <div class="card-body card-footer">
 
@@ -273,6 +186,12 @@
         </div>
       </mat-tab>
     </mat-tab-group>
+
+    <div class="tabbar-header-right-container-absolute">
+      <button mat-icon-button [matTooltip]="screenExpanded===true? 'contract' : 'expand'" (click)="screenExpanded = !screenExpanded">
+        <mat-icon class="material-icons text-color-darkgray">{{screenExpanded===true? 'picture_in_picture' : 'aspect_ratio'}}</mat-icon>
+      </button>
+    </div>
 
   </div>
 

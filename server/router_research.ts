@@ -7,6 +7,7 @@ import OTResearchCtrl from './controllers/ot_research_controller';
 import { experimentCtrl } from './controllers/research/ot_experiment_controller';
 import { messageCtrl } from './controllers/research/ot_message_controller';
 import { clientBinaryCtrl } from './controllers/research/ot_client_binary_controller';
+import { OTUsageLogCtrl } from './controllers/ot_usage_log_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
 import ot_tracker from './models/ot_tracker';
 import ot_trigger from './models/ot_trigger';
@@ -23,6 +24,7 @@ const researchAuthCtrl = new OTResearchAuthCtrl()
 const adminCtrl = new AdminCtrl()
 const userCtrl = new OTUserCtrl()
 const storageCtrl = new BinaryStorageCtrl()
+const usageLogCtrl = new OTUsageLogCtrl()
 
 function makeTokenAuthMiddleware(pipe: (reseaercher, parsedToken?)=>string = ()=>{return null}): any{
   return jwt({secret: env.jwt_secret, userProperty: 'researcher', isRevoked: (req, payload, done)=>{

@@ -18,7 +18,7 @@ import { NotificationService } from '../services/notification.service';
 })
 export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
-  readonly PARTICIPANT_COLUMNS = ['alias', 'email', 'status', 'rangeStart', 'joined', 'userId', 'button']
+  readonly PARTICIPANT_COLUMNS = ['alias', 'email', 'status', 'rangeStart', 'joined', 'lastSync', 'lastSession', 'userId', 'button']
   readonly USER_COLUMNS = ['email','status','demographic','created','signIn','userId', 'button']
 
   public userPool: Array<any>
@@ -33,6 +33,8 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
   public hoveredParticipantId = null
 
   public isUserpoolAccessible: boolean = false
+
+  public screenExpanded = false
 
   public participantDataSource: MatTableDataSource<any>;
   public userPoolDataSource: MatTableDataSource<any>;
@@ -361,6 +363,8 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
           case "rangeStart": { if(data.experimentRange){ return data.experimentRange.from } break; } 
           case "joined": { return data.approvedAt || '' }
           case "created": { if (data.user) { return data.user.accountCreationTime || ''; } break; }
+          case "lastSync": return data.lastSyncTimestamp || '';
+          case "lastSession": return data.lastSessionTimestamp || '';
           case "userId": { if (data.user) { return data.user._id || ''; } break; }
           default: { return ''; }
         }
