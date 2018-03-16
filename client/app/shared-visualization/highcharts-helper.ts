@@ -1,10 +1,12 @@
 export class HighChartsHelper{
   static makeDefaultChartOptions(chartType: string = "column", height: any = "70%"): any{
+    const chart = { 
+      type: chartType, 
+      height: height, 
+      spacing: [10,0,0,0] }
+
     return {
-      chart: { 
-        type: chartType, 
-        height: height, 
-        spacing: [10,0,0,0] },
+      chart: chart,
       title: {
         text: '',
         style: {

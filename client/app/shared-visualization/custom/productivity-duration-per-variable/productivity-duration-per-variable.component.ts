@@ -16,6 +16,8 @@ export class ProductivityDurationPerVariableComponent implements OnInit {
 
   @Input() title: string
 
+  @Input() chartHeightVariable: string = "70%"
+
   @Input("data")
   set _decodedItems(data: {decodedItems: Array<DecodedItem>, variableName: string, isArray: boolean}) {
     const decodedItems = data.decodedItems
@@ -44,7 +46,7 @@ export class ProductivityDurationPerVariableComponent implements OnInit {
 
     variableBasedArray.sort((a, b) => b.totalDuration - a.totalDuration )
     
-    const chartOptions = HighChartsHelper.makeDefaultChartOptions('bar', '70%')
+    const chartOptions = HighChartsHelper.makeDefaultChartOptions('bar', this.chartHeightVariable)
     chartOptions.xAxis = {
       categories: variableBasedArray.map(elm => elm.target)
     }
