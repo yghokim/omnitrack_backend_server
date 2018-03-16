@@ -186,10 +186,6 @@ EngagementData
 
         //update axis========================
         this.trackerColorScale.domain(trackerInjectionIds)
-        if(trackerInjectionIds.length > 0){
-          console.log(d3.schemeDark2)
-        console.log(this.trackerColorScale(trackerInjectionIds[0]))
-        }
 
         this.dayAxisScale.domain([project.range[0], project.range[1] + 1]).range([0, this.timelineChartArea.width])
         d3.select(this.xAxisGroup.nativeElement)

@@ -76,7 +76,8 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
           this.data.next({
             days: days, groups: days.map(day => {
               const omitLog = data.omitLogs? data.omitLogs.find(l=>l.dateStart === day) : null
-              return { day: day, logs: grouped[day.toString()], omitNote: data.omitLogs && omitLog ? omitLog.note : null }
+              return { day: day, logs: grouped[day.toString()], omitNote: data.omitLogs && omitLog ? omitLog.note : null,
+               omitNoteTimestamp: data.omitLogs && omitLog? omitLog.timestamp : null }
             })
           })
         }
@@ -175,5 +176,6 @@ type ProductivityTimelineData = {
 export type ProductivityLogGroup = {
   day: number,
   logs: Array<ProductivityLog>,
-  omitNote: string
+  omitNote?: string,
+  omitNoteTimestamp?: number,
 }

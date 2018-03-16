@@ -168,6 +168,8 @@ export class ProductivityDashboardComponent implements OnInit {
           const decoded = {
             productivity: productivity,
             duration: duration,
+            from: startMoment.valueOf(),
+            to: endMoment.valueOf(),
             dominantDate: dominantDate,
             dominantDateNumber: dominantDate.getTime(),
             usedDevices: _deviceIds
@@ -211,6 +213,12 @@ export class ProductivityDashboardComponent implements OnInit {
           });
 
           for (var i = 0; i < numDaysBetween; i++) {
+            const toDateRatio =  Math.min(endDiffRatio - (1 + i), 1)
+            if(toDateRatio < 1/(24*60)){
+              // Skip less than 1 minute
+              continue;
+            }
+
             logs.push({
               dateStart: startDayStart
                 .clone()
@@ -218,7 +226,7 @@ export class ProductivityDashboardComponent implements OnInit {
                 .toDate()
                 .getTime(),
               fromDateRatio: 0,
-              toDateRatio: Math.min(endDiffRatio - (1 + i), 1),
+              toDateRatio: toDateRatio,
               productivity: productivity,
               decodedItem: decoded
             });
@@ -240,7 +248,7 @@ export class ProductivityDashboardComponent implements OnInit {
             logItem,
             this.INJECTION_ID_OMIT_NOTE
           );
-          return {dateStart: date.toMoment().startOf('day').toDate().getTime(), note: note}
+          return {dateStart: date.toMoment().startOf('day').toDate().getTime(), note: note, timestamp: logItem.timestamp}
         })
       }
 
@@ -302,6 +310,8 @@ export type TrackingSet = {
 export type DecodedItem = {
   productivity: number;
   duration: number;
+  from: number;
+  to: number;
   usedDevices: Array<string>;
   tasks: Array<string>;
   location: string;
@@ -324,6 +334,7 @@ export class ProductivityLog {
 export class OmitLog {
   dateStart: number;
   note: string;
+  timestamp: number;
 }
 
 export interface ProductivityTimelineData {
