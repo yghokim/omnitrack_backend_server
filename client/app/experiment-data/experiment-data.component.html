@@ -21,9 +21,9 @@
 
       </mat-tab>
     </mat-tab-group>
-
-    <app-audio-cell></app-audio-cell>
-     
+   
+  <app-audio-cell></app-audio-cell>
+    
    <mat-table class="table table-data" [dataSource]="trackerDataSource" matSort *ngIf="selectedTracker">
 
         <ng-container *ngFor="let col of selectedTracker.attributes" matColumnDef={{col.localId}}>
@@ -33,7 +33,8 @@
             <span *ngIf="isImageAttribute(col)" >
               <app-image-cell *ngIf="this.getItemValue(object,col)" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': object._id, 'attributeLocalId': col.localId}"></app-image-cell>
             </span>
-            <span *ngIf="isAudioAttribute(col)">Audio Cell works!
+            <span *ngIf="isAudioAttribute(col)">
+              <app-audio-cell *ngIf="this.getItemValue(object,col)" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': object._id, 'attributeLocalId': col.localId}"></app-audio-cell>
             </span>
           </mat-cell>
         </ng-container>

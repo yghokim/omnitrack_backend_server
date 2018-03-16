@@ -16,11 +16,13 @@ import { BehaviorSubject } from "rxjs";
 import attributeTypes from "../../../omnitrack/core/attributes/attribute-types";
 import { Response } from "@angular/http";
 import { Observable } from "rxjs/Observable";
+import { SingletonAudioPlayerServiceService } from "../services/singleton-audio-player-service.service";
 
 @Component({
   selector: "app-experiment-data",
   templateUrl: "./experiment-data.component.html",
-  styleUrls: ["./experiment-data.component.scss"]
+  styleUrls: ["./experiment-data.component.scss"],
+  providers:[SingletonAudioPlayerServiceService]
 })
 export class ExperimentDataComponent implements OnInit, OnDestroy {
   private readonly _internalSubscriptions = new Subscription();

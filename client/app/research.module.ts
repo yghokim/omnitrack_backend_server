@@ -50,6 +50,8 @@ import { UploadClientBinaryDialogComponent } from './server-settings/upload-clie
 import { ImageCellComponent } from './experiment-data/image-cell/image-cell.component';
 import { PerParticipantVisualizationDashboardComponent } from './research/visualization/per-participant-visualization-dashboard/per-participant-visualization-dashboard.component';
 import { TrackingDataSynchronizerWidgetComponent } from './research/tracking-data-synchronizer-widget/tracking-data-synchronizer-widget.component';
+import { AudioCellComponent, MinuteSecondsPipe } from './experiment-data/audio-cell/audio-cell.component';
+import { SingletonAudioPlayerServiceService } from './services/singleton-audio-player-service.service';
 
 @NgModule({
   imports: [
@@ -98,8 +100,10 @@ import { TrackingDataSynchronizerWidgetComponent } from './research/tracking-dat
     ServerSettingsComponent,
     UploadClientBinaryDialogComponent,
     ImageCellComponent,
+    AudioCellComponent,
     PerParticipantVisualizationDashboardComponent,
-    TrackingDataSynchronizerWidgetComponent
+    TrackingDataSynchronizerWidgetComponent,
+    MinuteSecondsPipe
   ],
   exports: [
     NouisliderModule,
