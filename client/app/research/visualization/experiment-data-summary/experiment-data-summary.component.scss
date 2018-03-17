@@ -1,15 +1,17 @@
 .statistics-element {
   margin-right: 2rem;
-  .digit {
-    font-size: 1.7rem;
-    font-weight: 200;
-    color: #757575;
-  }
-  .sub {
-    color: #575757;
-  }
 
   &:last-child{
     margin-right: 0;
   }
 }
+
+.digit {
+  font-size: 1.7rem;
+  font-weight: 200;
+  color: #757575;
+}
+.sub {
+  color: #575757;
+}
+

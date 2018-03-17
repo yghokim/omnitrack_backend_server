@@ -19,7 +19,7 @@ export class ExperimentDataSummaryComponent implements OnInit, OnDestroy {
   public logsPerParticipantStDev: number = 0
   public numParticipants: number = 0
 
-  public statisticsPerTracker: Array<{trackerName: string, total: number, mean: number, stdev: number, count: number}>
+  public statisticsPerTracker: Array<{trackerName: string, total: number, mean: number, stdev: number, min: number, max: number, median: number, count: number}>
   
 
   constructor(
@@ -71,6 +71,7 @@ export class ExperimentDataSummaryComponent implements OnInit, OnDestroy {
           const logCountPerParticipant = processed.map(p => d3.sum(p, r=> r.logCount))
           this.totalLogCount = d3.sum(logCountPerParticipant)
           this.logsPerParticipant = d3.mean(logCountPerParticipant)
+          
           this.logsPerParticipantStDev = d3.deviation(logCountPerParticipant)
           this.numParticipants = logCountPerParticipant.length
 
@@ -79,6 +80,9 @@ export class ExperimentDataSummaryComponent implements OnInit, OnDestroy {
               trackerName: row.trackerName,
               total: d3.sum(row.logCountPerParticipant),
               mean: d3.mean(row.logCountPerParticipant),
+              min: d3.min(row.logCountPerParticipant),
+              max: d3.max(row.logCountPerParticipant),
+              median: d3.median(row.logCountPerParticipant),
               stdev: d3.deviation(row.logCountPerParticipant),
               count: row.logCountPerParticipant.length
             }
