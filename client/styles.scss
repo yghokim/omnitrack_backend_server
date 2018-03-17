@@ -164,17 +164,6 @@ a.no-text-effect {
   color: inherit;
 }
 
-.research-main-fixed-header {
-  position: fixed;
-  z-index: 10;
-  top: $research_header_height;
-  left: $research_sidebar_width;
-  right: 0px;
-  &.card {
-    border-radius: 0;
-  }
-}
-
 .badge-lg {
   padding: 0.5rem;
 }
@@ -306,7 +295,7 @@ a.no-text-effect {
 
 .hide-on-print {
   @media print {
-    display: none;
+    display: none !important;
   }
 }
 
