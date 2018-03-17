@@ -40,7 +40,7 @@
       </div>
     </div>
     <div id="research_column_main">
-      <div class="title-header-container">
+      <div class="title-header-container hide-on-print">
         <div class="card" class="title-header" [ngClass]="upperHeaderTitle!=undefined? 'with-button':''" *ngIf="headerTitle && (showTitleBar!==false)">
           <div *ngIf="!upperHeaderTitle" class="dashboard-title">{{headerTitle}}</div>
           <div *ngIf="upperHeaderTitle" class="flex-container flex-align-items-center">

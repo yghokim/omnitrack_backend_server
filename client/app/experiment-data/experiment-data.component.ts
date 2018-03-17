@@ -26,6 +26,8 @@ import { aliasCompareFunc } from "../../../shared_lib/utils";
 export class ExperimentDataComponent implements OnInit, OnDestroy {
   private readonly _internalSubscriptions = new Subscription();
 
+  public printFriendlyMode = false
+
   private userSubscriptions = new Subscription();
   private trackerSubscriptions = new Subscription();
 

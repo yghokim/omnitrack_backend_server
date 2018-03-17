@@ -20,7 +20,12 @@ export default class ChoiceAttributeHelper extends AttributeHelper {
       const entryList = this.getParsedPropertyValue<UniqueStringEntryList>(attr, ChoiceAttributeHelper.PROPERTY_ENTRIES)
       if(entryList)
       {
-        return value.map(id => entryList.entries.find(entry=>entry.id === id).val).join(", ")
+        return value.map(id => {
+          const entry = entryList.entries.find(entry=>entry.id === id)
+          if(entry){
+            return entry.val
+          }else return "[Removed Entry]"
+        }).join(", ")
       }
     }
     

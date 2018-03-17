@@ -211,7 +211,7 @@ a.no-text-effect {
   color: #575757;
 }
 
-.text-color-gray{
+.text-color-gray {
   color: #757575;
 }
 
@@ -302,6 +302,12 @@ a.no-text-effect {
   @media screen and (max-width: 575px) {
     display: none !important;
   } // Small devices (landscape phones, less than 768px)
+}
+
+.hide-on-print {
+  @media print {
+    display: none;
+  }
 }
 
 .container-vertical-padding {
@@ -583,8 +589,7 @@ button.table-cell-clickable-text {
 .btn-group.selectable {
   .btn.active {
     background: #feb952;
-    color: white;
-    //text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
+    color: white; //text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
     box-shadow: 0px 1px 1px rgba(50, 0, 0, 0.3) inset;
     border: hidden;
   }
@@ -603,7 +608,7 @@ button.table-cell-clickable-text {
   text-align: center;
 }
 
-mat-dialog-container .dialog{
+mat-dialog-container .dialog {
   margin: -24px;
 }
 
@@ -819,6 +824,15 @@ thead.singleline {
   }
 }
 
+.table-print{
+  td, th{
+    color: black;
+  }
+  td{
+    font-size: 0.85rem;
+  }
+}
+
 .form-control {
   font-size: 0.9em;
 }
@@ -828,7 +842,6 @@ thead.singleline {
   padding-left: 1.5em;
   padding-right: 1.5em;
 }
-
 
 .global-page-title {
   font-weight: 300;

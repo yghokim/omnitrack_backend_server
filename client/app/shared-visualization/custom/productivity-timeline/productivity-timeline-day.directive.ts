@@ -130,12 +130,18 @@ export class ProductivityTimelineDayDirective {
           const timestampMoment = moment(d.decodedItem.item.timestamp)
           let timestampString = timestampMoment.format('M[월] D[일] h:mm a')
 
-          const itemEndMoment = moment(d.decodedItem.from)
+          const itemEndMoment = moment(d.decodedItem.to)
           const diffEnd = timestampMoment.diff(itemEndMoment, 'days', true)
           if (diffEnd >= 0 && diffEnd < 1) {
             const duration = moment.duration(timestampMoment.diff(itemEndMoment))
             if (diffEnd <= 1/24) {
-              timestampString += " (당일 " + duration.asMinutes().toFixed(0) + "분 뒤 기록)"
+              const minutes = duration.asMinutes().toFixed(0)
+              if(minutes === "0"){
+                timestampString += " (즉시 기록)"
+              }
+              else{
+                timestampString += " (당일 " + duration.asMinutes().toFixed(0) + "분 뒤 기록)"
+              }
             }
             else {
               timestampString += " (당일 " + duration.humanize() + " 뒤 기록)"
