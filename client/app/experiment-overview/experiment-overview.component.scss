@@ -1,9 +1,25 @@
-.container.main{
-  margin-top: 84px;
-}
+@import '../../styles.scss';
+
 
 #day-index-range-container{
-  min-width: 50%;
-  padding-top: 1.25rem;
-  padding-right: 1.25rem;
+  padding-top: 2.5rem;
+}
+
+#experiment-side-panel {
+  position: fixed;
+  z-index: 10;
+  top: $research_header_height;
+  left: $research_sidebar_width;
+  overflow-y: scroll;
+  bottom: 0;
+  
+  &.card {
+    border-radius: 0;
+    margin-bottom: 0;
+
+    .card-body{
+      flex: initial;
+      padding-bottom: 0.5rem;
+    }
+  }
 }

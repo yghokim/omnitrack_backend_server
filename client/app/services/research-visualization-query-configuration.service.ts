@@ -22,6 +22,13 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
 
   private readonly _queriedDataset = new BehaviorSubject<FilteredExperimentDataset>(null)
 
+  private _filteredParticipantIds = []
+  private readonly _filteredParticipantIdsSubject = new BehaviorSubject<Array<string>>(this._filteredParticipantIds)
+
+  public get filteredParticipantIds(): Observable<Array<string>>{
+    return this._filteredParticipantIdsSubject
+  }
+
   constructor(
     private api: ResearchApiService
   ) {
@@ -51,7 +58,7 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
     )
 
     this._internalSubscriptions.add(
-      this.makeScopeAndParticipantsObservable().flatMap(project => {
+      this.makeScopeAndParticipantsObservable(true).flatMap(project => {
         const userIds = project.participants.map(p => p.user._id)
         return project.trackingDataService.getTrackersOfUser(userIds)
           .combineLatest(project.trackingDataService.getItemsOfUser(userIds), (trackers, items) => {
@@ -120,6 +127,30 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
     return this._queriedDataset.filter(dataset=> dataset != null)
   }
 
+  clearParticipantFilter(){
+    if(this._filteredParticipantIds.length > 0){
+      this._filteredParticipantIds.splice(0, this._filteredParticipantIds.length)
+      this._filteredParticipantIdsSubject.next(this._filteredParticipantIds)
+    }
+  }
+
+  setParticipantFiltered(participantId: string, filterOut: boolean){
+    if(filterOut === true){
+      if(this._filteredParticipantIds.includes(participantId)!==true){
+        this._filteredParticipantIds.push(participantId)
+        this._filteredParticipantIdsSubject.next(this._filteredParticipantIds)
+      }
+    }
+    else{
+      const i = this._filteredParticipantIds.indexOf(participantId)
+      if(i !== -1){
+        this._filteredParticipantIds.splice(i, 1)
+        this._filteredParticipantIdsSubject.next(this._filteredParticipantIds)
+      }
+    }
+    
+  }
+
   set scope(range: Scope) {
     /*
     if (this._scopeSubject.value) {
@@ -160,13 +191,13 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
     return this._scopeSubject.filter(range => range != null);
   }
 
-  public makeScopeAndParticipantsObservable(): Observable<{ trackingDataService: TrackingDataService, scope: Scope, participants: Array<any> }> {
+  public makeScopeAndParticipantsObservable(applyFilter: boolean): Observable<{ trackingDataService: TrackingDataService, scope: Scope, participants: Array<any> }> {
     return this.api.selectedExperimentService.map(service => service.trackingDataService).do(service => {
       service.registerConsumer("queryConfigService")
     })
-      .combineLatest(this.scopeSubject,
-        this.api.selectedExperimentService.flatMap(service => service.getParticipants()), (service, scope, participants) => {
-          return { trackingDataService: service, scope: scope, participants: participants }
+      .combineLatest(this.scopeSubject, this.filteredParticipantIds,
+        this.api.selectedExperimentService.flatMap(service => service.getParticipants()), (service, scope, filteredParticipantIds, participants) => {
+          return { trackingDataService: service, scope: scope, participants: participants.filter(p=>filteredParticipantIds.includes(p._id)===false) }
         }
       )
   }

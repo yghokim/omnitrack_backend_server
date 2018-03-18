@@ -51,25 +51,25 @@
 </div>
 
 <table class="table table-data table-print" *ngIf="printFriendlyMode===true&&selectedTracker">
-    <thead class="singleline">
-      <th *ngFor="let attr of selectedTracker.attributes">
-        {{attr.name}}
-      </th>
-      <th class="header-timestamp">Logged At</th>
-    </thead>
-    <tbody>
-      <tr class="hoverable singleline" *ngFor="let item of trackerItems">
-        <td *ngFor="let attr of selectedTracker.attributes">
-          <ng-container *ngIf="getItemValue(item, attr, true)">
+  <thead class="singleline">
+    <th *ngFor="let attr of selectedTracker.attributes">
+      {{attr.name}}
+    </th>
+    <th class="header-timestamp">Logged At</th>
+  </thead>
+  <tbody>
+    <tr class="hoverable singleline" *ngFor="let item of trackerItems">
+      <td *ngFor="let attr of selectedTracker.attributes">
+        <ng-container *ngIf="getItemValue(item, attr, true)">
           <span *ngIf="isImageAttribute(attr) !== true">{{this.getItemValue(item, attr, true)}}</span>
           <span *ngIf="isImageAttribute(attr) === true">
             <app-image-cell *ngIf="this.getItemValue(item,attr)" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'attributeLocalId': attr.localId}"></app-image-cell>
           </span>
         </ng-container>
-        </td>
-        <td class="cell-timestamp">{{item.timestamp | date: 'short'}}</td>
-      </tr>
-    </tbody>
+      </td>
+      <td class="cell-timestamp">{{item.timestamp | date: 'short'}}</td>
+    </tr>
+  </tbody>
 </table>
 
 <!-- Old Table

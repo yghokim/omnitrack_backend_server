@@ -68,23 +68,34 @@ $visualization_heatmap_color_overflow: #173958;
 }
 
 @import "~nouislider/distribute/nouislider.min.css";
+
+nouislider{
+  padding-right: 12px;
+  padding-left: 12px;
+}
 .noUi-horizontal {
   height: 10px;
   .noUi-handle {
     width: 24px;
     height: 24px;
     left: -12px;
+    right: -12px;
     top: -9px;
     border: hidden;
     border-radius: 500px;
     background: $color_accent_light;
     box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
+    
   }
   .noUi-tooltip {
     transform: translate(-50%, 0);
     left: 50%;
     bottom: 120%;
   }
+}
+
+html:not([dir="rtl"]) .noUi-horizontal .noUi-handle{
+  right: -12px;
 }
 
 .noUi-target {
@@ -477,6 +488,10 @@ label.small.horizontal {
   margin-bottom: 0.5em;
 }
 
+.bottom-margin-1em {
+  margin-bottom: 1em;
+}
+
 .bottom-margin-2em {
   margin-bottom: 2em;
 }
@@ -501,6 +516,10 @@ mat-form-field.mat-form-no-vertical-padding {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.component-border-top{
+  border-top: 1px solid #f0f0f0;
 }
 
 .card {
