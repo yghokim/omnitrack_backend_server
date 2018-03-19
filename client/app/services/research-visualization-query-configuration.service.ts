@@ -22,8 +22,8 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
 
   private readonly _queriedDataset = new BehaviorSubject<FilteredExperimentDataset>(null)
 
-  private _filteredParticipantIds = []
-  private readonly _filteredParticipantIdsSubject = new BehaviorSubject<Array<string>>(this._filteredParticipantIds)
+  private _filteredParticipantIds
+  private readonly _filteredParticipantIdsSubject: BehaviorSubject<Array<string>>
 
   public get filteredParticipantIds(): Observable<Array<string>>{
     return this._filteredParticipantIdsSubject
@@ -32,6 +32,23 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
   constructor(
     private api: ResearchApiService
   ) {
+
+    const filteredString = localStorage.getItem("filtered_participants")
+    if(filteredString){
+      this._filteredParticipantIds = JSON.parse(filteredString)
+    }
+    else this._filteredParticipantIds = []
+
+    this._filteredParticipantIdsSubject = new BehaviorSubject(this._filteredParticipantIds)
+
+    this._internalSubscriptions.add(
+      this._filteredParticipantIdsSubject.subscribe(
+        ids=>{
+          localStorage.setItem('filtered_participants', JSON.stringify(ids))
+        }
+      )
+    )
+
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.flatMap(service => service.getParticipants()).subscribe(
         participants => {
