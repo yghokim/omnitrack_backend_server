@@ -2,6 +2,8 @@
   <div class="flex-container flex-align-items-center hide-on-print">
     <app-tracking-data-synchronizer-widget></app-tracking-data-synchronizer-widget>
     <div class="flex-filler"></div>
+    <div class="right-margin-1em">
+    <button mat-button style="color: #757575" (click)="onExportClicked()"><span class="material-icons right-margin-dot5em">archive</span>Export..</button></div>
     <mat-slide-toggle [checked]="printFriendlyMode" (change)="printFriendlyMode=$event.checked; screenExpanded = $event.checked===true? true : screenExpanded">Print-friendly</mat-slide-toggle>
   </div>
   <div *ngIf="!participants || participants.length === 0" class="page-info-message">

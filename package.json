@@ -112,6 +112,7 @@
     "underscore.string": "^3.3.4",
     "uuid": "^3.2.1",
     "web-animations-js": "^2.3.1",
+    "xlsx": "^0.12.6",
     "zone.js": "^0.8.20"
   },
   "devDependencies": {

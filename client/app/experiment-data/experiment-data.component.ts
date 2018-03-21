@@ -17,6 +17,9 @@ import attributeTypes from "../../../omnitrack/core/attributes/attribute-types";
 import { Response } from "@angular/http";
 import { Observable } from "rxjs/Observable";
 import { aliasCompareFunc } from "../../../shared_lib/utils";
+import * as moment from 'moment-timezone';
+import * as XLSX from 'xlsx';
+import * as FileSaver from 'file-saver'; 
 
 @Component({
   selector: "app-experiment-data",
@@ -192,5 +195,61 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   getTrackerColumns(tracker: ITrackerDbEntity): any[] {
     const temp = tracker.attributes.map((attribute) => attribute.localId)
     return temp.concat('timestamp')
+  }
+
+  onExportClicked(){
+    this._internalSubscriptions.add(
+    this.api.selectedExperimentService.flatMap(service=>service.getOmniTrackPackages().map(packages => {return {packages: packages, experimentService: service}})).flatMap(
+      result=>{
+        return Observable.zip(
+          result.experimentService.trackingDataService.trackers,
+          result.experimentService.trackingDataService.items,
+          (trackers, items)=> {return {packages: result.packages, trackers: trackers, items: items}}
+        )
+      }
+    ).subscribe(
+      result=>{
+        const workbook = XLSX.utils.book_new()
+        const commonColumns = ["participant_alias"]
+        result.packages.forEach(
+          pack=>{
+            pack.data.trackers.forEach(
+              trackerScheme=>{
+                console.log(trackerScheme)
+                const injectedAttrNames = trackerScheme.attributes.map(attr=>attr.name)
+                const itemRows:Array<Array<any>> = [
+                  commonColumns.concat(injectedAttrNames).concat("logged at")
+                ]
+                const trackers = result.trackers.filter(t=>(t.flags || {}).injectionId === trackerScheme.flags.injectionId && this.participants.find(p => p.user._id === t.user))
+                trackers.forEach(
+                  tracker=>{
+                    const participant = this.participants.find(p => p.user._id === tracker.user)
+                    result.items.filter(i=>i.tracker === tracker._id).forEach(
+                      item => {
+                        const values = trackerScheme.attributes.map(attrScheme=>{
+                          const attr = tracker.attributes.find(a=>(a.flags || {}).injectionId === attrScheme.flags.injectionId)
+                          return this.getItemValue(item, attr, true)
+                        })
+
+                        itemRows.push([participant.alias].concat(values).concat(moment(item.timestamp).format()))
+                      }
+                    )
+                  }
+                )
+
+                const sheet = XLSX.utils.aoa_to_sheet(itemRows)
+                XLSX.utils.book_append_sheet(workbook, sheet, trackerScheme.name)
+              }
+            )
+            //save worksheet
+            const workbookOut = XLSX.write(workbook, {
+              bookType: 'xlsx', bookSST: false, type: 'array'
+            })
+
+            FileSaver.saveAs(new Blob([workbookOut], {type:"application/octet-stream"}), this.api.getSelectedExperimentId() + "_experiment-tracking-data.xlsx")
+          }
+        )
+      }
+    ))
   }
 }
