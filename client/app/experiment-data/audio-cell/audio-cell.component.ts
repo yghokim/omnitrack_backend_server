@@ -18,6 +18,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class AudioCellComponent implements OnInit {
 
   private _internalSubscriptions = new Subscription();
+  private timeSubscription: Subscription;
   private audioSource: any;
   @ViewChild('audio1')
   private audioElement: any;
@@ -34,9 +35,14 @@ export class AudioCellComponent implements OnInit {
 
   startTimer(){
     this.timer = Observable.timer(0,1000);
-    this.timer.subscribe(t=> {
-      this.currentTime.next(this.audioElement.currentTime);   
+    this.timeSubscription = new Subscription();
+    this.timeSubscription = this.timer.subscribe(t=> {
+      this.currentTime.next(this.audioElement.currentTime); 
+      if(this.audioElement.currentTime === this.audioElement.duration){
+        this.stop();
+      } 
     });
+    this._internalSubscriptions.add(this.timeSubscription);
   }
 
   @Input("mediaInfo")
@@ -77,8 +83,11 @@ export class AudioCellComponent implements OnInit {
   stop(){
     this.audioElement.pause();
     this.audioElement.currentTime = 0;
+    this.currentTime.next(0);
     this.isPlaying = false;
+    this.timeSubscription.unsubscribe();
   }
+  
   play(){
     this.audioElement.load();
     this.audioElement.play();
