@@ -1,7 +1,7 @@
 import { Directive, ElementRef, Input } from '@angular/core';
 import { ScaleLinear } from 'd3';
 import { ProductivityLogGroup } from './productivity-timeline.component';
-import { ProductivityHelper, ProductivityLog } from '../productivity-dashboard/productivity-dashboard.component';
+import { ProductivityHelper, ProductivityLog } from '../productivity-helper';
 import * as d3 from 'd3';
 import * as moment from 'moment-timezone';
 

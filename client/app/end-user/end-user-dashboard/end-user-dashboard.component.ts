@@ -3,7 +3,7 @@ import { EndUserApiService } from "../services/end-user-api.service";
 import { ITrackerDbEntity, IItemDbEntity } from "../../../../omnitrack/core/db-entity-types";
 import { Subscription } from "rxjs/Subscription";
 import { Observable } from 'rxjs/Observable';
-import { TrackingSet } from "../../shared-visualization/custom/productivity-dashboard/productivity-dashboard.component";
+import { TrackingSet } from "../../shared-visualization/custom/productivity-helper";
 import 'rxjs/add/operator/combineLatest';
 
 

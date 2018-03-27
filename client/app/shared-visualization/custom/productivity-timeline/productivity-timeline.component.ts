@@ -15,7 +15,7 @@ import * as bigdecimal from 'bigdecimal';
 import * as d3 from "d3";
 import { ScaleLinear, ScaleBand } from 'd3-scale'
 import { ScaleOrdinal, Axis } from "d3";
-import { ProductivityLog, ProductivityHelper, OmitLog } from "../productivity-dashboard/productivity-dashboard.component";
+import { ProductivityLog, ProductivityHelper, OmitLog } from "../productivity-helper";
 import { Subject } from "rxjs/Subject";
 import { D3Helper } from "../../d3-helper";
 import { Subscription } from "rxjs/Subscription";

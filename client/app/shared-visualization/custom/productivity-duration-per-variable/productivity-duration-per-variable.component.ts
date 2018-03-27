@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from "@angular/core";
-import { DecodedItem, ProductivityHelper } from '../productivity-dashboard/productivity-dashboard.component';
+import { DecodedItem, ProductivityHelper } from '../productivity-helper';
 import * as d3 from "d3";
 import { unique, groupArrayByVariable } from "../../../../../shared_lib/utils";
 import * as groupArray from "group-array";

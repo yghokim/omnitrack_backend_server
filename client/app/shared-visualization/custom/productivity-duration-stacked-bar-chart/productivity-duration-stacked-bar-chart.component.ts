@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { IItemDbEntity } from '../../../../../omnitrack/core/db-entity-types';
-import { DecodedItem, ProductivityHelper } from '../productivity-dashboard/productivity-dashboard.component';
+import { DecodedItem, ProductivityHelper } from '../productivity-helper';
 import * as d3 from 'd3';
 import { Chart } from 'angular-highcharts';
 import { merge } from '../../../../../shared_lib/utils';

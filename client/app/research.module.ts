@@ -50,6 +50,10 @@ import { ImageCellComponent } from './experiment-data/image-cell/image-cell.comp
 import { PerParticipantVisualizationDashboardComponent } from './research/visualization/per-participant-visualization-dashboard/per-participant-visualization-dashboard.component';
 import { TrackingDataSynchronizerWidgetComponent } from './research/tracking-data-synchronizer-widget/tracking-data-synchronizer-widget.component';
 import { ExperimentDataSummaryComponent } from './research/visualization/experiment-data-summary/experiment-data-summary.component';
+import { ProductivityStatisticsComponent } from './research/custom/productivity-statistics/productivity-statistics.component';
+import { LogDelayHistogramComponent } from './research/custom/productivity-statistics/log-delay-histogram/log-delay-histogram.component';
+import { DurationCoverageComponent } from './research/custom/productivity-statistics/duration-coverage/duration-coverage.component';
+import { ExperimentCustomStatisticsComponent } from './experiment-custom-statistics/experiment-custom-statistics.component';
 
 @NgModule({
   imports: [
@@ -99,7 +103,11 @@ import { ExperimentDataSummaryComponent } from './research/visualization/experim
     ImageCellComponent,
     PerParticipantVisualizationDashboardComponent,
     TrackingDataSynchronizerWidgetComponent,
-    ExperimentDataSummaryComponent
+    ExperimentDataSummaryComponent,
+    ProductivityStatisticsComponent,
+    LogDelayHistogramComponent,
+    DurationCoverageComponent,
+    ExperimentCustomStatisticsComponent
   ],
   exports: [
     NouisliderModule,
@@ -126,7 +134,10 @@ import { ExperimentDataSummaryComponent } from './research/visualization/experim
     ResearchHomeFrameComponent,
     ResearcherAccountSettingsComponent,
     TrackingDataSynchronizerWidgetComponent,
-    ExperimentDataSummaryComponent
+    ExperimentDataSummaryComponent,
+    ProductivityStatisticsComponent,
+    LogDelayHistogramComponent,
+    DurationCoverageComponent,
   ],
   providers: [
     ResearcherAuthGuardSecure,

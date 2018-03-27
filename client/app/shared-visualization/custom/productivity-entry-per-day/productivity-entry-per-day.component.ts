@@ -7,7 +7,7 @@ import * as moment from 'moment-timezone';
 import * as groupArray from 'group-array';
 import { merge } from '../../../../../shared_lib/utils';
 import { HighChartsHelper } from '../../highcharts-helper';
-import { DecodedItem } from '../productivity-dashboard/productivity-dashboard.component';
+import { DecodedItem } from '../productivity-helper';
 
 @Component({
   selector: 'app-productivity-entry-per-day',

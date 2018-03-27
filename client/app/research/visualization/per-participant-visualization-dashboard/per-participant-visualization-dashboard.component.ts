@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/co
 import { ResearchApiService } from '../../../services/research-api.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
-import { TrackingSet } from '../../../shared-visualization/custom/productivity-dashboard/productivity-dashboard.component';
+import { TrackingSet } from '../../../shared-visualization/custom/productivity-helper';
 import * as html2canvas from 'html2canvas';
 import * as FileSaver from 'file-saver'; 
 import * as moment from 'moment-timezone';
