@@ -1,0 +1,5 @@
+<ng-container [ngSwitch]="inputType">
+    <app-general-item-field-input *ngSwitchCase="null" [info] = "info" (serializedValueChanged)="serializedValueChanged.emit($event)"></app-general-item-field-input>
+    <app-time-point-field-input *ngSwitchCase="'timepoint'" [info]="info"
+    (serializedValueChanged)="serializedValueChanged.emit($event)"></app-time-point-field-input>
+</ng-container>

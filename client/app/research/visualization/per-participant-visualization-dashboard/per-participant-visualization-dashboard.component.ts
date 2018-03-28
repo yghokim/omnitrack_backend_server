@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/co
 import { ResearchApiService } from '../../../services/research-api.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
-import { TrackingSet } from '../../../shared-visualization/custom/productivity-helper';
+import { TrackingSet, ProductivityHelper } from '../../../shared-visualization/custom/productivity-helper';
 import * as html2canvas from 'html2canvas';
 import * as FileSaver from 'file-saver'; 
 import * as moment from 'moment-timezone';
@@ -36,8 +36,8 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
           expService => expService.trackingDataService
         ).flatMap(dataService => {
           return dataService.getTrackersOfUser(userId).map(trackers => {
-            const productivityTracker = trackers.find(tracker => tracker.flags.injectionId === "Ab0ksQyh")
-            const omitLogTracker = trackers.find(tracker => tracker.flags.injectionId === "gGv9WCm3")
+            const productivityTracker = trackers.find(tracker => ProductivityHelper.isProductivityTracker(tracker)===true)
+            const omitLogTracker = trackers.find(tracker => ProductivityHelper.isOmitLogTracker(tracker)===true)
             return {productivityTracker: productivityTracker, omitLogTracker: omitLogTracker} 
           }).flatMap(trackers => {
             if(trackers.productivityTracker==null){return Observable.of(null)}

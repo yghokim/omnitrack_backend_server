@@ -15,6 +15,8 @@ import ot_item from './models/ot_item';
 import { trackingDataCtrl } from './controllers/research/ot_tracking_data_controller';
 import { ResearcherPrevilages } from '../omnitrack/core/research/researcher';
 import BinaryStorageCtrl from './controllers/binary_storage_controller';
+import {itemCtrl} from './controllers/ot_item_controller';
+
 const jwt = require('express-jwt');
 const OAuthServer = require('express-oauth-server');
 const router = express.Router()
@@ -146,6 +148,9 @@ new Array(
   )
 
   router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', tokenApprovedAuth, storageCtrl.downloadItemMedia)
+
+  //data manipulation
+  router.post("/tracking/update/item_column", tokenApprovedAuth, itemCtrl.postItemValue)
 
 
 router.get("/users/all", tokenApprovedAuth, researchCtrl.getUsersWithPariticipantInformation)

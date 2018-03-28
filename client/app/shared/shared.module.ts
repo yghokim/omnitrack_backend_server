@@ -20,6 +20,10 @@ import { ProductivityDurationPerVariableComponent } from '../shared-visualizatio
 import { ProductivityTaskHeatmapComponent } from '../shared-visualization/custom/productivity-task-heatmap/productivity-task-heatmap.component';
 import { ProductivityTimelineDayDirective } from '../shared-visualization/custom/productivity-timeline/productivity-timeline-day.directive';
 import { FileSizePipe } from '../pipes/file-size.pipe';
+import { ItemFieldInputComponent } from '../components/item-field-input/item-field-input.component';
+import { GeneralItemFieldInputComponent } from '../components/field-inputs/general-item-field-input/general-item-field-input.component';
+import { TimePointFieldInputComponent } from '../components/field-inputs/time-point-field-input/time-point-field-input.component';
+import { TextFieldInputComponent } from '../components/field-inputs/text-field-input/text-field-input.component';
 
 @NgModule({
   imports: [
@@ -49,7 +53,10 @@ import { FileSizePipe } from '../pipes/file-size.pipe';
     ProductivityDashboardComponent,
     ProductivityTimelineComponent,
     ProductivityDurationPerVariableComponent,
-    FileSizePipe
+    FileSizePipe,
+    ItemFieldInputComponent,
+    GeneralItemFieldInputComponent,
+    TimePointFieldInputComponent
   ],
   declarations: [
     ToastComponent,
@@ -64,7 +71,11 @@ import { FileSizePipe } from '../pipes/file-size.pipe';
     ProductivityDurationPerVariableComponent,
     ProductivityTaskHeatmapComponent,
     ProductivityTimelineDayDirective,
-    FileSizePipe
+    FileSizePipe,
+    ItemFieldInputComponent,
+    GeneralItemFieldInputComponent,
+    TimePointFieldInputComponent,
+    TextFieldInputComponent
   ],
   providers: [
     ToastComponent,

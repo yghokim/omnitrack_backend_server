@@ -54,6 +54,7 @@ import { ProductivityStatisticsComponent } from './research/custom/productivity-
 import { LogDelayHistogramComponent } from './research/custom/productivity-statistics/log-delay-histogram/log-delay-histogram.component';
 import { DurationCoverageComponent } from './research/custom/productivity-statistics/duration-coverage/duration-coverage.component';
 import { ExperimentCustomStatisticsComponent } from './experiment-custom-statistics/experiment-custom-statistics.component';
+import { UpdateItemCellValueDialogComponent } from './dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component';
 
 @NgModule({
   imports: [
@@ -107,7 +108,8 @@ import { ExperimentCustomStatisticsComponent } from './experiment-custom-statist
     ProductivityStatisticsComponent,
     LogDelayHistogramComponent,
     DurationCoverageComponent,
-    ExperimentCustomStatisticsComponent
+    ExperimentCustomStatisticsComponent,
+    UpdateItemCellValueDialogComponent
   ],
   exports: [
     NouisliderModule,
@@ -138,6 +140,7 @@ import { ExperimentCustomStatisticsComponent } from './experiment-custom-statist
     ProductivityStatisticsComponent,
     LogDelayHistogramComponent,
     DurationCoverageComponent,
+    UpdateItemCellValueDialogComponent
   ],
   providers: [
     ResearcherAuthGuardSecure,
@@ -152,7 +155,8 @@ import { ExperimentCustomStatisticsComponent } from './experiment-custom-statist
     NewInvitationDialogComponent,
     NewExperimentDialogComponent,
     DeleteExperimentConfirmDialogComponent,
-    UploadClientBinaryDialogComponent
+    UploadClientBinaryDialogComponent,
+    UpdateItemCellValueDialogComponent
   ]
 })
 export class ResearchModule { }

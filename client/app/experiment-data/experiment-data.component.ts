@@ -9,7 +9,7 @@ import {
 } from "../../../omnitrack/core/db-entity-types";
 import TypedStringSerializer from "../../../omnitrack/core/typed_string_serializer";
 import AttributeManager from "../../../omnitrack/core/attributes/attribute.manager";
-import { MatTableDataSource, MatSort, MatPaginator } from '@angular/material';
+import { MatTableDataSource, MatSort, MatPaginator, MatDialog } from '@angular/material';
 
 import { Element } from "@angular/compiler";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
@@ -20,6 +20,7 @@ import { aliasCompareFunc } from "../../../shared_lib/utils";
 import * as moment from 'moment-timezone';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver'; 
+import { UpdateItemCellValueDialogComponent } from "../dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component";
 
 @Component({
   selector: "app-experiment-data",
@@ -60,7 +61,8 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   constructor(
     private api: ResearchApiService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -195,6 +197,23 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   getTrackerColumns(tracker: ITrackerDbEntity): any[] {
     const temp = tracker.attributes.map((attribute) => attribute.localId)
     return temp.concat('timestamp')
+  }
+
+  onCellValueClicked(tracker: ITrackerDbEntity, attribute: IAttributeDbEntity, item: IItemDbEntity){
+    this._internalSubscriptions.add(
+      this.dialog.open(UpdateItemCellValueDialogComponent, {data:{info: {tracker: tracker, attribute: attribute, item: item}}}).afterClosed().subscribe(
+        result=>{
+          if(result && result.value){
+            this._internalSubscriptions.add(
+              this.api.selectedExperimentService.flatMap(expService=>expService.trackingDataService.setItemColumnValue(attribute, item, result.value)).subscribe(
+                updateResult => {
+                }
+              )
+            )
+          }
+        }
+      )
+    )
   }
 
   onExportClicked(){

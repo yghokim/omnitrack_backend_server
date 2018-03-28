@@ -1,0 +1,10 @@
+.cell-value-clickable{
+  cursor: pointer;
+  padding: 2px 4px;
+  display: inline;
+  border-radius: 5px;
+
+  &:hover{
+    background: #fdffa4;
+  }
+}

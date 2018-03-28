@@ -129,6 +129,20 @@ export class ProductivityHelper {
     return { ranges: durationRanges, hist: hist }
   }
 
+  static isProductivityTracker(tracker: ITrackerDbEntity): boolean{
+    if(tracker.flags){
+      return tracker.flags.injectionId === "Ab0ksQyh"
+    }
+    else return false
+  }
+
+  static isOmitLogTracker(tracker: ITrackerDbEntity): boolean{
+    if(tracker.flags){
+      return tracker.flags.injectionId === "gGv9WCm3"
+    }
+    else return false
+  }
+
   static timeRangeToText(range: { from: number, to: number }): string {
     if (range.from <= 0) {
       return "<" + (range.to / 60).toFixed(1) + "시간"

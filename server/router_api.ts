@@ -1,10 +1,10 @@
 import * as express from 'express';
 
 import OTSyncCtrl from './controllers/ot_sync_controller';
-import OTItemCtrl from './controllers/ot_item_controller';
 import OTTrackerCtrl from './controllers/ot_tracker_controller';
 import OTTriggerCtrl from './controllers/ot_trigger_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
+import {itemCtrl} from './controllers/ot_item_controller';
 import { OTUsageLogCtrl } from './controllers/ot_usage_log_controller';
 import OTResearchCtrl from './controllers/ot_research_controller';
 import UserCtrl from './controllers/user';
@@ -22,9 +22,9 @@ import UserBelongingCtrl from './controllers/user_belongings_base';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
+
 const router = express.Router();
 
-  const itemCtrl = new OTItemCtrl();
   const trackerCtrl = new OTTrackerCtrl();
   const triggerCtrl = new OTTriggerCtrl();
   const userCtrl = new OTUserCtrl();
@@ -119,6 +119,9 @@ const router = express.Router();
 
   // Items
   router.route("/trackers/:trackerId/items").get(firebaseMiddleware.auth, itemCtrl.getAllOfTracker)
+
+  //data manipulation
+  router.post("/item/update_column", firebaseMiddleware.auth, itemCtrl.postItemValue)
 
   
 router.route('/debug/items/all').get(itemCtrl.getAll)
