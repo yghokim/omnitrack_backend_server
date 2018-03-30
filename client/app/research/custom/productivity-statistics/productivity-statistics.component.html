@@ -1,2 +1,15 @@
 <app-duration-coverage [segments]="48" [logs]="productivityLogs"></app-duration-coverage>
+<app-chart-frame title="Distribution of Logged Timestamps Within a Day" [isBusy]="false" *ngIf="decodedItemsPerParticipant">
+  <app-logging-time-of-day-chart main title="Total" heightParamOverride="25%" [decodedItems]="decodedItems">
+
+  </app-logging-time-of-day-chart>
+  <hr main>
+  <div main class="flex-container flex-container-wrap flex-padded-content flex-container-responsive-columns">
+    <div *ngFor="let entry of decodedItemsPerParticipant">
+      <app-logging-time-of-day-chart [title]="entry.participant.alias" [decodedItems]="entry.decodedItems">
+
+      </app-logging-time-of-day-chart>
+    </div>
+  </div>
+</app-chart-frame>
 <app-log-delay-histogram [decodedItems]="decodedItems"></app-log-delay-histogram>
