@@ -3,7 +3,7 @@ import { EndUserApiService } from "../services/end-user-api.service";
 import { ITrackerDbEntity, IItemDbEntity } from "../../../../omnitrack/core/db-entity-types";
 import { Subscription } from "rxjs/Subscription";
 import { Observable } from 'rxjs/Observable';
-import { TrackingSet } from "../../shared-visualization/custom/productivity-dashboard/productivity-dashboard.component";
+import { TrackingSet, ProductivityHelper } from "../../shared-visualization/custom/productivity-helper";
 import 'rxjs/add/operator/combineLatest';
 
 
@@ -23,21 +23,9 @@ export class EndUserDashboardComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this._internalSubscriptions.add(
       this.api.trackers.subscribe(trackers => {
-        const productivityTracker = trackers.find(tracker => {
-          if (tracker.flags) {
-            if (tracker.flags.injectionId === "Ab0ksQyh") {
-              return true;
-            } else return false;
-          } else return false;
-        });
+        const productivityTracker = trackers.find(tracker => ProductivityHelper.isProductivityTracker(tracker)===true);
 
-        const omitLogTracker = trackers.find(tracker => {
-          if (tracker.flags) {
-            if (tracker.flags.injectionId === "gGv9WCm3") {
-              return true
-            } else return false
-          } else return false
-        })
+        const omitLogTracker = trackers.find(tracker => ProductivityHelper.isOmitLogTracker(tracker)===true)
 
         if (productivityTracker) {
           this.api.loadItemsofTracker(productivityTracker._id)

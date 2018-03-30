@@ -7,7 +7,7 @@
         </button>
         <mat-select [(value)]="selectedParticipantId" required="true">
           <mat-option *ngFor="let participant of participants" [value]="participant._id">
-            <b>{{participant.alias}}</b> (Started {{participant.approvedAt | date: 'short'}})</mat-option>
+            <b>{{participant.alias}}</b> (Started {{participant.experimentRange.from || participant.approvedAt | date: 'short'}})</mat-option>
         </mat-select>
         <button mat-button (click)="onNavClicked(+1)">
           <span class="material-icons">keyboard_arrow_right</span>
@@ -15,5 +15,31 @@
       </div>
     </div>
   </div>
-  <app-productivity-dashboard [trackingSet]="productivityTrackingSet"></app-productivity-dashboard>
+  <div class="flex-container flex-align-items-center">
+    <div class="flex-filler"></div>
+    <button *ngIf="isProcessingImageCapture !== true && selectedParticipant" mat-raised-button color="primary" (click)="downloadToImage()">Download to Image</button>
+    <mat-progress-spinner *ngIf="isProcessingImageCapture === true" mode="indeterminate" diameter="30"></mat-progress-spinner>
+  </div>
+  <hr>
+  <div #dashboard id="dashboard">
+    <div class="capture-mode">
+      <div class="report-title" *ngIf="selectedParticipant">
+        <div class="flex-container flex-align-items-baseline">
+          <h2>
+            <b>나의 생산성 보고서</b>
+          </h2>
+          <div class="flex-filler"></div>
+          <h5>{{now.getTime() | date: 'yyyy년 M월 dd일까지' }}</h5>
+        </div>
+        <hr>
+      </div>
+      <app-productivity-dashboard [trackingSet]="productivityTrackingSet"></app-productivity-dashboard>
+      <hr>
+      <div class="text-center text-color-gray">
+        <p>동일한 내용을
+          <b>http://omnitrack.snu.ac.kr/tracking</b>에서 열람 가능합니다.</p>
+        <small>보고서 내용이 앱에서의 생산성 로그 기록과 다를시 연락주십시오.</small>
+      </div>
+    </div>
+  </div>
 </div>

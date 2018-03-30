@@ -1,8 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { ResearchApiService } from '../../../services/research-api.service';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
-import { TrackingSet } from '../../../shared-visualization/custom/productivity-dashboard/productivity-dashboard.component';
+import { TrackingSet, ProductivityHelper } from '../../../shared-visualization/custom/productivity-helper';
+import * as html2canvas from 'html2canvas';
+import * as FileSaver from 'file-saver'; 
+import * as moment from 'moment-timezone';
 
 @Component({
   selector: 'app-per-participant-visualization-dashboard',
@@ -10,6 +13,8 @@ import { TrackingSet } from '../../../shared-visualization/custom/productivity-d
   styleUrls: ['./per-participant-visualization-dashboard.component.scss']
 })
 export class PerParticipantVisualizationDashboardComponent implements OnInit, OnDestroy {
+
+  public isProcessingImageCapture = false
 
   private _internalSubscriptions = new Subscription()
   private _trackingSetLoadingSubscriptions: Subscription = null
@@ -31,8 +36,8 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
           expService => expService.trackingDataService
         ).flatMap(dataService => {
           return dataService.getTrackersOfUser(userId).map(trackers => {
-            const productivityTracker = trackers.find(tracker => tracker.flags.injectionId === "Ab0ksQyh")
-            const omitLogTracker = trackers.find(tracker => tracker.flags.injectionId === "gGv9WCm3")
+            const productivityTracker = trackers.find(tracker => ProductivityHelper.isProductivityTracker(tracker)===true)
+            const omitLogTracker = trackers.find(tracker => ProductivityHelper.isOmitLogTracker(tracker)===true)
             return {productivityTracker: productivityTracker, omitLogTracker: omitLogTracker} 
           }).flatMap(trackers => {
             if(trackers.productivityTracker==null){return Observable.of(null)}
@@ -49,9 +54,20 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
     }
   }
 
+  @ViewChild("dashboard") dashboardRef: ElementRef
+
+  now: Date = new Date()
+
   public get selectedParticipantId(): string {
     return this._selectedParticipantId
   }
+
+  public get selectedParticipant(): any{
+    if(this.participants){
+      return this.participants.find(p => p._id === this.selectedParticipantId)
+    }
+    else return null
+  } 
 
   constructor(private api: ResearchApiService) {
   }
@@ -65,7 +81,6 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
       }).subscribe(
         participants => {
           this.participants = participants
-          console.log(participants)
           if (!this.selectedParticipantId && this.participants.length > 0) {
             this.selectedParticipantId = participants[0]._id
           }
@@ -97,5 +112,20 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
     }
   }
 
-
+  downloadToImage(){
+    this.isProcessingImageCapture = true
+    console.log("try convert the dashboard to canvas...")
+    html2canvas(this.dashboardRef.nativeElement, {scale: 1.5} as any).then(
+      canvas => {
+        this.isProcessingImageCapture = false
+        canvas.toBlob(blob=>{
+          console.log('image file size: ' + blob.size)
+          FileSaver.saveAs(blob, "productivity_report_" + this.selectedParticipant.user.email.split('@')[0] + "_" + moment().format("YYYY-MM-DDThh-mm") + ".png")
+        }, 'image/png')
+      }
+    ).catch(err=>{
+      this.isProcessingImageCapture = false
+      console.log(err)
+    })
+  }
 }

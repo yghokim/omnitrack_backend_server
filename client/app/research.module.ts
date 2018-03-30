@@ -31,7 +31,6 @@ import { MaterialDesignModule } from './material-design.module';
 import { ClipboardModule } from 'ngx-clipboard';
 import { ResearcherPermissionsConfigurationComponent } from './experiment-settings/researcher-permissions-configuration/researcher-permissions-configuration.component';
 import { ResearcherSearchComponentComponent } from './experiment-settings/researcher-search-component/researcher-search-component.component';
-import { AddCollaboratorDialogComponent } from './experiment-settings/add-collaborator-dialog/add-collaborator-dialog.component';
 import { ResearchLayoutComponent } from './layouts/research-layout/research-layout.component';
 import { ResearchHomeFrameComponent } from './research-home-frame/research-home-frame.component';
 import { ExperimentListComponent } from './experiment-list/experiment-list.component';
@@ -52,6 +51,12 @@ import { PerParticipantVisualizationDashboardComponent } from './research/visual
 import { TrackingDataSynchronizerWidgetComponent } from './research/tracking-data-synchronizer-widget/tracking-data-synchronizer-widget.component';
 import { AudioCellComponent, MinuteSecondsPipe } from './experiment-data/audio-cell/audio-cell.component';
 import { SingletonAudioPlayerServiceService } from './services/singleton-audio-player-service.service';
+import { ExperimentDataSummaryComponent } from './research/visualization/experiment-data-summary/experiment-data-summary.component';
+import { ProductivityStatisticsComponent } from './research/custom/productivity-statistics/productivity-statistics.component';
+import { LogDelayHistogramComponent } from './research/custom/productivity-statistics/log-delay-histogram/log-delay-histogram.component';
+import { DurationCoverageComponent } from './research/custom/productivity-statistics/duration-coverage/duration-coverage.component';
+import { ExperimentCustomStatisticsComponent } from './experiment-custom-statistics/experiment-custom-statistics.component';
+import { UpdateItemCellValueDialogComponent } from './dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component';
 
 @NgModule({
   imports: [
@@ -86,7 +91,6 @@ import { SingletonAudioPlayerServiceService } from './services/singleton-audio-p
     AnonymizeEmailPipe,
     ResearcherPermissionsConfigurationComponent,
     ResearcherSearchComponentComponent,
-    AddCollaboratorDialogComponent,
     ResearchLayoutComponent,
     ResearchHomeFrameComponent,
     ExperimentListComponent,
@@ -103,7 +107,13 @@ import { SingletonAudioPlayerServiceService } from './services/singleton-audio-p
     AudioCellComponent,
     PerParticipantVisualizationDashboardComponent,
     TrackingDataSynchronizerWidgetComponent,
-    MinuteSecondsPipe
+    MinuteSecondsPipe,
+    ExperimentDataSummaryComponent,
+    ProductivityStatisticsComponent,
+    LogDelayHistogramComponent,
+    DurationCoverageComponent,
+    ExperimentCustomStatisticsComponent,
+    UpdateItemCellValueDialogComponent
   ],
   exports: [
     NouisliderModule,
@@ -129,7 +139,12 @@ import { SingletonAudioPlayerServiceService } from './services/singleton-audio-p
     ResearchLayoutComponent,
     ResearchHomeFrameComponent,
     ResearcherAccountSettingsComponent,
-    TrackingDataSynchronizerWidgetComponent
+    TrackingDataSynchronizerWidgetComponent,
+    ExperimentDataSummaryComponent,
+    ProductivityStatisticsComponent,
+    LogDelayHistogramComponent,
+    DurationCoverageComponent,
+    UpdateItemCellValueDialogComponent
   ],
   providers: [
     ResearcherAuthGuardSecure,
@@ -142,10 +157,10 @@ import { SingletonAudioPlayerServiceService } from './services/singleton-audio-p
   entryComponents: [
     ChooseInvitationDialogComponent,
     NewInvitationDialogComponent,
-    AddCollaboratorDialogComponent,
     NewExperimentDialogComponent,
     DeleteExperimentConfirmDialogComponent,
-    UploadClientBinaryDialogComponent
+    UploadClientBinaryDialogComponent,
+    UpdateItemCellValueDialogComponent
   ]
 })
 export class ResearchModule { }

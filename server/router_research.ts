@@ -7,6 +7,7 @@ import OTResearchCtrl from './controllers/ot_research_controller';
 import { experimentCtrl } from './controllers/research/ot_experiment_controller';
 import { messageCtrl } from './controllers/research/ot_message_controller';
 import { clientBinaryCtrl } from './controllers/research/ot_client_binary_controller';
+import { OTUsageLogCtrl } from './controllers/ot_usage_log_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
 import ot_tracker from './models/ot_tracker';
 import ot_trigger from './models/ot_trigger';
@@ -14,6 +15,8 @@ import ot_item from './models/ot_item';
 import { trackingDataCtrl } from './controllers/research/ot_tracking_data_controller';
 import { ResearcherPrevilages } from '../omnitrack/core/research/researcher';
 import BinaryStorageCtrl from './controllers/binary_storage_controller';
+import {itemCtrl} from './controllers/ot_item_controller';
+
 const jwt = require('express-jwt');
 const OAuthServer = require('express-oauth-server');
 const router = express.Router()
@@ -23,6 +26,7 @@ const researchAuthCtrl = new OTResearchAuthCtrl()
 const adminCtrl = new AdminCtrl()
 const userCtrl = new OTUserCtrl()
 const storageCtrl = new BinaryStorageCtrl()
+const usageLogCtrl = new OTUsageLogCtrl()
 
 function makeTokenAuthMiddleware(pipe: (reseaercher, parsedToken?)=>string = ()=>{return null}): any{
   return jwt({secret: env.jwt_secret, userProperty: 'researcher', isRevoked: (req, payload, done)=>{
@@ -139,11 +143,14 @@ new Array(
   {url:"triggers", model: ot_trigger}, 
   {url:"items", model: ot_item}).forEach(
     info=>{
-      router.get('/experiments/:experimentId/data/' + info.url, trackingDataCtrl.getChildrenOfExperiment(info.model))
+      router.get('/experiments/:experimentId/data/' + info.url, tokenApprovedAuth, trackingDataCtrl.getChildrenOfExperiment(info.model))
     }
   )
 
   router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', tokenApprovedAuth, storageCtrl.downloadItemMedia)
+
+  //data manipulation
+  router.post("/tracking/update/item_column", tokenApprovedAuth, itemCtrl.postItemValue)
 
 
 router.get("/users/all", tokenApprovedAuth, researchCtrl.getUsersWithPariticipantInformation)

@@ -16,12 +16,12 @@ import { Subscription } from 'rxjs/Subscription';
 export class ExperimentInvitationsComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
-  private experimentService: ExperimentService
-  private invitations: Array<any>
-  private groups: Array<any>
-  private isLoadingInvitations = true
+  public experimentService: ExperimentService
+  public invitations: Array<any>
+  public groups: Array<any>
+  public isLoadingInvitations = true
 
-  private hoveredRowIndex = -1
+  public hoveredRowIndex = -1
 
   constructor(
     private api: ResearchApiService,

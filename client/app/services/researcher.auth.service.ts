@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { JwtHelper } from 'angular2-jwt';
 import { Http, Headers, RequestOptions } from '@angular/http';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 import { SocketService } from './socket.service';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/map';
@@ -80,7 +80,6 @@ export class ResearcherAuthService implements OnDestroy {
                 })
                 project.socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER, (data) => {
                   console.log("received a updated/researcher websocket event")
-                  console.log(data)
                 })
               }
               else {

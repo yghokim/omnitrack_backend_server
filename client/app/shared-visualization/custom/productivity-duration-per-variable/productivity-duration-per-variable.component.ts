@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from "@angular/core";
-import { DecodedItem, ProductivityHelper } from '../productivity-dashboard/productivity-dashboard.component';
-import d3 = require("d3");
+import { DecodedItem, ProductivityHelper } from '../productivity-helper';
+import * as d3 from "d3";
 import { unique, groupArrayByVariable } from "../../../../../shared_lib/utils";
 import * as groupArray from "group-array";
 import { HighChartsHelper } from '../../highcharts-helper';
@@ -15,6 +15,8 @@ import * as moment from 'moment-timezone';
 export class ProductivityDurationPerVariableComponent implements OnInit {
 
   @Input() title: string
+
+  @Input() chartHeightVariable: string = "70%"
 
   @Input("data")
   set _decodedItems(data: {decodedItems: Array<DecodedItem>, variableName: string, isArray: boolean}) {
@@ -44,7 +46,7 @@ export class ProductivityDurationPerVariableComponent implements OnInit {
 
     variableBasedArray.sort((a, b) => b.totalDuration - a.totalDuration )
     
-    const chartOptions = HighChartsHelper.makeDefaultChartOptions('bar', '70%')
+    const chartOptions = HighChartsHelper.makeDefaultChartOptions('bar', this.chartHeightVariable)
     chartOptions.xAxis = {
       categories: variableBasedArray.map(elm => elm.target)
     }

@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { IItemDbEntity } from '../../../../../omnitrack/core/db-entity-types';
-import { DecodedItem, ProductivityHelper } from '../productivity-dashboard/productivity-dashboard.component';
-import d3 = require('d3');
+import { DecodedItem, ProductivityHelper } from '../productivity-helper';
+import * as d3 from 'd3';
 import { Chart } from 'angular-highcharts';
 import { merge } from '../../../../../shared_lib/utils';
 import { HighChartsHelper } from '../../highcharts-helper';
@@ -23,12 +23,10 @@ export class ProductivityDurationStackedBarChartComponent implements OnInit {
     const series = []
     const productivityGrouped = groupArray(decodedItems, "productivity")
     for (let productivity of Object.keys(productivityGrouped)) {
-      const binned = extractedDurationHistogram.hist(productivityGrouped[productivity])
-
       const completeBins = extractedDurationHistogram.ranges.map((range, completeBinIndex, arr) => {
         
-        const bin = binned.find((bin) => {
-          return completeBinIndex === arr.length -1? range.from <= bin.x0 && range.to >= bin.x1 : range.from <= bin.x0 && range.to > bin.x1
+        const bin = productivityGrouped[productivity].filter(item => {
+          return completeBinIndex === arr.length -1? range.from <= item.duration && range.to >= item.duration : range.from <= item.duration && range.to > item.duration
         })
         return bin ? bin.length : 0
       })
@@ -42,7 +40,6 @@ export class ProductivityDurationStackedBarChartComponent implements OnInit {
         color: productivityColor
       })
     }
-
     const chartOptions = HighChartsHelper.makeDefaultChartOptions('column')
 
     chartOptions.tooltip = {

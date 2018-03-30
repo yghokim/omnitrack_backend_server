@@ -35,55 +35,65 @@ import { EndUserDashboardComponent } from './end-user/end-user-dashboard/end-use
 import { EndUserTrackerListComponent } from './end-user/end-user-tracker-list/end-user-tracker-list.component';
 import { EndUserTriggerListComponent } from './end-user/end-user-trigger-list/end-user-trigger-list.component';
 import { PerParticipantVisualizationDashboardComponent } from './research/visualization/per-participant-visualization-dashboard/per-participant-visualization-dashboard.component';
+import { ExperimentCustomStatisticsComponent } from './experiment-custom-statistics/experiment-custom-statistics.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'downloads', pathMatch: 'full', canActivate: [EndUserAuthToMainGuard] },
-  { path: 'downloads', component: ClientDownloadComponent},
+  { path: 'downloads', component: ClientDownloadComponent },
 
-  { path: 'tracking', component: EndUserFrameComponent, 
+  {
+    path: 'tracking', component: EndUserFrameComponent,
     children: [
       {
-        path: '', component: EndUserHomeComponent, canActivate: [EndUserAuthCheckGuard], data: {title: "OmniTrack"},
-        children:[
-          { path: '', redirectTo: 'dashboard', pathMatch: 'full'},
+        path: '', component: EndUserHomeComponent, canActivate: [EndUserAuthCheckGuard], data: { title: "OmniTrack" },
+        children: [
+          { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
           { path: 'dashboard', component: EndUserDashboardComponent },
           { path: 'trackers', component: EndUserTrackerListComponent },
           { path: 'triggers', component: EndUserTriggerListComponent }
         ]
       },
-      {path: 'login', component: EndUserSignInComponent, canActivate: [EndUserAuthToMainGuard], data: {title: "Login"}}
-    ]},
+      { path: 'login', component: EndUserSignInComponent, canActivate: [EndUserAuthToMainGuard], data: { title: "Login" } }
+    ]
+  },
 
-  { path: 'research', component: ResearchFrameComponent,
+  {
+    path: 'research', component: ResearchFrameComponent,
     children: [
-      { path: '', component: ResearchHomeFrameComponent,
-          children: [
-            {path: '', component: ResearchMainComponent, canActivate: [ResearcherAuthGuardMain]},
-            { path: 'settings', component: ServerSettingsComponent, canActivate: [ResearcherAuthGuardSecure]},
-            {path: 'signup', component: ResearchSignupComponent},
-            { path: 'login', component: ResearchLoginComponent},
-            { path: 'experiments', component: ExperimentListComponent, canActivate: [ResearcherAuthGuardSecure]},
-            { path: 'account', component: ResearcherAccountSettingsComponent, canActivate: [ResearcherAuthGuardSecure]}
-          ]
+      {
+        path: '', component: ResearchHomeFrameComponent,
+        children: [
+          { path: '', component: ResearchMainComponent, canActivate: [ResearcherAuthGuardMain] },
+          { path: 'settings', component: ServerSettingsComponent, canActivate: [ResearcherAuthGuardSecure] },
+          { path: 'signup', component: ResearchSignupComponent },
+          { path: 'login', component: ResearchLoginComponent },
+          { path: 'experiments', component: ExperimentListComponent, canActivate: [ResearcherAuthGuardSecure] },
+          { path: 'account', component: ResearcherAccountSettingsComponent, canActivate: [ResearcherAuthGuardSecure] }
+        ]
       },
       { path: 'dashboard', component: ResearchDashboardComponent, canActivate: [ResearcherAuthGuardSecure] },
-      { path: 'dashboard/:experimentId', component: ResearchDashboardComponent, canActivate: [ResearcherAuthGuardSecure],
+      {
+        path: 'dashboard/:experimentId', component: ResearchDashboardComponent, canActivate: [ResearcherAuthGuardSecure],
         children: [
-          { path: '', redirectTo: 'overview', pathMatch: "full"},
-          { path: 'overview', component: ExperimentOverviewComponent, data: {title: 'Overview', showTitleBar:false}},
-          { path: 'detailed-overview', component: PerParticipantVisualizationDashboardComponent, data: {title: 'Per-participant Overview'}},
-          { path: 'messaging', component: ExperimentMessagingComponent, data: {title: "Messaging"}},
-          { path: 'messaging/new', component: ComposeMessageComponent, data: {title: "Compose Message", backTitle: "Messaging", backNavigationUrl: './messaging'}},
-          { path: 'tracking-data', component: ExperimentDataComponent, data: {title: 'Tracking Data'}},
-          { path: 'participants', component: ExperimentParticipantsComponent, data: {title: 'Participants'}},
-          { path: 'groups', component: ExperimentGroupsComponent, data: {title: 'Groups'}},
-          { path: 'invitations', component: ExperimentInvitationsComponent, data: {title: 'Invitations'}},
-          { path: 'settings', component: ExperimentSettingsComponent, data: {title: 'Settings'}},
-          { path: 'omnitrack', component: ExperimentOmniTrackComponent, data: {title: 'OmniTrack'},
+          { path: '', redirectTo: 'overview', pathMatch: "full" },
+          { path: 'overview', component: ExperimentOverviewComponent, data: { title: 'Overview', showTitleBar: false } },
+          { path: 'detailed-overview', component: PerParticipantVisualizationDashboardComponent, data: { title: 'Per-participant Overview' } },
+          {
+            path: 'custom-statistics', component: ExperimentCustomStatisticsComponent, data: { title: 'Custom Statistics' }
+          },
+          { path: 'messaging', component: ExperimentMessagingComponent, data: { title: "Messaging" } },
+          { path: 'messaging/new', component: ComposeMessageComponent, data: { title: "Compose Message", backTitle: "Messaging", backNavigationUrl: './messaging' } },
+          { path: 'tracking-data', component: ExperimentDataComponent, data: { title: 'Tracking Data' } },
+          { path: 'participants', component: ExperimentParticipantsComponent, data: { title: 'Participants' } },
+          { path: 'groups', component: ExperimentGroupsComponent, data: { title: 'Groups' } },
+          { path: 'invitations', component: ExperimentInvitationsComponent, data: { title: 'Invitations' } },
+          { path: 'settings', component: ExperimentSettingsComponent, data: { title: 'Settings' } },
+          {
+            path: 'omnitrack', component: ExperimentOmniTrackComponent, data: { title: 'OmniTrack' },
             children: [
-              { path: '', redirectTo: 'packages', pathMatch: 'full'},
-              { path: 'packages', component: OmniTrackPackageListComponent, data: {title: "OmniTrack Packages"} },
-              { path: 'packages/:packageKey', component: OmniTrackPackageEditComponent, data: {title: "Edit Tracking Package"} }
+              { path: '', redirectTo: 'packages', pathMatch: 'full' },
+              { path: 'packages', component: OmniTrackPackageListComponent, data: { title: "OmniTrack Packages" } },
+              { path: 'packages/:packageKey', component: OmniTrackPackageEditComponent, data: { title: "Edit Tracking Package" } }
             ]
           },
 
@@ -105,8 +115,8 @@ const routes: Routes = [
 
 
 @NgModule({
-  imports: [ RouterModule.forRoot(routes) ],
-  exports: [ RouterModule ]
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
 })
 
-export class RoutingModule {}
+export class RoutingModule { }

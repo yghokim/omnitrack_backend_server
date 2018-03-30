@@ -1,8 +1,8 @@
 import { Directive, ElementRef, Input } from '@angular/core';
 import { ScaleLinear } from 'd3';
 import { ProductivityLogGroup } from './productivity-timeline.component';
-import { ProductivityHelper, ProductivityLog } from '../productivity-dashboard/productivity-dashboard.component';
-import d3 = require('d3');
+import { ProductivityHelper, ProductivityLog } from '../productivity-helper';
+import * as d3 from 'd3';
 import * as moment from 'moment-timezone';
 
 @Directive({
@@ -10,7 +10,7 @@ import * as moment from 'moment-timezone';
 })
 export class ProductivityTimelineDayDirective {
 
-  readonly moodScale: ScaleLinear<number, number> = d3.scaleLinear().domain([-1, 1])
+  readonly moodScale: ScaleLinear<number, number> = d3.scaleLinear().domain([0, 1])
 
   timeOfDayScale: ScaleLinear<number, number>
   @Input('scale')
@@ -118,17 +118,49 @@ export class ProductivityTimelineDayDirective {
           }
 
           const moodLine = $("<tr></tr>")
-          .append("<th>행복도</th>")
+            .append("<th>행복도</th>")
 
-          if(d.decodedItem.mood){
+          if (d.decodedItem.mood) {
             moodLine.append("<td>" + (d.decodedItem.mood * 2).toFixed(1) + "</td>")
-          }else moodLine.append("<td>없음</td>")
+          } else moodLine.append("<td>없음</td>")
+
+          const timestampLine = $("<tr></tr>")
+            .append("<th>기록시각</th>")
+
+          const timestampMoment = moment(d.decodedItem.item.timestamp)
+          let timestampString = timestampMoment.format('M[월] D[일] h:mm a')
+
+          const itemEndMoment = moment(d.decodedItem.to)
+          const diffEnd = timestampMoment.diff(itemEndMoment, 'days', true)
+          if (diffEnd >= 0 && diffEnd < 1) {
+            const duration = moment.duration(timestampMoment.diff(itemEndMoment))
+            if (diffEnd <= 1/24) {
+              const minutes = duration.asMinutes().toFixed(0)
+              if(minutes === "0"){
+                timestampString += " (즉시 기록)"
+              }
+              else{
+                timestampString += " (당일 " + duration.asMinutes().toFixed(0) + "분 뒤 기록)"
+              }
+            }
+            else {
+              timestampString += " (당일 " + duration.humanize() + " 뒤 기록)"
+            }
+          } else if (diffEnd >= 1) {
+            timestampString += " (" + Math.floor(diffEnd) + "일 뒤 기록)"
+          } else {
+            timestampString += " (미리 기록)"
+          }
+
+
+          timestampLine.append("<td>" + timestampString + "</td>")
 
           tableBody.append(taskLine)
           tableBody.append(rationaleLine)
           tableBody.append(placeLine)
           tableBody.append(devicesLine)
           tableBody.append(moodLine)
+          tableBody.append(timestampLine)
 
           body.append(tableBody)
 
@@ -167,24 +199,22 @@ export class ProductivityTimelineDayDirective {
       switch (this.mode) {
         case 'mood':
           durationUpdate.attr("fill", d => {
-            if(d.decodedItem.mood){
-              return d.decodedItem.mood > 0? "#60cb78" : "#ea8271"
+            if (d.decodedItem.mood) {
+              return d.decodedItem.mood > 0.5 ? "#60cb78" : "#ea8271"
             }
             else return "transparent"
           })
             .attr("x", d => this.timeOfDayScale(d.fromDateRatio) + 0.5)
             .attr("y", (d: ProductivityLog) => {
-              if(d.decodedItem.mood)
-              {
-                return Math.min(this.moodScale(0), this.moodScale(d.decodedItem.mood))
+              if (d.decodedItem.mood) {
+                return Math.min(this.moodScale(0.5), this.moodScale(d.decodedItem.mood))
               }
-              else return this.height/2
+              else return this.height / 2
             })
-            .attr("height", (d: ProductivityLog)=>{
-              if(d.decodedItem.mood)
-              {
-                return Math.abs(this.moodScale(0) - this.moodScale(d.decodedItem.mood))
-              }else return 0
+            .attr("height", (d: ProductivityLog) => {
+              if (d.decodedItem.mood) {
+                return Math.abs(this.moodScale(0.5) - this.moodScale(d.decodedItem.mood))
+              } else return 0
             })
             .attr("rx", 0)
             .attr("ry", 0)
@@ -214,9 +244,9 @@ export class ProductivityTimelineDayDirective {
         .attr("stroke-width", "1px")
 
       this.mainSelection.select("line.zerogrid").transition().duration(500)
-        .attr("x2", this.mode === "mood"? this.width : 0)
-        .attr("y1", this.height/2)
-        .attr("y2", this.height/2)
+        .attr("x2", this.mode === "mood" ? this.width : 0)
+        .attr("y1", this.height / 2)
+        .attr("y2", this.height / 2)
     }
   }
 }

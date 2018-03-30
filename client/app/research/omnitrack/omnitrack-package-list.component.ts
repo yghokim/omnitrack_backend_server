@@ -13,7 +13,7 @@ export class OmniTrackPackageListComponent implements OnInit, OnDestroy {
   private _internalSubscriptions = new Subscription()
 
   private experimentService: ExperimentService
-  private packages: Array<any>
+  public packages: Array<any>
   constructor(private api: ResearchApiService) {
   }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef} from '@angular/core';
 import { ResearchVisualizationQueryConfigurationService } from '../services/research-visualization-query-configuration.service';
 import { ResearchApiService } from '../services/research-api.service';
 import { Subscription } from 'rxjs/Subscription';
@@ -13,6 +13,11 @@ import { Subject } from 'rxjs/Subject';
   providers: [ResearchVisualizationQueryConfigurationService]
 })
 export class ExperimentOverviewComponent implements OnInit {
+
+  public sidePanelWidth = 250
+  public isSidePanelExpanded = true
+
+  @ViewChild('sidePanel') sidePanelRef: ElementRef
 
   private readonly _internalSubscriptions = new Subscription()
 
@@ -38,8 +43,7 @@ export class ExperimentOverviewComponent implements OnInit {
 
   constructor(
     private api: ResearchApiService,
-    private configuration: ResearchVisualizationQueryConfigurationService) {
-      
+    public configuration: ResearchVisualizationQueryConfigurationService) {
   }
 
   ngOnInit() {
@@ -93,6 +97,10 @@ export class ExperimentOverviewComponent implements OnInit {
   onDayIndexSliderChanged(newRange){
     this._dayRangeValueInject.next(newRange)
     //this.configuration.setDayIndexRange(newRange)
+  }
+
+  onFilteredParticipantToggle(participantId: string, checked: boolean){
+    this.configuration.setParticipantFiltered(participantId, !checked)
   }
 
 }

@@ -19,7 +19,7 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
 
   public experiment: any
 
-  private permissions: ExperimentPermissions
+  public permissions: ExperimentPermissions
 
   private _internalSubscriptions = new Subscription()
 

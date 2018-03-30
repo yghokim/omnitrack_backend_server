@@ -2,8 +2,9 @@ import BaseCtrl from './base';
 import * as mongoose from 'mongoose';
 import OTUser from '../models/ot_user';
 import OTUsageLog from '../models/ot_usage_log';
+import { IUsageLogDbEntity } from '../../omnitrack/core/db-entity-types';
 
-export default class OTUsageLogCtrl extends BaseCtrl {
+export class OTUsageLogCtrl extends BaseCtrl {
   model = OTUsageLog
 
   protected preprocessBeforeInsertToDb(singleQueryObject: any): any {
@@ -35,5 +36,42 @@ export default class OTUsageLogCtrl extends BaseCtrl {
     })
   }
 
+  static analyzeSessionLogs(additionalFilter: any = null, userIds: Array<string>=null): Promise<Array<{user: any, lastTimestamp: number, totalDuration: number}>>{
+
+    const filterCondition = additionalFilter || {}
+    filterCondition["$or"] = [{name: "session"}, {name: "OTSynchronizationService", sub: "synchronization_finished"}]
+    if(userIds){
+      filterCondition["user"] = {$in: userIds}
+    }
+
+    return OTUsageLog.aggregate([
+      {$match: filterCondition},
+      {$sort: {timestamp: -1}},
+      {$group: {_id: {user: "$user", name: "$name"}, lastTimestamp: {$first: "$timestamp"}}},
+      {$group: {_id: "$_id.user", logs: {$push: "$$ROOT"}}}
+    ]).exec()
+  }
+
+  requestAnalyzedSessionLogs = (req, res)=>{
+    const filter = {}
+    
+    if(req.query.from || req.query.to){
+      filter["timestamp"] = {}
+      
+      if(req.query.from){
+        filter["timestamp"]["$gte"] = req.query.from
+      }
+
+      if(req.query.to){
+        filter["timestamp"]["$lte"] = req.query.to
+      }
+    }
+
+    OTUsageLogCtrl.analyzeSessionLogs(filter, req.query.userIds).then(list=>{
+      res.status(200).send(list)
+    }).catch(err=>{
+      res.status(500).send(err)
+    })
+  }
 
 }

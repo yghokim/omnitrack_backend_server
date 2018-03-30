@@ -2,7 +2,7 @@ import { Component, OnInit, Input, ViewChild, ElementRef } from "@angular/core";
 import {
   DecodedItem,
   ProductivityHelper
-} from "../productivity-dashboard/productivity-dashboard.component";
+} from "../productivity-helper";
 import { groupArrayByVariable } from "../../../../../shared_lib/utils";
 import { HighChartsHelper } from "../../highcharts-helper";
 import { Chart } from "angular-highcharts";

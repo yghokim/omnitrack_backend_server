@@ -1,0 +1,11 @@
+<div class="dialog">
+    <div class="card-header">Update Cell Value</div>
+    <div class="card-body">
+        <app-item-field-input [info]="info" (serializedValueChanged)="currentSerializedValue = $event"></app-item-field-input>
+    </div>
+    <div class="card-body text-right">
+        <button type="button" mat-button (click)="onNoClick()">Cancel</button>
+        <button type="button" mat-raised-button color="primary" (click)="onYesClick()">Update</button>
+    </div>
+    
+    </div>

@@ -68,3 +68,12 @@ export interface IItemDbEntity extends IUserChildDbEntity{
   removed: boolean,
   userUpdatedAt: number
 }
+
+export interface IUsageLogDbEntity extends IUserChildDbEntity{
+  name?: string,
+  sub?: string,
+  content?: any,
+  deviceId?: string,
+  timestamp?: Date,
+  localId?: number
+}

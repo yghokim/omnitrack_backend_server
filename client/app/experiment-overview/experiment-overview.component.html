@@ -1,17 +1,30 @@
-<div class="card research-main-fixed-header">
-  <div class="container">
-    <div class="card-body no-horizontal-padding vertical-padding-small">
-      <div class="flex-container flex-stretch flex-align-items-center">
-        <mat-slide-toggle class="right-margin-2em" [checked]="configuration.includeWeekends() | async" [tooltips]="[true, true]" (change)="includeWeekendsChanged($event.checked)">Include Weekends</mat-slide-toggle>
-        
-        <div id="day-index-range-container" *ngIf="dayIndexRange">
-          <nouislider [config]="dayIndexRangeSliderConfigs" [min]="0" [max] = "dayIndexMax" [(ngModel)]="dayIndexRange" (ngModelChange)="onDayIndexSliderChanged($event)" ></nouislider>
-        </div>
-      </div>
+<div #sidePanel id="experiment-side-panel" class="card" [style.width]="sidePanelWidth + 'px'">
+  <div class="card-body">
+    <mat-slide-toggle [checked]="configuration.includeWeekends() | async" [tooltips]="[true, true]" (change)="includeWeekendsChanged($event.checked)">Include Weekends</mat-slide-toggle>
+
+    <div id="day-index-range-container" *ngIf="dayIndexRange">
+      <nouislider [config]="dayIndexRangeSliderConfigs" [min]="0" [max]="dayIndexMax" [(ngModel)]="dayIndexRange" (ngModelChange)="onDayIndexSliderChanged($event)"></nouislider>
     </div>
   </div>
+  <mat-expansion-panel class="mat-elevation-z0 component-border-top" [expanded]="true">
+    <mat-expansion-panel-header>Participants</mat-expansion-panel-header>
+    <div class="flex-container flex-align-items-center bottom-margin-1em">
+      <button type="button" class="btn btn-sm btn-light" (click)="configuration.clearParticipantFilter()">Select All</button>
+      <div class="flex-filler"></div>
+      <span *ngIf="(configuration.filteredParticipantIds | async).length > 0">{{(configuration.filteredParticipantIds | async).length}} hidden</span>
+    </div>
+    <ng-container *ngFor="let participant of participants">
+      <mat-checkbox [checked]="(configuration.filteredParticipantIds | async).includes(participant._id)!==true" (change)="onFilteredParticipantToggle(participant._id, $event.checked)">
+        {{participant.alias}}
+      </mat-checkbox>
+      <mat-divider class="bottom-margin-dot5em"></mat-divider>
+    </ng-container>
+  </mat-expansion-panel>
 </div>
-<div class="container main">
-  <app-tracking-data-synchronizer-widget></app-tracking-data-synchronizer-widget>
-  <app-engagement></app-engagement>
+<div [style.padding-left]="sidePanelWidth + 'px'">
+  <div class="container main">
+    <app-tracking-data-synchronizer-widget></app-tracking-data-synchronizer-widget>
+    <app-experiment-data-summary></app-experiment-data-summary>
+    <app-engagement></app-engagement>
+  </div>
 </div>

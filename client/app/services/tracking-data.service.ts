@@ -7,7 +7,7 @@ import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription'; 
 import 'rxjs/add/operator/combineLatest';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
-import { ITrackerDbEntity, IItemDbEntity, ITriggerDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, IItemDbEntity, ITriggerDbEntity, IAttributeDbEntity } from '../../../omnitrack/core/db-entity-types';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 export class TrackingDataService implements OnInit, OnDestroy{
@@ -159,5 +159,26 @@ export class TrackingDataService implements OnInit, OnDestroy{
       else return i.tracker === trackerId
     }))
   }
-  
+
+  setItemColumnValue(attribute: IAttributeDbEntity, item: IItemDbEntity, newSerializedValue: string): Observable<{success: boolean, error?: any, changedItem?:IItemDbEntity}>
+  {
+    console.log("body:")
+    console.log({attrLocalId: attribute.localId, itemQuery: {_id: item._id}, serializedValue: newSerializedValue})
+    return this.http.post("/api/research/tracking/update/item_column", {attrLocalId: attribute.localId, itemQuery: {_id: item._id}, serializedValue: newSerializedValue}, 
+    this.api.authorizedOptions).map(r=>r.json()).do(result=>{
+      if(result.changedItem){
+        if(this.items.value){
+          const matchIndex = this.items.value.findIndex(i => i._id === result.changedItem._id)
+          if(matchIndex != -1){
+            this.items.value[matchIndex] = result.changedItem
+          }
+          else{
+            this.items.value.push(result.changedItem)
+          }
+
+          this.items.next(this.items.value)
+        }
+      }
+    })
+  }
 }

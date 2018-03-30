@@ -24,7 +24,7 @@
         flex: 1;">
           <span *ngIf="!group.omitNote" class="text-color-warn">생산성 로그 및 누락일지 없음 ({{isWeekend(group.day)===true ? '주말' : '평일'}})</span>
           <span *ngIf="group.omitNote">누락일지: </span>
-          <span *ngIf="group.omitNote" class="omit_note text-truncate" [matTooltip]="group.omitNote">{{group.omitNote}}</span>
+          <span *ngIf="group.omitNote" class="omit_note text-truncate" [matTooltip]="group.omitNote">{{group.omitNote}} ({{group.omitNoteTimestamp | date: 'MM/dd h:mm a'}})</span>
         </div>
       </div>
     </div>

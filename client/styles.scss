@@ -68,23 +68,34 @@ $visualization_heatmap_color_overflow: #173958;
 }
 
 @import "~nouislider/distribute/nouislider.min.css";
+
+nouislider{
+  padding-right: 12px;
+  padding-left: 12px;
+}
 .noUi-horizontal {
   height: 10px;
   .noUi-handle {
     width: 24px;
     height: 24px;
     left: -12px;
+    right: -12px;
     top: -9px;
     border: hidden;
     border-radius: 500px;
     background: $color_accent_light;
     box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
+    
   }
   .noUi-tooltip {
     transform: translate(-50%, 0);
     left: 50%;
     bottom: 120%;
   }
+}
+
+html:not([dir="rtl"]) .noUi-horizontal .noUi-handle{
+  right: -12px;
 }
 
 .noUi-target {
@@ -164,17 +175,6 @@ a.no-text-effect {
   color: inherit;
 }
 
-.research-main-fixed-header {
-  position: fixed;
-  z-index: 10;
-  top: $research_header_height;
-  left: $research_sidebar_width;
-  right: 0px;
-  &.card {
-    border-radius: 0;
-  }
-}
-
 .badge-lg {
   padding: 0.5rem;
 }
@@ -206,9 +206,13 @@ a.no-text-effect {
   font-size: 0.9em;
 }
 
-.mat-icon-button.text-color-darkgray,
+.mat-button, .mat-icon-button.text-color-darkgray,
 .text-color-darkgray {
   color: #575757;
+}
+
+.text-color-gray {
+  color: #757575;
 }
 
 .page-info-message {
@@ -300,6 +304,12 @@ a.no-text-effect {
   } // Small devices (landscape phones, less than 768px)
 }
 
+.hide-on-print {
+  @media print {
+    display: none !important;
+  }
+}
+
 .container-vertical-padding {
   padding-top: 0.5em;
   padding-bottom: 0.5em;
@@ -380,6 +390,10 @@ a.no-text-effect {
 
 .flex-container.flex-align-items-center {
   align-items: center;
+}
+
+.flex-container.flex-align-items-baseline {
+  align-items: baseline;
 }
 
 .flex-align-self-center {
@@ -474,6 +488,10 @@ label.small.horizontal {
   margin-bottom: 0.5em;
 }
 
+.bottom-margin-1em {
+  margin-bottom: 1em;
+}
+
 .bottom-margin-2em {
   margin-bottom: 2em;
 }
@@ -498,6 +516,10 @@ mat-form-field.mat-form-no-vertical-padding {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.component-border-top{
+  border-top: 1px solid #f0f0f0;
 }
 
 .card {
@@ -575,8 +597,7 @@ button.table-cell-clickable-text {
 .btn-group.selectable {
   .btn.active {
     background: #feb952;
-    color: white;
-    text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
+    color: white; //text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
     box-shadow: 0px 1px 1px rgba(50, 0, 0, 0.3) inset;
     border: hidden;
   }
@@ -595,7 +616,7 @@ button.table-cell-clickable-text {
   text-align: center;
 }
 
-mat-dialog-container .dialog{
+mat-dialog-container .dialog {
   margin: -24px;
 }
 
@@ -811,6 +832,15 @@ thead.singleline {
   }
 }
 
+.table-print{
+  td, th{
+    color: black;
+  }
+  td{
+    font-size: 0.85rem;
+  }
+}
+
 .form-control {
   font-size: 0.9em;
 }
@@ -820,7 +850,6 @@ thead.singleline {
   padding-left: 1.5em;
   padding-right: 1.5em;
 }
-
 
 .global-page-title {
   font-weight: 300;

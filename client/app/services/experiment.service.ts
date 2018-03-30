@@ -29,7 +29,7 @@ export class ExperimentService {
 
   private readonly _onExperimentInvalid = new Subject<void>()
 
-  public get experimentInvalidated(): Observable<void>{
+  public get experimentInvalidated(): Observable<void> {
     return this._onExperimentInvalid
   }
 
@@ -61,7 +61,6 @@ export class ExperimentService {
 
           socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_EXPERIMENT, (data) => {
             console.log("received updated/experiment websocket event.")
-            console.log(data)
             if (data instanceof Array) {
               data.forEach(datum => {
                 if (datum.model) {
@@ -94,7 +93,7 @@ export class ExperimentService {
                       break;
                     case SocketConstants.MODEL_EXPERIMENT:
                       this.loadExperimentInfo()
-                      switch(datum.event){
+                      switch (datum.event) {
                         case SocketConstants.EVENT_REMOVED:
                           this.researchApi.loadExperimentList()
                           this.notificationService.pushSnackBarMessage({
@@ -126,14 +125,14 @@ export class ExperimentService {
     this.trackingDataService.ngOnDestroy()
   }
 
-  loadMessageList(){
+  loadMessageList() {
     this.notificationService.registerGlobalBusyTag("messageList")
     this._internalSubscriptions.add(
       this.http.get("/api/research/experiments/" + this.experimentId + "/messages", this.researchApi.authorizedOptions)
-        .map(res=> res.json())
+        .map(res => res.json())
         .subscribe(
-          messages=>{
-            if(messages instanceof Array){
+          messages => {
+            if (messages instanceof Array) {
               this.notificationService.unregisterGlobalBusyTag("messageList")
               this.messageList.next(messages)
             }
@@ -216,14 +215,14 @@ export class ExperimentService {
     return this.participantList.asObservable()
   }
 
-  getMessageList() : Observable<Array<IResearchMessage>>{
-    return this.messageList.filter(res=>res != null)
+  getMessageList(): Observable<Array<IResearchMessage>> {
+    return this.messageList.filter(res => res != null)
   }
 
-  enqueueMessage(messageInfo: IResearchMessage): Observable<boolean>{
+  enqueueMessage(messageInfo: IResearchMessage): Observable<boolean> {
     return this.http
       .post("/api/research/experiments/" + this.experimentId + "/messages/new", messageInfo, this.researchApi.authorizedOptions)
-      .map(res=>res.json())
+      .map(res => res.json())
   }
 
   generateInvitation(information): Observable<any> {
@@ -258,11 +257,11 @@ export class ExperimentService {
       .map(res => res.json().success)
   }
 
-  changeParticipantAlias(participantId, alias): Observable<boolean>{
+  changeParticipantAlias(participantId, alias): Observable<boolean> {
     return this.http.post("/api/research/participants/" + participantId  + "/alias", {alias: alias}, this.researchApi.authorizedOptions).map(res => res.json())
   }
 
-  updateParticipant(participantId, update): Observable<any>{
+  updateParticipant(participantId, update): Observable<any> {
     return this.http.post("/api/research/participants/" + participantId + "/update", {update: update},
     this.researchApi.authorizedOptions).map(res => res.json())
   }
@@ -279,47 +278,42 @@ export class ExperimentService {
     })
   }
 
-  getVisualizationConfigs(): Observable<VisualizationConfigs>{
+  getVisualizationConfigs(): Observable<VisualizationConfigs> {
     return this.getExperiment().map(exp => VisualizationConfigs.fromJson(exp.visualizationConfigs))
   }
 
-  getMyRole(): Observable<string>{
-    return this.getExperiment().combineLatest(this.authService.currentResearcher, (exp, researcher)=>{
-      if(exp.manager._id === researcher.uid)
-      {
+  getMyRole(): Observable<string> {
+    return this.getExperiment().combineLatest(this.authService.currentResearcher, (exp, researcher) => {
+      if (exp.manager._id === researcher.uid) {
         return "manager"
-      }
-      else if(exp.experimenters.find(ex=>ex.researcher.email === researcher.email)){
+      } else if (exp.experimenters.find(ex => ex.researcher.email === researcher.email)) {
         return "collaborator"
-      }
-      else return null
+      } else { return null }
     })
   }
 
-  getMyPermissions(): Observable<ExperimentPermissions>{
-    return this.getExperiment().combineLatest(this.authService.currentResearcher, (exp, researcher)=>{
-      if(exp.manager._id === researcher.uid)
-      {
+  getMyPermissions(): Observable<ExperimentPermissions> {
+    return this.getExperiment().combineLatest(this.authService.currentResearcher, (exp, researcher) => {
+      if (exp.manager._id === researcher.uid) {
         return ExperimentPermissions.makeMasterPermissions()
-      }
-      else{
-        const col = exp.experimenters.find(ex=>ex.researcher.email === researcher.email)
-        if(col){
+      } else {
+        const col = exp.experimenters.find(ex => ex.researcher.email === researcher.email)
+        if (col) {
           return ExperimentPermissions.fromJson(col.permissions)
         }
       }
-      
+
       return null
     })
   }
 
-  //commands====================
+  // commands====================
 
-  addCollaborator(collaboratorId: string, permissions: ExperimentPermissions): Observable<boolean>{
+  addCollaborator(collaboratorId: string, permissions: ExperimentPermissions): Observable<boolean> {
     return this.http.post("api/research/experiments/" + this.experimentId + "/collaborators/new", {
       collaborator: collaboratorId,
       permissions: permissions
-    },this.researchApi.authorizedOptions)
+    }, this.researchApi.authorizedOptions)
       .map(res => res.json())
   }
 

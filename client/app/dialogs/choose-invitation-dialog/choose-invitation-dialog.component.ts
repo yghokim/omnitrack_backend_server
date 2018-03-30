@@ -10,10 +10,10 @@ import { AInvitation, SpecificGroupInvitation, RandomGroupInvitation } from '../
 })
 export class ChooseInvitationDialogComponent implements OnInit {
 
-  private positiveLabel = this.data.positiveLabel || "Send"
+  public positiveLabel = this.data.positiveLabel || "Send"
 
   private groups: Array<any>
-  private invitations: Array<any>
+  public invitations: Array<any>
 
   private selectedInvitationCode: string
 

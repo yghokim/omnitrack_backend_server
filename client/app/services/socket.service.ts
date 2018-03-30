@@ -42,7 +42,6 @@ export class SocketService {
     })
 
     console.log("websocket initialized.")
-    console.log(this.socket)
     this._onConnected.next(this.socket)
   }
 

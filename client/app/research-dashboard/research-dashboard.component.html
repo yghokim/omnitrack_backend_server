@@ -23,8 +23,8 @@
     <mat-icon class="material-icons left-margin-dot2em text-size-1dot2em">help_outline</mat-icon>
   </span>
 
-  <div main id="research_dashboard_wrapper" *ngIf="!isLoadingSelectedExperiment">
-    <div id="research_column_sidebar">
+  <div main id="research-dashboard-wrapper" *ngIf="!isLoadingSelectedExperiment">
+    <div id="research-column-sidebar">
       <div class="nav nav-pills flex-column">
         <div class="group" *ngFor="let group of dashboardNavigationGroups">
           <div class="small nav-link nav-subtitle">{{group.name}}</div>
@@ -40,7 +40,7 @@
       </div>
     </div>
     <div id="research_column_main">
-      <div class="title-header-container">
+      <div class="title-header-container hide-on-print" [ngClass]="{'hidden': showTitleBar===false}">
         <div class="card" class="title-header" [ngClass]="upperHeaderTitle!=undefined? 'with-button':''" *ngIf="headerTitle && (showTitleBar!==false)">
           <div *ngIf="!upperHeaderTitle" class="dashboard-title">{{headerTitle}}</div>
           <div *ngIf="upperHeaderTitle" class="flex-container flex-align-items-center">

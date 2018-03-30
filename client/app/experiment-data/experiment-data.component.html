@@ -1,5 +1,11 @@
 <div [ngClass]="screenExpanded===true? 'container-fluid' : 'container'">
-  <div class="text-right"><app-tracking-data-synchronizer-widget></app-tracking-data-synchronizer-widget></div>
+  <div class="flex-container flex-align-items-center hide-on-print">
+    <app-tracking-data-synchronizer-widget></app-tracking-data-synchronizer-widget>
+    <div class="flex-filler"></div>
+    <div class="right-margin-1em">
+    <button mat-button style="color: #757575" (click)="onExportClicked()"><span class="material-icons right-margin-dot5em">archive</span>Export..</button></div>
+    <mat-slide-toggle [checked]="printFriendlyMode" (change)="printFriendlyMode=$event.checked; screenExpanded = $event.checked===true? true : screenExpanded">Print-friendly</mat-slide-toggle>
+  </div>
   <div *ngIf="!participants || participants.length === 0" class="page-info-message">
     No participants in the experiment.
   </div>
@@ -11,20 +17,21 @@
             <mat-option *ngFor="let participant of participants" [value]="participant._id">{{participant.alias}} ({{participant.experimentRange.from | date: 'yyyy-MM-dd'}})</mat-option>
           </mat-select>
         </mat-form-field>
-        <button mat-icon-button [matTooltip]="screenExpanded===true? 'contract' : 'expand'"  (click)="screenExpanded = !screenExpanded">
+        <button mat-icon-button [matTooltip]="screenExpanded===true? 'contract' : 'expand'" (click)="screenExpanded = !screenExpanded">
           <mat-icon class="material-icons">{{screenExpanded===true? 'picture_in_picture' : 'aspect_ratio'}}</mat-icon>
         </button>
       </div>
     </div>
     <mat-tab-group class="tab-group" [(selectedIndex)]="selectedTrackerIndex" (selectedTabChange)="onTrackerTabChanged($event)">
-      <mat-tab *ngFor="let tracker of userTrackers" [label]="tracker.name" [value]="tracker._id">
+      <mat-tab *ngFor="let tracker of userTrackers" [label]="tracker.name + '(' + (getItemCountOfTracker(tracker._id) | async) + ')'"
+        [value]="tracker._id">
 
       </mat-tab>
     </mat-tab-group>
    
   <app-audio-cell></app-audio-cell>
     
-   <mat-table class="table table-data" [dataSource]="trackerDataSource" matSort *ngIf="selectedTracker">
+   <mat-table class="table table-data" [dataSource]="trackerDataSource" matSort *ngIf="printFriendlyMode!==true&&selectedTracker">
 
         <ng-container *ngFor="let col of selectedTracker.attributes" matColumnDef={{col.localId}}>
           <mat-header-cell *matHeaderCellDef mat-sort-header> {{ col.name }} </mat-header-cell>
@@ -39,31 +46,40 @@
           </mat-cell>
         </ng-container>
 
-        <ng-container matColumnDef="timestamp">
-          <mat-header-cell *matHeaderCellDef mat-sort-header> Logged At </mat-header-cell>
-          <mat-cell *matCellDef="let object"> {{object.timestamp | date: 'short'}} </mat-cell>
-        </ng-container>
+      <ng-container matColumnDef="timestamp">
+        <mat-header-cell *matHeaderCellDef mat-sort-header> Logged At </mat-header-cell>
+        <mat-cell *matCellDef="let object"> {{object.timestamp | date: 'short'}} </mat-cell>
+      </ng-container>
 
-          <mat-header-row *matHeaderRowDef="getTrackerColumns(selectedTracker)"></mat-header-row>
-          <mat-row class="hoverable" *matRowDef="let row; columns: getTrackerColumns(selectedTracker);"></mat-row>
+      <mat-header-row *matHeaderRowDef="getTrackerColumns(selectedTracker)"></mat-header-row>
+      <mat-row class="hoverable" *matRowDef="let row; columns: getTrackerColumns(selectedTracker);"></mat-row>
     </mat-table>
-  
+  </div>
+</div>
+
+<table class="table table-data table-print" *ngIf="printFriendlyMode===true&&selectedTracker">
+  <thead class="singleline">
+    <th *ngFor="let attr of selectedTracker.attributes">
+      {{attr.name}}
+    </th>
+    <th class="header-timestamp">Logged At</th>
+  </thead>
+  <tbody>
+    <tr class="hoverable singleline" *ngFor="let item of trackerItems">
+      <td *ngFor="let attr of selectedTracker.attributes">
+        <ng-container *ngIf="getItemValue(item, attr, true)">
+          <span *ngIf="isImageAttribute(attr) !== true">{{this.getItemValue(item, attr, true)}}</span>
+          <span *ngIf="isImageAttribute(attr) === true">
+            <app-image-cell *ngIf="this.getItemValue(item,attr)" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'attributeLocalId': attr.localId}"></app-image-cell>
+          </span>
+        </ng-container>
+      </td>
+      <td class="cell-timestamp">{{item.timestamp | date: 'short'}}</td>
+    </tr>
+  </tbody>
+</table>
+
 <!-- Old Table
-    <table class="table table-data" *ngIf="selectedTracker">
-      <thead class="singleline">
-        <th *ngFor="let attr of selectedTracker.attributes">
-          {{attr.name}}
-        </th>
-        <th class="header-timestamp">Logged At</th>
-      </thead>
-      <tbody>
-        <tr class="hoverable singleline" *ngFor="let item of trackerItems">
-          <td *ngFor="let attr of selectedTracker.attributes">
-            <span *ngIf="getItemValue(item, attr)">{{getItemValue(item, attr)}}</span>
-          </td>
-          <td class="cell-timestamp">{{item.timestamp | date: 'short'}}</td>
-        </tr>
-      </tbody>
-    </table>
+    
   </div>
 </div>-->

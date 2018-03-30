@@ -7,6 +7,7 @@ import { IJoinedExperimentInfo } from '../../omnitrack/core/research/experiment'
 import { Document } from 'mongoose';
 import app from '../app';
 import { SocketConstants } from '../../omnitrack/core/research/socket';
+import { OTUsageLogCtrl } from './ot_usage_log_controller';
 
 const crypto = require("crypto");
 
@@ -29,18 +30,18 @@ export default class OTResearchCtrl {
   }
 
   getResearchers = (req, res) => {
-    OTResearcher.find({}, { _id: 1, email: 1, alias: 1, account_approved: 1, createdAt: 1}).then(researchers => {
+    OTResearcher.find({}, { _id: 1, email: 1, alias: 1, account_approved: 1, createdAt: 1 }).lean().then(researchers => {
       res.status(200).send(researchers || [])
-    }).catch(err=>{
+    }).catch(err => {
       console.log(err)
       res.status(200).send(err)
     })
   }
 
   setResearcherAccountApproved = (req, res) => {
-    OTResearcher.findByIdAndUpdate(req.params.researcherId, {account_approved: req.body.approved}, {new: false}).then(original=>{
+    OTResearcher.findByIdAndUpdate(req.params.researcherId, { account_approved: req.body.approved }, { new: false }).then(original => {
       res.status(200).send(original["account_approved"] !== req.body.approved)
-    }).catch(err=>{
+    }).catch(err => {
       console.log(err)
       res.status(500).send(err)
     })
@@ -51,10 +52,12 @@ export default class OTResearchCtrl {
     const searchTerm = req.query.term
     const excludeSelf = (req.query.excludeSelf || "true") === "true"
 
-    const searchQuery = {$or: [ 
-      { email: {$regex: searchTerm, $options: 'gi'}},
-      { alias: {$regex: searchTerm, $options: 'gi'}},
-     ]}
+    const searchQuery = {
+      $or: [
+        { email: { $regex: searchTerm, $options: 'gi' } },
+        { alias: { $regex: searchTerm, $options: 'gi' } },
+      ]
+    }
 
     let condition
     if (excludeSelf == true) {
@@ -64,7 +67,7 @@ export default class OTResearchCtrl {
 
     console.log("search researchers with term " + searchTerm)
 
-    return OTResearcher.find(condition, { _id: 1, email: 1, alias: 1 }, {multi: true}).catch(err => {
+    return OTResearcher.find(condition, { _id: 1, email: 1, alias: 1 }, { multi: true }).lean().catch(err => {
       console.log(err)
       return []
     })
@@ -93,29 +96,32 @@ export default class OTResearchCtrl {
     OTParticipant.find({ "user": userId, isConsentApproved: true }).populate({
       path: "experiment",
       select: '_id name'
-    }).then(
+    }).lean().then(
       participants => {
-        const list = participants.map(participant => { return { 
-          id: participant["experiment"]._id, 
-          name: participant["experiment"].name, 
-          experimentRangeStart: participant["experimentRange"].from? participant["experimentRange"].from.getTime() : participant["approvedAt"].getTime(),
-          joinedAt: participant["approvedAt"].getTime(), 
-          droppedAt: participant["dropped"] == true ? participant["droppedAt"].getTime() : null } as IJoinedExperimentInfo })
+        const list = participants.map(participant => {
+          return {
+            id: participant["experiment"]._id,
+            name: participant["experiment"].name,
+            experimentRangeStart: participant["experimentRange"].from ? participant["experimentRange"].from.getTime() : participant["approvedAt"].getTime(),
+            joinedAt: participant["approvedAt"].getTime(),
+            droppedAt: participant["dropped"] == true ? participant["droppedAt"].getTime() : null
+          } as IJoinedExperimentInfo
+        })
 
         res.status(200).send(
           list
         )
       }
-      ).catch(err => {
-        console.log(err)
-        res.status(500).send(err)
-      })
+    ).catch(err => {
+      console.log(err)
+      res.status(500).send(err)
+    })
   }
 
   getInvitations = (req, res) => {
     const researcherId = req.researcher.uid
     const experimentId = req.params.experimentId
-    OTInvitation.find({ experiment: experimentId }).populate({ path: "participants", select: "_id isDenied isConsentApproved dropped" }).then(list => {
+    OTInvitation.find({ experiment: experimentId }).populate({ path: "participants", select: "_id isDenied isConsentApproved dropped" }).lean().then(list => {
       res.status(200).json(list)
     })
       .catch(err => {
@@ -154,10 +160,10 @@ export default class OTResearchCtrl {
 
         res.status(200).json(invit)
       }
-      ).catch(err => {
-        console.log(err)
-        res.status(500).send(err)
-      })
+    ).catch(err => {
+      console.log(err)
+      res.status(500).send(err)
+    })
   }
 
   sendInvitation = (req, res) => {
@@ -176,13 +182,41 @@ export default class OTResearchCtrl {
 
   getParticipants = (req, res) => {
     const experimentId = req.params.experimentId
-    OTParticipant.find({ experiment: experimentId }).populate("user")
+    OTParticipant.find({ experiment: experimentId }).populate("user").lean()
       .then(
-      participants => {
-        console.log("participants: ")
-        console.log(participants)
-        res.status(200).send(participants)
-      }
+        participants => {
+          if (participants) {
+            OTUsageLogCtrl.analyzeSessionLogs(null, participants.map(p => p.user._id)).then(
+              usageLogAnalysisResults => {
+                participants.forEach(participant => {
+                  const analysis = usageLogAnalysisResults.find(r =>
+                    r["_id"] === participant.user._id)
+                  if (analysis) {
+                    analysis["logs"].forEach(log => {
+                      console.log(log)
+                      switch (log._id.name) {
+                        case "session":
+                          participant["lastSessionTimestamp"] = log["lastTimestamp"]
+                          break;
+                        case "OTSynchronizationService":
+                          participant["lastSyncTimestamp"] = log["lastTimestamp"]
+                          break;
+                      }
+                    })
+                  }else{
+                    console.log("no usage log matches.")
+                  }
+                })
+
+                res.status(200).send(participants)
+              }
+            ).catch(err => {
+              console.log(err)
+              res.status(200).send(participants)
+            })
+          }
+          else res.status(200).send(participants)
+        }
       ).catch(err => {
         console.log(err)
         res.status(500).send(err)
@@ -220,23 +254,23 @@ export default class OTResearchCtrl {
       err => {
         res.status(500).send({ error: err })
       }
-      )
+    )
   }
 
-  updateParticipant = (req, res)=>{
+  updateParticipant = (req, res) => {
     const participantId = req.params.participantId
     const update = req.body.update
-    OTParticipant.findByIdAndUpdate(participantId, update, {new: false}).then(
+    OTParticipant.findByIdAndUpdate(participantId, update, { new: false }).then(
       updated => {
-        if(updated){
-          app.socketModule().sendUpdateNotificationToExperimentSubscribers(updated["experiment"], {model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_EDITED})
+        if (updated) {
+          app.socketModule().sendUpdateNotificationToExperimentSubscribers(updated["experiment"], { model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_EDITED })
           res.status(200).send(updated)
         }
-        else{
+        else {
           res.status(404).send("No such participant with id " + participantId)
         }
       }
-    ).catch(err=>{
+    ).catch(err => {
       res.status(500).send(err)
     })
   }
@@ -253,7 +287,7 @@ export default class OTResearchCtrl {
           select: '_id name'
         }
       }
-    }).then(list => {
+    }).lean().then(list => {
       res.status(200).send(list)
     }).catch(err => {
       console.log(err)

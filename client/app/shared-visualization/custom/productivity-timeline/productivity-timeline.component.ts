@@ -12,10 +12,10 @@ import * as groupArray from 'group-array';
 import * as moment from 'moment-timezone';
 import { Moment } from "moment";
 import * as bigdecimal from 'bigdecimal';
-import d3 = require("d3");
+import * as d3 from "d3";
 import { ScaleLinear, ScaleBand } from 'd3-scale'
 import { ScaleOrdinal, Axis } from "d3";
-import { ProductivityLog, ProductivityHelper, OmitLog } from "../productivity-dashboard/productivity-dashboard.component";
+import { ProductivityLog, ProductivityHelper, OmitLog } from "../productivity-helper";
 import { Subject } from "rxjs/Subject";
 import { D3Helper } from "../../d3-helper";
 import { Subscription } from "rxjs/Subscription";
@@ -76,7 +76,8 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
           this.data.next({
             days: days, groups: days.map(day => {
               const omitLog = data.omitLogs? data.omitLogs.find(l=>l.dateStart === day) : null
-              return { day: day, logs: grouped[day.toString()], omitNote: data.omitLogs && omitLog ? omitLog.note : null }
+              return { day: day, logs: grouped[day.toString()], omitNote: data.omitLogs && omitLog ? omitLog.note : null,
+               omitNoteTimestamp: data.omitLogs && omitLog? omitLog.timestamp : null }
             })
           })
         }
@@ -175,5 +176,6 @@ type ProductivityTimelineData = {
 export type ProductivityLogGroup = {
   day: number,
   logs: Array<ProductivityLog>,
-  omitNote: string
+  omitNote?: string,
+  omitNoteTimestamp?: number,
 }

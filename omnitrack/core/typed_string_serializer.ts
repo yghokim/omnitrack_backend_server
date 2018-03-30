@@ -65,29 +65,27 @@ export default class TypedStringSerializer {
   }
 
   static serialize(typeName: string, value: any): string {
-    const stringBuilder = new StringBuilder()
-    stringBuilder.append(typeName.length)
-    stringBuilder.append(typeName)
+    let stringBuilder = typeName.length.toString() + typeName
     switch (typeName) {
         case TypedStringSerializer.TYPENAME_BIGDECIMAL:
-          stringBuilder.append(value.toString())
+          stringBuilder += value.toString()
           break;
         case TypedStringSerializer.TYPENAME_TIMEPOINT:
-          stringBuilder.append(value.timestamp).append("@").append(value.timezone)
+          stringBuilder += value.timestamp.toString() + "@" + value.timezone.toString()
           break;
         case TypedStringSerializer.TYPENAME_TIMESPAN:
-          stringBuilder.append(value.from).append("@").append(value.duration).append("@").append(value.timezone)
+          stringBuilder += value.from + "@" + value.duration + "@" + value.timezone
           break;
         case TypedStringSerializer.TYPENAME_LONG_ARRAY:
         case TypedStringSerializer.TYPENAME_INT_ARRAY:
-          stringBuilder.append(value.joinToString(","))
+          stringBuilder += value.joinToString(",")
           break;
         case TypedStringSerializer.TYPENAME_LATITUDE_LONGITUDE:
-          stringBuilder.append(value.latitude).append(",").append(value.longitude)
+          stringBuilder+= value.latitude + "," + value.longitude
           break;
         // case TypedStringSerializer.TYPENAME_ROUTE -> (value as Route).getSerializedString()
         case TypedStringSerializer.TYPENAME_FRACTION:
-          stringBuilder.append(value.upper).append("/").append(value.under)
+          stringBuilder += value.upper + "/" + value.under
           break;
         case TypedStringSerializer.TYPENAME_SERVERFILE:
           const serverFileJson = {}
@@ -96,13 +94,13 @@ export default class TypedStringSerializer {
           serverFileJson["size"] = serverFile.fileSize
           serverFileJson["mime"] = serverFile.mimeType
           serverFileJson["origName"] = serverFile.originalFileName
-          stringBuilder.append(JSON.stringify(serverFileJson))
+          stringBuilder += JSON.stringify(serverFileJson)
           break;
         default:
-          stringBuilder.append(value.toString())
+          stringBuilder += value.toString()
           break;
     }
 
-    return stringBuilder.build()
+    return stringBuilder
   }
 }

@@ -9,14 +9,19 @@ import {
 } from "../../../omnitrack/core/db-entity-types";
 import TypedStringSerializer from "../../../omnitrack/core/typed_string_serializer";
 import AttributeManager from "../../../omnitrack/core/attributes/attribute.manager";
-import { MatTableDataSource, MatSort, MatPaginator } from '@angular/material';
+import { MatTableDataSource, MatSort, MatPaginator, MatDialog } from '@angular/material';
 
 import { Element } from "@angular/compiler";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import attributeTypes from "../../../omnitrack/core/attributes/attribute-types";
 import { Response } from "@angular/http";
 import { Observable } from "rxjs/Observable";
 import { SingletonAudioPlayerServiceService } from "../services/singleton-audio-player-service.service";
+import { aliasCompareFunc } from "../../../shared_lib/utils";
+import * as moment from 'moment-timezone';
+import * as XLSX from 'xlsx';
+import * as FileSaver from 'file-saver'; 
+import { UpdateItemCellValueDialogComponent } from "../dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component";
 
 @Component({
   selector: "app-experiment-data",
@@ -27,6 +32,8 @@ import { SingletonAudioPlayerServiceService } from "../services/singleton-audio-
 export class ExperimentDataComponent implements OnInit, OnDestroy {
   private readonly _internalSubscriptions = new Subscription();
 
+  public printFriendlyMode = false
+
   private userSubscriptions = new Subscription();
   private trackerSubscriptions = new Subscription();
 
@@ -35,7 +42,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   public selectedParticipantId: string;
   public selectedTracker: ITrackerDbEntity;
 
-  public selectedTrackerIndex: number = 0;
+  public selectedTrackerIndex = 0;
 
   public userTrackers: Array<ITrackerDbEntity> = [];
 
@@ -45,7 +52,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   @ViewChild(MatSort) sort: MatSort;
 
-  public screenExpanded: boolean = false
+  public screenExpanded = false
 
   private tableSchema: Array<{
     localId: string;
@@ -56,7 +63,8 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   constructor(
     private api: ResearchApiService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -72,7 +80,10 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
         })
         .flatMap(service => service.getParticipants())
         .subscribe(participants => {
-          participants.sort((a,b)=>{return new Date(a.experimentRange.from).getTime() - new Date(b.experimentRange.from).getTime()})
+          /*
+          participants.sort((a,b)=>{return new Date(a.experimentRange.from).getTime() - new Date(b.experimentRange.from).getTime()})*/
+          const sortFunc = aliasCompareFunc(false)
+          participants.sort((a, b) => sortFunc(a.alias, b.alias))
           this.participants = participants;
           if (this.participants.length > 0) {
             this.selectedParticipantId = this.participants[0]._id;
@@ -95,7 +106,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     this.userSubscriptions.unsubscribe();
   }
 
-  onExpandButtonClicked(){
+  onExpandButtonClicked() {
     this.screenExpanded = !this.screenExpanded
   }
 
@@ -109,7 +120,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   }
 
   private onSelectedParticipantIdChanged(newParticipantId: string) {
-    const userId = this.participants.find(p => p._id == newParticipantId).user
+    const userId = this.participants.find(p => p._id === newParticipantId).user
       ._id;
     this.userSubscriptions.unsubscribe();
     this.userSubscriptions = new Subscription();
@@ -130,7 +141,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   }
 
   private onSelectedTrackerChanged(tracker: ITrackerDbEntity) {
-    if (this.selectedTracker != tracker) {
+    if (this.selectedTracker !== tracker) {
       this.selectedTracker = tracker;
 
       this.trackerSubscriptions.unsubscribe();
@@ -144,9 +155,9 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
             this.trackerItems = items;
             this.trackerDataSource = new MatTableDataSource(items)
             this.trackerDataSource.sortingDataAccessor = (data: IItemDbEntity, sortHeaderId: string) => {
-              if(sortHeaderId === 'timestamp'){ return data.timestamp || '';}
-              for (let item of data.dataTable){
-                if(item.attrLocalId === sortHeaderId){
+              if (sortHeaderId === 'timestamp') { return data.timestamp || ''; }
+              for (const item of data.dataTable) {
+                if (item.attrLocalId === sortHeaderId) {
                   return item.sVal || '';
                 }
               }
@@ -158,7 +169,14 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     }
   }
 
-  isImageAttribute(attr: IAttributeDbEntity):boolean{
+  getItemCountOfTracker(trackerId: string): Observable<number> {
+    return this.api.selectedExperimentService
+          .flatMap(service =>
+            service.trackingDataService.getItemsOfTracker(trackerId).map(items => items.length)
+          )
+  }
+
+  isImageAttribute(attr: IAttributeDbEntity): boolean {
     return attr.type === attributeTypes.ATTR_TYPE_IMAGE
   }
 
@@ -178,12 +196,85 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
       if (helper && tryFormatted === true) {
         const formatted = helper.formatAttributeValue(attr, deserializedValue);
         return formatted;
-      } else return deserializedValue;
-    } else return null;
+      } else { return deserializedValue; }
+    } else { return null; }
   }
 
-  getTrackerColumns(tracker: ITrackerDbEntity): any[]{
-    const temp = tracker.attributes.map((attribute)=>{return attribute.localId})
+  getTrackerColumns(tracker: ITrackerDbEntity): any[] {
+    const temp = tracker.attributes.map((attribute) => attribute.localId)
     return temp.concat('timestamp')
-  }    
+  }
+
+  onCellValueClicked(tracker: ITrackerDbEntity, attribute: IAttributeDbEntity, item: IItemDbEntity){
+    this._internalSubscriptions.add(
+      this.dialog.open(UpdateItemCellValueDialogComponent, {data:{info: {tracker: tracker, attribute: attribute, item: item}}}).afterClosed().subscribe(
+        result=>{
+          if(result && result.value){
+            this._internalSubscriptions.add(
+              this.api.selectedExperimentService.flatMap(expService=>expService.trackingDataService.setItemColumnValue(attribute, item, result.value)).subscribe(
+                updateResult => {
+                }
+              )
+            )
+          }
+        }
+      )
+    )
+  }
+
+  onExportClicked(){
+    this._internalSubscriptions.add(
+    this.api.selectedExperimentService.flatMap(service=>service.getOmniTrackPackages().map(packages => {return {packages: packages, experimentService: service}})).flatMap(
+      result=>{
+        return Observable.zip(
+          result.experimentService.trackingDataService.trackers,
+          result.experimentService.trackingDataService.items,
+          (trackers, items)=> {return {packages: result.packages, trackers: trackers, items: items}}
+        )
+      }
+    ).subscribe(
+      result=>{
+        const workbook = XLSX.utils.book_new()
+        const commonColumns = ["participant_alias"]
+        result.packages.forEach(
+          pack=>{
+            pack.data.trackers.forEach(
+              trackerScheme=>{
+                console.log(trackerScheme)
+                const injectedAttrNames = trackerScheme.attributes.map(attr=>attr.name)
+                const itemRows:Array<Array<any>> = [
+                  commonColumns.concat(injectedAttrNames).concat("logged at")
+                ]
+                const trackers = result.trackers.filter(t=>(t.flags || {}).injectionId === trackerScheme.flags.injectionId && this.participants.find(p => p.user._id === t.user))
+                trackers.forEach(
+                  tracker=>{
+                    const participant = this.participants.find(p => p.user._id === tracker.user)
+                    result.items.filter(i=>i.tracker === tracker._id).forEach(
+                      item => {
+                        const values = trackerScheme.attributes.map(attrScheme=>{
+                          const attr = tracker.attributes.find(a=>(a.flags || {}).injectionId === attrScheme.flags.injectionId)
+                          return this.getItemValue(item, attr, true)
+                        })
+
+                        itemRows.push([participant.alias].concat(values).concat(moment(item.timestamp).format()))
+                      }
+                    )
+                  }
+                )
+
+                const sheet = XLSX.utils.aoa_to_sheet(itemRows)
+                XLSX.utils.book_append_sheet(workbook, sheet, trackerScheme.name)
+              }
+            )
+            //save worksheet
+            const workbookOut = XLSX.write(workbook, {
+              bookType: 'xlsx', bookSST: false, type: 'array'
+            })
+
+            FileSaver.saveAs(new Blob([workbookOut], {type:"application/octet-stream"}), this.api.getSelectedExperimentId() + "_experiment-tracking-data.xlsx")
+          }
+        )
+      }
+    ))
+  }
 }

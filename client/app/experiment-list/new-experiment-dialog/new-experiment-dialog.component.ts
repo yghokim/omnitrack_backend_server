@@ -10,6 +10,7 @@ import { MatDialogRef } from '@angular/material';
 export class NewExperimentDialogComponent implements OnInit {
 
   experimentName: string = null
+  public submitErrorMessage = null
 
   constructor(private dialogRef: MatDialogRef<NewExperimentDialogComponent>) { }
 

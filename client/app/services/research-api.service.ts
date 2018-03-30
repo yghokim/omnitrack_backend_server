@@ -57,7 +57,6 @@ export class ResearchApiService implements OnDestroy {
           res.socket.emit(SocketConstants.SERVER_EVENT_SUBSCRIBE_SERVER_GLOBAL)
 
           res.socket.on(SocketConstants.SERVER_EVENT_UPDATED_GLOBAL, (data) => {
-            console.log(data)
             if (data instanceof Array) {
               data.forEach(datum => {
                 switch (datum.model) {
