@@ -56,6 +56,7 @@ import { DurationCoverageComponent } from './research/custom/productivity-statis
 import { ExperimentCustomStatisticsComponent } from './experiment-custom-statistics/experiment-custom-statistics.component';
 import { UpdateItemCellValueDialogComponent } from './dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component';
 import { LoggingTimeOfDayChartComponent } from './research/custom/productivity-statistics/logging-time-of-day-chart/logging-time-of-day-chart.component';
+import { ParticipantExcludedDaysConfigDialogComponent } from './dialogs/participant-excluded-days-config-dialog/participant-excluded-days-config-dialog.component';
 
 @NgModule({
   imports: [
@@ -111,7 +112,8 @@ import { LoggingTimeOfDayChartComponent } from './research/custom/productivity-s
     DurationCoverageComponent,
     ExperimentCustomStatisticsComponent,
     UpdateItemCellValueDialogComponent,
-    LoggingTimeOfDayChartComponent
+    LoggingTimeOfDayChartComponent,
+    ParticipantExcludedDaysConfigDialogComponent
   ],
   exports: [
     NouisliderModule,
@@ -159,7 +161,8 @@ import { LoggingTimeOfDayChartComponent } from './research/custom/productivity-s
     NewExperimentDialogComponent,
     DeleteExperimentConfirmDialogComponent,
     UploadClientBinaryDialogComponent,
-    UpdateItemCellValueDialogComponent
+    UpdateItemCellValueDialogComponent,
+    ParticipantExcludedDaysConfigDialogComponent
   ]
 })
 export class ResearchModule { }

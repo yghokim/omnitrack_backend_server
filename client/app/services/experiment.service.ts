@@ -14,13 +14,14 @@ import { VisualizationConfigs } from '../../../omnitrack/core/research/configs';
 import { TrackingDataService } from './tracking-data.service';
 import { Subject } from 'rxjs/Subject';
 import { IResearchMessage } from '../../../omnitrack/core/research/messaging';
+import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
 
 export class ExperimentService {
 
   private readonly experimentInfo = new BehaviorSubject<any>(null)
   private readonly managerInfo = new BehaviorSubject<any>(null)
   private readonly invitationList = new BehaviorSubject<Array<any>>([])
-  private readonly participantList = new BehaviorSubject<Array<any>>([])
+  private readonly participantList = new BehaviorSubject<Array<IParticipantDbEntity>>([])
   private readonly messageList = new BehaviorSubject<Array<IResearchMessage>>([])
 
   private readonly _internalSubscriptions = new Subscription()
@@ -211,7 +212,7 @@ export class ExperimentService {
     return this.invitationList.asObservable()
   }
 
-  getParticipants(): Observable<Array<any>> {
+  getParticipants(): Observable<Array<IParticipantDbEntity>> {
     return this.participantList.asObservable()
   }
 
@@ -264,6 +265,14 @@ export class ExperimentService {
   updateParticipant(participantId, update): Observable<any> {
     return this.http.post("/api/research/participants/" + participantId + "/update", {update: update},
     this.researchApi.authorizedOptions).map(res => res.json())
+  }
+
+  setParticipantExcludedDays(participantId: string, excludedDays: Array<Date>): Observable<any>{
+    return this.http.post("/api/research/participants/" + participantId + "/excluded_days", {excludedDays: excludedDays}, this.researchApi.authorizedOptions).map(res=>res.json()).do(result=>{
+      if(result.success === true){
+        this.loadParticipantList()
+      }
+    })
   }
 
   getOmniTrackPackages(): Observable<Array<any>> {

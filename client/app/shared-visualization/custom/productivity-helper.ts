@@ -1,4 +1,4 @@
-import { ITrackerDbEntity, IItemDbEntity } from "../../../../omnitrack/core/db-entity-types";
+import { ITrackerDbEntity, IItemDbEntity, IParticipantDbEntity } from "../../../../omnitrack/core/db-entity-types";
 import { ServerFile, TimePoint } from "../../../../omnitrack/core/datatypes/field_datatypes";
 import * as d3 from 'd3';
 import { ScaleLinear } from "d3";
@@ -33,7 +33,7 @@ export interface TrackingSet{
 };
 
 export interface TrackingSetOfParticipant extends TrackingSet{
-  participant: any,
+  participant: IParticipantDbEntity,
 }
 
 /* This log is not 1:1 matched with the items. 

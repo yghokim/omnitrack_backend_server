@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs/Subscription';
 import * as moment from "moment-timezone";
 import { diffDaysBetweenTwoMoments } from '../../../shared_lib/utils';
 import { Subject } from 'rxjs/Subject';
+import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
 
 @Component({
   selector: 'app-experiment-overview',
@@ -39,7 +40,7 @@ export class ExperimentOverviewComponent implements OnInit {
 
   private readonly _dayRangeValueInject = new Subject<Array<number>>()
 
-  participants: Array<any>
+  participants: Array<IParticipantDbEntity>
 
   constructor(
     private api: ResearchApiService,

@@ -1,0 +1,21 @@
+<div class="dialog dialog-mid">
+  <div class="card-header">Configure days to exclude</div>
+  <div class="card-body">
+    <mat-list class="bottom-margin-1em">
+      <ng-container *ngFor="let day of list; let index=index">
+        <mat-list-item><button mat-icon-button color="warn" (click)="onRemoveClicked(index)"><span class="material-icons">cancel</span></button>{{day | date: 'yyyy-MM-dd'}}</mat-list-item>
+        <mat-divider></mat-divider>
+      </ng-container>
+    </mat-list>
+    <div class="flex-container flex-align-items-center">
+      <input class="form-control flex-filler" type="date" [ngModel]="date | date:'yyyy-MM-dd'" (ngModelChange)="date = toDate($event)">
+      <button mat-button color="accent" (click)="onAddClicked()">Add</button>
+    </div>
+  </div>
+  <hr>
+  <div class="card-body text-right">
+    <button type="button" mat-button color="warn" (click)="onNoClick()">Cancel</button>
+    <button type="button" mat-raised-button color="primary" (click)="onYesClick()">Apply</button>
+  </div>
+
+</div>

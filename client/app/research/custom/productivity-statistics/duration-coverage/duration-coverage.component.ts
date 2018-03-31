@@ -64,8 +64,6 @@ export class DurationCoverageComponent implements OnInit {
       })
     }
 
-    console.log(distPerProductivity)
-
     const chart = HighChartsHelper.makeDefaultChartOptions('column')
 
     chart.plotOptions = {
@@ -75,6 +73,9 @@ export class DurationCoverageComponent implements OnInit {
         borderWidth: 0,
         pointPadding: 0.05,
         pointPlacement: 'between'
+      },
+      series: {
+        animation: false
       }
     }
     chart.xAxis = {

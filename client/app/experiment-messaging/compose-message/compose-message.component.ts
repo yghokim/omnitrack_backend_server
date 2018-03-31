@@ -6,6 +6,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import * as moment from 'moment-timezone';
 import { FroalaEditorModule } from 'angular-froala-wysiwyg/editor/editor.module';
+import { IParticipantDbEntity } from '../../../../omnitrack/core/db-entity-types';
 declare var $ :any;
 
 @Component({
@@ -52,7 +53,7 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
 
   public mountedMessage: IResearchMessage
 
-  public participants: Array<any>
+  public participants: Array<IParticipantDbEntity>
 
   deliveryDate: Date = new Date()
   deliveryTime: string = "12:00"

@@ -77,3 +77,24 @@ export interface IUsageLogDbEntity extends IUserChildDbEntity{
   timestamp?: Date,
   localId?: number
 }
+
+export interface IParticipantDbEntity extends IUserChildDbEntity{
+  alias?: string
+  user: string | any
+  experiment?: any
+  groupId?: string
+  excludedDays?: Array<Date>
+  invitation?: any
+  isDenied?: boolean
+  deniedAt?: Date
+  isConsentApproved?: boolean
+  approvedAt?: Date
+  dropped?: boolean
+  droppedReason?: string
+  droppedBy?: string | any
+  droppedAt?: Date
+  information?: any
+  experimentRange?: {from?: Date, to?: Date}
+  lastSyncTimestamp?: number
+  lastSessionTimestamp?: number
+}

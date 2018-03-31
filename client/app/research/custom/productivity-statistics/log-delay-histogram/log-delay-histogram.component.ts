@@ -19,6 +19,7 @@ export class LogDelayHistogramComponent implements OnInit {
   @Input() set decodedItems(decodedItems: Array<DecodedItem>){
     const delayData = decodedItems.map(decodedItem => {
       let delay
+      console.log(decodedItem.dominantDateNumber)
       if(decodedItem.item.timestamp > decodedItem.from && decodedItem.item.timestamp < decodedItem.to){
         //inside
         delay = 0

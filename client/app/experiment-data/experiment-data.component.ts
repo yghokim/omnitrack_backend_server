@@ -5,7 +5,8 @@ import { NotificationService } from "../services/notification.service";
 import {
   ITrackerDbEntity,
   IItemDbEntity,
-  IAttributeDbEntity
+  IAttributeDbEntity,
+  IParticipantDbEntity
 } from "../../../omnitrack/core/db-entity-types";
 import TypedStringSerializer from "../../../omnitrack/core/typed_string_serializer";
 import AttributeManager from "../../../omnitrack/core/attributes/attribute.manager";
@@ -35,7 +36,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   private userSubscriptions = new Subscription();
   private trackerSubscriptions = new Subscription();
 
-  public participants: Array<any> = [];
+  public participants: Array<IParticipantDbEntity> = [];
 
   public selectedParticipantId: string;
   public selectedTracker: ITrackerDbEntity;

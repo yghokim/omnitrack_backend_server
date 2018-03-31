@@ -59,6 +59,9 @@ export class LoggingTimeOfDayChartComponent implements OnInit {
           enabled: false
         },
         lineWidth: 0
+      },
+      series: {
+        animation: false
       }
     }
 

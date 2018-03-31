@@ -16,6 +16,7 @@ import { trackingDataCtrl } from './controllers/research/ot_tracking_data_contro
 import { ResearcherPrevilages } from '../omnitrack/core/research/researcher';
 import BinaryStorageCtrl from './controllers/binary_storage_controller';
 import {itemCtrl} from './controllers/ot_item_controller';
+import { participantCtrl } from './controllers/research/ot_participant_controller';
 
 const jwt = require('express-jwt');
 const OAuthServer = require('express-oauth-server');
@@ -135,6 +136,8 @@ router.get("/researchers/search", tokenApprovedAuth, researchCtrl.searchResearch
 router.delete("/users/:userId", tokenApprovedAuth, userCtrl.deleteAccount)
 
 router.delete("/participants/:participantId/drop", tokenApprovedAuth, researchCtrl.dropOutFromExperiment)
+
+router.post('/participants/:participantId/excluded_days', tokenApprovedAuth, participantCtrl.postExcludedDays)
 
 
 //tracking data
