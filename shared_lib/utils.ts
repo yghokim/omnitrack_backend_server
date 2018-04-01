@@ -46,17 +46,30 @@ export function unique(arr: Array<any>): Array<any> {
   })
 }
 
-export function diffDaysBetweenTwoMoments(a: Moment, b: Moment, includeWeekends: boolean): number {
+export function diffDaysBetweenTwoMoments(a: Moment, b: Moment, includeWeekends: boolean, excludedDays?: Array<number>): number {
 
   if (includeWeekends) {
-    return a.diff(b, "days")
+    const fullDiff = a.diff(b, "days")
+    if(excludedDays){
+      console.log(excludedDays)
+      return fullDiff - excludedDays.filter(d=>{
+        return d >= a.unix() && d <= b.unix()  
+      }).length
+    }
+    else return fullDiff
   } else {
-
     const bStart = moment(b).startOf("day")
     const aStart = moment(a).startOf("day")
     let diff = 0
     while (aStart.diff(bStart) >= 1) {
       bStart.add(1, "day")
+      if(excludedDays){
+        if(excludedDays.find(d=>d === bStart.unix()))
+        {
+          continue
+        }
+      }
+
       if (bStart.isoWeekday() < 6) {
         diff++
       }

@@ -83,7 +83,7 @@ export interface IParticipantDbEntity extends IUserChildDbEntity{
   user: string | any
   experiment?: any
   groupId?: string
-  excludedDays?: Array<Date>
+  excludedDays?: Array<number>
   invitation?: any
   isDenied?: boolean
   deniedAt?: Date

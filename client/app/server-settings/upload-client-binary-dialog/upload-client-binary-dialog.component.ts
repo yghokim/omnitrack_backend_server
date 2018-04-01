@@ -5,6 +5,7 @@ import * as PkgReader from 'isomorphic-apk-reader';
 import { getExtensionFromPath } from '../../../../shared_lib/utils';
 import { ClientBinaryUtil } from '../../../../omnitrack/core/client_binary_utils';
 import * as AndroidVersionName from 'android-versions';
+import { FileSystemFileEntry } from 'ngx-file-drop/src/lib/ngx-drop/dom.types';
 
 @Component({
   selector: 'app-upload-client-binary-dialog',
@@ -37,12 +38,11 @@ export class UploadClientBinaryDialogComponent implements OnInit {
 
     if(filteredList.length > 0)
     {
-      const fileEntry = event.files[0]
-      const extension = getExtensionFromPath(fileEntry.fileEntry.name)
+      const uploadFile = event.files[0]
+      const extension = getExtensionFromPath(uploadFile.fileEntry.name)
 
-      fileEntry.fileEntry.file(file=>{
-        console.log("file loaded.")
-        console.log(file)
+      const entry: FileSystemFileEntry = uploadFile.fileEntry as any
+      entry.file(file=>{
         this.loadedFile = file
         this.loadedFileName = file.name
         new PkgReader(file, extension, {withIcon: true}).parse((err, packageInfo)=>{
@@ -55,7 +55,6 @@ export class UploadClientBinaryDialogComponent implements OnInit {
               packageInfo.platform = "iOS"
               break;
             }
-            console.log(packageInfo)
             this.parsedPackageInfo = packageInfo
             this.isBusy = false
             console.log("done reading package file.")

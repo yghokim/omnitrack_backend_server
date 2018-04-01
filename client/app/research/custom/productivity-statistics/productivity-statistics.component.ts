@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../../../services/research-api.service';
 import { Subscription } from 'rxjs/Subscription';
 import { TrackingSet, ProductivityHelper, DecodedItem, ProductivityLog } from '../../../shared-visualization/custom/productivity-helper';
-import { ITrackerDbEntity, IItemDbEntity } from '../../../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, IItemDbEntity, IParticipantDbEntity } from '../../../../../omnitrack/core/db-entity-types';
 import 'rxjs/add/operator/combineLatest';
 import { groupArrayByVariable } from '../../../../../shared_lib/utils';
 
@@ -15,7 +15,8 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
 
   private _internalSubscriptions = new Subscription()
 
-  public participantPool: Array<any>
+  public participantPool: Array<IParticipantDbEntity>
+  public selectedParticipants: Array<IParticipantDbEntity>
 
   public decodedItems: Array<DecodedItem>
   public productivityLogs: Array<ProductivityLog>
@@ -43,7 +44,8 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
       this.api.selectedExperimentService.flatMap(expService => expService.getParticipants()).subscribe(
         participants => {
           this.participantPool = participants
-          this.onParticipantListChanged(participants)
+          this.selectedParticipants = participants
+          this.onParticipantListChanged(this.selectedParticipants)
         }
       )
     )
