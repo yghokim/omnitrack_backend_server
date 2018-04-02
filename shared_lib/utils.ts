@@ -50,10 +50,10 @@ export function diffDaysBetweenTwoMoments(a: Moment, b: Moment, includeWeekends:
 
   if (includeWeekends) {
     const fullDiff = a.diff(b, "days")
-    if(excludedDays){
+    if (excludedDays) {
       console.log(excludedDays)
-      return fullDiff - excludedDays.filter(d=>{
-        return d >= a.unix() && d <= b.unix()  
+      return fullDiff - excludedDays.filter(d => {
+        return d >= a.unix() && d <= b.unix()
       }).length
     }
     else return fullDiff
@@ -63,9 +63,8 @@ export function diffDaysBetweenTwoMoments(a: Moment, b: Moment, includeWeekends:
     let diff = 0
     while (aStart.diff(bStart) >= 1) {
       bStart.add(1, "day")
-      if(excludedDays){
-        if(excludedDays.find(d=>d === bStart.unix()))
-        {
+      if (excludedDays) {
+        if (excludedDays.find(d => d === bStart.unix())) {
           continue
         }
       }
@@ -197,4 +196,46 @@ export function groupArrayByVariable(array, variableName): any {
     }
   })
   return result
+}
+
+export function toDurationString(timeInSeconds: number): string {
+  if (timeInSeconds === 0) {
+    return "0"
+  } else {
+    let d: number = 0
+    let h: number = 0
+    let m: number = 0
+    let s: number = 0
+
+    let abs = Math.abs(timeInSeconds)
+    d = Math.floor(abs / (24 * 60 * 60))
+    abs -= d * 24 * 60 * 60
+    h = Math.floor((abs) / (60 * 60))
+    abs -= h * 60 * 60
+    m = Math.floor(abs / 60)
+    abs -= m * 60
+    s = abs
+
+    let result = ""
+
+    if (d !== 0) {
+      result += d + "D"
+    }
+
+    if (h !== 0) {
+      result += " " + h + "H"
+    }
+
+    if (m !== 0) {
+      result += " " + m + "M"
+    }
+
+    if (s !== 0) {
+      result += " " + s + "S"
+    }
+
+    if (timeInSeconds > 0)
+      return result.trim()
+    else return "before " + result.trim()
+  }
 }

@@ -1,4 +1,4 @@
-<app-duration-coverage [segments]="48" [logs]="productivityLogs"></app-duration-coverage>
+<app-duration-coverage [segments]="48" [logs]="productivityLogs" [participants]="selectedParticipants"></app-duration-coverage>
 <app-chart-frame title="Distribution of Logged Timestamps Within a Day" [isBusy]="false" *ngIf="decodedItemsPerParticipant">
   <app-logging-time-of-day-chart main title="Total" heightParamOverride="25%" [decodedItems]="decodedItems">
 

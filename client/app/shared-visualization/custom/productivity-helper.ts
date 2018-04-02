@@ -64,6 +64,7 @@ export class ProductivityLog {
   toDateRatio: number;
   productivity: number;
   decodedItem: DecodedItem;
+  user: string;
 }
 
 export class OmitLog {
@@ -353,7 +354,8 @@ export class ProductivityHelper {
             fromDateRatio: startRatio,
             toDateRatio: Math.min(endDiffRatio, 1),
             productivity: productivity,
-            decodedItem: decoded
+            decodedItem: decoded,
+            user: item.user
           });
 
           for (var i = 0; i < numDaysBetween; i++) {
@@ -372,7 +374,8 @@ export class ProductivityHelper {
               fromDateRatio: 0,
               toDateRatio: toDateRatio,
               productivity: productivity,
-              decodedItem: decoded
+              decodedItem: decoded,
+              user: item.user
             });
           }
         } else {

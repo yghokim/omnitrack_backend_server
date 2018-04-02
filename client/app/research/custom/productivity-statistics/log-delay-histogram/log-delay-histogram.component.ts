@@ -5,7 +5,7 @@ import { Chart } from "angular-highcharts";
 import * as d3 from "d3";
 import * as moment from "moment";
 import { IParticipantDbEntity } from "../../../../../../omnitrack/core/db-entity-types";
-import { groupArrayByVariable } from "../../../../../../shared_lib/utils";
+import { groupArrayByVariable, toDurationString } from "../../../../../../shared_lib/utils";
 import { getExperimentDateSequenceOfParticipant } from "../../../../../../omnitrack/experiment-utils";
 import { ChartOptions } from "highcharts";
 
@@ -53,15 +53,14 @@ export class LogDelayHistogramComponent implements OnInit {
         this.chart = new Chart(chartOptions)*/
   }
 
-  constructor() {}
+  constructor() { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   private refresh(
     participants: Array<IParticipantDbEntity>,
     decodedItems: Array<DecodedItem>
   ) {
-    console.log("refresh");
 
     const today = moment()
       .endOf("day")
@@ -116,7 +115,17 @@ export class LogDelayHistogramComponent implements OnInit {
               y: delay
             };
           })
-          .filter(d => d.x >= 0);
+          .filter(d => d.x >= 0).sort((a,b)=>a.y - b.y);
+
+        const q1 = d3.quantile(delayLogs, 0.25, l => l.y)
+        const q3 = d3.quantile(delayLogs, 0.75, l => l.y)
+        const iqr = (q3 - q1)
+        const minThreshold = q1 - 1.5*iqr
+        const maxThreshold = q3 + 1.5*iqr
+        //console.log(participant.alias + ": q1: " + q1 + ", q3: " + q3 + ", minThreshold:" + minThreshold + " maxThreshold:" + maxThreshold)
+        const insiders = delayLogs.filter(d=>d.y >= minThreshold && d.y <= maxThreshold)
+
+
         delayLogsPerParticipant.push({
           participant: participant,
           delayLogs: delayLogs,
@@ -125,10 +134,10 @@ export class LogDelayHistogramComponent implements OnInit {
           avg: d3.mean(delayLogs, l => l.y),
           median: d3.median(delayLogs, l => l.y),
           sd: d3.deviation(delayLogs, l => l.y),
-          q1: d3.quantile(delayLogs, 0.25, l => l.y),
-          q3: d3.quantile(delayLogs, 0.75, l => l.y),
-          high: d3.max(delayLogs, l => l.y),
-          low: d3.min(delayLogs, l => l.y)
+          q1: q1,
+          q3: q3,
+          high: d3.max(insiders, l => l.y),
+          low: d3.min(insiders, l => l.y)
         });
         totalDelayLogs = totalDelayLogs.concat(delayLogs);
       }
@@ -194,6 +203,13 @@ export class LogDelayHistogramComponent implements OnInit {
     chartOptions.yAxis = {
       title: {
         text: "Logging Delay (minute)"
+      },
+      tickInterval: 60 * 12,
+      minorTickInterval: 60*6,
+      labels: {
+        formatter: function () {
+          return toDurationString(this.value * 60)
+        }
       }
     };
 
@@ -204,7 +220,7 @@ export class LogDelayHistogramComponent implements OnInit {
         text: "Participant"
       }
     };
-    
+
     chartOptions.series = [
       {
         name: "Delays",
