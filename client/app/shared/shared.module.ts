@@ -3,7 +3,10 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { ChartModule, HIGHCHARTS_MODULES } from 'angular-highcharts';
+import * as more from 'highcharts/highcharts-more.src';
+import * as exporting from 'highcharts/modules/exporting.src';
 import * as heatmap from 'highcharts/modules/heatmap.src';
+
 
 import { ToastComponent } from './toast/toast.component';
 import { LoadingComponent } from './loading/loading.component';
@@ -79,7 +82,7 @@ import { TextFieldInputComponent } from '../components/field-inputs/text-field-i
   ],
   providers: [
     ToastComponent,
-    {provide: HIGHCHARTS_MODULES, useFactory:()=>[heatmap]}
+    {provide: HIGHCHARTS_MODULES, useFactory:()=>[heatmap, more, exporting]}
   ]
 })
 export class SharedModule { }
