@@ -2,8 +2,9 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../../../services/research-api.service';
 import { Subscription } from 'rxjs/Subscription';
 import { TrackingSet, ProductivityHelper, DecodedItem, ProductivityLog } from '../../../shared-visualization/custom/productivity-helper';
-import { ITrackerDbEntity, IItemDbEntity } from '../../../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, IItemDbEntity, IParticipantDbEntity } from '../../../../../omnitrack/core/db-entity-types';
 import 'rxjs/add/operator/combineLatest';
+import { groupArrayByVariable } from '../../../../../shared_lib/utils';
 
 @Component({
   selector: 'app-productivity-statistics',
@@ -14,10 +15,12 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
 
   private _internalSubscriptions = new Subscription()
 
-  public participantPool: Array<any>
+  public participantPool: Array<IParticipantDbEntity>
+  public selectedParticipants: Array<IParticipantDbEntity>
 
   public decodedItems: Array<DecodedItem>
   public productivityLogs: Array<ProductivityLog>
+  public decodedItemsPerParticipant: Array<{ participant: any, decodedItems: Array<DecodedItem> }>
 
   public set trackingSets(newSet: Array<TrackingSet>) {
     this.decodedItems = []
@@ -26,6 +29,10 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
       const processed = ProductivityHelper.processTrackingSet(trackingSet)
       this.decodedItems = this.decodedItems.concat(processed.decodedItems)
       this.productivityLogs = this.productivityLogs.concat(processed.productivityLogs)
+
+      if (this.participantPool) {
+        this.updateGroupedDecodedItems(this.participantPool, this.decodedItems)
+      }
     })
   }
 
@@ -37,7 +44,8 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
       this.api.selectedExperimentService.flatMap(expService => expService.getParticipants()).subscribe(
         participants => {
           this.participantPool = participants
-          this.onParticipantListChanged()
+          this.selectedParticipants = participants
+          this.onParticipantListChanged(this.selectedParticipants)
         }
       )
     )
@@ -72,13 +80,30 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
-    if(this.api.selectedExperimentServiceSync){
+    if (this.api.selectedExperimentServiceSync) {
       this.api.selectedExperimentServiceSync.trackingDataService.unregisterConsumer("ExperimentCustomStatisticsComponent")
     }
   }
 
-  private onParticipantListChanged() {
+  private updateGroupedDecodedItems(participants: Array<any>, decodedItems: Array<DecodedItem>) {
+    const grouped = groupArrayByVariable(decodedItems, "user")
+    const arrayed = []
+    for (let userId of Object.keys(grouped)) {
+      const participant = participants.find(p => p.user._id === userId)
+      if (participant) {
+        arrayed.push({
+          participant: participant,
+          decodedItems: grouped[userId]
+        })
+      }
+    }
+    this.decodedItemsPerParticipant = arrayed
+  }
 
+  private onParticipantListChanged(participants: Array<any>) {
+    if (this.decodedItems) {
+      this.updateGroupedDecodedItems(participants, this.decodedItems)
+    }
   }
 
 

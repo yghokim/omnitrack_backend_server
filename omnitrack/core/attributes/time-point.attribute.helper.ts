@@ -7,9 +7,11 @@ import { Fraction, TimePoint } from "../datatypes/field_datatypes";
 import attributeTypes from "./attribute-types";
 import * as moment from 'moment-timezone';
 import TimeSpanAttributeHelper from './time-span.attribute.helper';
+import TypedStringSerializer from '../typed_string_serializer';
 
 export default class TimePointAttributeHelper extends AttributeHelper {
   get typeName(): string { return "Time Point" }
+  get typeNameForSerialization(): string { return TypedStringSerializer.TYPENAME_TIMEPOINT}
 
   formatAttributeValue(attr: IAttributeDbEntity, value: any): string {
     if(value instanceof TimePoint)

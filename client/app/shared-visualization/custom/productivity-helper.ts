@@ -1,4 +1,4 @@
-import { ITrackerDbEntity, IItemDbEntity } from "../../../../omnitrack/core/db-entity-types";
+import { ITrackerDbEntity, IItemDbEntity, IParticipantDbEntity } from "../../../../omnitrack/core/db-entity-types";
 import { ServerFile, TimePoint } from "../../../../omnitrack/core/datatypes/field_datatypes";
 import * as d3 from 'd3';
 import { ScaleLinear } from "d3";
@@ -7,6 +7,7 @@ import { EPropertyType } from "../../../../omnitrack/core/properties/property.ty
 import ChoiceAttributeHelper from "../../../../omnitrack/core/attributes/choice.attribute.helper";
 import TypedStringSerializer from "../../../../omnitrack/core/typed_string_serializer";
 import { Moment } from "moment";
+import * as moment from 'moment-timezone';
 
 
 const INJECTION_ID_PIVOT_TYPE = "OZLc8BKS";
@@ -23,7 +24,7 @@ const INJECTION_ID_PHOTO = "YNtFn97k";
 const INJECTION_ID_OMIT_DATE = "Ac4gSN0C";
 const INJECTION_ID_OMIT_NOTE = "syXB4sIp";
 
-export type TrackingSet = {
+export interface TrackingSet{
   overrideStartDate?: number,
   tracker: ITrackerDbEntity,
   items: Array<IItemDbEntity>,
@@ -31,15 +32,21 @@ export type TrackingSet = {
   omitLogs: Array<IItemDbEntity>
 };
 
+export interface TrackingSetOfParticipant extends TrackingSet{
+  participant: IParticipantDbEntity,
+}
+
 /* This log is not 1:1 matched with the items. 
  * The items can be divided into multiple logs if the range exceeds the day.
 */
 
 export type DecodedItem = {
+  user: string;
   productivity: number;
   duration: number;
   from: number;
   to: number;
+  timestampDayRatio: number,
   usedDevices: Array<string>;
   tasks: Array<string>;
   location: string;
@@ -57,6 +64,7 @@ export class ProductivityLog {
   toDateRatio: number;
   productivity: number;
   decodedItem: DecodedItem;
+  user: string;
 }
 
 export class OmitLog {
@@ -301,11 +309,13 @@ export class ProductivityHelper {
                 .toDate();
 
           const decoded = {
+            user: item.user,
             productivity: productivity,
             duration: duration,
             from: startMoment.valueOf(),
             to: endMoment.valueOf(),
             dominantDate: dominantDate,
+            timestampDayRatio: moment(item.timestamp).diff(moment(item.timestamp).startOf('day'), 'day', true),
             dominantDateNumber: dominantDate.getTime(),
             usedDevices: _deviceIds
               ? _deviceIds.map(
@@ -344,7 +354,8 @@ export class ProductivityHelper {
             fromDateRatio: startRatio,
             toDateRatio: Math.min(endDiffRatio, 1),
             productivity: productivity,
-            decodedItem: decoded
+            decodedItem: decoded,
+            user: item.user
           });
 
           for (var i = 0; i < numDaysBetween; i++) {
@@ -363,7 +374,8 @@ export class ProductivityHelper {
               fromDateRatio: 0,
               toDateRatio: toDateRatio,
               productivity: productivity,
-              decodedItem: decoded
+              decodedItem: decoded,
+              user: item.user
             });
           }
         } else {

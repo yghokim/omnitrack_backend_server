@@ -30,8 +30,7 @@ export class TimePointFieldInputComponent extends BaseItemFieldInputComponent im
     const value = moment(event)
     if(value.isValid() === true){
       (this.deserializedValue as TimePoint).timestamp = value.toDate().getTime()
-      this.serializedValue = TypedStringSerializer.serialize(TypedStringSerializer.TYPENAME_TIMEPOINT, this.deserializedValue)
-      this.serializedValueChanged.emit(this.serializedValue)
+      this.setNewDeserializedValue(this.deserializedValue)
     }
   }
 

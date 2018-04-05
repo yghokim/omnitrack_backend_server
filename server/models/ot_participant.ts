@@ -6,6 +6,7 @@ const otParticipantSchema = new mongoose.Schema({
   user: {type: String, ref: "OTUser"},
   experiment: {type: String, ref: "OTExperiment"},
   groupId: String,
+  excludedDays: {type: [Date], default: []},
   invitation: {type: mongoose.Schema.Types.ObjectId, ref: "OTInvitation"},
   isDenied: {type: Boolean, index: true, default: false, required: true},
   deniedAt: Date,

@@ -9,6 +9,8 @@ export default abstract class AttributeHelper {
 
   abstract get typeName(): string
 
+  abstract get typeNameForSerialization(): string
+
   abstract propertyKeys: Array<string>
 
   abstract getPropertyHelper<T>(propertyKey: string): PropertyHelper<T>

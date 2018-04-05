@@ -17,6 +17,8 @@ export class ItemFieldInputComponent extends BaseItemFieldInputComponent impleme
   protected onNewValue(attributeType: number, serializedValue?: string, deserializedValue?: any) {
     if(attributeType === attributeTypes.ATTR_TYPE_TIME){
       this.inputType = "timepoint"
+    }else if(attributeType === attributeTypes.ATTR_TYPE_CHOICE){
+      this.inputType = "choice"
     }
   }
 

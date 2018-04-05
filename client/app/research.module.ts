@@ -57,6 +57,8 @@ import { LogDelayHistogramComponent } from './research/custom/productivity-stati
 import { DurationCoverageComponent } from './research/custom/productivity-statistics/duration-coverage/duration-coverage.component';
 import { ExperimentCustomStatisticsComponent } from './experiment-custom-statistics/experiment-custom-statistics.component';
 import { UpdateItemCellValueDialogComponent } from './dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component';
+import { LoggingTimeOfDayChartComponent } from './research/custom/productivity-statistics/logging-time-of-day-chart/logging-time-of-day-chart.component';
+import { ParticipantExcludedDaysConfigDialogComponent } from './dialogs/participant-excluded-days-config-dialog/participant-excluded-days-config-dialog.component';
 
 @NgModule({
   imports: [
@@ -113,7 +115,9 @@ import { UpdateItemCellValueDialogComponent } from './dialogs/update-item-cell-v
     LogDelayHistogramComponent,
     DurationCoverageComponent,
     ExperimentCustomStatisticsComponent,
-    UpdateItemCellValueDialogComponent
+    UpdateItemCellValueDialogComponent,
+    LoggingTimeOfDayChartComponent,
+    ParticipantExcludedDaysConfigDialogComponent
   ],
   exports: [
     NouisliderModule,
@@ -144,7 +148,8 @@ import { UpdateItemCellValueDialogComponent } from './dialogs/update-item-cell-v
     ProductivityStatisticsComponent,
     LogDelayHistogramComponent,
     DurationCoverageComponent,
-    UpdateItemCellValueDialogComponent
+    UpdateItemCellValueDialogComponent,
+    LoggingTimeOfDayChartComponent
   ],
   providers: [
     ResearcherAuthGuardSecure,
@@ -160,7 +165,8 @@ import { UpdateItemCellValueDialogComponent } from './dialogs/update-item-cell-v
     NewExperimentDialogComponent,
     DeleteExperimentConfirmDialogComponent,
     UploadClientBinaryDialogComponent,
-    UpdateItemCellValueDialogComponent
+    UpdateItemCellValueDialogComponent,
+    ParticipantExcludedDaysConfigDialogComponent
   ]
 })
 export class ResearchModule { }

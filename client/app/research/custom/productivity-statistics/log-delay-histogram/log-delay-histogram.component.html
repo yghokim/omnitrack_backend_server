@@ -1,3 +1,11 @@
 <app-chart-frame title="Log Delays" [isBusy]="false">
-  <div main [chart]="chart"></div>
+  <!--<div main [chart]="globalChart"></div>-->
+  <div main [chart]="boxplot"></div>
+  <hr main>
+  <div main class="flex-container flex-container-wrap flex-padded-content flex-container-responsive-columns">
+    <div *ngFor="let entry of chartsPerParticipant">
+      <div [title]="entry.participant.alias" [chart]="entry.chart">
+      </div>
+    </div>
+  </div>
 </app-chart-frame>

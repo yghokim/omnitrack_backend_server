@@ -6,6 +6,7 @@ import { IAttributeDbEntity } from "../db-entity-types";
 import { Fraction, TimeSpan } from "../datatypes/field_datatypes";
 import attributeTypes from "./attribute-types";
 import * as moment from 'moment-timezone';
+import TypedStringSerializer from '../typed_string_serializer';
 
 export default class TimeSpanAttributeHelper extends AttributeHelper {  
 
@@ -21,6 +22,7 @@ export default class TimeSpanAttributeHelper extends AttributeHelper {
   
 
   get typeName(): string { return "Time Range" }
+  get typeNameForSerialization(): string { return TypedStringSerializer.TYPENAME_TIMESPAN }
 
   formatAttributeValue(attr: IAttributeDbEntity, value: any): string {
     if(value instanceof TimeSpan)

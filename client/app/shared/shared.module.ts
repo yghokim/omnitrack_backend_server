@@ -3,7 +3,10 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { ChartModule, HIGHCHARTS_MODULES } from 'angular-highcharts';
+import * as more from 'highcharts/highcharts-more.src';
+import * as exporting from 'highcharts/modules/exporting.src';
 import * as heatmap from 'highcharts/modules/heatmap.src';
+
 
 import { ToastComponent } from './toast/toast.component';
 import { LoadingComponent } from './loading/loading.component';
@@ -24,6 +27,7 @@ import { ItemFieldInputComponent } from '../components/item-field-input/item-fie
 import { GeneralItemFieldInputComponent } from '../components/field-inputs/general-item-field-input/general-item-field-input.component';
 import { TimePointFieldInputComponent } from '../components/field-inputs/time-point-field-input/time-point-field-input.component';
 import { TextFieldInputComponent } from '../components/field-inputs/text-field-input/text-field-input.component';
+import { ChoiceFieldInputComponent } from '../components/field-inputs/choice-field-input/choice-field-input.component';
 
 @NgModule({
   imports: [
@@ -56,7 +60,9 @@ import { TextFieldInputComponent } from '../components/field-inputs/text-field-i
     FileSizePipe,
     ItemFieldInputComponent,
     GeneralItemFieldInputComponent,
-    TimePointFieldInputComponent
+    TimePointFieldInputComponent,
+    TextFieldInputComponent,
+    ChoiceFieldInputComponent
   ],
   declarations: [
     ToastComponent,
@@ -75,11 +81,12 @@ import { TextFieldInputComponent } from '../components/field-inputs/text-field-i
     ItemFieldInputComponent,
     GeneralItemFieldInputComponent,
     TimePointFieldInputComponent,
-    TextFieldInputComponent
+    TextFieldInputComponent,
+    ChoiceFieldInputComponent
   ],
   providers: [
     ToastComponent,
-    {provide: HIGHCHARTS_MODULES, useFactory:()=>[heatmap]}
+    {provide: HIGHCHARTS_MODULES, useFactory:()=>[heatmap, more, exporting]}
   ]
 })
 export class SharedModule { }

@@ -24,7 +24,15 @@
               <div class="badge badge-primary" *ngIf="object.isConsentApproved && object.dropped != true">In Experiment</div>
             </mat-cell>
           </ng-container>
-
+          <ng-container matColumnDef="excludedDays">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>
+              Excluded Days
+            </mat-header-cell>
+            <mat-cell *matCellDef="let object">
+              <div *ngIf="object.excludedDays && object.excludedDays.length > 0">{{object.excludedDays.length}} days</div>
+              <button mat-button class="table-cell-clickable-text text-color-accented" (click)="onExcludedDaysEditClicked(object)">Edit..</button>
+            </mat-cell>
+          </ng-container>
           <ng-container matColumnDef="rangeStart">
             <mat-header-cell *matHeaderCellDef mat-sort-header>Count From</mat-header-cell>
             <mat-cell *matCellDef="let object">

@@ -8,7 +8,8 @@ import * as moment from "moment-timezone";
 import { FormBuilder } from "@angular/forms";
 import { deepclone, diffDaysBetweenTwoMoments } from "../../../shared_lib/utils";
 import { ResearchApiService } from "./research-api.service";
-import { ITrackerDbEntity, IItemDbEntity } from "../../../omnitrack/core/db-entity-types";
+import { ITrackerDbEntity, IItemDbEntity, IParticipantDbEntity } from "../../../omnitrack/core/db-entity-types";
+import { getExperimentDateSequenceOfParticipant } from "../../../omnitrack/experiment-utils";
 
 const dayStartArg = { hour: 0, minute: 0, second: 0, millisecond: 0 };
 
@@ -89,8 +90,7 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
                 earliestExperimentStart = Math.min(earliestExperimentStart, experimentRangeStart)
               }
 
-              const startDate = moment(participant.experimentRange.from).startOf("day")
-              const numDays = diffDaysBetweenTwoMoments(today, startDate, project.scope.includeWeekends) + 1
+              const daySequenceOfParticipant = getExperimentDateSequenceOfParticipant(participant, today.toDate(), project.scope.includeWeekends)
 
               const trackingDataList = trackers.filter(tracker => tracker.user === participant.user._id).map(tracker => {
                 const decodedItems = items.filter(item => {
@@ -106,13 +106,15 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
                   return false
                 }).map(item => {
                   const timestampMoment = moment(item.timestamp)
-                  const day = diffDaysBetweenTwoMoments(timestampMoment, startDate, project.scope.includeWeekends)
+                  const day = daySequenceOfParticipant.findIndex(d=>moment(d).isSame(timestampMoment, 'day'))
                   const dayRatio = timestampMoment.diff(moment(timestampMoment).startOf("day"), "days", true)
                   return { day: day, dayRatio: dayRatio, item: item }
                 })
                 return { tracker: tracker, decodedItems: decodedItems }
               })
-              return {participant: participant, numDays: numDays, trackingData: trackingDataList}
+              return {participant: participant, 
+                daySequence: daySequenceOfParticipant,
+                trackingData: trackingDataList}
             })
             return {earliestExperimentStart: earliestExperimentStart, includesWeekends: project.scope.includeWeekends, data: data}
           })
@@ -260,8 +262,8 @@ export interface FilteredExperimentDataset {
   earliestExperimentStart: number,
   includesWeekends: boolean,
   data: Array<{
-    participant: any,
-    numDays: number,
+    participant: IParticipantDbEntity,
+    daySequence: Array<Date>,
     trackingData: Array<{
       tracker: ITrackerDbEntity,
       decodedItems: Array<{

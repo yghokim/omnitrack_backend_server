@@ -297,7 +297,7 @@ EngagementData
           })
 
           const noLogDayIndices = []
-          for (let i = 0; i < participantData.numDays; i++) {
+          for (let i = 0; i < participantData.daySequence.length; i++) {
             if (trackingDataList.find(tracker =>
               tracker.itemBlocks.find(it => it.day === i) != null) == null) {
               noLogDayIndices.push(i)
@@ -308,7 +308,7 @@ EngagementData
             participantId: participantData.participant._id.toString(),
             email: participantData.participant.user.email,
             alias: participantData.participant.alias,
-            daysSinceStart: participantData.numDays,
+            daysSinceStart: participantData.daySequence.length,
             noLogDayIndices: noLogDayIndices,
             trackingDataList: trackingDataList
           }

@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs/Subscription';
 import * as moment from "moment-timezone";
 import { diffDaysBetweenTwoMoments } from '../../../shared_lib/utils';
 import { Subject } from 'rxjs/Subject';
+import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
 
 @Component({
   selector: 'app-experiment-overview',
@@ -39,7 +40,7 @@ export class ExperimentOverviewComponent implements OnInit {
 
   private readonly _dayRangeValueInject = new Subject<Array<number>>()
 
-  participants: Array<any>
+  participants: Array<IParticipantDbEntity>
 
   constructor(
     private api: ResearchApiService,
@@ -60,22 +61,22 @@ export class ExperimentOverviewComponent implements OnInit {
         project=>{
           this.participants = project.participants
 
-          let earliestExperimentStart: number = null
-          
+          let longestNumDays = null
+          const today = moment().endOf("day")
+
           project.participants.forEach(participant => {
-            const experimentRangeStart = new Date(participant.experimentRange.from).getTime()
-            if (!earliestExperimentStart) earliestExperimentStart = experimentRangeStart
+            const momentStart = moment(participant.experimentRange.from).startOf('day')
+            const numDays = diffDaysBetweenTwoMoments(today, momentStart, project.scope.includeWeekends, participant.excludedDays)
+
+            if (!longestNumDays) longestNumDays = numDays
             else {
-              earliestExperimentStart = Math.min(earliestExperimentStart, experimentRangeStart)
+              longestNumDays = Math.max(longestNumDays, numDays)
             }
           })
 
-          if(earliestExperimentStart!=null)
+          if(longestNumDays!=null)
           {
-            const today = moment().endOf("day")
-            const numDays = diffDaysBetweenTwoMoments(today, moment(earliestExperimentStart).startOf("day"), project.scope.includeWeekends) + 1
-
-            this.dayIndexMax = Math.max(1, numDays-1)
+            this.dayIndexMax = Math.max(1, longestNumDays)
           }
         }
       )

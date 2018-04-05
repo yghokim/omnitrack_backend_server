@@ -8,8 +8,11 @@ export abstract class BaseItemFieldInputComponent {
   attribute: IAttributeDbEntity
   item: IItemDbEntity
 
-  serializedValue: string
-  deserializedValue: any
+  _serializedValue: string
+  _deserializedValue: any
+
+  public get serializedValue(): string { return this._serializedValue }
+  public get deserializedValue(): any { return this._deserializedValue }
 
   @Output() serializedValueChanged: EventEmitter<string> = new EventEmitter<string>()
 
@@ -26,8 +29,8 @@ export abstract class BaseItemFieldInputComponent {
           entry.sVal
         );
 
-        this.serializedValue = entry.sVal
-        this.deserializedValue = deserializedValue
+        this._serializedValue = entry.sVal
+        this._deserializedValue = deserializedValue
         this.onNewValue(this.attribute.type, entry.sVal, deserializedValue)
       } else {
         console.log("unsupported attribute")
@@ -35,8 +38,8 @@ export abstract class BaseItemFieldInputComponent {
     }
     else {
 
-      this.serializedValue = null
-      this.deserializedValue = null
+      this._serializedValue = null
+      this._deserializedValue = null
       this.onNewValue(this.attribute.type)
     }
 
@@ -45,6 +48,18 @@ export abstract class BaseItemFieldInputComponent {
 
   protected onInformationSet(info: { tracker: ITrackerDbEntity, attribute: IAttributeDbEntity, item: IItemDbEntity }) {
 
+  }
+
+  protected setNewSerializedValue(serialized: string){
+    this._serializedValue = serialized
+    this._deserializedValue = TypedStringSerializer.deserialize(serialized)
+    this.serializedValueChanged.emit(this._serializedValue)
+  }
+
+  protected setNewDeserializedValue(value: any){
+    this._deserializedValue = value
+    this._serializedValue = TypedStringSerializer.serialize(AttributeManager.getHelper(this.attribute.type).typeNameForSerialization, value)
+    this.serializedValueChanged.emit(this._serializedValue)
   }
 
   protected abstract onNewValue(attributeType: number, serializedValue?: string, deserializedValue?: any)

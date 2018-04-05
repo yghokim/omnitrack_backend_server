@@ -9,6 +9,8 @@ import { NewInvitationDialogComponent } from '../experiment-invitations/new-invi
 import "rxjs/add/observable/zip";
 import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
 import { NotificationService } from '../services/notification.service';
+import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { ParticipantExcludedDaysConfigDialogComponent } from '../dialogs/participant-excluded-days-config-dialog/participant-excluded-days-config-dialog.component';
 
 
 @Component({
@@ -18,7 +20,7 @@ import { NotificationService } from '../services/notification.service';
 })
 export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
-  readonly PARTICIPANT_COLUMNS = ['alias', 'email', 'status', 'rangeStart', 'joined', 'lastSync', 'lastSession', 'userId', 'button']
+  readonly PARTICIPANT_COLUMNS = ['alias', 'email', 'status', 'rangeStart', 'excludedDays', 'joined', 'lastSync', 'lastSession', 'userId', 'button']
   readonly USER_COLUMNS = ['email','status','demographic','created','signIn','userId', 'button']
 
   public userPool: Array<any>
@@ -287,6 +289,23 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     ))
   }
 
+  onExcludedDaysEditClicked(participant: IParticipantDbEntity){
+    this._internalSubscriptions.add(
+      this.dialog.open(ParticipantExcludedDaysConfigDialogComponent, {data: {
+        dates: participant.excludedDays || []
+      }}).afterClosed().flatMap(
+        (newDates: Array<Date>) => {
+          if(newDates){
+          return this.api.selectedExperimentService.flatMap(expService=> expService.setParticipantExcludedDays(participant._id, newDates))
+          }else return Observable.empty()
+        }
+      ).subscribe(result=>{
+        if(result.success === true){
+        }
+      })
+    )
+  }
+
   exractDemographics(user) {
     if (user.activatedRoles) {
       const role = user.activatedRoles.find(r => r.role === "ServiceUser")
@@ -348,7 +367,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
   setSortParticipants(): void {
     this.participantDataSource.sort = this.participantSort;
-    this.participantDataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
+    this.participantDataSource.sortingDataAccessor = (data: IParticipantDbEntity, sortHeaderId: string) => {
       if (data) {
         switch (sortHeaderId) {
           case "alias": { return data.alias || ''; }
@@ -360,6 +379,10 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
             else if (data.isConsentApproved && !data.dropped) { return 1; }
             break;
           }
+          case "excludedDays": 
+            if (data.excludedDays){
+              return data.excludedDays.length
+            }else return ''
           case "rangeStart": { if(data.experimentRange){ return data.experimentRange.from } break; } 
           case "joined": { return data.approvedAt || '' }
           case "created": { if (data.user) { return data.user.accountCreationTime || ''; } break; }

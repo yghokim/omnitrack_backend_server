@@ -20,6 +20,6 @@ export class GeneralItemFieldInputComponent extends BaseItemFieldInputComponent 
   }
 
   onSerializedValueChanged(value){
-    this.serializedValueChanged.emit(value)
+    this.setNewSerializedValue(value)
   }
 }
