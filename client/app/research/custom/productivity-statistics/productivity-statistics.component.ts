@@ -13,6 +13,8 @@ import { groupArrayByVariable } from '../../../../../shared_lib/utils';
 })
 export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
 
+  public excludedParticipantIds: Array<string> = []
+
   private _internalSubscriptions = new Subscription()
 
   public participantPool: Array<IParticipantDbEntity>
@@ -40,11 +42,16 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
   public itemPool: Array<IItemDbEntity>
 
   constructor(private api: ResearchApiService) {
+
+    if(localStorage.getItem("excludedParticipantIds")){
+      this.excludedParticipantIds = JSON.parse(localStorage.getItem("excludedParticipantIds"))
+    }
+
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.flatMap(expService => expService.getParticipants()).subscribe(
         participants => {
           this.participantPool = participants
-          this.selectedParticipants = participants
+          this.selectedParticipants = participants.filter(p=> this.excludedParticipantIds.indexOf(p._id) === -1)
           this.onParticipantListChanged(this.selectedParticipants)
         }
       )
@@ -83,6 +90,8 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
     if (this.api.selectedExperimentServiceSync) {
       this.api.selectedExperimentServiceSync.trackingDataService.unregisterConsumer("ExperimentCustomStatisticsComponent")
     }
+
+    localStorage.setItem("excludedParticipantIds", JSON.stringify(this.excludedParticipantIds))
   }
 
   private updateGroupedDecodedItems(participants: Array<any>, decodedItems: Array<DecodedItem>) {
@@ -104,6 +113,11 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
     if (this.decodedItems) {
       this.updateGroupedDecodedItems(participants, this.decodedItems)
     }
+  }
+
+  public onExcludedParticipantSelectionChanged($event){
+    this.selectedParticipants = this.participantPool.filter(p=> this.excludedParticipantIds.indexOf(p._id) === -1)
+    this.onParticipantListChanged(this.selectedParticipants)
   }
 
 
