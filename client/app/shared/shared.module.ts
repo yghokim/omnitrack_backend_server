@@ -27,6 +27,7 @@ import { ItemFieldInputComponent } from '../components/item-field-input/item-fie
 import { GeneralItemFieldInputComponent } from '../components/field-inputs/general-item-field-input/general-item-field-input.component';
 import { TimePointFieldInputComponent } from '../components/field-inputs/time-point-field-input/time-point-field-input.component';
 import { TextFieldInputComponent } from '../components/field-inputs/text-field-input/text-field-input.component';
+import { ChoiceFieldInputComponent } from '../components/field-inputs/choice-field-input/choice-field-input.component';
 
 @NgModule({
   imports: [
@@ -59,7 +60,9 @@ import { TextFieldInputComponent } from '../components/field-inputs/text-field-i
     FileSizePipe,
     ItemFieldInputComponent,
     GeneralItemFieldInputComponent,
-    TimePointFieldInputComponent
+    TimePointFieldInputComponent,
+    TextFieldInputComponent,
+    ChoiceFieldInputComponent
   ],
   declarations: [
     ToastComponent,
@@ -78,7 +81,8 @@ import { TextFieldInputComponent } from '../components/field-inputs/text-field-i
     ItemFieldInputComponent,
     GeneralItemFieldInputComponent,
     TimePointFieldInputComponent,
-    TextFieldInputComponent
+    TextFieldInputComponent,
+    ChoiceFieldInputComponent
   ],
   providers: [
     ToastComponent,

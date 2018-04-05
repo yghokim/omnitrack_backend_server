@@ -7,12 +7,15 @@ import { IAttributeDbEntity } from '../db-entity-types';
 import ChoiceEntryListPropertyHelper from "../properties/choice-entry-list.property.helper";
 import { UniqueStringEntryList } from "../datatypes/unique-string-entry-list";
 import attributeTypes from "./attribute-types";
+import TypedStringSerializer from '../typed_string_serializer';
 
 export default class ChoiceAttributeHelper extends AttributeHelper {
   static readonly PROPERTY_MULTISELECTION = "multiSelection"
   static readonly PROPERTY_ENTRIES = "entries"
   
   get typeName(): string{return "Choice"}
+
+  get typeNameForSerialization(): string{return TypedStringSerializer.TYPENAME_INT_ARRAY}
 
   formatAttributeValue(attr: IAttributeDbEntity, value: any): string {
     if(value instanceof Array)
@@ -45,6 +48,14 @@ export default class ChoiceAttributeHelper extends AttributeHelper {
       case ChoiceAttributeHelper.PROPERTY_ENTRIES:
         return PropertyHelperManager.getHelper(EPropertyType.ChoiceEntryList)
     }
+  }
+
+  getChoiceEntryList(attribute: IAttributeDbEntity): UniqueStringEntryList{
+    return this.getParsedPropertyValue<UniqueStringEntryList>(attribute, ChoiceAttributeHelper.PROPERTY_ENTRIES)
+  }
+
+  getAllowMultiSelection(attribute: IAttributeDbEntity): boolean{
+    return this.getParsedPropertyValue<boolean>(attribute, ChoiceAttributeHelper.PROPERTY_MULTISELECTION)
   }
 
 }

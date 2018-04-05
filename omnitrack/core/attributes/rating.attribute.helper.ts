@@ -6,9 +6,12 @@ import { IAttributeDbEntity } from "../db-entity-types";
 import { Fraction } from "../datatypes/field_datatypes";
 import attributeTypes from "./attribute-types";
 import { RatingOptions } from "../datatypes/rating_options";
+import TypedStringSerializer from '../typed_string_serializer';
 
 export default class RatingAttributeHelper extends AttributeHelper {
   get typeName(): string { return "Rating" }
+
+  get typeNameForSerialization(): string{ return TypedStringSerializer.TYPENAME_FRACTION}
 
   formatAttributeValue(attr: IAttributeDbEntity, value: any): string {
     if(value instanceof Fraction)
