@@ -8,8 +8,10 @@ import { BaseItemFieldInputComponent } from '../base-item-field-input.component'
 })
 export class GeneralItemFieldInputComponent extends BaseItemFieldInputComponent implements OnInit {
 
+  public serializedText: string
+
   protected onNewValue(attributeType: number, serializedValue?: string, deserializedValue?: any) {
-    
+    this.serializedText = serializedValue
   }
 
   constructor() {
