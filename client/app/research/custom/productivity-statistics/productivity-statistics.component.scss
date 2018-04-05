@@ -1,0 +1,8 @@
+.option-panel{
+  & > *{
+    margin-right: 0.8rem;
+    &:last-child{
+      margin-right: 0;
+    }
+  }
+}

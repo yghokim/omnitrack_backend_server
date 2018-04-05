@@ -15,7 +15,7 @@ import ot_item from './models/ot_item';
 import { trackingDataCtrl } from './controllers/research/ot_tracking_data_controller';
 import { ResearcherPrevilages } from '../omnitrack/core/research/researcher';
 import BinaryStorageCtrl from './controllers/binary_storage_controller';
-import {itemCtrl} from './controllers/ot_item_controller';
+import { itemCtrl } from './controllers/ot_item_controller';
 import { participantCtrl } from './controllers/research/ot_participant_controller';
 
 const jwt = require('express-jwt');
@@ -29,41 +29,40 @@ const userCtrl = new OTUserCtrl()
 const storageCtrl = new BinaryStorageCtrl()
 const usageLogCtrl = new OTUsageLogCtrl()
 
-function makeTokenAuthMiddleware(pipe: (reseaercher, parsedToken?)=>string = ()=>{return null}): any{
-  return jwt({secret: env.jwt_secret, userProperty: 'researcher', isRevoked: (req, payload, done)=>{
-    OTResearcher.findById(payload.uid, (idFindErr, researcher) => {
-      if(idFindErr)
-      {
-        done(idFindErr, true)
-        return
-      }
-      else if(researcher)
-      {
-        const pipeResult = pipe(researcher)
-        if(pipeResult){
-          done(pipeResult, true)
+function makeTokenAuthMiddleware(pipe: (reseaercher, parsedToken?) => string = () => { return null }): any {
+  return jwt({
+    secret: env.jwt_secret, userProperty: 'researcher', isRevoked: (req, payload, done) => {
+      OTResearcher.findById(payload.uid, (idFindErr, researcher) => {
+        if (idFindErr) {
+          done(idFindErr, true)
+          return
         }
-        else if(payload.iat < (researcher["passwordSetAt"] || researcher["createdAt"]).getTime()/1000)
-        {
-          done("passwordChanged", true)
+        else if (researcher) {
+          const pipeResult = pipe(researcher)
+          if (pipeResult) {
+            done(pipeResult, true)
+          }
+          else if (payload.iat < (researcher["passwordSetAt"] || researcher["createdAt"]).getTime() / 1000) {
+            done("passwordChanged", true)
+          }
+          else done(null, false)
         }
-        else done(null, false)
-      }
-      else done(null, true)
-    })
-  }})
+        else done(null, true)
+      })
+    }
+  })
 }
 
-const tokenApprovedAuth = makeTokenAuthMiddleware((researcher)=>{
-  switch(researcher["account_approved"]){
+const tokenApprovedAuth = makeTokenAuthMiddleware((researcher) => {
+  switch (researcher["account_approved"]) {
     case true: return null;
     case false: return "AccountDeclined";
     case undefined: return "AccountApprovalPending"
   }
 })
 
-const tokenAdminAuth = makeTokenAuthMiddleware((researcher)=>{
-  const previlage = (env.super_users as Array<string> || []).indexOf(researcher.email) !== -1? ResearcherPrevilages.SUPERUSER : ResearcherPrevilages.NORMAL
+const tokenAdminAuth = makeTokenAuthMiddleware((researcher) => {
+  const previlage = (env.super_users as Array<string> || []).indexOf(researcher.email) !== -1 ? ResearcherPrevilages.SUPERUSER : ResearcherPrevilages.NORMAL
 
   return previlage >= ResearcherPrevilages.ADMIN ? null : "NotAdmin"
 })
@@ -142,18 +141,20 @@ router.post('/participants/:participantId/excluded_days', tokenApprovedAuth, par
 
 //tracking data
 new Array(
-  {url: "trackers", model: ot_tracker}, 
-  {url:"triggers", model: ot_trigger}, 
-  {url:"items", model: ot_item}).forEach(
-    info=>{
+  { url: "trackers", model: ot_tracker },
+  { url: "triggers", model: ot_trigger },
+  { url: "items", model: ot_item }).forEach(
+    info => {
       router.get('/experiments/:experimentId/data/' + info.url, tokenApprovedAuth, trackingDataCtrl.getChildrenOfExperiment(info.model))
     }
   )
 
-  router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', tokenApprovedAuth, storageCtrl.downloadItemMedia)
+router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', tokenApprovedAuth, storageCtrl.downloadItemMedia)
 
-  //data manipulation
-  router.post("/tracking/update/item_column", tokenApprovedAuth, itemCtrl.postItemValue)
+//data manipulation
+router.post("/tracking/update/item_column", tokenApprovedAuth, itemCtrl.postItemValue)
+
+router.post("/tracking/update/item_timestamp", tokenApprovedAuth, itemCtrl.postItemTimestamp)
 
 
 router.get("/users/all", tokenApprovedAuth, researchCtrl.getUsersWithPariticipantInformation)
