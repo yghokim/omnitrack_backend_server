@@ -181,4 +181,22 @@ export class TrackingDataService implements OnInit, OnDestroy{
       }
     })
   }
+
+  setItemTimestamp(item: IItemDbEntity, newTimestamp: number): Observable<{success: boolean, error?: any, changedItem?:IItemDbEntity}>{
+    return this.http.post('/api/research/tracking/update/item_timestamp', {itemQuery: {_id: item._id}, timestamp: newTimestamp}, this.api.authorizedOptions).map(r=>r.json()).do(result=>{
+      if(result.changedItem){
+        if(this.items.value){
+          const matchIndex = this.items.value.findIndex(i => i._id === result.changedItem._id)
+          if(matchIndex != -1){
+            this.items.value[matchIndex] = result.changedItem
+          }
+          else{
+            this.items.value.push(result.changedItem)
+          }
+
+          this.items.next(this.items.value)
+        }
+      }
+    })
+  }
 }

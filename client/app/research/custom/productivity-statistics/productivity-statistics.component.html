@@ -1,3 +1,16 @@
+<div class="flex-container flex-align-items-center option-panel">
+  <mat-form-field>
+    <mat-select placeholder="Excluded Participants" [(value)]="excludedParticipantIds" (selectionChange)="onExcludedParticipantSelectionChanged($event)" multiple>
+      <mat-option *ngFor="let participant of participantPool" [value]="participant._id">
+        {{participant.alias}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-checkbox>Weekdays</mat-checkbox>
+  <mat-checkbox>Weekends</mat-checkbox>
+  <div class="flex-filler"></div>
+  <input style="max-width: 30%" class="form-control" type="number" value="4">
+</div>
 <app-duration-coverage [segments]="48" [logs]="productivityLogs" [participants]="selectedParticipants"></app-duration-coverage>
 <app-chart-frame title="Distribution of Logged Timestamps Within a Day" [isBusy]="false" *ngIf="decodedItemsPerParticipant">
   <app-logging-time-of-day-chart main title="Total" heightParamOverride="25%" [decodedItems]="decodedItems">

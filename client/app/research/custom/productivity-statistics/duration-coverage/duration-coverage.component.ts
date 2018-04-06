@@ -73,7 +73,7 @@ export class DurationCoverageComponent implements OnInit {
         })
       }
 
-      const chart = HighChartsHelper.makeDefaultChartOptions('column')
+      const chart = HighChartsHelper.makeDefaultChartOptions('column', "40%")
 
       chart.plotOptions = {
         column: {
@@ -142,7 +142,6 @@ export class DurationCoverageComponent implements OnInit {
         }
       }
       totalDurationsPerParticipant.sort((a, b)=>b.totalDuration - a.totalDuration)
-      console.log(totalDurationsPerParticipant)
 
       const chartOptions = HighChartsHelper.makeDefaultChartOptions('bar')
       chartOptions.plotOptions = {

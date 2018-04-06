@@ -48,7 +48,8 @@
 
       <ng-container matColumnDef="timestamp">
         <mat-header-cell *matHeaderCellDef mat-sort-header> Logged At </mat-header-cell>
-        <mat-cell *matCellDef="let object"> {{object.timestamp | date: 'short'}} </mat-cell>
+        <mat-cell *matCellDef="let object">
+          <div class="cell-value-clickable" (click)="onTimestampClicked(object)">{{object.timestamp | date: 'short'}}</div></mat-cell>
       </ng-container>
 
       <mat-header-row *matHeaderRowDef="getTrackerColumns(selectedTracker)"></mat-header-row>

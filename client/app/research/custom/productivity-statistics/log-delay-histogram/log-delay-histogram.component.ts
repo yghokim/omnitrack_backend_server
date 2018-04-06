@@ -139,11 +139,12 @@ export class LogDelayHistogramComponent implements OnInit {
           high: d3.max(insiders, l => l.y),
           low: d3.min(insiders, l => l.y)
         });
+
+        delayLogsPerParticipant.sort((a, b) => a.median - b.median)
+
         totalDelayLogs = totalDelayLogs.concat(delayLogs);
       }
     }
-
-    console.log(delayLogsPerParticipant);
 
     //Global chart========================
     const globalData = this.calcDelayData(
@@ -189,7 +190,7 @@ export class LogDelayHistogramComponent implements OnInit {
     //boxplot==============================
     const chartOptions = HighChartsHelper.makeDefaultChartOptions(
       "boxplot",
-      "40%"
+      "50%"
     );
     chartOptions.title = {
       text: "Delays of Logs per Participant",
@@ -204,8 +205,8 @@ export class LogDelayHistogramComponent implements OnInit {
       title: {
         text: "Logging Delay (minute)"
       },
-      tickInterval: 60 * 12,
-      minorTickInterval: 60*6,
+      tickInterval: 60 * 6,
+      minorTickInterval: 60*1,
       labels: {
         formatter: function () {
           return toDurationString(this.value * 60)

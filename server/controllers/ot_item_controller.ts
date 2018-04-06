@@ -46,10 +46,6 @@ export default class OTItemCtrl extends UserBelongingCtrl {
     const itemQuery = req.body.itemQuery
     const serializedValue = req.body.serializedValue
 
-    console.log("attrLocalId: " + attrLocalId)
-    console.log("itemQuery: " + JSON.stringify(itemQuery))
-    console.log("serializedValue: " + serializedValue)
-
     if (!attrLocalId || !itemQuery || !serializedValue) {
       res.status(404).send({ success: false, error: "IllegalParameters" })
       return
@@ -62,6 +58,46 @@ export default class OTItemCtrl extends UserBelongingCtrl {
     }
 
     this.setItemValue(itemQuery, attrLocalId, serializedValue).then(
+      result => {
+        console.log(result)
+        res.status(200).send(result)
+      }
+    ).catch(err => {
+      console.log(err)
+      res.status(500).send(err)
+    })
+  }
+
+  setItemTimestamp(itemQuery: any, timestamp: number): Promise<{ success: boolean, error?: any, changedItem?: IItemDbEntity }> {
+    return OTItem.findOneAndUpdate(itemQuery, { $set: { timestamp: timestamp } }, { new: true }).then(updatedItem => {
+      if (updatedItem) {
+        app.serverModule().registerMessageDataPush(updatedItem["user"], app.pushModule().makeSyncMessageFromTypes([C.SYNC_TYPE_ITEM]))
+        return { success: true, error: null, changedItem: updatedItem as any }
+      } else {
+        return { success: false, error: "Item Not Found" }
+      }
+    }
+    ).catch(err => {
+      return { success: false, error: err, changedItem: null }
+    })
+  }
+
+  postItemTimestamp = (req, res)=>{
+    const itemQuery = req.body.itemQuery
+    const timestamp = req.body.timestamp
+
+    if (!itemQuery || !timestamp) {
+      res.status(404).send({ success: false, error: "IllegalParameters" })
+      return
+    }
+
+    //check previlages
+    if (res.locals.user) {
+      //on user mode, be sure that the item belongs to the user.
+      itemQuery["user"] = res.locals.user.uid
+    }
+
+    this.setItemTimestamp(itemQuery, timestamp).then(
       result => {
         console.log(result)
         res.status(200).send(result)

@@ -23,6 +23,7 @@ import * as moment from 'moment-timezone';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver'; 
 import { UpdateItemCellValueDialogComponent } from "../dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component";
+import { TextInputDialogComponent } from "../dialogs/text-input-dialog/text-input-dialog.component";
 
 @Component({
   selector: "app-experiment-data",
@@ -220,6 +221,27 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
           }
         }
       )
+    )
+  }
+
+  onTimestampClicked(item: IItemDbEntity){
+    console.log(item)
+    console.log(moment(item.timestamp).toString())
+    this._internalSubscriptions.add(
+      this.dialog.open(TextInputDialogComponent, {data: {
+
+        title: "Change Timestamp",
+        textValue: moment(item.timestamp).toString(),
+        prefill: moment(item.timestamp).toString(),
+        validator: (text)=>{
+          return moment(text).isValid()
+        },
+        submit: (text)=>{
+          return this.api.selectedExperimentService.flatMap(expService=>expService.trackingDataService.setItemTimestamp(item, moment(text).toDate().getTime()))
+        }
+      }}).afterClosed().subscribe(result=>{
+
+      })
     )
   }
 
