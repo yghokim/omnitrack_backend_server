@@ -1,5 +1,5 @@
 <mat-list *ngIf="!isMultiSelection">
-  <mat-radio-group class="radio-group" [(ngModel)]="radioSelect" (ngModelChange)="onValueChanged($event)">
+  <mat-radio-group class="radio-group" [(ngModel)]="radioSelect" (ngModelChange)="onRadioSelect($event)">
     <mat-radio-button class="radio-button" *ngFor="let entry of entries" [value]="entry.id">
       {{entry.val}}
     </mat-radio-button>
@@ -7,7 +7,7 @@
 </mat-list>
 <mat-list *ngIf="isMultiSelection">
   <mat-list-item *ngFor="let entry of entries; let i=index">
-      <mat-checkbox [(ngModel)]="checkBoxes[i]" (change)="onSelected($event)" [value]="entry.id">{{entry.val}}</mat-checkbox>
+      <mat-checkbox [(ngModel)]="checkBoxes[i]" (change)="onCheckBoxSelect($event)" [value]="entry.id">{{entry.val}}</mat-checkbox>
   </mat-list-item>
 </mat-list>
 

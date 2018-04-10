@@ -22,14 +22,12 @@ export class ChoiceFieldInputComponent extends BaseItemFieldInputComponent imple
 
   protected onNewValue(attributeType: number, serializedValue?: string, deserializedValue?: any) {
     const helper: ChoiceAttributeHelper = AttributeManager.getHelper(attributeType) as any
-    const entries = helper.getChoiceEntryList(this.attribute)
+    const helpEntries = helper.getChoiceEntryList(this.attribute)
     const allowMultiSelection = helper.getAllowMultiSelection(this.attribute)
-    this.entries = helper.getChoiceEntryList(this.attribute).entries;
-    console.log(this.entries);
+    this.entries = helpEntries.entries;
     this.isMultiSelection = helper.getAllowMultiSelection(this.attribute);
-    for (let i in this.entries){
-      this.checkBoxes[i] = false;
-    }
+    this.updateCheckBoxes(this._deserializedValue);
+    this.radioSelect = this._deserializedValue;
   }
 
   constructor() {
@@ -39,15 +37,32 @@ export class ChoiceFieldInputComponent extends BaseItemFieldInputComponent imple
   ngOnInit() {
   }
 
-  onValueChanged(value: number){
+  onRadioSelect(value: number){
     let helper: Array<number> = [value];
     this.setNewDeserializedValue(helper);
+    console.log(this.radioSelect);
   }
 
-  onSelected(value: MatCheckboxChange){
+  onCheckBoxSelect(value: MatCheckboxChange){
     if(value.checked === true){
-     this.result.push(+value.source.value);
-     this.setNewDeserializedValue(this.result);
+      this.result.push(+value.source.value);
+    }
+    else{
+      let index = this.result.indexOf(+value.source.value);
+      this.result.splice(index, 1);
+    }
+    this.setNewDeserializedValue(this.result);
+  }
+
+  updateCheckBoxes(currentValues: number[]){
+    for (let i in this.entries){
+      if(currentValues.indexOf(this.entries[i].id) >-1){
+        this.checkBoxes[i] = true;
+        this.result.push(+i);
+      }
+      else{
+        this.checkBoxes[i] = false;
+      }
     }
   }
 
