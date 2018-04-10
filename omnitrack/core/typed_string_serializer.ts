@@ -78,7 +78,7 @@ export default class TypedStringSerializer {
           break;
         case TypedStringSerializer.TYPENAME_LONG_ARRAY:
         case TypedStringSerializer.TYPENAME_INT_ARRAY:
-          stringBuilder += value.joinToString(",")
+          stringBuilder += value.join(",")
           break;
         case TypedStringSerializer.TYPENAME_LATITUDE_LONGITUDE:
           stringBuilder+= value.latitude + "," + value.longitude
