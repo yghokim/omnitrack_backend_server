@@ -4,12 +4,12 @@
     <mat-datepicker #dp></mat-datepicker>
 </mat-form-field>
 <mat-form-field class="time-input">
-    <mat-select #hoursInputs placeholder="Hours" (selectionChange)="onTimeChanged(1, $event)">
+    <mat-select #hoursInputs placeholder="Hours" (selectionChange)="onTimeChanged(1, $event)" [value]="date.getHours()">
         <mat-option *ngFor="let number of hours" [value]="number"> {{number}} </mat-option>
     </mat-select>
 </mat-form-field>
 <mat-form-field class="time-input">
-    <mat-select #minutesInput placeholder="Minutes" (selectionChange)="onTimeChanged(2, $event)">
+    <mat-select #minutesInput placeholder="Minutes" (selectionChange)="onTimeChanged(2, $event)" [value]="date.getMinutes()">
         <mat-option *ngFor="let number of minutes" [value]="number"> {{number}} </mat-option>
     </mat-select>
 </mat-form-field>
