@@ -1,3 +1,15 @@
 <mat-form-field>
-    <input matInput type="datetime" [(ngModel)]="time" (ngModelChange)="onTimeChanged($event)">
+    <input matInput [matDatepicker]="dp" placeholder="Choose a Date" [value]="date" (dateInput)="onDateChanged($event)">
+    <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+    <mat-datepicker #dp></mat-datepicker>
+</mat-form-field>
+<mat-form-field class="time-input">
+    <mat-select #hoursInputs placeholder="Hours" (selectionChange)="onTimeChanged(1, $event)">
+        <mat-option *ngFor="let number of hours" [value]="number"> {{number}} </mat-option>
+    </mat-select>
+</mat-form-field>
+<mat-form-field class="time-input">
+    <mat-select #minutesInput placeholder="Minutes" (selectionChange)="onTimeChanged(2, $event)">
+        <mat-option *ngFor="let number of minutes" [value]="number"> {{number}} </mat-option>
+    </mat-select>
 </mat-form-field>
