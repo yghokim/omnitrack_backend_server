@@ -49,6 +49,8 @@ import { UploadClientBinaryDialogComponent } from './server-settings/upload-clie
 import { ImageCellComponent } from './experiment-data/image-cell/image-cell.component';
 import { PerParticipantVisualizationDashboardComponent } from './research/visualization/per-participant-visualization-dashboard/per-participant-visualization-dashboard.component';
 import { TrackingDataSynchronizerWidgetComponent } from './research/tracking-data-synchronizer-widget/tracking-data-synchronizer-widget.component';
+import { AudioCellComponent, MinuteSecondsPipe } from './experiment-data/audio-cell/audio-cell.component';
+import { SingletonAudioPlayerServiceService } from './services/singleton-audio-player-service.service';
 import { ExperimentDataSummaryComponent } from './research/visualization/experiment-data-summary/experiment-data-summary.component';
 import { ProductivityStatisticsComponent } from './research/custom/productivity-statistics/productivity-statistics.component';
 import { LogDelayHistogramComponent } from './research/custom/productivity-statistics/log-delay-histogram/log-delay-histogram.component';
@@ -104,8 +106,10 @@ import { ParticipantExcludedDaysConfigDialogComponent } from './dialogs/particip
     ServerSettingsComponent,
     UploadClientBinaryDialogComponent,
     ImageCellComponent,
+    AudioCellComponent,
     PerParticipantVisualizationDashboardComponent,
     TrackingDataSynchronizerWidgetComponent,
+    MinuteSecondsPipe,
     ExperimentDataSummaryComponent,
     ProductivityStatisticsComponent,
     LogDelayHistogramComponent,

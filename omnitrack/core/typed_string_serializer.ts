@@ -71,14 +71,14 @@ export default class TypedStringSerializer {
           stringBuilder += value.toString()
           break;
         case TypedStringSerializer.TYPENAME_TIMEPOINT:
-          stringBuilder += value.timestamp.toString() + "@" + value.timezone.toString()
+          stringBuilder += value.timestamp + "@" + value.timezone.toString()
           break;
         case TypedStringSerializer.TYPENAME_TIMESPAN:
           stringBuilder += value.from + "@" + value.duration + "@" + value.timezone
           break;
         case TypedStringSerializer.TYPENAME_LONG_ARRAY:
         case TypedStringSerializer.TYPENAME_INT_ARRAY:
-          stringBuilder += value.joinToString(",")
+          stringBuilder += value.join(",")
           break;
         case TypedStringSerializer.TYPENAME_LATITUDE_LONGITUDE:
           stringBuilder+= value.latitude + "," + value.longitude

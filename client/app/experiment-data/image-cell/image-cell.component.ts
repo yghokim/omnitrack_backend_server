@@ -13,8 +13,7 @@ import { ImageViewDialog } from './image-view-dialog/image-view-dialog.component
 export class ImageCellComponent implements OnInit {
 
   private _internalSubscriptions = new Subscription();
-  private imageSource: String;
-  public imageToShow: any;
+  private imageToShow: any;
 
   constructor(private api: ResearchApiService, public dialog: MatDialog) { }
 
@@ -47,10 +46,14 @@ export class ImageCellComponent implements OnInit {
 
   openImage(): void {
     let dialogRef = this.dialog.open(ImageViewDialog, {
+      width: 'auto',
+      height: '100%',
       data: {image: this.imageToShow }
     });
   }
 
-
+  ngOnDestroy(): void {
+    this._internalSubscriptions.unsubscribe();
+  }
 }
 

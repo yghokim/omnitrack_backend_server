@@ -28,24 +28,27 @@
 
       </mat-tab>
     </mat-tab-group>
+    
+   <mat-table class="table table-data" [dataSource]="trackerDataSource" matSort *ngIf="printFriendlyMode!==true&&selectedTracker">
 
-    <mat-table class="table table-data" [dataSource]="trackerDataSource" matSort *ngIf="printFriendlyMode!==true&&selectedTracker">
-
-      <ng-container *ngFor="let col of selectedTracker.attributes" matColumnDef={{col.localId}}>
-        <mat-header-cell *matHeaderCellDef mat-sort-header> {{ col.name }} </mat-header-cell>
-        <mat-cell *matCellDef="let object">
-          <ng-container *ngIf="isImageAttribute(col) !== true">
-            <div class="cell-value-clickable" (click)="onCellValueClicked(selectedTracker, col, object)">{{this.getItemValue(object, col, true)}}</div></ng-container>
-          <ng-container *ngIf="isImageAttribute(col) === true">
-            <app-image-cell *ngIf="this.getItemValue(object,col)" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': object._id, 'attributeLocalId': col.localId}"></app-image-cell>
-          </ng-container>
-        </mat-cell>
-      </ng-container>
+        <ng-container *ngFor="let col of selectedTracker.attributes" matColumnDef={{col.localId}}>
+          <mat-header-cell *matHeaderCellDef mat-sort-header> {{ col.name }} </mat-header-cell>
+          <mat-cell *matCellDef="let object"> 
+            <ng-container *ngIf="isImageAttribute(col) !== true && isAudioAttribute(col) !== true">
+              <div class="cell-value-clickable" (click)="onCellValueClicked(selectedTracker, col, object)">{{this.getItemValue(object, col, true)}}</div></ng-container>
+            <ng-container *ngIf="isImageAttribute(col) === true">
+              <app-image-cell *ngIf="this.getItemValue(object,col)" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': object._id, 'attributeLocalId': col.localId}"></app-image-cell>
+            </ng-container>
+            <ng-container *ngIf="isAudioAttribute(col) === true">
+              <app-audio-cell *ngIf="this.getItemValue(object,col)" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': object._id, 'attributeLocalId': col.localId}"></app-audio-cell>
+            </ng-container>
+          </mat-cell>
+        </ng-container>
 
       <ng-container matColumnDef="timestamp">
         <mat-header-cell *matHeaderCellDef mat-sort-header> Logged At </mat-header-cell>
         <mat-cell *matCellDef="let object">
-          <div class="cell-value-clickable" (click)="onTimestampClicked(object)">{{object.timestamp | date: 'short'}}</div></mat-cell>
+          <div class="cell-value-clickable" (click)="onTimestampClicked(selectedTracker, object)">{{object.timestamp | date: 'short'}}</div></mat-cell>
       </ng-container>
 
       <mat-header-row *matHeaderRowDef="getTrackerColumns(selectedTracker)"></mat-header-row>

@@ -17,6 +17,7 @@ import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import attributeTypes from "../../../omnitrack/core/attributes/attribute-types";
 import { Response } from "@angular/http";
 import { Observable } from "rxjs/Observable";
+import { SingletonAudioPlayerServiceService } from "../services/singleton-audio-player-service.service";
 import { aliasCompareFunc } from "../../../shared_lib/utils";
 import * as moment from 'moment-timezone';
 import * as XLSX from 'xlsx';
@@ -27,7 +28,8 @@ import { TextInputDialogComponent } from "../dialogs/text-input-dialog/text-inpu
 @Component({
   selector: "app-experiment-data",
   templateUrl: "./experiment-data.component.html",
-  styleUrls: ["./experiment-data.component.scss"]
+  styleUrls: ["./experiment-data.component.scss"],
+  providers:[SingletonAudioPlayerServiceService]
 })
 export class ExperimentDataComponent implements OnInit, OnDestroy {
   private readonly _internalSubscriptions = new Subscription();
@@ -180,6 +182,10 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     return attr.type === attributeTypes.ATTR_TYPE_IMAGE
   }
 
+  isAudioAttribute(attr: IAttributeDbEntity):boolean{
+    return attr.type === attributeTypes.ATTR_TYPE_AUDIO
+  }
+
   getItemValue(item: IItemDbEntity, attr: IAttributeDbEntity, tryFormatted: boolean): any {
     const tableEntry = item.dataTable.find(
       entry => entry.attrLocalId === attr.localId
@@ -218,25 +224,23 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     )
   }
 
-  onTimestampClicked(item: IItemDbEntity){
-    console.log(item)
-    console.log(moment(item.timestamp).toString())
+  onTimestampClicked(tracker: ITrackerDbEntity, item: IItemDbEntity){
+    let attribute: IAttributeDbEntity = {name: "Logged At", type: 1};
     this._internalSubscriptions.add(
-      this.dialog.open(TextInputDialogComponent, {data: {
-
-        title: "Change Timestamp",
-        textValue: moment(item.timestamp).toString(),
-        prefill: moment(item.timestamp).toString(),
-        validator: (text)=>{
-          return moment(text).isValid()
-        },
-        submit: (text)=>{
-          return this.api.selectedExperimentService.flatMap(expService=>expService.trackingDataService.setItemTimestamp(item, moment(text).toDate().getTime()))
+      this.dialog.open(UpdateItemCellValueDialogComponent, {data:{info: {tracker: tracker, attribute: attribute, item: item}}}).afterClosed().subscribe(
+        result=>{
+          if(result && result.value){
+            this._internalSubscriptions.add(
+              this.api.selectedExperimentService.flatMap(expService=>expService.trackingDataService.setItemTimestamp(item, TypedStringSerializer.deserialize(result.value).toDate().getTime())).subscribe(
+                updateResult => {
+                }
+              )
+            )
+          }
         }
-      }}).afterClosed().subscribe(result=>{
-
-      })
+      )
     )
+
   }
 
   onExportClicked(){

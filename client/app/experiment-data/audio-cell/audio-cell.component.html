@@ -1,0 +1,18 @@
+<audio #audio1>
+    <source *ngIf= "audioSource" [src]="sanitizer.bypassSecurityTrustUrl(audioSource)" type='audio/mpeg'>
+  Your browser does not support the audio element.
+</audio>
+<div id="d1">
+  <input #slider type="range" [value]="currentTime.value" (input)="audioElement.currentTime=$event.target.value" [max]="audioDuration"/><br>
+  <div id="d2">
+    <span class="times">{{currentTime | async | minuteSeconds}}</span>
+    <button id ="play" mat-mini-fab (click)="playAudio()">
+      <mat-icon class="material-icons" *ngIf="isPlaying === false">play_arrow</mat-icon>
+      <mat-icon class="material-icons" *ngIf="isPlaying">stop</mat-icon>
+    </button>
+    <span class="times">{{audioDuration | minuteSeconds}}</span>
+    
+  </div>
+</div>
+
+

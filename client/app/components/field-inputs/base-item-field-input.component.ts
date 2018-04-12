@@ -2,6 +2,8 @@ import { Input, Output, EventEmitter } from '@angular/core';
 import { IItemDbEntity, ITrackerDbEntity, IAttributeDbEntity } from '../../../../omnitrack/core/db-entity-types';
 import AttributeManager from '../../../../omnitrack/core/attributes/attribute.manager';
 import TypedStringSerializer from '../../../../omnitrack/core/typed_string_serializer';
+import * as moment from 'moment-timezone';
+import { TimePoint } from '../../../../omnitrack/core/datatypes/field_datatypes';
 
 export abstract class BaseItemFieldInputComponent {
   tracker: ITrackerDbEntity
@@ -28,7 +30,6 @@ export abstract class BaseItemFieldInputComponent {
         const deserializedValue = TypedStringSerializer.deserialize(
           entry.sVal
         );
-
         this._serializedValue = entry.sVal
         this._deserializedValue = deserializedValue
         this.onNewValue(this.attribute.type, entry.sVal, deserializedValue)
@@ -36,8 +37,13 @@ export abstract class BaseItemFieldInputComponent {
         console.log("unsupported attribute")
       }
     }
+    else if(this.attribute.name === "Logged At"){
+      let timeEntry: TimePoint = new TimePoint(this.item.timestamp, "Asia/Seoul");
+      this._serializedValue = TypedStringSerializer.serialize( "T",timeEntry);
+      this._deserializedValue = TypedStringSerializer.deserialize(this._serializedValue);
+      this.onNewValue(this.attribute.type, this._serializedValue, this._deserializedValue)
+    }
     else {
-
       this._serializedValue = null
       this._deserializedValue = null
       this.onNewValue(this.attribute.type)
