@@ -19,13 +19,13 @@ export class AudioCellComponent implements OnInit {
 
   private _internalSubscriptions = new Subscription();
   private timeSubscription: Subscription;
-  private audioSource: any;
+  public audioSource: any;
   @ViewChild('audio1')
-  private audioElement: any;
-  private audioDuration: number = 0;
-  private currentTime = new BehaviorSubject<number>(0);
+  public audioElement: any;
+  public audioDuration: number = 0;
+  public currentTime = new BehaviorSubject<number>(0);
   private timer: Observable<number>;
-  private isPlaying: boolean = false;
+  public isPlaying: boolean = false;
 
   constructor(private api: ResearchApiService, private sanitizer: DomSanitizer, private singletonService: SingletonAudioPlayerServiceService) {  }
 

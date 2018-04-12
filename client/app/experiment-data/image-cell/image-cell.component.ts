@@ -13,7 +13,7 @@ import { ImageViewDialog } from './image-view-dialog/image-view-dialog.component
 export class ImageCellComponent implements OnInit {
 
   private _internalSubscriptions = new Subscription();
-  private imageToShow: any;
+  public imageToShow: any;
 
   constructor(private api: ResearchApiService, public dialog: MatDialog) { }
 
