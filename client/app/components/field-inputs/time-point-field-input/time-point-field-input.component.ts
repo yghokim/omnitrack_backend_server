@@ -12,7 +12,7 @@ import { FormControl } from '@angular/forms';
 })
 export class TimePointFieldInputComponent extends BaseItemFieldInputComponent implements OnInit {
 
-  date: Date
+  date: Date;
   hours: Array<number> = [];
   minutes: Array<number> = [];
  

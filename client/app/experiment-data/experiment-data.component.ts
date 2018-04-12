@@ -224,25 +224,23 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     )
   }
 
-  onTimestampClicked(item: IItemDbEntity){
-    console.log(item)
-    console.log(moment(item.timestamp).toString())
+  onTimestampClicked(tracker: ITrackerDbEntity, item: IItemDbEntity){
+    let attribute: IAttributeDbEntity = {name: "Logged At", type: 1};
     this._internalSubscriptions.add(
-      this.dialog.open(TextInputDialogComponent, {data: {
-
-        title: "Change Timestamp",
-        textValue: moment(item.timestamp).toString(),
-        prefill: moment(item.timestamp).toString(),
-        validator: (text)=>{
-          return moment(text).isValid()
-        },
-        submit: (text)=>{
-          return this.api.selectedExperimentService.flatMap(expService=>expService.trackingDataService.setItemTimestamp(item, moment(text).toDate().getTime()))
+      this.dialog.open(UpdateItemCellValueDialogComponent, {data:{info: {tracker: tracker, attribute: attribute, item: item}}}).afterClosed().subscribe(
+        result=>{
+          if(result && result.value){
+            this._internalSubscriptions.add(
+              this.api.selectedExperimentService.flatMap(expService=>expService.trackingDataService.setItemTimestamp(item, TypedStringSerializer.deserialize(result.value).toDate().getTime())).subscribe(
+                updateResult => {
+                }
+              )
+            )
+          }
         }
-      }}).afterClosed().subscribe(result=>{
-
-      })
+      )
     )
+
   }
 
   onExportClicked(){

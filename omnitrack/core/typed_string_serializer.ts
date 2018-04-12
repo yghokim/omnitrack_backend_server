@@ -71,7 +71,7 @@ export default class TypedStringSerializer {
           stringBuilder += value.toString()
           break;
         case TypedStringSerializer.TYPENAME_TIMEPOINT:
-          stringBuilder += value.timestamp.toString() + "@" + value.timezone.toString()
+          stringBuilder += value.timestamp + "@" + value.timezone.toString()
           break;
         case TypedStringSerializer.TYPENAME_TIMESPAN:
           stringBuilder += value.from + "@" + value.duration + "@" + value.timezone
