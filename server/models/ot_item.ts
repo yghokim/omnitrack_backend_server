@@ -6,6 +6,7 @@ const otItemSchema = new mongoose.Schema({
   user: {type: String, ref: 'OTUser', required: true},
   source: String,
   timestamp: {type: Number, index: true, required: true},
+  timezone: {type: String, required: false},
   deviceId: String,
   dataTable: [{_id: false, attrLocalId: String, sVal: String}],
   removed: {type: Boolean, index: true, default: false},

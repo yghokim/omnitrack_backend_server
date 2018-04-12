@@ -63,6 +63,7 @@ export interface IItemDbEntity extends IUserChildDbEntity{
   user: string,
   source: string,
   timestamp: number,
+  timezone: string,
   deviceId: string,
   dataTable: [{attrLocalId: string, sVal: string}],
   removed: boolean,
