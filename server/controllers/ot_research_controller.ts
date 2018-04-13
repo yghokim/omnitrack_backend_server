@@ -186,7 +186,7 @@ export default class OTResearchCtrl {
       .then(
         participants => {
           if (participants) {
-            OTUsageLogCtrl.analyzeSessionLogs(null, participants.map(p => p.user._id)).then(
+            OTUsageLogCtrl.analyzeSessionSummary(null, participants.map(p => p.user._id)).then(
               usageLogAnalysisResults => {
                 participants.forEach(participant => {
                   const analysis = usageLogAnalysisResults.find(r =>

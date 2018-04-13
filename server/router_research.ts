@@ -138,6 +138,7 @@ router.delete("/participants/:participantId/drop", tokenApprovedAuth, researchCt
 
 router.post('/participants/:participantId/excluded_days', tokenApprovedAuth, participantCtrl.postExcludedDays)
 
+router.get('/participants/usage_logs', tokenApprovedAuth, usageLogCtrl.getFilteredUserGroupedUsageLogs)
 
 //tracking data
 new Array(

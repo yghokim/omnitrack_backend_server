@@ -7,6 +7,7 @@ import OTParticipant from '../../models/ot_participant'
 import * as mongoose from 'mongoose';
 import { PARAMETERS } from '@angular/core/src/util/decorators';
 import { merge, deepclone } from '../../../shared_lib/utils';
+import { makeArrayLikeQueryCondition } from '../../server_utils';
 
 export default class TrackingDataCtrl {
   private _getModelsOfExperiment(model: mongoose.Model<any>, experimentId: string, userId: string | Array<string> = null, options: {
@@ -21,13 +22,7 @@ export default class TrackingDataCtrl {
 
     if(userId)
     {
-      if(userId instanceof Array)
-      {
-        participantQuery["user"] = {$in: userId}
-      }
-      else{
-        participantQuery["user"] = userId
-      }
+      participantQuery["user"] = makeArrayLikeQueryCondition(userId)
     }
 
     return OTParticipant.find({
