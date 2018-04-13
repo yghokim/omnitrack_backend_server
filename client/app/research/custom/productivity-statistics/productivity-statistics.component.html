@@ -1,16 +1,70 @@
 <div class="flex-container flex-align-items-center option-panel">
   <mat-form-field>
-    <mat-select placeholder="Excluded Participants" [(value)]="excludedParticipantIds" (selectionChange)="onExcludedParticipantSelectionChanged($event)" multiple>
+    <mat-select placeholder="Excluded Participants" [(value)]="excludedParticipantIds" (selectionChange)="onExcludedParticipantSelectionChanged($event)"
+      multiple>
       <mat-option *ngFor="let participant of participantPool" [value]="participant._id">
         {{participant.alias}}
       </mat-option>
     </mat-select>
   </mat-form-field>
-  <mat-checkbox>Weekdays</mat-checkbox>
-  <mat-checkbox>Weekends</mat-checkbox>
   <div class="flex-filler"></div>
-  <input style="max-width: 30%" class="form-control" type="number" value="4">
 </div>
+
+<div class="card card-main" *ngIf="decodedItemsPerParticipant && decodedItemsPerParticipant.length > 0">
+  <div class="card-header">Log Processing Summary</div>
+  <div class="card-body">
+    <p>
+      <b>Filtered Log Count: </b> {{decodedItems.length}}
+    </p>
+
+    <table class="table table-data">
+      <thead>
+        <th>Participant</th>
+        <th>Log Count</th>
+        <th>Weekday</th>
+        <th>Weekend</th>
+      </thead>
+      <tbody>
+        <tr *ngFor="let participantRow of decodedItemsPerParticipant">
+          <th>{{participantRow.participant.alias}}</th>
+          <td>{{participantRow.decodedItems.length}}</td>
+          <td>{{participantRow.weekdayLogs.length}}</td>
+          <td>{{participantRow.weekendLogs.length}}</td>
+        </tr>
+
+        <tr>
+          <td></td>
+          <td>
+            {{calcStatisticsPerParticipant('decodedItems').mean.toFixed(2)}} (SD = {{calcStatisticsPerParticipant('decodedItems').sd.toFixed(2)}})
+            <br>
+            <b>Total</b> {{calcStatisticsPerParticipant('decodedItems').sum}}
+            <br>Range: {{calcStatisticsPerParticipant('decodedItems').min}} - {{calcStatisticsPerParticipant('decodedItems').max}}
+          </td>
+          <td>
+            {{calcStatisticsPerParticipant('weekdayLogs').mean.toFixed(2)}} (SD = {{calcStatisticsPerParticipant('weekdayLogs').sd.toFixed(2)}})
+            <br>
+            <b>Total</b> {{calcStatisticsPerParticipant('weekdayLogs').sum}}
+            <br>Range: {{calcStatisticsPerParticipant('weekdayLogs').min}} - {{calcStatisticsPerParticipant('weekdayLogs').max}}
+          </td>
+          <td>{{calcStatisticsPerParticipant('weekendLogs').mean.toFixed(2)}} (SD = {{calcStatisticsPerParticipant('weekendLogs').sd.toFixed(2)}})
+            <br>
+            <b>Total</b> {{calcStatisticsPerParticipant('weekendLogs').sum}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p></p>
+
+    <h6>Excluded Logs</h6>
+    <table class="table table-data">
+      <tr *ngFor="let entry of excludedItemCountInfo">
+        <th>{{entry.reason}}</th>
+        <td>{{entry.count}}</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
 <app-duration-coverage [segments]="48" [logs]="productivityLogs" [participants]="selectedParticipants"></app-duration-coverage>
 <app-chart-frame title="Distribution of Logged Timestamps Within a Day" [isBusy]="false" *ngIf="decodedItemsPerParticipant">
   <app-logging-time-of-day-chart main title="Total" heightParamOverride="25%" [decodedItems]="decodedItems">

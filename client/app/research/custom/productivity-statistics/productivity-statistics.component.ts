@@ -5,6 +5,9 @@ import { TrackingSet, ProductivityHelper, DecodedItem, ProductivityLog } from '.
 import { ITrackerDbEntity, IItemDbEntity, IParticipantDbEntity } from '../../../../../omnitrack/core/db-entity-types';
 import 'rxjs/add/operator/combineLatest';
 import { groupArrayByVariable } from '../../../../../shared_lib/utils';
+import { getExperimentDateSequenceOfParticipant } from '../../../../../omnitrack/experiment-utils';
+import * as moment from 'moment';
+import * as d3 from 'd3';
 
 @Component({
   selector: 'app-productivity-statistics',
@@ -17,25 +20,32 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
 
   private _internalSubscriptions = new Subscription()
 
+  private fullDateSequencesPerUser: Map<string, Array<moment.Moment>> = new Map()
+
   public participantPool: Array<IParticipantDbEntity>
   public selectedParticipants: Array<IParticipantDbEntity>
 
   public decodedItems: Array<DecodedItem>
   public productivityLogs: Array<ProductivityLog>
-  public decodedItemsPerParticipant: Array<{ participant: any, decodedItems: Array<DecodedItem> }>
+  public decodedItemsPerParticipant: Array<{ participant: any, decodedItems: Array<DecodedItem>, weekdayLogs: Array<DecodedItem>, weekendLogs: Array<DecodedItem>}>
+
+  public excludedDecodedItems: Map<string, Array<DecodedItem>> = new Map()
+
+  public excludedItemCountInfo: Array<{reason: string, count: number}> = []
 
   public set trackingSets(newSet: Array<TrackingSet>) {
     this.decodedItems = []
     this.productivityLogs = []
+
+    this.excludedDecodedItems.clear()
+
     newSet.forEach(trackingSet => {
       const processed = ProductivityHelper.processTrackingSet(trackingSet)
       this.decodedItems = this.decodedItems.concat(processed.decodedItems)
       this.productivityLogs = this.productivityLogs.concat(processed.productivityLogs)
-
-      if (this.participantPool) {
-        this.updateGroupedDecodedItems(this.participantPool, this.decodedItems)
-      }
     })
+
+    this.onUpdateData(this.participantPool, this.decodedItems, this.productivityLogs)
   }
 
   public trackerPool: Array<ITrackerDbEntity>
@@ -43,7 +53,7 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
 
   constructor(private api: ResearchApiService) {
 
-    if(localStorage.getItem("excludedParticipantIds")){
+    if (localStorage.getItem("excludedParticipantIds")) {
       this.excludedParticipantIds = JSON.parse(localStorage.getItem("excludedParticipantIds"))
     }
 
@@ -51,7 +61,7 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
       this.api.selectedExperimentService.flatMap(expService => expService.getParticipants()).subscribe(
         participants => {
           this.participantPool = participants
-          this.selectedParticipants = participants.filter(p=> this.excludedParticipantIds.indexOf(p._id) === -1)
+          this.selectedParticipants = participants.filter(p => this.excludedParticipantIds.indexOf(p._id) === -1)
           this.onParticipantListChanged(this.selectedParticipants)
         }
       )
@@ -76,13 +86,25 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
         }
       )
     )
+
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.flatMap(expService => expService.queryUsageLogsPerParticipant({
+        name: "session",
+        "$or": ["ItemDetailActivity", "ChartViewActivity", "ItemBrowserActivity", "HomeActivity"].map(name => {return {
+            "content.session": { "$regex": name, "$options": "i" }
+          }})
+      })).subscribe(
+        result => {
+          console.log(result)
+        }
+      )
+    )
   }
 
   ngOnInit() {
     this.api.selectedExperimentService.subscribe(service => {
       service.trackingDataService.registerConsumer("ExperimentCustomStatisticsComponent")
-    }
-    )
+    })
   }
 
   ngOnDestroy() {
@@ -94,31 +116,99 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
     localStorage.setItem("excludedParticipantIds", JSON.stringify(this.excludedParticipantIds))
   }
 
-  private updateGroupedDecodedItems(participants: Array<any>, decodedItems: Array<DecodedItem>) {
-    const grouped = groupArrayByVariable(decodedItems, "user")
-    const arrayed = []
-    for (let userId of Object.keys(grouped)) {
-      const participant = participants.find(p => p.user._id === userId)
-      if (participant) {
-        arrayed.push({
-          participant: participant,
-          decodedItems: grouped[userId]
-        })
+  private onUpdateData(participants: Array<any>, decodedItems: Array<DecodedItem>, productivityLogs: Array<ProductivityLog>) {
+    if (participants && decodedItems && productivityLogs) {
+
+      const filteredDecodedItems = []
+      const filteredProductivityLogs = []
+
+      for (let item of decodedItems) {
+        if (participants.find(p => p.user._id === item.user)) {
+          const sequence = this.fullDateSequencesPerUser.get(item.user)
+          if (sequence) {
+            const dateIndex = sequence.findIndex(d => d.isSame(moment(item.from), 'day'))
+
+            if (dateIndex > 13) {
+              if (this.excludedDecodedItems.has("Out of Experiment Range") === false) {
+                this.excludedDecodedItems.set("Out of Experiment Range", [])
+              }
+              this.excludedDecodedItems.get("Out of Experiment Range").push(item)
+              continue
+            }
+
+            if (item.tasks.indexOf("수면") !== -1) {
+              if (this.excludedDecodedItems.has("Sleep") === false) {
+                this.excludedDecodedItems.set("Sleep", [])
+              }
+              this.excludedDecodedItems.get("Sleep").push(item)
+              continue
+            }
+
+            filteredDecodedItems.push(item)
+          }
+        }
       }
+
+      for(let log of productivityLogs){
+        const sequence = this.fullDateSequencesPerUser.get(log.user)
+        if (sequence) {
+          const dateIndex = sequence.findIndex(d => d.isSame(moment(log.dateStart), 'day'))
+          if (dateIndex > 13) {
+            continue
+          }
+
+          if (log.decodedItem.tasks.indexOf("수면") !== -1) {
+            continue
+          }
+
+          filteredProductivityLogs.push(log)
+        }
+      }
+
+      this.decodedItems = filteredDecodedItems
+      this.productivityLogs = filteredProductivityLogs
+
+      this.excludedItemCountInfo = Array.from(this.excludedDecodedItems.entries()).map(entry=>{
+        return {reason: entry[0], count: entry[1].length}
+      })
+
+      const grouped = groupArrayByVariable(filteredDecodedItems, "user")
+      const arrayed = []
+      for (let userId of Object.keys(grouped)) {
+        const participant = participants.find(p => p.user._id === userId)
+        if (participant) {
+          const items: Array<DecodedItem> = grouped[userId]
+          arrayed.push({
+            participant: participant,
+            decodedItems: items,
+            weekdayLogs: items.filter(item => moment(item.dominantDate).isoWeekday() < 6),
+            weekendLogs: items.filter(item => moment(item.dominantDate).isoWeekday() >= 6)
+          })
+        }
+      }
+
+      arrayed.sort((a,b)=>a.decodedItems.length - b.decodedItems.length)
+      this.decodedItemsPerParticipant = arrayed
     }
-    this.decodedItemsPerParticipant = arrayed
   }
 
   private onParticipantListChanged(participants: Array<any>) {
-    if (this.decodedItems) {
-      this.updateGroupedDecodedItems(participants, this.decodedItems)
-    }
+    this.fullDateSequencesPerUser.clear()
+    participants.forEach(participant => {
+      const dateSequence = getExperimentDateSequenceOfParticipant(participant, new Date(), true)
+      this.fullDateSequencesPerUser.set(participant.user._id, dateSequence.map(d => moment(d)))
+    })
+
+    this.onUpdateData(participants, this.decodedItems, this.productivityLogs)
   }
 
-  public onExcludedParticipantSelectionChanged($event){
-    this.selectedParticipants = this.participantPool.filter(p=> this.excludedParticipantIds.indexOf(p._id) === -1)
+  public onExcludedParticipantSelectionChanged($event) {
+    this.selectedParticipants = this.participantPool.filter(p => this.excludedParticipantIds.indexOf(p._id) === -1)
     this.onParticipantListChanged(this.selectedParticipants)
   }
 
-
+  private calcStatisticsPerParticipant(field: string): {mean: number, sd: number, sum: number, min: number, max: number}{
+    const fieldCounts = this.decodedItemsPerParticipant.map(r=>r[field].length)
+    return {mean: d3.mean(fieldCounts), sd: d3.deviation(fieldCounts), sum: d3.sum(fieldCounts), min: d3.min(fieldCounts), max: d3.max(fieldCounts)}
+  }
 }

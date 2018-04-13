@@ -64,7 +64,7 @@ export class OTUsageLogCtrl extends BaseCtrl {
       { $match: filterCondition },
       { $sort: { timestamp: -1 } },
       { $group: { _id: "$user", logs: { $push: "$$ROOT" } } }
-    ]).exec()
+    ]).exec().then(list=>list.map(entry => { return {user: entry._id, logs: entry.logs} }))
   }
 
   requestAnalyzedSessionLogs = (req, res) => {
@@ -111,7 +111,6 @@ export class OTUsageLogCtrl extends BaseCtrl {
     if (req.query.experiment) {
       //filter with experiment
       userIdsPromise = OTParticipant.find({ experiment: req.query.experiment }).select("user").lean().then(users => {
-        console.log(users)
         return users.map(u => u.user)})
     } else userIdsPromise = Promise.resolve(req.query.userIds)
 

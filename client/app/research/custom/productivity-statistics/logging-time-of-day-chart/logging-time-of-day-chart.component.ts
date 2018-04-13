@@ -47,11 +47,17 @@ export class LoggingTimeOfDayChartComponent implements OnInit {
       return count
     })
 
-    const chartOptions = HighChartsHelper.makeDefaultChartOptions('areaspline', this.heightParamOverride || '45%')
+    const chartOptions = HighChartsHelper.makeDefaultChartOptions('column', this.heightParamOverride || '45%')
 
     chartOptions.chart.plotBackgroundColor = "#f0f0f0"
     
     chartOptions.plotOptions = {
+      column: {
+        groupPadding: 0,
+        borderWidth: 0,
+        pointPadding: 0,
+        pointPlacement: 'between'
+      },
       areaspline: {
         enableMouseTracking: false,
         pointPlacement: 'between',

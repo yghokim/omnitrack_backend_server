@@ -14,7 +14,7 @@ import { VisualizationConfigs } from '../../../omnitrack/core/research/configs';
 import { TrackingDataService } from './tracking-data.service';
 import { Subject } from 'rxjs/Subject';
 import { IResearchMessage } from '../../../omnitrack/core/research/messaging';
-import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { IParticipantDbEntity, IUsageLogDbEntity } from '../../../omnitrack/core/db-entity-types';
 
 export class ExperimentService {
 
@@ -314,6 +314,14 @@ export class ExperimentService {
 
       return null
     })
+  }
+
+  queryUsageLogsPerParticipant(filter: any = null, userIds: string | Array<string> = null): Observable<Array<{user: string, logs: IUsageLogDbEntity}>>{
+    return this.http.get("/api/research/participants/usage_logs", this.researchApi.makeAuthorizedRequestOptions({
+      experiment: this.experimentId,
+      userIds: userIds,
+      filter: JSON.stringify(filter)
+    })).map(res => res.json())
   }
 
   // commands====================
