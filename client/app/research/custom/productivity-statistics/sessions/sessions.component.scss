@@ -1,0 +1,44 @@
+table.session-chart {
+  width: 100%;
+  font-size: 9pt;
+
+  td{
+    padding: 0;
+  }
+
+  .cell-participant-alias, .cell-session-name{
+    width: 1%;
+    padding-right: 12px;
+  }
+
+  tr.participant-row{
+    border-bottom: 7px solid #f0f0f0;
+  }
+
+  table.session {
+    width: 100%;
+
+    .cell-session-name{
+      color: #575757;
+    }
+
+    .session-cell {
+      border: 1px solid #fafafa;
+      &.filled{
+      }
+
+      &.empty{
+      }
+    }
+
+    .cell-day-index{
+      text-align: center;
+      position: relative;
+      .label{
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+<div class="card card-main">
+  <div class="card-header">App Sessions</div>
+  <div class="card-body">
+    <table class="session-chart">
+      <tr class="participant-row" *ngFor="let participantRow of processedData; let participantIndex = index">
+        <th class="cell-participant-alias">{{participantRow.participant.alias}}</th>
+        <td *ngIf="participantRow.sessionData">
+          <table class="session">
+            <tr *ngIf="participantIndex === 0">
+              <th></th>
+              <td class="cell-day-index" *ngFor="let i of getNumberSequence()">
+                <div class="label">{{i+1}}</div>
+              </td>
+            </tr>
+            <tr *ngFor="let sessionRow of participantRow.sessionData">
+              <td class="cell-session-name">
+                {{sessionRow.session}}
+              </td>
+              <td *ngFor="let dayRow of sessionRow.rows" class="session-cell" [ngStyle]="{'background': dayRow.totalDuration >= engagementThreshold? getSessionColor(sessionRow.session) : null}"
+                [ngClass]="{'empty': dayRow.totalDuration < engagementThreshold}">
+              </td>
+            </tr>
+          </table>
+        </td>
+        <td *ngIf="!participantRow.sessionData">
+          Logs not synchronized
+        </td>
+      </tr>
+    </table>
+    <hr>
+    <h6>Summary</h6>
+    <table class="table table-data">
+      <thead>
+        <th>Session</th>
+        <td>Engaged Days ({{'>' + (engagementThreshold/1000).toFixed(0)}} sec)</td>
+        <td>Duration</td>
+        <td>N</td>
+      </thead>
+      <tbody>
+        <tr *ngFor="let sessionInfo of sessionStatistics">
+          <th>{{sessionInfo.session}}</th>
+          <td>M = {{sessionInfo.meanDayCount.toFixed(2)}} days (SD = {{sessionInfo.sdDayCount.toFixed(2)}}). <br><b>Range</b> {{sessionInfo.minDayCount}}-{{sessionInfo.maxDayCount}}</td>
+          <td>M = {{(sessionInfo.meanDuration/1000).toFixed(2)}} sec (SD = {{(sessionInfo.sdDuration/1000).toFixed(2)}}). <br><b>Range:</b> {{(sessionInfo.minDuration/1000).toFixed(2)}}-{{(sessionInfo.maxDuration/1000).toFixed(2)}}</td>     
+          <td>{{sessionInfo.n}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

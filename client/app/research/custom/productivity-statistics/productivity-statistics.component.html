@@ -80,3 +80,5 @@
   </div>
 </app-chart-frame>
 <app-log-delay-histogram [participants]="selectedParticipants" [decodedItems]="decodedItems"></app-log-delay-histogram>
+
+<app-sessions *ngIf="sessionLogDict" [data] = "sessionLogDict" [participants] = "selectedParticipants"></app-sessions>

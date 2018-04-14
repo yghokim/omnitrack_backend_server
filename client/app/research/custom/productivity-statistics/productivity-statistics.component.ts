@@ -2,12 +2,13 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../../../services/research-api.service';
 import { Subscription } from 'rxjs/Subscription';
 import { TrackingSet, ProductivityHelper, DecodedItem, ProductivityLog } from '../../../shared-visualization/custom/productivity-helper';
-import { ITrackerDbEntity, IItemDbEntity, IParticipantDbEntity } from '../../../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, IItemDbEntity, IParticipantDbEntity, ISessionUsageLog } from '../../../../../omnitrack/core/db-entity-types';
 import 'rxjs/add/operator/combineLatest';
 import { groupArrayByVariable } from '../../../../../shared_lib/utils';
-import { getExperimentDateSequenceOfParticipant } from '../../../../../omnitrack/experiment-utils';
+import { getExperimentDateSequenceOfParticipant, convertUsageLogToSessionLog } from '../../../../../omnitrack/experiment-utils';
 import * as moment from 'moment';
 import * as d3 from 'd3';
+import { forEach } from '@angular/router/src/utils/collection';
 
 @Component({
   selector: 'app-productivity-statistics',
@@ -32,6 +33,8 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
   public excludedDecodedItems: Map<string, Array<DecodedItem>> = new Map()
 
   public excludedItemCountInfo: Array<{reason: string, count: number}> = []
+
+  public sessionLogDict: Array<{user: string, logs: Array<ISessionUsageLog>}>
 
   public set trackingSets(newSet: Array<TrackingSet>) {
     this.decodedItems = []
@@ -90,12 +93,18 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.flatMap(expService => expService.queryUsageLogsPerParticipant({
         name: "session",
-        "$or": ["ItemDetailActivity", "ChartViewActivity", "ItemBrowserActivity", "HomeActivity"].map(name => {return {
+        "$or": ["ChartViewActivity", "ItemBrowserActivity", "ItemDetailActivity"].map(name => {return {
             "content.session": { "$regex": name, "$options": "i" }
           }})
       })).subscribe(
         result => {
+          result.forEach(e=>{
+            e.logs.forEach(l=>{
+              convertUsageLogToSessionLog(l)
+            })
+          })
           console.log(result)
+          this.sessionLogDict = result as any
         }
       )
     )

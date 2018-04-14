@@ -59,6 +59,7 @@ import { ExperimentCustomStatisticsComponent } from './experiment-custom-statist
 import { UpdateItemCellValueDialogComponent } from './dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component';
 import { LoggingTimeOfDayChartComponent } from './research/custom/productivity-statistics/logging-time-of-day-chart/logging-time-of-day-chart.component';
 import { ParticipantExcludedDaysConfigDialogComponent } from './dialogs/participant-excluded-days-config-dialog/participant-excluded-days-config-dialog.component';
+import { SessionsComponent } from './research/custom/productivity-statistics/sessions/sessions.component';
 
 @NgModule({
   imports: [
@@ -117,7 +118,8 @@ import { ParticipantExcludedDaysConfigDialogComponent } from './dialogs/particip
     ExperimentCustomStatisticsComponent,
     UpdateItemCellValueDialogComponent,
     LoggingTimeOfDayChartComponent,
-    ParticipantExcludedDaysConfigDialogComponent
+    ParticipantExcludedDaysConfigDialogComponent,
+    SessionsComponent
   ],
   exports: [
     NouisliderModule,
@@ -149,7 +151,8 @@ import { ParticipantExcludedDaysConfigDialogComponent } from './dialogs/particip
     LogDelayHistogramComponent,
     DurationCoverageComponent,
     UpdateItemCellValueDialogComponent,
-    LoggingTimeOfDayChartComponent
+    LoggingTimeOfDayChartComponent,
+    SessionsComponent
   ],
   providers: [
     ResearcherAuthGuardSecure,

@@ -79,6 +79,13 @@ export interface IUsageLogDbEntity extends IUserChildDbEntity{
   localId?: number
 }
 
+export interface ISessionUsageLog extends IUsageLogDbEntity{
+  session: string,
+  startedAt: number,
+  endedAt: number,
+  duration: number
+}
+
 export interface IParticipantDbEntity extends IUserChildDbEntity{
   alias?: string
   user: string | any

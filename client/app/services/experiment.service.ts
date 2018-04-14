@@ -316,7 +316,7 @@ export class ExperimentService {
     })
   }
 
-  queryUsageLogsPerParticipant(filter: any = null, userIds: string | Array<string> = null): Observable<Array<{user: string, logs: IUsageLogDbEntity}>>{
+  queryUsageLogsPerParticipant(filter: any = null, userIds: string | Array<string> = null): Observable<Array<{user: string, logs: Array<IUsageLogDbEntity>}>>{
     return this.http.get("/api/research/participants/usage_logs", this.researchApi.makeAuthorizedRequestOptions({
       experiment: this.experimentId,
       userIds: userIds,
