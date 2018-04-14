@@ -22,14 +22,14 @@
             </tr>
           </table>
         </td>
-        <td *ngIf="!participantRow.sessionData">
+        <td *ngIf="!participantRow.sessionData" class="cell-error">
           Logs not synchronized
         </td>
       </tr>
     </table>
     <hr>
     <h6>Summary</h6>
-    <table class="table table-data">
+    <table *ngIf="sessionStatistics && sessionStatistics.length > 0" class="table table-data">
       <thead>
         <th>Session</th>
         <td>Engaged Days ({{'>' + (engagementThreshold/1000).toFixed(0)}} sec)</td>
@@ -39,9 +39,15 @@
       <tbody>
         <tr *ngFor="let sessionInfo of sessionStatistics">
           <th>{{sessionInfo.session}}</th>
-          <td>M = {{sessionInfo.meanDayCount.toFixed(2)}} days (SD = {{sessionInfo.sdDayCount.toFixed(2)}}). <br><b>Range</b> {{sessionInfo.minDayCount}}-{{sessionInfo.maxDayCount}}</td>
-          <td>M = {{(sessionInfo.meanDuration/1000).toFixed(2)}} sec (SD = {{(sessionInfo.sdDuration/1000).toFixed(2)}}). <br><b>Range:</b> {{(sessionInfo.minDuration/1000).toFixed(2)}}-{{(sessionInfo.maxDuration/1000).toFixed(2)}}</td>     
-          <td>{{sessionInfo.n}}</td>
+          <ng-container *ngIf="sessionInfo.meanDayCount">
+            <td>M = {{sessionInfo.meanDayCount.toFixed(2)}} days (SD = {{sessionInfo.sdDayCount.toFixed(2)}}).
+              <br>
+              <b>Range</b> {{sessionInfo.minDayCount}}-{{sessionInfo.maxDayCount}}</td>
+            <td>M = {{(sessionInfo.meanDuration/1000).toFixed(2)}} sec (SD = {{(sessionInfo.sdDuration/1000).toFixed(2)}}).
+              <br>
+              <b>Range:</b> {{(sessionInfo.minDuration/1000).toFixed(2)}}-{{(sessionInfo.maxDuration/1000).toFixed(2)}}</td>
+            <td>{{sessionInfo.n}}</td>
+          </ng-container>
         </tr>
       </tbody>
     </table>

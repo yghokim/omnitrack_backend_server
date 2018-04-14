@@ -60,6 +60,7 @@ import { UpdateItemCellValueDialogComponent } from './dialogs/update-item-cell-v
 import { LoggingTimeOfDayChartComponent } from './research/custom/productivity-statistics/logging-time-of-day-chart/logging-time-of-day-chart.component';
 import { ParticipantExcludedDaysConfigDialogComponent } from './dialogs/participant-excluded-days-config-dialog/participant-excluded-days-config-dialog.component';
 import { SessionsComponent } from './research/custom/productivity-statistics/sessions/sessions.component';
+import { TimestampAnalysisComponent } from './research/custom/productivity-statistics/timestamp-analysis/timestamp-analysis.component';
 
 @NgModule({
   imports: [
@@ -119,7 +120,8 @@ import { SessionsComponent } from './research/custom/productivity-statistics/ses
     UpdateItemCellValueDialogComponent,
     LoggingTimeOfDayChartComponent,
     ParticipantExcludedDaysConfigDialogComponent,
-    SessionsComponent
+    SessionsComponent,
+    TimestampAnalysisComponent
   ],
   exports: [
     NouisliderModule,
@@ -152,7 +154,8 @@ import { SessionsComponent } from './research/custom/productivity-statistics/ses
     DurationCoverageComponent,
     UpdateItemCellValueDialogComponent,
     LoggingTimeOfDayChartComponent,
-    SessionsComponent
+    SessionsComponent,
+    TimestampAnalysisComponent
   ],
   providers: [
     ResearcherAuthGuardSecure,

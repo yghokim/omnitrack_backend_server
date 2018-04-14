@@ -1,40 +1,37 @@
 table.session-chart {
   width: 100%;
   font-size: 9pt;
-
-  td{
+  td {
     padding: 0;
   }
-
-  .cell-participant-alias, .cell-session-name{
+  .cell-participant-alias,
+  .cell-session-name {
     width: 1%;
     padding-right: 12px;
   }
-
-  tr.participant-row{
+  tr.participant-row {
     border-bottom: 7px solid #f0f0f0;
   }
-
+  .cell-error {
+    background: #eac3c3;
+    color: #bf4646;
+    padding: 8px;
+  }
+  
   table.session {
     width: 100%;
-
-    .cell-session-name{
+    .cell-session-name {
       color: #575757;
     }
-
     .session-cell {
       border: 1px solid #fafafa;
-      &.filled{
-      }
-
-      &.empty{
-      }
+      &.filled {}
+      &.empty {}
     }
-
-    .cell-day-index{
+    .cell-day-index {
       text-align: center;
       position: relative;
-      .label{
+      .label {
         position: absolute;
         bottom: 0;
         width: 100%;
