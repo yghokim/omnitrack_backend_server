@@ -2,5 +2,32 @@
   <div class="card-header">Logging Timestamp Analysis</div>
   <div class="card-body">
     <div [chart] = "scatterPlot"></div>
+    <hr>
+    <h6>Summary</h6>
+    <table class="table table-data" *ngIf="clusterSummary">
+      <thead>
+        <th>Alias</th>
+        <th>Total Logs</th>
+        <th>Sequential Logs</th>
+        <th>Sequence ratio</th>
+        <th># of Sequences</th>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of clusterSummary">
+          <th>{{entry.participant.alias}}</th>
+          <td>{{entry.itemCount}}</td>
+          <td>{{entry.clusteredItemCount}}</td>
+          <td>{{((entry.clusteredItemCount / entry.itemCount)*100).toFixed(2)}}%</td>
+          <td>{{entry.clusterCount}}</td>
+        </tr>
+        <tr class="table-active" *ngIf="meanClusterCount">
+          <th></th>
+          <td></td>
+          <td></td>
+          <td><i>M</i> = {{(meanClusteredRatio*100).toFixed(2)}}% (SD = {{(sdClusteredRatio*100).toFixed(2)}})</td>
+          <td><i>M</i> = {{meanClusterCount.toFixed(2)}} (SD = {{sdClusterCount.toFixed(2)}})</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>

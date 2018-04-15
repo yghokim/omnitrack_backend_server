@@ -6,6 +6,7 @@ import { ChartModule, HIGHCHARTS_MODULES } from 'angular-highcharts';
 import * as more from 'highcharts/highcharts-more.src';
 import * as exporting from 'highcharts/modules/exporting.src';
 import * as heatmap from 'highcharts/modules/heatmap.src';
+import * as xrange from 'highcharts/modules/xrange.src';
 
 
 import { ToastComponent } from './toast/toast.component';
@@ -86,7 +87,7 @@ import { ChoiceFieldInputComponent } from '../components/field-inputs/choice-fie
   ],
   providers: [
     ToastComponent,
-    {provide: HIGHCHARTS_MODULES, useFactory:()=>[heatmap, more, exporting]}
+    {provide: HIGHCHARTS_MODULES, useFactory:()=>[heatmap, xrange, more, exporting]}
   ]
 })
 export class SharedModule { }

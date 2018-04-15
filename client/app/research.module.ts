@@ -52,15 +52,15 @@ import { TrackingDataSynchronizerWidgetComponent } from './research/tracking-dat
 import { AudioCellComponent, MinuteSecondsPipe } from './experiment-data/audio-cell/audio-cell.component';
 import { SingletonAudioPlayerServiceService } from './services/singleton-audio-player-service.service';
 import { ExperimentDataSummaryComponent } from './research/visualization/experiment-data-summary/experiment-data-summary.component';
-import { ProductivityStatisticsComponent } from './research/custom/productivity-statistics/productivity-statistics.component';
-import { LogDelayHistogramComponent } from './research/custom/productivity-statistics/log-delay-histogram/log-delay-histogram.component';
-import { DurationCoverageComponent } from './research/custom/productivity-statistics/duration-coverage/duration-coverage.component';
+
 import { ExperimentCustomStatisticsComponent } from './experiment-custom-statistics/experiment-custom-statistics.component';
+
+
 import { UpdateItemCellValueDialogComponent } from './dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component';
-import { LoggingTimeOfDayChartComponent } from './research/custom/productivity-statistics/logging-time-of-day-chart/logging-time-of-day-chart.component';
+
 import { ParticipantExcludedDaysConfigDialogComponent } from './dialogs/participant-excluded-days-config-dialog/participant-excluded-days-config-dialog.component';
-import { SessionsComponent } from './research/custom/productivity-statistics/sessions/sessions.component';
-import { TimestampAnalysisComponent } from './research/custom/productivity-statistics/timestamp-analysis/timestamp-analysis.component';
+
+import { ProductivityStatisticsModule } from './research/custom/productivity-statistics/productivity-statistics.module';
 
 @NgModule({
   imports: [
@@ -70,7 +70,8 @@ import { TimestampAnalysisComponent } from './research/custom/productivity-stati
     ClipboardModule,
     NouisliderModule,
     FroalaEditorModule.forRoot(),
-    FroalaViewModule.forRoot()
+    FroalaViewModule.forRoot(),
+    ProductivityStatisticsModule
   ],
   declarations: [
 
@@ -112,16 +113,10 @@ import { TimestampAnalysisComponent } from './research/custom/productivity-stati
     PerParticipantVisualizationDashboardComponent,
     TrackingDataSynchronizerWidgetComponent,
     MinuteSecondsPipe,
-    ExperimentDataSummaryComponent,
-    ProductivityStatisticsComponent,
-    LogDelayHistogramComponent,
-    DurationCoverageComponent,
-    ExperimentCustomStatisticsComponent,
     UpdateItemCellValueDialogComponent,
-    LoggingTimeOfDayChartComponent,
     ParticipantExcludedDaysConfigDialogComponent,
-    SessionsComponent,
-    TimestampAnalysisComponent
+    ExperimentDataSummaryComponent,
+    ExperimentCustomStatisticsComponent,
   ],
   exports: [
     NouisliderModule,
@@ -149,20 +144,14 @@ import { TimestampAnalysisComponent } from './research/custom/productivity-stati
     ResearcherAccountSettingsComponent,
     TrackingDataSynchronizerWidgetComponent,
     ExperimentDataSummaryComponent,
-    ProductivityStatisticsComponent,
-    LogDelayHistogramComponent,
-    DurationCoverageComponent,
     UpdateItemCellValueDialogComponent,
-    LoggingTimeOfDayChartComponent,
-    SessionsComponent,
-    TimestampAnalysisComponent
   ],
   providers: [
     ResearcherAuthGuardSecure,
     ResearcherAuthGuardMain,
     ResearcherAuthService,
     SocketService,
-    ResearchApiService
+    ResearchApiService,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: [

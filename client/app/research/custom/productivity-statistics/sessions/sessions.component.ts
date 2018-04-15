@@ -66,8 +66,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
             maxDuration: d3.max(sessionInfos, s=>s.duration),
           }
         })
-
-        console.log(this.sessionStatistics)
       })
     )
    }
