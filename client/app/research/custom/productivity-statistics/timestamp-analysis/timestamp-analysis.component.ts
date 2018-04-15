@@ -6,6 +6,7 @@ import { Chart } from 'angular-highcharts';
 import { getExperimentDateSequenceOfParticipant } from '../../../../../../omnitrack/experiment-utils';
 import * as moment from 'moment';
 import * as d3 from 'd3';
+import { SummaryTableColumn, ProductivitySummaryService } from '../productivity-summary.service';
 
 @Component({
   selector: 'app-timestamp-analysis',
@@ -18,20 +19,29 @@ export class TimestampAnalysisComponent implements OnInit {
 
   decodedItemsPerParticipant: Array<{ participant: any, decodedItems: Array<DecodedItem>, weekdayLogs: Array<DecodedItem>, weekendLogs: Array<DecodedItem> }>
 
-  public clusterSummary = new Array<{participant: any, itemCount: number, clusterCount: number, clusteredItemCount: number}>()
-
-  public meanClusteredRatio: number
-  public sdClusteredRatio: number
-  public meanClusterCount: number
-  public sdClusterCount: number
-
   @Input("data")
   set setData(decodedItemsPerParticipant: Array<{ participant: any, decodedItems: Array<DecodedItem>, weekdayLogs: Array<DecodedItem>, weekendLogs: Array<DecodedItem> }>) {
     this.decodedItemsPerParticipant = decodedItemsPerParticipant
-    this.clusterSummary = []
 
     let clusters = new Array<Cluster>()
     let data = []
+    let clusterCountColumn: SummaryTableColumn = {
+      columnName: "Cluster Count",
+      order: 2,
+      rows: []
+    }
+    let clusterRatioColumn: SummaryTableColumn = {
+      columnName: "Clustered Ratio",
+      order: 2,
+      rows: []
+    }
+    let clusteredItemCountColumn: SummaryTableColumn = {
+      columnName: "Clustered Item Count",
+      order: 2,
+      rows: []
+    }
+
+
     decodedItemsPerParticipant.forEach((participantRow, participantIndex) => {
       const sequence = getExperimentDateSequenceOfParticipant(participantRow.participant, new Date(), true).slice(0, 16).map(d => moment(d))
       data = data.concat(participantRow.decodedItems.map(item => {
@@ -43,16 +53,52 @@ export class TimestampAnalysisComponent implements OnInit {
       }))
       const c = this.findClusters(participantRow, sequence, 300000)
       clusters = clusters.concat(c)
-      this.clusterSummary.push({participant: participantRow.participant, itemCount: participantRow.decodedItems.length, clusterCount: c.length, clusteredItemCount: d3.sum(c, c=>c.decodedItems.length)})
+
+      const clusteredItemCount = d3.sum(c, c => c.decodedItems.length)
+
+      clusterCountColumn.rows.push(
+        {
+          participant: participantRow.participant,
+          value: c.length,
+          type: "number"
+        }
+      )
+
+      clusterRatioColumn.rows.push(
+        {
+          participant: participantRow.participant,
+          value: (clusteredItemCount / participantRow.decodedItems.length),
+          type: "ratio"
+        }
+      )
+
+      clusteredItemCountColumn.rows.push(
+        {
+          participant: participantRow.participant,
+          value: clusteredItemCount,
+          type: "number"
+        }
+      )
     })
 
-    this.clusterSummary.sort((a,b)=>{return b.clusteredItemCount/b.itemCount - a.clusteredItemCount/a.itemCount})
-    this.meanClusterCount = d3.mean(this.clusterSummary, p=>p.clusterCount)
-    this.sdClusterCount = d3.deviation(this.clusterSummary, p=>p.clusterCount)
-    this.meanClusteredRatio = d3.mean(this.clusterSummary, p=>p.clusteredItemCount/p.itemCount)
-    this.sdClusteredRatio = d3.deviation(this.clusterSummary, p=>p.clusteredItemCount/p.itemCount)
-    
-    const clusterData = clusters.map(cluster => {return {y: decodedItemsPerParticipant.findIndex(d=>d.participant._id === cluster.participant._id), x: cluster.startX, x2: cluster.endX}})
+
+    if (clusteredItemCountColumn.rows.length > 0) {
+      clusterCountColumn.summary = this.productivitySummaryService.makeStatisticsSummaryHtmlContent(clusterCountColumn.rows, (r) => r.value, (n) => n.toFixed(2))
+    }
+
+    if (clusterRatioColumn.rows.length > 0) {
+      clusterRatioColumn.summary = this.productivitySummaryService.makeStatisticsSummaryHtmlContent(clusterRatioColumn.rows, (r) => r.value, (n) => (n * 100).toFixed(2) + "%", (n) => (n * 100).toFixed(2) + "%")
+    }
+
+    if (clusteredItemCountColumn.rows.length > 0) {
+      clusteredItemCountColumn.summary = this.productivitySummaryService.makeStatisticsSummaryHtmlContent(clusteredItemCountColumn.rows, (r) => r.value, (n) => n.toFixed(2))
+    }
+
+    this.productivitySummaryService.upsertColumn(clusteredItemCountColumn)
+    this.productivitySummaryService.upsertColumn(clusterRatioColumn)
+    this.productivitySummaryService.upsertColumn(clusterCountColumn)
+
+    const clusterData = clusters.map(cluster => { return { y: decodedItemsPerParticipant.findIndex(d => d.participant._id === cluster.participant._id), x: cluster.startX, x2: cluster.endX } })
 
     const chartOptions = HighChartsHelper.makeDefaultChartOptions('scatter')
 
@@ -92,13 +138,13 @@ export class TimestampAnalysisComponent implements OnInit {
           }
         }
       },
-      xrange:{
+      xrange: {
         pointPadding: 0,
         borderRadius: 0,
         borderWidth: 1,
         pointWidth: 10,
-        tooltip:{
-          pointFormatter: function(){
+        tooltip: {
+          pointFormatter: function () {
             return this.z.decodedItems.length + " logs"
           }
         }
@@ -110,12 +156,15 @@ export class TimestampAnalysisComponent implements OnInit {
       {
         name: 'cluster',
         type: 'xrange',
-        data: clusters.map(cluster => {return {y: decodedItemsPerParticipant.findIndex(d=>d.participant._id === cluster.participant._id), 
-          x: cluster.startX-0.03, 
-          x2: cluster.endX+0.03, 
-          color: "rgba(0,0,0,0.4)",
-          z: cluster
-        }})
+        data: clusters.map(cluster => {
+          return {
+            y: decodedItemsPerParticipant.findIndex(d => d.participant._id === cluster.participant._id),
+            x: cluster.startX - 0.03,
+            x2: cluster.endX + 0.03,
+            color: "rgba(0,0,0,0.4)",
+            z: cluster
+          }
+        })
       },
       {
         name: 'timestamp',
@@ -128,7 +177,7 @@ export class TimestampAnalysisComponent implements OnInit {
     this.scatterPlot = new Chart(chartOptions)
   }
 
-  constructor() { }
+  constructor(private productivitySummaryService: ProductivitySummaryService) { }
 
   ngOnInit() {
   }

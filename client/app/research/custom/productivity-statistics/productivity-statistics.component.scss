@@ -6,3 +6,26 @@
     }
   }
 }
+
+.ratio-cell{
+  position: relative;
+  .ratio-bar{
+    height: 100%;
+    display: block;
+    background: rgba(52, 161, 130, 0.3);
+    position: absolute;
+    z-index: 0;
+
+    &.whole{
+      width: 100%;
+      background: #f0f0f0;
+    }
+  }
+
+  .ratio-label{
+    padding-left: 0.2rem;
+    z-index: 10;
+    position: absolute;
+    left: 0;
+  }
+}

@@ -193,7 +193,6 @@ export default class OTResearchCtrl {
                     r["_id"] === participant.user._id)
                   if (analysis) {
                     analysis["logs"].forEach(log => {
-                      console.log(log)
                       switch (log._id.name) {
                         case "session":
                           participant["lastSessionTimestamp"] = log["lastTimestamp"]
@@ -393,7 +392,6 @@ export default class OTResearchCtrl {
     payload.sent_by_name = researcher.email
     app.pushModule().sendNotificationMessageToUser(userId, title, message, payload).then(
       result => {
-        console.log(result)
         res.status(200).send(result)
       }
     ).catch(err => {

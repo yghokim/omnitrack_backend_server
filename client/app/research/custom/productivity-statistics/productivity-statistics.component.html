@@ -1,86 +1,84 @@
-<div class="flex-container flex-align-items-center option-panel">
-  <mat-form-field>
-    <mat-select placeholder="Excluded Participants" [(value)]="excludedParticipantIds" (selectionChange)="onExcludedParticipantSelectionChanged($event)"
-      multiple>
-      <mat-option *ngFor="let participant of participantPool" [value]="participant._id">
-        {{participant.alias}}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-  <div class="flex-filler"></div>
-</div>
-
-<div class="card card-main" *ngIf="decodedItemsPerParticipant && decodedItemsPerParticipant.length > 0">
-  <div class="card-header">Log Processing Summary</div>
-  <div class="card-body">
-    <p>
-      <b>Filtered Log Count: </b> {{decodedItems.length}}
-    </p>
-
-    <table class="table table-data">
-      <thead>
-        <th>Participant</th>
-        <th>Log Count</th>
-        <th>Weekday</th>
-        <th>Weekend</th>
-      </thead>
-      <tbody>
-        <tr *ngFor="let participantRow of decodedItemsPerParticipant">
-          <th>{{participantRow.participant.alias}}</th>
-          <td>{{participantRow.decodedItems.length}}</td>
-          <td>{{participantRow.weekdayLogs.length}}</td>
-          <td>{{participantRow.weekendLogs.length}}</td>
-        </tr>
-
-        <tr>
-          <td></td>
-          <td>
-            {{calcStatisticsPerParticipant('decodedItems').mean.toFixed(2)}} (SD = {{calcStatisticsPerParticipant('decodedItems').sd.toFixed(2)}})
-            <br>
-            <b>Total</b> {{calcStatisticsPerParticipant('decodedItems').sum}}
-            <br>Range: {{calcStatisticsPerParticipant('decodedItems').min}} - {{calcStatisticsPerParticipant('decodedItems').max}}
-          </td>
-          <td>
-            {{calcStatisticsPerParticipant('weekdayLogs').mean.toFixed(2)}} (SD = {{calcStatisticsPerParticipant('weekdayLogs').sd.toFixed(2)}})
-            <br>
-            <b>Total</b> {{calcStatisticsPerParticipant('weekdayLogs').sum}}
-            <br>Range: {{calcStatisticsPerParticipant('weekdayLogs').min}} - {{calcStatisticsPerParticipant('weekdayLogs').max}}
-          </td>
-          <td>{{calcStatisticsPerParticipant('weekendLogs').mean.toFixed(2)}} (SD = {{calcStatisticsPerParticipant('weekendLogs').sd.toFixed(2)}})
-            <br>
-            <b>Total</b> {{calcStatisticsPerParticipant('weekendLogs').sum}}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <p></p>
-
-    <h6>Excluded Logs</h6>
-    <table class="table table-data">
-      <tr *ngFor="let entry of excludedItemCountInfo">
-        <th>{{entry.reason}}</th>
-        <td>{{entry.count}}</td>
-      </tr>
-    </table>
+<ng-container *ngIf="isBusy === false">
+  <div class="flex-container flex-align-items-center option-panel">
+    <mat-form-field *ngIf="participantPool && participantPool.length > 0">
+      <mat-select placeholder="Excluded Participants" [(value)]="excludedParticipantIds" (selectionChange)="onExcludedParticipantSelectionChanged($event)"
+        multiple>
+        <mat-option *ngFor="let participant of participantPool" [value]="participant._id">
+          {{participant.alias}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div class="flex-filler"></div>
   </div>
-</div>
 
-<app-duration-coverage [segments]="48" [logs]="productivityLogs" [participants]="selectedParticipants"></app-duration-coverage>
-<app-chart-frame title="Distribution of Logged Timestamps Within a Day" [isBusy]="false" *ngIf="decodedItemsPerParticipant">
-  <app-logging-time-of-day-chart main title="Total" heightParamOverride="25%" [decodedItems]="decodedItems">
+  <div class="card card-main" *ngIf="decodedItemsPerParticipant && decodedItemsPerParticipant.length > 0">
+    <div class="card-header">Log Processing Summary</div>
+    <div class="card-body">
+      <p>
+        <b>Filtered Log Count: </b> {{decodedItems.length}}
+      </p>
 
-  </app-logging-time-of-day-chart>
-  <hr main>
-  <div main class="flex-container flex-container-wrap flex-padded-content flex-container-responsive-columns">
-    <div *ngFor="let entry of decodedItemsPerParticipant">
-      <app-logging-time-of-day-chart [title]="entry.participant.alias" [decodedItems]="entry.decodedItems">
+      <table class="table table-data">
+        <thead>
+          <th *ngFor="let head of (productivitySummary.tableSubject | async).header">{{head}}</th>
+        </thead>
+        <tbody>
+          <tr *ngFor="let participantRow of (productivitySummary.tableSubject | async).body">
+            <td *ngFor="let valueEntry of participantRow; let i = index">
+              <ng-container *ngIf="valueEntry.type === 'ratio'">
+                <div class="ratio-cell">
+                  <div class="ratio-bar whole">
 
-      </app-logging-time-of-day-chart>
+                    <div class="ratio-bar" [style.width]="(valueEntry.value*100) + '%'">
+                    </div>
+                  </div>
+                  <span class="ratio-label-placeholder">
+                    {{(valueEntry.value * 100).toFixed(2) + '%'}}
+                  </span>
+                  <span class="ratio-label">
+                      {{(valueEntry.value * 100).toFixed(2) + '%'}}
+                  </span>
+                </div>
+              </ng-container>
+              <div *ngIf="valueEntry.type !== 'ratio'" [innerHTML]="valueEntry.value"></div>
+            </td>
+          </tr>
+
+          <tr class="table-active">
+            <td *ngFor="let footerEntry of (productivitySummary.tableSubject | async).footer" [innerHTML]="footerEntry"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p></p>
+
+      <h6>Excluded Logs</h6>
+      <table class="table table-data">
+        <tr *ngFor="let entry of excludedItemCountInfo">
+          <th>{{entry.reason}}</th>
+          <td>{{entry.count}}</td>
+        </tr>
+      </table>
     </div>
   </div>
-</app-chart-frame>
-<app-log-delay-histogram [participants]="selectedParticipants" [decodedItems]="decodedItems"></app-log-delay-histogram>
 
-<app-sessions *ngIf="sessionLogDict" [data] = "sessionLogDict" [participants] = "selectedParticipants"></app-sessions>
+  <app-duration-coverage [segments]="48" [logs]="productivityLogs" [participants]="selectedParticipants"></app-duration-coverage>
+  <app-chart-frame title="Distribution of Logged Timestamps Within a Day" [isBusy]="false" *ngIf="decodedItemsPerParticipant">
+    <app-logging-time-of-day-chart main title="Total" heightParamOverride="25%" [decodedItems]="decodedItems">
 
-<app-timestamp-analysis [data] = "decodedItemsPerParticipant"></app-timestamp-analysis>
+    </app-logging-time-of-day-chart>
+    <hr main>
+    <div main class="flex-container flex-container-wrap flex-padded-content flex-container-responsive-columns">
+      <div *ngFor="let entry of decodedItemsPerParticipant">
+        <app-logging-time-of-day-chart [title]="entry.participant.alias" [decodedItems]="entry.decodedItems">
+
+        </app-logging-time-of-day-chart>
+      </div>
+    </div>
+  </app-chart-frame>
+  <app-log-delay-histogram [participants]="selectedParticipants" [decodedItems]="decodedItems"></app-log-delay-histogram>
+
+  <app-sessions *ngIf="sessionLogDict" [data]="sessionLogDict" [participants]="selectedParticipants"></app-sessions>
+
+  <app-timestamp-analysis [data]="decodedItemsPerParticipant"></app-timestamp-analysis>
+</ng-container>
