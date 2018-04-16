@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { IParticipantDbEntity, ISessionUsageLog } from '../../../../../../omnitrack/core/db-entity-types';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/OBservable';
+import { Observable } from 'rxjs/Observable';
 import { getExperimentDateSequenceOfParticipant, isSessionLog } from '../../../../../../omnitrack/experiment-utils';
 import * as moment from 'moment';
 import * as d3 from 'd3';
