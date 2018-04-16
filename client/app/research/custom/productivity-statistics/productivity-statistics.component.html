@@ -19,7 +19,7 @@
       </p>
 
       <table class="table table-data">
-        <thead>
+        <thead class="singleline">
           <th *ngFor="let head of (productivitySummary.tableSubject | async).header">{{head}}</th>
         </thead>
         <tbody>
@@ -33,14 +33,14 @@
                     </div>
                   </div>
                   <span class="ratio-label-placeholder">
-                    {{(valueEntry.value * 100).toFixed(2) + '%'}}
+                    {{valueEntry.valueFormatter? valueEntry.valueFormatter(valueEntry.value) :  (valueEntry.value * 100).toFixed(2) + '%'}}
                   </span>
                   <span class="ratio-label">
-                      {{(valueEntry.value * 100).toFixed(2) + '%'}}
+                      {{valueEntry.valueFormatter? valueEntry.valueFormatter(valueEntry.value) : (valueEntry.value * 100).toFixed(2) + '%'}}
                   </span>
                 </div>
               </ng-container>
-              <div *ngIf="valueEntry.type !== 'ratio'" [innerHTML]="valueEntry.value"></div>
+              <div *ngIf="valueEntry.type !== 'ratio'" [innerHTML]="valueEntry.valueFormatter ? valueEntry.valueFormatter(valueEntry.value) : valueEntry.value"></div>
             </td>
           </tr>
 
@@ -63,6 +63,9 @@
   </div>
 
   <app-duration-coverage [segments]="48" [logs]="productivityLogs" [participants]="selectedParticipants"></app-duration-coverage>
+
+  <app-productivity-analysis [data] = "{participants: selectedParticipants, productivityLogs: productivityLogs}"></app-productivity-analysis>
+
   <app-chart-frame title="Distribution of Logged Timestamps Within a Day" [isBusy]="false" *ngIf="decodedItemsPerParticipant">
     <app-logging-time-of-day-chart main title="Total" heightParamOverride="25%" [decodedItems]="decodedItems">
 

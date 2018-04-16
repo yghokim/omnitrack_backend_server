@@ -42,7 +42,7 @@ export class ProductivitySummaryService {
       [{ value: "<b>" + p.alias + "</b>" }].concat(this.columns.map(column => {
         const row = column.rows.find(r => r.participant._id === p._id)
         if (row) {
-          return { value: row.value, type: row.type }
+          return { value: row.value, type: row.type, valueFormatter: column.valueFormatter }
         } else return { value: "" }
       })))
 
@@ -68,6 +68,7 @@ export class ProductivitySummaryService {
 export interface SummaryTableColumn {
   columnName: string,
   order?: number,
-  rows: Array<{ participant: IParticipantDbEntity, value: any, type?: string }>
+  rows: Array<{ participant: IParticipantDbEntity, value: any, type?: string }>,
+  valueFormatter?: (any)=>string,
   summary?: string
 }

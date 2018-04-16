@@ -8,6 +8,7 @@ import { LoggingTimeOfDayChartComponent } from './logging-time-of-day-chart/logg
 import { SessionsComponent } from './sessions/sessions.component';
 import { TimestampAnalysisComponent } from './timestamp-analysis/timestamp-analysis.component';
 import { SharedModule } from '../../../shared/shared.module';
+import { ProductivityAnalysisComponent } from './productivity-analysis/productivity-analysis.component';
 
 @NgModule({
   imports: [
@@ -20,7 +21,8 @@ import { SharedModule } from '../../../shared/shared.module';
     DurationCoverageComponent,
     LoggingTimeOfDayChartComponent,
     SessionsComponent,
-    TimestampAnalysisComponent
+    TimestampAnalysisComponent,
+    ProductivityAnalysisComponent
   ],
   exports:[
     ProductivityStatisticsComponent,
@@ -28,7 +30,8 @@ import { SharedModule } from '../../../shared/shared.module';
     DurationCoverageComponent,
     LoggingTimeOfDayChartComponent,
     SessionsComponent,
-    TimestampAnalysisComponent
+    TimestampAnalysisComponent,
+    ProductivityAnalysisComponent
   ]
 })
 export class ProductivityStatisticsModule { }
