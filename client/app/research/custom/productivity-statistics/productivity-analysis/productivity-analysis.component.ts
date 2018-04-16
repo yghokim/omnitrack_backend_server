@@ -77,6 +77,10 @@ export class ProductivityAnalysisComponent implements OnInit {
       valueFormatter: ProductivityAnalysisComponent.productivityFormatter
     }))
 
+    const stackColumnsPerSection: Array<SummaryTableColumn> = this.sectionsOfDay.map(s => ({
+      columnName: s.name + " Ratio", rows: [], order: 3,
+    }))
+
     data.participants.forEach(participant => {
       const logs: Array<ProductivityLog> = groupedByUser[participant.user._id]
       if (logs) {
@@ -95,6 +99,7 @@ export class ProductivityAnalysisComponent implements OnInit {
           this.sectionsOfDay.forEach(
             (section, i) => {
               const sectionLogs: Array<{ productivity: number, fromDateRatio: number, toDateRatio: number }> = []
+              const stackLogs: Array<[number, number, number]> = []
               for (const log of weekdayLogs) {
                 for (const range of section.ranges) {
                   if (range.from < log.toDateRatio && range.to > log.fromDateRatio) {
@@ -104,6 +109,10 @@ export class ProductivityAnalysisComponent implements OnInit {
               }
               const stat = this.calcWeightedMeanProductivity(sectionLogs)
               columnsPerSection[i].rows.push({ participant: participant, value: stat.productivity, type: 'productivity' })
+              stackColumnsPerSection[i].rows.push({ participant: participant,
+                value: this.normalize([0, 1, 2].map(prod => d3.sum(sectionLogs.filter(l => (l.productivity % 3) === prod), l => (l.toDateRatio - l.fromDateRatio)))),
+                type: 'productivity-ratio'
+              })
             }
           )
 
@@ -124,16 +133,20 @@ export class ProductivityAnalysisComponent implements OnInit {
       }
     })
 
-    totalProductivityColumn.summary =  this.productivitySummary.makeStatisticsSummaryHtmlContent(totalProductivityColumn.rows, (r) => r.value * 2, (n) => n.toFixed(2))
-    weekdayProductivityColumn.summary =  this.productivitySummary.makeStatisticsSummaryHtmlContent(weekdayProductivityColumn.rows, (r) => r.value * 2, (n) => n.toFixed(2))
-    weekendProductivityColumn.summary =  this.productivitySummary.makeStatisticsSummaryHtmlContent(weekendProductivityColumn.rows, (r) => r.value * 2, (n) => n.toFixed(2))
+    totalProductivityColumn.summary = this.productivitySummary.makeStatisticsSummaryHtmlContent(totalProductivityColumn.rows, (r) => r.value * 2, (n) => n.toFixed(2))
+    weekdayProductivityColumn.summary = this.productivitySummary.makeStatisticsSummaryHtmlContent(weekdayProductivityColumn.rows, (r) => r.value * 2, (n) => n.toFixed(2))
+    weekendProductivityColumn.summary = this.productivitySummary.makeStatisticsSummaryHtmlContent(weekendProductivityColumn.rows, (r) => r.value * 2, (n) => n.toFixed(2))
 
     this.productivitySummary.upsertColumn(totalProductivityColumn)
     this.productivitySummary.upsertColumn(weekdayProductivityColumn)
     this.productivitySummary.upsertColumn(weekendProductivityColumn)
 
-    columnsPerSection.forEach(c => {
+    columnsPerSection.forEach((c, i) => {
       c.summary = this.productivitySummary.makeStatisticsSummaryHtmlContent(c.rows, (r) => r.value * 2, (n) => n.toFixed(2))
+      this.productivitySummary.upsertColumn(c)
+    })
+
+    stackColumnsPerSection.forEach((c, i) => {
       this.productivitySummary.upsertColumn(c)
     })
 
@@ -150,5 +163,10 @@ export class ProductivityAnalysisComponent implements OnInit {
     const productivitySum = d3.sum(logs, l => (l.fromDateRatio - l.toDateRatio) * 24 * 60 * (l.productivity % 3))
 
     return { totalDuration: durationSum, productivity: (productivitySum / durationSum) / 2 }
+  }
+
+  private normalize(arr: Array<number>): Array<number> {
+    const sum = d3.sum(arr)
+    return arr.map(elm => elm / sum)
   }
 }
