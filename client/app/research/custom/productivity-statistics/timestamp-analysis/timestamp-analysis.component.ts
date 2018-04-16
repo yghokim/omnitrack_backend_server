@@ -25,17 +25,17 @@ export class TimestampAnalysisComponent implements OnInit {
 
     let clusters = new Array<Cluster>()
     let data = []
-    let clusterCountColumn: SummaryTableColumn = {
+    const clusterCountColumn: SummaryTableColumn = {
       columnName: "Cluster Count",
       order: 2,
       rows: []
     }
-    let clusterRatioColumn: SummaryTableColumn = {
+    const clusterRatioColumn: SummaryTableColumn = {
       columnName: "Clustered Ratio",
       order: 2,
       rows: []
     }
-    let clusteredItemCountColumn: SummaryTableColumn = {
+    const clusteredItemCountColumn: SummaryTableColumn = {
       columnName: "Clustered Item Count",
       order: 2,
       rows: []
@@ -54,7 +54,7 @@ export class TimestampAnalysisComponent implements OnInit {
       const c = this.findClusters(participantRow, sequence, 300000)
       clusters = clusters.concat(c)
 
-      const clusteredItemCount = d3.sum(c, c => c.decodedItems.length)
+      const clusteredItemCount = d3.sum(c, cl => cl.decodedItems.length)
 
       clusterCountColumn.rows.push(
         {
@@ -98,7 +98,7 @@ export class TimestampAnalysisComponent implements OnInit {
     this.productivitySummaryService.upsertColumn(clusterRatioColumn)
     this.productivitySummaryService.upsertColumn(clusterCountColumn)
 
-    const clusterData = clusters.map(cluster => { return { y: decodedItemsPerParticipant.findIndex(d => d.participant._id === cluster.participant._id), x: cluster.startX, x2: cluster.endX } })
+    const clusterData = clusters.map(cluster => ({ y: decodedItemsPerParticipant.findIndex(d => d.participant._id === cluster.participant._id), x: cluster.startX, x2: cluster.endX }))
 
     const chartOptions = HighChartsHelper.makeDefaultChartOptions('scatter')
 
@@ -195,8 +195,7 @@ export class TimestampAnalysisComponent implements OnInit {
       if (Math.abs(participantRow.decodedItems[i - 1].item.timestamp - participantRow.decodedItems[i].item.timestamp) <= threshold) {
         if (currentCluster) {
           currentCluster.decodedItems.push(participantRow.decodedItems[i])
-        }
-        else {
+        } else {
           currentCluster = { participant: participantRow.participant, decodedItems: new Array<DecodedItem>(), start: 0, end: 0, startX: 0, endX: 0 }
           currentCluster.decodedItems.push(participantRow.decodedItems[i - 1])
           currentCluster.decodedItems.push(participantRow.decodedItems[i])

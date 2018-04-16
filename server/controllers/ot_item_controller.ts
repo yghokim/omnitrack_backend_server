@@ -22,7 +22,7 @@ export default class OTItemCtrl extends UserBelongingCtrl {
       res.status(404).send({ error: err })
     })
   }
-  //dataTable: [{_id: false, attrLocalId: String, sVal: String}],
+  // dataTable: [{_id: false, attrLocalId: String, sVal: String}],
   setItemValue(itemQuery: any, attrLocalId: string, serializedValue: string): Promise<{ success: boolean, error?: any, changedItem?: IItemDbEntity }> {
     const itemQueryCopy = deepclone(itemQuery)
     itemQueryCopy["dataTable.attrLocalId"] = attrLocalId
@@ -51,9 +51,9 @@ export default class OTItemCtrl extends UserBelongingCtrl {
       return
     }
 
-    //check previlages
+    // check previlages
     if (res.locals.user) {
-      //on user mode, be sure that the item belongs to the user.
+      // on user mode, be sure that the item belongs to the user.
       itemQuery["user"] = res.locals.user.uid
     }
 
@@ -82,7 +82,7 @@ export default class OTItemCtrl extends UserBelongingCtrl {
     })
   }
 
-  postItemTimestamp = (req, res)=>{
+  postItemTimestamp = (req, res) => {
     const itemQuery = req.body.itemQuery
     const timestamp = req.body.timestamp
 
@@ -91,9 +91,9 @@ export default class OTItemCtrl extends UserBelongingCtrl {
       return
     }
 
-    //check previlages
+    // check previlages
     if (res.locals.user) {
-      //on user mode, be sure that the item belongs to the user.
+      // on user mode, be sure that the item belongs to the user.
       itemQuery["user"] = res.locals.user.uid
     }
 

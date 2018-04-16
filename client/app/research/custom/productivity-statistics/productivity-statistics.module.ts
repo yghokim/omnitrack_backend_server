@@ -24,7 +24,7 @@ import { ProductivityAnalysisComponent } from './productivity-analysis/productiv
     TimestampAnalysisComponent,
     ProductivityAnalysisComponent
   ],
-  exports:[
+  exports: [
     ProductivityStatisticsComponent,
     LogDelayHistogramComponent,
     DurationCoverageComponent,

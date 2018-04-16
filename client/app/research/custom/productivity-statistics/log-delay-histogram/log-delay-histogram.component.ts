@@ -8,6 +8,7 @@ import { IParticipantDbEntity } from "../../../../../../omnitrack/core/db-entity
 import { groupArrayByVariable, toDurationString } from "../../../../../../shared_lib/utils";
 import { getExperimentDateSequenceOfParticipant } from "../../../../../../omnitrack/experiment-utils";
 import { ChartOptions } from "highcharts";
+import { SummaryTableColumn, ProductivitySummaryService } from '../productivity-summary.service';
 
 @Component({
   selector: "app-log-delay-histogram",
@@ -49,11 +50,11 @@ export class LogDelayHistogramComponent implements OnInit {
     /*
         const chartOptions = HighChartsHelper.makeDefaultChartOptions('histogram')
         chartOptions.series = delaySeconds
-    
+
         this.chart = new Chart(chartOptions)*/
   }
 
-  constructor() { }
+  constructor(private productivitySummary: ProductivitySummaryService) { }
 
   ngOnInit() { }
 
@@ -82,7 +83,7 @@ export class LogDelayHistogramComponent implements OnInit {
     }> = [];
 
     const grouped = groupArrayByVariable(decodedItems, "user");
-    for (let userId of Object.keys(grouped)) {
+    for (const userId of Object.keys(grouped)) {
       const decodedItemsOfParticipant: Array<DecodedItem> = grouped[userId];
       const participant = participants.find(p => p.user._id === userId);
       if (participant) {
@@ -98,13 +99,13 @@ export class LogDelayHistogramComponent implements OnInit {
               decodedItem.item.timestamp > decodedItem.from &&
               decodedItem.item.timestamp < decodedItem.to
             ) {
-              //inside
+              // inside
               delay = 0;
             } else if (decodedItem.item.timestamp >= decodedItem.to) {
-              //delayed
+              // delayed
               delay = decodedItem.item.timestamp - decodedItem.to;
             } else {
-              //before
+              // before
               delay = decodedItem.item.timestamp - decodedItem.from;
             }
             delay = Math.round(delay / 60000);
@@ -115,15 +116,15 @@ export class LogDelayHistogramComponent implements OnInit {
               y: delay
             };
           })
-          .filter(d => d.x >= 0).sort((a,b)=>a.y - b.y);
+          .filter(d => d.x >= 0).sort((a, b) => a.y - b.y);
 
         const q1 = d3.quantile(delayLogs, 0.25, l => l.y)
         const q3 = d3.quantile(delayLogs, 0.75, l => l.y)
         const iqr = (q3 - q1)
-        const minThreshold = q1 - 1.5*iqr
-        const maxThreshold = q3 + 1.5*iqr
-        //console.log(participant.alias + ": q1: " + q1 + ", q3: " + q3 + ", minThreshold:" + minThreshold + " maxThreshold:" + maxThreshold)
-        const insiders = delayLogs.filter(d=>d.y >= minThreshold && d.y <= maxThreshold)
+        const minThreshold = q1 - 1.5 * iqr
+        const maxThreshold = q3 + 1.5 * iqr
+        // console.log(participant.alias + ": q1: " + q1 + ", q3: " + q3 + ", minThreshold:" + minThreshold + " maxThreshold:" + maxThreshold)
+        const insiders = delayLogs.filter(d => d.y >= minThreshold && d.y <= maxThreshold)
 
 
         delayLogsPerParticipant.push({
@@ -142,33 +143,43 @@ export class LogDelayHistogramComponent implements OnInit {
 
         delayLogsPerParticipant.sort((a, b) => a.median - b.median)
 
+        const delayColumn: SummaryTableColumn = {
+          columnName: "Median Delay",
+          rows: delayLogsPerParticipant.map(l => ({ participant: l.participant, value: l.median, type: 'number' })),
+          valueFormatter: (median) => (toDurationString(median * 60)),
+          order: 7,
+          normalizedRange: [0, d3.max(delayLogsPerParticipant, l => l.median)]
+        }
+
+        this.productivitySummary.upsertColumn(delayColumn)
+
         totalDelayLogs = totalDelayLogs.concat(delayLogs);
       }
     }
 
-    //Global chart========================
+    // Global chart========================
     const globalData = this.calcDelayData(
       delayLogsPerParticipant.reduce((a, b) => a.concat(b.dailyAggregated), [])
     );
 
     if (!this.globalChart) {
-      const chartOptions = HighChartsHelper.makeDefaultChartOptions(
+      const globalChartOptions = HighChartsHelper.makeDefaultChartOptions(
         "scatter",
         "30%"
       );
-      chartOptions.xAxis = {
+      globalChartOptions.xAxis = {
         title: {
           enabled: true,
           text: "Days of Experiment"
         }
       };
-      chartOptions.yAxis = {
+      globalChartOptions.yAxis = {
         title: {
           text: "Delay (minutes)"
         }
       };
 
-      this.globalChart = new Chart(chartOptions);
+      this.globalChart = new Chart(globalChartOptions);
     }
 
     this.globalChart.removeSerie(0);
@@ -185,9 +196,9 @@ export class LogDelayHistogramComponent implements OnInit {
       data: globalData.map(g => [g.x, g.y])
     } as any);
 
-    //==========================
+    // ==========================
 
-    //boxplot==============================
+    // boxplot==============================
     const chartOptions = HighChartsHelper.makeDefaultChartOptions(
       "boxplot",
       "50%"
@@ -206,7 +217,7 @@ export class LogDelayHistogramComponent implements OnInit {
         text: "Logging Delay (minute)"
       },
       tickInterval: 60 * 6,
-      minorTickInterval: 60*1,
+      minorTickInterval: 60 * 1,
       labels: {
         formatter: function () {
           return toDurationString(this.value * 60)
@@ -231,20 +242,20 @@ export class LogDelayHistogramComponent implements OnInit {
 
     this.boxplot = new Chart(chartOptions);
 
-    //=====================================
+    // =====================================
 
-    //charts per participant ==============
+    // charts per participant ==============
 
     this.chartsPerParticipant = delayLogsPerParticipant.map(entry => {
-      const chartOptions = HighChartsHelper.makeDefaultChartOptions(
+      const options = HighChartsHelper.makeDefaultChartOptions(
         null,
         "40%"
       );
-      chartOptions.title = {
+      options.title = {
         text: entry.participant.alias,
         style: "font-size: 9pt"
       };
-      chartOptions.plotOptions = {
+      options.plotOptions = {
         areaspline: {
           enableMouseTracking: false,
           pointPlacement: "between",
@@ -258,11 +269,11 @@ export class LogDelayHistogramComponent implements OnInit {
         }
       };
 
-      chartOptions.yAxis = {
+      options.yAxis = {
         min: 0
       };
 
-      chartOptions.series = [
+      options.series = [
         {
           name: "Median",
           type: "areaspline",
@@ -270,25 +281,25 @@ export class LogDelayHistogramComponent implements OnInit {
         }
       ];
 
-      chartOptions.legend = {
+      options.legend = {
         enabled: false
       };
 
       return {
         participant: entry.participant,
-        chart: new Chart(chartOptions)
+        chart: new Chart(options)
       };
     });
 
-    //======================================
+    // ======================================
   }
 
   private calcDelayData(
     logs: Array<DelayLog | DelayInfoPerDay>
   ): Array<DelayInfoPerDay> {
-    let result: Array<DelayInfoPerDay> = [];
+    const result: Array<DelayInfoPerDay> = [];
     const grouped = groupArrayByVariable(logs, "x");
-    for (let dayIndexString of Object.keys(grouped)) {
+    for (const dayIndexString of Object.keys(grouped)) {
       const data: Array<DelayLog | DelayInfoPerDay> = grouped[dayIndexString];
       result.push({
         x: Number.parseInt(dayIndexString),

@@ -12,7 +12,7 @@
   .ratio-bar{
     height: 100%;
     display: block;
-    background: rgba(52, 161, 130, 0.3);
+    background: rgba(134, 22, 91, 0.3);
     position: absolute;
     z-index: 0;
 
@@ -27,5 +27,16 @@
     z-index: 10;
     position: absolute;
     left: 0;
+  }
+}
+
+.table-cell-clickable-text{
+  font-weight: 500;
+  font-size: 0.65rem !important;
+  border: none;
+  padding: 0 !important;
+  background: transparent;
+  &:hover{
+    background: rgba(0,0,0,0.1);
   }
 }

@@ -13,10 +13,32 @@ import { SummaryTableColumn, ProductivitySummaryService } from '../productivity-
 })
 export class ProductivityAnalysisComponent implements OnInit {
 
+  readonly sectionsOfDay: Array<{ name: string, ranges: Array<{ from: number, to: number }> }> = [
+    {
+      name: "Daytime",
+      ranges: [
+        {
+          from: (6 / 24), // am 6:00
+          to: 19 / 24 // pm 7:00
+        }
+      ]
+    },
+    {
+      name: "Night",
+      ranges: [{
+        from: 0,
+        to: 6 / 24
+      }, {
+        from: 19 / 24,
+        to: 1
+      }]
+    }
+  ]
+
   static readonly productivityFormatter = (productivity: any) => {
     if (productivity) {
       return (Math.round(productivity * 200) / 100).toFixed(2)
-    } else return ""
+    } else { return "" }
   }
 
   @Input("data")
@@ -50,6 +72,11 @@ export class ProductivityAnalysisComponent implements OnInit {
       order: 3
     }
 
+    const columnsPerSection: Array<SummaryTableColumn> = this.sectionsOfDay.map(s => ({
+      columnName: s.name + " Productivity", rows: [], order: 3,
+      valueFormatter: ProductivityAnalysisComponent.productivityFormatter
+    }))
+
     data.participants.forEach(participant => {
       const logs: Array<ProductivityLog> = groupedByUser[participant.user._id]
       if (logs) {
@@ -58,42 +85,67 @@ export class ProductivityAnalysisComponent implements OnInit {
 
         const overall = this.calcWeightedMeanProductivity(logs)
 
-        totalProductivityColumn.rows.push({ participant: participant, value: overall.productivity, type: 'ratio' })
+        totalProductivityColumn.rows.push({ participant: participant, value: overall.productivity, type: 'productivity' })
 
         if (weekdayLogs.length > 0) {
           const weekday = this.calcWeightedMeanProductivity(weekdayLogs)
 
-          weekdayProductivityColumn.rows.push({ participant: participant, value: weekday.productivity, type: 'ratio' })
-        }
-        else {
+          weekdayProductivityColumn.rows.push({ participant: participant, value: weekday.productivity, type: 'productivity' })
+
+          this.sectionsOfDay.forEach(
+            (section, i) => {
+              const sectionLogs: Array<{ productivity: number, fromDateRatio: number, toDateRatio: number }> = []
+              for (const log of weekdayLogs) {
+                for (const range of section.ranges) {
+                  if (range.from < log.toDateRatio && range.to > log.fromDateRatio) {
+                    sectionLogs.push({ productivity: log.productivity, fromDateRatio: Math.max(range.from, log.fromDateRatio), toDateRatio: Math.min(range.to, log.toDateRatio) })
+                  }
+                }
+              }
+              const stat = this.calcWeightedMeanProductivity(sectionLogs)
+              columnsPerSection[i].rows.push({ participant: participant, value: stat.productivity, type: 'productivity' })
+            }
+          )
+
+        } else {
           weekdayProductivityColumn.rows.push({ participant: participant, value: null })
         }
 
         if (weekendLogs.length > 0) {
           const weekend = this.calcWeightedMeanProductivity(weekendLogs)
 
-          weekendProductivityColumn.rows.push({ participant: participant, value: weekend.productivity, type: 'ratio' })
-        }
-        else {
+          weekendProductivityColumn.rows.push({ participant: participant, value: weekend.productivity, type: 'productivity' })
+        } else {
           weekendProductivityColumn.rows.push({ participant: participant, value: null })
         }
-      }
-      else {
+
+      } else {
         totalProductivityColumn.rows.push({ participant: participant, value: null })
       }
     })
 
+    totalProductivityColumn.summary =  this.productivitySummary.makeStatisticsSummaryHtmlContent(totalProductivityColumn.rows, (r) => r.value * 2, (n) => n.toFixed(2))
+    weekdayProductivityColumn.summary =  this.productivitySummary.makeStatisticsSummaryHtmlContent(weekdayProductivityColumn.rows, (r) => r.value * 2, (n) => n.toFixed(2))
+    weekendProductivityColumn.summary =  this.productivitySummary.makeStatisticsSummaryHtmlContent(weekendProductivityColumn.rows, (r) => r.value * 2, (n) => n.toFixed(2))
+
     this.productivitySummary.upsertColumn(totalProductivityColumn)
     this.productivitySummary.upsertColumn(weekdayProductivityColumn)
     this.productivitySummary.upsertColumn(weekendProductivityColumn)
+
+    columnsPerSection.forEach(c => {
+      c.summary = this.productivitySummary.makeStatisticsSummaryHtmlContent(c.rows, (r) => r.value * 2, (n) => n.toFixed(2))
+      this.productivitySummary.upsertColumn(c)
+    })
+
   }
+
 
   constructor(private productivitySummary: ProductivitySummaryService) { }
 
   ngOnInit() {
   }
 
-  private calcWeightedMeanProductivity(logs: Array<ProductivityLog>): { totalDuration: number, productivity: number } {
+  private calcWeightedMeanProductivity(logs: Array<{ productivity: number, fromDateRatio: number, toDateRatio: number }>): { totalDuration: number, productivity: number } {
     const durationSum = d3.sum(logs, l => (l.fromDateRatio - l.toDateRatio) * 24 * 60)
     const productivitySum = d3.sum(logs, l => (l.fromDateRatio - l.toDateRatio) * 24 * 60 * (l.productivity % 3))
 

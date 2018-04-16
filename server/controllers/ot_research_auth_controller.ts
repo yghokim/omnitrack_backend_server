@@ -36,7 +36,7 @@ export default class OTResearchAuthCtrl {
         email: user.email,
         alias: user.alias,
         approved: user.account_approved,
-        previlage: (env.super_users as Array<string> || []).indexOf(user.email) !== -1? ResearcherPrevilages.SUPERUSER : ResearcherPrevilages.NORMAL,
+        previlage: (env.super_users as Array<string> || []).indexOf(user.email) !== -1 ? ResearcherPrevilages.SUPERUSER : ResearcherPrevilages.NORMAL,
         exp: Math.floor(expiry.getTime() / 1000),
         iat: (iat || user.passwordSetAt || new Date()).getTime() / 1000
       },
@@ -70,7 +70,7 @@ export default class OTResearchAuthCtrl {
               const researcherId = uuid.v1();
               console.log(
                 "generate example experiments with researcher id: " +
-                  researcherId
+                researcherId
               );
               app
                 .researchModule()
@@ -85,7 +85,7 @@ export default class OTResearchAuthCtrl {
                     hashed_password: hashedPassword,
                     passwordSetAt: new Date(),
                     alias: alias,
-                    account_approved: env.super_users.indexOf(email) !== -1? true : null
+                    account_approved: env.super_users.indexOf(email) !== -1 ? true : null
                   });
                   newResearcher
                     .save()
@@ -204,8 +204,10 @@ export default class OTResearchAuthCtrl {
                     } else {
                       update.hashed_password = hashedNewPassword;
                       update.passwordSetAt = new Date();
-                      for (let change in update) {
-                        researcher[change] = update[change];
+                      for (const change in update) {
+                        if (update.hasOwnProperty(change)) {
+                          researcher[change] = update[change];
+                        }
                       }
                       (researcher as Document).save().then(newResearcher => {
                         console.log(newResearcher);

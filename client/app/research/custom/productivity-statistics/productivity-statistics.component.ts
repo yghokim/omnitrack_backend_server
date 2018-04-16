@@ -18,7 +18,11 @@ import * as d3 from 'd3';
 })
 export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
 
-  public isBusy: boolean = true
+  public get productivityColorScale(): any {
+    return ProductivityHelper.productivityColorScale
+  }
+
+  public isBusy = true
 
   public excludedParticipantIds: Array<string> = []
 
@@ -120,17 +124,13 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
         }
       )
     )
-
-    this._internalSubscriptions.add(
-      productivitySummary.tableSubject.subscribe(
-        table => {
-          console.log(table)
-        }
-      )
-    )
   }
 
   ngOnInit() {
+  }
+
+  onSortClick(columnName: string) {
+    this.productivitySummary.sortBy(columnName, false)
   }
 
   ngOnDestroy() {
@@ -151,7 +151,7 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
       const filteredProductivityLogs = []
 
       if (decodedItems) {
-        for (let item of decodedItems) {
+        for (const item of decodedItems) {
           if (participants.find(p => p.user._id === item.user)) {
             const sequence = this.fullDateSequencesPerUser.get(item.user)
             if (sequence) {
@@ -180,7 +180,7 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
       }
 
       if (productivityLogs) {
-        for (let log of productivityLogs) {
+        for (const log of productivityLogs) {
           const sequence = this.fullDateSequencesPerUser.get(log.user)
           if (sequence) {
             const dateIndex = sequence.findIndex(d => d.isSame(moment(log.dateStart), 'day'))
@@ -206,7 +206,7 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
 
       const grouped = groupArrayByVariable(filteredDecodedItems, "user")
       const arrayed = []
-      for (let userId of Object.keys(grouped)) {
+      for (const userId of Object.keys(grouped)) {
         const participant = participants.find(p => p.user._id === userId)
         if (participant) {
           const items: Array<DecodedItem> = grouped[userId]
@@ -221,36 +221,36 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
 
       arrayed.sort((a, b) => a.decodedItems.length - b.decodedItems.length)
 
-      console.log(arrayed)
-
       if (arrayed.length > 0) {
         this.productivitySummary.upsertColumn({
           columnName: "Total Logs",
           order: 0,
-          rows: arrayed.map(entry => { return { participant: entry.participant, value: entry.decodedItems.length, type: "number" } }),
-          summary: this.productivitySummary.makeStatisticsSummaryHtmlContent(arrayed, (entry) => entry.decodedItems.length, (value) => value.toFixed(2), null, true)
+          rows: arrayed.map(entry => ({ participant: entry.participant, value: entry.decodedItems.length, type: "number" })),
+          summary: this.productivitySummary.makeStatisticsSummaryHtmlContent(arrayed, (entry) => entry.decodedItems.length, (value) => value.toFixed(2), null, true),
+          normalizedRange: [0, d3.max(arrayed, elm => elm.decodedItems.length)]
         })
 
         this.productivitySummary.upsertColumn({
           columnName: "Weekday Logs",
           order: 0,
-          rows: arrayed.map(entry => { return { participant: entry.participant, value: entry.weekdayLogs.length, type: "number" } }),
-          summary: this.productivitySummary.makeStatisticsSummaryHtmlContent(arrayed, (entry) => entry.weekdayLogs.length, (value) => value.toFixed(2), null, true)
+          rows: arrayed.map(entry => ({ participant: entry.participant, value: entry.weekdayLogs.length, type: "number" })),
+          summary: this.productivitySummary.makeStatisticsSummaryHtmlContent(arrayed, (entry) => entry.weekdayLogs.length, (value) => value.toFixed(2), null, true),
+          normalizedRange: [0, d3.max(arrayed, elm => elm.weekdayLogs.length)]
         })
 
         this.productivitySummary.upsertColumn({
           columnName: "Weekend Logs",
           order: 0,
-          rows: arrayed.map(entry => { return { participant: entry.participant, value: entry.weekendLogs.length, type: "number" } }),
-          summary: this.productivitySummary.makeStatisticsSummaryHtmlContent(arrayed, (entry) => entry.weekendLogs.length, (value) => value.toFixed(2), null, true)
+          rows: arrayed.map(entry => ({ participant: entry.participant, value: entry.weekendLogs.length, type: "number" })),
+          summary: this.productivitySummary.makeStatisticsSummaryHtmlContent(arrayed, (entry) => entry.weekendLogs.length, (value) => value.toFixed(2), null, true),
+          normalizedRange: [0, d3.max(arrayed, elm => elm.weekendLogs.length)]
         })
       }
 
       this.decodedItemsPerParticipant = arrayed
 
       this.isBusy = false
-    }
-    else {
+    } else {
       console.log("participants are null. skip")
     }
   }
