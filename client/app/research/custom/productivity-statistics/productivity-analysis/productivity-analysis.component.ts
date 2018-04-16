@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ProductivityLog } from '../../../../shared-visualization/custom/productivity-helper';
+import { ProductivityLog, DecodedItem } from '../../../../shared-visualization/custom/productivity-helper';
 import { IParticipantDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
 import { groupArrayByVariable } from '../../../../../../shared_lib/utils';
 import * as d3 from 'd3';
@@ -81,6 +81,16 @@ export class ProductivityAnalysisComponent implements OnInit {
       columnName: s.name + " Ratio", rows: [], order: 3,
     }))
 
+    const moodColumnsPerSection: Array<SummaryTableColumn> =
+      this.sectionsOfDay.map(s => ({
+        columnName: s.name + " Mood", rows: [], order: 3,
+      }))
+
+    const moodCoverageColumnsPerSection: Array<SummaryTableColumn> =
+      this.sectionsOfDay.map(s => ({
+        columnName: s.name + " Mood Coverage", rows: [], order: 3,
+      }))
+
     data.participants.forEach(participant => {
       const logs: Array<ProductivityLog> = groupedByUser[participant.user._id]
       if (logs) {
@@ -98,20 +108,31 @@ export class ProductivityAnalysisComponent implements OnInit {
 
           this.sectionsOfDay.forEach(
             (section, i) => {
-              const sectionLogs: Array<{ productivity: number, fromDateRatio: number, toDateRatio: number }> = []
+              const sectionLogs: Array<{ productivity: number, fromDateRatio: number, toDateRatio: number, item: DecodedItem }> = []
               const stackLogs: Array<[number, number, number]> = []
               for (const log of weekdayLogs) {
                 for (const range of section.ranges) {
                   if (range.from < log.toDateRatio && range.to > log.fromDateRatio) {
-                    sectionLogs.push({ productivity: log.productivity, fromDateRatio: Math.max(range.from, log.fromDateRatio), toDateRatio: Math.min(range.to, log.toDateRatio) })
+                    sectionLogs.push({ productivity: log.productivity, fromDateRatio: Math.max(range.from, log.fromDateRatio), toDateRatio: Math.min(range.to, log.toDateRatio), item: log.decodedItem })
                   }
                 }
               }
               const stat = this.calcWeightedMeanProductivity(sectionLogs)
               columnsPerSection[i].rows.push({ participant: participant, value: stat.productivity, type: 'productivity' })
-              stackColumnsPerSection[i].rows.push({ participant: participant,
+              stackColumnsPerSection[i].rows.push({
+                participant: participant,
                 value: this.normalize([0, 1, 2].map(prod => d3.sum(sectionLogs.filter(l => (l.productivity % 3) === prod), l => (l.toDateRatio - l.fromDateRatio)))),
                 type: 'productivity-ratio'
+              })
+
+              const moodSummary = this.calcMoodSummary(sectionLogs)
+
+              moodColumnsPerSection[i].rows.push({ participant: participant, value: moodSummary.mean, type: 'mood' })
+
+              moodCoverageColumnsPerSection[i].rows.push({
+                participant: participant,
+                value: moodSummary.coverage,
+                type: 'ratio'
               })
             }
           )
@@ -150,12 +171,47 @@ export class ProductivityAnalysisComponent implements OnInit {
       this.productivitySummary.upsertColumn(c)
     })
 
+    moodColumnsPerSection.forEach(c => {
+      this.productivitySummary.upsertColumn(c)
+    })
+
+    moodCoverageColumnsPerSection.forEach(c => {
+      this.productivitySummary.upsertColumn(c)
+    })
+
   }
 
 
   constructor(private productivitySummary: ProductivitySummaryService) { }
 
   ngOnInit() {
+  }
+
+  private calcMoodSummary(logs: Array<{ item: DecodedItem, fromDateRatio: number, toDateRatio: number }>): { mean: number, coverage: number } {
+
+    if (logs && logs.length > 0) {
+      const covered = logs.filter(l => l.item.mood)
+
+      if (covered.length > 0) {
+        const coveredTotalDuration = d3.sum(covered, l => (l.fromDateRatio - l.toDateRatio) * 24 * 60)
+        const totalDuration = d3.sum(logs, l => (l.fromDateRatio - l.toDateRatio) * 24 * 60)
+        const weightedSum = d3.sum(covered, l => (l.fromDateRatio - l.toDateRatio) * 24 * 60 * l.item.mood)
+        return {
+          mean: weightedSum / coveredTotalDuration,
+          coverage: coveredTotalDuration / totalDuration
+        }
+      } else {
+        return {
+          mean: null,
+          coverage: 0
+        }
+      }
+    } else {
+      return {
+        mean: null,
+        coverage: null
+      }
+    }
   }
 
   private calcWeightedMeanProductivity(logs: Array<{ productivity: number, fromDateRatio: number, toDateRatio: number }>): { totalDuration: number, productivity: number } {

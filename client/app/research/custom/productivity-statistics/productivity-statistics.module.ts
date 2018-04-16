@@ -9,6 +9,7 @@ import { SessionsComponent } from './sessions/sessions.component';
 import { TimestampAnalysisComponent } from './timestamp-analysis/timestamp-analysis.component';
 import { SharedModule } from '../../../shared/shared.module';
 import { ProductivityAnalysisComponent } from './productivity-analysis/productivity-analysis.component';
+import { MoodAnalysisComponent } from './mood-analysis/mood-analysis.component';
 
 @NgModule({
   imports: [
@@ -22,7 +23,8 @@ import { ProductivityAnalysisComponent } from './productivity-analysis/productiv
     LoggingTimeOfDayChartComponent,
     SessionsComponent,
     TimestampAnalysisComponent,
-    ProductivityAnalysisComponent
+    ProductivityAnalysisComponent,
+    MoodAnalysisComponent
   ],
   exports: [
     ProductivityStatisticsComponent,
@@ -31,7 +33,8 @@ import { ProductivityAnalysisComponent } from './productivity-analysis/productiv
     LoggingTimeOfDayChartComponent,
     SessionsComponent,
     TimestampAnalysisComponent,
-    ProductivityAnalysisComponent
+    ProductivityAnalysisComponent,
+    MoodAnalysisComponent
   ]
 })
 export class ProductivityStatisticsModule { }
