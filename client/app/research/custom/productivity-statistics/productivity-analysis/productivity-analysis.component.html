@@ -1,3 +1,12 @@
-<p>
-  productivity-analysis works!
-</p>
+<div class="card card-main">
+  <div class="card-header">
+    Comparisons
+  </div>
+  <div class="card-body">
+    <ng-container *ngFor="let testResult of moodComparisonTestResults">
+      <h6>Comparison of <i>{{testResult.aName}}</i> and <i>{{testResult.bName}}</i></h6>
+      <span [innerHTML]="testResult.result"></span>
+      <hr>
+    </ng-container>
+  </div>
+</div>

@@ -5,6 +5,7 @@ import { groupArrayByVariable } from '../../../../../../shared_lib/utils';
 import * as d3 from 'd3';
 import * as moment from 'moment';
 import { SummaryTableColumn, ProductivitySummaryService } from '../productivity-summary.service';
+import { pairedTTest, TestResult, getStatisticsString } from '../../../../../../shared_lib/statistics';
 
 @Component({
   selector: 'app-productivity-analysis',
@@ -34,6 +35,8 @@ export class ProductivityAnalysisComponent implements OnInit {
       }]
     }
   ]
+
+  public moodComparisonTestResults: Array<{ aName: string, bName: string, result: string }>
 
   static readonly productivityFormatter = (productivity: any) => {
     if (productivity) {
@@ -179,6 +182,22 @@ export class ProductivityAnalysisComponent implements OnInit {
       this.productivitySummary.upsertColumn(c)
     })
 
+    const moodTestResult = this.comparisonTest(moodColumnsPerSection[0], moodColumnsPerSection[1])
+    if (moodTestResult) {
+      this.moodComparisonTestResults = [
+        {
+          aName: moodColumnsPerSection[0].columnName,
+          bName: moodColumnsPerSection[1].columnName,
+          result: getStatisticsString(moodTestResult)
+        }
+      ]
+    }
+
+    const productivityTestResult = this.comparisonTest(columnsPerSection[0], columnsPerSection[1])
+    if (productivityTestResult) {
+      console.log(productivityTestResult)
+    }
+
   }
 
 
@@ -224,5 +243,22 @@ export class ProductivityAnalysisComponent implements OnInit {
   private normalize(arr: Array<number>): Array<number> {
     const sum = d3.sum(arr)
     return arr.map(elm => elm / sum)
+  }
+
+  private comparisonTest(moodColumnA: SummaryTableColumn, moodColumnB: SummaryTableColumn): TestResult {
+    const sampleA: Array<number> = []
+    const sampleB: Array<number> = []
+    for (let i = 0; i < moodColumnA.rows.length; i++) {
+      if (moodColumnA.rows[i].value && moodColumnB.rows[i].value) {
+        sampleA.push((moodColumnA.rows[i].value))
+        sampleB.push((moodColumnB.rows[i].value))
+      }
+    }
+
+    console.log("sampleA")
+    console.log(sampleA.join(","))
+    console.log("sampleB")
+    console.log(sampleB.join(","))
+    return pairedTTest(sampleA, sampleB)
   }
 }

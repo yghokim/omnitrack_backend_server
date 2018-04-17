@@ -109,6 +109,7 @@
     "socket.io-client": "^2.1.0",
     "stringbuilder": "0.0.11",
     "tether": "1.4.4",
+    "ttest": "^1.1.0",
     "underscore.string": "^3.3.4",
     "uuid": "^3.2.1",
     "web-animations-js": "^2.3.1",
