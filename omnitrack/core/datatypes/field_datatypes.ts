@@ -1,7 +1,7 @@
 import * as moment from 'moment-timezone';
 
 export class TimePoint {
-  constructor(public timestamp: number, public timezone: string) {}
+  constructor(public timestamp: number, public timezone: string = "Asia/Seoul") {}
 
   toMoment(): moment.Moment {
     return moment(this.timestamp).tz(this.timezone)

@@ -231,7 +231,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
         result=>{
           if(result && result.value){
             this._internalSubscriptions.add(
-              this.api.selectedExperimentService.flatMap(expService=>expService.trackingDataService.setItemTimestamp(item, TypedStringSerializer.deserialize(result.value).toDate().getTime())).subscribe(
+              this.api.selectedExperimentService.flatMap(expService=>expService.trackingDataService.setItemTimestamp(item, TypedStringSerializer.deserialize(result.value).toDate().getTime(), TypedStringSerializer.deserialize(result.value).timezone)).subscribe(
                 updateResult => {
                 }
               )

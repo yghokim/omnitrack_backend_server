@@ -12,13 +12,18 @@ import { FormControl } from '@angular/forms';
 })
 export class TimePointFieldInputComponent extends BaseItemFieldInputComponent implements OnInit {
 
-  date: Date;
+  moment: moment.Moment;
   hours: Array<number> = [];
   minutes: Array<number> = [];
+  currentZone: String;
+  timezones: Array<String>;
  
   protected onNewValue(attributeType: number, serializedValue?: string, deserializedValue?: any) {
     if(deserializedValue){
-    this.date = (deserializedValue as TimePoint).toDate()
+    this.moment = (deserializedValue as TimePoint).toMoment();
+    this.currentZone = this.moment.tz();
+    this.timezones = moment.tz.names();
+    console.log(this.currentZone);
     }
     for (let i: number = 0; i < 25; i++) { this.hours[i] = i; }
     for (let i: number = 0; i < 60; i++) { this.minutes[i] = i; }
@@ -32,24 +37,29 @@ export class TimePointFieldInputComponent extends BaseItemFieldInputComponent im
   }
 
   onDateChanged(event){
-    this.date = event.value;
-    const value = moment(event.value)
-    this.updateDateTime(value);
+    this.moment = moment(event.value)
+    this.updateDateTime(this.moment);
   }
 
   onTimeChanged(time: number, event){
     if(time === 1){
-      this.date.setHours(event.value);
+      this.moment.hour(event.value)   
     }
     else{
-      this.date.setMinutes(event.value);
+      this.moment.minutes(event.value);
     }
-    this.updateDateTime(moment(this.date));
+    this.updateDateTime(this.moment);
+  }
+
+  onTimeZoneChanged(zone: string){
+    this.moment.tz(zone);
+    (this.deserializedValue as TimePoint).timezone = this.moment.tz();
+    this.setNewDeserializedValue(this.deserializedValue)
   }
 
   updateDateTime(value: moment.Moment){
     if(value.isValid() === true){
-      (this.deserializedValue as TimePoint).timestamp = value.toDate().getTime()
+      (this.deserializedValue as TimePoint).timestamp = value.toDate().getTime();
       this.setNewDeserializedValue(this.deserializedValue)
     }
   }
