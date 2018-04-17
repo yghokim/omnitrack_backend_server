@@ -13,7 +13,7 @@ export class ResearchHomeFrameComponent implements OnInit, OnDestroy {
 
   private readonly internalSubscriptions = new Subscription()
 
-  private gnbElements=[
+  private gnbElements = [
     {
       url: ["/research", "experiments"],
       name: 'Experiments',
@@ -34,10 +34,10 @@ export class ResearchHomeFrameComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.internalSubscriptions.add(
-      this.auth.currentResearcher.subscribe(researcher=>{
-        if(researcher && researcher.tokenInfo){
+      this.auth.currentResearcher.subscribe(researcher => {
+        if (researcher && researcher.tokenInfo) {
           console.log("refresh researcher")
-          this.mainGnbs = this.gnbElements.filter((e: any)=>{
+          this.mainGnbs = this.gnbElements.filter((e: any) => {
             console.log("researcher previlage: " + researcher.previlage)
             return (e.minimumPermission || ResearcherPrevilages.NORMAL) <= researcher.previlage
           })
@@ -46,7 +46,7 @@ export class ResearchHomeFrameComponent implements OnInit, OnDestroy {
     )
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.internalSubscriptions.unsubscribe()
   }
 

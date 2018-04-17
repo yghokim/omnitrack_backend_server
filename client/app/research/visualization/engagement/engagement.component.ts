@@ -51,27 +51,26 @@ EngagementData
   readonly trackerColorScale = d3.scaleOrdinal(d3chromatic.schemeCategory10)
 
   readonly NORMAL_ALIAS_COMPARE = aliasCompareFunc()
-  readonly LOG_COUNT_COMPARE = (a: ParticipantRow, b: ParticipantRow)=>{
-    return d3.sum(b.trackingDataList.map(t=>t.itemCountInRange)) - d3.sum(a.trackingDataList.map(t=>t.itemCountInRange))
+  readonly LOG_COUNT_COMPARE = (a: ParticipantRow, b: ParticipantRow) => {
+    return d3.sum(b.trackingDataList.map(t => t.itemCountInRange)) - d3.sum(a.trackingDataList.map(t => t.itemCountInRange))
   }
 
   readonly SORT_METHODS = [
     {
       label: "Experiment Start",
-      sortFunc: (a:ParticipantRow, b:ParticipantRow)=>{
+      sortFunc: (a: ParticipantRow, b: ParticipantRow) => {
         const dateSort = b.daysSinceStart - a.daysSinceStart
-        if(dateSort === 0){
+        if (dateSort === 0) {
           const countSort = this.LOG_COUNT_COMPARE(a, b)
-          if(countSort === 0){
+          if (countSort === 0) {
             return this.NORMAL_ALIAS_COMPARE(a.alias, b.alias)
-          }
-          else return countSort
-        }else return dateSort
+          } else { return countSort }
+        } else { return dateSort }
       }
     },
     {
       label: "Alias",
-      sortFunc: (a:ParticipantRow, b:ParticipantRow)=>{
+      sortFunc: (a: ParticipantRow, b: ParticipantRow) => {
         return this.NORMAL_ALIAS_COMPARE(a.alias, b.alias)
       }
     },
@@ -86,8 +85,8 @@ EngagementData
   private readonly _internalSubscriptions = new Subscription();
 
   readonly visualizationWidth = new Subject<number>();
-  public timelineChartArea = {width: 0, x: this.Y_AXIS_WIDTH}
-  public countChartArea = {width: this.COUNT_CHART_WIDTH, x: 0}
+  public timelineChartArea = { width: 0, x: this.Y_AXIS_WIDTH }
+  public countChartArea = { width: this.COUNT_CHART_WIDTH, x: 0 }
 
   public itemCountRangeMax: number = 5
 
@@ -112,7 +111,7 @@ EngagementData
   public readonly dayAxis: Axis<number | { valueOf(): number }>
 
   public readonly countAxisScale: ScaleLinear<number, number>
-  public readonly countAxis: Axis<number | { valueOf(): number}>
+  public readonly countAxis: Axis<number | { valueOf(): number }>
 
   public readonly colorScale: ScaleLinear<d3.RGBColor, string>
 
@@ -137,7 +136,7 @@ EngagementData
 
   ngOnInit() {
 
-    //init visualization
+    // init visualization
 
     this._internalSubscriptions.add(
       this.makeDataObservable().do(data => {
@@ -152,39 +151,37 @@ EngagementData
 
         this.countChartArea.x = this.timelineChartArea.x + this.timelineChartArea.width + this.COUNT_CHART_LEFT_MARGIN
 
-        //calculate height================
+        // calculate height================
         if (project.data.participantList.length > 0) {
-          const participantsWithTrackerHeightTotal = project.data.participantList.map(p => this.calcHeightOfParticipantRow(p)).reduce((a, b) => { return a + b })
+          const participantsWithTrackerHeightTotal = project.data.participantList.map(p => this.calcHeightOfParticipantRow(p)).reduce((a, b) => a + b)
           const numZeroTrackerParticipants = project.data.participantList.filter(p => p.trackingDataList.length === 0).length
           this.visualizationAreaHeight = participantsWithTrackerHeightTotal + numZeroTrackerParticipants * this.PARTICIPANT_MINIMUM_HEIGHT + this.X_AXIS_HEIGHT + Math.max(0, (project.data.participantList.length - 1)) * this.PARTICIPANT_MARGIN
-        }
-        else {
+        } else {
           this.visualizationAreaHeight = 0
         }
-        //-----------------------------
+        // -----------------------------
 
-        //calculate count====================
+        // calculate count====================
         let maxItemCount
-        let trackerInjectionIds = []
-        project.data.participantList.forEach(participantRow=>{
-          participantRow.trackingDataList.forEach(trackerRow=>{
-            
-            if(trackerRow.trackerInjectionId && trackerInjectionIds.indexOf(trackerRow.trackerInjectionId) === -1){
+        const trackerInjectionIds = []
+        project.data.participantList.forEach(participantRow => {
+          participantRow.trackingDataList.forEach(trackerRow => {
+
+            if (trackerRow.trackerInjectionId && trackerInjectionIds.indexOf(trackerRow.trackerInjectionId) === -1) {
               trackerInjectionIds.push(trackerRow.trackerInjectionId)
             }
 
-            trackerRow.itemCountInRange = trackerRow.itemDayIndices.filter(day => day >=project.range[0] && day <= project.range[1]).length
-            if(!maxItemCount)
-            {
+            trackerRow.itemCountInRange = trackerRow.itemDayIndices.filter(day => day >= project.range[0] && day <= project.range[1]).length
+            if (!maxItemCount) {
               maxItemCount = trackerRow.itemCountInRange
-            }else{
+            } else {
               maxItemCount = Math.max(maxItemCount, trackerRow.itemCountInRange)
             }
           })
         })
-        //====================================
+        // ====================================
 
-        //update axis========================
+        // update axis========================
         this.trackerColorScale.domain(trackerInjectionIds)
 
         this.dayAxisScale.domain([project.range[0], project.range[1] + 1]).range([0, this.timelineChartArea.width])
@@ -203,20 +200,20 @@ EngagementData
           .transition()
           .duration(500)
           .call(this.countAxis)
-        //-------------------------------
+        // -------------------------------
 
         $("rect.bar-background")
-          .hover((ev)=>{
+          .hover((ev) => {
             const bar = $(ev.target.parentElement).find("rect.bar-count")
-            switch(ev.type){
+            switch (ev.type) {
               case "mouseenter":
-              ev.target.setAttribute("fill", "#f0f0f0")
-              bar.attr("stroke-width", 1)
-              break;
+                ev.target.setAttribute("fill", "#f0f0f0")
+                bar.attr("stroke-width", 1)
+                break;
               case "mouseleave":
-              ev.target.setAttribute("fill", "transparent")
-              bar.attr("stroke-width", 0)
-              break;
+                ev.target.setAttribute("fill", "transparent")
+                bar.attr("stroke-width", 0)
+                break;
             }
           })
 
@@ -229,12 +226,12 @@ EngagementData
 
   }
 
-  public toDarkerColor(color:string): string{
+  public toDarkerColor(color: string): string {
     return d3.hsl(color).darker(2).toString()
   }
 
-  public onSortMethodChanged(index: number){
-    if(this.data){
+  public onSortMethodChanged(index: number) {
+    if (this.data) {
       this.data.participantList.sort(this.SORT_METHODS[index].sortFunc)
     }
   }
@@ -264,7 +261,7 @@ EngagementData
 
   private calcHeightOfParticipantRow(row: ParticipantRow): number {
     const numTrackers = row.trackingDataList.length
-    return numTrackers == 0 ? this.PARTICIPANT_MINIMUM_HEIGHT : (numTrackers * this.TRACKER_ROW_HEIGHT + (numTrackers - 1) * this.TRACKER_MARGIN)
+    return numTrackers === 0 ? this.PARTICIPANT_MINIMUM_HEIGHT : (numTrackers * this.TRACKER_ROW_HEIGHT + (numTrackers - 1) * this.TRACKER_MARGIN)
   }
 
   private makeDataObservable(): Observable<EngagementData> {
@@ -278,7 +275,7 @@ EngagementData
             }), "dayAndBlock")
 
             const itemBlocks = []
-            for (let dayAndBlock in grouped) {
+            for (const dayAndBlock of Object.keys(grouped)) {
               const group = grouped[dayAndBlock]
               const split = dayAndBlock.split("_")
               const day = Number.parseInt(split[0])
@@ -287,8 +284,8 @@ EngagementData
             }
 
             return {
-              trackerName: trackerRow.tracker.name.toString(), 
-              trackerId: trackerRow.tracker._id.toString(), 
+              trackerName: trackerRow.tracker.name.toString(),
+              trackerId: trackerRow.tracker._id.toString(),
               trackerInjectionId: trackerRow.tracker.flags.injectionId,
               itemBlocks: itemBlocks,
               itemDayIndices: trackerRow.decodedItems.map(item => item.day),
@@ -322,11 +319,11 @@ EngagementData
   }
 }
 
-export type ItemBlockRow = {
+export interface ItemBlockRow {
   day: number, blockIndex: number, items: Array<IItemDbEntity>
 }
 
-export type TrackerRow = {
+export interface TrackerRow {
   trackerName: string,
   trackerId: string,
   trackerInjectionId?: string,
@@ -335,13 +332,13 @@ export type TrackerRow = {
   itemCountInRange: number
 }
 
-export type ParticipantRow = {
+export interface ParticipantRow {
   participantId: string, alias: string, daysSinceStart: number,
   email: string,
   noLogDayIndices: Array<number>, trackingDataList: Array<TrackerRow>
 }
 
-export type EngagementData = {
+export interface EngagementData {
   earliestExperimentStart: number
   maxTotalDays: number, participantList: Array<ParticipantRow>
 }

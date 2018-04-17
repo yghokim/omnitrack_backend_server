@@ -1,84 +1,130 @@
 <ng-container *ngIf="isBusy === false">
-  <div class="flex-container flex-align-items-center option-panel">
-    <mat-form-field *ngIf="participantPool && participantPool.length > 0">
-      <mat-select placeholder="Excluded Participants" [(value)]="excludedParticipantIds" (selectionChange)="onExcludedParticipantSelectionChanged($event)"
-        multiple>
-        <mat-option *ngFor="let participant of participantPool" [value]="participant._id">
-          {{participant.alias}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <div class="flex-filler"></div>
-  </div>
+  <div class="container-fluid">
+    <div class="flex-container flex-align-items-center option-panel">
+      <mat-form-field *ngIf="participantPool && participantPool.length > 0">
+        <mat-select placeholder="Excluded Participants" [(value)]="excludedParticipantIds" (selectionChange)="onExcludedParticipantSelectionChanged($event)"
+          multiple>
+          <mat-option *ngFor="let participant of participantPool" [value]="participant._id">
+            {{participant.alias}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <div class="flex-filler"></div>
+    </div>
 
-  <div class="card card-main" *ngIf="decodedItemsPerParticipant && decodedItemsPerParticipant.length > 0">
-    <div class="card-header">Log Processing Summary</div>
-    <div class="card-body">
-      <p>
-        <b>Filtered Log Count: </b> {{decodedItems.length}}
-      </p>
+    <div class="card card-main" *ngIf="decodedItemsPerParticipant && decodedItemsPerParticipant.length > 0">
+      <div class="card-header">Log Processing Summary</div>
+      <div class="card-body">
+        <p>
+          <b>Filtered Log Count: </b> {{decodedItems.length}}
+        </p>
 
-      <table class="table table-data">
-        <thead>
-          <th *ngFor="let head of (productivitySummary.tableSubject | async).header">{{head}}</th>
-        </thead>
-        <tbody>
-          <tr *ngFor="let participantRow of (productivitySummary.tableSubject | async).body">
-            <td *ngFor="let valueEntry of participantRow; let i = index">
-              <ng-container *ngIf="valueEntry.type === 'ratio'">
-                <div class="ratio-cell">
-                  <div class="ratio-bar whole">
+        <table class="table table-data">
+          <thead class="singleline">
+            <th *ngFor="let head of (productivitySummary.tableSubject | async).header">
+              <button class="table-cell-clickable-text" (click)="onSortClick(head)">{{head}}</button>
+            </th>
+          </thead>
+          <tbody>
+            <tr *ngFor="let participantRow of (productivitySummary.tableSubject | async).body">
+              <td *ngFor="let valueEntry of participantRow; let i = index">
+                <ng-container *ngIf="valueEntry.type === 'ratio' || valueEntry.type === 'productivity'">
+                  <div class="ratio-cell">
+                    <div class="ratio-bar whole">
 
-                    <div class="ratio-bar" [style.width]="(valueEntry.value*100) + '%'">
+                      <div class="ratio-bar" [style.width]="(valueEntry.value*100) + '%'" [style.background]="valueEntry.type === 'productivity'? productivityColorScale(valueEntry.value*2) : null"
+                        [style.opacity]="valueEntry.type === 'productivity'? 0.6 : null">
+                      </div>
+                    </div>
+                    <span class="ratio-label-placeholder">
+                      {{valueEntry.valueFormatter? valueEntry.valueFormatter(valueEntry.value) : (valueEntry.value * 100).toFixed(2) + '%'}}
+                    </span>
+                    <span class="ratio-label">
+                      {{valueEntry.valueFormatter? valueEntry.valueFormatter(valueEntry.value) : (valueEntry.value * 100).toFixed(2) + '%'}}
+                    </span>
+                  </div>
+                </ng-container>
+                <ng-container *ngIf="valueEntry.type === 'number' && valueEntry.normalizedRange">
+                  <div class="ratio-cell">
+                    <div class="ratio-bar whole">
+                      <div class="ratio-bar" [style.width]="((valueEntry.value - valueEntry.normalizedRange[0])/(valueEntry.normalizedRange[1] - valueEntry.normalizedRange[0])*100) + '%'">
+                      </div>
+                    </div>
+                    <span class="ratio-label-placeholder">
+                      {{valueEntry.valueFormatter? valueEntry.valueFormatter(valueEntry.value) : valueEntry.value}}
+                    </span>
+                    <span class="ratio-label">
+                      {{valueEntry.valueFormatter? valueEntry.valueFormatter(valueEntry.value) : valueEntry.value}}
+                    </span>
+                  </div>
+                </ng-container>
+                <ng-container *ngIf="valueEntry.type === 'mood' && valueEntry.value">
+                  <div class="ratio-cell">
+
+                    <div class="ratio-bar whole">
+                      <div class="mood-bar" [ngClass]="{'positive': valueEntry.value >= 0.5, 'negative': valueEntry.value < 0.5}" [style.width]="((valueEntry.value < 0.5? (0.5 - valueEntry.value) : (valueEntry.value - 0.5)) * 100).toFixed(1) + '%'"></div>
+                    </div>
+                    <span class="ratio-label-placeholder text-center">
+                      {{((valueEntry.value - 0.5)*4).toFixed(2)}}
+                    </span>
+                    <span class="ratio-label text-center">
+                      {{((valueEntry.value - 0.5)*4).toFixed(2)}}
+                    </span>
+                  </div>
+                </ng-container>
+                <ng-container *ngIf="valueEntry.type === 'productivity-ratio'">
+                  <div class="productivity-ratio-cell">
+                    <div class="part" *ngFor="let i of [0,1,2]" [style.background]="productivityColorScale(i)" [style.flex]="valueEntry.value[i]">
                     </div>
                   </div>
-                  <span class="ratio-label-placeholder">
-                    {{(valueEntry.value * 100).toFixed(2) + '%'}}
-                  </span>
-                  <span class="ratio-label">
-                      {{(valueEntry.value * 100).toFixed(2) + '%'}}
-                  </span>
-                </div>
-              </ng-container>
-              <div *ngIf="valueEntry.type !== 'ratio'" [innerHTML]="valueEntry.value"></div>
-            </td>
+                </ng-container>
+
+                <div *ngIf="(valueEntry.type !== 'mood' || !valueEntry.value ) && valueEntry.type !== 'productivity-ratio' && valueEntry.type !== 'ratio' && valueEntry.type !== 'productivity' && (valueEntry.type !== 'number' || !valueEntry.normalizedRange)"
+                  [innerHTML]="valueEntry.valueFormatter ? valueEntry.valueFormatter(valueEntry.value) : valueEntry.value"></div>
+              </td>
+            </tr>
+
+            <tr class="table-active">
+              <td *ngFor="let footerEntry of (productivitySummary.tableSubject | async).footer" [innerHTML]="footerEntry"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p></p>
+
+        <h6>Excluded Logs</h6>
+        <table class="table table-data">
+          <tr *ngFor="let entry of excludedItemCountInfo">
+            <th>{{entry.reason}}</th>
+            <td>{{entry.count}}</td>
           </tr>
-
-          <tr class="table-active">
-            <td *ngFor="let footerEntry of (productivitySummary.tableSubject | async).footer" [innerHTML]="footerEntry"></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <p></p>
-
-      <h6>Excluded Logs</h6>
-      <table class="table table-data">
-        <tr *ngFor="let entry of excludedItemCountInfo">
-          <th>{{entry.reason}}</th>
-          <td>{{entry.count}}</td>
-        </tr>
-      </table>
+        </table>
+      </div>
     </div>
   </div>
 
-  <app-duration-coverage [segments]="48" [logs]="productivityLogs" [participants]="selectedParticipants"></app-duration-coverage>
-  <app-chart-frame title="Distribution of Logged Timestamps Within a Day" [isBusy]="false" *ngIf="decodedItemsPerParticipant">
-    <app-logging-time-of-day-chart main title="Total" heightParamOverride="25%" [decodedItems]="decodedItems">
+  <div class="container">
+    <app-duration-coverage [segments]="48" [logs]="productivityLogs" [participants]="selectedParticipants"></app-duration-coverage>
 
-    </app-logging-time-of-day-chart>
-    <hr main>
-    <div main class="flex-container flex-container-wrap flex-padded-content flex-container-responsive-columns">
-      <div *ngFor="let entry of decodedItemsPerParticipant">
-        <app-logging-time-of-day-chart [title]="entry.participant.alias" [decodedItems]="entry.decodedItems">
+    <app-productivity-analysis [data]="{participants: selectedParticipants, productivityLogs: productivityLogs}"></app-productivity-analysis>
 
-        </app-logging-time-of-day-chart>
+    <app-chart-frame title="Distribution of Logged Timestamps Within a Day" [isBusy]="false" *ngIf="decodedItemsPerParticipant">
+      <app-logging-time-of-day-chart main title="Total" heightParamOverride="25%" [decodedItems]="decodedItems">
+
+      </app-logging-time-of-day-chart>
+      <hr main>
+      <div main class="flex-container flex-container-wrap flex-padded-content flex-container-responsive-columns">
+        <div *ngFor="let entry of decodedItemsPerParticipant">
+          <app-logging-time-of-day-chart [title]="entry.participant.alias" [decodedItems]="entry.decodedItems">
+
+          </app-logging-time-of-day-chart>
+        </div>
       </div>
-    </div>
-  </app-chart-frame>
-  <app-log-delay-histogram [participants]="selectedParticipants" [decodedItems]="decodedItems"></app-log-delay-histogram>
+    </app-chart-frame>
+    <app-log-delay-histogram [participants]="selectedParticipants" [decodedItems]="decodedItems"></app-log-delay-histogram>
 
-  <app-sessions *ngIf="sessionLogDict" [data]="sessionLogDict" [participants]="selectedParticipants"></app-sessions>
+    <app-sessions *ngIf="sessionLogDict" [data]="sessionLogDict" [participants]="selectedParticipants"></app-sessions>
 
-  <app-timestamp-analysis [data]="decodedItemsPerParticipant"></app-timestamp-analysis>
+    <app-timestamp-analysis [data]="decodedItemsPerParticipant"></app-timestamp-analysis>
+  </div>
 </ng-container>

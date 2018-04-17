@@ -15,16 +15,16 @@ export class LoggingTimeOfDayChartComponent implements OnInit {
   private title: string
   private heightParamOverride: string = null
 
-  @Input("heightParamOverride") set _heightParamOverride(param: string){
+  @Input("heightParamOverride") set _heightParamOverride(param: string) {
     this.heightParamOverride = param
-    if(this.chart){
+    if (this.chart) {
       this.chart.options.chart.height = param
     }
   }
 
   @Input("title") set _title(newTitle: string) {
     this.title = newTitle
-    if(this.chart){
+    if (this.chart) {
       this.chart.options.title = {text: newTitle, style: "font-size: 8pt", margin: 0}
     }
   }
@@ -50,7 +50,7 @@ export class LoggingTimeOfDayChartComponent implements OnInit {
     const chartOptions = HighChartsHelper.makeDefaultChartOptions('column', this.heightParamOverride || '45%')
 
     chartOptions.chart.plotBackgroundColor = "#f0f0f0"
-    
+
     chartOptions.plotOptions = {
       column: {
         groupPadding: 0,
@@ -78,20 +78,17 @@ export class LoggingTimeOfDayChartComponent implements OnInit {
     chartOptions.xAxis = {
       type: 'linear',
       endOnTick: true,
-      //categories: d3.range(0,1, segmentLength),
       tickInterval: 3,
       labels: {
-        formatter: function(){
-          const time = this.value * 1/numBins * 24
+        formatter: function() {
+          const time = this.value * 1 / numBins * 24
           const hour = Math.floor(time)
           const minute = time - hour
-          if(minute <= 0.01)
-          {
-            if(hour === 12){
+          if (minute <= 0.01) {
+            if (hour === 12) {
               return "Noon"
-            }else return hour
-          }
-          else return hour
+            } else { return hour }
+          } else { return hour }
         }
       }
     }
@@ -106,7 +103,7 @@ export class LoggingTimeOfDayChartComponent implements OnInit {
       }
     }
 
-    chartOptions.tooltip={
+    chartOptions.tooltip = {
       enabled: false
     }
 

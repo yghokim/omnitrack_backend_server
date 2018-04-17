@@ -215,7 +215,7 @@ export class ResearchApiService implements OnDestroy {
   }
 
   getMedia(trackerId: string, attributeLocalId: string, itemId: string, processingType: string /*"original" | "thumb" | "thumb_retina" */): Observable<Blob> {
-    //:trackerId/:itemId/:attrLocalId/:fileIdentifier
+    // :trackerId/:itemId/:attrLocalId/:fileIdentifier
     return this.http.get("api/research/files/item_media/" + trackerId + "/" + itemId + "/" + attributeLocalId + "/" + "0" + "/" + processingType, new RequestOptions({ headers: this.tokenHeaders, responseType: ResponseContentType.Blob }))
                     .map((res: Response) => res.blob());
   }

@@ -55,8 +55,7 @@ export function diffDaysBetweenTwoMoments(a: Moment, b: Moment, includeWeekends:
       return fullDiff - excludedDays.filter(d => {
         return d >= a.unix() && d <= b.unix()
       }).length
-    }
-    else return fullDiff
+    } else { return fullDiff }
   } else {
     const bStart = moment(b).startOf("day")
     const aStart = moment(a).startOf("day")
@@ -202,10 +201,10 @@ export function toDurationString(timeInSeconds: number): string {
   if (timeInSeconds === 0) {
     return "0"
   } else {
-    let d: number = 0
-    let h: number = 0
-    let m: number = 0
-    let s: number = 0
+    let d = 0
+    let h = 0
+    let m = 0
+    let s = 0
 
     let abs = Math.abs(timeInSeconds)
     d = Math.floor(abs / (24 * 60 * 60))
@@ -219,23 +218,23 @@ export function toDurationString(timeInSeconds: number): string {
     let result = ""
 
     if (d !== 0) {
-      result += d + "D"
+      result += d + "d"
     }
 
     if (h !== 0) {
-      result += " " + h + "H"
+      result += " " + h + "h"
     }
 
     if (m !== 0) {
-      result += " " + m + "M"
+      result += " " + m + "m"
     }
 
     if (s !== 0) {
-      result += " " + s + "S"
+      result += " " + s + "s"
     }
 
-    if (timeInSeconds > 0)
+    if (timeInSeconds > 0) {
       return result.trim()
-    else return "before " + result.trim()
+    } else { return "before " + result.trim() }
   }
 }

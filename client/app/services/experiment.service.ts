@@ -7,7 +7,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { SocketService } from './socket.service';
 import { SocketConstants } from '../../../omnitrack/core/research/socket'
 import { NotificationService } from './notification.service';
-import { ExperimentPermissions} from '../../../omnitrack/core/research/experiment'
+import { ExperimentPermissions } from '../../../omnitrack/core/research/experiment'
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/operator/combineLatest';
 import { VisualizationConfigs } from '../../../omnitrack/core/research/configs';
@@ -101,20 +101,20 @@ export class ExperimentService {
                             message: "The Experiment was deleted."
                           })
                           this._onExperimentInvalid.next()
-                        break;
+                          break;
                       }
                       break;
 
                     case SocketConstants.MODEL_RESEARCH_MESSAGE:
                       this.loadMessageList()
-                    break;
+                      break;
                   }
                 }
               })
             }
           })
         })
-      )
+    )
   }
 
   dispose() {
@@ -149,10 +149,10 @@ export class ExperimentService {
         .map(res => {
           return res.json()
         }).subscribe(
-        experimentInfo => {
-          this.notificationService.unregisterGlobalBusyTag("experimentList")
-          this.experimentInfo.next(experimentInfo)
-        })
+          experimentInfo => {
+            this.notificationService.unregisterGlobalBusyTag("experimentList")
+            this.experimentInfo.next(experimentInfo)
+          })
     )
   }
 
@@ -164,11 +164,11 @@ export class ExperimentService {
         .map(res => {
           return res.json()
         }).subscribe(
-        manager => {
+          manager => {
 
-          this.notificationService.unregisterGlobalBusyTag("managerInfo")
-          this.managerInfo.next(manager)
-        })
+            this.notificationService.unregisterGlobalBusyTag("managerInfo")
+            this.managerInfo.next(manager)
+          })
     )
   }
 
@@ -180,10 +180,10 @@ export class ExperimentService {
         .map(res => {
           return res.json()
         }).subscribe(
-        list => {
-          this.notificationService.unregisterGlobalBusyTag("invitationList")
-          this.invitationList.next(list)
-        })
+          list => {
+            this.notificationService.unregisterGlobalBusyTag("invitationList")
+            this.invitationList.next(list)
+          })
     )
   }
 
@@ -235,7 +235,7 @@ export class ExperimentService {
   removeInvitation(invitation): Observable<any> {
     return this.http
       .delete("/api/research/experiments/" + this.experimentId + '/invitations/' + invitation._id, this.researchApi.authorizedOptions).map(
-      res => res.json()
+        res => res.json()
       )
   }
 
@@ -259,17 +259,17 @@ export class ExperimentService {
   }
 
   changeParticipantAlias(participantId, alias): Observable<boolean> {
-    return this.http.post("/api/research/participants/" + participantId  + "/alias", {alias: alias}, this.researchApi.authorizedOptions).map(res => res.json())
+    return this.http.post("/api/research/participants/" + participantId + "/alias", { alias: alias }, this.researchApi.authorizedOptions).map(res => res.json())
   }
 
   updateParticipant(participantId, update): Observable<any> {
-    return this.http.post("/api/research/participants/" + participantId + "/update", {update: update},
-    this.researchApi.authorizedOptions).map(res => res.json())
+    return this.http.post("/api/research/participants/" + participantId + "/update", { update: update },
+      this.researchApi.authorizedOptions).map(res => res.json())
   }
 
-  setParticipantExcludedDays(participantId: string, excludedDays: Array<Date>): Observable<any>{
-    return this.http.post("/api/research/participants/" + participantId + "/excluded_days", {excludedDays: excludedDays}, this.researchApi.authorizedOptions).map(res=>res.json()).do(result=>{
-      if(result.success === true){
+  setParticipantExcludedDays(participantId: string, excludedDays: Array<Date>): Observable<any> {
+    return this.http.post("/api/research/participants/" + participantId + "/excluded_days", { excludedDays: excludedDays }, this.researchApi.authorizedOptions).map(res => res.json()).do(result => {
+      if (result.success === true) {
         this.loadParticipantList()
       }
     })
@@ -316,7 +316,7 @@ export class ExperimentService {
     })
   }
 
-  queryUsageLogsPerParticipant(filter: any = null, userIds: string | Array<string> = null): Observable<Array<{user: string, logs: Array<IUsageLogDbEntity>}>>{
+  queryUsageLogsPerParticipant(filter: any = null, userIds: string | Array<string> = null): Observable<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>> {
     return this.http.get("/api/research/participants/usage_logs", this.researchApi.makeAuthorizedRequestOptions({
       experiment: this.experimentId,
       userIds: userIds,

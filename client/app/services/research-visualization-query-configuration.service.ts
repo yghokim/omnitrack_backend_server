@@ -26,7 +26,7 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
   private _filteredParticipantIds
   private readonly _filteredParticipantIdsSubject: BehaviorSubject<Array<string>>
 
-  public get filteredParticipantIds(): Observable<Array<string>>{
+  public get filteredParticipantIds(): Observable<Array<string>> {
     return this._filteredParticipantIdsSubject
   }
 
@@ -35,16 +35,15 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
   ) {
 
     const filteredString = localStorage.getItem("filtered_participants")
-    if(filteredString){
+    if (filteredString) {
       this._filteredParticipantIds = JSON.parse(filteredString)
-    }
-    else this._filteredParticipantIds = []
+    } else { this._filteredParticipantIds = [] }
 
     this._filteredParticipantIdsSubject = new BehaviorSubject(this._filteredParticipantIds)
 
     this._internalSubscriptions.add(
       this._filteredParticipantIdsSubject.subscribe(
-        ids=>{
+        ids => {
           localStorage.setItem('filtered_participants', JSON.stringify(ids))
         }
       )
@@ -57,8 +56,7 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
 
           participants.forEach(participant => {
             const experimentRangeStart = new Date(participant.experimentRange.from).getTime()
-            if (!earliestExperimentStart) earliestExperimentStart = experimentRangeStart
-            else {
+            if (!earliestExperimentStart) { earliestExperimentStart = experimentRangeStart } else {
               earliestExperimentStart = Math.min(earliestExperimentStart, experimentRangeStart)
             }
           })
@@ -80,13 +78,12 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
         const userIds = project.participants.map(p => p.user._id)
         return project.trackingDataService.getTrackersOfUser(userIds)
           .combineLatest(project.trackingDataService.getItemsOfUser(userIds), (trackers, items) => {
-            //make data
+            // make data
             const today = moment().startOf("day")
             let earliestExperimentStart: number = null
             const data = project.participants.map(participant => {
               const experimentRangeStart = new Date(participant.experimentRange.from).getTime()
-              if (!earliestExperimentStart) earliestExperimentStart = experimentRangeStart
-              else {
+              if (!earliestExperimentStart) { earliestExperimentStart = experimentRangeStart } else {
                 earliestExperimentStart = Math.min(earliestExperimentStart, experimentRangeStart)
               }
 
@@ -97,8 +94,7 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
                   if (item.tracker === tracker._id) {
                     if (project.scope.includeWeekends) {
                       return true
-                    }
-                    else {
+                    } else {
                       const dow = moment(item.timestamp).isoWeekday()
                       return dow !== 6 && dow !== 7
                     }
@@ -106,13 +102,13 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
                   return false
                 }).map(item => {
                   const timestampMoment = moment(item.timestamp)
-                  const day = daySequenceOfParticipant.findIndex(d=>moment(d).isSame(timestampMoment, 'day'))
+                  const day = daySequenceOfParticipant.findIndex(d => moment(d).isSame(timestampMoment, 'day'))
                   const dayRatio = timestampMoment.diff(moment(timestampMoment).startOf("day"), "days", true)
                   return { day: day, dayRatio: dayRatio, item: item }
                 })
                 return { tracker: tracker, decodedItems: decodedItems }
               })
-              return {participant: participant, 
+              return {participant: participant,
                 daySequence: daySequenceOfParticipant,
                 trackingData: trackingDataList}
             })
@@ -138,36 +134,35 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
     return this._scopeSubject.value
   }
 
-  get filteredDateset(): FilteredExperimentDataset{
+  get filteredDateset(): FilteredExperimentDataset {
     return this._queriedDataset.value
   }
 
-  get filteredDatesetSubject(): Observable<FilteredExperimentDataset>{
-    return this._queriedDataset.filter(dataset=> dataset != null)
+  get filteredDatesetSubject(): Observable<FilteredExperimentDataset> {
+    return this._queriedDataset.filter(dataset => dataset != null)
   }
 
-  clearParticipantFilter(){
-    if(this._filteredParticipantIds.length > 0){
+  clearParticipantFilter() {
+    if (this._filteredParticipantIds.length > 0) {
       this._filteredParticipantIds.splice(0, this._filteredParticipantIds.length)
       this._filteredParticipantIdsSubject.next(this._filteredParticipantIds)
     }
   }
 
-  setParticipantFiltered(participantId: string, filterOut: boolean){
-    if(filterOut === true){
-      if(this._filteredParticipantIds.includes(participantId)!==true){
+  setParticipantFiltered(participantId: string, filterOut: boolean) {
+    if (filterOut === true) {
+      if (this._filteredParticipantIds.includes(participantId) !== true) {
         this._filteredParticipantIds.push(participantId)
         this._filteredParticipantIdsSubject.next(this._filteredParticipantIds)
       }
-    }
-    else{
+    } else {
       const i = this._filteredParticipantIds.indexOf(participantId)
-      if(i !== -1){
+      if (i !== -1) {
         this._filteredParticipantIds.splice(i, 1)
         this._filteredParticipantIdsSubject.next(this._filteredParticipantIds)
       }
     }
-    
+
   }
 
   set scope(range: Scope) {
@@ -216,24 +211,24 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
     })
       .combineLatest(this.scopeSubject, this.filteredParticipantIds,
         this.api.selectedExperimentService.flatMap(service => service.getParticipants()), (service, scope, filteredParticipantIds, participants) => {
-          return { trackingDataService: service, scope: scope, participants: participants.filter(p=>filteredParticipantIds.includes(p._id)===false) }
+          return { trackingDataService: service, scope: scope, participants: participants.filter(p => filteredParticipantIds.includes(p._id) === false) }
         }
       )
   }
 }
 
-export type DayIndexRange = {
+export interface DayIndexRange {
   from: number,
   to: number
 }
 
 export class Scope {
-  isAbsolute: boolean = false;
-  rangeLength: number = 3;
-  rangeUnit: string = "w";
-  offset: number = 0;
+  isAbsolute = false;
+  rangeLength = 3;
+  rangeUnit = "w";
+  offset = 0;
   endPivot: number = Date.now();
-  includeWeekends: boolean = false
+  includeWeekends = false
 
   getRange(
     participant?: any,
@@ -243,7 +238,7 @@ export class Scope {
       .set(dayStartArg)
       .add(1, "d");
     if (this.isAbsolute !== true) {
-      //relative. check experimentRange
+      // relative. check experimentRange
       const experimentRangeStart = moment(participant.experimentRange.from).set(
         dayStartArg
       );
