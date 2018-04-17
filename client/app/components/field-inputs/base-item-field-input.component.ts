@@ -38,7 +38,7 @@ export abstract class BaseItemFieldInputComponent {
       }
     }
     else if(this.attribute.name === "Logged At"){
-      let timeEntry: TimePoint = new TimePoint(this.item.timestamp, "Asia/Seoul");
+      let timeEntry: TimePoint = new TimePoint(this.item.timestamp, this.item.timezone);
       this._serializedValue = TypedStringSerializer.serialize( "T",timeEntry);
       this._deserializedValue = TypedStringSerializer.deserialize(this._serializedValue);
       this.onNewValue(this.attribute.type, this._serializedValue, this._deserializedValue)
