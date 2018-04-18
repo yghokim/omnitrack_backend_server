@@ -10,6 +10,7 @@
         </mat-select>
       </mat-form-field>
       <div class="flex-filler"></div>
+      <button mat-button style="color: #757575" (click)="onExportClicked()"><span class="material-icons right-margin-dot5em">archive</span>Export..</button>
     </div>
 
     <div class="card card-main" *ngIf="decodedItemsPerParticipant && decodedItemsPerParticipant.length > 0">
@@ -32,7 +33,8 @@
                   <div class="ratio-cell">
                     <div class="ratio-bar whole">
 
-                      <div class="ratio-bar" [style.width]="(valueEntry.value*100) + '%'" [style.background]="valueEntry.type === 'productivity'? productivityColorScale(valueEntry.value*2) : null"
+                      <div class="ratio-bar" [style.width]="valueEntry.type === 'productivity'? 
+                      (valueEntry.value*50) + '%' : (valueEntry.value*100) + '%'" [style.background]="valueEntry.type === 'productivity'? productivityColorScale(valueEntry.value) : null"
                         [style.opacity]="valueEntry.type === 'productivity'? 0.6 : null">
                       </div>
                     </div>

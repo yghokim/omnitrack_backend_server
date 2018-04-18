@@ -40,7 +40,7 @@ export class ProductivityAnalysisComponent implements OnInit {
 
   static readonly productivityFormatter = (productivity: any) => {
     if (productivity) {
-      return (Math.round(productivity * 200) / 100).toFixed(2)
+      return (Math.round(productivity * 100) / 100).toFixed(2)
     } else { return "" }
   }
 
@@ -82,11 +82,19 @@ export class ProductivityAnalysisComponent implements OnInit {
 
     const stackColumnsPerSection: Array<SummaryTableColumn> = this.sectionsOfDay.map(s => ({
       columnName: s.name + " Ratio", rows: [], order: 3,
+      valueExporter: (value) => {
+        return ["normal", "productive", "very_productive"].map((p, i) => {
+          return {columnName: s.name + "_ratio" + "_" + p, cellValue: (value && value.length>=3)? value[i] : null}
+        })
+      }
     }))
 
     const moodColumnsPerSection: Array<SummaryTableColumn> =
       this.sectionsOfDay.map(s => ({
         columnName: s.name + " Mood", rows: [], order: 3,
+        valueExporter: (value)=>{
+          return {cellValue: value? (value - 0.5)*4 : null, columnName: s.name + " Mood"}
+        }
       }))
 
     const moodCoverageColumnsPerSection: Array<SummaryTableColumn> =
@@ -198,6 +206,10 @@ export class ProductivityAnalysisComponent implements OnInit {
       console.log(productivityTestResult)
     }
 
+    const productivityRatioTestResults = this.productivityRatioComparisonTest(stackColumnsPerSection[0], stackColumnsPerSection[1])
+    if (productivityRatioTestResults) {
+      console.log(productivityRatioTestResults)
+    }
   }
 
 
@@ -237,7 +249,7 @@ export class ProductivityAnalysisComponent implements OnInit {
     const durationSum = d3.sum(logs, l => (l.fromDateRatio - l.toDateRatio) * 24 * 60)
     const productivitySum = d3.sum(logs, l => (l.fromDateRatio - l.toDateRatio) * 24 * 60 * (l.productivity % 3))
 
-    return { totalDuration: durationSum, productivity: (productivitySum / durationSum) / 2 }
+    return { totalDuration: durationSum, productivity: (productivitySum / durationSum) }
   }
 
   private normalize(arr: Array<number>): Array<number> {
@@ -260,5 +272,20 @@ export class ProductivityAnalysisComponent implements OnInit {
     console.log("sampleB")
     console.log(sampleB.join(","))
     return pairedTTest(sampleA, sampleB)
+  }
+
+  private productivityRatioComparisonTest(productivityColumnA: SummaryTableColumn, productivityColumnB: SummaryTableColumn): Array<TestResult> {
+    const sampleA: Array<any> = []
+    const sampleB: Array<any> = []
+    for (let i = 0; i < productivityColumnA.rows.length; i++) {
+      if (productivityColumnA.rows[i].value && productivityColumnB.rows[i].value) {
+        sampleA.push((productivityColumnA.rows[i].value))
+        sampleB.push((productivityColumnB.rows[i].value))
+      }
+    }
+
+    return [0, 1, 2].map(productivity => {
+      return pairedTTest(sampleA, sampleB, elm => elm[productivity])
+    })
   }
 }
