@@ -37,8 +37,11 @@ export class TimePointFieldInputComponent extends BaseItemFieldInputComponent im
   }
 
   onDateChanged(event){
-    this.moment = moment(event.value)
-    this.updateDateTime(this.moment);
+    let temp = moment(event.value)
+    temp.hour(this.moment.hour())
+    temp.minute(this.moment.minute())
+    this.moment = temp
+    this.updateDateTime(this.moment)
   }
 
   onTimeChanged(time: number, event){
