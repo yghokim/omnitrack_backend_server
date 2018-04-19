@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { IParticipantDbEntity } from '../../../../../omnitrack/core/db-entity-types';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import * as d3 from 'd3';
+var snakeCase = require('snake-case');
 
 @Injectable()
 export class ProductivitySummaryService {
@@ -13,7 +14,7 @@ export class ProductivitySummaryService {
     header: Array<string>,
     body: Array<Array<{ value: any, type?: string, normalizedRange?: [number, number] }>>,
     footer: Array<string>,
-  }>({ header: [], body: [], footer: []})
+  }>({ header: [], body: [], footer: [] })
 
   constructor() { }
 
@@ -64,6 +65,31 @@ export class ProductivitySummaryService {
     this.tableSubject.next({ header: header, body: body, footer: footer })
   }
 
+  public exportToJsonTable(): Array<any> {
+    return this.participants.map(p => {
+      const row = {
+        participant: p.alias
+      }
+      this.columns.forEach(column => {
+        const cell = column.rows.find(r => r.participant._id === p._id) || { value: null }
+
+        if (column.valueExporter) {
+          const exported = column.valueExporter(cell.value)
+          if (exported instanceof Array) {
+            exported.forEach(e => {
+              row[snakeCase(e.columnName)] = e.cellValue
+            })
+          } else {
+            row[snakeCase(exported.columnName)] = exported.cellValue
+          }
+        } else {
+          row[snakeCase(column.columnName)] = cell.value
+        }
+      })
+      return row
+    })
+  }
+
   public makeStatisticsSummaryHtmlContent(array: Array<any>, accessor: (any) => number, aggrFormatter: (number) => string = null, rawValueFormatter: (number) => string = null, includeRange: boolean = false): string {
     if (array && array.length > 0) {
 
@@ -83,11 +109,18 @@ export class ProductivitySummaryService {
   }
 }
 
+export interface SummaryTableCell {
+  participant: IParticipantDbEntity,
+  value: any,
+  type?: string
+}
+
 export interface SummaryTableColumn {
   columnName: string,
   order?: number,
-  rows: Array<{ participant: IParticipantDbEntity, value: any, type?: string }>,
+  rows: Array<SummaryTableCell>,
   valueFormatter?: (any) => string,
-  normalizedRange?: [number, number]
+  normalizedRange?: [number, number],
+  valueExporter?: (SummaryTableCell) => { columnName: string, cellValue: any } | Array<{ columnName: string, cellValue: any }>,
   summary?: string
 }

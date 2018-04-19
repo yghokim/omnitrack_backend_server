@@ -5,6 +5,7 @@ import { groupArrayByVariable } from '../../../../../../shared_lib/utils';
 import * as d3 from 'd3';
 import * as moment from 'moment';
 import { SummaryTableColumn, ProductivitySummaryService } from '../productivity-summary.service';
+import { pairedTTest, TestResult, getStatisticsString } from '../../../../../../shared_lib/statistics';
 
 @Component({
   selector: 'app-productivity-analysis',
@@ -35,9 +36,11 @@ export class ProductivityAnalysisComponent implements OnInit {
     }
   ]
 
+  public moodComparisonTestResults: Array<{ aName: string, bName: string, result: string }>
+
   static readonly productivityFormatter = (productivity: any) => {
     if (productivity) {
-      return (Math.round(productivity * 200) / 100).toFixed(2)
+      return (Math.round(productivity * 100) / 100).toFixed(2)
     } else { return "" }
   }
 
@@ -79,11 +82,19 @@ export class ProductivityAnalysisComponent implements OnInit {
 
     const stackColumnsPerSection: Array<SummaryTableColumn> = this.sectionsOfDay.map(s => ({
       columnName: s.name + " Ratio", rows: [], order: 3,
+      valueExporter: (value) => {
+        return ["normal", "productive", "very_productive"].map((p, i) => {
+          return {columnName: s.name + "_ratio" + "_" + p, cellValue: (value && value.length>=3)? value[i] : null}
+        })
+      }
     }))
 
     const moodColumnsPerSection: Array<SummaryTableColumn> =
       this.sectionsOfDay.map(s => ({
         columnName: s.name + " Mood", rows: [], order: 3,
+        valueExporter: (value)=>{
+          return {cellValue: value? (value - 0.5)*4 : null, columnName: s.name + " Mood"}
+        }
       }))
 
     const moodCoverageColumnsPerSection: Array<SummaryTableColumn> =
@@ -179,6 +190,26 @@ export class ProductivityAnalysisComponent implements OnInit {
       this.productivitySummary.upsertColumn(c)
     })
 
+    const moodTestResult = this.comparisonTest(moodColumnsPerSection[0], moodColumnsPerSection[1])
+    if (moodTestResult) {
+      this.moodComparisonTestResults = [
+        {
+          aName: moodColumnsPerSection[0].columnName,
+          bName: moodColumnsPerSection[1].columnName,
+          result: getStatisticsString(moodTestResult)
+        }
+      ]
+    }
+
+    const productivityTestResult = this.comparisonTest(columnsPerSection[0], columnsPerSection[1])
+    if (productivityTestResult) {
+      console.log(productivityTestResult)
+    }
+
+    const productivityRatioTestResults = this.productivityRatioComparisonTest(stackColumnsPerSection[0], stackColumnsPerSection[1])
+    if (productivityRatioTestResults) {
+      console.log(productivityRatioTestResults)
+    }
   }
 
 
@@ -218,11 +249,43 @@ export class ProductivityAnalysisComponent implements OnInit {
     const durationSum = d3.sum(logs, l => (l.fromDateRatio - l.toDateRatio) * 24 * 60)
     const productivitySum = d3.sum(logs, l => (l.fromDateRatio - l.toDateRatio) * 24 * 60 * (l.productivity % 3))
 
-    return { totalDuration: durationSum, productivity: (productivitySum / durationSum) / 2 }
+    return { totalDuration: durationSum, productivity: (productivitySum / durationSum) }
   }
 
   private normalize(arr: Array<number>): Array<number> {
     const sum = d3.sum(arr)
     return arr.map(elm => elm / sum)
+  }
+
+  private comparisonTest(moodColumnA: SummaryTableColumn, moodColumnB: SummaryTableColumn): TestResult {
+    const sampleA: Array<number> = []
+    const sampleB: Array<number> = []
+    for (let i = 0; i < moodColumnA.rows.length; i++) {
+      if (moodColumnA.rows[i].value && moodColumnB.rows[i].value) {
+        sampleA.push((moodColumnA.rows[i].value))
+        sampleB.push((moodColumnB.rows[i].value))
+      }
+    }
+
+    console.log("sampleA")
+    console.log(sampleA.join(","))
+    console.log("sampleB")
+    console.log(sampleB.join(","))
+    return pairedTTest(sampleA, sampleB)
+  }
+
+  private productivityRatioComparisonTest(productivityColumnA: SummaryTableColumn, productivityColumnB: SummaryTableColumn): Array<TestResult> {
+    const sampleA: Array<any> = []
+    const sampleB: Array<any> = []
+    for (let i = 0; i < productivityColumnA.rows.length; i++) {
+      if (productivityColumnA.rows[i].value && productivityColumnB.rows[i].value) {
+        sampleA.push((productivityColumnA.rows[i].value))
+        sampleB.push((productivityColumnB.rows[i].value))
+      }
+    }
+
+    return [0, 1, 2].map(productivity => {
+      return pairedTTest(sampleA, sampleB, elm => elm[productivity])
+    })
   }
 }

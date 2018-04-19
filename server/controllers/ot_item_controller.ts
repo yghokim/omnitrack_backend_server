@@ -68,8 +68,12 @@ export default class OTItemCtrl extends UserBelongingCtrl {
     })
   }
 
-  setItemTimestamp(itemQuery: any, timestamp: number): Promise<{ success: boolean, error?: any, changedItem?: IItemDbEntity }> {
-    return OTItem.findOneAndUpdate(itemQuery, { $set: { timestamp: timestamp } }, { new: true }).then(updatedItem => {
+  setItemTimestamp(itemQuery: any, timestamp: number, timezone?: string): Promise<{ success: boolean, error?: any, changedItem?: IItemDbEntity }> {
+    const set = {timestamp: timestamp}
+    if(timezone){
+      set["timezone"] = timezone
+    }
+    return OTItem.findOneAndUpdate(itemQuery, { $set: set }, { new: true }).then(updatedItem => {
       if (updatedItem) {
         app.serverModule().registerMessageDataPush(updatedItem["user"], app.pushModule().makeSyncMessageFromTypes([C.SYNC_TYPE_ITEM]))
         return { success: true, error: null, changedItem: updatedItem as any }
@@ -85,6 +89,7 @@ export default class OTItemCtrl extends UserBelongingCtrl {
   postItemTimestamp = (req, res) => {
     const itemQuery = req.body.itemQuery
     const timestamp = req.body.timestamp
+    const timezone = req.body.timezone
 
     if (!itemQuery || !timestamp) {
       res.status(404).send({ success: false, error: "IllegalParameters" })
@@ -97,7 +102,7 @@ export default class OTItemCtrl extends UserBelongingCtrl {
       itemQuery["user"] = res.locals.user.uid
     }
 
-    this.setItemTimestamp(itemQuery, timestamp).then(
+    this.setItemTimestamp(itemQuery, timestamp, timezone).then(
       result => {
         console.log(result)
         res.status(200).send(result)
