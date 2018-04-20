@@ -24,6 +24,7 @@ import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver'; 
 import { UpdateItemCellValueDialogComponent } from "../dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component";
 import { TextInputDialogComponent } from "../dialogs/text-input-dialog/text-input-dialog.component";
+import { TimePoint } from "../../../omnitrack/core/datatypes/field_datatypes";
 
 @Component({
   selector: "app-experiment-data",
@@ -200,6 +201,11 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
         return formatted;
       } else { return deserializedValue; }
     } else { return null; }
+  }
+
+  getTimestampValue(item: IItemDbEntity){
+    let stamp: TimePoint = new TimePoint(item.timestamp, item.timezone)
+    return stamp.toMoment().format("kk:mm (MMM DD YYYY)") + " " + moment().tz(stamp.timezone).format("z")
   }
 
   getTrackerColumns(tracker: ITrackerDbEntity): any[] {
