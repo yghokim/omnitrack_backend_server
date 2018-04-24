@@ -84,7 +84,7 @@ export class ProductivityAnalysisComponent implements OnInit {
       columnName: s.name + " Ratio", rows: [], order: 3,
       valueExporter: (value) => {
         return ["normal", "productive", "very_productive"].map((p, i) => {
-          return {columnName: s.name + "_ratio" + "_" + p, cellValue: (value && value.length>=3)? value[i] : null}
+          return { columnName: s.name + "_ratio" + "_" + p, cellValue: (value && value.length >= 3) ? value[i] : null }
         })
       }
     }))
@@ -92,8 +92,8 @@ export class ProductivityAnalysisComponent implements OnInit {
     const moodColumnsPerSection: Array<SummaryTableColumn> =
       this.sectionsOfDay.map(s => ({
         columnName: s.name + " Mood", rows: [], order: 3,
-        valueExporter: (value)=>{
-          return {cellValue: value? (value - 0.5)*4 : null, columnName: s.name + " Mood"}
+        valueExporter: (value) => {
+          return { cellValue: value ? (value - 0.5) * 4 : null, columnName: s.name + " Mood" }
         }
       }))
 
