@@ -3,7 +3,7 @@
     Comparisons
   </div>
   <div class="card-body">
-    <ng-container *ngFor="let testResult of moodComparisonTestResults">
+    <ng-container *ngFor="let testResult of comparisonTestResults">
       <h6>Comparison of <i>{{testResult.aName}}</i> and <i>{{testResult.bName}}</i></h6>
       <span [innerHTML]="testResult.result"></span>
       <hr>

@@ -304,9 +304,7 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
     const decodedItemsJson: Array<any> = []
     this.decodedItemsPerParticipant.forEach( participantRow => {
       const sequence = getExperimentDateSequenceOfParticipant(participantRow.participant, new Date(), true)
-      console.log("sequence of " + participantRow.participant.alias)
-      console.log(sequence)     
-
+     
       const items = participantRow.decodedItems.map(item => {
         const json = deepclone(item)
         json["participant"] = participantRow.participant.alias
@@ -317,7 +315,7 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
         
         json["from"] = moment(json["from"]).format()
         json["to"] = moment(json["to"]).format()
-        json["dominantDate"] = moment(json["dominantDateNumber"]).format()
+        json["dominant_date"] = moment(json["dominantDateNumber"]).format()
         json["timestamp"] = moment(json.item.timestamp).format()
         json["photo_exists"] = json["photo"]? true : false
         json["is_weekday"] = moment(json.dominantDateNumber).isoWeekday() < 6
@@ -327,6 +325,7 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
         delete json["item"]
         delete json["photo"]
         delete json["usedDevices"]
+        delete json["dominantDate"]
         delete json["dominantDateNumber"]
         return json
       })
@@ -338,9 +337,32 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
     
     const decodedItemsCsv = itemTableParser.parse(decodedItemsJson)
 
+    //process tasks
+    const taskListJson: Array<any> = []
+    const itemsUnwrapped: Array<{task: string, decodedItem: DecodedItem}> = []
+    for(const decodedItem of this.decodedItems){
+      decodedItem.tasks.forEach(task => {
+        itemsUnwrapped.push({task: task, decodedItem: decodedItem})
+      })
+    }
+    const tasksGrouped = groupArrayByVariable(itemsUnwrapped, "task")
+    for(const task of Object.keys(tasksGrouped)){
+      const groupedByUser = groupArrayByVariable(tasksGrouped[task], "user")
+      taskListJson.push({
+        task: task,
+        item_count: tasksGrouped[task].length,
+        participant_count: Object.keys(groupedByUser).length,
+        mean_item_count: tasksGrouped[task].length / Object.keys(groupedByUser).length
+      })
+    }
+    const tasksParser = new json2csv.Parser();
+    
+    console.log(taskListJson)
+
     var zip = new JSZip()
     zip.file("omnitrack-per-participant-table.csv", tableCsv)
     zip.file("omnitrack-decoded-items.csv", decodedItemsCsv)
+    zip.file("omnitrack-log-tasks.csv", tasksParser.parse(taskListJson))
     zip.generateAsync({type: "blob"}).then(blob=>{
       FileSaver.saveAs(blob, "productivity-experiment-data.zip");
     })
