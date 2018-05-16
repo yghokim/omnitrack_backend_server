@@ -1,10 +1,10 @@
 import * as ttest from 'ttest';
-export function pairedTTest(sampleA: Array<any>, sampleB: Array<any>, accessor: (any) => number = null): TestResult {
+export function pairedTTest(sampleA: Array<any>, sampleB: Array<any>, accessor: (any) => number = null, absolute: boolean = false): TestResult {
   const a = accessor ? sampleA.map(l => accessor(l)) : sampleA
   const b = accessor ? sampleB.map(l => accessor(l)) : sampleB
 
   const diffs = a.map((elm, i) => {
-    return b[i] - elm
+    return absolute === true ? Math.abs(b[i] - elm) : b[i] - elm
   })
 
   if (diffs.length > 0) {

@@ -10,8 +10,8 @@ import { ProductivitySummaryService } from './productivity-summary.service';
 import * as moment from 'moment';
 import * as d3 from 'd3';
 import * as json2csv from 'json2csv';
-import * as FileSaver from 'file-saver'; 
-var JSZip = require("jszip");
+import * as FileSaver from 'file-saver';
+let JSZip = require("jszip");
 
 @Component({
   selector: 'app-productivity-statistics',
@@ -280,53 +280,55 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
     return { mean: d3.mean(fieldCounts), sd: d3.deviation(fieldCounts), sum: d3.sum(fieldCounts), min: d3.min(fieldCounts), max: d3.max(fieldCounts) }
   }
 
-  private onExportClicked(){
+  private onExportClicked() {
     const tableJson = this.productivitySummary.exportToJsonTable()
     const tableParser = new json2csv.Parser();
     const tableCsv = tableParser.parse(tableJson)
-/*
-    user: string;
-    productivity: number;
-    duration: number;
-    from: number;
-    to: number;
-    timestampDayRatio: number,
-    usedDevices: Array<string>;
-    tasks: Array<string>;
-    location: string;
-    rationale: string;
-    mood?: number,
-    photo?: ServerFile,
-    dominantDate: Date;
-    dominantDateNumber: number;
-    item: IItemDbEntity;*/
+    /*
+        user: string;
+        productivity: number;
+        duration: number;
+        from: number;
+        to: number;
+        timestampDayRatio: number,
+        usedDevices: Array<string>;
+        tasks: Array<string>;
+        location: string;
+        rationale: string;
+        mood?: number,
+        photo?: ServerFile,
+        dominantDate: Date;
+        dominantDateNumber: number;
+        item: IItemDbEntity;*/
 
     const decodedItemsJson: Array<any> = []
-    this.decodedItemsPerParticipant.forEach( participantRow => {
+    this.decodedItemsPerParticipant.forEach(participantRow => {
       const sequence = getExperimentDateSequenceOfParticipant(participantRow.participant, new Date(), true)
+
       console.log("sequence of " + participantRow.participant.alias)
-      console.log(sequence)     
+      console.log(sequence)
 
       const items = participantRow.decodedItems.map(item => {
         const json = deepclone(item)
         json["participant"] = participantRow.participant.alias
-        json["used_devices"] = json.usedDevices? json.usedDevices.join(",") : null
-        json["tasks"] = json.tasks ? json.tasks.join(",") : null
-        
-        json["delay_millis"] = json.from > json.item.timestamp? json.from - json.item.timestamp : (json.to < json.item.timestamp? (json.item.timestamp - json.to) : 0) 
-        
+        json["used_devices"] = json.usedDevices ? json.usedDevices.join(" | ") : null
+        json["tasks"] = json.tasks ? json.tasks.join(" | ") : null
+
+        json["delay_millis"] = json.from > json.item.timestamp ? json.from - json.item.timestamp : (json.to < json.item.timestamp ? (json.item.timestamp - json.to) : 0)
+
         json["from"] = moment(json["from"]).format()
         json["to"] = moment(json["to"]).format()
-        json["dominantDate"] = moment(json["dominantDateNumber"]).format()
+        json["dominant_date"] = moment(json["dominantDateNumber"]).format()
         json["timestamp"] = moment(json.item.timestamp).format()
-        json["photo_exists"] = json["photo"]? true : false
+        json["photo_exists"] = json["photo"] ? true : false
         json["is_weekday"] = moment(json.dominantDateNumber).isoWeekday() < 6
         json["experimental_day"] = sequence.findIndex(s => moment(s).isSame(moment(json.dominantDateNumber).format("YYYY-MM-DD"), 'days') === true)
-        
+
         delete json["user"]
         delete json["item"]
         delete json["photo"]
         delete json["usedDevices"]
+        delete json["dominantDate"]
         delete json["dominantDateNumber"]
         return json
       })
@@ -335,15 +337,39 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
     })
 
     const itemTableParser = new json2csv.Parser();
-    
+
     const decodedItemsCsv = itemTableParser.parse(decodedItemsJson)
+
+    //process tasks
+    const taskListJson: Array<any> = []
+    const itemsUnwrapped: Array<{task: string, decodedItem: DecodedItem}> = []
+    for(const decodedItem of this.decodedItems){
+      decodedItem.tasks.forEach(task => {
+        itemsUnwrapped.push({task: task, decodedItem: decodedItem})
+      })
+    }
+    const tasksGrouped = groupArrayByVariable(itemsUnwrapped, "task")
+    for(const task of Object.keys(tasksGrouped)){
+      const groupedByUser = groupArrayByVariable(tasksGrouped[task], "user")
+      taskListJson.push({
+        task: task,
+        item_count: tasksGrouped[task].length,
+        participant_count: Object.keys(groupedByUser).length,
+        mean_item_count: tasksGrouped[task].length / Object.keys(groupedByUser).length
+      })
+    }
+    const tasksParser = new json2csv.Parser();
+    
+    console.log(taskListJson)
 
     var zip = new JSZip()
     zip.file("omnitrack-per-participant-table.csv", tableCsv)
     zip.file("omnitrack-decoded-items.csv", decodedItemsCsv)
+    zip.file("omnitrack-log-tasks.csv", tasksParser.parse(taskListJson))
     zip.generateAsync({type: "blob"}).then(blob=>{
+
       FileSaver.saveAs(blob, "productivity-experiment-data.zip");
     })
-    
+
   }
 }

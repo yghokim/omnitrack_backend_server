@@ -61,6 +61,8 @@ import { UpdateItemCellValueDialogComponent } from './dialogs/update-item-cell-v
 import { ParticipantExcludedDaysConfigDialogComponent } from './dialogs/participant-excluded-days-config-dialog/participant-excluded-days-config-dialog.component';
 
 import { ProductivityStatisticsModule } from './research/custom/productivity-statistics/productivity-statistics.module';
+import { ExperimentTrackingEngagementComponent } from './experiment-overview/experiment-tracking-engagement/experiment-tracking-engagement.component';
+import { ClientUsageComponent } from './experiment-overview/client-usage/client-usage.component';
 
 @NgModule({
   imports: [
@@ -117,6 +119,8 @@ import { ProductivityStatisticsModule } from './research/custom/productivity-sta
     ParticipantExcludedDaysConfigDialogComponent,
     ExperimentDataSummaryComponent,
     ExperimentCustomStatisticsComponent,
+    ExperimentTrackingEngagementComponent,
+    ClientUsageComponent,
   ],
   exports: [
     NouisliderModule,

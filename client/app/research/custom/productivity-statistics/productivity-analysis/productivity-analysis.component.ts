@@ -36,7 +36,7 @@ export class ProductivityAnalysisComponent implements OnInit {
     }
   ]
 
-  public moodComparisonTestResults: Array<{ aName: string, bName: string, result: string }>
+  public comparisonTestResults: Array<{ aName: string, bName: string, result: string }>
 
   static readonly productivityFormatter = (productivity: any) => {
     if (productivity) {
@@ -46,6 +46,7 @@ export class ProductivityAnalysisComponent implements OnInit {
 
   @Input("data")
   set setDate(data: { participants: Array<IParticipantDbEntity>, productivityLogs: Array<ProductivityLog> }) {
+    this.comparisonTestResults = []
     const groupedByUser = groupArrayByVariable(data.productivityLogs, "user")
 
     const totalProductivityColumn: SummaryTableColumn = {
@@ -84,7 +85,7 @@ export class ProductivityAnalysisComponent implements OnInit {
       columnName: s.name + " Ratio", rows: [], order: 3,
       valueExporter: (value) => {
         return ["normal", "productive", "very_productive"].map((p, i) => {
-          return {columnName: s.name + "_ratio" + "_" + p, cellValue: (value && value.length>=3)? value[i] : null}
+          return { columnName: s.name + "_ratio" + "_" + p, cellValue: (value && value.length >= 3) ? value[i] : null }
         })
       }
     }))
@@ -92,8 +93,8 @@ export class ProductivityAnalysisComponent implements OnInit {
     const moodColumnsPerSection: Array<SummaryTableColumn> =
       this.sectionsOfDay.map(s => ({
         columnName: s.name + " Mood", rows: [], order: 3,
-        valueExporter: (value)=>{
-          return {cellValue: value? (value - 0.5)*4 : null, columnName: s.name + " Mood"}
+        valueExporter: (value) => {
+          return { cellValue: value ? (value - 0.5) * 4 : null, columnName: s.name + " Mood" }
         }
       }))
 
@@ -192,18 +193,21 @@ export class ProductivityAnalysisComponent implements OnInit {
 
     const moodTestResult = this.comparisonTest(moodColumnsPerSection[0], moodColumnsPerSection[1])
     if (moodTestResult) {
-      this.moodComparisonTestResults = [
+      this.comparisonTestResults.push(
         {
           aName: moodColumnsPerSection[0].columnName,
           bName: moodColumnsPerSection[1].columnName,
           result: getStatisticsString(moodTestResult)
-        }
-      ]
+        })
     }
 
-    const productivityTestResult = this.comparisonTest(columnsPerSection[0], columnsPerSection[1])
+    const productivityTestResult = this.comparisonTest(columnsPerSection[0], columnsPerSection[1], true)
     if (productivityTestResult) {
-      console.log(productivityTestResult)
+      this.comparisonTestResults.push({
+        aName: columnsPerSection[0].columnName,
+        bName: columnsPerSection[1].columnName,
+        result: getStatisticsString(productivityTestResult)
+      })
     }
 
     const productivityRatioTestResults = this.productivityRatioComparisonTest(stackColumnsPerSection[0], stackColumnsPerSection[1])
@@ -257,7 +261,7 @@ export class ProductivityAnalysisComponent implements OnInit {
     return arr.map(elm => elm / sum)
   }
 
-  private comparisonTest(moodColumnA: SummaryTableColumn, moodColumnB: SummaryTableColumn): TestResult {
+  private comparisonTest(moodColumnA: SummaryTableColumn, moodColumnB: SummaryTableColumn, diffAbsolute: boolean = false): TestResult {
     const sampleA: Array<number> = []
     const sampleB: Array<number> = []
     for (let i = 0; i < moodColumnA.rows.length; i++) {
@@ -271,7 +275,7 @@ export class ProductivityAnalysisComponent implements OnInit {
     console.log(sampleA.join(","))
     console.log("sampleB")
     console.log(sampleB.join(","))
-    return pairedTTest(sampleA, sampleB)
+    return pairedTTest(sampleA, sampleB, null, diffAbsolute)
   }
 
   private productivityRatioComparisonTest(productivityColumnA: SummaryTableColumn, productivityColumnB: SummaryTableColumn): Array<TestResult> {

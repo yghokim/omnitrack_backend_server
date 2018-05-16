@@ -111,7 +111,18 @@ export class OTUsageLogCtrl extends BaseCtrl {
     if (req.query.experiment) {
       //filter with experiment
       userIdsPromise = OTParticipant.find({ experiment: req.query.experiment }).select("user").lean().then(users => {
-        return users.map(u => u.user)})
+        const userIds = users.map(u => u.user)
+        if(req.query.userIds){
+          if(req.query.userIds instanceof Array){
+            return req.query.userIds.filter(id => userIds.indexOf(id) !== -1)
+          }
+          else{
+            if(userIds.indexOf(req.query.userIds) !== -1){
+              return req.query.userIds
+            }else return []
+          }
+        }else return userIds
+      })
     } else userIdsPromise = Promise.resolve(req.query.userIds)
 
     userIdsPromise.then(userIds => OTUsageLogCtrl.filterUserGroupedUsageLogs(filter, userIds))

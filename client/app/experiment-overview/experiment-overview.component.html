@@ -22,9 +22,18 @@
   </mat-expansion-panel>
 </div>
 <div [style.padding-left]="sidePanelWidth + 'px'">
+
+  <div class="container">
+    <div class="card card-main">
+      <nav mat-tab-nav-bar>
+        <a class="gnb-link" mat-tab-link *ngFor="let link of tablinks" [routerLink]="link.path" routerLinkActive #rla="routerLinkActive"
+          [active]="rla.isActive">
+          {{link.label}}
+        </a>
+      </nav>
+    </div>
+  </div>
   <div class="container main">
-    <app-tracking-data-synchronizer-widget></app-tracking-data-synchronizer-widget>
-    <app-experiment-data-summary></app-experiment-data-summary>
-    <app-engagement></app-engagement>
+    <router-outlet></router-outlet>
   </div>
 </div>
