@@ -205,7 +205,7 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
     return this._scopeSubject.filter(range => range != null);
   }
 
-  public makeScopeAndParticipantsObservable(applyFilter: boolean): Observable<{ trackingDataService: TrackingDataService, scope: Scope, participants: Array<any> }> {
+  public makeScopeAndParticipantsObservable(applyFilter: boolean): Observable<{ trackingDataService: TrackingDataService, scope: Scope, participants: Array<IParticipantDbEntity> }> {
     return this.api.selectedExperimentService.map(service => service.trackingDataService).do(service => {
       service.registerConsumer("queryConfigService")
     })

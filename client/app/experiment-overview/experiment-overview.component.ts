@@ -15,6 +15,18 @@ import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
 })
 export class ExperimentOverviewComponent implements OnInit {
 
+  tablinks = [
+    {
+      label: "Client Usage",
+      path: "usage"
+    },
+    {
+      label: "Tracking Engagement",
+      path: "tracking"
+    }
+  ]
+
+
   public sidePanelWidth = 250
   public isSidePanelExpanded = true
 

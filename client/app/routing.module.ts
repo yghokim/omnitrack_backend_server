@@ -36,6 +36,8 @@ import { EndUserTrackerListComponent } from './end-user/end-user-tracker-list/en
 import { EndUserTriggerListComponent } from './end-user/end-user-trigger-list/end-user-trigger-list.component';
 import { PerParticipantVisualizationDashboardComponent } from './research/visualization/per-participant-visualization-dashboard/per-participant-visualization-dashboard.component';
 import { ExperimentCustomStatisticsComponent } from './experiment-custom-statistics/experiment-custom-statistics.component';
+import { ExperimentTrackingEngagementComponent } from './experiment-overview/experiment-tracking-engagement/experiment-tracking-engagement.component';
+import { ClientUsageComponent } from './experiment-overview/client-usage/client-usage.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'downloads', pathMatch: 'full', canActivate: [EndUserAuthToMainGuard] },
@@ -76,7 +78,15 @@ const routes: Routes = [
         path: 'dashboard/:experimentId', component: ResearchDashboardComponent, canActivate: [ResearcherAuthGuardSecure],
         children: [
           { path: '', redirectTo: 'overview', pathMatch: "full" },
-          { path: 'overview', component: ExperimentOverviewComponent, data: { title: 'Overview', showTitleBar: false } },
+          { 
+            path: 'overview', component: ExperimentOverviewComponent, data: { title: 'Overview', showTitleBar: false },
+            children: [
+              {path: '', redirectTo: 'tracking', pathMatch: 'full'},
+              {path: 'tracking', component: ExperimentTrackingEngagementComponent},
+              {path: 'usage', component: ClientUsageComponent}
+
+            ] 
+          },
           { path: 'detailed-overview', component: PerParticipantVisualizationDashboardComponent, data: { title: 'Per-participant Overview' } },
           {
             path: 'custom-statistics', component: ExperimentCustomStatisticsComponent, data: { title: 'Custom Statistics' }
