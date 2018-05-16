@@ -24,6 +24,7 @@ import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver'; 
 import { UpdateItemCellValueDialogComponent } from "../dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component";
 import { TextInputDialogComponent } from "../dialogs/text-input-dialog/text-input-dialog.component";
+import { TimePoint } from "../../../omnitrack/core/datatypes/field_datatypes";
 
 @Component({
   selector: "app-experiment-data",
@@ -202,6 +203,11 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     } else { return null; }
   }
 
+  getTimestampValue(item: IItemDbEntity){
+    let stamp: TimePoint = new TimePoint(item.timestamp, item.timezone)
+    return stamp.toMoment().format("kk:mm (MMM DD YYYY)") + " " + moment().tz(stamp.timezone).format("z")
+  }
+
   getTrackerColumns(tracker: ITrackerDbEntity): any[] {
     const temp = tracker.attributes.map((attribute) => attribute.localId)
     return temp.concat('timestamp')
@@ -231,7 +237,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
         result=>{
           if(result && result.value){
             this._internalSubscriptions.add(
-              this.api.selectedExperimentService.flatMap(expService=>expService.trackingDataService.setItemTimestamp(item, TypedStringSerializer.deserialize(result.value).toDate().getTime())).subscribe(
+              this.api.selectedExperimentService.flatMap(expService=>expService.trackingDataService.setItemTimestamp(item, TypedStringSerializer.deserialize(result.value).toDate().getTime(), TypedStringSerializer.deserialize(result.value).timezone)).subscribe(
                 updateResult => {
                 }
               )

@@ -1,15 +1,20 @@
+<mat-form-field class="timezone-input">
+    <mat-select placeholder="Timezone" (selectionChange)="onTimeZoneChanged($event.value)" [value]="currentZone">
+        <mat-option *ngFor="let zone of timezones" [value]="zone"> {{zone}} </mat-option>
+    </mat-select>
+</mat-form-field>
 <mat-form-field>
-    <input matInput [matDatepicker]="dp" placeholder="Choose a Date" [value]="date" (dateInput)="onDateChanged($event)">
+    <input matInput [matDatepicker]="dp" placeholder="Choose a Date" [value]="moment.toDate()" (dateInput)="onDateChanged($event)">
     <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
     <mat-datepicker #dp></mat-datepicker>
 </mat-form-field>
 <mat-form-field class="time-input">
-    <mat-select #hoursInputs placeholder="Hours" (selectionChange)="onTimeChanged(1, $event)" [value]="date?.getHours()">
+    <mat-select #hoursInputs placeholder="Hours" (selectionChange)="onTimeChanged(1, $event)" [value]="moment?.hour()">
         <mat-option *ngFor="let number of hours" [value]="number"> {{number}} </mat-option>
     </mat-select>
 </mat-form-field>
 <mat-form-field class="time-input">
-    <mat-select #minutesInput placeholder="Minutes" (selectionChange)="onTimeChanged(2, $event)" [value]="date?.getMinutes()">
+    <mat-select #minutesInput placeholder="Minutes" (selectionChange)="onTimeChanged(2, $event)" [value]="moment?.minute()">
         <mat-option *ngFor="let number of minutes" [value]="number"> {{number}} </mat-option>
     </mat-select>
 </mat-form-field>
