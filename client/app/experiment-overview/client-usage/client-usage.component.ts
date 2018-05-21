@@ -3,6 +3,8 @@ import { ResearchApiService } from '../../services/research-api.service';
 import { ResearchVisualizationQueryConfigurationService } from '../../services/research-visualization-query-configuration.service';
 import { query } from '@angular/animations';
 import { Subscription } from 'rxjs/Subscription';
+import { Chart } from 'angular-highcharts';
+import { HighChartsHelper } from '../../shared-visualization/highcharts-helper';
 
 @Component({
   selector: 'app-client-usage',
@@ -12,6 +14,8 @@ import { Subscription } from 'rxjs/Subscription';
 export class ClientUsageComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
+  public usageLog: Array<any>;
+  public chart
 
   constructor(private queryConfigService: ResearchVisualizationQueryConfigurationService,
     private api: ResearchApiService) {
@@ -23,9 +27,13 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
       .flatMap(result =>
         result.expService.queryUsageLogsPerParticipant(null, result.participantsAndScope.participants.map(p=>p.user._id))
       ).subscribe(usageLogQueryResult=>{
+        console.log(typeof usageLogQueryResult)
         console.log(usageLogQueryResult)
+        this.usageLog = usageLogQueryResult;
       })
     )
+    
+    
   }
 
   ngOnDestroy() {
