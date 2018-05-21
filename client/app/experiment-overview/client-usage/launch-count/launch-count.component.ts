@@ -47,9 +47,8 @@ export class LaunchCountComponent implements OnInit {
       this.dates = [];
       this.dailyCounts = [];
       this.dates[0] = new Date(minDate).toDateString();
-      console.log(this.dates[0]);
       var currentDate = new Date(minDate);
-      for(var i: number = 1; currentDate < new Date(maxDate); i++){
+      for(var i: number = 1; currentDate.getDate() < new Date(maxDate).getDate(); i++){
         var helper = currentDate;
         currentDate.setDate(helper.getDate()+1);
         this.dates[i] = new Date(currentDate).toDateString();
@@ -80,7 +79,7 @@ export class LaunchCountComponent implements OnInit {
         for(let count of userCounts){
           dailyResult += count;
         }
-        var average = dailyResult / usageLog.length;
+        var average = Math.round((dailyResult / usageLog.length)*10)/10;
         this.dailyCounts.push(average);
       }
       
