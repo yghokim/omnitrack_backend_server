@@ -27,7 +27,6 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
       .flatMap(result =>
         result.expService.queryUsageLogsPerParticipant(null, result.participantsAndScope.participants.map(p=>p.user._id))
       ).subscribe(usageLogQueryResult=>{
-        console.log(typeof usageLogQueryResult)
         console.log(usageLogQueryResult)
         this.usageLog = usageLogQueryResult;
       })

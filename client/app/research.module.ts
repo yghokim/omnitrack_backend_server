@@ -63,7 +63,7 @@ import { ParticipantExcludedDaysConfigDialogComponent } from './dialogs/particip
 import { ProductivityStatisticsModule } from './research/custom/productivity-statistics/productivity-statistics.module';
 import { ExperimentTrackingEngagementComponent } from './experiment-overview/experiment-tracking-engagement/experiment-tracking-engagement.component';
 import { ClientUsageComponent } from './experiment-overview/client-usage/client-usage.component';
-import { LaunchCountComponent } from './experiment-overview/client-usage/launch-count/launch-count.component';
+import { DailyAverageComponent } from './experiment-overview/client-usage/daily-average/daily-average.component';
 
 @NgModule({
   imports: [
@@ -122,7 +122,7 @@ import { LaunchCountComponent } from './experiment-overview/client-usage/launch-
     ExperimentCustomStatisticsComponent,
     ExperimentTrackingEngagementComponent,
     ClientUsageComponent,
-    LaunchCountComponent,
+    DailyAverageComponent,
   ],
   exports: [
     NouisliderModule,

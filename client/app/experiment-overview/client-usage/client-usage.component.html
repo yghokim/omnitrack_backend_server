@@ -1,7 +1,7 @@
 <div class="card card-main">
   <div class="card-header">Daily App Launch Count</div>
   <div class="card-body">
-    <app-launch-count [usageLog]="usageLog"></app-launch-count>
+    <app-daily-average [dataType]="'launchCount'" [usageLog]="usageLog" ></app-daily-average>
   </div>
 </div>
 
@@ -9,9 +9,7 @@
 <div class="card card-main">
     <div class="card-header">Daily Session Engagement</div>
     <div class="card-body">
-      Y axis: Average duration
-      <br>
-      X axis: date
+      <app-daily-average [dataType]="'sessionEngagement'" [usageLog]="usageLog" ></app-daily-average>
     </div>
   </div>
   

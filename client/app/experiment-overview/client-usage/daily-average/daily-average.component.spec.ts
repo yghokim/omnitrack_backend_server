@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LaunchCountComponent } from './launch-count.component';
+import { DailyAverageComponent } from './daily-average.component';
 
-describe('LaunchCountComponent', () => {
-  let component: LaunchCountComponent;
-  let fixture: ComponentFixture<LaunchCountComponent>;
+describe('DailyAverageComponent', () => {
+  let component: DailyAverageComponent;
+  let fixture: ComponentFixture<DailyAverageComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LaunchCountComponent ]
+      declarations: [ DailyAverageComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LaunchCountComponent);
+    fixture = TestBed.createComponent(DailyAverageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
