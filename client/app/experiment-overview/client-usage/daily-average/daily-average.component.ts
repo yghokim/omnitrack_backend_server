@@ -1,6 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { HighChartsHelper } from '../../../shared-visualization/highcharts-helper';
 import { Chart } from 'angular-highcharts';
+import { IUsageLogDbEntity } from '../../../../../omnitrack/core/db-entity-types';
+import d3 = require('d3');
 
 @Component({
   selector: 'app-daily-average',
@@ -10,32 +12,64 @@ import { Chart } from 'angular-highcharts';
 export class DailyAverageComponent implements OnInit {
   
   public chart
-  public MIN_SESSION_GAP: number = 1000;
-  private logs: Array<any>
-  private dates: Array<any>
-  private dailyCounts: Array<number>
-
+  private usageLog: Array<any>
+  private dates: Array<any> = []
+  private engageLog: Array<any>
+  
   @Input('dataType')
   private dataType: String
 
-  @Input('usageLog')
-  set _usageLog(usageLog: Array<any>){
-    if(usageLog && this.dataType){
-      this.logs = usageLog;
-      this.updateDates();
+  @Input("engageLog")
+  set _engageLog(engageLog: Array<any>){
+    if(engageLog.length > 0){
+      this.engageLog = engageLog;
+      this.updateDates()
       const chartOptions = HighChartsHelper.makeDefaultChartOptions()
+      var countsAverages = [];
+      var durationAverages = [];
+
+      for(let date of this.dates){
+        var counts = []
+        var durations = []
+        for(let user of engageLog){
+          var count = 0;
+          var duration = 0;
+          for(let engagement of user.engagements){
+            if(date.getDate() === engagement.start.getDate()){
+              if(this.dataType === "launchCount"){
+                count++
+              }
+              if(this.dataType === "sessionEngagement"){
+                duration += engagement.duration
+              }
+            }
+          }
+          counts.push(count)
+          durations.push(duration)
+        }
+        var countSum = 0;
+        var durationSum = 0;
+        for(var i: number = 0; i < counts.length ; i++){
+          countSum += counts[i]
+          durationSum += durations[i]
+        }
+        countsAverages.push(Math.round((countSum / engageLog.length)*10)/10)
+        var minuteDate = new Date(Math.round((durationSum/ engageLog.length)*10)/10);
+        durationAverages.push(minuteDate.getMinutes())
+      }
+
+      chartOptions.xAxis = {
+        categories: this.dates.map(x => x.toDateString())
+      }
 
       if(this.dataType === "launchCount"){
-        this.countLaunches()
         chartOptions.series = [
           {
           name: 'Average number of launches',
-          data: this.dailyCounts
+          data: countsAverages
           }
         ];
-        chartOptions.xAxis = {
-          categories: this.dates
-        }
+        
         chartOptions.yAxis = {
           min: 0,
           title: {
@@ -44,18 +78,14 @@ export class DailyAverageComponent implements OnInit {
           }
         }
       }
-
+  
       else if(this.dataType === "sessionEngagement"){      
-        this.countDuration()
         chartOptions.series = [
           {
           name: 'Average session duration',
-          data: this.dailyCounts
+          data: durationAverages
           }
         ];
-        chartOptions.xAxis = {
-          categories: this.dates
-        }
         chartOptions.yAxis = {
           min: 0,
           title: {
@@ -64,8 +94,9 @@ export class DailyAverageComponent implements OnInit {
           }
         }
       }
-      else{}
+      else{ console.log("Not defined chartDataType")}
       this.chart = new Chart(chartOptions);
+  
     }
   }
 
@@ -77,129 +108,20 @@ export class DailyAverageComponent implements OnInit {
 
   updateDates(){
     //find min/max Date over all users
-    var minDate = 10000000000000;
-    var maxDate = 0;
-
-    for(let entry of this.logs){
-      var max = entry.logs.find(function(x) {
-        if(x.content){return x}
-      }).content.finishedAt;
-      if( max > maxDate){
-        maxDate = max;
+    var filteredLog = this.engageLog.map(function(users){if(users.engagements){return users.engagements}});
+    if(filteredLog && filteredLog.length > 0){
+      var reducedLog = filteredLog.reduce(function(prev,curr){ return prev.concat(curr)});
+      var maxDate = d3.max(reducedLog.map(x => x.start + x.duration));
+      var minDate = d3.min(reducedLog.map(x => x.start));
+      //construct date array with all days inbetween min and max
+      this.dates = [];
+      this.dates[0] = new Date(minDate)
+      var currentDate = new Date(minDate);
+      for(var i: number = 1; currentDate.getDate() < new Date(maxDate).getDate(); i++){
+        var helper = currentDate;
+        currentDate.setDate(helper.getDate()+1);
+        this.dates[i] = new Date(currentDate)
       }
-      var min: number;
-      for(var i: number = entry.logs.length-1; i >= 0; i--){
-        var temp = entry.logs[i];
-        if(temp && temp.content){
-          min = temp.content.finishedAt - temp.content.elapsed;
-          break;
-        }
-      }
-      if(min < minDate){
-        minDate = min;
-      }
-    }
-    //construct date array with all days inbetween min and max
-    this.dates = [];
-    this.dailyCounts = [];
-    this.dates[0] = new Date(minDate).toDateString();
-    var currentDate = new Date(minDate);
-    for(var i: number = 1; currentDate.getDate() < new Date(maxDate).getDate(); i++){
-      var helper = currentDate;
-      currentDate.setDate(helper.getDate()+1);
-      this.dates[i] = new Date(currentDate).toDateString();
     }
   }
-
-  countLaunches(){
-    //iterate over all days, users, logs and increment the users daily logCount
-    for(let date of this.dates){
-      var dailyResult = 0;
-      var userCounts: Array<number> = [];
-      for(let user of this.logs){
-        var useCount = 0;
-        var firstCheck = 0;
-        for(var i: number = user.logs.length -1; i >= 0; i--){
-          var log = user.logs[i];
-          if(log.content){
-            var day = new Date(log.content.finishedAt).toDateString();
-            if(day === date){
-              firstCheck++;
-              var start = log.content.finishedAt - log.content.elapsed
-              if(firstCheck === 1){ useCount ++; } 
-              else{
-                var previous = 0;
-                if(user.logs[i+1].content){
-                  previous = user.logs[i+1].content.finishedAt 
-                }
-                if(previous < start - this.MIN_SESSION_GAP){
-                  useCount++;
-                }
-              }
-            }
-          }
-        }
-        userCounts.push(useCount);
-      }
-    //for every day calculate average and put in average array
-    for(let count of userCounts){
-      dailyResult += count;
-    }
-    var average = Math.round((dailyResult / this.logs.length)*10)/10;
-    this.dailyCounts.push(average);
-    }
-  }
-
-  countDuration(){
-    //iterate over all days, users, logs, find the first and last logs per day per user, substract the gaps from this duration
-    for(let date of this.dates){
-      var dailyResult = 0;
-      var userCounts: Array<number> = [];
-      for(let user of this.logs){
-        var gaps = 0;
-        var firstCheck = 0;
-        var dailyStart = 0;
-        var dailyEnd = 0;
-        for(var i: number = user.logs.length -1; i >= 0; i--){
-          var log = user.logs[i];
-          if(log.content){
-            var day = new Date(log.content.finishedAt).toDateString();
-            if(day === date){
-              var start = log.content.finishedAt - log.content.elapsed
-              if(firstCheck === 0){ 
-                dailyStart = start;
-                firstCheck++;
-              } 
-              else{
-                var previous = start;
-                previous = user.logs.find(function(x, k){
-                  if(k < i+1){}
-                  else if(x.content && new Date(x.content.finishedAt).toDateString() === date){return x}
-                }).content.finishedAt 
-                if( previous < start - this.MIN_SESSION_GAP){
-                  gaps += (start - previous);
-                }
-              }
-              var lastLog = user.logs.find(function(x){
-                if(x.content && new Date(x.content.finishedAt).toDateString() === date){return x}
-              })
-              if(log === lastLog){
-                dailyEnd = log.content.finishedAt;
-              }
-            }
-          }
-        }
-        userCounts.push(dailyEnd - dailyStart - gaps);
-      }
-
-      //for every day calculate average and put in average array
-      for(let count of userCounts){
-        dailyResult += count;
-      }
-      var average = Math.round((dailyResult / this.logs.length)*10)/10;
-      var minuteDate = new Date(average);
-      this.dailyCounts.push(minuteDate.getMinutes());
-    }
-  }
-
 }
