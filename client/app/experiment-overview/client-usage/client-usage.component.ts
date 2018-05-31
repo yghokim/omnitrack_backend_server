@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { Chart } from 'angular-highcharts';
 import { HighChartsHelper } from '../../shared-visualization/highcharts-helper';
 import { IUsageLogDbEntity } from '../../../../omnitrack/core/db-entity-types';
+import d3 = require('d3');
 
 @Component({
   selector: 'app-client-usage',
@@ -18,7 +19,7 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
   public usageLog: Array<any>;
   public MIN_SESSION_GAP: number = 1000;
   public chart
-  private engageLog = []
+  private engageLog: Array<EngageData> =[]
 
   constructor(private queryConfigService: ResearchVisualizationQueryConfigurationService,
     private api: ResearchApiService) {
@@ -32,8 +33,12 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
       ).subscribe(usageLogQueryResult=>{
         this.usageLog = usageLogQueryResult;
         var sessionLog = [];
-        //Todo: sort again
-
+        console.log(usageLogQueryResult)
+        //sort again
+        for(let entry of this.usageLog){
+          entry.logs.sort((n1,n2) => new Date(n2.timestamp).valueOf() - new Date(n1.timestamp).valueOf())
+        }
+        //filter sessions
         for(let entry of this.usageLog){
           sessionLog.push({user: entry.user, logs: entry.logs.filter(function(x){
             if(x.name === "session"){
@@ -41,6 +46,7 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
             }
           })})
         }
+        //build engagement structure
         this.engageLog = [];
         for(let entry of sessionLog){
           var user = entry.user;
@@ -67,6 +73,8 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
           this.engageLog.push({user: user, engagements: engagements})
         }
         console.log(this.engageLog)
+
+        //ToDo: Here date and average calculations
       })
     )   
   }
@@ -81,4 +89,8 @@ export interface Engagement{
   start: Date,
   duration: Number,
   sessions: Array<IUsageLogDbEntity>
+}
+export interface EngageData{
+  user: String,
+  engagements: Array<Engagement>
 }

@@ -3,6 +3,8 @@ import { HighChartsHelper } from '../../../shared-visualization/highcharts-helpe
 import { Chart } from 'angular-highcharts';
 import { IUsageLogDbEntity } from '../../../../../omnitrack/core/db-entity-types';
 import d3 = require('d3');
+import { Engagement } from '../client-usage.component';
+import Highcharts = require('highcharts');
 
 @Component({
   selector: 'app-daily-average',
@@ -12,9 +14,9 @@ import d3 = require('d3');
 export class DailyAverageComponent implements OnInit {
   
   public chart
-  private usageLog: Array<any>
   private dates: Array<any> = []
   private engageLog: Array<any>
+  private dailyData: Array<DayData> = []
   
   @Input('dataType')
   private dataType: String
@@ -24,51 +26,88 @@ export class DailyAverageComponent implements OnInit {
     if(engageLog.length > 0){
       this.engageLog = engageLog;
       this.updateDates()
-      const chartOptions = HighChartsHelper.makeDefaultChartOptions()
-      var countsAverages = [];
-      var durationAverages = [];
+      const chartOptions = HighChartsHelper.makeDefaultChartOptions('line')
+      this.dailyData = []
 
       for(let date of this.dates){
-        var counts = []
-        var durations = []
+        var dailyUsers: DayData = {dayElements: []}
         for(let user of engageLog){
           var count = 0;
           var duration = 0;
+          var userData: DayElement = {date: date, user: user.user, engagements: []}
           for(let engagement of user.engagements){
             if(date.getDate() === engagement.start.getDate()){
-              if(this.dataType === "launchCount"){
+              userData.engagements.push(engagement)
                 count++
-              }
-              if(this.dataType === "sessionEngagement"){
                 duration += engagement.duration
-              }
             }
           }
-          counts.push(count)
-          durations.push(duration)
+          userData.launchCount = count
+          userData.totalDuration = duration
+          dailyUsers.dayElements.push(userData)
         }
+        this.dailyData.push(dailyUsers)
         var countSum = 0;
         var durationSum = 0;
-        for(var i: number = 0; i < counts.length ; i++){
-          countSum += counts[i]
-          durationSum += durations[i]
+        for(var i: number = 0; i < dailyUsers.dayElements.length ; i++){
+          countSum += dailyUsers.dayElements[i].launchCount
+          durationSum += dailyUsers.dayElements[i].totalDuration
         }
-        countsAverages.push(Math.round((countSum / engageLog.length)*10)/10)
-        var minuteDate = new Date(Math.round((durationSum/ engageLog.length)*10)/10);
-        durationAverages.push(minuteDate.getMinutes())
+        dailyUsers.avgCount = Math.round((countSum / engageLog.length)*10)/10
+        var avgDate = Math.round((durationSum/ engageLog.length)*10)/10
+        dailyUsers.avgDuration = avgDate / 60000
+
+        var countMap = dailyUsers.dayElements.map(x => x.launchCount)
+        var durMap = dailyUsers.dayElements.map(x => (x.totalDuration /60000))
+
+        dailyUsers.maxCount = d3.max(countMap)
+        dailyUsers.minCount = d3.min(countMap)
+        dailyUsers.maxDuration = d3.max(durMap)
+        dailyUsers.minDuration = d3.min(durMap)
       }
+      console.log(this.dailyData)
 
       chartOptions.xAxis = {
-        categories: this.dates.map(x => x.toDateString())
+        type: 'datetime',
+        categories: this.dates.map(x => x.toDateString()),
+        crosshair: {
+          width: 2 
+        }
       }
 
       if(this.dataType === "launchCount"){
-        chartOptions.series = [
-          {
-          name: 'Average number of launches',
-          data: countsAverages
+
+        chartOptions.title = {
+          text: 'Daily Average Launches'
+        }
+        chartOptions.series = [{
+          name: 'Average app-launches per day',
+          data: this.dailyData.map( x => x.avgCount),
+          zIndex: 1,
+          marker: {
+            fillColor: 'white',
+            lineWidth: 2,
+            lineColor: '#84315d'
           }
+        },{
+          name: 'Range' ,
+          data: this.dailyData.map(x => [x.minCount,x.maxCount]),
+          type: 'arearange',
+          lineWidth: 0,
+          linkedTo: ':previous',
+          fillOpacity: 0.3,
+          zIndex: 0,
+          marker: {
+            enabled: false
+          }
+        }
         ];
+        chartOptions.tooltip = {
+          crosshairs: {
+            width: 2
+          },
+          shared: true
+        },
         
         chartOptions.yAxis = {
           min: 0,
@@ -80,12 +119,30 @@ export class DailyAverageComponent implements OnInit {
       }
   
       else if(this.dataType === "sessionEngagement"){      
-        chartOptions.series = [
-          {
+        chartOptions.series = [{
           name: 'Average session duration',
-          data: durationAverages
+          data: this.dailyData.map( x => x.avgDuration),
+          zIndex: 1,
+          marker: {
+            fillColor: 'white',
+            lineWidth: 2,
+            lineColor: '#84315d'
           }
+        },{
+          name: 'Range' ,
+          data: this.dailyData.map(x => [x.minDuration,x.maxDuration]),
+          type: 'arearange',
+          lineWidth: 0,
+          fillOpacity: 0.3,
+          zIndex: 0,
+          marker: {
+            enabled: false
+          }
+        }
         ];
+        chartOptions.tooltip = {
+          shared: true
+        },
         chartOptions.yAxis = {
           min: 0,
           title: {
@@ -124,4 +181,21 @@ export class DailyAverageComponent implements OnInit {
       }
     }
   }
+}
+
+export interface DayElement{
+  date: Date,
+  user: String,
+  engagements?: Array<Engagement>,
+  launchCount?: number,
+  totalDuration?: number
+}
+export interface DayData{
+  dayElements: Array<DayElement>,
+  avgCount?: number,
+  avgDuration?: number,
+  maxCount?: number,
+  maxDuration?: number,
+  minCount?: number,
+  minDuration?: number
 }
