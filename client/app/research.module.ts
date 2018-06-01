@@ -64,6 +64,7 @@ import { ProductivityStatisticsModule } from './research/custom/productivity-sta
 import { ExperimentTrackingEngagementComponent } from './experiment-overview/experiment-tracking-engagement/experiment-tracking-engagement.component';
 import { ClientUsageComponent } from './experiment-overview/client-usage/client-usage.component';
 import { DailyAverageComponent } from './experiment-overview/client-usage/daily-average/daily-average.component';
+import { EngagementDataService } from './experiment-overview/client-usage/engagement-data.service';
 
 @NgModule({
   imports: [
@@ -158,6 +159,7 @@ import { DailyAverageComponent } from './experiment-overview/client-usage/daily-
     ResearcherAuthService,
     SocketService,
     ResearchApiService,
+    EngagementDataService,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: [

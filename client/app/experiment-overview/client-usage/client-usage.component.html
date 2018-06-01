@@ -1,7 +1,7 @@
 <div class="card card-main">
   <div class="card-header">Daily App Launch Count</div>
   <div class="card-body">
-    <app-daily-average [dataType]="'launchCount'" [engageLog]="engageLog"></app-daily-average>
+    <app-daily-average [dataType]="'launchCount'" [engageLog]="engagementService.engagementLogs" [dates]="engagementService.engagementDates"></app-daily-average>
   </div>
 </div>
 
@@ -9,7 +9,7 @@
 <div class="card card-main">
     <div class="card-header">Daily Session Engagement</div>
     <div class="card-body">
-      <app-daily-average [dataType]="'sessionEngagement'" [engageLog]="engageLog"></app-daily-average>
+      <app-daily-average [dataType]="'sessionEngagement'" [engageLog]="engagementService.engagementLogs" [dates]="engagementService.engagementDates"></app-daily-average>
     </div>
   </div>
   

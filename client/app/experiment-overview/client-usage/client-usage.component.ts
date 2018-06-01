@@ -7,11 +7,13 @@ import { Chart } from 'angular-highcharts';
 import { HighChartsHelper } from '../../shared-visualization/highcharts-helper';
 import { IUsageLogDbEntity } from '../../../../omnitrack/core/db-entity-types';
 import d3 = require('d3');
+import { EngagementDataService } from './engagement-data.service';
 
 @Component({
   selector: 'app-client-usage',
   templateUrl: './client-usage.component.html',
-  styleUrls: ['./client-usage.component.scss']
+  styleUrls: ['./client-usage.component.scss'],
+  providers: [EngagementDataService]
 })
 export class ClientUsageComponent implements OnInit, OnDestroy {
 
@@ -22,7 +24,7 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
   private engageLog: Array<EngageData> =[]
 
   constructor(private queryConfigService: ResearchVisualizationQueryConfigurationService,
-    private api: ResearchApiService) {
+    private api: ResearchApiService, public engagementService: EngagementDataService) {
    }
 
   ngOnInit() {
@@ -73,6 +75,7 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
           this.engageLog.push({user: user, engagements: engagements})
         }
         console.log(this.engageLog)
+        this.engagementService.setEngageLog(this.engageLog)
 
         //ToDo: Here date and average calculations
       })

@@ -5,6 +5,7 @@ import { IUsageLogDbEntity } from '../../../../../omnitrack/core/db-entity-types
 import d3 = require('d3');
 import { Engagement } from '../client-usage.component';
 import Highcharts = require('highcharts');
+import { EngagementDataService } from '../engagement-data.service';
 
 @Component({
   selector: 'app-daily-average',
@@ -14,58 +15,18 @@ import Highcharts = require('highcharts');
 export class DailyAverageComponent implements OnInit {
   
   public chart
-  private dates: Array<any> = []
-  private engageLog: Array<any>
-  private dailyData: Array<DayData> = []
+  private engageLog: Array<DayData>
   
   @Input('dataType')
   private dataType: String
 
+  @Input('dates')
+  private dates: Array<any>
+
   @Input("engageLog")
-  set _engageLog(engageLog: Array<any>){
+  set _engageLog(engageLog: Array<DayData>){
     if(engageLog.length > 0){
-      this.engageLog = engageLog;
-      this.updateDates()
       const chartOptions = HighChartsHelper.makeDefaultChartOptions('line')
-      this.dailyData = []
-
-      for(let date of this.dates){
-        var dailyUsers: DayData = {dayElements: []}
-        for(let user of engageLog){
-          var count = 0;
-          var duration = 0;
-          var userData: DayElement = {date: date, user: user.user, engagements: []}
-          for(let engagement of user.engagements){
-            if(date.getDate() === engagement.start.getDate()){
-              userData.engagements.push(engagement)
-                count++
-                duration += engagement.duration
-            }
-          }
-          userData.launchCount = count
-          userData.totalDuration = duration
-          dailyUsers.dayElements.push(userData)
-        }
-        this.dailyData.push(dailyUsers)
-        var countSum = 0;
-        var durationSum = 0;
-        for(var i: number = 0; i < dailyUsers.dayElements.length ; i++){
-          countSum += dailyUsers.dayElements[i].launchCount
-          durationSum += dailyUsers.dayElements[i].totalDuration
-        }
-        dailyUsers.avgCount = Math.round((countSum / engageLog.length)*10)/10
-        var avgDate = Math.round((durationSum/ engageLog.length)*10)/10
-        dailyUsers.avgDuration = avgDate / 60000
-
-        var countMap = dailyUsers.dayElements.map(x => x.launchCount)
-        var durMap = dailyUsers.dayElements.map(x => (x.totalDuration /60000))
-
-        dailyUsers.maxCount = d3.max(countMap)
-        dailyUsers.minCount = d3.min(countMap)
-        dailyUsers.maxDuration = d3.max(durMap)
-        dailyUsers.minDuration = d3.min(durMap)
-      }
-      console.log(this.dailyData)
 
       chartOptions.xAxis = {
         type: 'datetime',
@@ -73,42 +34,40 @@ export class DailyAverageComponent implements OnInit {
         crosshair: {
           width: 2 
         }
+      }        
+      chartOptions.tooltip = {
+          shared: true
       }
-
+  
       if(this.dataType === "launchCount"){
 
         chartOptions.title = {
           text: 'Daily Average Launches'
         }
         chartOptions.series = [{
-          name: 'Average app-launches per day',
-          data: this.dailyData.map( x => x.avgCount),
+          name: 'Average app-launches',
+          data: engageLog.map( x => x.avgCount),
           zIndex: 1,
+          color: "#004d80",
           marker: {
             fillColor: 'white',
             lineWidth: 2,
-            lineColor: '#84315d'
+            lineColor: 'black'
           }
         },{
           name: 'Range' ,
-          data: this.dailyData.map(x => [x.minCount,x.maxCount]),
+          data: engageLog.map(x => [x.minCount,x.maxCount]),
           type: 'arearange',
           lineWidth: 0,
           linkedTo: ':previous',
+          color: "#99d6ff",
           fillOpacity: 0.3,
           zIndex: 0,
           marker: {
             enabled: false
           }
         }
-        ];
-        chartOptions.tooltip = {
-          crosshairs: {
-            width: 2
-          },
-          shared: true
-        },
-        
+        ]        
         chartOptions.yAxis = {
           min: 0,
           title: {
@@ -121,7 +80,7 @@ export class DailyAverageComponent implements OnInit {
       else if(this.dataType === "sessionEngagement"){      
         chartOptions.series = [{
           name: 'Average session duration',
-          data: this.dailyData.map( x => x.avgDuration),
+          data: engageLog.map( x => x.avgDuration),
           zIndex: 1,
           marker: {
             fillColor: 'white',
@@ -130,7 +89,7 @@ export class DailyAverageComponent implements OnInit {
           }
         },{
           name: 'Range' ,
-          data: this.dailyData.map(x => [x.minDuration,x.maxDuration]),
+          data: engageLog.map(x => [x.minDuration,x.maxDuration]),
           type: 'arearange',
           lineWidth: 0,
           fillOpacity: 0.3,
@@ -140,9 +99,6 @@ export class DailyAverageComponent implements OnInit {
           }
         }
         ];
-        chartOptions.tooltip = {
-          shared: true
-        },
         chartOptions.yAxis = {
           min: 0,
           title: {
@@ -163,24 +119,6 @@ export class DailyAverageComponent implements OnInit {
     
   }
 
-  updateDates(){
-    //find min/max Date over all users
-    var filteredLog = this.engageLog.map(function(users){if(users.engagements){return users.engagements}});
-    if(filteredLog && filteredLog.length > 0){
-      var reducedLog = filteredLog.reduce(function(prev,curr){ return prev.concat(curr)});
-      var maxDate = d3.max(reducedLog.map(x => x.start + x.duration));
-      var minDate = d3.min(reducedLog.map(x => x.start));
-      //construct date array with all days inbetween min and max
-      this.dates = [];
-      this.dates[0] = new Date(minDate)
-      var currentDate = new Date(minDate);
-      for(var i: number = 1; currentDate.getDate() < new Date(maxDate).getDate(); i++){
-        var helper = currentDate;
-        currentDate.setDate(helper.getDate()+1);
-        this.dates[i] = new Date(currentDate)
-      }
-    }
-  }
 }
 
 export interface DayElement{
