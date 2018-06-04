@@ -31,12 +31,28 @@ export class EngagementDataService {
         userData.totalDuration = duration
         dailyUsers.dayElements.push(userData)
       }
-      this.dailyData.push(dailyUsers)
+      
+      /*sort engagements by duration and cut out highest 10 %
+      var tempDur = dailyUsers.dayElements.map(x => x.totalDuration)
+      tempDur.sort((n1,n2) => n1-n2)
+      var durationElements = []
+      if(dailyUsers.dayElements.length > 3){
+        durationElements = dailyUsers.dayElements.filter(function(x){
+          if(x.totalDuration < d3.quantile(tempDur,0.85)){ return x }
+          
+        })
+      }
+      else{durationElements = dailyUsers.dayElements}
+      */
+      
+      //calculate average, max, min
       var countSum = 0;
       var durationSum = 0;
-      for(var i: number = 0; i < dailyUsers.dayElements.length ; i++){
-        countSum += dailyUsers.dayElements[i].launchCount
-        durationSum += dailyUsers.dayElements[i].totalDuration
+      for(let element of dailyUsers.dayElements){
+        countSum += element.launchCount
+      }
+      for(let element of dailyUsers.dayElements){
+        durationSum += element.totalDuration
       }
       dailyUsers.avgCount = Math.round((countSum / engageLog.length)*10)/10
       var avgDate = Math.round((durationSum/ engageLog.length)*10)/10
@@ -49,6 +65,8 @@ export class EngagementDataService {
       dailyUsers.minCount = d3.min(countMap)
       dailyUsers.maxDuration = d3.max(durMap)
       dailyUsers.minDuration = d3.min(durMap)
+      this.dailyData.push(dailyUsers)
+      
     }
     console.log(this.dailyData)
   }

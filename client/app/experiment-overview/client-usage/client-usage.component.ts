@@ -36,6 +36,7 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
         this.usageLog = usageLogQueryResult;
         var sessionLog = [];
         console.log(usageLogQueryResult)
+
         //sort again
         for(let entry of this.usageLog){
           entry.logs.sort((n1,n2) => new Date(n2.timestamp).valueOf() - new Date(n1.timestamp).valueOf())
@@ -43,7 +44,12 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
         //filter sessions
         for(let entry of this.usageLog){
           sessionLog.push({user: entry.user, logs: entry.logs.filter(function(x){
-            if(x.name === "session"){
+            if(x.name === "session" 
+            && x.content.session.indexOf('Fragment') < 0 
+            && x.content.session.indexOf('SplashScreenActivity') < 0
+            && x.content.session.indexOf('AboutActivity') < 0
+            && x.content.session.indexOf('SendReportActivity') < 0
+            && x.content.session.indexOf('SignInActivity') < 0){
               return x;
             }
           })})
@@ -77,7 +83,6 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
         console.log(this.engageLog)
         this.engagementService.setEngageLog(this.engageLog)
 
-        //ToDo: Here date and average calculations
       })
     )   
   }

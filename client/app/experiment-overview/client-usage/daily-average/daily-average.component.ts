@@ -77,7 +77,8 @@ export class DailyAverageComponent implements OnInit {
         }
       }
   
-      else if(this.dataType === "sessionEngagement"){      
+      else if(this.dataType === "sessionEngagement"){   
+        
         chartOptions.series = [{
           name: 'Average session duration',
           data: engageLog.map( x => x.avgDuration),
