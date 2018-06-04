@@ -6,7 +6,7 @@ const otUsageLogSchema = new mongoose.Schema({
   sub: String,
   content: Object,
   deviceId: {type: String, index: true},
-  timestamp: Date,
+  timestamp: {type: Date, index: true},
   localId: Number
 }, {timestamps: true});
 

@@ -63,6 +63,7 @@ import { ParticipantExcludedDaysConfigDialogComponent } from './dialogs/particip
 import { ProductivityStatisticsModule } from './research/custom/productivity-statistics/productivity-statistics.module';
 import { ExperimentTrackingEngagementComponent } from './experiment-overview/experiment-tracking-engagement/experiment-tracking-engagement.component';
 import { ClientUsageComponent } from './experiment-overview/client-usage/client-usage.component';
+import { ServerStatusOverviewComponent } from './server-status-overview/server-status-overview.component';
 
 @NgModule({
   imports: [
@@ -121,6 +122,7 @@ import { ClientUsageComponent } from './experiment-overview/client-usage/client-
     ExperimentCustomStatisticsComponent,
     ExperimentTrackingEngagementComponent,
     ClientUsageComponent,
+    ServerStatusOverviewComponent,
   ],
   exports: [
     NouisliderModule,

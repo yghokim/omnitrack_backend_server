@@ -11,6 +11,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
 import { NotificationService } from './notification.service';
 import { ExampleExperimentInfo } from '../../../omnitrack/core/research/experiment';
+import { IUsageLogDbEntity } from '../../../omnitrack/core/db-entity-types';
 
 @Injectable()
 export class ResearchApiService implements OnDestroy {
@@ -218,5 +219,13 @@ export class ResearchApiService implements OnDestroy {
     // :trackerId/:itemId/:attrLocalId/:fileIdentifier
     return this.http.get("api/research/files/item_media/" + trackerId + "/" + itemId + "/" + attributeLocalId + "/" + "0" + "/" + processingType, new RequestOptions({ headers: this.tokenHeaders, responseType: ResponseContentType.Blob }))
                     .map((res: Response) => res.blob());
+  }
+
+  queryUsageLogsAnonymized(filter: any = null, from: string = null, to: string = null): Observable<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>> {
+    return this.http.get("/api/research/usage_logs", this.makeAuthorizedRequestOptions({
+      filter: JSON.stringify(filter),
+      from: from,
+      to: to
+    })).map(res => res.json())
   }
 }

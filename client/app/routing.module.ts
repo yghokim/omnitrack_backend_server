@@ -38,6 +38,7 @@ import { PerParticipantVisualizationDashboardComponent } from './research/visual
 import { ExperimentCustomStatisticsComponent } from './experiment-custom-statistics/experiment-custom-statistics.component';
 import { ExperimentTrackingEngagementComponent } from './experiment-overview/experiment-tracking-engagement/experiment-tracking-engagement.component';
 import { ClientUsageComponent } from './experiment-overview/client-usage/client-usage.component';
+import { ServerStatusOverviewComponent } from './server-status-overview/server-status-overview.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'downloads', pathMatch: 'full', canActivate: [EndUserAuthToMainGuard] },
@@ -66,6 +67,7 @@ const routes: Routes = [
         path: '', component: ResearchHomeFrameComponent,
         children: [
           { path: '', component: ResearchMainComponent, canActivate: [ResearcherAuthGuardMain] },
+          { path: 'status', component: ServerStatusOverviewComponent, canActivate: [ResearcherAuthGuardSecure]},
           { path: 'settings', component: ServerSettingsComponent, canActivate: [ResearcherAuthGuardSecure] },
           { path: 'signup', component: ResearchSignupComponent },
           { path: 'login', component: ResearchLoginComponent },
