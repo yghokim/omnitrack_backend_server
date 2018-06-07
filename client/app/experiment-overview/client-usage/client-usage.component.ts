@@ -23,6 +23,7 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
   public chart
   private engageLog: Array<EngageData> =[]
   private participants: Array<IParticipantDbEntity>
+  private includeWeekends: boolean;
 
   constructor(private queryConfigService: ResearchVisualizationQueryConfigurationService,
     private api: ResearchApiService, public engagementService: EngagementDataService) {
@@ -33,11 +34,12 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
       this.queryConfigService.makeScopeAndParticipantsObservable(true).combineLatest(this.api.selectedExperimentService, (result, expService)=> ({participantsAndScope: result, expService: expService}))
       .flatMap(result =>{
         console.log(result.participantsAndScope.participants)
-        return result.expService.queryUsageLogsPerParticipant(null, result.participantsAndScope.participants.map(p=>p.user._id)).map(x => ({logsPerUser: x , participants: result.participantsAndScope.participants}))
+        return result.expService.queryUsageLogsPerParticipant(null, result.participantsAndScope.participants.map(p=>p.user._id)).map(x => ({logsPerUser: x , participants: result.participantsAndScope.participants, includeWeekends: result.participantsAndScope.scope.includeWeekends}))
       }).subscribe(usageLogQueryResult=>{
         console.log(usageLogQueryResult)
         this.usageLog = usageLogQueryResult.logsPerUser;
         this.participants = usageLogQueryResult.participants;
+        this.includeWeekends = usageLogQueryResult.includeWeekends;
         var sessionLog = [];
 
         //sort again
@@ -84,7 +86,7 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
           this.engageLog.push({user: user, engagements: engagements})
         }
         console.log(this.engageLog)
-        this.engagementService.setEngageLog(this.engageLog, this.participants)
+        this.engagementService.setEngageLog(this.engageLog, this.participants, this.includeWeekends)
 
       })
     )   

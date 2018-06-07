@@ -16,12 +16,12 @@ export class EngagementDataService {
   private includeWeekends: boolean = true
   private participants: Array<IParticipantDbEntity>
 
-  setEngageLog(engageLog: Array<any>, participants: Array<IParticipantDbEntity>){
+  setEngageLog(engageLog: Array<any>, participants: Array<IParticipantDbEntity>, includeWeekends: boolean){
     this.engageLog = engageLog;
     this.participants = participants;
     this.dailyData = [];
     this.relativeDailyData = [];
-    this.updateDates()
+    this.updateDates(includeWeekends)
     console.log(this.engageLog)
 
     for(var i: number = 0; i < this.dates.length; i++){
@@ -37,7 +37,7 @@ export class EngagementDataService {
         var relativeUserData: DayElement = {date: date, user: user.user, engagements: []}
         var participant = this.participants.find(x => x.user._id === user.user)
         if(this.participants && participant){
-          var temp = getExperimentDateSequenceOfParticipant(participant, this.dates[this.dates.length-1], this.includeWeekends)
+          var temp = getExperimentDateSequenceOfParticipant(participant, this.dates[this.dates.length-1], includeWeekends)
         }
         for(let engagement of user.engagements){
           if(this.participants && participant){
@@ -84,7 +84,7 @@ export class EngagementDataService {
     for(let date in this.dates){dates.push(date)}
     return dates;
   }
-  updateDates(){
+  updateDates(includeWeekends: boolean){
     //find min/max Date over all users
     var filteredLog = this.engageLog.map(function(users){if(users.engagements){return users.engagements}});
     if(filteredLog && filteredLog.length > 0){
@@ -93,12 +93,18 @@ export class EngagementDataService {
       var minDate = d3.min(reducedLog.map(x => x.start));
       //construct date array with all days inbetween min and max
       this.dates = [];
-      this.dates[0] = new Date(minDate)
       var currentDate = new Date(minDate);
-      for(var i: number = 1; currentDate.getDate() < new Date(maxDate).getDate(); i++){
-        var helper = currentDate;
-        currentDate.setDate(helper.getDate()+1);
+      for(var i: number = 0; currentDate.getDate() < new Date(maxDate).getDate(); i++){
+        if(includeWeekends === false){
+          if(currentDate.getDay() === 0){
+            currentDate.setDate(currentDate.getDate()+1);
+          }
+          else if(currentDate.getDay() === 6){
+            currentDate.setDate(currentDate.getDate()+2);
+          }
+        }
         this.dates[i] = new Date(currentDate)
+        currentDate.setDate(currentDate.getDate()+1);
       }
     }
   }
