@@ -1,10 +1,9 @@
-import BaseCtrl from './base';
-import * as mongoose from 'mongoose';
-import OTUser from '../models/ot_user';
-import OTUsageLog from '../models/ot_usage_log';
 import { IUsageLogDbEntity } from '../../omnitrack/core/db-entity-types';
-import { makeArrayLikeQueryCondition } from '../server_utils';
 import OTParticipant from '../models/ot_participant';
+import OTUsageLog from '../models/ot_usage_log';
+import { makeArrayLikeQueryCondition } from '../server_utils';
+import BaseCtrl from './base';
+import * as moment from 'moment';
 
 export class OTUsageLogCtrl extends BaseCtrl {
   model = OTUsageLog
@@ -51,7 +50,7 @@ export class OTUsageLogCtrl extends BaseCtrl {
       { $sort: { timestamp: -1 } },
       { $group: { _id: { user: "$user", name: "$name" }, lastTimestamp: { $first: "$timestamp" } } },
       { $group: { _id: "$_id.user", logs: { $push: "$$ROOT" } } }
-    ]).exec()
+    ]).allowDiskUse(true).exec()
   }
 
   static filterUserGroupedUsageLogs(filter: any = null, userIds: string | Array<string> = null): Promise<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>> {
@@ -60,11 +59,22 @@ export class OTUsageLogCtrl extends BaseCtrl {
       filterCondition["user"] = makeArrayLikeQueryCondition(userIds)
     }
 
-    return OTUsageLog.aggregate([
+    const pipeline = [
       { $match: filterCondition },
       { $sort: { timestamp: -1 } },
       { $group: { _id: "$user", logs: { $push: "$$ROOT" } } }
-    ]).exec().then(list=>list.map(entry => { return {user: entry._id, logs: entry.logs} }))
+    ]
+
+    if(Object.keys(filterCondition).length == 0)
+    {
+      console.log("shift empty condition")
+      pipeline.shift()
+    }
+
+    return OTUsageLog.aggregate(pipeline).allowDiskUse(true).exec().then(list =>{
+      return list.map(entry => ({ user: entry._id, logs: entry.logs }))
+        .filter(entry => entry.user != null)
+    })
   }
 
   requestAnalyzedSessionLogs = (req, res) => {
@@ -95,15 +105,15 @@ export class OTUsageLogCtrl extends BaseCtrl {
       filter = req.query.filter = JSON.parse(req.query.filter)
     } else filter = {}
 
-    if (req.query.from || req.query.to) {
+    if ((req.query.from !== "null" && req.query.from) || (req.query.to !== "null" && req.query.to)) {
       filter["timestamp"] = {}
 
       if (req.query.from) {
-        filter["timestamp"]["$gte"] = req.query.from
+        filter["timestamp"]["$gte"] = moment(req.query.from).toDate()
       }
 
       if (req.query.to) {
-        filter["timestamp"]["$lte"] = req.query.to
+        filter["timestamp"]["$lte"] = moment(req.query.to).toDate()
       }
     }
 
@@ -112,26 +122,50 @@ export class OTUsageLogCtrl extends BaseCtrl {
       //filter with experiment
       userIdsPromise = OTParticipant.find({ experiment: req.query.experiment }).select("user").lean().then(users => {
         const userIds = users.map(u => u.user)
-        if(req.query.userIds){
-          if(req.query.userIds instanceof Array){
+        if (req.query.userIds) {
+          if (req.query.userIds instanceof Array) {
             return req.query.userIds.filter(id => userIds.indexOf(id) !== -1)
           }
-          else{
-            if(userIds.indexOf(req.query.userIds) !== -1){
+          else {
+            if (userIds.indexOf(req.query.userIds) !== -1) {
               return req.query.userIds
-            }else return []
+            } else return []
           }
-        }else return userIds
+        } else return userIds
       })
-    } else userIdsPromise = Promise.resolve(req.query.userIds)
+    } else if (req.query.userIds) {
+      userIdsPromise = Promise.resolve(req.query.userIds)
+    } else {
+      userIdsPromise = null
+    }
 
-    userIdsPromise.then(userIds => OTUsageLogCtrl.filterUserGroupedUsageLogs(filter, userIds))
-      .then(list => {
-        res.status(200).send(list)
-      }).catch(err => {
+    if (userIdsPromise) {
+      userIdsPromise.then(userIds => OTUsageLogCtrl.filterUserGroupedUsageLogs(filter, userIds))
+        .then(list => {
+          res.status(200).send(list)
+        }).catch(err => {
+          console.log(err)
+          res.status(500).send(err)
+        })
+    }else{ // did not put user ids. Query whole logs in this server, but anonymise
+      console.log("return anonymized list")
+      OTUsageLogCtrl.filterUserGroupedUsageLogs(filter, null).then(
+        list=>{
+          //anonymize
+          const md5 = require("md5");
+          list.forEach(userRow => {
+            userRow.user = md5(userRow.user)
+            userRow.logs.forEach(log => {
+              log.user = userRow.user
+            })
+          })
+          res.status(200).send(list)
+        }
+      ).catch(err=>{
         console.log(err)
         res.status(500).send(err)
       })
+    }
   }
 
 }

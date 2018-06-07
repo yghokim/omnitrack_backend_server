@@ -65,6 +65,7 @@ import { ExperimentTrackingEngagementComponent } from './experiment-overview/exp
 import { ClientUsageComponent } from './experiment-overview/client-usage/client-usage.component';
 import { DailyAverageComponent } from './experiment-overview/client-usage/daily-average/daily-average.component';
 import { EngagementDataService } from './experiment-overview/client-usage/engagement-data.service';
+import { ServerStatusOverviewComponent } from './server-status-overview/server-status-overview.component';
 
 @NgModule({
   imports: [
@@ -124,6 +125,7 @@ import { EngagementDataService } from './experiment-overview/client-usage/engage
     ExperimentTrackingEngagementComponent,
     ClientUsageComponent,
     DailyAverageComponent,
+    ServerStatusOverviewComponent
   ],
   exports: [
     NouisliderModule,

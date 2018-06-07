@@ -20,8 +20,14 @@ export class ResearchHomeFrameComponent implements OnInit, OnDestroy {
       secure: true
     },
     {
+      url: ["/research", "status"],
+      name: 'Status',
+      secure: true,
+      minimumPermission: ResearcherPrevilages.ADMIN
+    },
+    {
       url: ['/research', 'settings'],
-      name: 'Server Settings',
+      name: 'Settings',
       secure: true,
       minimumPermission: ResearcherPrevilages.ADMIN
     }
