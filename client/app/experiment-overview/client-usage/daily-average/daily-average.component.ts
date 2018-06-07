@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { HighChartsHelper } from '../../../shared-visualization/highcharts-helper';
 import { Chart } from 'angular-highcharts';
 import { IUsageLogDbEntity } from '../../../../../omnitrack/core/db-entity-types';
@@ -10,7 +10,8 @@ import { EngagementDataService } from '../engagement-data.service';
 @Component({
   selector: 'app-daily-average',
   templateUrl: './daily-average.component.html',
-  styleUrls: ['./daily-average.component.scss']
+  styleUrls: ['./daily-average.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DailyAverageComponent implements OnInit {
   
@@ -26,24 +27,22 @@ export class DailyAverageComponent implements OnInit {
   @Input("engageLog")
   set _engageLog(engageLog: Array<DayData>){
     if(engageLog.length > 0){
-      const chartOptions = HighChartsHelper.makeDefaultChartOptions('line')
+      const chartOptions = HighChartsHelper.makeDefaultChartOptions('line', "40%")
 
       chartOptions.xAxis = {
         type: 'datetime',
-        categories: this.dates.map(x => x.toDateString()),
+        categories: this.dates,
         crosshair: {
           width: 2 
         }
       }        
       chartOptions.tooltip = {
-          shared: true
+          shared: true,
+          valueDecimals: 2
       }
   
       if(this.dataType === "launchCount"){
 
-        chartOptions.title = {
-          text: 'Daily Average Launches'
-        }
         chartOptions.series = [{
           name: 'Average app-launches',
           data: engageLog.map( x => x.avgCount),
@@ -73,7 +72,9 @@ export class DailyAverageComponent implements OnInit {
           title: {
             text: "Average number of launches",
             margin: 5
-          }
+          },
+          minorTickInterval: 10,
+          tickInterval: 20
         }
       }
   
@@ -105,7 +106,9 @@ export class DailyAverageComponent implements OnInit {
           title: {
             text: "Average session duration (min)",
             margin: 5
-          }
+          },
+          minorTickInterval: 10,
+          tickInterval: 20
         }
       }
       else{ console.log("Not defined chartDataType")}

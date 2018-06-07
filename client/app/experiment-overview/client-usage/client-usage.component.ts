@@ -5,7 +5,7 @@ import { query } from '@angular/animations';
 import { Subscription } from 'rxjs/Subscription';
 import { Chart } from 'angular-highcharts';
 import { HighChartsHelper } from '../../shared-visualization/highcharts-helper';
-import { IUsageLogDbEntity } from '../../../../omnitrack/core/db-entity-types';
+import { IUsageLogDbEntity, IParticipantDbEntity } from '../../../../omnitrack/core/db-entity-types';
 import d3 = require('d3');
 import { EngagementDataService } from './engagement-data.service';
 
@@ -22,6 +22,7 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
   public MIN_SESSION_GAP: number = 1000;
   public chart
   private engageLog: Array<EngageData> =[]
+  private participants: Array<IParticipantDbEntity>
 
   constructor(private queryConfigService: ResearchVisualizationQueryConfigurationService,
     private api: ResearchApiService, public engagementService: EngagementDataService) {
@@ -30,12 +31,14 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this._internalSubscriptions.add(
       this.queryConfigService.makeScopeAndParticipantsObservable(true).combineLatest(this.api.selectedExperimentService, (result, expService)=> ({participantsAndScope: result, expService: expService}))
-      .flatMap(result =>
-        result.expService.queryUsageLogsPerParticipant(null, result.participantsAndScope.participants.map(p=>p.user._id))
-      ).subscribe(usageLogQueryResult=>{
-        this.usageLog = usageLogQueryResult;
-        var sessionLog = [];
+      .flatMap(result =>{
+        console.log(result.participantsAndScope.participants)
+        return result.expService.queryUsageLogsPerParticipant(null, result.participantsAndScope.participants.map(p=>p.user._id)).map(x => ({logsPerUser: x , participants: result.participantsAndScope.participants}))
+      }).subscribe(usageLogQueryResult=>{
         console.log(usageLogQueryResult)
+        this.usageLog = usageLogQueryResult.logsPerUser;
+        this.participants = usageLogQueryResult.participants;
+        var sessionLog = [];
 
         //sort again
         for(let entry of this.usageLog){
@@ -81,7 +84,7 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
           this.engageLog.push({user: user, engagements: engagements})
         }
         console.log(this.engageLog)
-        this.engagementService.setEngageLog(this.engageLog)
+        this.engagementService.setEngageLog(this.engageLog, this.participants)
 
       })
     )   
