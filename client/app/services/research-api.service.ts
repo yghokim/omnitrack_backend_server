@@ -201,10 +201,10 @@ export class ResearchApiService implements OnDestroy {
     return this.http.post("api/research/researchers/" + researcherId + "/approve", {approved: approvedStatus}, this.authorizedOptions).map(res => res.json())
   }
 
-  uploadClientBinary(file: File): Observable<boolean> {
+  uploadClientBinary(file: File, changelog: Array<string>): Observable<boolean> {
     const formData: FormData = new FormData()
     formData.append("file", file, file.name)
-    return this.http.post("api/research/clients/upload", formData, this.authorizedOptions).map(res => res.json())
+    return this.http.post("api/research/clients/upload", formData, this.makeAuthorizedRequestOptions({changelog: changelog})).map(res => res.json())
   }
 
   getClientBinaries(): Observable<Array<any>> {

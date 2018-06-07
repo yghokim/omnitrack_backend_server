@@ -1,14 +1,20 @@
-.mat-card-avatar.app-icon{
+.mat-card-avatar.app-icon {
   background-size: cover;
   border-radius: initial;
 }
 
-mat-card-header{
-  .mat-card-title{
+mat-card-header {
+  .mat-card-title {
     margin-bottom: 6px;
   }
 }
 
-table.app-info{
+table.app-info {
   color: #575757;
+}
+
+h6 {
+  font-size: 0.9rem;
+  font-weight: bold;
+  padding-top: 1rem;
 }

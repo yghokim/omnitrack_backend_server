@@ -42,7 +42,7 @@ export default class OTBinaryCtrl {
       if (req.researcher.previlage >= 1) {
         console.log("upload client binary to server.")
         const upload = multer({ storage: this.makeClientBinaryStorage() }).single("file")
-
+        const changelog = req.query.changelog
         upload(req, res, err => {
           if (err != null) {
             console.log(err)
@@ -84,7 +84,8 @@ export default class OTBinaryCtrl {
                             minimumOsVersionReadable: ClientBinaryUtil.getMinimumOSVersionString(packageInfo),
                             fileName: filename,
                             originalFileName: req.file.originalname,
-                            checksum: hash
+                            checksum: hash,
+                            changelog: changelog
                           }
                           new OTClientBinary(model).save().then(saved => {
                             console.log(saved)
@@ -169,7 +170,7 @@ export default class OTBinaryCtrl {
 
   getLatestVersionInfo = (req, res)=>{
     const overrideHostAddress = req.query.host
-    OTClientBinary.find({platform: req.query.platform}).then(
+    OTClientBinary.find({platform: req.query.platform}).lean().then(
       binaries=>{
         if(binaries && binaries.length > 0){
           binaries.sort((binary1: any, binary2: any) => {
@@ -180,7 +181,7 @@ export default class OTBinaryCtrl {
             latestVersion: latestBinary["version"],
             latestVersionCode: latestBinary["versionCode"],
             url: overrideHostAddress + "/api/clients/download?platform=" + req.query.platform + "&version=" + latestBinary["version"],
-            releaseNotes: []
+            releaseNotes: latestBinary["changeLog"] || []
           }
           console.log(binaryInfo)
           res.status(200).send(binaryInfo)

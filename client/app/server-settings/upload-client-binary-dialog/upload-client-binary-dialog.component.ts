@@ -6,6 +6,7 @@ import { getExtensionFromPath } from '../../../../shared_lib/utils';
 import { ClientBinaryUtil } from '../../../../omnitrack/core/client_binary_utils';
 import * as AndroidVersionName from 'android-versions';
 import { FileSystemFileEntry } from 'ngx-file-drop/src/lib/ngx-drop/dom.types';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-upload-client-binary-dialog',
@@ -21,6 +22,16 @@ export class UploadClientBinaryDialogComponent implements OnInit {
   loadedFileName: string = null
   parsedPackageInfo: any = null
   errorMessage: string = null
+
+  private changelog: Array<string> = []
+
+  get changelogString(): string{
+    return this.changelog.join("\n")
+  }
+
+  set changelogString(value){
+    this.changelog = value.split("\n")
+  }
 
   constructor(private dialogRef: MatDialogRef<UploadClientBinaryDialogComponent>) { }
 
@@ -82,7 +93,7 @@ export class UploadClientBinaryDialogComponent implements OnInit {
   }
 
   onUploadClicked(){
-    this.dialogRef.close(this.loadedFile)
+    this.dialogRef.close({file: this.loadedFile, changelog: this.changelog})
   }
 
   getMinimumOSVersionString():string{

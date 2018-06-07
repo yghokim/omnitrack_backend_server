@@ -10,7 +10,8 @@ const otClientBinarySchema = new mongoose.Schema({
   fileName: {type: String, required: true},
   originalFileName: {type: String, required: true},
   checksum: {type: String, unique: true, required: true},
-  downloadCount: {type: Number, default: 0}
+  downloadCount: {type: Number, default: 0},
+  changelog: {type: [String], default: []}
 }, {timestamps: true});
 
 const OTClientBinary = mongoose.model('OTClientBinary', otClientBinarySchema);
