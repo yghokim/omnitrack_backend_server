@@ -1,15 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription ,  Observable } from 'rxjs';
 import { ResearchApiService } from '../services/research-api.service';
 import ExperimentInfo from '../models/experiment-info';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
 import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { MatDialog } from '@angular/material';
 import { NewExperimentDialogComponent } from './new-experiment-dialog/new-experiment-dialog.component';
 import { NotificationService } from '../services/notification.service';
 import { ExampleExperimentInfo } from '../../../omnitrack/core/research/experiment';
-
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-experiment-list',
@@ -89,12 +88,12 @@ export class ExperimentListComponent implements OnInit, OnDestroy {
   }
 
   getMyRole(exp: ExperimentInfo): Observable<string> {
-    return this.auth.currentResearcher.map(researcher => {
+    return this.auth.currentResearcher.pipe(map(researcher => {
       if (exp.manager._id === researcher.uid) {
         return "manager"
       }
       else return "collaborator"
-    })
+    }))
   }
 
 }

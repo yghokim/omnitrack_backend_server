@@ -14,6 +14,15 @@
     "lib": [
       "es2017",
       "dom"
-    ]
-  }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "zlib": [
+        "./node_modules/browserify-zlib/lib/index.js"
+      ]
+    }
+  },
+  "angularCompilerOptions": {
+    "preserveWhitespaces": false
+  },
 }

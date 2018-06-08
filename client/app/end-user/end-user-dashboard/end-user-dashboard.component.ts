@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { EndUserApiService } from "../services/end-user-api.service";
 import { ITrackerDbEntity, IItemDbEntity } from "../../../../omnitrack/core/db-entity-types";
-import { Subscription } from "rxjs/Subscription";
-import { Observable } from 'rxjs/Observable';
+import { Subscription ,  Observable, of } from "rxjs";
+import { combineLatest } from 'rxjs/operators';
 import { TrackingSet, ProductivityHelper } from "../../shared-visualization/custom/productivity-helper";
-import 'rxjs/add/operator/combineLatest';
+
 
 
 @Component({
@@ -35,13 +35,13 @@ export class EndUserDashboardComponent implements OnInit, OnDestroy {
 
           this._internalSubscriptions.add(
 
-            this.api.getItemsOfTracker(productivityTracker._id).combineLatest(
-              omitLogTracker ? this.api.getItemsOfTracker(omitLogTracker._id) : Observable.of([]),
-              experimentId? this.api.getExperimentParticipationList() : Observable.of([]), 
+            this.api.getItemsOfTracker(productivityTracker._id).pipe(combineLatest(
+              omitLogTracker ? this.api.getItemsOfTracker(omitLogTracker._id) : of([]),
+              experimentId? this.api.getExperimentParticipationList() : of([]), 
               (items, logs, experiments) => {
                 return [items, logs, experiments]
               }
-            )
+            ))
               .subscribe(result => {
                 const participantList = result[2]
                 const thisExperiment = participantList.find(participant => participant._id === experimentId)

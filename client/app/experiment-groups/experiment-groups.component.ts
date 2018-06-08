@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
 import { ExperimentService } from '../services/experiment.service';
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
+import { Subscription ,  Observable } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-experiment-groups',
@@ -21,7 +21,7 @@ export class ExperimentGroupsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(expService => expService.getExperiment()).subscribe(
+      this.api.selectedExperimentService.pipe(flatMap(expService => expService.getExperiment())).subscribe(
         experiment => {
           this.groups = experiment.groups
         })
@@ -33,7 +33,7 @@ export class ExperimentGroupsComponent implements OnInit, OnDestroy {
   }
 
   getOmniTrackPackage(key: string): Observable<any>{
-    return this.api.selectedExperimentService.flatMap(service=>service.getOmniTrackPackage(key))
+    return this.api.selectedExperimentService.pipe(flatMap(service=>service.getOmniTrackPackage(key)))
   }
 
   onAddNewGroupClicked() {

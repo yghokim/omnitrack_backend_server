@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { deepclone, isNullOrBlank, isNullOrEmpty } from '../../../shared_lib/utils';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-researcher-account-settings',

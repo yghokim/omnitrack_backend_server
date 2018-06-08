@@ -10,15 +10,16 @@
       <div class="small top-margin-1em font-weight-bold">Reading File Information...</div>
     </div>
 
-    <mat-card *ngIf="parsedPackageInfo">
+    <mat-card *ngIf="parsedPackageInfo!==null">
       <mat-card-header>
-        <div mat-card-avatar class="app-icon" [style.background-image]="'url(' + parsedPackageInfo.icon + ')'"></div>
+        <!--
+        <div mat-card-avatar class="app-icon" [style.background-image]="'url(' + parsedPackageInfo.icon + ')'"></div>-->
         <mat-card-title>
-          <span>{{parsedPackageInfo.application.label[0]}}</span>
-          <span class="badge badge-primary">{{parsedPackageInfo.platform}}</span>
+          <!--<span>{{parsedPackageInfo.application.label[0]}}</span>-->
+          <span class="badge badge-primary">{{getPlatformName()}}</span>
 
         </mat-card-title>
-        <mat-card-subtitle>{{parsedPackageInfo.package}}</mat-card-subtitle>
+        <mat-card-subtitle>{{parsedPackageInfo.uniqueIdentifier}}</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
         <table class="table app-info">
@@ -37,11 +38,6 @@
           <tr class="singleline">
             <th>Minimum OS Version</th>
             <td>{{getMinimumOSVersionString()}}</td>
-          </tr>
-
-          <tr *ngIf="parsedPackageInfo.platform === 'Android'" class="singleline">
-            <th>Complied OS Version</th>
-            <td>{{getCompiledOSVersionString()}}</td>
           </tr>
         </table>
       </mat-card-content>

@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from "rxjs/Subscription";
+import { Subscription } from "rxjs";
+import { filter, flatMap } from 'rxjs/operators';
 import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { ResearchApiService } from '../services/research-api.service';
 import { MatDialog } from '@angular/material';
@@ -16,7 +17,7 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
 
   private readonly internalSubscriptions = new Subscription()
   selectedOperatingSystemIndex: number = 0
-  binaryGroupList: Array<{_id: string, binaries: Array<any>}>
+  binaryGroupList: Array<{ _id: string, binaries: Array<any> }>
 
   myId: string
 
@@ -32,7 +33,7 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.internalSubscriptions.add(
       this.auth.currentResearcher.subscribe(
-        researcher=>{
+        researcher => {
           this.myId = researcher.uid
           console.log("my id: " + this.myId)
         }
@@ -68,12 +69,12 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
     this.internalSubscriptions.unsubscribe()
   }
 
-  onSetResearcherApprovedStatus(researcherId: string, status: boolean){
+  onSetResearcherApprovedStatus(researcherId: string, status: boolean) {
     this.internalSubscriptions.add(
       this.api.setResearcherAccountApproval(researcherId, status).subscribe(
-        changed=>{
+        changed => {
           console.log(changed)
-          if(changed === true){
+          if (changed === true) {
             console.log("reload researchers")
             this.reloadResearchers()
           }
@@ -84,10 +85,13 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
 
   onUploadClicked() {
     this.internalSubscriptions.add(
-      this.dialog.open(UploadClientBinaryDialogComponent, { data: {} }).afterClosed().filter(r => r).flatMap(
-        result => {
-          return this.api.uploadClientBinary(result.file, result.changelog)
-        }
+      this.dialog.open(UploadClientBinaryDialogComponent, { data: {} }).afterClosed().pipe(
+        filter(r => r),
+        flatMap(
+          result => {
+            return this.api.uploadClientBinary(result.file, result.changelog)
+          }
+        )
       ).subscribe(
         success => {
           this.reloadClientBinaries()
@@ -106,25 +110,28 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
               break;
           }
         }
-        )
+      )
     )
   }
 
-  onRemoveBinaryClicked(binaryId: string){
+  onRemoveBinaryClicked(binaryId: string) {
     this.internalSubscriptions.add(
-      this.dialog.open(YesNoDialogComponent, { data: { title: "Remove File", message: "Do you want to remove this file?<br>This process cannot be undone.", positiveLabel: "Delete", positiveColor: "warn", negativeColor: "primary" } }).beforeClose().filter(confirm => confirm === true).flatMap(()=>  
-      this.api.removeClientBinary(binaryId)).subscribe(
-        changed=>{
+      this.dialog.open(YesNoDialogComponent, { data: { title: "Remove File", message: "Do you want to remove this file?<br>This process cannot be undone.", positiveLabel: "Delete", positiveColor: "warn", negativeColor: "primary" } }).beforeClose().pipe(
+        filter(confirm => confirm === true),
+        flatMap(() =>
+          this.api.removeClientBinary(binaryId))
+      ).subscribe(
+        changed => {
           this.reloadClientBinaries()
         }
       )
     )
   }
 
-  isEmpty(): boolean{
-    if(this.binaryGroupList){
-      if(this.binaryGroupList[this.selectedOperatingSystemIndex]){
-        if(this.binaryGroupList[this.selectedOperatingSystemIndex].binaries.length > 0){
+  isEmpty(): boolean {
+    if (this.binaryGroupList) {
+      if (this.binaryGroupList[this.selectedOperatingSystemIndex]) {
+        if (this.binaryGroupList[this.selectedOperatingSystemIndex].binaries.length > 0) {
           return false
         }
       }

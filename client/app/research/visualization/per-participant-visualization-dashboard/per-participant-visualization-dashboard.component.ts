@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { ResearchApiService } from '../../../services/research-api.service';
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
+import { Subscription, Observable, of, zip } from 'rxjs';
+import { map, flatMap } from 'rxjs/operators';
 import { TrackingSet, ProductivityHelper } from '../../../shared-visualization/custom/productivity-helper';
 import * as html2canvas from 'html2canvas';
-import * as FileSaver from 'file-saver'; 
+import * as FileSaver from 'file-saver';
 import * as moment from 'moment-timezone';
 
 @Component({
@@ -32,24 +32,27 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
         if (this._trackingSetLoadingSubscriptions) {
           this._trackingSetLoadingSubscriptions.unsubscribe()
         }
-        this._trackingSetLoadingSubscriptions = this.api.selectedExperimentService.map(
-          expService => expService.trackingDataService
-        ).flatMap(dataService => {
-          return dataService.getTrackersOfUser(userId).map(trackers => {
-            const productivityTracker = trackers.find(tracker => ProductivityHelper.isProductivityTracker(tracker)===true)
-            const omitLogTracker = trackers.find(tracker => ProductivityHelper.isOmitLogTracker(tracker)===true)
-            return {productivityTracker: productivityTracker, omitLogTracker: omitLogTracker} 
-          }).flatMap(trackers => {
-            if(trackers.productivityTracker==null){return Observable.of(null)}
-            else return Observable.zip(dataService.getItemsOfTracker(trackers.productivityTracker._id), trackers.omitLogTracker? dataService.getItemsOfTracker(trackers.omitLogTracker._id) : Observable.of([])).map(itemSets => {
-                return { tracker: trackers.productivityTracker, items: itemSets[0], omitLogTracker: trackers.omitLogTracker, omitLogs: itemSets[1], overrideStartDate: participant.experimentRange.from } as TrackingSet
-              })
-          })
-        }).subscribe(
-          trackingSet => {
-            this.productivityTrackingSet = trackingSet
-          }
-        )
+        this._trackingSetLoadingSubscriptions = this.api.selectedExperimentService.pipe(
+          map(
+            expService => expService.trackingDataService),
+          flatMap(dataService => {
+            return dataService.getTrackersOfUser(userId).pipe(
+              map(trackers => {
+                const productivityTracker = trackers.find(tracker => ProductivityHelper.isProductivityTracker(tracker) === true)
+                const omitLogTracker = trackers.find(tracker => ProductivityHelper.isOmitLogTracker(tracker) === true)
+                return { productivityTracker: productivityTracker, omitLogTracker: omitLogTracker }
+              }),
+              flatMap(trackers => {
+                if (trackers.productivityTracker == null) { return of(null) }
+                else return zip(dataService.getItemsOfTracker(trackers.productivityTracker._id), trackers.omitLogTracker ? dataService.getItemsOfTracker(trackers.omitLogTracker._id) : of([])).pipe(map(itemSets => {
+                  return { tracker: trackers.productivityTracker, items: itemSets[0], omitLogTracker: trackers.omitLogTracker, omitLogs: itemSets[1], overrideStartDate: participant.experimentRange.from } as TrackingSet
+                }))
+              }))
+          })).subscribe(
+            trackingSet => {
+              this.productivityTrackingSet = trackingSet
+            }
+          )
       }
     }
   }
@@ -62,12 +65,12 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
     return this._selectedParticipantId
   }
 
-  public get selectedParticipant(): any{
-    if(this.participants){
+  public get selectedParticipant(): any {
+    if (this.participants) {
       return this.participants.find(p => p._id === this.selectedParticipantId)
     }
     else return null
-  } 
+  }
 
   constructor(private api: ResearchApiService) {
   }
@@ -75,10 +78,10 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
   ngOnInit() {
     this._internalSubscriptions.add(
 
-      this.api.selectedExperimentService.flatMap(service => {
+      this.api.selectedExperimentService.pipe(flatMap(service => {
         service.trackingDataService.registerConsumer("PerParticipantVisualizationDashboardComponent")
         return service.getParticipants()
-      }).subscribe(
+      })).subscribe(
         participants => {
           this.participants = participants
           if (!this.selectedParticipantId && this.participants.length > 0) {
@@ -90,7 +93,7 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
   }
 
   ngOnDestroy() {
-    
+
     if (this.api.selectedExperimentServiceSync) {
       this.api.selectedExperimentServiceSync.trackingDataService.unregisterConsumer(
         "PerParticipantVisualizationDashboardComponent"
@@ -112,18 +115,18 @@ export class PerParticipantVisualizationDashboardComponent implements OnInit, On
     }
   }
 
-  downloadToImage(){
+  downloadToImage() {
     this.isProcessingImageCapture = true
     console.log("try convert the dashboard to canvas...")
-    html2canvas(this.dashboardRef.nativeElement, {scale: 1.5} as any).then(
+    html2canvas(this.dashboardRef.nativeElement, { scale: 1.5 } as any).then(
       canvas => {
         this.isProcessingImageCapture = false
-        canvas.toBlob(blob=>{
+        canvas.toBlob(blob => {
           console.log('image file size: ' + blob.size)
           FileSaver.saveAs(blob, "productivity_report_" + this.selectedParticipant.user.email.split('@')[0] + "_" + moment().format("YYYY-MM-DDThh-mm") + ".png")
         }, 'image/png')
       }
-    ).catch(err=>{
+    ).catch(err => {
       this.isProcessingImageCapture = false
       console.log(err)
     })

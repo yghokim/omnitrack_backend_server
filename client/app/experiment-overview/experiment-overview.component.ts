@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewChild, ElementRef} from '@angular/core';
 import { ResearchVisualizationQueryConfigurationService } from '../services/research-visualization-query-configuration.service';
 import { ResearchApiService } from '../services/research-api.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription ,  Subject } from 'rxjs';
+import { debounceTime, flatMap, combineLatest } from 'rxjs/operators';
 import * as moment from "moment-timezone";
 import { diffDaysBetweenTwoMoments } from '../../../shared_lib/utils';
-import { Subject } from 'rxjs/Subject';
 import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
 
 @Component({
@@ -61,7 +61,7 @@ export class ExperimentOverviewComponent implements OnInit {
 
   ngOnInit() {
     this._internalSubscriptions.add(
-      this._dayRangeValueInject.debounceTime(200).subscribe(
+      this._dayRangeValueInject.pipe(debounceTime(200)).subscribe(
         range=>{
           this.configuration.setDayIndexRange(range)
         }
@@ -69,7 +69,7 @@ export class ExperimentOverviewComponent implements OnInit {
     )
 
     this._internalSubscriptions.add(
-      this.configuration.scopeSubject.combineLatest(this.api.selectedExperimentService.flatMap(service => service.getParticipants()), (scope, participants)=> {return {scope: scope, participants: participants}}).subscribe(
+      this.configuration.scopeSubject.pipe(combineLatest(this.api.selectedExperimentService.pipe(flatMap(service => service.getParticipants())), (scope, participants)=> {return {scope: scope, participants: participants}})).subscribe(
         project=>{
           this.participants = project.participants
 

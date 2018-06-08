@@ -5,8 +5,8 @@ import { StorageEngine } from "multer";
 import * as path from "path";
 import { getExtensionFromPath, compareVersions } from "../../../shared_lib/utils";
 import { ClientBinaryUtil } from '../../../omnitrack/core/client_binary_utils';
+import { Extract, OperatingSystem } from 'app-metadata';
 const randomstring = require('randomstring');
-const PkgReader = require('isomorphic-apk-reader');
 const md5File = require('md5-file/promise');
 const fs = require("fs-extra");
 
@@ -58,9 +58,9 @@ export default class OTBinaryCtrl {
                   res.status(500).send({error: "FileAlreadyExists"})
                 } else {
                   const extension = getExtensionFromPath(req.file.originalname)
-                  const pkgReader = new PkgReader(req.file.path, extension, { withIcon: false, searchResource: true })
-                  pkgReader.parse((err, packageInfo) => {
-                    if (!err) {
+                  Extract.run(req.file.path).then(
+                  packageInfo => {
+                    /*
                       switch (extension) {
                         case "apk":
                           packageInfo.platform = "Android"
@@ -68,17 +68,29 @@ export default class OTBinaryCtrl {
                         case "ipa":
                           packageInfo.platform = "iOS"
                           break;
+                      }*/
+                      var platform: string = "unknown"
+                      switch(packageInfo.operatingSystem){
+                        case OperatingSystem.Android:
+                        platform = "Android"
+                        break;
+                        case OperatingSystem.iOS: 
+                        platform = "iOS"
+                        break;
+                        case OperatingSystem.Windows:
+                        platform = "Windows"
+                        break;
                       }
                       console.log(packageInfo)
 
-                      const filename = "omnitrack_client_" + packageInfo.platform.toLowerCase() + "_" + Date.now() + "." + extension
+                      const filename = "omnitrack_client_" + platform.toLowerCase() + "_" + Date.now() + "." + extension
 
-                      fs.move(req.file.path, this.makeClientFilePath(packageInfo.platform, filename))
+                      fs.move(req.file.path, this.makeClientFilePath(platform, filename))
                         .then(() => {
                           const model = {
                             version: ClientBinaryUtil.getAppVersionName(packageInfo),
                             versionCode: ClientBinaryUtil.getAppVersionCode(packageInfo),
-                            platform: packageInfo.platform,
+                            platform: platform,
                             fileSize: req.file.size,
                             minimumOsVersion: ClientBinaryUtil.getMinimumOSVersion(packageInfo),
                             minimumOsVersionReadable: ClientBinaryUtil.getMinimumOSVersionString(packageInfo),
@@ -96,10 +108,10 @@ export default class OTBinaryCtrl {
                           console.log(reason)
                           res.status(500).send({ error: reason })
                         })
-                    } else {
-                      console.log(err)
-                      res.status(500).send({ error: "InvalidPackage" })
-                    }
+                  })
+                  .catch(err=>{
+                    console.log(err)
+                    res.status(500).send({ error: "InvalidPackage", raw: err})
                   })
                 }
               })

@@ -6,7 +6,7 @@ import {
   IItemDbEntity,
   ITrackerDbEntity
 } from "../../../../../omnitrack/core/db-entity-types";
-import 'rxjs/add/operator/combineLatest';
+
 import { TimePoint } from "../../../../../omnitrack/core/datatypes/field_datatypes";
 import * as groupArray from 'group-array';
 import * as moment from 'moment-timezone';
@@ -16,10 +16,9 @@ import * as d3 from "d3";
 import { ScaleLinear, ScaleBand } from 'd3-scale'
 import { ScaleOrdinal, Axis } from "d3";
 import { ProductivityLog, ProductivityHelper, OmitLog } from "../productivity-helper";
-import { Subject } from "rxjs/Subject";
+import { Subject, Subscription, BehaviorSubject } from "rxjs";
+import { filter, combineLatest } from 'rxjs/operators';
 import { D3Helper } from "../../d3-helper";
-import { Subscription } from "rxjs/Subscription";
-import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import * as _s from 'underscore.string';
 import * as $ from 'jquery';
 import 'bootstrap';
@@ -75,9 +74,11 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
 
           this.data.next({
             days: days, groups: days.map(day => {
-              const omitLog = data.omitLogs? data.omitLogs.find(l=>l.dateStart === day) : null
-              return { day: day, logs: grouped[day.toString()], omitNote: data.omitLogs && omitLog ? omitLog.note : null,
-               omitNoteTimestamp: data.omitLogs && omitLog? omitLog.timestamp : null }
+              const omitLog = data.omitLogs ? data.omitLogs.find(l => l.dateStart === day) : null
+              return {
+                day: day, logs: grouped[day.toString()], omitNote: data.omitLogs && omitLog ? omitLog.note : null,
+                omitNoteTimestamp: data.omitLogs && omitLog ? omitLog.timestamp : null
+              }
             })
           })
         }
@@ -121,7 +122,7 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this._internalSubscriptions.add(
-      this.visualizationWidth.combineLatest(this.data.filter(d => d != null), (width, data) => { return { data: data, width: width } }).subscribe(
+      this.visualizationWidth.pipe(combineLatest(this.data.pipe(filter(d => d != null)), (width, data) => { return { data: data, width: width } })).subscribe(
         data => {
           this.updateChart(data.data, data.width)
         }
@@ -158,12 +159,12 @@ export class ProductivityTimelineComponent implements OnInit, OnDestroy {
     return D3Helper.makeTranslate(x, y)
   }
 
-  isWeekend(dateStart: number): boolean{
+  isWeekend(dateStart: number): boolean {
     const dayOfWeek = this.getDayOfWeek(dateStart)
     return dayOfWeek === 6 || dayOfWeek === 7
   }
 
-  getDayOfWeek(dateStart: number): number{
+  getDayOfWeek(dateStart: number): number {
     return moment(dateStart).isoWeekday()
   }
 }

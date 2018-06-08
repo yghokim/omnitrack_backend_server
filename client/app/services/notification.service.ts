@@ -1,15 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Subject ,  BehaviorSubject ,  Observable } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/debounceTime';
 
 @Injectable()
 export class NotificationService {
 
   private readonly _snackBarMessageQueue = new Subject<SnackBarMessageInfo>()
-  public readonly snackBarMessageQueue = this._snackBarMessageQueue.filter(message => message != null)
+  public readonly snackBarMessageQueue = this._snackBarMessageQueue.pipe(filter(message => message != null))
 
   private readonly _globalBusyTags = new Set<string>()
 

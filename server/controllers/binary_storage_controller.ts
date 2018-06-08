@@ -2,11 +2,11 @@ import { Request, Response } from "express";
 import * as multer from "multer";
 import * as mime from "mime";
 import { StorageEngine } from "multer";
-import * as fs from "fs-extra";
 import * as path from "path";
 import OTItemMedia from '../models/ot_item_media';
 import * as app from '../app';
 import C from '../server_consts'
+const fs = require("fs-extra");
 
 export default class BinaryStorageCtrl {
 

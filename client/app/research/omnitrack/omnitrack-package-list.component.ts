@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../../services/research-api.service';
 import { ExperimentService } from '../../services/experiment.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-omnitrack-package-list',
@@ -19,7 +20,7 @@ export class OmniTrackPackageListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(expService => expService.getOmniTrackPackages()).subscribe(packages => {
+      this.api.selectedExperimentService.pipe(flatMap(expService => expService.getOmniTrackPackages())).subscribe(packages => {
         this.packages = packages
         console.log(packages)
       })
