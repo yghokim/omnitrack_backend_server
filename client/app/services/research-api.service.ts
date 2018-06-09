@@ -9,7 +9,7 @@ import { ExperimentService } from './experiment.service';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
 import { NotificationService } from './notification.service';
 import { ExampleExperimentInfo } from '../../../omnitrack/core/research/experiment';
-import { IUsageLogDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { IUsageLogDbEntity, IClientSignatureDbEntity } from '../../../omnitrack/core/db-entity-types';
 
 @Injectable()
 export class ResearchApiService implements OnDestroy {
@@ -198,7 +198,7 @@ export class ResearchApiService implements OnDestroy {
     return this.http.post("api/research/researchers/" + researcherId + "/approve", { approved: approvedStatus }, this.authorizedOptions).pipe(map(res => res.json()))
   }
 
-  uploadClientBinary(file: File, changelog: Array<string>): Observable<boolean> {
+  uploadClientBinary(file: File, changelog: Array<string>): Observable<{success: boolean, signatureUpdated: boolean}> {
     const formData: FormData = new FormData()
     formData.append("file", file, file.name)
     return this.http.post("api/research/clients/upload", formData, this.makeAuthorizedRequestOptions({ changelog: changelog })).pipe(map(res => res.json()))
@@ -224,5 +224,17 @@ export class ResearchApiService implements OnDestroy {
       from: from,
       to: to
     })).pipe(map(res => res.json()))
+  }
+
+  getClientSignatures(): Observable<Array<IClientSignatureDbEntity>>{
+    return this.http.get("/api/research/signatures/all", this.authorizedOptions).pipe(map(res=>res.json()))
+  }
+
+  removeClientSignature(id: string): Observable<boolean>{
+    return this.http.delete("/api/research/signatures/" + id, this.authorizedOptions).pipe(map(res=>res.json()))
+  }
+
+  upsertClientSignature(id: string = null, key: string, packageName: string, alias: string): Observable<boolean>{
+    return this.http.post("/api/research/signatures/update", {_id: id, key: key, package: packageName, alias: alias}, this.authorizedOptions).pipe(map(res=>res.json()))
   }
 }

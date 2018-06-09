@@ -106,3 +106,9 @@ export interface IParticipantDbEntity extends IUserChildDbEntity{
   lastSyncTimestamp?: number
   lastSessionTimestamp?: number
 }
+
+export interface IClientSignatureDbEntity extends IMongooseDbEntity{
+  key: string,
+  package: string,
+  alias: string
+}

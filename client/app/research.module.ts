@@ -64,6 +64,7 @@ import { ProductivityStatisticsModule } from './research/custom/productivity-sta
 import { ExperimentTrackingEngagementComponent } from './experiment-overview/experiment-tracking-engagement/experiment-tracking-engagement.component';
 import { ClientUsageComponent } from './experiment-overview/client-usage/client-usage.component';
 import { ServerStatusOverviewComponent } from './server-status-overview/server-status-overview.component';
+import { UpdateClientSignatureDialogComponent } from './server-settings/update-client-signature-dialog/update-client-signature-dialog.component';
 
 @NgModule({
   imports: [
@@ -123,6 +124,7 @@ import { ServerStatusOverviewComponent } from './server-status-overview/server-s
     ExperimentTrackingEngagementComponent,
     ClientUsageComponent,
     ServerStatusOverviewComponent,
+    UpdateClientSignatureDialogComponent,
   ],
   exports: [
     NouisliderModule,
@@ -167,7 +169,8 @@ import { ServerStatusOverviewComponent } from './server-status-overview/server-s
     DeleteExperimentConfirmDialogComponent,
     UploadClientBinaryDialogComponent,
     UpdateItemCellValueDialogComponent,
-    ParticipantExcludedDaysConfigDialogComponent
+    ParticipantExcludedDaysConfigDialogComponent,
+    UpdateClientSignatureDialogComponent
   ]
 })
 export class ResearchModule { }

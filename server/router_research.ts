@@ -17,6 +17,7 @@ import { ResearcherPrevilages } from '../omnitrack/core/research/researcher';
 import BinaryStorageCtrl from './controllers/binary_storage_controller';
 import { itemCtrl } from './controllers/ot_item_controller';
 import { participantCtrl } from './controllers/research/ot_participant_controller';
+import { clientSignatureCtrl } from './controllers/ot_client_signature_controller';
 
 const jwt = require('express-jwt');
 const OAuthServer = require('express-oauth-server');
@@ -82,6 +83,10 @@ router.post('/auth/verify', tokenSignedInAuth, researchAuthCtrl.verifyToken)
 //Admin API===================================================
 router.post('/clients/upload', tokenAdminAuth, clientBinaryCtrl.postClientBinaryFile)
 router.delete("/clients/:binaryId", tokenAdminAuth, clientBinaryCtrl.removeClientBinary)
+
+router.get('/signatures/all', tokenAdminAuth, clientSignatureCtrl.getSignatures)
+router.post('/signatures/update', tokenAdminAuth, clientSignatureCtrl.postSignature)
+router.delete('/signatures/:id', tokenAdminAuth, clientSignatureCtrl.removeSignature)
 
 router.get('/researchers/all', tokenAdminAuth, researchCtrl.getResearchers)
 router.post('/researchers/:researcherId/approve', tokenAdminAuth, researchCtrl.setResearcherAccountApproved)
