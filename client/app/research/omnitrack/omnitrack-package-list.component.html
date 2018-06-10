@@ -1,7 +1,7 @@
 <div class="container">
   <div class="flex-container flex-stretch container-vertical-padding">
     <small class="flex-element info-text">Packages: {{packages.length}}</small>
-    <button mat-button color="primary" class="flex-element">+ Add New Tracking Package</button>
+    <button mat-button color="primary" class="flex-element" (click)="onAddNewPackageClicked()">+ Add New Tracking Package</button>
   </div>
   <div class="package-list">
     <div class="card omnitrack-card" *ngFor="let package of packages">
@@ -11,7 +11,7 @@
             {{package.name}}
           </div>
           <div class="flex-element">
-            <button mat-icon-button class="text-color-darkgray">
+            <button mat-icon-button class="text-color-darkgray" (click)="onRemovePackageClicked(package.key)">
               <mat-icon class="material-icons">delete</mat-icon>
             </button>
             <button mat-icon-button class="text-color-darkgray">

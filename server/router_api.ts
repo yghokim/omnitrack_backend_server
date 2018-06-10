@@ -13,6 +13,7 @@ import BinaryStorageCtrl from './controllers/binary_storage_controller';
 import { experimentCtrl } from './controllers/research/ot_experiment_controller';
 import { clientBinaryCtrl } from './controllers/research/ot_client_binary_controller';
 import { clientSignatureCtrl } from './controllers/ot_client_signature_controller';
+import { trackingPackageCtrl } from './controllers/ot_tracking_package_controller';
 import { Request } from 'express';
 import { Error } from 'mongoose';
 import BaseCtrl from './controllers/base';
@@ -75,7 +76,7 @@ const omnitrackDeviceCheckMiddleware = (req: Request, res, next) => {
 const assertSignedInMiddleware = [firebaseMiddleware.auth, omnitrackDeviceCheckMiddleware]
 
 // admin
-router.route('/admin/package/extract').get(adminCtrl.extractPredefinedPackage)
+router.route('/admin/package/extract').get(trackingPackageCtrl.getExtractedTrackingPackageJson)
 router.route('/admin/package/inject/:userId/:packageName?').get(adminCtrl.injectPackageToUser)
 
 router.route('/admin/trigger/attach_tracker/:triggerId').get(adminCtrl.attachTrackerToTrigger)
@@ -161,5 +162,8 @@ router.get('/clients/all', clientBinaryCtrl.getClientBinaries)
 router.get('/clients/download', clientBinaryCtrl.downloadClientBinary)
 
 router.get('/clients/latest', clientBinaryCtrl.getLatestVersionInfo)
+
+//package
+router.get('/package/extract', assertSignedInMiddleware, trackingPackageCtrl.getExtractedTrackingPackageJson)
 
 export default router;

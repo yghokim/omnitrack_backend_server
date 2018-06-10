@@ -64,6 +64,7 @@ import { ExperimentTrackingEngagementComponent } from './experiment-overview/exp
 import { ClientUsageComponent } from './experiment-overview/client-usage/client-usage.component';
 import { ServerStatusOverviewComponent } from './server-status-overview/server-status-overview.component';
 import { UpdateClientSignatureDialogComponent } from './server-settings/update-client-signature-dialog/update-client-signature-dialog.component';
+import { NewTrackingPackageDialogComponent } from './research/omnitrack/new-tracking-package-dialog/new-tracking-package-dialog.component';
 
 @NgModule({
   imports: [
@@ -122,6 +123,7 @@ import { UpdateClientSignatureDialogComponent } from './server-settings/update-c
     ClientUsageComponent,
     ServerStatusOverviewComponent,
     UpdateClientSignatureDialogComponent,
+    NewTrackingPackageDialogComponent,
   ],
   exports: [
     NouisliderModule,
@@ -166,7 +168,8 @@ import { UpdateClientSignatureDialogComponent } from './server-settings/update-c
     UploadClientBinaryDialogComponent,
     UpdateItemCellValueDialogComponent,
     ParticipantExcludedDaysConfigDialogComponent,
-    UpdateClientSignatureDialogComponent
+    UpdateClientSignatureDialogComponent,
+    NewTrackingPackageDialogComponent
   ]
 })
 export class ResearchModule { }

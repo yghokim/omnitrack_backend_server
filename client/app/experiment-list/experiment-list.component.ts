@@ -8,7 +8,7 @@ import { MatDialog } from '@angular/material';
 import { NewExperimentDialogComponent } from './new-experiment-dialog/new-experiment-dialog.component';
 import { NotificationService } from '../services/notification.service';
 import { ExampleExperimentInfo } from '../../../omnitrack/core/research/experiment';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-experiment-list',
@@ -79,9 +79,10 @@ export class ExperimentListComponent implements OnInit, OnDestroy {
 
   onAddExampleClicked(exampleKey){
     this._internalSubscriptions.add(
-      this.api.addExampleExperimentAndGetId(exampleKey).subscribe(
+      this.api.addExampleExperimentAndGetId(exampleKey).pipe(tap(()=>{
+        this.notification.pushSnackBarMessage({message: "Created new experiment."})
+      })).subscribe(
         newExperimentId=>{
-          this.router.navigate(["/research/dashboard", newExperimentId])
         }
       )
     )

@@ -24,7 +24,6 @@ export class ResearchFrameComponent implements OnInit {
     this._internalSubscriptions.add(
       this.notificationService.snackBarMessageQueue.subscribe(
         message => {
-          console.log(message)
           if (message.action) {
             this.snackBar.open(message.message, message.action.label, { duration: 3000 })
           }

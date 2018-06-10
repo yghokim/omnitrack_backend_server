@@ -204,7 +204,7 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
       this.api.selectedExperimentService.pipe(flatMap(service => service.experimentInvalidated)).subscribe(
         v => {
           console.log("experiment was removed")
-          this.router.navigate(["../"])
+          this.router.navigate(["/research/experiments"])
         }
       )
     )

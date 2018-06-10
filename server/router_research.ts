@@ -127,6 +127,10 @@ router.post('/experiments/:experimentId/invitations/send', tokenApprovedAuth, re
 
 router.delete('/experiments/:experimentId/invitations/:invitationId', tokenApprovedAuth, researchCtrl.removeInvitation)
 
+router.post('/experiments/:experimentId/packages/update', tokenApprovedAuth, experimentCtrl.updateTrackingPackageToExperiment)
+
+router.delete('/experiments/:experimentId/packages/:packageKey', tokenApprovedAuth, experimentCtrl.removeTrackingPackageFromExperiment)
+
 router.post('/users/notify/message', tokenApprovedAuth, researchCtrl.sendNotificationMessageToUser)
 
 router.delete('/participants/:participantId', tokenApprovedAuth, researchCtrl.removeParticipant)

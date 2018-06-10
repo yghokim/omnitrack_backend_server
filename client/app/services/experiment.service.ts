@@ -334,5 +334,14 @@ export class ExperimentService {
       .pipe(map(res => res.json()))
   }
 
+  addTrackingPackageJson(packageJson: any, name: string): Observable<boolean>{
+    return this.http.post("api/research/experiments/" + this.experimentId + "/packages/update", {
+      packageJson: packageJson,
+      name: name
+    }, this.researchApi.authorizedOptions).pipe(map(res=> res.json()))
+  }
 
+  removeTrackingPackage(packageKey: string): Observable<boolean>{
+    return this.http.delete("api/research/experiments/" + this.experimentId + "/packages/" + packageKey,this.researchApi.authorizedOptions).pipe(map(res=>res.json()))
+  }
 }

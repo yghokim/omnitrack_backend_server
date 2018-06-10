@@ -9,6 +9,7 @@ import { DeleteExperimentConfirmDialogComponent } from '../dialogs/delete-experi
 import { NotificationService } from '../services/notification.service';
 import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
 import { isNullOrBlank } from '../../../shared_lib/utils';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-experiment-settings',
@@ -23,7 +24,7 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
 
   private _internalSubscriptions = new Subscription()
 
-  constructor(private api: ResearchApiService, private notification: NotificationService, private dialog: MatDialog) {
+  constructor(private api: ResearchApiService, private notification: NotificationService, private dialog: MatDialog, private router: Router) {
   }
 
   ngOnInit() {
@@ -82,10 +83,7 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
           return this.api.removeExperiment(experimentId)
         })
       )
-        .subscribe(success => {
-          console.log(success)
-          this.notification.unregisterGlobalBusyTag("experiment-deletion")
-        })
+        .subscribe()
     )
   }
 

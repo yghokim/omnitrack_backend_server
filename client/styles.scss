@@ -935,6 +935,21 @@ $duration: 1.4s;
   }
 }
 
+.fileopen{
+  label{
+    cursor: pointer;
+    color: $color_accent;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    &:hover{
+      background: #fec6874d;;
+    }
+  }
+  input[type='file']{
+    display: none;
+  }
+}
+
 @keyframes rotator {
   0% {
     transform: rotate(0deg);
