@@ -1,9 +1,7 @@
 <div class="container">
-  <div class="card card-main">
-    <div class="card-header">
-      Server Settings
-    </div>
-  </div>
+  <h1 class="global-page-title">
+    Server Settings
+  </h1>
 
   <div class="card card-main">
     <div class="card-header container-vertical-padding">
@@ -95,7 +93,7 @@
       </thead>
       <tbody>
         <tr class="singleline" *ngFor="let signature of clientSignatures">
-          <td>{{signature.key}}</td>
+          <td class="cell-fingerprint">{{signature.key}}</td>
           <td>{{signature.package}}</td>
           <td>{{signature.alias}}</td>
           <td class="button-cell">

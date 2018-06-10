@@ -30,8 +30,12 @@
 }
 
 #research-dashboard-wrapper{
-  padding-left: $research_sidebar_width;
-  padding-top: $research_header_height;
+  //padding-left: $research_sidebar_width;
+  position: absolute;
+  top: $research_header_height;;
+  bottom: 0;
+  left: 0;
+  right: 0;
 
   @media print{
     padding-left: initial;
@@ -39,12 +43,8 @@
   }
 
   #research-column-sidebar{
-    width: $research_sidebar_width;
+    min-width: $research_sidebar_width;
     background: #393939;
-    position: fixed;
-    bottom: 0;
-    left:0;
-    top: $research_header_height;
     overflow-y: auto;
 
     @media print{

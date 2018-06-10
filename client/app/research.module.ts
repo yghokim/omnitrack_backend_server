@@ -1,7 +1,6 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { ResearchMainComponent } from './research-main/research-main.component';
 import { ResearchLoginComponent } from './research-login/research-login.component';
 import { ResearchSignupComponent } from './research-signup/research-signup.component';
 import { ResearchFrameComponent } from './research-frame/research-frame.component';
@@ -78,8 +77,6 @@ import { UpdateClientSignatureDialogComponent } from './server-settings/update-c
     ProductivityStatisticsModule
   ],
   declarations: [
-
-    ResearchMainComponent,
     ResearchLoginComponent,
     ResearchSignupComponent,
     ResearchFrameComponent,
@@ -128,7 +125,6 @@ import { UpdateClientSignatureDialogComponent } from './server-settings/update-c
   ],
   exports: [
     NouisliderModule,
-    ResearchMainComponent,
     ResearchLoginComponent,
     ResearchSignupComponent,
     ResearchFrameComponent,
