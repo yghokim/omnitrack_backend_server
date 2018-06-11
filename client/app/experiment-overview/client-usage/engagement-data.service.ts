@@ -15,10 +15,12 @@ export class EngagementDataService {
   private relativeDailyData: Array<DayData> = []
   private includeWeekends: boolean = true
   private participants: Array<IParticipantDbEntity>
+  private dayScope: Array<number> = []
 
-  setEngageLog(engageLog: Array<any>, participants: Array<IParticipantDbEntity>, includeWeekends: boolean){
+  setEngageLog(engageLog: Array<any>, participants: Array<IParticipantDbEntity>, includeWeekends: boolean, dayScope: Array<number>){
     this.engageLog = engageLog;
     this.participants = participants;
+    this.dayScope = dayScope;
     this.dailyData = [];
     this.relativeDailyData = [];
     this.updateDates(includeWeekends)
@@ -41,13 +43,13 @@ export class EngagementDataService {
         }
         for(let engagement of user.engagements){
           if(this.participants && participant){
-            if(temp[i] && engagement.start.getDate() === temp[i].getDate()){
+            if(temp[i] && engagement.start.toDateString() === temp[i].toDateString()){
               relativeUserData.engagements.push(engagement)
               relativeCount++
               relativeDuration += engagement.duration
             }
           }
-          if(date.getDate() === engagement.start.getDate()){
+          if(date.toDateString() === engagement.start.toDateString()){
             userData.engagements.push(engagement)
             count++
             duration += engagement.duration
@@ -81,30 +83,41 @@ export class EngagementDataService {
 
   get relativeDates(): Array<any>{
     var dates = [];
-    for(let date in this.dates){dates.push(date)}
+    for(var i: number = this.dayScope[0]; i < this.dayScope[1]; i++){
+      dates.push(i)
+    }
     return dates;
   }
+
+  setDayScope(dayScope: Array<any>){
+    this.dayScope = dayScope;
+    this.updateDates(this.includeWeekends)
+  }
+
   updateDates(includeWeekends: boolean){
-    //find min/max Date over all users
-    var filteredLog = this.engageLog.map(function(users){if(users.engagements){return users.engagements}});
-    if(filteredLog && filteredLog.length > 0){
-      var reducedLog = filteredLog.reduce(function(prev,curr){ return prev.concat(curr)});
-      var maxDate = d3.max(reducedLog.map(x => x.start + x.duration));
-      var minDate = d3.min(reducedLog.map(x => x.start));
-      //construct date array with all days inbetween min and max
-      this.dates = [];
-      var currentDate = new Date(minDate);
-      for(var i: number = 0; currentDate.getDate() < new Date(maxDate).getDate(); i++){
-        if(includeWeekends === false){
-          if(currentDate.getDay() === 0){
-            currentDate.setDate(currentDate.getDate()+1);
+    if(this.engageLog){
+      //find min/max Date over all users
+      var filteredLog = this.engageLog.map(function(users){if(users.engagements){return users.engagements}});
+      if(filteredLog && filteredLog.length > 0){
+        var reducedLog = filteredLog.reduce(function(prev,curr){ return prev.concat(curr)});
+        var maxDate = d3.max(reducedLog.map(x => x.start + x.duration));
+        var minDate = d3.min(reducedLog.map(x => x.start));
+
+        //construct date array with all days inbetween min and max
+        this.dates = [];
+        var currentDate = new Date(minDate);
+        for(var i: number = 0; currentDate.valueOf() < new Date(maxDate).valueOf(); i++){
+          if(includeWeekends === false){
+            if(currentDate.getDay() === 0){
+              currentDate.setDate(currentDate.getDate()+1);
+            }
+            else if(currentDate.getDay() === 6){
+              currentDate.setDate(currentDate.getDate()+2);
+            }
           }
-          else if(currentDate.getDay() === 6){
-            currentDate.setDate(currentDate.getDate()+2);
-          }
+          this.dates[i] = new Date(currentDate)
+          currentDate.setDate(currentDate.getDate()+1);
         }
-        this.dates[i] = new Date(currentDate)
-        currentDate.setDate(currentDate.getDate()+1);
       }
     }
   }

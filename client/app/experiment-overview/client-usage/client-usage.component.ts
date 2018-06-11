@@ -24,6 +24,7 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
   private engageLog: Array<EngageData> =[]
   private participants: Array<IParticipantDbEntity>
   private includeWeekends: boolean;
+  private relativeDayScope: Array<number> = [];
 
   constructor(private queryConfigService: ResearchVisualizationQueryConfigurationService,
     private api: ResearchApiService, public engagementService: EngagementDataService) {
@@ -37,6 +38,8 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
         return result.expService.queryUsageLogsPerParticipant(null, result.participantsAndScope.participants.map(p=>p.user._id)).map(x => ({logsPerUser: x , participants: result.participantsAndScope.participants, includeWeekends: result.participantsAndScope.scope.includeWeekends}))
       }).subscribe(usageLogQueryResult=>{
         console.log(usageLogQueryResult)
+        
+        
         this.usageLog = usageLogQueryResult.logsPerUser;
         this.participants = usageLogQueryResult.participants;
         this.includeWeekends = usageLogQueryResult.includeWeekends;
@@ -86,7 +89,13 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
           this.engageLog.push({user: user, engagements: engagements})
         }
         console.log(this.engageLog)
-        this.engagementService.setEngageLog(this.engageLog, this.participants, this.includeWeekends)
+        this._internalSubscriptions.add(this.queryConfigService.dayIndexRange().subscribe(result => {
+          console.log(result)
+          this.relativeDayScope = [];
+          this.relativeDayScope = result;
+          this.engagementService.setDayScope(result);
+        }))
+        this.engagementService.setEngageLog(this.engageLog, this.participants, this.includeWeekends, this.relativeDayScope)
 
       })
     )   

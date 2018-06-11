@@ -109,7 +109,7 @@ export class ExperimentOverviewComponent implements OnInit {
 
   onDayIndexSliderChanged(newRange){
     this._dayRangeValueInject.next(newRange)
-    //this.configuration.setDayIndexRange(newRange)
+    this.configuration.setDayIndexRange(newRange)
   }
 
   onFilteredParticipantToggle(participantId: string, checked: boolean){

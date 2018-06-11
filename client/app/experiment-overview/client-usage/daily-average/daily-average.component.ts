@@ -25,13 +25,19 @@ export class DailyAverageComponent implements OnInit {
   private dates: Array<any>
 
   @Input("engageLog")
-  set _engageLog(engageLog: Array<DayData>){
+  set _engageLog(engageLog: Array<DayData>){   
     if(engageLog.length > 0){
+      if(this.dates[0].valueOf() < 1000 ){
+        console.log("Is number")
+        engageLog = engageLog.slice(this.dates[0], this.dates[this.dates.length-1])
+        console.log(engageLog)
+      }
       const chartOptions = HighChartsHelper.makeDefaultChartOptions('line', "40%")
 
       chartOptions.xAxis = {
         type: 'datetime',
         categories: this.dates,
+        max: this.dates.length,
         crosshair: {
           width: 2 
         }
@@ -50,7 +56,7 @@ export class DailyAverageComponent implements OnInit {
           color: "#004d80",
           marker: {
             fillColor: 'white',
-            lineWidth: 2,
+            lineWidth: 1,
             lineColor: 'black'
           }
         },{
@@ -86,7 +92,7 @@ export class DailyAverageComponent implements OnInit {
           zIndex: 1,
           marker: {
             fillColor: 'white',
-            lineWidth: 2,
+            lineWidth: 1,
             lineColor: '#84315d'
           }
         },{
