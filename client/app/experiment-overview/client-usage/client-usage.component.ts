@@ -8,6 +8,7 @@ import { HighChartsHelper } from '../../shared-visualization/highcharts-helper';
 import { IUsageLogDbEntity, IParticipantDbEntity } from '../../../../omnitrack/core/db-entity-types';
 import d3 = require('d3');
 import { EngagementDataService } from './engagement-data.service';
+import { logsToEngagements, EngageData } from '../../../../shared_lib/engagement';
 
 @Component({
   selector: 'app-client-usage',
@@ -20,7 +21,6 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
   private readonly _internalSubscriptions = new Subscription()
   public usageLog: Array<any>;
   public MIN_SESSION_GAP: number = 1000;
-  public chart
   private engageLog: Array<EngageData> =[]
   private participants: Array<IParticipantDbEntity>
   private includeWeekends: boolean;
@@ -34,66 +34,19 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(
       this.queryConfigService.makeScopeAndParticipantsObservable(true).combineLatest(this.api.selectedExperimentService, (result, expService)=> ({participantsAndScope: result, expService: expService}))
       .flatMap(result =>{
-        console.log(result.participantsAndScope.participants)
         return result.expService.queryUsageLogsPerParticipant(null, result.participantsAndScope.participants.map(p=>p.user._id)).map(x => ({logsPerUser: x , participants: result.participantsAndScope.participants, includeWeekends: result.participantsAndScope.scope.includeWeekends}))
       }).subscribe(usageLogQueryResult=>{
-        console.log(usageLogQueryResult)
-        
-        
+
+        //set interactive info: partipicants, include Weekends flag etc.
         this.usageLog = usageLogQueryResult.logsPerUser;
         this.participants = usageLogQueryResult.participants;
         this.includeWeekends = usageLogQueryResult.includeWeekends;
-        var sessionLog = [];
 
-        //sort again
-        for(let entry of this.usageLog){
-          entry.logs.sort((n1,n2) => new Date(n2.timestamp).valueOf() - new Date(n1.timestamp).valueOf())
-        }
-        //filter sessions
-        for(let entry of this.usageLog){
-          sessionLog.push({user: entry.user, logs: entry.logs.filter(function(x){
-            if(x.name === "session" 
-            && x.content.session.indexOf('Fragment') < 0 
-            && x.content.session.indexOf('SplashScreenActivity') < 0
-            && x.content.session.indexOf('AboutActivity') < 0
-            && x.content.session.indexOf('SendReportActivity') < 0
-            && x.content.session.indexOf('SignInActivity') < 0){
-              return x;
-            }
-          })})
-        }
-        //build engagement structure
-        this.engageLog = [];
-        for(let entry of sessionLog){
-          var user = entry.user;
-          var engagements: Array<Engagement> = [];
-          var currentEngagement: Engagement;
-          var previous = entry.logs[entry.logs.length-1]
-          for(var i: number = entry.logs.length-1; i >= 0; i--){
-            var log = entry.logs[i];
-            if(log === previous){
-              currentEngagement = {start: new Date(log.content.finishedAt - log.content.elapsed), duration: log.content.elapsed, sessions: []}
-              currentEngagement.sessions.push(log)
-            }
-            else if(previous.content.finishedAt < log.content.finishedAt - log.content.elapsed - this.MIN_SESSION_GAP){
-              currentEngagement.duration = previous.content.finishedAt - currentEngagement.start.valueOf();
-              engagements.push(currentEngagement)
-              currentEngagement = {start: new Date(log.content.finishedAt - log.content.elapsed), duration: log.content.elapsed, sessions: []}
-              currentEngagement.sessions.push(log)
-            }
-            else{
-              currentEngagement.sessions.push(log)
-            }
-            previous = log;
-          }
-          this.engageLog.push({user: user, engagements: engagements})
-        }
-        console.log(this.engageLog)
+        this.engageLog = logsToEngagements(this.usageLog)
+
         this._internalSubscriptions.add(this.queryConfigService.dayIndexRange().subscribe(result => {
-          console.log(result)
-          this.relativeDayScope = [];
           this.relativeDayScope = result;
-          this.engagementService.setDayScope(result);
+          //this.engagementService.setDayScope(result);
         }))
         this.engagementService.setEngageLog(this.engageLog, this.participants, this.includeWeekends, this.relativeDayScope)
 
@@ -105,14 +58,7 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
+  
+
 }
 
-export interface Engagement{
-  start: Date,
-  duration: Number,
-  sessions: Array<IUsageLogDbEntity>
-}
-export interface EngageData{
-  user: String,
-  engagements: Array<Engagement>
-}

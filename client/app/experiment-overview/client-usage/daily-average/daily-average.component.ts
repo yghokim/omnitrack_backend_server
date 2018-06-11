@@ -3,9 +3,9 @@ import { HighChartsHelper } from '../../../shared-visualization/highcharts-helpe
 import { Chart } from 'angular-highcharts';
 import { IUsageLogDbEntity } from '../../../../../omnitrack/core/db-entity-types';
 import d3 = require('d3');
-import { Engagement } from '../client-usage.component';
 import Highcharts = require('highcharts');
 import { EngagementDataService } from '../engagement-data.service';
+import { Engagement } from '../../../../../shared_lib/engagement';
 
 @Component({
   selector: 'app-daily-average',
@@ -27,25 +27,29 @@ export class DailyAverageComponent implements OnInit {
   @Input("engageLog")
   set _engageLog(engageLog: Array<DayData>){   
     if(engageLog.length > 0){
-      if(this.dates[0].valueOf() < 1000 ){
-        console.log("Is number")
-        engageLog = engageLog.slice(this.dates[0], this.dates[this.dates.length-1])
-        console.log(engageLog)
-      }
+      
       const chartOptions = HighChartsHelper.makeDefaultChartOptions('line', "40%")
 
+      chartOptions.tooltip = {
+        shared: true,
+        valueDecimals: 2
+      }
+      //here a better method for checking whether date or number is needed!
+      if(this.dates[0].valueOf() < 1000 ){
+        engageLog = engageLog.slice(this.dates[0], this.dates[this.dates.length])
+        chartOptions.tooltip = {
+          shared: true,
+          valueDecimals: 2,
+          headerFormat: '<small>Day {point.key}</small><br>'
+        }
+      }
+
       chartOptions.xAxis = {
-        type: 'datetime',
         categories: this.dates,
-        max: this.dates.length,
         crosshair: {
           width: 2 
         }
       }        
-      chartOptions.tooltip = {
-          shared: true,
-          valueDecimals: 2
-      }
   
       if(this.dataType === "launchCount"){
 
@@ -101,6 +105,7 @@ export class DailyAverageComponent implements OnInit {
           type: 'arearange',
           lineWidth: 0,
           fillOpacity: 0.3,
+          linkedTo: ':previous',
           zIndex: 0,
           marker: {
             enabled: false

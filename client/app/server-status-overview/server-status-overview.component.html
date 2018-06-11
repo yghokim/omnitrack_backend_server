@@ -4,9 +4,13 @@
   </div>
 
   <div class="card card-main">
-    <div class="card-header">Engagement</div>
+    <div class="card-header">Daily Launches</div>
     <div class="card-body">
-      
+      <app-daily-average [dataType]= "'launchCount'" [engageLog]="engagementService.engagementLogs" [dates]="engagementService.engagementDates"></app-daily-average>
+    </div>
+    <div class="card-header">Daily Engagement</div>
+    <div class="card-body">
+      <app-daily-average [dataType]= "'sessionEngagement'" [engageLog]="engagementService.engagementLogs" [dates]="engagementService.engagementDates"></app-daily-average>
     </div>
   </div>
 </div>

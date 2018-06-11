@@ -37,9 +37,13 @@ export class EngagementDataService {
         var relativeDuration = 0;
         var userData: DayElement = {date: date, user: user.user, engagements: []}
         var relativeUserData: DayElement = {date: date, user: user.user, engagements: []}
-        var participant = this.participants.find(x => x.user._id === user.user)
-        if(this.participants && participant){
-          var temp = getExperimentDateSequenceOfParticipant(participant, this.dates[this.dates.length-1], includeWeekends)
+        var participant;
+        if(this.participants){
+          participant = this.participants.find(x => x.user._id === user.user)
+          if(participant){ 
+            var temp = getExperimentDateSequenceOfParticipant(participant, this.dates[this.dates.length-1], includeWeekends)
+          }
+         
         }
         for(let engagement of user.engagements){
           if(this.participants && participant){
@@ -83,16 +87,16 @@ export class EngagementDataService {
 
   get relativeDates(): Array<any>{
     var dates = [];
-    for(var i: number = this.dayScope[0]; i < this.dayScope[1]; i++){
-      dates.push(i)
+    for(var i: number = this.dayScope[0]; i <= this.dayScope[1]; i++){
+      dates.push(i+1)
     }
     return dates;
   }
 
-  setDayScope(dayScope: Array<any>){
+/*  setDayScope(dayScope: Array<any>){
     this.dayScope = dayScope;
     this.updateDates(this.includeWeekends)
-  }
+  }*/
 
   updateDates(includeWeekends: boolean){
     if(this.engageLog){

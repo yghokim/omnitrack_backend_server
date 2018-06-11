@@ -2,6 +2,9 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
 import { Subscription } from 'rxjs/Subscription';
 import * as moment from 'moment';
+import { logsToEngagements } from '../../../shared_lib/engagement';
+import { EngagementDataService } from '../experiment-overview/client-usage/engagement-data.service';
+import { HighChartsHelper } from '../shared-visualization/highcharts-helper';
 
 @Component({
   selector: 'app-server-status-overview',
@@ -11,8 +14,10 @@ import * as moment from 'moment';
 export class ServerStatusOverviewComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
+  private engagements: Array<any>
+  public chart
 
-  constructor(private api: ResearchApiService) {
+  constructor(private api: ResearchApiService, public engagementService: EngagementDataService) {
     
   }
 
@@ -21,6 +26,15 @@ export class ServerStatusOverviewComponent implements OnInit, OnDestroy {
       this.api.queryUsageLogsAnonymized({name: "session"}, moment().subtract(2, 'month').toISOString(), moment().toISOString()).subscribe(
         list=>{
           console.log(list)
+          this.engagements = logsToEngagements(list)
+          this.engagementService.setEngageLog(this.engagements, null, true, [])
+          console.log(this.engagements)
+          const chartOptions = HighChartsHelper.makeDefaultChartOptions('line', "40%")
+          chartOptions.tooltip = {
+            shared: true,
+            valueDecimals: 2
+          } 
+
         }
       )
     )
