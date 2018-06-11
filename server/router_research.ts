@@ -178,4 +178,14 @@ router.get('/debug/participants/all', researchCtrl.getallParticipants)
 router.get('/debug/restore_experiment_data/:experimentId', experimentCtrl.restoreExperimentTrackingEntities)
 router.get('/debug/push_command', experimentCtrl.sendPushCommand)
 
+const methodTestHandler = (req,res)=>{
+  res.status(200).send(true)
+}
+
+router.get('/debug/test_http_method/get', methodTestHandler)
+router.post('/debug/test_http_method/post', methodTestHandler)
+router.put('/debug/test_http_method/put', methodTestHandler)
+router.delete('/debug/test_http_method/delete', methodTestHandler)
+router.options('/debug/test_http_method/options', methodTestHandler)
+
 export default router;

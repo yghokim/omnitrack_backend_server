@@ -1,0 +1,14 @@
+<div class="container">
+  <div class="text-center">
+    <p></p>
+    <p>Press button to test the HTTP methods</p>
+    <button mat-button color="primary" *ngFor="let m of testMethods" (click)="onClicked(m)">{{m.toUpperCase()}}</button>
+    <hr>
+    <div *ngIf="response">
+      <h6>Response:</h6>
+      <p>
+        {{response}}
+      </p>
+    </div>
+  </div>
+</div>

@@ -38,10 +38,13 @@ import { ExperimentCustomStatisticsComponent } from './experiment-custom-statist
 import { ExperimentTrackingEngagementComponent } from './experiment-overview/experiment-tracking-engagement/experiment-tracking-engagement.component';
 import { ClientUsageComponent } from './experiment-overview/client-usage/client-usage.component';
 import { ServerStatusOverviewComponent } from './server-status-overview/server-status-overview.component';
+import { HttpMethodTestingComponent } from './test/http-method-testing/http-method-testing.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'downloads', pathMatch: 'full', canActivate: [EndUserAuthToMainGuard] },
   { path: 'downloads', component: ClientDownloadComponent },
+
+  {path: 'test', component: HttpMethodTestingComponent},
 
   {
     path: 'tracking', component: EndUserFrameComponent,

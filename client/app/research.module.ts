@@ -65,6 +65,7 @@ import { ClientUsageComponent } from './experiment-overview/client-usage/client-
 import { ServerStatusOverviewComponent } from './server-status-overview/server-status-overview.component';
 import { UpdateClientSignatureDialogComponent } from './server-settings/update-client-signature-dialog/update-client-signature-dialog.component';
 import { NewTrackingPackageDialogComponent } from './research/omnitrack/new-tracking-package-dialog/new-tracking-package-dialog.component';
+import { HttpMethodTestingComponent } from './test/http-method-testing/http-method-testing.component';
 
 @NgModule({
   imports: [
@@ -124,6 +125,7 @@ import { NewTrackingPackageDialogComponent } from './research/omnitrack/new-trac
     ServerStatusOverviewComponent,
     UpdateClientSignatureDialogComponent,
     NewTrackingPackageDialogComponent,
+    HttpMethodTestingComponent,
   ],
   exports: [
     NouisliderModule,
