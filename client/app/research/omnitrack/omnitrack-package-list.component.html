@@ -20,47 +20,41 @@
           </div>
         </div>
       </div>
-      <table class="table table-schema table-sm no-margin-bottom no-borders">
-        <thead>
-          <tr>
-            <th width=50%>Trackers</th>
-            <th width=50%>Triggers</th>
-          </tr>
-        </thead>
-        <tr>
-          <td>
-            <div class="tracker-list">
-              <div *ngFor="let tracker of package.data.trackers" class="card card-sm card-component">
-                <div class="card-strip" [style.background]="getTrackerColorString(tracker)"></div>
-                <div class="card-header">
-                  {{tracker.name}}
-                </div>
-                <ul class="list-group list-group-flush attribute-list">
-                  <li class="list-group-item font-color-gray" *ngFor="let attribute of tracker.attributes">{{attribute.name}}
-                    <sup class="text-color-accented font-weight-bold" *ngIf="attribute.isRequired">*</sup>
-                  </li>
-                </ul>
+      <div class="flex-container entity-list-container-container">
+        <div class="card-body entity-list-container tracker-list-container" *ngIf="package.data.trackers && package.data.trackers.length > 0">
+          <h6>Trackers</h6>
+          <div class="tracker-list">
+            <div *ngFor="let tracker of package.data.trackers" class="card card-sm card-component card-entity">
+              <div class="card-strip" [style.background]="getTrackerColorString(tracker)"></div>
+              <div class="card-header">
+                {{tracker.name}}
               </div>
+              <ul class="list-group list-group-flush attribute-list">
+                <li class="list-group-item font-color-gray" *ngFor="let attribute of tracker.attributes">{{attribute.name}}
+                  <sup class="text-color-accented font-weight-bold" *ngIf="attribute.isRequired">*</sup>
+                </li>
+              </ul>
             </div>
-          </td>
-          <td>
-            <div class="trigger-list">
-              <div *ngFor="let trigger of package.data.triggers" class="card card-sm card-component">
-                <ul class="list-group list-group-flush">
-                  <li class="list-group-item font-color-gray">
-                    <div class="badge badge-lg badge-light" *ngFor="let trackerId of trigger.trackers">
-                      <div class="badge-content flex-container flex-align-items-center">
-                        <div class="circle-inline margin-right-small" [style.background]="getTrackerColorString(findTracker(package, trackerId))"></div>
-                        <span class="text-color-dark">{{findTracker(package, trackerId).name}}</span>
-                      </div>
+          </div>
+        </div>
+        <div class="card-body entity-list-container trigger-list-container"  *ngIf="package.data.triggers && package.data.triggers.length > 0">
+          <h6>Triggers</h6>
+          <div class="trigger-list">
+            <div *ngFor="let trigger of package.data.triggers" class="card card-sm card-component card-entity">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item font-color-gray">
+                  <div class="badge badge-lg badge-light" *ngFor="let trackerId of trigger.trackers">
+                    <div class="badge-content flex-container flex-align-items-center">
+                      <div class="circle-inline margin-right-small" [style.background]="getTrackerColorString(findTracker(package, trackerId))"></div>
+                      <span class="text-color-dark">{{findTracker(package, trackerId).name}}</span>
                     </div>
-                  </li>
-                </ul>
-              </div>
+                  </div>
+                </li>
+              </ul>
             </div>
-          </td>
-        </tr>
-      </table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

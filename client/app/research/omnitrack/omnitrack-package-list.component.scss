@@ -1,13 +1,14 @@
-.card.omnitrack-card{
+@import '../../../styles.scss';
+
+.card.omnitrack-card {
   min-width: 30%;
-  & > .card-header{
+  &>.card-header {
     background: #fafafa;
   }
-
-  .tracker-list{
-    .attribute-list{
+  .tracker-list {
+    .attribute-list {
       font-size: 0.8em;
-      .list-group-item{
+      .list-group-item {
         padding: 0.4rem 0.9rem;
         color: gray;
       }
@@ -15,9 +16,12 @@
   }
 }
 
-.table.table-schema{
-  margin-top: 0.5em;
-  th{
-    color: #575757;
+.card-entity{
+  &:last-child{
+    margin-bottom: 0;
   }
+}
+
+.entity-list-container-container {
+  @include two-column-responsive-container(800px);
 }

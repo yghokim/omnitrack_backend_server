@@ -67,6 +67,16 @@ $visualization_heatmap_color_overflow: #173958;
   @include horizontal-gradient(#158d83, #4fbeac)
 }
 
+@mixin two-column-responsive-container($screen_size_max) {
+  @media screen and (max-width: $screen_size_max) {
+    flex-direction: column;
+    align-content: stretch;
+  }
+  &>* {
+    flex:1;
+  }
+}
+
 @import "~nouislider/distribute/nouislider.min.css";
 nouislider {
   padding-right: 12px;
@@ -211,6 +221,15 @@ a.no-text-effect {
   color: #575757;
 }
 
+.mat-icon-button.tiny{
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  .material-icons{
+    font-size: 16px;
+  }
+}
+
 .text-color-gray {
   color: #757575;
 }
@@ -271,7 +290,15 @@ a.no-text-effect {
 }
 
 .no-padding-top {
-  padding-top: 0;
+  padding-top: 0 !important;
+}
+
+.no-padding-right{
+  padding-right: 0 !important;
+}
+
+.no-padding-bottom{
+  padding-bottom: 0 !important;
 }
 
 .no-horizontal-padding {
@@ -344,30 +371,23 @@ a.no-text-effect {
 }
 
 .flex-container.flex-container-responsive-columns {
+  @media screen and (max-width: 575px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
   &>* {
     width: 33%; // Medium devices (tablets, less than 992px)
     @media screen and (max-width: 991px) {
       width: 50%
     }
     @media screen and (max-width: 575px) {
-      width: 100%
-    } // Small devices (landscape phones, less than 768px)
-    @media screen and (max-width: 767px) {
-      width: 100%
+      width: initial;
     }
   }
 }
 
 .flex-container.flex-container-responsive-columns_two {
-  &>* {
-    width: 50%; // Medium devices (tablets, less than 992px)
-    @media screen and (max-width: 575px) {
-      width: 100%
-    } // Small devices (landscape phones, less than 768px)
-    @media screen and (max-width: 767px) {
-      width: 100%
-    }
-  }
+  @include two-column-responsive-container(575px);
 }
 
 .flex-container.flex-container-col3 {
@@ -935,17 +955,18 @@ $duration: 1.4s;
   }
 }
 
-.fileopen{
-  label{
+.fileopen {
+  label {
     cursor: pointer;
     color: $color_accent;
     padding: 0.2rem 0.5rem;
     border-radius: 3px;
-    &:hover{
-      background: #fec6874d;;
+    &:hover {
+      background: #fec6874d;
+      ;
     }
   }
-  input[type='file']{
+  input[type='file'] {
     display: none;
   }
 }

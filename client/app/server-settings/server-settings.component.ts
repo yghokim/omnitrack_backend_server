@@ -7,7 +7,7 @@ import { MatDialog } from '@angular/material';
 import { UploadClientBinaryDialogComponent } from './upload-client-binary-dialog/upload-client-binary-dialog.component';
 import { NotificationService } from '../services/notification.service';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
-import { IClientSignatureDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { IClientSignatureDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import { UpdateClientSignatureDialogComponent } from './update-client-signature-dialog/update-client-signature-dialog.component';
 
 @Component({

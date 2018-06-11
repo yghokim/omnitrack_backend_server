@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription ,  Observable } from 'rxjs';
 import { ResearchApiService } from '../services/research-api.service';
-import ExperimentInfo from '../models/experiment-info';
 import { Router } from '@angular/router';
 import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { MatDialog } from '@angular/material';
@@ -9,6 +8,8 @@ import { NewExperimentDialogComponent } from './new-experiment-dialog/new-experi
 import { NotificationService } from '../services/notification.service';
 import { ExampleExperimentInfo } from '../../../omnitrack/core/research/experiment';
 import { map, tap } from 'rxjs/operators';
+import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
+import { getIdPopulateCompat } from '../../../omnitrack/core/db-entity-types';
 
 @Component({
   selector: 'app-experiment-list',
@@ -19,7 +20,7 @@ export class ExperimentListComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
 
-  experiments: Array<ExperimentInfo>
+  experiments: Array<IExperimentDbEntity>
 
   examples: Array<ExampleExperimentInfo>
 
@@ -49,7 +50,7 @@ export class ExperimentListComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
-  onExperimentClicked(experiment: ExperimentInfo) {
+  onExperimentClicked(experiment: IExperimentDbEntity) {
     this.router.navigate(["/research/dashboard", experiment._id])
   }
 
@@ -88,9 +89,9 @@ export class ExperimentListComponent implements OnInit, OnDestroy {
     )
   }
 
-  getMyRole(exp: ExperimentInfo): Observable<string> {
+  getMyRole(exp: IExperimentDbEntity): Observable<string> {
     return this.auth.currentResearcher.pipe(map(researcher => {
-      if (exp.manager._id === researcher.uid) {
+      if (getIdPopulateCompat(exp.manager) === researcher.uid) {
         return "manager"
       }
       else return "collaborator"

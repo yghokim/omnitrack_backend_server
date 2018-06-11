@@ -1,3 +1,14 @@
+import { VisualizationConfigs } from "./research/configs";
+import { isString } from "../../shared_lib/utils";
+
+export function getIdPopulateCompat(obj: any, variableName: string = "_id"): string{
+  if(isString(obj)===true){
+    return obj.toString()
+  }else{
+    return obj[variableName]
+  }
+}
+
 export interface IMongooseDbEntity{
   _id: string
   createdAt?: Date
@@ -105,10 +116,4 @@ export interface IParticipantDbEntity extends IUserChildDbEntity{
   experimentRange?: {from?: Date, to?: Date}
   lastSyncTimestamp?: number
   lastSessionTimestamp?: number
-}
-
-export interface IClientSignatureDbEntity extends IMongooseDbEntity{
-  key: string,
-  package: string,
-  alias: string
 }

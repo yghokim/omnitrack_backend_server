@@ -11,12 +11,13 @@ import { ExperimentPermissions } from '../../../omnitrack/core/research/experime
 import { VisualizationConfigs } from '../../../omnitrack/core/research/configs';
 import { TrackingDataService } from './tracking-data.service';
 import { IResearchMessage } from '../../../omnitrack/core/research/messaging';
-import { IParticipantDbEntity, IUsageLogDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { IParticipantDbEntity, IUsageLogDbEntity, getIdPopulateCompat } from '../../../omnitrack/core/db-entity-types';
+import { IExperimentDbEntity, IResearcherDbEntity, IExperimentTrackingPackgeDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 
 export class ExperimentService {
 
-  private readonly experimentInfo = new BehaviorSubject<any>(null)
-  private readonly managerInfo = new BehaviorSubject<any>(null)
+  private readonly experimentInfo = new BehaviorSubject<IExperimentDbEntity>(null)
+  private readonly managerInfo = new BehaviorSubject<IResearcherDbEntity>(null)
   private readonly invitationList = new BehaviorSubject<Array<any>>([])
   private readonly participantList = new BehaviorSubject<Array<IParticipantDbEntity>>([])
   private readonly messageList = new BehaviorSubject<Array<IResearchMessage>>([])
@@ -197,11 +198,11 @@ export class ExperimentService {
     )
   }
 
-  getExperiment(): Observable<any> {
+  getExperiment(): Observable<IExperimentDbEntity> {
     return this.experimentInfo.pipe(filter(res => res != null))
   }
 
-  getManagerInfo(): Observable<any> {
+  getManagerInfo(): Observable<IResearcherDbEntity> {
     return this.managerInfo.pipe(filter(res => res != null))
   }
 
@@ -275,7 +276,7 @@ export class ExperimentService {
     )
   }
 
-  getOmniTrackPackages(): Observable<Array<any>> {
+  getOmniTrackPackages(): Observable<Array<IExperimentTrackingPackgeDbEntity>> {
     return this.experimentInfo.pipe(map(exp => {
       return exp.trackingPackages
     }))
@@ -293,9 +294,9 @@ export class ExperimentService {
 
   getMyRole(): Observable<string> {
     return this.getExperiment().pipe(combineLatest(this.authService.currentResearcher, (exp, researcher) => {
-      if (exp.manager._id === researcher.uid) {
+      if (getIdPopulateCompat(exp.manager) === researcher.uid) {
         return "manager"
-      } else if (exp.experimenters.find(ex => ex.researcher.email === researcher.email)) {
+      } else if (exp.experimenters.find(ex => getIdPopulateCompat(ex.researcher) === researcher.uid)) {
         return "collaborator"
       } else { return null }
     }))
@@ -303,10 +304,10 @@ export class ExperimentService {
 
   getMyPermissions(): Observable<ExperimentPermissions> {
     return this.getExperiment().pipe(combineLatest(this.authService.currentResearcher, (exp, researcher) => {
-      if (exp.manager._id === researcher.uid) {
+      if (getIdPopulateCompat(exp.manager) === researcher.uid) {
         return ExperimentPermissions.makeMasterPermissions()
       } else {
-        const col = exp.experimenters.find(ex => ex.researcher.email === researcher.email)
+        const col = exp.experimenters.find(ex => getIdPopulateCompat(ex.researcher) === researcher.uid)
         if (col) {
           return ExperimentPermissions.fromJson(col.permissions)
         }
@@ -334,14 +335,14 @@ export class ExperimentService {
       .pipe(map(res => res.json()))
   }
 
-  addTrackingPackageJson(packageJson: any, name: string): Observable<boolean>{
+  addTrackingPackageJson(packageJson: any, name: string): Observable<boolean> {
     return this.http.post("api/research/experiments/" + this.experimentId + "/packages/update", {
       packageJson: packageJson,
       name: name
-    }, this.researchApi.authorizedOptions).pipe(map(res=> res.json()))
+    }, this.researchApi.authorizedOptions).pipe(map(res => res.json()))
   }
 
-  removeTrackingPackage(packageKey: string): Observable<boolean>{
-    return this.http.delete("api/research/experiments/" + this.experimentId + "/packages/" + packageKey,this.researchApi.authorizedOptions).pipe(map(res=>res.json()))
+  removeTrackingPackage(packageKey: string): Observable<boolean> {
+    return this.http.delete("api/research/experiments/" + this.experimentId + "/packages/" + packageKey, this.researchApi.authorizedOptions).pipe(map(res => res.json()))
   }
 }

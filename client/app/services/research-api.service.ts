@@ -4,12 +4,12 @@ import { ResearcherAuthService } from './researcher.auth.service';
 import { Observable, Subscription, BehaviorSubject } from 'rxjs';
 import { filter, combineLatest, flatMap, map, tap } from 'rxjs/operators';
 import { SocketService } from './socket.service';
-import ExperimentInfo from '../models/experiment-info';
 import { ExperimentService } from './experiment.service';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
 import { NotificationService } from './notification.service';
 import { ExampleExperimentInfo } from '../../../omnitrack/core/research/experiment';
-import { IUsageLogDbEntity, IClientSignatureDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { IUsageLogDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { IClientSignatureDbEntity, IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 
 @Injectable()
 export class ResearchApiService implements OnDestroy {
@@ -28,7 +28,7 @@ export class ResearchApiService implements OnDestroy {
     return this._selectedExperimentService.getValue()
   }
 
-  private readonly _experimentListSubject = new BehaviorSubject<Array<ExperimentInfo>>([])
+  private readonly _experimentListSubject = new BehaviorSubject<Array<IExperimentDbEntity>>([])
   private readonly _userPoolSubject = new BehaviorSubject<Array<any>>([])
 
   private readonly _internalSubscriptions = new Subscription()
@@ -123,7 +123,7 @@ export class ResearchApiService implements OnDestroy {
     )
   }
 
-  getExperimentInfos(): Observable<Array<ExperimentInfo>> {
+  getExperimentInfos(): Observable<Array<IExperimentDbEntity>> {
     return this._experimentListSubject.pipe(filter(res => res != null))
   }
 

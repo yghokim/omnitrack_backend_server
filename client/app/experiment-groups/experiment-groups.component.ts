@@ -3,6 +3,7 @@ import { ResearchApiService } from '../services/research-api.service';
 import { ExperimentService } from '../services/experiment.service';
 import { Subscription ,  Observable } from 'rxjs';
 import { flatMap } from 'rxjs/operators';
+import { IExperimentGroupDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 
 @Component({
   selector: 'app-experiment-groups',
@@ -13,7 +14,7 @@ export class ExperimentGroupsComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
 
-  groups: Array<any> = []
+  groups: Array<IExperimentGroupDbEntity> = []
 
   constructor(private api: ResearchApiService) {
     

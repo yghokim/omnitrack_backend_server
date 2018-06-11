@@ -5,13 +5,14 @@ import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { ResearchApiService } from '../services/research-api.service';
 import { NotificationService } from '../services/notification.service';
-import ExperimentInfo from '../models/experiment-info';
 import { MatDialog, MatIconRegistry, MatSnackBar } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { Subscription, Observable } from 'rxjs';
 import { filter, map, flatMap, combineLatest, tap } from 'rxjs/operators';
 
 import { ExperimentPermissions } from '../../../omnitrack/core/research/experiment';
+import { IExperimentDbEntity } from 'omnitrack/core/research/db-entity-types';
+import { getIdPopulateCompat } from '../../../omnitrack/core/db-entity-types';
 
 @Component({
   selector: 'app-research-dashboard',
@@ -39,9 +40,9 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
 
-  experimentInfos: Array<ExperimentInfo> = [];
-  myExperimentInfos: Array<ExperimentInfo> = [];
-  guestExperimentInfos: Array<ExperimentInfo> = [];
+  experimentInfos: Array<IExperimentDbEntity> = [];
+  myExperimentInfos: Array<IExperimentDbEntity> = [];
+  guestExperimentInfos: Array<IExperimentDbEntity> = [];
 
 
   dashboardNavigationGroups = [
@@ -174,8 +175,8 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
     console.log('load experiments of user')
     this._internalSubscriptions.add(
       this.api.getExperimentInfos().pipe(combineLatest(this.authService.currentResearcher, (infos, researcher) => {
-        this.myExperimentInfos = infos.filter(i => i.manager._id === researcher.uid)
-        this.guestExperimentInfos = infos.filter(i => i.manager._id !== researcher.uid)
+        this.myExperimentInfos = infos.filter(i => getIdPopulateCompat(i.manager) === researcher.uid)
+        this.guestExperimentInfos = infos.filter(i => getIdPopulateCompat(i.manager) !== researcher.uid)
         return infos
       })).subscribe(experiments => {
         console.log('experiments were loaded.')
@@ -258,10 +259,6 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
         }
       })
     })
-  }
-
-  getManagingExperiments(): Array<ExperimentInfo> {
-    return this.experimentInfos.filter(e => e.manager._id)
   }
 
   onExperimentSelected(id) {
