@@ -15,6 +15,7 @@ import C from '../server_consts'
 import { SocketConstants } from '../../omnitrack/core/research/socket'
 import { Document } from 'mongoose';
 import * as path from "path";
+import { IParticipantDbEntity } from '../../omnitrack/core/db-entity-types';
 
 const random_name = require('node-random-name');
 export default class ResearchModule {
@@ -28,18 +29,17 @@ export default class ResearchModule {
     }
   ]
 
-  generateExampleExperimentToResearcher(exampleKey: string, researcherId: string, notifySocket: boolean = false): Promise<string>{
+  generateExampleExperimentToResearcher(exampleKey: string, researcherId: string, notifySocket: boolean = false): Promise<string> {
 
-    const info = this.exampleExperimentInformations.find(info => info.key === exampleKey)
-    if(info)
-    {
+    const info = this.exampleExperimentInformations.find(i => i.key === exampleKey)
+    if (info) {
 
       const experiment = new OTExperiment({
-          name: info.name,
-          manager: researcherId
-        })
-    
-      switch(info.key){
+        name: info.name,
+        manager: researcherId
+      })
+
+      switch (info.key) {
         case "productivity_diary":
           const trackingPackage = {
             name: "Diaries and Reminders",
@@ -47,34 +47,33 @@ export default class ResearchModule {
           }
           experiment["trackingPackages"].push(trackingPackage)
           experiment["groups"][0].trackingPackageKey = experiment["trackingPackages"][0].key
-        break;
+          break;
       }
-      
+
       return experiment.save().then(result => {
-        
-        if(notifySocket === true)
-        {
-          app.socketModule().sendUpdateNotificationToResearcherSubscribers(researcherId, {model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_ADDED})
+
+        if (notifySocket === true) {
+          app.socketModule().sendUpdateNotificationToResearcherSubscribers(researcherId, { model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_ADDED })
         }
 
-        return result._id})
-        
-    }else{
+        return result._id
+      })
+
+    } else {
       return Promise.reject("no example key found.")
     }
   }
 
   generateRandomUniqueAliasForParticipant(gender: string, prefix: string = "", suffix: string = "?"): Promise<string> {
-    let nextName: string = prefix + random_name({ first: true, gender: gender }) + suffix
+    const nextName: string = prefix + random_name({ first: true, gender: gender }) + suffix
     console.log("generate participant alias: " + nextName)
-    let validationPromise: Promise<boolean> = OTParticipant.findOne({ alias: nextName }).then(res => res == null).catch(err => true)
+    const validationPromise: Promise<boolean> = OTParticipant.findOne({ alias: nextName }).then(res => res == null).catch(err => true)
 
     return validationPromise.then(
       valid => {
         if (valid) {
           return nextName
-        }
-        else return this.generateRandomUniqueAliasForParticipant(gender)
+        } else { return this.generateRandomUniqueAliasForParticipant(gender) }
       }
     )
   }
@@ -161,70 +160,99 @@ export default class ResearchModule {
     })
   }
 
-  private dropOutImpl(search: any, reason?: string, researcherId?: string): Promise<{ success: boolean, injectionExists?: boolean, error?: string, experiment?: IJoinedExperimentInfo }> {
-    const droppedDate = new Date()
-    search.dropped = { $ne: true }
-    console.log(search)
-    return OTParticipant.findOneAndUpdate(search, {
-      dropped: true,
-      droppedBy: researcherId,
-      droppedReason: reason,
-      droppedAt: new Date()
-    }, { new: true }).populate({ path: "experiment", select: "_id name" }).then(participant => {
-      console.log(participant)
-      if (participant) {
-        const experiment = participant["experiment"]
-        //TODO remove trackers, triggers, items, and medias associated with the experiment
-        return Promise.all([OTTracker, OTTrigger].map(model => {
-          return model.update({
-            "user": participant["user"],
-            "flags.injected": true,
-            "flags.experiment": experiment._id
-          }, { removed: true }, { multi: true }).then(res => {
-            if (res.ok === 1) {
-              return { changed: res.n > 0, syncType: C.getSyncTypeFromModel(model), changeCount: res.n }
-            }
-            else return { changed: false, syncType: C.getSyncTypeFromModel(model) }
-          })
-        })).then(objRemovalResult => {
-          console.log(objRemovalResult)
-          const changedResults = objRemovalResult.filter(r => r.changed == true)
-          if (changedResults.length > 0) {
-            app.serverModule().registerMessageDataPush(participant["user"], app.pushModule().makeSyncMessageFromTypes(
-              changedResults.map(r => r.syncType)
-            ))
-          }
-
-          app.socketModule().sendUpdateNotificationToExperimentSubscribers(experiment._id, { model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_DROPPED, payload: { participant: participant } })
-
-          return { success: true, experiment: { id: experiment._id.toString(), name: experiment.name.toString(), injectionExists: changedResults.length > 0, joinedAt: participant["approvedAt"].getTime(), droppedAt: droppedDate.getTime() } }
-        })
+  private handleParticipantDropout(search: any, multiple: boolean, remove: boolean, reason?: string, researcherId?: string): Promise<Array<IParticipantDbEntity>> {
+    if (multiple === true) {
+      return OTParticipant.find(search).populate({ path: "experiment", select: "_id name" }).lean().then(docs => {
+        if (remove === true) {
+          return OTParticipant.deleteMany(search).then(removeRes => docs)
+        } else {
+          search.dropped = { $ne: true }
+          return OTParticipant.updateMany(search, {
+            dropped: true,
+            droppedBy: researcherId,
+            droppedReason: reason,
+            droppedAt: new Date()
+          }).then(res => docs)
+        }
+      }).then(res => res as any as Array<IParticipantDbEntity>)
+    } else {
+      if (remove === true) {
+        return OTParticipant.findOneAndRemove(search).populate({ path: "experiment", select: "_id name" }).then(removed => removed ? [removed as any as IParticipantDbEntity] : [])
+      } else {
+        search.dropped = { $ne: true }
+        return OTParticipant.findOneAndUpdate(search, {
+          dropped: true,
+          droppedBy: researcherId,
+          droppedReason: reason,
+          droppedAt: new Date()
+        }, { new: true }).populate({ path: "experiment", select: "_id name" }).then(participant => participant ? [participant as any as IParticipantDbEntity] : [])
       }
-      return { success: false, injectionExists: false, error: "Not participating in the experiment.", experiment: null }
-    })
+    }
+  }
+
+  dropOutImpl(search: any, multiple: boolean, remove: boolean, reason?: string, researcherId?: string): Promise<{ success: boolean, injectionExists?: boolean, error?: string, experiment?: IJoinedExperimentInfo } | Array<{ success: boolean, injectionExists?: boolean, error?: string, experiment?: IJoinedExperimentInfo }>> {
+    const droppedDate = new Date()
+    return this.handleParticipantDropout(search, multiple, remove, reason, researcherId).then(
+      participants => {
+
+        if (participants.length === 0) {
+          return Promise.resolve({ success: false, injectionExists: false, error: "Not participating in the experiment.", experiment: null })
+        }
+
+        return Promise.all(participants.map(participant => {
+          const experiment = participant["experiment"]
+          // TODO remove trackers, triggers, items, and medias associated with the experiment
+          return Promise.all([OTTracker, OTTrigger].map(model => {
+            return model.update({
+              "user": participant["user"],
+              "flags.injected": true,
+              "flags.experiment": experiment._id
+            }, { removed: true }, { multi: true }).then(res => {
+              if (res.ok === 1) {
+                return { changed: res.n > 0, syncType: C.getSyncTypeFromModel(model), changeCount: res.n }
+              } else { return { changed: false, syncType: C.getSyncTypeFromModel(model) } }
+            })
+          })).then(objRemovalResult => {
+            console.log(objRemovalResult)
+            const changedResults = objRemovalResult.filter(r => r.changed === true)
+            if (changedResults.length > 0) {
+              app.serverModule().registerMessageDataPush(participant["user"], app.pushModule().makeSyncMessageFromTypes(
+                changedResults.map(r => r.syncType)
+              ))
+            }
+
+            app.socketModule().sendUpdateNotificationToExperimentSubscribers(experiment._id, { model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_DROPPED, payload: { participant: participant } })
+
+            return { success: true, experiment: { id: experiment._id.toString(), name: experiment.name.toString(), injectionExists: changedResults.length > 0, joinedAt: participant["approvedAt"].getTime(), droppedAt: droppedDate.getTime() } }
+          })
+        })).then(results => {
+          if ( multiple === true ) {
+            return results
+          } else { return results[0] }
+        }) as any
+      }
+    )
   }
 
   dropOutFromExperiment(userId: string, experimentId: string, reason?: string, researcherId?: string): Promise<any> {
-    return this.dropOutImpl({ "user": userId, experiment: experimentId }, reason, researcherId)
+    return this.dropOutImpl({ "user": userId, experiment: experimentId }, false, false, reason, researcherId)
   }
 
   dropParticipant(participantId: string, reason?: string, researcherId?: string): Promise<any> {
-    return this.dropOutImpl({ _id: participantId }, reason, researcherId)
+    return this.dropOutImpl({ _id: participantId }, false, false, reason, researcherId)
   }
 
-  
 
-  changeParticipantAlias(participantId: string, alias: string): Promise<boolean>{
-    return OTParticipant.findOne({_id: {$ne: participantId}, alias: alias }).then(doc=>{
-      if(doc){
+
+  changeParticipantAlias(participantId: string, alias: string): Promise<boolean> {
+    return OTParticipant.findOne({ _id: { $ne: participantId }, alias: alias }).then(doc => {
+      if (doc) {
         return Promise.reject("AliasAlreadyExists");
-      }
-      else{
-        return OTParticipant.findByIdAndUpdate(participantId, {alias: alias}, {select: "_id alias experiment"}).then(old=>{
-          const changed = old["alias"] != alias
-          if(changed==true)
-          {
-            app.socketModule().sendUpdateNotificationToExperimentSubscribers(old["experiment"], {model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_EDITED})
+      } else {
+        return OTParticipant.findByIdAndUpdate(participantId, { alias: alias }, { select: "_id alias experiment" }).then(old => {
+          const changed = old["alias"] !== alias
+          if (changed === true) {
+            app.socketModule().sendUpdateNotificationToExperimentSubscribers(old["experiment"], { model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_EDITED })
           }
 
           return changed
@@ -254,8 +282,7 @@ export default class ResearchModule {
               })
             }
           )
-        }
-        else return count
+        } else { return count }
       })
 
     return makePromise()
@@ -280,8 +307,7 @@ export default class ResearchModule {
             console.log("duplicate experiment participation. skip the approval process.")
             // already approved the invitation.
             return { success: false, error: "Already participating in this experiment.", injectionExists: null, experiment: null }
-          }
-          else {
+          } else {
             return this.extractUserRoleInformation(userId, "ServiceUser").then(information => this.generateRandomUniqueAliasForParticipant(information.gender || "female", "", information.gender == null ? "^" : "")).then(
               alias => {
                 console.log("this participant's alias: " + alias)
@@ -293,7 +319,7 @@ export default class ResearchModule {
                   dropped: false,
                   droppedAt: null,
                   droppedBy: null,
-                  experimentRange: {from: joinedDate, to: null}
+                  experimentRange: { from: joinedDate, to: null }
                 }, { new: true }).populate("experiment").then(changedParticipant => {
                   console.log("changed participant: ")
                   console.log(changedParticipant)
@@ -303,13 +329,12 @@ export default class ResearchModule {
                       newParticipant["isDenied"] = false
                       newParticipant["isConsentApproved"] = true
                       newParticipant["approvedAt"] = joinedDate
-                      newParticipant["experimentRange"] = {from: joinedDate, to: null}
+                      newParticipant["experimentRange"] = { from: joinedDate, to: null }
                       return newParticipant.save().then(participant => {
                         return participant.populate("experiment").execPopulate()
                       })
                     })
-                  }
-                  else return changedParticipant
+                  } else { return changedParticipant }
                 })
               }).then(changedParticipant => {
                 if (changedParticipant) {
@@ -336,7 +361,7 @@ export default class ResearchModule {
                   return Promise.reject("The invitation is no longer available.")
                 }
               }).then(result => {
-                if (result.success == true) {
+                if (result.success === true) {
                   app.socketModule().sendUpdateNotificationToExperimentSubscribers(result.experiment.id, { model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_APPROVED, payload: result })
                 }
                 return result

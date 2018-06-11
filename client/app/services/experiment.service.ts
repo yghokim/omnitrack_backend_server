@@ -12,7 +12,7 @@ import { VisualizationConfigs } from '../../../omnitrack/core/research/configs';
 import { TrackingDataService } from './tracking-data.service';
 import { IResearchMessage } from '../../../omnitrack/core/research/messaging';
 import { IParticipantDbEntity, IUsageLogDbEntity, getIdPopulateCompat } from '../../../omnitrack/core/db-entity-types';
-import { IExperimentDbEntity, IResearcherDbEntity, IExperimentTrackingPackgeDbEntity } from '../../../omnitrack/core/research/db-entity-types';
+import { IExperimentDbEntity, IResearcherDbEntity, IExperimentTrackingPackgeDbEntity, IExperimentGroupDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 
 export class ExperimentService {
 
@@ -344,5 +344,18 @@ export class ExperimentService {
 
   removeTrackingPackage(packageKey: string): Observable<boolean> {
     return this.http.delete("api/research/experiments/" + this.experimentId + "/packages/" + packageKey, this.researchApi.authorizedOptions).pipe(map(res => res.json()))
+  }
+
+  upsertExperimentGroup(values: {
+    _id?: string,
+    name?: string,
+    maxSize?: number,
+    trackingPackageKey?: string
+  }): Observable<boolean> {
+    return this.http.post("api/research/experiments/" + this.experimentId + "/groups/upsert", values, this.researchApi.authorizedOptions).pipe(map(r => r.json()))
+  }
+
+  deleteExperimentGroup(groupId: string) {
+    return this.http.delete("api/research/experiments/" + this.experimentId + "/groups/" + groupId, this.researchApi.authorizedOptions).pipe(map(r => r.json()))
   }
 }

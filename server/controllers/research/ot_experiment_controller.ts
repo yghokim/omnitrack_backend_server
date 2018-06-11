@@ -6,10 +6,13 @@ import OTExperiment from '../../models/ot_experiment'
 import OTInvitation from '../../models/ot_invitation'
 import OTParticipant from '../../models/ot_participant'
 import { IJoinedExperimentInfo, ExperimentPermissions } from '../../../omnitrack/core/research/experiment'
-import { Document } from 'mongoose';
+import { Document, DocumentQuery } from 'mongoose';
 import app from '../../app';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
 import { MessageData } from '../../modules/push.module';
+import { deepclone, groupArrayByVariable } from '../../../shared_lib/utils';
+import { makeArrayLikeQueryCondition } from '../../server_utils';
+import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
 
 
 export default class OTExperimentCtrl {
@@ -37,8 +40,7 @@ export default class OTExperimentCtrl {
           app.socketModule().sendUpdateNotificationToResearcherSubscribers(collaboratorId, { model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_PERMISSION_CHANGED })
 
           return true
-        }
-        else return false
+        } else { return false }
       }
     )
   }
@@ -55,8 +57,7 @@ export default class OTExperimentCtrl {
           app.socketModule().sendUpdateNotificationToResearcherSubscribers(collaboratorId, { model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_INVITED })
 
           return true
-        }
-        else return false
+        } else { return false }
       }
     )
   }
@@ -97,29 +98,21 @@ export default class OTExperimentCtrl {
           }, { removed: true }, { multi: true })
         })).then(result => {
           console.log(result)
-          return OTParticipant.find({ experiment: experimentId }, { _id: 1, user: 1 }).then(result => {
-            app.pushModule().sendDataMessageToUser(result.map(r => { return r["user"] }), app.pushModule().makeFullSyncMessageData()).then(
+          return OTParticipant.find({ experiment: experimentId }, { _id: 1, user: 1 }).then(participants => {
+            app.pushModule().sendDataMessageToUser(participants.map(r => r["user"]), app.pushModule().makeFullSyncMessageData()).then(
               messageResult => {
                 console.log(messageResult)
               })
 
-            return OTParticipant.remove({ experiment: experimentId }).then(result => {
-              console.log(result)
-
-              return OTInvitation.remove({ experiment: experimentId }).then(result => {
-                console.log(result)
-
-                //socket
+            return Promise.all([OTParticipant.remove({ experiment: experimentId }), OTInvitation.remove({ experiment: experimentId })]).then(
+              res => {
+                // socket
                 app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, { model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_REMOVED })
-
-
                 return true
               })
-            })
           })
         })
-      }
-      else return false
+      } else { return false }
     })
   }
 
@@ -186,8 +179,7 @@ export default class OTExperimentCtrl {
               .sendUpdateNotificationToResearcherSubscribers(researcherId, { model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_ADDED })
 
             res.status(200).send(experiment)
-          }
-          else {
+          } else {
             res.status(500).send({ "error": "CannotCreated" })
           }
         }).catch(err => {
@@ -263,8 +255,7 @@ export default class OTExperimentCtrl {
           }
 
           res.status(200).send({ updated: true, experiment: updated })
-        }
-        else {
+        } else {
           res.status(200).send({ updated: false, experiment: updated })
         }
       }
@@ -280,8 +271,7 @@ export default class OTExperimentCtrl {
     this._removeExperiment(experimentId, managerId).then(success => {
       if (success === true) {
         res.status(200).send(success)
-      }
-      else {
+      } else {
         res.status(404).send(false)
       }
     }).catch(err => {
@@ -301,8 +291,7 @@ export default class OTExperimentCtrl {
           console.log(err)
           res.status(500).send(err)
         })
-    }
-    else {
+    } else {
       res.status(404).send("No example key was passed.")
     }
   }
@@ -345,21 +334,21 @@ export default class OTExperimentCtrl {
     const experimentId = req.params.experimentId
     const researcherId = req.researcher.uid
 
-    OTExperiment.findOneAndUpdate(this.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId),{
+    OTExperiment.findOneAndUpdate(this.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId), {
       $addToSet: {
         trackingPackages: {
           name: name,
           data: packageJson
         }
       }
-    }, {new: true}).then(doc=>{
-      if(doc){
+    }, { new: true }).then(doc => {
+      if (doc) {
         res.status(200).send(true)
         app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, { model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_EDITED })
-      }else{
+      } else {
         res.status(200).send(false)
       }
-    }).catch(err=>{
+    }).catch(err => {
       console.log(err)
       res.status(500).send(err)
     })
@@ -369,46 +358,108 @@ export default class OTExperimentCtrl {
     const experimentId = req.params.experimentId
     const packageKey = req.params.packageKey
     const researcherId = req.researcher.uid
-    OTExperiment.findOneAndUpdate({
-      _id: experimentId,
-      $or: [{ manager: researcherId }, { "experimenters.researcher": researcherId }]
-    }, {
-        $pull: {
-          trackingPackages: {
-            key: packageKey
-          }
+    OTExperiment.findOneAndUpdate(this.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId), {
+      $pull: {
+        trackingPackages: {
+          key: packageKey
         }
-      }, { new: true }).then(updated => {
-        if (updated != null && updated["groups"] instanceof Array) {
-          var groupModified:boolean = null
-          updated["groups"].filter(g => g.trackingPackageKey === packageKey).forEach(
-            group => {
-              group["trackingPackageKey"] = null
-              groupModified = true
+      }
+    }, { new: true }).then(updated => {
+      if (updated != null && updated["groups"] instanceof Array) {
+        let groupModified: boolean = null
+        updated["groups"].filter(g => g.trackingPackageKey === packageKey).forEach(
+          group => {
+            group["trackingPackageKey"] = null
+            groupModified = true
+          }
+        )
+
+        if (groupModified === true) {
+          updated.markModified("groups")
+          return updated.save().then(result => {
+            return true
+          })
+        }
+        return true
+      } else { return false }
+    }).then(changed => {
+      if (changed === true) {
+        app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, { model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_EDITED })
+      }
+      res.status(200).send(changed)
+    }).catch(err => {
+      console.log(err)
+      res.status(500).send(err)
+    })
+  }
+
+  upsertExperimentGroup = (req, res) => {
+    const experimentId = req.params.experimentId
+    const researcherId = req.researcher.uid
+    const query = this.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId)
+    let mongooseQuery: DocumentQuery<Document, Document>
+    if (req.body._id) {
+      // update
+      query["groups._id"] = req.body._id
+      const update = {}
+      for (const key of Object.keys(req.body)) {
+        if (key !== "_id") {
+          update["groups.$." + key] = req.body[key]
+        }
+      }
+      mongooseQuery = OTExperiment.findOneAndUpdate(query, update, { new: false })
+    } else {
+      // insert
+      const update = deepclone(req.body)
+      delete update._id
+      mongooseQuery = OTExperiment.findOneAndUpdate(query, {
+        $addToSet: {
+          groups: update
+        }
+      }, { new: false })
+    }
+
+    mongooseQuery.then(found => {
+      if (found) {
+        res.status(200).send(true)
+      } else {
+        res.status(404).send(false)
+      }
+    }).catch(err => {
+      res.status(500).send(err)
+    })
+  }
+
+  removeExperimentGroup = (req, res) => {
+    const experimentId = req.params.experimentId
+    const researcherId = req.researcher.uid
+    const groupId = req.params.groupId
+    const query = this.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId)
+    query["groups._id"] = groupId
+    console.log("group search query: ")
+    console.log(query)
+    OTExperiment.findOneAndUpdate(query, {
+      $pull: {
+        groups: {
+          _id: groupId
+        }
+      }
+    }).then(updatedExperiment => {
+      if (updatedExperiment) {
+        app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, { model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_EDITED })
+        app.researchModule().dropOutImpl({ groupId: groupId }, true, true, null, researcherId)
+          .then(
+            result => {
+              console.log(result)
+              res.status(200).send(true)
             }
           )
-
-          if (groupModified === true) {
-            updated.markModified("groups")
-            return updated.save().then(result=>{
-              return true
-            })
-          }
-          return true
-        }
-        else return false
-      }).then(changed => {
-        if(changed === true){
-          app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, { model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_EDITED })
-        }
-        res.status(200).send(changed)
-      }).catch(err=>{
-        console.log(err)
-        res.status(500).send(err)
-      })
+      } else {
+        res.status(404).send(false)
+      }
+    })
   }
 }
-
 
 const experimentCtrl = new OTExperimentCtrl()
 export { experimentCtrl }

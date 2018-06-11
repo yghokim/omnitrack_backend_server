@@ -5,7 +5,7 @@
         <span>{{group.name}}</span>
         <div class="flex-filler"></div>
         <div>
-          <button class="text-color-darkgray" mat-icon-button>
+          <button class="text-color-darkgray" mat-icon-button (click)="onDeleteGroupClicked(group)" [disabled] = "groups.length === 1">
             <span class="material-icons">delete</span>
           </button>
         </div>
