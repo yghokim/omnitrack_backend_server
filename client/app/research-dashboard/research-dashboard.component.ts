@@ -11,7 +11,7 @@ import { Subscription, Observable } from 'rxjs';
 import { filter, map, flatMap, combineLatest, tap } from 'rxjs/operators';
 
 import { ExperimentPermissions } from '../../../omnitrack/core/research/experiment';
-import { IExperimentDbEntity } from 'omnitrack/core/research/db-entity-types';
+import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import { getIdPopulateCompat } from '../../../omnitrack/core/db-entity-types';
 
 @Component({
