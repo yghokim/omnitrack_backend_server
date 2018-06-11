@@ -5,6 +5,7 @@ import OTExperiment from '../../models/ot_experiment';
 import { IResearchMessage, SpecificUsersMessageReceiverRule, MessageReceiverRules } from '../../../omnitrack/core/research/messaging';
 import { experimentCtrl } from './ot_experiment_controller';
 import app from '../../app';
+import { environmentSubject }  from '../../env';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
 import OTParticipant from '../../models/ot_participant';
 
@@ -13,21 +14,26 @@ export default class OTResearchMessageCtrl {
   private mailer: any
 
   constructor(){
-    if(env.use_mailer === true && env.mailer.api_key)
-    {
-      console.log("use mailer.")
-      this.mailer = require('sib-api-v3-sdk');
-      this.mailer.ApiClient.instance.authentications['api-key'].apiKey = env.mailer.api_key
-
-      var api = new this.mailer.AccountApi()
-      api.getAccount().then(account => {
-        console.log("your Sendinblue account information:")
-        console.log(account)
-      }).catch(err=>{
-        console.log("error while loading the Sendinblue account:")
-        console.log(err)
-      })
-    }
+    environmentSubject.subscribe(
+      env => {
+        if(env && env.use_mailer === true && env.mailer.api_key)
+        {
+          console.log("use mailer.")
+          this.mailer = require('sib-api-v3-sdk');
+          this.mailer.ApiClient.instance.authentications['api-key'].apiKey = env.mailer.api_key
+    
+          var api = new this.mailer.AccountApi()
+          api.getAccount().then(account => {
+            console.log("your Sendinblue account information:")
+            console.log(account)
+          }).catch(err=>{
+            console.log("error while loading the Sendinblue account:")
+            console.log(err)
+          })
+        }
+      }
+    )
+    
   }
 
   private sendEmailTo(messageTitle: string, messageBody: string, emails: Array<string>): Promise<Array<{email: string, success: boolean, data: any}>>

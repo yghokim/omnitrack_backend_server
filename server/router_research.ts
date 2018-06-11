@@ -1,5 +1,6 @@
+import { environment } from '../client/environments/environment';
 import * as express from 'express';
-import env from './env';
+import { environmentSubject } from './env';
 import OTResearcher from './models/ot_researcher';
 import OTResearchAuthCtrl from './controllers/ot_research_auth_controller';
 import AdminCtrl from "./controllers/admin_controller";
@@ -29,6 +30,13 @@ const adminCtrl = new AdminCtrl()
 const userCtrl = new OTUserCtrl()
 const storageCtrl = new BinaryStorageCtrl()
 const usageLogCtrl = new OTUsageLogCtrl()
+
+var env: any = null
+environmentSubject.subscribe(
+  e => {
+    env = e
+  }
+)
 
 function makeTokenAuthMiddleware(pipe: (reseaercher, parsedToken?) => string = () => { return null }): any {
   return jwt({
