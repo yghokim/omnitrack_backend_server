@@ -62,6 +62,8 @@ import { ParticipantExcludedDaysConfigDialogComponent } from './dialogs/particip
 import { ProductivityStatisticsModule } from './research/custom/productivity-statistics/productivity-statistics.module';
 import { ExperimentTrackingEngagementComponent } from './experiment-overview/experiment-tracking-engagement/experiment-tracking-engagement.component';
 import { ClientUsageComponent } from './experiment-overview/client-usage/client-usage.component';
+import { DailyAverageComponent } from './experiment-overview/client-usage/daily-average/daily-average.component';
+import { EngagementDataService } from './experiment-overview/client-usage/engagement-data.service';
 import { ServerStatusOverviewComponent } from './server-status-overview/server-status-overview.component';
 import { UpdateClientSignatureDialogComponent } from './server-settings/update-client-signature-dialog/update-client-signature-dialog.component';
 import { NewTrackingPackageDialogComponent } from './research/omnitrack/new-tracking-package-dialog/new-tracking-package-dialog.component';
@@ -122,10 +124,11 @@ import { HttpMethodTestingComponent } from './test/http-method-testing/http-meth
     ExperimentCustomStatisticsComponent,
     ExperimentTrackingEngagementComponent,
     ClientUsageComponent,
+    DailyAverageComponent,
     ServerStatusOverviewComponent,
     UpdateClientSignatureDialogComponent,
     NewTrackingPackageDialogComponent,
-    HttpMethodTestingComponent,
+    HttpMethodTestingComponent
   ],
   exports: [
     NouisliderModule,
@@ -160,6 +163,7 @@ import { HttpMethodTestingComponent } from './test/http-method-testing/http-meth
     ResearcherAuthService,
     SocketService,
     ResearchApiService,
+    EngagementDataService,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: [

@@ -1,19 +1,24 @@
 <div class="card card-main">
   <div class="card-header">Daily App Launch Count</div>
   <div class="card-body">
-    Y axis: Average Count
-    <br>
-    X axis: date
+    <app-daily-average [dataType]="'launchCount'" [engageLog]="engagementService.engagementLogs" [dates]="engagementService.engagementDates"></app-daily-average>
+  </div>
+  <div class="card-header">Relative Daily App Launch Count</div>
+  <div class="card-body">
+    <app-daily-average [dataType]="'launchCount'" [engageLog]="engagementService.relativeLogs" [dates]="engagementService.relativeDates"></app-daily-average>
   </div>
 </div>
 
 <div class="card card-main">
-    <div class="card-header">Daily Session Engagement</div>
-    <div class="card-body">
-      Y axis: Average duration
-      <br>
-      X axis: date
-    </div>
+  <div class="card-header">Daily Session Engagement</div>
+  <div class="card-body">
+    <app-daily-average [dataType]="'sessionEngagement'" [engageLog]="engagementService.engagementLogs" [dates]="engagementService.engagementDates"></app-daily-average>
   </div>
+  <div class="card-header">Relative Daily Session Engagement</div>
+  <div class="card-body">
+    <app-daily-average [dataType]="'sessionEngagement'" [engageLog]="engagementService.relativeLogs" [dates]="engagementService.relativeDates"></app-daily-average>
+  </div>
+</div>
+
   
   
