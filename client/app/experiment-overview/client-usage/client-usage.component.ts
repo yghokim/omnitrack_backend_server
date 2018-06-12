@@ -1,15 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../../services/research-api.service';
 import { ResearchVisualizationQueryConfigurationService } from '../../services/research-visualization-query-configuration.service';
-import { query } from '@angular/animations';
-import { Chart } from 'angular-highcharts';
-import { HighChartsHelper } from '../../shared-visualization/highcharts-helper';
-import { IUsageLogDbEntity, IParticipantDbEntity } from '../../../../omnitrack/core/db-entity-types';
-import d3 = require('d3');
+import { IParticipantDbEntity } from '../../../../omnitrack/core/db-entity-types';
 import { EngagementDataService } from './engagement-data.service';
 import { logsToEngagements, EngageData } from '../../../../shared_lib/engagement';
 import { Subscription } from 'rxjs';
-import { combineLatest, flatMap } from 'rxjs/operators';
+import { combineLatest, flatMap, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-client-usage',

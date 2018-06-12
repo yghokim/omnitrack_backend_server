@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 import { DayElement, DayData } from './daily-average/daily-average.component';
-import d3 = require('d3');
+import * as d3 from 'd3';
 import { getExperimentDateSequenceOfParticipant } from '../../../../omnitrack/experiment-utils';
-import { ExperimentService } from '../../services/experiment.service';
 import { IParticipantDbEntity } from '../../../../omnitrack/core/db-entity-types';
-import { Subscription } from 'rxjs/Subscription';
 
 @Injectable()
 export class EngagementDataService {
@@ -70,6 +68,7 @@ export class EngagementDataService {
       this.calculateAvgRange("date", dailyUsers)
       this.calculateAvgRange("relative", relativeUsers)
       
+      console.log(this.dailyData)
     }
   }
 
