@@ -1,12 +1,10 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { JwtHelper } from 'angular2-jwt';
+import { JwtHelperService } from '@auth0/angular-jwt';
 import { Http, Headers, RequestOptions } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
+import { Observable, BehaviorSubject, Subscription, of, defer } from 'rxjs';
+import { map, flatMap, combineLatest, catchError } from 'rxjs/operators';
 import { SocketService } from './socket.service';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import 'rxjs/add/operator/map';
-import { Subscription } from 'rxjs/Subscription';
 import { isNullOrBlank } from '../../../shared_lib/utils';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
 import { ResearcherPrevilages, IResearcherToken } from '../../../omnitrack/core/research/researcher';
@@ -18,28 +16,28 @@ export class ResearcherAuthInfo {
     public readonly tokenInfo: IResearcherToken
   ) { }
 
-  get signedIn():boolean{
-    return this.tokenInfo!=null
+  get signedIn(): boolean {
+    return this.tokenInfo != null
   }
 
-  get uid(): string{
-    return this.tokenInfo? this.tokenInfo.uid : null
+  get uid(): string {
+    return this.tokenInfo ? this.tokenInfo.uid : null
   }
 
-  get email(): string{
-    return this.tokenInfo? this.tokenInfo.email : null
+  get email(): string {
+    return this.tokenInfo ? this.tokenInfo.email : null
   }
 
-  get alias(): string{
-    return this.tokenInfo? this.tokenInfo.alias : null
+  get alias(): string {
+    return this.tokenInfo ? this.tokenInfo.alias : null
   }
 
-  get previlage(): number{
-    return this.tokenInfo? this.tokenInfo.previlage : -1
+  get previlage(): number {
+    return this.tokenInfo ? this.tokenInfo.previlage : -1
   }
 
-  get approved(): boolean{
-    return this.tokenInfo? this.tokenInfo.approved : null
+  get approved(): boolean {
+    return this.tokenInfo ? this.tokenInfo.approved : null
   }
 }
 
@@ -53,7 +51,7 @@ export class ResearcherAuthService implements OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
 
-  jwtHelper: JwtHelper = new JwtHelper();
+  readonly jwtHelper = new JwtHelperService();
 
   readonly currentResearcher = new BehaviorSubject<ResearcherAuthInfo>(ResearcherAuthInfo.NOT_SIGNED_IN);
 
@@ -68,26 +66,26 @@ export class ResearcherAuthService implements OnDestroy {
     }
 
     this._internalSubscriptions.add(
-      this.socketService.onConnected.combineLatest(this.currentResearcher, (socket, researcher)=>{return {socket: socket, researcher: researcher}}).subscribe(
+      this.socketService.onConnected.pipe(combineLatest(this.currentResearcher, (socket, researcher) => { return { socket: socket, researcher: researcher } })).subscribe(
         project => {
           console.log("auth service : websocket connected.")
           if (project.socket !== null) {
-             if (project.researcher.signedIn === true) {
-               console.log("subscribe websocket as a researcher: " + project.researcher.uid)
-                project.socket.emit(SocketConstants.SERVER_EVENT_SUBSCRIBE_RESEARCHER, { uid: project.researcher.uid }, () => {
-                  console.log("subscribed as a researcher")
+            if (project.researcher.signedIn === true) {
+              console.log("subscribe websocket as a researcher: " + project.researcher.uid)
+              project.socket.emit(SocketConstants.SERVER_EVENT_SUBSCRIBE_RESEARCHER, { uid: project.researcher.uid }, () => {
+                console.log("subscribed as a researcher")
 
-                })
-                project.socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER, (data) => {
-                  console.log("received a updated/researcher websocket event")
-                })
-              }
-              else {
-                project.socket.emit(SocketConstants.SERVER_EVENT_UNSUBSCRIBE_RESEARCHER, { uid: project.researcher.uid }, () => {
-                  console.log("unsubscribed")
-                  project.socket.removeListener(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER)
-                })
-              }
+              })
+              project.socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER, (data) => {
+                console.log("received a updated/researcher websocket event")
+              })
+            }
+            else {
+              project.socket.emit(SocketConstants.SERVER_EVENT_UNSUBSCRIBE_RESEARCHER, { uid: project.researcher.uid }, () => {
+                console.log("unsubscribed")
+                project.socket.removeListener(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER)
+              })
+            }
           }
         })
     )
@@ -113,19 +111,22 @@ export class ResearcherAuthService implements OnDestroy {
 
   public verifySignedInStatus(): Observable<boolean> {
     if (this.isTokenAvailable() == false) {
-      return Observable.of(false)
+      return of(false)
     }
 
-    return this.http.post("/api/research/auth/verify", null, this.makeAuthorizedOptions()).map(result => result.json()).catch(err => {
-      return Observable.of(false)
-    }).flatMap(verified => {
-      if (verified == false) {
-        console.log("token verification was failed. sign out and return false")
-        //sign out
-        return this.signOut().map(r => false)
-      }
-      else return Observable.of(true)
-    })
+    return this.http.post("/api/research/auth/verify", null, this.makeAuthorizedOptions()).pipe(
+      map(result => result.json()),
+      catchError(err => {
+        return of(false)
+      }),
+      flatMap(verified => {
+        if (verified == false) {
+          console.log("token verification was failed. sign out and return false")
+          //sign out
+          return this.signOut().pipe(map(r => false))
+        }
+        else return of(true)
+      }))
   }
 
   private decodeAndSaveResearcherFromToken(token): any {
@@ -137,13 +138,13 @@ export class ResearcherAuthService implements OnDestroy {
 
   public register(info): Observable<any> {
     return this.http.post('/api/research/auth/register', JSON.stringify(info), this.jsonOptions)
-      .map(res => {
+      .pipe(map(res => {
         const token = res.json().token
         if (token != null) {
           this.setNewToken(token)
         }
         return token
-      })
+      }))
   }
 
   private setNewToken(token): any {
@@ -153,11 +154,11 @@ export class ResearcherAuthService implements OnDestroy {
   }
 
   public signOut(): Observable<boolean> {
-    return Observable.defer(() => {
+    return defer(() => {
       localStorage.removeItem("omnitrack_researcher_token")
       this.tokenSubject.next(null)
       this.currentResearcher.next(ResearcherAuthInfo.NOT_SIGNED_IN);
-      return Observable.of(true)
+      return of(true)
     })
   }
 
@@ -168,13 +169,13 @@ export class ResearcherAuthService implements OnDestroy {
       password: password
     }
     return this.http.post('/api/research/auth/authenticate', JSON.stringify(requestBody), this.jsonOptions)
-      .map(res => {
+      .pipe(map(res => {
         const token = res.json().token
         if (token != null) {
           this.setNewToken(token)
         }
         return token
-      })
+      }))
   }
 
   public updateInfo(alias?: string, newPassword?: string, originalPassword?: string): Observable<any> {
@@ -194,13 +195,15 @@ export class ResearcherAuthService implements OnDestroy {
       }
 
       if (Object.keys(body).length > 0) {
-        return this.http.post("/api/research/auth/update", body, this.makeAuthorizedOptions()).map(res => res.json()).map(
-          res => {
-            if (!isNullOrBlank(res.token)) {
-              return this.setNewToken(res.token)
-            }else throw new Error("No token retrieved.")
-          }
-        )
+        return this.http.post("/api/research/auth/update", body, this.makeAuthorizedOptions()).pipe(
+          map(res => res.json()),
+          map(
+            res => {
+              if (!isNullOrBlank(res.token)) {
+                return this.setNewToken(res.token)
+              } else throw new Error("No token retrieved.")
+            }
+          ))
       }
       else {
         throw new Error("Set either alias or passwords.")

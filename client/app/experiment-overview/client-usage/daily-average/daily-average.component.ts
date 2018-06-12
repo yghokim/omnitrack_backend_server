@@ -1,10 +1,6 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { HighChartsHelper } from '../../../shared-visualization/highcharts-helper';
 import { Chart } from 'angular-highcharts';
-import { IUsageLogDbEntity } from '../../../../../omnitrack/core/db-entity-types';
-import d3 = require('d3');
-import Highcharts = require('highcharts');
-import { EngagementDataService } from '../engagement-data.service';
 import { Engagement } from '../../../../../shared_lib/engagement';
 
 @Component({
@@ -16,7 +12,6 @@ import { Engagement } from '../../../../../shared_lib/engagement';
 export class DailyAverageComponent implements OnInit {
   
   public chart
-  private engageLog: Array<DayData>
   
   @Input('dataType')
   private dataType: String

@@ -24,13 +24,14 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatListModule } from '@angular/material/list';
-
+import {MatSidenavModule} from '@angular/material/sidenav';
 import { MatNativeDateModule } from '@angular/material';
 
 
 @NgModule({
   imports: [
     CommonModule,
+    MatSidenavModule,
     MatDialogModule,
     MatTabsModule,
     MatCheckboxModule,
@@ -59,6 +60,7 @@ import { MatNativeDateModule } from '@angular/material';
   ],
   exports: [
     MatDialogModule,
+    MatSidenavModule,
     MatTabsModule,
     MatCheckboxModule,
     MatRadioModule,

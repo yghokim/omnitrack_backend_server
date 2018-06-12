@@ -2,11 +2,10 @@ import { Component, OnInit, Input, Inject, ViewChild, ElementRef } from '@angula
 import { ITrackerDbEntity, IAttributeDbEntity } from '../../../../omnitrack/core/db-entity-types';
 import { ResearchApiService } from '../../services/research-api.service';
 import { SingletonAudioPlayerServiceService } from '../../services/singleton-audio-player-service.service';
-import { Subscription } from 'rxjs/Subscription';
-import { BehaviorSubject} from 'rxjs/BehaviorSubject';
+import { Subscription ,  BehaviorSubject} from 'rxjs';
 import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material';
-import { Observable } from 'rxjs/Rx';
+import { Observable, timer } from 'rxjs';
 import { Pipe, PipeTransform } from '@angular/core';
 
 
@@ -34,7 +33,7 @@ export class AudioCellComponent implements OnInit {
   }
 
   startTimer(){
-    this.timer = Observable.timer(0,1000);
+    this.timer = timer(0,1000);
     this.timeSubscription = new Subscription();
     this.timeSubscription = this.timer.subscribe(t=> {
       this.currentTime.next(this.audioElement.currentTime); 

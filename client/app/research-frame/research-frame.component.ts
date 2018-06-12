@@ -3,7 +3,7 @@ import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { NotificationService } from '../services/notification.service';
 import { Router } from '@angular/router';
 import { ResearchApiService } from '../services/research-api.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material';
 
 @Component({
@@ -24,7 +24,6 @@ export class ResearchFrameComponent implements OnInit {
     this._internalSubscriptions.add(
       this.notificationService.snackBarMessageQueue.subscribe(
         message => {
-          console.log(message)
           if (message.action) {
             this.snackBar.open(message.message, message.action.label, { duration: 3000 })
           }

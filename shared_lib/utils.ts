@@ -27,6 +27,10 @@ export function merge(objA: any, objB: any, overwrite: boolean, recursive: boole
   return newObj
 }
 
+export function isString(obj: any): boolean{
+  return obj instanceof String || typeof(obj) === "string"
+}
+
 export function deepclone(obj: any): any {
   return JSON.parse(JSON.stringify(obj))
 }

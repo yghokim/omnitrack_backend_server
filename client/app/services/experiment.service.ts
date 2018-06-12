@@ -1,25 +1,23 @@
 import { ResearcherAuthService } from './researcher.auth.service';
 import { ResearchApiService } from './research-api.service';
 import { Http } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/publishReplay';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable, BehaviorSubject, Subscription, Subject } from 'rxjs';
+import { map, filter, tap, combineLatest } from 'rxjs/operators';
 import { SocketService } from './socket.service';
 import { SocketConstants } from '../../../omnitrack/core/research/socket'
 import { NotificationService } from './notification.service';
 import { ExperimentPermissions } from '../../../omnitrack/core/research/experiment'
-import { Subscription } from 'rxjs/Subscription';
-import 'rxjs/add/operator/combineLatest';
+
 import { VisualizationConfigs } from '../../../omnitrack/core/research/configs';
 import { TrackingDataService } from './tracking-data.service';
-import { Subject } from 'rxjs/Subject';
 import { IResearchMessage } from '../../../omnitrack/core/research/messaging';
-import { IParticipantDbEntity, IUsageLogDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { IParticipantDbEntity, IUsageLogDbEntity, getIdPopulateCompat } from '../../../omnitrack/core/db-entity-types';
+import { IExperimentDbEntity, IResearcherDbEntity, IExperimentTrackingPackgeDbEntity, IExperimentGroupDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 
 export class ExperimentService {
 
-  private readonly experimentInfo = new BehaviorSubject<any>(null)
-  private readonly managerInfo = new BehaviorSubject<any>(null)
+  private readonly experimentInfo = new BehaviorSubject<IExperimentDbEntity>(null)
+  private readonly managerInfo = new BehaviorSubject<IResearcherDbEntity>(null)
   private readonly invitationList = new BehaviorSubject<Array<any>>([])
   private readonly participantList = new BehaviorSubject<Array<IParticipantDbEntity>>([])
   private readonly messageList = new BehaviorSubject<Array<IResearchMessage>>([])
@@ -130,7 +128,7 @@ export class ExperimentService {
     this.notificationService.registerGlobalBusyTag("messageList")
     this._internalSubscriptions.add(
       this.http.get("/api/research/experiments/" + this.experimentId + "/messages", this.researchApi.authorizedOptions)
-        .map(res => res.json())
+        .pipe(map(res => res.json()))
         .subscribe(
           messages => {
             if (messages instanceof Array) {
@@ -146,9 +144,9 @@ export class ExperimentService {
     this.notificationService.registerGlobalBusyTag("experimentList")
     this._internalSubscriptions.add(
       this.http.get('/api/research/experiments/' + this.experimentId, this.researchApi.authorizedOptions)
-        .map(res => {
+        .pipe(map(res => {
           return res.json()
-        }).subscribe(
+        })).subscribe(
           experimentInfo => {
             this.notificationService.unregisterGlobalBusyTag("experimentList")
             this.experimentInfo.next(experimentInfo)
@@ -161,9 +159,9 @@ export class ExperimentService {
     this._internalSubscriptions.add(
       this.http
         .get('/api/research/experiments/manager/' + this.experimentId, this.researchApi.authorizedOptions)
-        .map(res => {
+        .pipe(map(res => {
           return res.json()
-        }).subscribe(
+        })).subscribe(
           manager => {
 
             this.notificationService.unregisterGlobalBusyTag("managerInfo")
@@ -177,9 +175,9 @@ export class ExperimentService {
     this._internalSubscriptions.add(
       this.http
         .get('/api/research/experiments/' + this.experimentId + "/invitations", this.researchApi.authorizedOptions)
-        .map(res => {
+        .pipe(map(res => {
           return res.json()
-        }).subscribe(
+        })).subscribe(
           list => {
             this.notificationService.unregisterGlobalBusyTag("invitationList")
             this.invitationList.next(list)
@@ -190,9 +188,9 @@ export class ExperimentService {
   loadParticipantList() {
     this.notificationService.registerGlobalBusyTag("participantList")
     this._internalSubscriptions.add(
-      this.http.get("/api/research/experiments/" + this.experimentId + '/participants', this.researchApi.authorizedOptions).map(
+      this.http.get("/api/research/experiments/" + this.experimentId + '/participants', this.researchApi.authorizedOptions).pipe(map(
         res => res.json()
-      ).subscribe(
+      )).subscribe(
         list => {
           this.notificationService.unregisterGlobalBusyTag("participantList")
           this.participantList.next(list)
@@ -200,12 +198,12 @@ export class ExperimentService {
     )
   }
 
-  getExperiment(): Observable<any> {
-    return this.experimentInfo.filter(res => res != null)
+  getExperiment(): Observable<IExperimentDbEntity> {
+    return this.experimentInfo.pipe(filter(res => res != null))
   }
 
-  getManagerInfo(): Observable<any> {
-    return this.managerInfo.filter(res => res != null)
+  getManagerInfo(): Observable<IResearcherDbEntity> {
+    return this.managerInfo.pipe(filter(res => res != null))
   }
 
   getInvitations(): Observable<Array<any>> {
@@ -217,26 +215,26 @@ export class ExperimentService {
   }
 
   getMessageList(): Observable<Array<IResearchMessage>> {
-    return this.messageList.filter(res => res != null)
+    return this.messageList.pipe(filter(res => res != null))
   }
 
   enqueueMessage(messageInfo: IResearchMessage): Observable<boolean> {
     return this.http
       .post("/api/research/experiments/" + this.experimentId + "/messages/new", messageInfo, this.researchApi.authorizedOptions)
-      .map(res => res.json())
+      .pipe(map(res => res.json()))
   }
 
   generateInvitation(information): Observable<any> {
     return this.http
       .post("/api/research/experiments/" + this.experimentId + '/invitations/new', information, this.researchApi.authorizedOptions)
-      .map(res => res.json())
+      .pipe(map(res => res.json()))
   }
 
   removeInvitation(invitation): Observable<any> {
     return this.http
-      .delete("/api/research/experiments/" + this.experimentId + '/invitations/' + invitation._id, this.researchApi.authorizedOptions).map(
+      .delete("/api/research/experiments/" + this.experimentId + '/invitations/' + invitation._id, this.researchApi.authorizedOptions).pipe(map(
         res => res.json()
-      )
+      ))
   }
 
   sendInvitation(invitationCode: string, userIds: Array<string>, force: boolean): Observable<Array<{
@@ -245,75 +243,78 @@ export class ExperimentService {
   }>> {
     return this.http
       .post("/api/research/experiments/" + this.experimentId + "/invitations/send", { invitationCode: invitationCode, userIds: userIds, force: force }, this.researchApi.authorizedOptions)
-      .map(res => res.json())
+      .pipe(map(res => res.json()))
   }
 
   removeParticipant(participantId): Observable<any> {
     return this.http.delete("/api/research/participants/" + participantId, this.researchApi.authorizedOptions)
-      .map(res => res.json())
+      .pipe(map(res => res.json()))
   }
 
   dropParticipant(participantId): Observable<any> {
     return this.http.delete("/api/research/participants/" + participantId + "/drop", this.researchApi.authorizedOptions)
-      .map(res => res.json().success)
+      .pipe(map(res => res.json().success))
   }
 
   changeParticipantAlias(participantId, alias): Observable<boolean> {
-    return this.http.post("/api/research/participants/" + participantId + "/alias", { alias: alias }, this.researchApi.authorizedOptions).map(res => res.json())
+    return this.http.post("/api/research/participants/" + participantId + "/alias", { alias: alias }, this.researchApi.authorizedOptions).pipe(map(res => res.json()))
   }
 
   updateParticipant(participantId, update): Observable<any> {
     return this.http.post("/api/research/participants/" + participantId + "/update", { update: update },
-      this.researchApi.authorizedOptions).map(res => res.json())
+      this.researchApi.authorizedOptions).pipe(map(res => res.json()))
   }
 
   setParticipantExcludedDays(participantId: string, excludedDays: Array<Date>): Observable<any> {
-    return this.http.post("/api/research/participants/" + participantId + "/excluded_days", { excludedDays: excludedDays }, this.researchApi.authorizedOptions).map(res => res.json()).do(result => {
-      if (result.success === true) {
-        this.loadParticipantList()
-      }
-    })
+    return this.http.post("/api/research/participants/" + participantId + "/excluded_days", { excludedDays: excludedDays }, this.researchApi.authorizedOptions).pipe(
+      map(res => res.json()),
+      tap(result => {
+        if (result.success === true) {
+          this.loadParticipantList()
+        }
+      })
+    )
   }
 
-  getOmniTrackPackages(): Observable<Array<any>> {
-    return this.experimentInfo.map(exp => {
+  getOmniTrackPackages(): Observable<Array<IExperimentTrackingPackgeDbEntity>> {
+    return this.experimentInfo.pipe(map(exp => {
       return exp.trackingPackages
-    })
+    }))
   }
 
   getOmniTrackPackage(key: string): Observable<any> {
-    return this.getOmniTrackPackages().map(list => {
+    return this.getOmniTrackPackages().pipe(map(list => {
       return list.find(l => l.key === key)
-    })
+    }))
   }
 
   getVisualizationConfigs(): Observable<VisualizationConfigs> {
-    return this.getExperiment().map(exp => VisualizationConfigs.fromJson(exp.visualizationConfigs))
+    return this.getExperiment().pipe(map(exp => VisualizationConfigs.fromJson(exp.visualizationConfigs)))
   }
 
   getMyRole(): Observable<string> {
-    return this.getExperiment().combineLatest(this.authService.currentResearcher, (exp, researcher) => {
-      if (exp.manager._id === researcher.uid) {
+    return this.getExperiment().pipe(combineLatest(this.authService.currentResearcher, (exp, researcher) => {
+      if (getIdPopulateCompat(exp.manager) === researcher.uid) {
         return "manager"
-      } else if (exp.experimenters.find(ex => ex.researcher.email === researcher.email)) {
+      } else if (exp.experimenters.find(ex => getIdPopulateCompat(ex.researcher) === researcher.uid)) {
         return "collaborator"
       } else { return null }
-    })
+    }))
   }
 
   getMyPermissions(): Observable<ExperimentPermissions> {
-    return this.getExperiment().combineLatest(this.authService.currentResearcher, (exp, researcher) => {
-      if (exp.manager._id === researcher.uid) {
+    return this.getExperiment().pipe(combineLatest(this.authService.currentResearcher, (exp, researcher) => {
+      if (getIdPopulateCompat(exp.manager) === researcher.uid) {
         return ExperimentPermissions.makeMasterPermissions()
       } else {
-        const col = exp.experimenters.find(ex => ex.researcher.email === researcher.email)
+        const col = exp.experimenters.find(ex => getIdPopulateCompat(ex.researcher) === researcher.uid)
         if (col) {
           return ExperimentPermissions.fromJson(col.permissions)
         }
       }
 
       return null
-    })
+    }))
   }
 
   queryUsageLogsPerParticipant(filter: any = null, userIds: string | Array<string> = null): Observable<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>> {
@@ -321,7 +322,7 @@ export class ExperimentService {
       experiment: this.experimentId,
       userIds: userIds,
       filter: JSON.stringify(filter)
-    })).map(res => res.json())
+    })).pipe(map(res => res.json()))
   }
 
   // commands====================
@@ -331,8 +332,30 @@ export class ExperimentService {
       collaborator: collaboratorId,
       permissions: permissions
     }, this.researchApi.authorizedOptions)
-      .map(res => res.json())
+      .pipe(map(res => res.json()))
   }
 
+  addTrackingPackageJson(packageJson: any, name: string): Observable<boolean> {
+    return this.http.post("api/research/experiments/" + this.experimentId + "/packages/update", {
+      packageJson: packageJson,
+      name: name
+    }, this.researchApi.authorizedOptions).pipe(map(res => res.json()))
+  }
 
+  removeTrackingPackage(packageKey: string): Observable<boolean> {
+    return this.http.delete("api/research/experiments/" + this.experimentId + "/packages/" + packageKey, this.researchApi.authorizedOptions).pipe(map(res => res.json()))
+  }
+
+  upsertExperimentGroup(values: {
+    _id?: string,
+    name?: string,
+    maxSize?: number,
+    trackingPackageKey?: string
+  }): Observable<boolean> {
+    return this.http.post("api/research/experiments/" + this.experimentId + "/groups/upsert", values, this.researchApi.authorizedOptions).pipe(map(r => r.json()))
+  }
+
+  deleteExperimentGroup(groupId: string) {
+    return this.http.delete("api/research/experiments/" + this.experimentId + "/groups/" + groupId, this.researchApi.authorizedOptions).pipe(map(r => r.json()))
+  }
 }

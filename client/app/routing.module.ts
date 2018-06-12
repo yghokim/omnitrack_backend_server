@@ -3,7 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { AppComponent } from './app.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 
-import { ResearchMainComponent } from './research-main/research-main.component';
 import { ResearchSignupComponent } from './research-signup/research-signup.component';
 import { ResearchLoginComponent } from './research-login/research-login.component';
 import { ResearchFrameComponent } from './research-frame/research-frame.component';
@@ -39,10 +38,13 @@ import { ExperimentCustomStatisticsComponent } from './experiment-custom-statist
 import { ExperimentTrackingEngagementComponent } from './experiment-overview/experiment-tracking-engagement/experiment-tracking-engagement.component';
 import { ClientUsageComponent } from './experiment-overview/client-usage/client-usage.component';
 import { ServerStatusOverviewComponent } from './server-status-overview/server-status-overview.component';
+import { HttpMethodTestingComponent } from './test/http-method-testing/http-method-testing.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'downloads', pathMatch: 'full', canActivate: [EndUserAuthToMainGuard] },
   { path: 'downloads', component: ClientDownloadComponent },
+
+  {path: 'test', component: HttpMethodTestingComponent},
 
   {
     path: 'tracking', component: EndUserFrameComponent,
@@ -66,7 +68,7 @@ const routes: Routes = [
       {
         path: '', component: ResearchHomeFrameComponent,
         children: [
-          { path: '', component: ResearchMainComponent, canActivate: [ResearcherAuthGuardMain] },
+          {path: '', redirectTo: 'status', pathMatch: 'full'},
           { path: 'status', component: ServerStatusOverviewComponent, canActivate: [ResearcherAuthGuardSecure]},
           { path: 'settings', component: ServerSettingsComponent, canActivate: [ResearcherAuthGuardSecure] },
           { path: 'signup', component: ResearchSignupComponent },

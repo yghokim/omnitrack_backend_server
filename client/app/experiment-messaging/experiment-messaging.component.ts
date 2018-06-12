@@ -2,7 +2,8 @@ import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog, MatTableDataSource, MatSort } from '@angular/material';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ResearchApiService } from '../services/research-api.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
 import { IResearchMessage } from '../../../omnitrack/core/research/messaging';
 
 @Component({
@@ -26,7 +27,7 @@ export class ExperimentMessagingComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(service=> service.getMessageList()).subscribe(
+      this.api.selectedExperimentService.pipe(flatMap(service=> service.getMessageList())).subscribe(
         messages=>{
           this.messageList = messages
           this.messageDataSource = new MatTableDataSource(this.getMessageList())

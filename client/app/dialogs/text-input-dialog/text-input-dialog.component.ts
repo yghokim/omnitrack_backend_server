@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { Observable } from "rxjs/Observable"
-import { Subscription } from 'rxjs/Subscription'
+import { Observable ,  Subscription } from "rxjs"
 
 
 @Component({

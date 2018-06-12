@@ -11,7 +11,7 @@ export function generateNewExperimentId(): string{
 
 const otExperimentGroupSchema = new mongoose.Schema(
   {
-    _id: {type: String, default: uuid.v1},
+    _id: {type: String, default: uuid.v1, required: true},
     name: {type: String, required: true},
     maxSize: {type: Number, required: true, default: 20},
     trackingPackageKey: {type: String, default: null}

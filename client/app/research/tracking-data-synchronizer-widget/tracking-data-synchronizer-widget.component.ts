@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../../services/research-api.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 import { TrackingDataService } from '../../services/tracking-data.service';
 
 @Component({
@@ -15,20 +16,23 @@ export class TrackingDataSynchronizerWidgetComponent implements OnInit, OnDestro
   trackingDataService: TrackingDataService
 
   constructor(private api: ResearchApiService) {
-  
+
   }
 
   ngOnInit() {
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.filter(service => service!=null).map(service => service.trackingDataService).subscribe(
-        dt=>{
+      this.api.selectedExperimentService.pipe(
+        filter(service => service != null),
+        map(service => service.trackingDataService)
+      ).subscribe(
+        dt => {
           this.trackingDataService = dt
         }
       )
     )
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
   }
 

@@ -1,35 +1,49 @@
 <div class="container">
-  <div class="card card-main">
-    <div class="card-header">
-      Server Settings
-    </div>
-  </div>
+  <h1 class="global-page-title">
+    Server Settings
+  </h1>
 
   <div class="card card-main">
     <div class="card-header container-vertical-padding">
       <div class="flex-container flex-align-items-center flex-stretch">
-        <span>OmniTrack Client Apps</span>
+        <div>
+          <span>OmniTrack Client Apps</span>
+          <div class="description">Manages client executable files downloadable by people.</div>
+        </div>
         <button mat-raised-button color="primary" (click)="onUploadClicked()">Upload</button>
       </div>
     </div>
-    <mat-tab-group *ngIf="binaryGroupList && binaryGroupList.length > 0" class="tab-group" (selectedTabChange)="onTabChanged($event)">
-      <mat-tab *ngFor="let binaryGroup of binaryGroupList" [label]="binaryGroup._id">
+    <app-labeled-loading-indicator *ngIf="isLoadingBinaries===true">
+      <span message>Loading client information...</span>
+    </app-labeled-loading-indicator>
+    <mat-tab-group *ngIf="isLoadingBinaries!==true && binaryGroupList && binaryGroupList.length > 0" class="tab-group" (selectedTabChange)="onTabChanged($event)">
+      <mat-tab *ngFor="let binaryGroup of binaryGroupList; trackBy: matchBinaryGroup" [label]="binaryGroup._id">
         <table class="table table-data">
           <thead>
             <tr class="singleline">
               <th>App Version</th>
               <th>Minimum OS</th>
               <th>File Size</th>
+              <th>Changelog</th>
               <th>Uploaded</th>
+              <th>Downloads</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            <tr class="singleline hoverable" *ngFor="let binary of binaryGroup.binaries">
+            <tr class="singleline hoverable" *ngFor="let binary of binaryGroup.binaries;  trackBy: matchBinaryItem">
               <td>{{binary.version}}</td>
               <td>{{binary.minimumOsVersionReadable}}</td>
               <td>{{binary.fileSize | fileSize}}</td>
+              <td>
+                <ol *ngIf="binary.changelog" class="changelog-list">
+                  <li *ngFor="let log of binary.changelog">{{log}}</li>
+                </ol>
+              </td>
               <td>{{binary.createdAt | date: 'short'}}</td>
+              <td>
+                <span class="badge badge-info badge-pill">{{binary.downloadCount}}</span>
+              </td>
               <td class="button-cell">
                 <div class="text-right">
                   <a [href]="'/api/clients/download?platform=' + binary.platform + '&version=' + binary.version" mat-icon-button>
@@ -51,10 +65,60 @@
   </div>
 
   <div class="card card-main">
+    <div class="card-header container-vertical-padding">
+      <div class="flex-container flex-align-items-center flex-stretch">
+        <div>
+          <span>Certified Client Signatures</span>
+          <div class="description">Manages signature keys of certified client apps that are connectable to this server.</div>
+        </div>
+        <button mat-raised-button color="primary" (click)="onEditSignatureClicked(null)">Add</button>
+      </div>
+    </div>
+    <app-labeled-loading-indicator *ngIf="isLoadingSignatures===true">
+      <span message>Loading signatures...</span>
+    </app-labeled-loading-indicator>
+    <div class="card-body" *ngIf="isLoadingSignatures !== true && (!clientSignatures || clientSignatures.length == 0)">
+      <div class="alert alert-sm alert-danger no-margin-bottom" role="alert">
+        No clients are certified in this server. This means that no clients will be synchronized with this server. Upload a new signed
+        client executable or add signature manually.
+      </div>
+    </div>
+
+    <table *ngIf="isLoadingSignatures !== true && clientSignatures && clientSignatures.length > 0" class="table table-data">
+      <thead>
+        <th>Fingerprint</th>
+        <th>Package</th>
+        <th>Alias</th>
+        <th></th>
+      </thead>
+      <tbody>
+        <tr class="singleline" *ngFor="let signature of clientSignatures">
+          <td class="cell-fingerprint">{{signature.key}}</td>
+          <td>{{signature.package}}</td>
+          <td>{{signature.alias}}</td>
+          <td class="button-cell">
+            <div class="text-right">
+              <button mat-icon-button (click)="onEditSignatureClicked(signature._id)">
+                <mat-icon class="material-icons">edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="onRemoveSignatureClicked(signature._id)">
+                <mat-icon class="material-icons">delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card card-main">
     <div class="card-header">
       Researchers
     </div>
-    <table class="table table-data">
+    <app-labeled-loading-indicator *ngIf="isLoadingResearchers===true">
+      <span message>Loading researchers...</span>
+    </app-labeled-loading-indicator>
+    <table *ngIf="isLoadingResearchers !== true" class="table table-data">
       <thead>
         <tr class="singleline">
           <th>Email</th>
@@ -70,20 +134,20 @@
           <td>{{researcher.alias}}</td>
           <td>{{researcher.createdAt | date: 'short'}}</td>
           <td *ngIf="researcher._id !== myId" [ngSwitch]="researcher.account_approved">
-              <span *ngSwitchCase="true">
-                Approved
-              </span>
-              <span *ngSwitchCase="undefined">
-                Approval Pending
-                </span>
-              <span *ngSwitchCase="false">
-                Declined
-              </span>
+            <span *ngSwitchCase="true">
+              Approved
+            </span>
+            <span *ngSwitchCase="undefined">
+              Approval Pending
+            </span>
+            <span *ngSwitchCase="false">
+              Declined
+            </span>
           </td>
-          <td  *ngIf="researcher._id !== myId" class="button-cell right-padding text-right">
+          <td *ngIf="researcher._id !== myId" class="button-cell right-padding text-right">
             <button class="btn btn-primary btn-sm" *ngIf="researcher.account_approved !== true" (click)="onSetResearcherApprovedStatus(researcher._id, true)">Approve</button>
-            <button class="btn btn-danger btn-sm"  *ngIf="researcher.account_approved !== false" (click)="onSetResearcherApprovedStatus(researcher._id, false)">Decline</button>
-            
+            <button class="btn btn-danger btn-sm" *ngIf="researcher.account_approved !== false" (click)="onSetResearcherApprovedStatus(researcher._id, false)">Decline</button>
+
           </td>
         </tr>
       </tbody>

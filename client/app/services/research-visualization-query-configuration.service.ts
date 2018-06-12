@@ -1,7 +1,6 @@
 import { Injectable, OnInit, OnDestroy } from "@angular/core";
-import { BehaviorSubject } from "rxjs/BehaviorSubject";
-import { Observable } from "rxjs/Observable";
-import { Subscription } from "rxjs/Subscription";
+import { BehaviorSubject, Observable, Subscription } from "rxjs";
+import { filter, flatMap, map, tap, combineLatest } from 'rxjs/operators';
 import { TrackingDataService } from "./tracking-data.service";
 import isEqual from "lodash/isEqual";
 import * as moment from "moment-timezone";
@@ -50,7 +49,7 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
     )
 
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(service => service.getParticipants()).subscribe(
+      this.api.selectedExperimentService.pipe(flatMap(service => service.getParticipants())).subscribe(
         participants => {
           let earliestExperimentStart: number = null
 
@@ -74,10 +73,10 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
     )
 
     this._internalSubscriptions.add(
-      this.makeScopeAndParticipantsObservable(true).flatMap(project => {
+      this.makeScopeAndParticipantsObservable(true).pipe(flatMap(project => {
         const userIds = project.participants.map(p => p.user._id)
         return project.trackingDataService.getTrackersOfUser(userIds)
-          .combineLatest(project.trackingDataService.getItemsOfUser(userIds), (trackers, items) => {
+          .pipe(combineLatest(project.trackingDataService.getItemsOfUser(userIds), (trackers, items) => {
             // make data
             const today = moment().startOf("day")
             let earliestExperimentStart: number = null
@@ -108,13 +107,15 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
                 })
                 return { tracker: tracker, decodedItems: decodedItems }
               })
-              return {participant: participant,
+              return {
+                participant: participant,
                 daySequence: daySequenceOfParticipant,
-                trackingData: trackingDataList}
+                trackingData: trackingDataList
+              }
             })
-            return {earliestExperimentStart: earliestExperimentStart, includesWeekends: project.scope.includeWeekends, data: data}
-          })
-      }).subscribe((dataset: FilteredExperimentDataset) => {
+            return { earliestExperimentStart: earliestExperimentStart, includesWeekends: project.scope.includeWeekends, data: data }
+          }))
+      })).subscribe((dataset: FilteredExperimentDataset) => {
         this._queriedDataset.next(dataset)
       })
 
@@ -139,7 +140,7 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
   }
 
   get filteredDatesetSubject(): Observable<FilteredExperimentDataset> {
-    return this._queriedDataset.filter(dataset => dataset != null)
+    return this._queriedDataset.pipe(filter(dataset => dataset != null))
   }
 
   clearParticipantFilter() {
@@ -190,11 +191,11 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
   }
 
   includeWeekends(): Observable<boolean> {
-    return this._scopeSubject.map(scope => scope.includeWeekends)
+    return this._scopeSubject.pipe(map(scope => scope.includeWeekends))
   }
 
   dayIndexRange(): Observable<Array<number>> {
-    return this._dayIndexRangeSubject.map(range => [range.from, range.to])
+    return this._dayIndexRangeSubject.pipe(map(range => [range.from, range.to]))
   }
 
   setDayIndexRange(range: Array<number>) {
@@ -202,18 +203,20 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
   }
 
   get scopeSubject(): Observable<Scope> {
-    return this._scopeSubject.filter(range => range != null);
+    return this._scopeSubject.pipe(filter(range => range != null));
   }
 
   public makeScopeAndParticipantsObservable(applyFilter: boolean): Observable<{ trackingDataService: TrackingDataService, scope: Scope, participants: Array<IParticipantDbEntity> }> {
-    return this.api.selectedExperimentService.map(service => service.trackingDataService).do(service => {
-      service.registerConsumer("queryConfigService")
-    })
-      .combineLatest(this.scopeSubject, this.filteredParticipantIds,
-        this.api.selectedExperimentService.flatMap(service => service.getParticipants()), (service, scope, filteredParticipantIds, participants) => {
+    return this.api.selectedExperimentService.pipe(
+      map(service => service.trackingDataService),
+      tap(service => {
+        service.registerConsumer("queryConfigService")
+      }),
+      combineLatest(this.scopeSubject, this.filteredParticipantIds,
+        this.api.selectedExperimentService.pipe(flatMap(service => service.getParticipants())), (service, scope, filteredParticipantIds, participants) => {
           return { trackingDataService: service, scope: scope, participants: participants.filter(p => filteredParticipantIds.includes(p._id) === false) }
         }
-      )
+      ))
   }
 }
 

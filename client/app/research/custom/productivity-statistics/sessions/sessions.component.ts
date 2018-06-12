@@ -1,8 +1,7 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { IParticipantDbEntity, ISessionUsageLog } from '../../../../../../omnitrack/core/db-entity-types';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject, Subscription, Observable } from 'rxjs';
+import { filter, combineLatest, map } from 'rxjs/operators';
 import { getExperimentDateSequenceOfParticipant, isSessionLog } from '../../../../../../omnitrack/experiment-utils';
 import * as moment from 'moment';
 import * as d3 from 'd3';
@@ -25,7 +24,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   public numDays = 14
   public engagementThreshold = 5000
 
-  public readonly sessionLogsDictSubject = new BehaviorSubject<Array<{user: string, logs: Array<ISessionUsageLog>}>>([])
+  public readonly sessionLogsDictSubject = new BehaviorSubject<Array<{ user: string, logs: Array<ISessionUsageLog> }>>([])
   public readonly participantsSubject = new BehaviorSubject<Array<IParticipantDbEntity>>([])
 
   public processedData: ProcessedData
@@ -33,7 +32,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   public sessionStatistics: Array<SessionOrientedSummaryRow>
 
   @Input("data")
-  public set setSessionLogDict(data: Array<{user: string, logs: Array<ISessionUsageLog>}>) {
+  public set setSessionLogDict(data: Array<{ user: string, logs: Array<ISessionUsageLog> }>) {
     this.sessionLogsDictSubject.next(data)
   }
 
@@ -52,10 +51,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
           const sessionInfos = data.filter(v => v.sessionData).map(
             v => {
               const sessionRow = v.sessionData.find(s => s.session === session)
-              return {days: sessionRow.engagedDays, duration: sessionRow.totalDuration}
+              return { days: sessionRow.engagedDays, duration: sessionRow.totalDuration }
             }
           )
-          return {session: session, n: sessionInfos.length,
+          return {
+            session: session, n: sessionInfos.length,
             meanDayCount: d3.mean(sessionInfos, s => s.days),
             sdDayCount: d3.deviation(sessionInfos, s => s.days),
             minDayCount: d3.min(sessionInfos, s => s.days),
@@ -68,7 +68,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
         })
       })
     )
-   }
+  }
 
   ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
@@ -86,65 +86,69 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   private processedDataObservable(): Observable<ProcessedData> {
-    return this.sessionLogsDictSubject.filter(dict => dict !== null).combineLatest(this.participantsSubject.filter(p => p !== null), (dict, participants) => {
-      return {sessionLogsDict: dict, participants: participants}
-    }).map(
-      project => {
-        const processed = project.participants.map(
-          participant => {
-            const userEntry = project.sessionLogsDict.find(d => d.user === participant.user._id)
-            let userLogs: Array<ISessionUsageLog>
+    return this.sessionLogsDictSubject.pipe(
+      filter(dict => dict !== null),
+      combineLatest(this.participantsSubject.pipe(filter(p => p !== null)), (dict, participants) => {
+        return { sessionLogsDict: dict, participants: participants }
+      }),
+      map(
+        project => {
+          const processed = project.participants.map(
+            participant => {
+              const userEntry = project.sessionLogsDict.find(d => d.user === participant.user._id)
+              let userLogs: Array<ISessionUsageLog>
 
-            if (!userEntry) {
-              return {participant: participant, sessionData: null, engagedDays: 0}
-            }
+              if (!userEntry) {
+                return { participant: participant, sessionData: null, engagedDays: 0 }
+              }
 
-            userLogs = userEntry.logs
-            const sequence = getExperimentDateSequenceOfParticipant(participant, new Date(), true).slice(0, this.numDays)
-            const data = this.SESSIONS.map(session => {
-              const rows = sequence.map((date, dayIndex) => {
-                const logs = userLogs.filter(log => {
-                  return moment(log.endedAt).isSame(moment(date), 'day') && log.session === session
+              userLogs = userEntry.logs
+              const sequence = getExperimentDateSequenceOfParticipant(participant, new Date(), true).slice(0, this.numDays)
+              const data = this.SESSIONS.map(session => {
+                const rows = sequence.map((date, dayIndex) => {
+                  const logs = userLogs.filter(log => {
+                    return moment(log.endedAt).isSame(moment(date), 'day') && log.session === session
+                  })
+                  return {
+                    dayIndex: dayIndex,
+                    actualDate: date,
+                    totalDuration: d3.sum(logs, (l) => l.duration),
+                    logs: logs
+                  }
                 })
                 return {
-                  dayIndex: dayIndex,
-                  actualDate: date,
-                  totalDuration: d3.sum(logs, (l) => l.duration),
-                  logs: logs
+                  session: session,
+                  rows: rows,
+                  engagedDays: rows.filter(r => r.totalDuration > this.engagementThreshold).length,
+                  totalDuration: d3.sum(rows, r => r.totalDuration)
                 }
               })
               return {
-                session: session,
-                rows: rows,
-                engagedDays: rows.filter(r => r.totalDuration > this.engagementThreshold).length,
-                totalDuration: d3.sum(rows, r => r.totalDuration)
+                participant: participant,
+                sessionData: data
               }
-            })
-            return {
-              participant: participant,
-              sessionData: data
             }
-          }
-        )
+          )
 
-        processed.sort((a, b) => {
-          if (a.sessionData === null) { return 1 }
-          if (b.sessionData === null) { return -1 }
-          const sumA = d3.sum(a.sessionData, (d: any) => d.rows.filter(r => r.totalDuration > 0).length)
-          const sumB = d3.sum(b.sessionData, (d: any) => d.rows.filter(r => r.totalDuration > 0).length)
-          return sumB - sumA
-        })
+          processed.sort((a, b) => {
+            if (a.sessionData === null) { return 1 }
+            if (b.sessionData === null) { return -1 }
+            const sumA = d3.sum(a.sessionData, (d: any) => d.rows.filter(r => r.totalDuration > 0).length)
+            const sumB = d3.sum(b.sessionData, (d: any) => d.rows.filter(r => r.totalDuration > 0).length)
+            return sumB - sumA
+          })
 
-        return processed
-      }
-    )
+          return processed
+        }
+      ))
   }
 
 }
 
 type ProcessedData = Array<{
   participant: IParticipantDbEntity,
-  sessionData: Array<SessionRow>}>
+  sessionData: Array<SessionRow>
+}>
 
 interface SessionRow {
   session: string, rows: Array<SessionDayRow>,

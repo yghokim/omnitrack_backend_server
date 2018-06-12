@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchVisualizationQueryConfigurationService, FilteredExperimentDataset } from '../../../services/research-visualization-query-configuration.service';
 import { ResearchApiService } from '../../../services/research-api.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
+import { combineLatest } from 'rxjs/operators';
 import * as d3 from 'd3';
 import { unique, isNullOrBlank } from '../../../../../shared_lib/utils';
 
@@ -30,9 +31,9 @@ export class ExperimentDataSummaryComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this._internalSubscriptions.add(
-      this.queryConfigService.dayIndexRange().combineLatest(this.queryConfigService.filteredDatesetSubject, (range, data: FilteredExperimentDataset)=>{
+      this.queryConfigService.dayIndexRange().pipe(combineLatest(this.queryConfigService.filteredDatesetSubject, (range, data: FilteredExperimentDataset)=>{
         return {range: range, data: data}
-      }).subscribe(dataAndRange=>{
+      })).subscribe(dataAndRange=>{
           const processed = dataAndRange.data.data.map(row => {
             return row.trackingData.map((trackerRow)=>{
               return {

@@ -57,29 +57,6 @@ export default class AdminCtrl {
       })
   }
 
-  extractPredefinedPackage = (req, res) => {
-    const trackerIds = req.query["trackerIds"]
-    const triggerIds = req.query["triggerIds"]
-    OTTracker.find().where("_id").in(trackerIds).then(
-      trackers => Promise.resolve(trackers.map(t => ModelConverter.convertDbToClientFormat(t, { excludeTimestamps: true })))
-    ).then(trackers => {
-      return OTTrigger.find().where("_id").in(triggerIds).then(
-        trigger => Promise.resolve(
-          new PredefinedPackage(
-            trackers,
-            trigger.map(tr => ModelConverter.convertDbToClientFormat(tr, { excludeTimestamps: true }))
-          )
-        )
-      )
-    })
-      .then(pack => {
-        res.status(200).send(pack)
-      })
-      .catch(err => {
-        res.status(500).send(err)
-      })
-  }
-
   injectPackageToUser = (req, res) => {
     const userId = req.params.userId
     const creationFlags = req.body.creationFlags

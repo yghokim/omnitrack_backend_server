@@ -1,12 +1,11 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
+import { Subscription, Observable, zip, empty } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
 import { MatDialog, MatTableDataSource, MatSort } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { ChooseInvitationDialogComponent } from '../dialogs/choose-invitation-dialog/choose-invitation-dialog.component';
 import { NewInvitationDialogComponent } from '../experiment-invitations/new-invitation-dialog/new-invitation-dialog.component';
-import "rxjs/add/observable/zip";
 import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
 import { NotificationService } from '../services/notification.service';
 import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
@@ -21,7 +20,7 @@ import { ParticipantExcludedDaysConfigDialogComponent } from '../dialogs/partici
 export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
   readonly PARTICIPANT_COLUMNS = ['alias', 'email', 'status', 'rangeStart', 'excludedDays', 'joined', 'lastSync', 'lastSession', 'userId', 'button']
-  readonly USER_COLUMNS = ['email','status','demographic','created','signIn','userId', 'button']
+  readonly USER_COLUMNS = ['email', 'status', 'demographic', 'created', 'signIn', 'userId', 'button']
 
   public userPool: Array<any>
   public userPoolSubscription: Subscription = null
@@ -54,7 +53,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.onParticipantsTabSelected()
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(expService => expService.getMyPermissions())
+      this.api.selectedExperimentService.pipe(flatMap(expService => expService.getMyPermissions()))
         .subscribe(
           permissions => {
             if (permissions) {
@@ -116,7 +115,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
   onParticipantsTabSelected() {
     if (!this.participantsSubscription || this.participantsSubscription.closed) {
       this.isLoadingParticipants = true
-      this.participantsSubscription = this.api.selectedExperimentService.flatMap(expService => expService.getParticipants()).subscribe(
+      this.participantsSubscription = this.api.selectedExperimentService.pipe(flatMap(expService => expService.getParticipants())).subscribe(
         participants => {
           this.participants = participants
           this.isLoadingParticipants = false
@@ -129,8 +128,8 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
   onSendInvitationClicked(userId: string) {
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(expService =>
-        Observable.zip(expService.getInvitations(), expService.getExperiment())).subscribe(result => {
+      this.api.selectedExperimentService.pipe(flatMap(expService =>
+        zip(expService.getInvitations(), expService.getExperiment()))).subscribe(result => {
           const invitations = result[0]
           const groups = result[1].groups
           if (invitations.length > 0) { // Has invitations. Show selection window.
@@ -143,9 +142,9 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
             }).afterClosed().subscribe(
               invitationCode => {
                 if (invitationCode) {
-                  this.api.selectedExperimentService.flatMap(exp => {
+                  this.api.selectedExperimentService.pipe(flatMap(exp => {
                     return exp.sendInvitation(invitationCode, [userId], false)
-                  }).subscribe(result => {
+                  })).subscribe(result => {
                     this.participantsSubscription.unsubscribe()
                     this.onUserPoolTabSelected()
                   })
@@ -164,9 +163,15 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
               if (yes === true) {
                 this.dialog.open(NewInvitationDialogComponent, { data: { groups: groups } }).afterClosed().subscribe(invitationInfo => {
                   if (invitationInfo) {
-                    this.api.selectedExperimentService.flatMap(service => service.generateInvitation(invitationInfo).flatMap(newInvitation =>
-                      service.sendInvitation(newInvitation.code, [userId], false)
-                    )).subscribe(result => {
+                    this.api.selectedExperimentService.pipe(
+                      flatMap(service => service.generateInvitation(invitationInfo)
+                        .pipe(
+                          flatMap(newInvitation =>
+                            service.sendInvitation(newInvitation.code, [userId], false)
+                          )
+                        )
+                      )
+                    ).subscribe(result => {
                       this.participantsSubscription.unsubscribe()
                       this.onUserPoolTabSelected()
                     })
@@ -219,7 +224,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
         }
       }).afterClosed().subscribe(ok => {
         if (ok === true) {
-          this.api.selectedExperimentService.flatMap(expService => expService.removeParticipant(participantId))
+          this.api.selectedExperimentService.pipe(flatMap(expService => expService.removeParticipant(participantId)))
             .subscribe(
               removed => {
                 if (removed) {
@@ -244,7 +249,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
         }
       }).afterClosed().subscribe(ok => {
         if (ok === true) {
-          this.api.selectedExperimentService.flatMap(expService => expService.dropParticipant(participantId))
+          this.api.selectedExperimentService.pipe(flatMap(expService => expService.dropParticipant(participantId)))
             .subscribe(
               removed => {
                 if (removed) {
@@ -267,7 +272,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
           validator: (text) => {
             return (text || "").length > 0 && text.trim() !== participant.alias
           },
-          submit: (text) => this.api.selectedExperimentService.flatMap(service => service.changeParticipantAlias(participant._id, text.trim()))
+          submit: (text) => this.api.selectedExperimentService.pipe(flatMap(service => service.changeParticipantAlias(participant._id, text.trim())))
         }
       }).afterClosed().subscribe(
         alias => {
@@ -277,30 +282,32 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     )
   }
 
-  onChangeExperimentRangeStartInput(newDate: Date, participant){
+  onChangeExperimentRangeStartInput(newDate: Date, participant) {
     this._internalSubscriptions.add(
-    this.api.selectedExperimentService.flatMap(service=>service.updateParticipant(participant._id, {"experimentRange.from": newDate.getTime()})).subscribe(
-      newParticipant=>{
-        this.notificationService.pushSnackBarMessage({message: "Modified the experiment start date of the participant."})
-      },
-      err=>{
-        console.log(err)
-      }
-    ))
+      this.api.selectedExperimentService.pipe(flatMap(service => service.updateParticipant(participant._id, { "experimentRange.from": newDate.getTime() }))).subscribe(
+        newParticipant => {
+          this.notificationService.pushSnackBarMessage({ message: "Modified the experiment start date of the participant." })
+        },
+        err => {
+          console.log(err)
+        }
+      ))
   }
 
-  onExcludedDaysEditClicked(participant: IParticipantDbEntity){
+  onExcludedDaysEditClicked(participant: IParticipantDbEntity) {
     this._internalSubscriptions.add(
-      this.dialog.open(ParticipantExcludedDaysConfigDialogComponent, {data: {
-        dates: participant.excludedDays || []
-      }}).afterClosed().flatMap(
-        (newDates: Array<Date>) => {
-          if(newDates){
-          return this.api.selectedExperimentService.flatMap(expService=> expService.setParticipantExcludedDays(participant._id, newDates))
-          }else return Observable.empty()
+      this.dialog.open(ParticipantExcludedDaysConfigDialogComponent, {
+        data: {
+          dates: participant.excludedDays || []
         }
-      ).subscribe(result=>{
-        if(result.success === true){
+      }).afterClosed().pipe(flatMap(
+        (newDates: Array<Date>) => {
+          if (newDates) {
+            return this.api.selectedExperimentService.pipe(flatMap(expService => expService.setParticipantExcludedDays(participant._id, newDates)))
+          } else return empty()
+        }
+      )).subscribe(result => {
+        if (result.success === true) {
         }
       })
     )
@@ -371,7 +378,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
       if (data) {
         switch (sortHeaderId) {
           case "alias": { return data.alias || ''; }
-          case "email": { if (data.user) {  return data.user.email || ''; } break; }
+          case "email": { if (data.user) { return data.user.email || ''; } break; }
           case "status": {
             if (data.isDenied) { return 4; }
             else if (!data.isDenied && !data.isConsentApproved) { return 2; }
@@ -379,11 +386,11 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
             else if (data.isConsentApproved && !data.dropped) { return 1; }
             break;
           }
-          case "excludedDays": 
-            if (data.excludedDays){
+          case "excludedDays":
+            if (data.excludedDays) {
               return data.excludedDays.length
-            }else return ''
-          case "rangeStart": { if(data.experimentRange){ return data.experimentRange.from } break; } 
+            } else return ''
+          case "rangeStart": { if (data.experimentRange) { return data.experimentRange.from } break; }
           case "joined": { return data.approvedAt || '' }
           case "created": { if (data.user) { return data.user.accountCreationTime || ''; } break; }
           case "lastSync": return data.lastSyncTimestamp || '';

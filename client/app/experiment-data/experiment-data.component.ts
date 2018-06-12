@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit } from "@angular/core";
-import { Subscription } from "rxjs/Subscription";
+import { Subscription, BehaviorSubject, Observable } from "rxjs";
 import { ResearchApiService } from "../services/research-api.service";
 import { NotificationService } from "../services/notification.service";
 import {
@@ -13,24 +13,24 @@ import AttributeManager from "../../../omnitrack/core/attributes/attribute.manag
 import { MatTableDataSource, MatSort, MatPaginator, MatDialog } from '@angular/material';
 
 import { Element } from "@angular/compiler";
-import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import attributeTypes from "../../../omnitrack/core/attributes/attribute-types";
 import { Response } from "@angular/http";
-import { Observable } from "rxjs/Observable";
 import { SingletonAudioPlayerServiceService } from "../services/singleton-audio-player-service.service";
 import { aliasCompareFunc } from "../../../shared_lib/utils";
 import * as moment from 'moment-timezone';
 import * as XLSX from 'xlsx';
-import * as FileSaver from 'file-saver'; 
+import * as FileSaver from 'file-saver';
 import { UpdateItemCellValueDialogComponent } from "../dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component";
 import { TextInputDialogComponent } from "../dialogs/text-input-dialog/text-input-dialog.component";
 import { TimePoint } from "../../../omnitrack/core/datatypes/field_datatypes";
+import {zip} from 'rxjs';
+import { tap, flatMap, map } from 'rxjs/operators';
 
 @Component({
   selector: "app-experiment-data",
   templateUrl: "./experiment-data.component.html",
   styleUrls: ["./experiment-data.component.scss"],
-  providers:[SingletonAudioPlayerServiceService]
+  providers: [SingletonAudioPlayerServiceService]
 })
 export class ExperimentDataComponent implements OnInit, OnDestroy {
   private readonly _internalSubscriptions = new Subscription();
@@ -68,7 +68,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     private api: ResearchApiService,
     private notificationService: NotificationService,
     private dialog: MatDialog
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.notificationService.registerGlobalBusyTag(
@@ -76,12 +76,13 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     );
     this._internalSubscriptions.add(
       this.api.selectedExperimentService
-        .do(service => {
+        .pipe(tap(service => {
           service.trackingDataService.registerConsumer(
             "experimentDataComponent"
           );
-        })
-        .flatMap(service => service.getParticipants())
+        }),
+          flatMap(service => service.getParticipants())
+        )
         .subscribe(participants => {
           /*
           participants.sort((a,b)=>{return new Date(a.experimentRange.from).getTime() - new Date(b.experimentRange.from).getTime()})*/
@@ -129,9 +130,9 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     this.userSubscriptions = new Subscription();
     this.userSubscriptions.add(
       this.api.selectedExperimentService
-        .flatMap(service =>
+        .pipe(flatMap(service =>
           service.trackingDataService.getTrackersOfUser(userId)
-        )
+        ))
         .subscribe(trackers => {
           this.userTrackers = trackers;
           const selectedTrackerIndex = Math.max(
@@ -150,10 +151,10 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
       this.trackerSubscriptions.unsubscribe();
       this.trackerSubscriptions = new Subscription();
       this.trackerSubscriptions.add(
-        this.api.selectedExperimentService
-          .flatMap(service =>
+        this.api.selectedExperimentService.pipe(
+          flatMap(service =>
             service.trackingDataService.getItemsOfTracker(tracker._id)
-          )
+          ))
           .subscribe(items => {
             this.trackerItems = items;
             this.trackerDataSource = new MatTableDataSource(items)
@@ -173,17 +174,18 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   }
 
   getItemCountOfTracker(trackerId: string): Observable<number> {
-    return this.api.selectedExperimentService
-          .flatMap(service =>
-            service.trackingDataService.getItemsOfTracker(trackerId).map(items => items.length)
-          )
+    return this.api.selectedExperimentService.pipe(
+        flatMap(service =>
+        service.trackingDataService.getItemsOfTracker(trackerId)),
+        map(items => items.length)
+      )
   }
 
   isImageAttribute(attr: IAttributeDbEntity): boolean {
     return attr.type === attributeTypes.ATTR_TYPE_IMAGE
   }
 
-  isAudioAttribute(attr: IAttributeDbEntity):boolean{
+  isAudioAttribute(attr: IAttributeDbEntity): boolean {
     return attr.type === attributeTypes.ATTR_TYPE_AUDIO
   }
 
@@ -203,7 +205,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     } else { return null; }
   }
 
-  getTimestampValue(item: IItemDbEntity){
+  getTimestampValue(item: IItemDbEntity) {
     let stamp: TimePoint = new TimePoint(item.timestamp, item.timezone)
     return stamp.toMoment().format("kk:mm (MMM DD YYYY)") + " " + moment().tz(stamp.timezone).format("z")
   }
@@ -213,13 +215,13 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     return temp.concat('timestamp')
   }
 
-  onCellValueClicked(tracker: ITrackerDbEntity, attribute: IAttributeDbEntity, item: IItemDbEntity){
+  onCellValueClicked(tracker: ITrackerDbEntity, attribute: IAttributeDbEntity, item: IItemDbEntity) {
     this._internalSubscriptions.add(
-      this.dialog.open(UpdateItemCellValueDialogComponent, {data:{info: {tracker: tracker, attribute: attribute, item: item}}}).afterClosed().subscribe(
-        result=>{
-          if(result && result.value){
+      this.dialog.open(UpdateItemCellValueDialogComponent, { data: { info: { tracker: tracker, attribute: attribute, item: item } } }).afterClosed().subscribe(
+        result => {
+          if (result && result.value) {
             this._internalSubscriptions.add(
-              this.api.selectedExperimentService.flatMap(expService=>expService.trackingDataService.setItemColumnValue(attribute, item, result.value)).subscribe(
+              this.api.selectedExperimentService.pipe(flatMap(expService => expService.trackingDataService.setItemColumnValue(attribute, item, result.value))).subscribe(
                 updateResult => {
                 }
               )
@@ -230,14 +232,14 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     )
   }
 
-  onTimestampClicked(tracker: ITrackerDbEntity, item: IItemDbEntity){
-    let attribute: IAttributeDbEntity = {name: "Logged At", type: 1};
+  onTimestampClicked(tracker: ITrackerDbEntity, item: IItemDbEntity) {
+    let attribute: IAttributeDbEntity = { name: "Logged At", type: 1 };
     this._internalSubscriptions.add(
-      this.dialog.open(UpdateItemCellValueDialogComponent, {data:{info: {tracker: tracker, attribute: attribute, item: item}}}).afterClosed().subscribe(
-        result=>{
-          if(result && result.value){
+      this.dialog.open(UpdateItemCellValueDialogComponent, { data: { info: { tracker: tracker, attribute: attribute, item: item } } }).afterClosed().subscribe(
+        result => {
+          if (result && result.value) {
             this._internalSubscriptions.add(
-              this.api.selectedExperimentService.flatMap(expService=>expService.trackingDataService.setItemTimestamp(item, TypedStringSerializer.deserialize(result.value).toDate().getTime(), TypedStringSerializer.deserialize(result.value).timezone)).subscribe(
+              this.api.selectedExperimentService.pipe(flatMap(expService => expService.trackingDataService.setItemTimestamp(item, TypedStringSerializer.deserialize(result.value).toDate().getTime(), TypedStringSerializer.deserialize(result.value).timezone))).subscribe(
                 updateResult => {
                 }
               )
@@ -249,59 +251,61 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   }
 
-  onExportClicked(){
+  onExportClicked() {
     this._internalSubscriptions.add(
-    this.api.selectedExperimentService.flatMap(service=>service.getOmniTrackPackages().map(packages => {return {packages: packages, experimentService: service}})).flatMap(
-      result=>{
-        return Observable.zip(
-          result.experimentService.trackingDataService.trackers,
-          result.experimentService.trackingDataService.items,
-          (trackers, items)=> {return {packages: result.packages, trackers: trackers, items: items}}
-        )
-      }
-    ).subscribe(
-      result=>{
-        const workbook = XLSX.utils.book_new()
-        const commonColumns = ["participant_alias"]
-        result.packages.forEach(
-          pack=>{
-            pack.data.trackers.forEach(
-              trackerScheme=>{
-                console.log(trackerScheme)
-                const injectedAttrNames = trackerScheme.attributes.map(attr=>attr.name)
-                const itemRows:Array<Array<any>> = [
-                  commonColumns.concat(injectedAttrNames).concat("logged at")
-                ]
-                const trackers = result.trackers.filter(t=>(t.flags || {}).injectionId === trackerScheme.flags.injectionId && this.participants.find(p => p.user._id === t.user))
-                trackers.forEach(
-                  tracker=>{
-                    const participant = this.participants.find(p => p.user._id === tracker.user)
-                    result.items.filter(i=>i.tracker === tracker._id).forEach(
-                      item => {
-                        const values = trackerScheme.attributes.map(attrScheme=>{
-                          const attr = tracker.attributes.find(a=>(a.flags || {}).injectionId === attrScheme.flags.injectionId)
-                          return this.getItemValue(item, attr, true)
-                        })
-
-                        itemRows.push([participant.alias].concat(values).concat(moment(item.timestamp).format()))
-                      }
-                    )
-                  }
-                )
-
-                const sheet = XLSX.utils.aoa_to_sheet(itemRows)
-                XLSX.utils.book_append_sheet(workbook, sheet, trackerScheme.name)
-              }
+      this.api.selectedExperimentService.pipe(
+        flatMap(service => service.getOmniTrackPackages().pipe(
+          flatMap(packages =>
+            zip(
+              service.trackingDataService.trackers,
+              service.trackingDataService.items,
+              (trackers, items) => { return { packages: packages, trackers: trackers, items: items } }
             )
-            //save worksheet
-            const workbookOut = XLSX.write(workbook, {
-              bookType: 'xlsx', bookSST: false, type: 'array'
-            })
+          )
+        ))
+      ).subscribe(
+        result => {
+          const workbook = XLSX.utils.book_new()
+          const commonColumns = ["participant_alias"]
+          result.packages.forEach(
+            pack => {
+              pack.data.trackers.forEach(
+                trackerScheme => {
+                  console.log(trackerScheme)
+                  const injectedAttrNames = trackerScheme.attributes.map(attr => attr.name)
+                  const itemRows: Array<Array<any>> = [
+                    commonColumns.concat(injectedAttrNames).concat("logged at")
+                  ]
+                  const trackers = result.trackers.filter(t => (t.flags || {}).injectionId === trackerScheme.flags.injectionId && this.participants.find(p => p.user._id === t.user))
+                  trackers.forEach(
+                    tracker => {
+                      const participant = this.participants.find(p => p.user._id === tracker.user)
+                      result.items.filter(i => i.tracker === tracker._id).forEach(
+                        item => {
+                          const values = trackerScheme.attributes.map(attrScheme => {
+                            const attr = tracker.attributes.find(a => (a.flags || {}).injectionId === attrScheme.flags.injectionId)
+                            return this.getItemValue(item, attr, true)
+                          })
 
-            FileSaver.saveAs(new Blob([workbookOut], {type:"application/octet-stream"}), this.api.getSelectedExperimentId() + "_experiment-tracking-data.xlsx")
-          }
-        )
-      }
-    ))
+                          itemRows.push([participant.alias].concat(values).concat(moment(item.timestamp).format()))
+                        }
+                      )
+                    }
+                  )
+
+                  const sheet = XLSX.utils.aoa_to_sheet(itemRows)
+                  XLSX.utils.book_append_sheet(workbook, sheet, trackerScheme.name)
+                }
+              )
+              //save worksheet
+              const workbookOut = XLSX.write(workbook, {
+                bookType: 'xlsx', bookSST: false, type: 'array'
+              })
+
+              FileSaver.saveAs(new Blob([workbookOut], { type: "application/octet-stream" }), this.api.getSelectedExperimentId() + "_experiment-tracking-data.xlsx")
+            }
+          )
+        }
+      ))
   }
 }

@@ -1,14 +1,13 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { AngularFireAuth } from "angularfire2/auth";
-import { BehaviorSubject } from "rxjs/BehaviorSubject";
-import { Subscription } from "rxjs/Subscription";
+import { BehaviorSubject ,  Subscription ,  Observable, of } from "rxjs";
+import { combineLatest, filter, flatMap, map } from 'rxjs/operators';
 import {
   ITrackerDbEntity,
   IItemDbEntity
 } from "../../../../omnitrack/core/db-entity-types";
-import 'rxjs/add/operator/combineLatest';
+
 import { Http, Headers, RequestOptions } from "@angular/http";
-import { Observable } from "rxjs/Observable";
 
 @Injectable()
 export class EndUserApiService implements OnDestroy {
@@ -25,7 +24,7 @@ export class EndUserApiService implements OnDestroy {
   private tokenHeaders: Headers;
   private authorizedOptions = new BehaviorSubject<RequestOptions>(null);
 
-  private authRequestOptions = this.auth.authState.combineLatest(this.authorizedOptions.filter(o => o != null), (user, options) => { return { user: user, options: options } })
+  private authRequestOptions = this.auth.authState.pipe(combineLatest(this.authorizedOptions.pipe(filter(o => o != null)), (user, options) => { return { user: user, options: options } }))
 
   constructor(private auth: AngularFireAuth, private http: Http) {
     this._internalSubscriptions.add(
@@ -49,16 +48,16 @@ export class EndUserApiService implements OnDestroy {
 
   private loadChildren<T>(path: string, subject: BehaviorSubject<T>) {
     this._internalSubscriptions.add(
-      this.authRequestOptions
-        .flatMap(result => {
+      this.authRequestOptions.pipe(
+        flatMap(result => {
           if (result.user) {
             return this.http
               .get("/api/" + path, result.options)
-              .map(res => res.json().filter(t => t.removed !== true));
+              .pipe(map(res => res.json().filter(t => t.removed !== true)));
           } else {
-            return Observable.of([]);
+            return of([]);
           }
-        })
+        }))
         .subscribe(children => {
           subject.next(children);
         })
@@ -76,15 +75,15 @@ export class EndUserApiService implements OnDestroy {
   loadItemsofTracker(trackerId: string) {
     this._internalSubscriptions.add(
       this.authRequestOptions
-        .flatMap(result => {
+        .pipe(flatMap(result => {
           if (result.user) {
             return this.http
               .get("/api/trackers/" + trackerId + "/items", result.options)
-              .map(res => res.json().filter(t => t.removed !== true));
+              .pipe(map(res => res.json().filter(t => t.removed !== true)));
           } else {
-            return Observable.of([]);
+            return of([]);
           }
-        })
+        }))
         .subscribe(children => {
           (this.getItemsOfTracker(trackerId) as BehaviorSubject<Array<IItemDbEntity>>).next(children)
         })
@@ -103,11 +102,11 @@ export class EndUserApiService implements OnDestroy {
   }
 
   getExperimentParticipationList(): Observable<Array<any>> {
-    return this.authRequestOptions.flatMap(result => {
+    return this.authRequestOptions.pipe(flatMap(result => {
       if (result.user) {
-        return this.http.get('/api/research/experiments/history', result.options).map(list => list.json())
+        return this.http.get('/api/research/experiments/history', result.options).pipe(map(list => list.json()))
       }
-      else return Observable.of([])
-    })
+      else return of([])
+    }))
   }
 }

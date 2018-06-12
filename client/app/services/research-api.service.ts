@@ -1,17 +1,15 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Http, Headers, RequestOptions, Response, ResponseContentType } from '@angular/http';
 import { ResearcherAuthService } from './researcher.auth.service';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/publishReplay';
-import { Subscription } from 'rxjs/Subscription';
+import { Observable, Subscription, BehaviorSubject } from 'rxjs';
+import { filter, combineLatest, flatMap, map, tap } from 'rxjs/operators';
 import { SocketService } from './socket.service';
-import ExperimentInfo from '../models/experiment-info';
 import { ExperimentService } from './experiment.service';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
 import { NotificationService } from './notification.service';
 import { ExampleExperimentInfo } from '../../../omnitrack/core/research/experiment';
 import { IUsageLogDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { IClientSignatureDbEntity, IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 
 @Injectable()
 export class ResearchApiService implements OnDestroy {
@@ -24,13 +22,13 @@ export class ResearchApiService implements OnDestroy {
 
   private readonly _selectedExperimentService = new BehaviorSubject<ExperimentService>(null)
 
-  public readonly selectedExperimentService: Observable<ExperimentService> = this._selectedExperimentService.filter(s => s != null)
+  public readonly selectedExperimentService: Observable<ExperimentService> = this._selectedExperimentService.pipe(filter(s => s != null))
 
   get selectedExperimentServiceSync(): ExperimentService {
     return this._selectedExperimentService.getValue()
   }
 
-  private readonly _experimentListSubject = new BehaviorSubject<Array<ExperimentInfo>>([])
+  private readonly _experimentListSubject = new BehaviorSubject<Array<IExperimentDbEntity>>([])
   private readonly _userPoolSubject = new BehaviorSubject<Array<any>>([])
 
   private readonly _internalSubscriptions = new Subscription()
@@ -51,46 +49,46 @@ export class ResearchApiService implements OnDestroy {
 
     this._internalSubscriptions.add(
       this.socketService.onConnected
-      .combineLatest(this.authService.tokenSubject, (socket, token) => ({ token: token, socket: socket }))
-      .subscribe(
-        res => {
-          console.log("socket or token was refreshed.")
-          res.socket.emit(SocketConstants.SERVER_EVENT_SUBSCRIBE_SERVER_GLOBAL)
+        .pipe(combineLatest(this.authService.tokenSubject, (socket, token) => ({ token: token, socket: socket })))
+        .subscribe(
+          res => {
+            console.log("socket or token was refreshed.")
+            res.socket.emit(SocketConstants.SERVER_EVENT_SUBSCRIBE_SERVER_GLOBAL)
 
-          res.socket.on(SocketConstants.SERVER_EVENT_UPDATED_GLOBAL, (data) => {
-            if (data instanceof Array) {
-              data.forEach(datum => {
-                switch (datum.model) {
-                  case SocketConstants.MODEL_USER:
-                    this.loadUserPool()
-                    switch (datum.event) {
-                      case SocketConstants.EVENT_REMOVED:
-                        this.notificationService.pushSnackBarMessage({ message: "A user account was removed." })
-                        break;
-                    }
-                    break;
+            res.socket.on(SocketConstants.SERVER_EVENT_UPDATED_GLOBAL, (data) => {
+              if (data instanceof Array) {
+                data.forEach(datum => {
+                  switch (datum.model) {
+                    case SocketConstants.MODEL_USER:
+                      this.loadUserPool()
+                      switch (datum.event) {
+                        case SocketConstants.EVENT_REMOVED:
+                          this.notificationService.pushSnackBarMessage({ message: "A user account was removed." })
+                          break;
+                      }
+                      break;
 
                     case SocketConstants.MODEL_EXPERIMENT:
-                    this.loadExperimentList()
-                    break;
-                }
-              })
-            }
-          })
+                      this.loadExperimentList()
+                      break;
+                  }
+                })
+              }
+            })
 
-          res.socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER, (data) => {
-            console.log("received update researcher socket event.")
-            if (data instanceof Array) {
-              data.forEach(datum => {
-                switch (datum.model) {
-                  case SocketConstants.MODEL_EXPERIMENT:
-                    this.loadExperimentList()
-                  break;
-                }
-              })
-            }
+            res.socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER, (data) => {
+              console.log("received update researcher socket event.")
+              if (data instanceof Array) {
+                data.forEach(datum => {
+                  switch (datum.model) {
+                    case SocketConstants.MODEL_EXPERIMENT:
+                      this.loadExperimentList()
+                      break;
+                  }
+                })
+              }
+            })
           })
-        })
     )
   }
 
@@ -103,43 +101,39 @@ export class ResearchApiService implements OnDestroy {
   loadExperimentList() {
     this.notificationService.registerGlobalBusyTag("experimentInfo")
     this._internalSubscriptions.add(
-    this.http.get('/api/research/experiments/all', this.authorizedOptions).flatMap(res => {
-      return this.authService.currentResearcher.map(researcher => {
-        return res.json()
-      })
-    }).subscribe(
-      list => {
-        this.notificationService.unregisterGlobalBusyTag("experimentInfo")
-        this._experimentListSubject.next(list)
-      })
+      this.http.get('/api/research/experiments/all', this.authorizedOptions).pipe(map(res => res.json())).subscribe(
+        list => {
+          this.notificationService.unregisterGlobalBusyTag("experimentInfo")
+          this._experimentListSubject.next(list)
+        })
     )
   }
 
   loadUserPool() {
     this.notificationService.registerGlobalBusyTag("userPool")
     this._internalSubscriptions.add(
-    this.http.get("/api/research/users/all", this.authorizedOptions).map(res => {
-      return res.json()
-    }).subscribe(
-      list => {
-        this.notificationService.unregisterGlobalBusyTag("userPool")
-        this._userPoolSubject.next(list)
-      }
+      this.http.get("/api/research/users/all", this.authorizedOptions).pipe(map(res => {
+        return res.json()
+      })).subscribe(
+        list => {
+          this.notificationService.unregisterGlobalBusyTag("userPool")
+          this._userPoolSubject.next(list)
+        }
       )
     )
   }
 
-  getExperimentInfos(): Observable<Array<ExperimentInfo>> {
-    return this._experimentListSubject.filter(res => res != null)
+  getExperimentInfos(): Observable<Array<IExperimentDbEntity>> {
+    return this._experimentListSubject.pipe(filter(res => res != null))
   }
 
   getExampleExperimentList(): Observable<Array<ExampleExperimentInfo>> {
-    return this.http.get("/api/research/experiments/examples").map(res => { console.log(res.json()); return res.json() })
+    return this.http.get("/api/research/experiments/examples").pipe(map(res => { console.log(res.json()); return res.json() }))
   }
 
   addExampleExperimentAndGetId(key: string): Observable<string> {
     console.log(this.authorizedOptions)
-    return this.http.post("/api/research/experiments/examples", {exampleKey: key}, this.authorizedOptions).map(res => res.json())
+    return this.http.post("/api/research/experiments/examples", { exampleKey: key }, this.authorizedOptions).pipe(map(res => res.json()))
   }
 
   getSelectedExperimentId(): string {
@@ -157,68 +151,71 @@ export class ResearchApiService implements OnDestroy {
   }
 
   getUserPool(): Observable<Array<any>> {
-    return this._userPoolSubject.filter(res => res != null)
+    return this._userPoolSubject.pipe(filter(res => res != null))
   }
 
   deleteUserAccount(userId: string, removeData: boolean): Observable<boolean> {
     return this.http.delete('/api/research/users/' + userId, new RequestOptions({ headers: this.tokenHeaders, params: { removeData: removeData } }))
-      .map(res => {
-        return true
-      }).do(result => {
-        if (result === true) {
-        }
-      })
+      .pipe(
+        map(res => {
+          return true
+        }),
+        tap(result => {
+          if (result === true) {
+          }
+        })
+      )
   }
 
   createExperiment(info: any): Observable<any> {
     return this.http.post("/api/research/experiments/new", info, this.authorizedOptions)
-      .map(res => {
+      .pipe(map(res => {
         return res.json()
-      })
+      }))
   }
 
   removeExperiment(experimentId: string): Observable<boolean> {
-    return this.http.delete("/api/research/experiments/" + experimentId, this.authorizedOptions).map(res => res.json())
+    return this.http.delete("/api/research/experiments/" + experimentId, this.authorizedOptions).pipe(map(res => res.json()))
   }
 
-  searchResearchers(term: string, excludeSelf): Observable<Array<{_id: string, email: string, alias: string}>> {
-    return this.http.get("/api/research/researchers/search", {headers: this.tokenHeaders, params: { term: term, excludeSelf: excludeSelf }}).map(res => res.json())
+  searchResearchers(term: string, excludeSelf): Observable<Array<{ _id: string, email: string, alias: string }>> {
+    return this.http.get("/api/research/researchers/search", { headers: this.tokenHeaders, params: { term: term, excludeSelf: excludeSelf } }).pipe(map(res => res.json()))
   }
 
   makeAuthorizedRequestOptions(query: any): RequestOptions {
-    return  new RequestOptions({ headers: this.tokenHeaders, params: query })
+    return new RequestOptions({ headers: this.tokenHeaders, params: query })
   }
 
   updateExperiment(experimentId: string, update: any): Observable<boolean> {
-    return this.http.post("api/research/experiments/" + experimentId + "/update", update, this.authorizedOptions).map(res => res.json().updated)
+    return this.http.post("api/research/experiments/" + experimentId + "/update", update, this.authorizedOptions).pipe(map(res => res.json().updated))
   }
 
   getAllResearchers(): Observable<Array<any>> {
-    return this.http.get("api/research/researchers/all", this.authorizedOptions).map(res => res.json())
+    return this.http.get("api/research/researchers/all", this.authorizedOptions).pipe(map(res => res.json()))
   }
 
   setResearcherAccountApproval(researcherId: string, approvedStatus: boolean): Observable<boolean> {
-    return this.http.post("api/research/researchers/" + researcherId + "/approve", {approved: approvedStatus}, this.authorizedOptions).map(res => res.json())
+    return this.http.post("api/research/researchers/" + researcherId + "/approve", { approved: approvedStatus }, this.authorizedOptions).pipe(map(res => res.json()))
   }
 
-  uploadClientBinary(file: File): Observable<boolean> {
+  uploadClientBinary(file: File, changelog: Array<string>): Observable<{success: boolean, signatureUpdated: boolean}> {
     const formData: FormData = new FormData()
     formData.append("file", file, file.name)
-    return this.http.post("api/research/clients/upload", formData, this.authorizedOptions).map(res => res.json())
+    return this.http.post("api/research/clients/upload", formData, this.makeAuthorizedRequestOptions({ changelog: changelog })).pipe(map(res => res.json()))
   }
 
   getClientBinaries(): Observable<Array<any>> {
-    return this.http.get("api/clients/all").map(res => res.json())
+    return this.http.get("api/clients/all").pipe(map(res => res.json()))
   }
 
   removeClientBinary(binaryId: string): Observable<boolean> {
-    return this.http.delete("api/research/clients/" + binaryId, this.authorizedOptions)  .map(res => res.json())
+    return this.http.delete("api/research/clients/" + binaryId, this.authorizedOptions).pipe(map(res => res.json()))
   }
 
   getMedia(trackerId: string, attributeLocalId: string, itemId: string, processingType: string /*"original" | "thumb" | "thumb_retina" */): Observable<Blob> {
     // :trackerId/:itemId/:attrLocalId/:fileIdentifier
     return this.http.get("api/research/files/item_media/" + trackerId + "/" + itemId + "/" + attributeLocalId + "/" + "0" + "/" + processingType, new RequestOptions({ headers: this.tokenHeaders, responseType: ResponseContentType.Blob }))
-                    .map((res: Response) => res.blob());
+      .pipe(map((res: Response) => res.blob()));
   }
 
   queryUsageLogsAnonymized(filter: any = null, from: string = null, to: string = null): Observable<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>> {
@@ -226,6 +223,18 @@ export class ResearchApiService implements OnDestroy {
       filter: JSON.stringify(filter),
       from: from,
       to: to
-    })).map(res => res.json())
+    })).pipe(map(res => res.json()))
+  }
+
+  getClientSignatures(): Observable<Array<IClientSignatureDbEntity>>{
+    return this.http.get("/api/research/signatures/all", this.authorizedOptions).pipe(map(res=>res.json()))
+  }
+
+  removeClientSignature(id: string): Observable<boolean>{
+    return this.http.delete("/api/research/signatures/" + id, this.authorizedOptions).pipe(map(res=>res.json()))
+  }
+
+  upsertClientSignature(id: string = null, key: string, packageName: string, alias: string): Observable<boolean>{
+    return this.http.post("/api/research/signatures/update", {_id: id, key: key, package: packageName, alias: alias}, this.authorizedOptions).pipe(map(res=>res.json()))
   }
 }

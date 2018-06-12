@@ -1,10 +1,10 @@
-import { Component, OnInit, ViewChild, ElementRef} from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ResearchVisualizationQueryConfigurationService } from '../services/research-visualization-query-configuration.service';
 import { ResearchApiService } from '../services/research-api.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription, Subject } from 'rxjs';
+import { debounceTime, flatMap, combineLatest } from 'rxjs/operators';
 import * as moment from "moment-timezone";
 import { diffDaysBetweenTwoMoments } from '../../../shared_lib/utils';
-import { Subject } from 'rxjs/Subject';
 import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
 
 @Component({
@@ -35,7 +35,7 @@ export class ExperimentOverviewComponent implements OnInit {
   private readonly _internalSubscriptions = new Subscription()
 
   private tooltipText = {
-    to: (number)=>{ return "D" + (number+1).toFixed(0)}
+    to: (number) => "D" + (number + 1).toFixed(0)
   }
 
   dayIndexRangeSliderConfigs = {
@@ -46,7 +46,7 @@ export class ExperimentOverviewComponent implements OnInit {
     tooltips: [this.tooltipText, this.tooltipText]
   }
 
-  dayIndexMax: number = 100
+  dayIndexMax = 100
 
   dayIndexRange
 
@@ -61,16 +61,16 @@ export class ExperimentOverviewComponent implements OnInit {
 
   ngOnInit() {
     this._internalSubscriptions.add(
-      this._dayRangeValueInject.debounceTime(200).subscribe(
-        range=>{
+      this._dayRangeValueInject.pipe(debounceTime(200)).subscribe(
+        range => {
           this.configuration.setDayIndexRange(range)
         }
       )
     )
 
     this._internalSubscriptions.add(
-      this.configuration.scopeSubject.combineLatest(this.api.selectedExperimentService.flatMap(service => service.getParticipants()), (scope, participants)=> {return {scope: scope, participants: participants}}).subscribe(
-        project=>{
+      this.configuration.scopeSubject.pipe(combineLatest(this.api.selectedExperimentService.pipe(flatMap(service => service.getParticipants())), (scope, participants) => ({ scope: scope, participants: participants }))).subscribe(
+        project => {
           this.participants = project.participants
 
           let longestNumDays = null
@@ -80,14 +80,12 @@ export class ExperimentOverviewComponent implements OnInit {
             const momentStart = moment(participant.experimentRange.from).startOf('day')
             const numDays = diffDaysBetweenTwoMoments(today, momentStart, project.scope.includeWeekends, participant.excludedDays)
 
-            if (!longestNumDays) longestNumDays = numDays
-            else {
+            if (!longestNumDays) { longestNumDays = numDays } else {
               longestNumDays = Math.max(longestNumDays, numDays)
             }
           })
 
-          if(longestNumDays!=null)
-          {
+          if (longestNumDays != null) {
             this.dayIndexMax = Math.max(1, longestNumDays)
           }
         }
@@ -96,23 +94,23 @@ export class ExperimentOverviewComponent implements OnInit {
 
     this._internalSubscriptions.add(
       this.configuration.dayIndexRange().subscribe(
-        dayIndexRange=>{
+        dayIndexRange => {
           this.dayIndexRange = dayIndexRange
         }
       )
     )
   }
 
-  includeWeekendsChanged(include: boolean){
+  includeWeekendsChanged(include: boolean) {
     this.configuration.setIncludeWeekends(include)
   }
 
-  onDayIndexSliderChanged(newRange){
+  onDayIndexSliderChanged(newRange) {
     this._dayRangeValueInject.next(newRange)
     this.configuration.setDayIndexRange(newRange)
   }
 
-  onFilteredParticipantToggle(participantId: string, checked: boolean){
+  onFilteredParticipantToggle(participantId: string, checked: boolean) {
     this.configuration.setParticipantFiltered(participantId, !checked)
   }
 

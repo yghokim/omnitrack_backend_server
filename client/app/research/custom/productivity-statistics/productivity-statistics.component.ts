@@ -1,9 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../../../services/research-api.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
+import { flatMap, combineLatest } from 'rxjs/operators';
 import { TrackingSet, ProductivityHelper, DecodedItem, ProductivityLog } from '../../../shared-visualization/custom/productivity-helper';
 import { ITrackerDbEntity, IItemDbEntity, IParticipantDbEntity, ISessionUsageLog } from '../../../../../omnitrack/core/db-entity-types';
-import 'rxjs/add/operator/combineLatest';
+
 import { groupArrayByVariable, deepclone } from '../../../../../shared_lib/utils';
 import { getExperimentDateSequenceOfParticipant, convertUsageLogToSessionLog } from '../../../../../omnitrack/experiment-utils';
 import { ProductivitySummaryService } from './productivity-summary.service';
@@ -77,7 +78,7 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
     )
 
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(expService => expService.getParticipants()).subscribe(
+      this.api.selectedExperimentService.pipe(flatMap(expService => expService.getParticipants())).subscribe(
         participants => {
           this.participantPool = participants
           this.selectedParticipants = participants.filter(p => this.excludedParticipantIds.indexOf(p._id) === -1)
@@ -87,14 +88,14 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
     )
 
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(expService => {
-        return expService.trackingDataService.trackers.combineLatest(
+      this.api.selectedExperimentService.pipe(flatMap(expService => {
+        return expService.trackingDataService.trackers.pipe(combineLatest(
           expService.trackingDataService.items, (trackers, items) => {
             console.log("loaded items")
             return { trackers: trackers, items: items }
           }
-        )
-      }).subscribe(
+        ))
+      })).subscribe(
         set => {
           console.log("received trackingSets")
           this.trackingSets = set.trackers.filter(tracker => ProductivityHelper.isProductivityTracker(tracker) === true).map(
@@ -109,14 +110,14 @@ export class ProductivityStatisticsComponent implements OnInit, OnDestroy {
     )
 
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(expService => expService.queryUsageLogsPerParticipant({
+      this.api.selectedExperimentService.pipe(flatMap(expService => expService.queryUsageLogsPerParticipant({
         name: "session",
         "$or": ["ChartViewActivity", "ItemBrowserActivity", "ItemDetailActivity"].map(name => {
           return {
             "content.session": { "$regex": name, "$options": "i" }
           }
         })
-      })).subscribe(
+      }))).subscribe(
         result => {
           result.forEach(e => {
             e.logs.forEach(l => {

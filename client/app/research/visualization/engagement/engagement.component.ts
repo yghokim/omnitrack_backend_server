@@ -1,16 +1,14 @@
 import { Component, ViewChild, ElementRef, Input, OnInit, AfterViewInit, OnDestroy, Directive, ViewChildren, QueryList } from "@angular/core";
 import { VisualizationBaseComponent } from "../visualization-base.component";
 import { ResearchVisualizationQueryConfigurationService, Scope, FilteredExperimentDataset } from "../../../services/research-visualization-query-configuration.service";
-import { Subscription } from "rxjs/Subscription";
-import { Observable } from 'rxjs/Observable';
-import "rxjs/operator/combineLatest";
+import { Subscription, Observable, Subject } from "rxjs";
+import { tap, combineLatest, map } from 'rxjs/operators';
 import { TrackingDataService } from '../../../services/tracking-data.service';
 import { ResearchApiService } from "../../../services/research-api.service";
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import * as d3 from 'd3';
 import * as d3chromatic from 'd3-scale-chromatic';
 import { ScaleLinear } from 'd3-scale'
-import { Subject } from "rxjs/Subject";
 import { D3VisualizationBaseComponent } from "../d3-visualization-base.component";
 import { ScaleOrdinal, Axis } from "d3";
 import * as moment from "moment";
@@ -139,14 +137,17 @@ EngagementData
     // init visualization
 
     this._internalSubscriptions.add(
-      this.makeDataObservable().do(data => {
-        this.data = data
-        this.isBusy = false
-      }).combineLatest(this.queryConfigService.dayIndexRange().do(range => {
-        this.dayIndexRange = range
-      }), this.visualizationWidth, (data, range, width) => {
-        return { data: data, range: range, width: width }
-      }).subscribe(project => {
+      this.makeDataObservable().pipe(
+        tap(data => {
+          this.data = data
+          this.isBusy = false
+        }),
+        combineLatest(this.queryConfigService.dayIndexRange().pipe(tap(range => {
+          this.dayIndexRange = range
+        })), this.visualizationWidth, (data, range, width) => {
+          return { data: data, range: range, width: width }
+        })
+      ).subscribe(project => {
         this.timelineChartArea.width = project.width - this.Y_AXIS_WIDTH - this.COUNT_CHART_WIDTH - this.COUNT_CHART_LEFT_MARGIN - this.GLOBAL_PADDING_RIGHT
 
         this.countChartArea.x = this.timelineChartArea.x + this.timelineChartArea.width + this.COUNT_CHART_LEFT_MARGIN
@@ -265,7 +266,7 @@ EngagementData
   }
 
   private makeDataObservable(): Observable<EngagementData> {
-    return this.queryConfigService.filteredDatesetSubject.map((dataset: FilteredExperimentDataset) => {
+    return this.queryConfigService.filteredDatesetSubject.pipe(map((dataset: FilteredExperimentDataset) => {
       const data: Array<ParticipantRow> = dataset.data.map(
         participantData => {
           const trackingDataList = participantData.trackingData.map(trackerRow => {
@@ -311,7 +312,7 @@ EngagementData
           }
         })
       return { earliestExperimentStart: dataset.earliestExperimentStart, maxTotalDays: d3.max(data, (datum) => datum.daysSinceStart), participantList: data }
-    })
+    }))
   }
 
   ngOnDestroy() {

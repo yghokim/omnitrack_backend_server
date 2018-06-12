@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
+import { filter, map, flatMap } from 'rxjs/operators';
 import { NotificationService } from '../../services/notification.service';
 import { MatSnackBar, MatDialog } from '@angular/material';
 import { AngularFireAuth } from 'angularfire2/auth';
@@ -20,14 +21,15 @@ export class EndUserFrameComponent implements OnInit, OnDestroy {
 
   constructor(private notificationService: NotificationService, private snackBar: MatSnackBar, public auth: AngularFireAuth, private dialog: MatDialog, private router: Router) {
     this._internalSubscriptions.add(
-      this.router.events.filter(ev => ev instanceof NavigationEnd)
-        .map(_ => this.router.routerState.root)
-        .map(route => {
+      this.router.events.pipe(
+        filter(ev => ev instanceof NavigationEnd),
+        map(_ => this.router.routerState.root),
+        map(route => {
           while (route.firstChild) { route = route.firstChild; }
           return route;
-        })
-        .flatMap(route => route.data)
-        .subscribe(data => {
+        }),
+        flatMap(route => route.data)
+      ).subscribe(data => {
           this.title = data['title'];
         })
     )
@@ -46,13 +48,13 @@ export class EndUserFrameComponent implements OnInit, OnDestroy {
     )
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
   }
 
-  signOutClicked(){
+  signOutClicked() {
     this.auth.auth.signOut().then(
-      ()=>{
+      () => {
         this.router.navigate(["/tracking/login"])
       }
     )

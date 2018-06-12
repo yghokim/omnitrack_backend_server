@@ -12,9 +12,10 @@ import AdminCtrl from './controllers/admin_controller';
 import BinaryStorageCtrl from './controllers/binary_storage_controller';
 import { experimentCtrl } from './controllers/research/ot_experiment_controller';
 import { clientBinaryCtrl } from './controllers/research/ot_client_binary_controller';
+import { clientSignatureCtrl } from './controllers/ot_client_signature_controller';
+import { trackingPackageCtrl } from './controllers/ot_tracking_package_controller';
 import { Request } from 'express';
 import { Error } from 'mongoose';
-import { clientKeys } from "./app";
 import BaseCtrl from './controllers/base';
 import UserBelongingCtrl from './controllers/user_belongings_base';
 import * as fs from 'fs-extra';
@@ -43,35 +44,39 @@ const omnitrackDeviceCheckMiddleware = (req: Request, res, next) => {
 
   res.locals["roleName"] = role
 
-  if (clientKeys.find(k => k.key === fingerPrint && k.package === packageName) == null) {
-    console.log(clientKeys)
-    console.log("The client is not certificated in the server.")
-    res.status(404).send(new Error("The client is not certificated in the server."))
-  } else if (deviceId != null) {
-    if (res.locals.user) {
-      OTUser.collection.findOne({ _id: res.locals.user.uid, "devices.deviceId": deviceId }).then(
-        user => {
-          if (user != null) {
-            console.log("received an authorized call from device: " + deviceId)
-            res.locals["deviceId"] = deviceId
-            next()
-          } else {
-            res.status(404).send(new Error("no such device."))
-          }
-        }).catch((err) => {
-          console.log(err)
-          res.status(500).send(err)
-        })
-    } else {
-      next()
+
+  clientSignatureCtrl.matchSignature(fingerPrint, packageName).then(
+    match=>{
+      if (match !== true) {
+        console.log("The client is not certificated in the server.")
+        res.status(404).send(new Error("The client is not certificated in the server."))
+      } else if (deviceId != null) {
+        if (res.locals.user) {
+          OTUser.collection.findOne({ _id: res.locals.user.uid, "devices.deviceId": deviceId }).then(
+            user => {
+              if (user != null) {
+                console.log("received an authorized call from device: " + deviceId)
+                res.locals["deviceId"] = deviceId
+                next()
+              } else {
+                res.status(404).send(new Error("no such device."))
+              }
+            }).catch((err) => {
+              console.log(err)
+              res.status(500).send(err)
+            })
+        } else {
+          next()
+        }
+      } else { next() }
     }
-  } else { next() }
+  )
 }
 
 const assertSignedInMiddleware = [firebaseMiddleware.auth, omnitrackDeviceCheckMiddleware]
 
 // admin
-router.route('/admin/package/extract').get(adminCtrl.extractPredefinedPackage)
+router.route('/admin/package/extract').get(trackingPackageCtrl.getExtractedTrackingPackageJson)
 router.route('/admin/package/inject/:userId/:packageName?').get(adminCtrl.injectPackageToUser)
 
 router.route('/admin/trigger/attach_tracker/:triggerId').get(adminCtrl.attachTrackerToTrigger)
@@ -157,5 +162,8 @@ router.get('/clients/all', clientBinaryCtrl.getClientBinaries)
 router.get('/clients/download', clientBinaryCtrl.downloadClientBinary)
 
 router.get('/clients/latest', clientBinaryCtrl.getLatestVersionInfo)
+
+//package
+router.get('/package/extract', assertSignedInMiddleware, trackingPackageCtrl.getExtractedTrackingPackageJson)
 
 export default router;

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Http } from '@angular/http';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 import * as platformDetector from 'platform';
 
 @Component({
@@ -25,7 +26,7 @@ export class ClientDownloadComponent implements OnInit {
     console.log("platform: " + realPlatform)
 
     this.internalSubscriptions.add(
-      this.http.get("api/clients/all").map(res => res.json()).subscribe(
+      this.http.get("api/clients/all").pipe(map(res => res.json())).subscribe(
         data => {
           this.clientBinaryPlatformList = data || []
           if (this.clientBinaryPlatformList.length > 0) {

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from "@angular/router";
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { ResearcherAuthService } from '../services/researcher.auth.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-research-signup',
