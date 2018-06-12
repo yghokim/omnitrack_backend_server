@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ResearchMainComponent } from './research-main.component';
+import { HttpMethodTestingComponent } from './http-method-testing.component';
 
-describe('ResearchMainComponent', () => {
-  let component: ResearchMainComponent;
-  let fixture: ComponentFixture<ResearchMainComponent>;
+describe('HttpMethodTestingComponent', () => {
+  let component: HttpMethodTestingComponent;
+  let fixture: ComponentFixture<HttpMethodTestingComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ResearchMainComponent ]
+      declarations: [ HttpMethodTestingComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ResearchMainComponent);
+    fixture = TestBed.createComponent(HttpMethodTestingComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

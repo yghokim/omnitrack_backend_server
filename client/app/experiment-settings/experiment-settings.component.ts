@@ -1,14 +1,15 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
 import { ExperimentService } from '../services/experiment.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription, Observable } from 'rxjs';
+import { flatMap, filter, tap } from 'rxjs/operators';
 import { ExperimentPermissions } from '../../../omnitrack/core/research/experiment';
 import { MatDialog } from '@angular/material';
 import { DeleteExperimentConfirmDialogComponent } from '../dialogs/delete-experiment-confirm-dialog/delete-experiment-confirm-dialog.component';
 import { NotificationService } from '../services/notification.service';
-import { Observable } from 'rxjs/Observable';
 import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
 import { isNullOrBlank } from '../../../shared_lib/utils';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-experiment-settings',
@@ -23,20 +24,20 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
 
   private _internalSubscriptions = new Subscription()
 
-  constructor(private api: ResearchApiService, private notification: NotificationService, private dialog: MatDialog) {
+  constructor(private api: ResearchApiService, private notification: NotificationService, private dialog: MatDialog, private router: Router) {
   }
 
   ngOnInit() {
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(expService => expService.getExperiment()).subscribe(experiment => {
+      this.api.selectedExperimentService.pipe(flatMap(expService => expService.getExperiment())).subscribe(experiment => {
         this.experiment = experiment
         console.log(experiment)
       })
     )
 
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(expService => expService.getMyPermissions()).subscribe(permissions => {
-        if(permissions){
+      this.api.selectedExperimentService.pipe(flatMap(expService => expService.getMyPermissions())).subscribe(permissions => {
+        if (permissions) {
           this.permissions = permissions
         }
       })
@@ -47,38 +48,42 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
-  onEditNameClicked(){
+  onEditNameClicked() {
     this._internalSubscriptions.add(
-      this.dialog.open(TextInputDialogComponent, {data: {
-        title: "Edit Experiment Name",
-        placeholder: "Insert experiment name",
-        prefill: this.experiment.name,
-        validator: (text)=>{ return text !== this.experiment.name && !isNullOrBlank(text) && text.length < 100 },
-        submit: (newExperimentName)=>{
-          console.log("new experiment name: " + newExperimentName)
-          return this.api.updateExperiment(this.experiment._id, {name: newExperimentName})
+      this.dialog.open(TextInputDialogComponent, {
+        data: {
+          title: "Edit Experiment Name",
+          placeholder: "Insert experiment name",
+          prefill: this.experiment.name,
+          validator: (text) => { return text !== this.experiment.name && !isNullOrBlank(text) && text.length < 100 },
+          submit: (newExperimentName) => {
+            console.log("new experiment name: " + newExperimentName)
+            return this.api.updateExperiment(this.experiment._id, { name: newExperimentName })
+          }
         }
-      }}).afterClosed().subscribe(
-        newExperimentName=>{
+      }).afterClosed().subscribe(
+        newExperimentName => {
 
         }
       )
     )
   }
 
-  onDeleteExperimentClicked(){
+  onDeleteExperimentClicked() {
     this._internalSubscriptions.add(
-      this.dialog.open(DeleteExperimentConfirmDialogComponent, {data: {experimentId: this.api.getSelectedExperimentId()}}).afterClosed().filter(
-        experimentId=>{
-          return experimentId !== null
-        }).do(experimentId=>{
+      this.dialog.open(DeleteExperimentConfirmDialogComponent, { data: { experimentId: this.api.getSelectedExperimentId() } }).afterClosed().pipe(
+        filter(
+          experimentId => {
+            return experimentId !== null
+          }),
+        tap(experimentId => {
           this.notification.registerGlobalBusyTag("experiment-deletion")
-        }).flatMap(experimentId=>{
+        }),
+        flatMap(experimentId => {
           return this.api.removeExperiment(experimentId)
-        }).subscribe(success=>{
-          console.log(success)
-          this.notification.unregisterGlobalBusyTag("experiment-deletion")
         })
+      )
+        .subscribe()
     )
   }
 

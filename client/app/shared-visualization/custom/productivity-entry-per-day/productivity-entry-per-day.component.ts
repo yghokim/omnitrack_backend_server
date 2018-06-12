@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Chart } from 'angular-highcharts';
 import { IItemDbEntity } from '../../../../../omnitrack/core/db-entity-types';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { BehaviorSubject } from 'rxjs';
 import { D3Helper } from '../../d3-helper';
 import * as moment from 'moment-timezone';
 import * as groupArray from 'group-array';

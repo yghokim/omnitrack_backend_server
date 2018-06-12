@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IParticipantDbEntity } from '../../../../../omnitrack/core/db-entity-types';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { BehaviorSubject } from 'rxjs';
 import * as d3 from 'd3';
 var snakeCase = require('snake-case');
 

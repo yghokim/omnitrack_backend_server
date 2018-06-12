@@ -1,15 +1,18 @@
-import { Component, OnInit, trigger, state, style, transition, animate, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { ResearchApiService } from '../services/research-api.service';
 import { NotificationService } from '../services/notification.service';
-import ExperimentInfo from '../models/experiment-info';
 import { MatDialog, MatIconRegistry, MatSnackBar } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
+import { Subscription, Observable } from 'rxjs';
+import { filter, map, flatMap, combineLatest, tap } from 'rxjs/operators';
+
 import { ExperimentPermissions } from '../../../omnitrack/core/research/experiment';
+import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
+import { getIdPopulateCompat } from '../../../omnitrack/core/db-entity-types';
 
 @Component({
   selector: 'app-research-dashboard',
@@ -37,10 +40,10 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
 
-  experimentInfos: Array<ExperimentInfo> = [];
-  myExperimentInfos: Array<ExperimentInfo> = [];
-  guestExperimentInfos: Array<ExperimentInfo> = [];
-  
+  experimentInfos: Array<IExperimentDbEntity> = [];
+  myExperimentInfos: Array<IExperimentDbEntity> = [];
+  guestExperimentInfos: Array<IExperimentDbEntity> = [];
+
 
   dashboardNavigationGroups = [
     {
@@ -126,13 +129,15 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
     iconRegistry.addSvgIcon("omnitrack", sanitizer.bypassSecurityTrustResourceUrl("/assets/ic_omnitrack_24px.svg"))
 
     this._internalSubscriptions.add(
-      this.router.events.filter(ev => ev instanceof NavigationEnd)
-        .map(_ => this.router.routerState.root)
-        .map(route => {
+      this.router.events.pipe(
+        filter(ev => ev instanceof NavigationEnd),
+        map(_ => this.router.routerState.root),
+        map(route => {
           while (route.firstChild) { route = route.firstChild; }
           return route;
-        })
-        .flatMap(route => route.data)
+        }),
+        flatMap(route => route.data)
+      )
         .subscribe(data => {
           this.headerTitle = data['title'];
           this.upperHeaderTitle = data['backTitle'];
@@ -169,11 +174,11 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
 
     console.log('load experiments of user')
     this._internalSubscriptions.add(
-      this.api.getExperimentInfos().combineLatest(this.authService.currentResearcher, (infos, researcher)=>{
-        this.myExperimentInfos = infos.filter(i => i.manager._id === researcher.uid)
-        this.guestExperimentInfos = infos.filter(i => i.manager._id !== researcher.uid)
+      this.api.getExperimentInfos().pipe(combineLatest(this.authService.currentResearcher, (infos, researcher) => {
+        this.myExperimentInfos = infos.filter(i => getIdPopulateCompat(i.manager) === researcher.uid)
+        this.guestExperimentInfos = infos.filter(i => getIdPopulateCompat(i.manager) !== researcher.uid)
         return infos
-      }).subscribe(experiments => {
+      })).subscribe(experiments => {
         console.log('experiments were loaded.')
         this.isLoadingExperiments = false
         this.experimentInfos = experiments
@@ -181,45 +186,51 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
     )
 
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.filter(expService => expService != null).do(expService => {
-        this.isLoadingSelectedExperiment = true;
-      }).flatMap(expService =>
-        expService.getExperiment()).subscribe(
-        experimentInfo => {
-          if (experimentInfo) {
-            this.isLoadingSelectedExperiment = false
-            this.selectedExperimentName = experimentInfo.name
-          }
-        })
+      this.api.selectedExperimentService.pipe(
+        filter(expService => expService != null),
+        tap(expService => {
+          this.isLoadingSelectedExperiment = true;
+        }),
+        flatMap(expService =>
+          expService.getExperiment())).subscribe(
+            experimentInfo => {
+              if (experimentInfo) {
+                this.isLoadingSelectedExperiment = false
+                this.selectedExperimentName = experimentInfo.name
+              }
+            })
     )
 
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(service => service.experimentInvalidated).subscribe(
+      this.api.selectedExperimentService.pipe(flatMap(service => service.experimentInvalidated)).subscribe(
         v => {
           console.log("experiment was removed")
-          this.router.navigate(["../"])
+          this.router.navigate(["/research/experiments"])
         }
       )
     )
 
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(expService => expService.getMyPermissions()).filter(p=>p!=null).subscribe(
-        permissions => {
-          if(permissions && this.experimentPermissions != permissions)
-          {
-            this.experimentPermissions = permissions
-            this.applyPermissions(permissions)
-          }
-        }
+      this.api.selectedExperimentService.pipe(
+        flatMap(expService => expService.getMyPermissions()),
+        filter(p => p != null)
       )
+        .subscribe(
+          permissions => {
+            if (permissions && this.experimentPermissions != permissions) {
+              this.experimentPermissions = permissions
+              this.applyPermissions(permissions)
+            }
+          }
+        )
     )
 
     this._internalSubscriptions.add(
       this.authService.currentResearcher.subscribe(researcher => {
-        if(researcher && researcher.tokenInfo){
+        if (researcher && researcher.tokenInfo) {
           this.researcherPrevilage = researcher.previlage
         }
-        else{
+        else {
           this.researcherPrevilage = -1
         }
       })
@@ -230,38 +241,31 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
-  private applyPermissions(permissions: ExperimentPermissions)
-  {
+  private applyPermissions(permissions: ExperimentPermissions) {
     console.log("apply experiment permissions")
     console.log(permissions)
     this.dashboardNavigationGroups.forEach(group => {
       group.menus.forEach(menu => {
         const pagePermission = permissions.allowedPages[menu.key]
-        if(pagePermission)
-        {
-          if(pagePermission instanceof Boolean)
-          {
+        if (pagePermission) {
+          if (pagePermission instanceof Boolean) {
             menu["disabled"] = pagePermission
-          }else{
+          } else {
 
           }
         }
-        else{
+        else {
           menu["disabled"] = true
         }
       })
     })
   }
 
-  getManagingExperiments(): Array<ExperimentInfo>{
-    return this.experimentInfos.filter(e => e.manager._id)
-  }
-
   onExperimentSelected(id) {
     this.api.setSelectedExperimentId(id)
   }
 
-  getMyRole(): Observable<string>{
-    return this.api.selectedExperimentService.flatMap(service => service.getMyRole())
+  getMyRole(): Observable<string> {
+    return this.api.selectedExperimentService.pipe(flatMap(service => service.getMyRole()))
   }
 }

@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { IResearchMessage, DefaultNewMessage, MessageReceiverRules, SpecificUsersMessageReceiverRule } from '../../../../omnitrack/core/research/messaging';
 import { ResearchApiService } from '../../services/research-api.service';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { BehaviorSubject ,  Subscription } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
 import * as moment from 'moment-timezone';
 import { FroalaEditorModule } from 'angular-froala-wysiwyg/editor/editor.module';
 import { IParticipantDbEntity } from '../../../../omnitrack/core/db-entity-types';
@@ -87,7 +87,7 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
     this.mountedMessage.experiment = this.api.getSelectedExperimentId()
 
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(service => service.getParticipants()).subscribe(
+      this.api.selectedExperimentService.pipe(flatMap(service => service.getParticipants())).subscribe(
         participants => {
           this.participants = participants
         }
@@ -159,7 +159,7 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
     console.log(this.mountedMessage)
 
     this._internalSubscriptions.add(
-    this.api.selectedExperimentService.flatMap(service=>service.enqueueMessage(this.mountedMessage)).subscribe(
+    this.api.selectedExperimentService.pipe(flatMap(service=>service.enqueueMessage(this.mountedMessage))).subscribe(
       success=>{
         console.log(success)
         this.router.navigate([".."], { relativeTo: this.activatedRoute })

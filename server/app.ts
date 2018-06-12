@@ -24,8 +24,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(morgan('dev'));
 
-const clientKeys: Array<{key: string, package: string, alias: string}> = require(path.join(__dirname, "../../../credentials/client-keys.json"));
-
 const firebaseServiceAccount = require(path.join(__dirname, "../../../credentials/firebase-cert.json"));
 firebaseAdmin.initializeApp({credential: firebaseAdmin.credential.cert(firebaseServiceAccount)});
 
@@ -65,5 +63,5 @@ db.once('open', () => {
   }
 });
 
-export { app, clientKeys }
+export { app }
 export default appWrapper

@@ -7,9 +7,7 @@
     <div *ngIf="submitErrorMessage" class="small text-danger">{{submitErrorMessage}}</div>
   </div>
   <div class="card-body text-right">
-      <button type="button" mat-button (click)="onNoClick()">Cancel</button>
-      <button type="button" mat-raised-button color="primary" [disabled]="isValid()!==true"  (click)="onYesClick()">Create Experiment</button>
+    <button type="button" mat-button (click)="onNoClick()">Cancel</button>
+    <button type="button" mat-raised-button color="primary" [disabled]="isValid()!==true" (click)="onYesClick()">Create Experiment</button>
   </div>
-  
-  </div>
-  
+</div>

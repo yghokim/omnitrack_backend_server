@@ -1,14 +1,13 @@
-import { Component, OnInit, trigger, state, style, transition, animate, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ResearcherAuthService } from '../../services/researcher.auth.service';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { ResearchApiService } from '../../services/research-api.service';
 import { NotificationService } from '../../services/notification.service';
-import ExperimentInfo from '../../models/experiment-info';
 import { MatDialog, MatIconRegistry, MatSnackBar } from '@angular/material';
 import { YesNoDialogComponent } from '../../dialogs/yes-no-dialog/yes-no-dialog.component';
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
+import { Subscription ,  Observable } from 'rxjs';
 
 @Component({
   selector: 'app-research-layout',

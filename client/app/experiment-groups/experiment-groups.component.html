@@ -1,8 +1,14 @@
 <div class="container">
-  <div class="list-flex-wrap">
+  <div class="flex-container flex-container-responsive-columns">
     <div class="card participant-group-card card-sm" *ngFor="let group of groups">
-      <div class="card-header">
-        {{group.name}}
+      <div class="card-header no-padding-top no-padding-bottom no-padding-right flex-container flex-align-items-center">
+        <span>{{group.name}}</span>
+        <div class="flex-filler"></div>
+        <div>
+          <button class="text-color-darkgray" mat-icon-button (click)="onDeleteGroupClicked(group)" [disabled] = "groups.length === 1">
+            <span class="material-icons">delete</span>
+          </button>
+        </div>
       </div>
       <div class="card-body">
         <table class="table table-sm no-horizontal-padding">
@@ -12,8 +18,15 @@
           </tr>
           <tr>
             <th>Tracking Package</th>
-            <td *ngIf="!group.trackingPackageKey">Not assigned</td>
-            <td *ngIf="group.trackingPackageKey">{{(getOmniTrackPackage(group.trackingPackageKey) | async).name}}</td>
+            <td>
+              <span *ngIf="group.trackingPackageKey">{{(getOmniTrackPackage(group.trackingPackageKey) | async).name}}</span>
+              <span *ngIf="!group.trackingPackageKey">Not assigned</span>
+              <button mat-icon-button class="tiny text-color-darkgray left-margin-dot5em" (click)="onEditPackageClicked(group)">
+                <span class="material-icons">
+                  edit
+                </span>
+              </button>
+            </td>
           </tr>
 
         </table>

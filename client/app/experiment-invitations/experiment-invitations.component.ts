@@ -6,7 +6,8 @@ import { MatDialog } from '@angular/material';
 import { NewInvitationDialogComponent } from './new-invitation-dialog/new-invitation-dialog.component';
 import { AInvitation } from '../../../omnitrack/core/research/invitation';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
+import { flatMap, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-experiment-invitations',
@@ -35,7 +36,7 @@ export class ExperimentInvitationsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.isLoadingInvitations = true
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(service => service.getInvitations()).subscribe(
+      this.api.selectedExperimentService.pipe(flatMap(service => service.getInvitations())).subscribe(
         invitations => {
           this.invitations = invitations
           this.isLoadingInvitations = false
@@ -44,7 +45,10 @@ export class ExperimentInvitationsComponent implements OnInit, OnDestroy {
     )
 
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.flatMap(service => service.getExperiment()).map(exp => exp.groups).subscribe(groups => {
+      this.api.selectedExperimentService.pipe(
+        flatMap(service => service.getExperiment()),
+        map(exp => exp.groups)
+      ).subscribe(groups => {
         this.groups = groups
       })
     )
@@ -87,7 +91,7 @@ export class ExperimentInvitationsComponent implements OnInit, OnDestroy {
           if (information) {
             this.isLoadingInvitations = true
             this._internalSubscriptions.add(
-              this.api.selectedExperimentService.flatMap(service => service.generateInvitation(information)).subscribe(
+              this.api.selectedExperimentService.pipe(flatMap(service => service.generateInvitation(information))).subscribe(
                 newInvitation => {
                   this.isLoadingInvitations = false
                 }

@@ -1,15 +1,15 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription ,  Observable } from 'rxjs';
 import { ResearchApiService } from '../services/research-api.service';
-import ExperimentInfo from '../models/experiment-info';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
 import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { MatDialog } from '@angular/material';
 import { NewExperimentDialogComponent } from './new-experiment-dialog/new-experiment-dialog.component';
 import { NotificationService } from '../services/notification.service';
 import { ExampleExperimentInfo } from '../../../omnitrack/core/research/experiment';
-
+import { map, tap } from 'rxjs/operators';
+import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
+import { getIdPopulateCompat } from '../../../omnitrack/core/db-entity-types';
 
 @Component({
   selector: 'app-experiment-list',
@@ -20,7 +20,7 @@ export class ExperimentListComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
 
-  experiments: Array<ExperimentInfo>
+  experiments: Array<IExperimentDbEntity>
 
   examples: Array<ExampleExperimentInfo>
 
@@ -50,7 +50,7 @@ export class ExperimentListComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
-  onExperimentClicked(experiment: ExperimentInfo) {
+  onExperimentClicked(experiment: IExperimentDbEntity) {
     this.router.navigate(["/research/dashboard", experiment._id])
   }
 
@@ -80,21 +80,22 @@ export class ExperimentListComponent implements OnInit, OnDestroy {
 
   onAddExampleClicked(exampleKey){
     this._internalSubscriptions.add(
-      this.api.addExampleExperimentAndGetId(exampleKey).subscribe(
+      this.api.addExampleExperimentAndGetId(exampleKey).pipe(tap(()=>{
+        this.notification.pushSnackBarMessage({message: "Created new experiment."})
+      })).subscribe(
         newExperimentId=>{
-          this.router.navigate(["/research/dashboard", newExperimentId])
         }
       )
     )
   }
 
-  getMyRole(exp: ExperimentInfo): Observable<string> {
-    return this.auth.currentResearcher.map(researcher => {
-      if (exp.manager._id === researcher.uid) {
+  getMyRole(exp: IExperimentDbEntity): Observable<string> {
+    return this.auth.currentResearcher.pipe(map(researcher => {
+      if (getIdPopulateCompat(exp.manager) === researcher.uid) {
         return "manager"
       }
       else return "collaborator"
-    })
+    }))
   }
 
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Inject } from '@angular/core';
 import { ITrackerDbEntity, IAttributeDbEntity } from '../../../../omnitrack/core/db-entity-types';
 import { ResearchApiService } from '../../services/research-api.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ImageViewDialog } from './image-view-dialog/image-view-dialog.component';
 

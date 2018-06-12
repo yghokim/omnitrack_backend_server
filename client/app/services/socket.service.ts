@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as io from 'socket.io-client';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject ,  Observable } from 'rxjs';
+import { filter } from "rxjs/operators";
 import {SocketConstants} from '../../../omnitrack/core/research/socket'
 
 @Injectable()
@@ -12,7 +12,7 @@ export class SocketService {
   public readonly _onConnected = new BehaviorSubject<SocketIOClient.Socket>(null)
 
   get onConnected(): Observable<SocketIOClient.Socket>{
-    return this._onConnected.filter(socket => socket!=null)
+    return this._onConnected.pipe(filter(socket => socket!=null))
   }
 
   constructor() {

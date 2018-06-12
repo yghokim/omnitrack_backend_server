@@ -1,7 +1,6 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { ResearchMainComponent } from './research-main/research-main.component';
 import { ResearchLoginComponent } from './research-login/research-login.component';
 import { ResearchSignupComponent } from './research-signup/research-signup.component';
 import { ResearchFrameComponent } from './research-frame/research-frame.component';
@@ -66,6 +65,9 @@ import { ClientUsageComponent } from './experiment-overview/client-usage/client-
 import { DailyAverageComponent } from './experiment-overview/client-usage/daily-average/daily-average.component';
 import { EngagementDataService } from './experiment-overview/client-usage/engagement-data.service';
 import { ServerStatusOverviewComponent } from './server-status-overview/server-status-overview.component';
+import { UpdateClientSignatureDialogComponent } from './server-settings/update-client-signature-dialog/update-client-signature-dialog.component';
+import { NewTrackingPackageDialogComponent } from './research/omnitrack/new-tracking-package-dialog/new-tracking-package-dialog.component';
+import { HttpMethodTestingComponent } from './test/http-method-testing/http-method-testing.component';
 
 @NgModule({
   imports: [
@@ -79,8 +81,6 @@ import { ServerStatusOverviewComponent } from './server-status-overview/server-s
     ProductivityStatisticsModule
   ],
   declarations: [
-
-    ResearchMainComponent,
     ResearchLoginComponent,
     ResearchSignupComponent,
     ResearchFrameComponent,
@@ -125,11 +125,13 @@ import { ServerStatusOverviewComponent } from './server-status-overview/server-s
     ExperimentTrackingEngagementComponent,
     ClientUsageComponent,
     DailyAverageComponent,
-    ServerStatusOverviewComponent
+    ServerStatusOverviewComponent,
+    UpdateClientSignatureDialogComponent,
+    NewTrackingPackageDialogComponent,
+    HttpMethodTestingComponent
   ],
   exports: [
     NouisliderModule,
-    ResearchMainComponent,
     ResearchLoginComponent,
     ResearchSignupComponent,
     ResearchFrameComponent,
@@ -171,7 +173,9 @@ import { ServerStatusOverviewComponent } from './server-status-overview/server-s
     DeleteExperimentConfirmDialogComponent,
     UploadClientBinaryDialogComponent,
     UpdateItemCellValueDialogComponent,
-    ParticipantExcludedDaysConfigDialogComponent
+    ParticipantExcludedDaysConfigDialogComponent,
+    UpdateClientSignatureDialogComponent,
+    NewTrackingPackageDialogComponent
   ]
 })
 export class ResearchModule { }

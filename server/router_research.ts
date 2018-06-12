@@ -17,6 +17,7 @@ import { ResearcherPrevilages } from '../omnitrack/core/research/researcher';
 import BinaryStorageCtrl from './controllers/binary_storage_controller';
 import { itemCtrl } from './controllers/ot_item_controller';
 import { participantCtrl } from './controllers/research/ot_participant_controller';
+import { clientSignatureCtrl } from './controllers/ot_client_signature_controller';
 
 const jwt = require('express-jwt');
 const OAuthServer = require('express-oauth-server');
@@ -83,6 +84,10 @@ router.post('/auth/verify', tokenSignedInAuth, researchAuthCtrl.verifyToken)
 router.post('/clients/upload', tokenAdminAuth, clientBinaryCtrl.postClientBinaryFile)
 router.delete("/clients/:binaryId", tokenAdminAuth, clientBinaryCtrl.removeClientBinary)
 
+router.get('/signatures/all', tokenAdminAuth, clientSignatureCtrl.getSignatures)
+router.post('/signatures/update', tokenAdminAuth, clientSignatureCtrl.postSignature)
+router.delete('/signatures/:id', tokenAdminAuth, clientSignatureCtrl.removeSignature)
+
 router.get('/researchers/all', tokenAdminAuth, researchCtrl.getResearchers)
 router.post('/researchers/:researcherId/approve', tokenAdminAuth, researchCtrl.setResearcherAccountApproved)
 //=============================================================
@@ -121,6 +126,13 @@ router.post('/experiments/:experimentId/invitations/new', tokenApprovedAuth, res
 router.post('/experiments/:experimentId/invitations/send', tokenApprovedAuth, researchCtrl.sendInvitation)
 
 router.delete('/experiments/:experimentId/invitations/:invitationId', tokenApprovedAuth, researchCtrl.removeInvitation)
+
+router.post('/experiments/:experimentId/packages/update', tokenApprovedAuth, experimentCtrl.updateTrackingPackageToExperiment)
+
+router.delete('/experiments/:experimentId/packages/:packageKey', tokenApprovedAuth, experimentCtrl.removeTrackingPackageFromExperiment)
+
+router.post('/experiments/:experimentId/groups/upsert', tokenApprovedAuth, experimentCtrl.upsertExperimentGroup)
+router.delete('/experiments/:experimentId/groups/:groupId', tokenApprovedAuth, experimentCtrl.removeExperimentGroup)
 
 router.post('/users/notify/message', tokenApprovedAuth, researchCtrl.sendNotificationMessageToUser)
 
@@ -168,5 +180,15 @@ router.get('/debug/push_users', adminCtrl.pushUsers)
 router.get('/debug/participants/all', researchCtrl.getallParticipants)
 router.get('/debug/restore_experiment_data/:experimentId', experimentCtrl.restoreExperimentTrackingEntities)
 router.get('/debug/push_command', experimentCtrl.sendPushCommand)
+
+const methodTestHandler = (req,res)=>{
+  res.status(200).send(true)
+}
+
+router.get('/debug/test_http_method/get', methodTestHandler)
+router.post('/debug/test_http_method/post', methodTestHandler)
+router.put('/debug/test_http_method/put', methodTestHandler)
+router.delete('/debug/test_http_method/delete', methodTestHandler)
+router.options('/debug/test_http_method/options', methodTestHandler)
 
 export default router;

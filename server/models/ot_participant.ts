@@ -10,7 +10,7 @@ const otParticipantSchema = new mongoose.Schema({
   invitation: {type: mongoose.Schema.Types.ObjectId, ref: "OTInvitation"},
   isDenied: {type: Boolean, index: true, default: false, required: true},
   deniedAt: Date,
-  isConsentApproved: {type: Boolean, index: true, default: false, required: true}, 
+  isConsentApproved: {type: Boolean, index: true, default: false, required: true},
   approvedAt: Date,
   dropped: {type: Boolean, index: true, default: false},
   droppedReason: String,

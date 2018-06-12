@@ -29,6 +29,7 @@ import { GeneralItemFieldInputComponent } from '../components/field-inputs/gener
 import { TimePointFieldInputComponent } from '../components/field-inputs/time-point-field-input/time-point-field-input.component';
 import { TextFieldInputComponent } from '../components/field-inputs/text-field-input/text-field-input.component';
 import { ChoiceFieldInputComponent } from '../components/field-inputs/choice-field-input/choice-field-input.component';
+import { LabeledLoadingIndicatorComponent } from '../labeled-loading-indicator/labeled-loading-indicator.component';
 
 @NgModule({
   imports: [
@@ -63,7 +64,8 @@ import { ChoiceFieldInputComponent } from '../components/field-inputs/choice-fie
     GeneralItemFieldInputComponent,
     TimePointFieldInputComponent,
     TextFieldInputComponent,
-    ChoiceFieldInputComponent
+    ChoiceFieldInputComponent,
+    LabeledLoadingIndicatorComponent
   ],
   declarations: [
     ToastComponent,
@@ -83,7 +85,8 @@ import { ChoiceFieldInputComponent } from '../components/field-inputs/choice-fie
     GeneralItemFieldInputComponent,
     TimePointFieldInputComponent,
     TextFieldInputComponent,
-    ChoiceFieldInputComponent
+    ChoiceFieldInputComponent,
+    LabeledLoadingIndicatorComponent
   ],
   providers: [
     ToastComponent,
