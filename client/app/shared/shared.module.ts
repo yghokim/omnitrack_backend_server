@@ -30,6 +30,7 @@ import { TimePointFieldInputComponent } from '../components/field-inputs/time-po
 import { TextFieldInputComponent } from '../components/field-inputs/text-field-input/text-field-input.component';
 import { ChoiceFieldInputComponent } from '../components/field-inputs/choice-field-input/choice-field-input.component';
 import { LabeledLoadingIndicatorComponent } from '../labeled-loading-indicator/labeled-loading-indicator.component';
+import { BusyOverlayComponent } from '../busy-overlay/busy-overlay.component';
 
 @NgModule({
   imports: [
@@ -65,10 +66,12 @@ import { LabeledLoadingIndicatorComponent } from '../labeled-loading-indicator/l
     TimePointFieldInputComponent,
     TextFieldInputComponent,
     ChoiceFieldInputComponent,
-    LabeledLoadingIndicatorComponent
+    LabeledLoadingIndicatorComponent,
+    BusyOverlayComponent
   ],
   declarations: [
     ToastComponent,
+    BusyOverlayComponent,
     LoadingComponent,
     TableCellValueComponent,
     ChartFrameComponent,

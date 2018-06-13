@@ -28,6 +28,7 @@ import { RoutingModule } from './routing.module';
 import { SharedModule } from './shared/shared.module';
 import { MaterialDesignModule } from './material-design.module';
 import { ClipboardModule } from 'ngx-clipboard';
+import { NgxJsonViewerModule } from 'ngx-json-viewer';
 import { ResearcherPermissionsConfigurationComponent } from './experiment-settings/researcher-permissions-configuration/researcher-permissions-configuration.component';
 import { ResearcherSearchComponentComponent } from './experiment-settings/researcher-search-component/researcher-search-component.component';
 import { ResearchLayoutComponent } from './layouts/research-layout/research-layout.component';
@@ -66,6 +67,8 @@ import { ServerStatusOverviewComponent } from './server-status-overview/server-s
 import { UpdateClientSignatureDialogComponent } from './server-settings/update-client-signature-dialog/update-client-signature-dialog.component';
 import { NewTrackingPackageDialogComponent } from './research/omnitrack/new-tracking-package-dialog/new-tracking-package-dialog.component';
 import { HttpMethodTestingComponent } from './test/http-method-testing/http-method-testing.component';
+import { InstallationWizardComponent } from './installation/installation-wizard/installation-wizard.component';
+import { TagInputModule } from 'ngx-chips';
 
 @NgModule({
   imports: [
@@ -76,7 +79,9 @@ import { HttpMethodTestingComponent } from './test/http-method-testing/http-meth
     NouisliderModule,
     FroalaEditorModule.forRoot(),
     FroalaViewModule.forRoot(),
-    ProductivityStatisticsModule
+    ProductivityStatisticsModule,
+    TagInputModule,
+    NgxJsonViewerModule
   ],
   declarations: [
     ResearchLoginComponent,
@@ -126,6 +131,7 @@ import { HttpMethodTestingComponent } from './test/http-method-testing/http-meth
     UpdateClientSignatureDialogComponent,
     NewTrackingPackageDialogComponent,
     HttpMethodTestingComponent,
+    InstallationWizardComponent,
   ],
   exports: [
     NouisliderModule,

@@ -6,8 +6,7 @@ import OTTracker from '../models/ot_tracker';
 import OTTrigger from '../models/ot_trigger';
 import OTUserReport from '../models/ot_user_report';
 import InformationUpdateResult from '../../omnitrack/core/information_update_result';
-import * as firebaseAdmin from 'firebase-admin';
-import app from '../app';
+import app, {firebaseApp} from '../app';
 import { promise } from 'selenium-webdriver';
 import { SocketConstants } from '../../omnitrack/core/research/socket';
 
@@ -16,13 +15,13 @@ export default class OTUserCtrl extends BaseCtrl {
 
   private fetchUserDataToDb(uid: string): Promise<any> {
     console.log("Firebase app:")
-    console.log(firebaseAdmin.auth().app.name)
+    console.log(firebaseApp.auth().app.name)
 
     const generate = require("adjective-adjective-animal");
 
     return generate({ adjectives: 2, format: "title" }).then(
       generatedName => {
-        return firebaseAdmin.auth().getUser(uid)
+        return firebaseApp.auth().getUser(uid)
           .then(
           userRecord => {
             console.log("fetched Firebase auth user account:")

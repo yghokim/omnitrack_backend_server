@@ -5,26 +5,30 @@ import * as morgan from "morgan";
 import * as mongoose from "mongoose";
 import * as path from "path";
 import * as firebaseAdmin from "firebase-admin";
-import * as Agenda from "agenda";
 import env from "./env";
-import { environmentSubject }  from './env';
+import { environmentPath } from './env';
 import * as fs from "fs-extra";
 import OmniTrackModule from "./modules/omnitrack.module";
 import { AppWrapper } from "./modules/app.interface";
-import apiRouter from "./router_api";
-import researchRouter from "./router_research";
+import { ClientApiRouter } from "./router_api";
+import { ResearchRouter } from "./router_research";
+import { installationWizardCtrl } from './controllers/ot_installation_wizard_controller';
+import { InstallationRouter } from "./router_installation";
 
-if (!env) {
+if (fs.pathExistsSync(environmentPath) !== true) {
   //copy sample file
-  fs.copy(
-    path.join(__dirname, "../../../credentials/environment.sample.json"),
-    path.join(__dirname, "../../../credentials/environment.json")
-  ).then(success => {
-    if (success === true) {
-      initializeDatabase()
-    }
-  });
-}else initializeDatabase()
+  try {
+    fs.copySync(
+      path.join(__dirname, "../../../credentials/environment.sample.json"),
+      environmentPath
+    )
+  } catch (err) {
+    console.log(err)
+    console.log("check for the environment.sample.json file existing.")
+  }
+}
+
+var firebaseApp = null
 
 const app = express();
 const appWrapper = new AppWrapper(app);
@@ -39,7 +43,26 @@ app.use(morgan("dev"));
 
 initializeFirebase();
 
-function initializeDatabase() {
+
+if (!module.parent) {
+  const server = app.listen(app.get("port"), () => {
+    console.log(
+      "OmniTrack API Server listening on port " + app.get("port")
+    );
+  });
+
+  const io = require("socket.io")(server);
+  app.set("io", io);
+}
+
+if (installationWizardCtrl.isInstallationComplete() === true) {
+  installServer()
+} else {
+  console.log("the server installation is not yet finished. Attached the installation routes.")
+  app.use("/api/installation", new InstallationRouter().router);
+}
+
+function installServer() {
   (<any>mongoose).Promise = global.Promise;
   if (env.node_env === "test") {
     mongoose.connect(env.mongodb_test_uri);
@@ -54,52 +77,36 @@ function initializeDatabase() {
     console.log("Connected to MongoDB");
 
     // Routers===================================
-    app.use("/api", apiRouter);
-    app.use("/api/research", researchRouter); // research path
+    app.use("/api", new ClientApiRouter().router);
+    app.use("/api/research", new ResearchRouter(env).router); // research path
     // ==========================================
-
-    app.get("/*", function(req, res) {
-      res.sendFile(path.join(__dirname, "../public/index.html"));
-    });
-
-    if (!module.parent) {
-      const server = app.listen(app.get("port"), () => {
-        console.log(
-          "OmniTrack API Server listening on port " + app.get("port")
-        );
-      });
-
-      const io = require("socket.io")(server);
-      app.set("io", io);
-
-      app.set("omnitrack", new OmniTrackModule(app));
-
-      environmentSubject.subscribe(
-        env => {
-          if(env) app.get("omnitrack").bootstrap();
-        }
-      )
-    }
+    app.set("omnitrack", new OmniTrackModule(app));
   });
 }
 
 function initializeFirebase() {
   try {
-    if (firebaseAdmin.apps.length > 0) {
-      firebaseAdmin.apps.splice(0, firebaseAdmin.apps.length);
-    }
-
     const firebaseServiceAccount = require(path.join(
       __dirname,
       "../../../credentials/firebase-cert.json"
     ));
-    firebaseAdmin.initializeApp({
-      credential: firebaseAdmin.credential.cert(firebaseServiceAccount)
-    });
+
+    if (firebaseAdmin.apps.find(app => app.name === firebaseServiceAccount.project_id) == null) {
+      firebaseApp = firebaseAdmin.initializeApp({
+        credential: firebaseAdmin.credential.cert(firebaseServiceAccount)
+      }, firebaseServiceAccount.project_id);
+    }else firebaseApp = firebaseAdmin.app(firebaseServiceAccount.project_id)
+
   } catch (ex) {
-    console.log(ex);
+    console.log(ex)
+    console.log("could not initialize the Firebase admin.")
+    firebaseApp = null
   }
 }
 
-export { app, initializeFirebase };
+function clearFirebaseApp(){
+  firebaseApp = null
+}
+
+export { app, firebaseApp, initializeFirebase, installServer, clearFirebaseApp };
 export default appWrapper;

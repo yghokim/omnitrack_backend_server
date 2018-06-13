@@ -25,6 +25,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatListModule } from '@angular/material/list';
 import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatStepperModule} from '@angular/material/stepper';
 import { MatNativeDateModule } from '@angular/material';
 
 
@@ -56,7 +57,8 @@ import { MatNativeDateModule } from '@angular/material';
     MatTableModule,
     MatSortModule,
     MatExpansionModule,
-    MatListModule
+    MatListModule,
+    MatStepperModule
   ],
   exports: [
     MatDialogModule,
@@ -83,7 +85,8 @@ import { MatNativeDateModule } from '@angular/material';
     MatSortModule,
     MatDividerModule,
     MatExpansionModule,
-    MatListModule
+    MatListModule,
+    MatStepperModule
   ],
   providers: [
     MatIconRegistry]

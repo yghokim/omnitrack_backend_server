@@ -1,0 +1,19 @@
+#installation-header {
+  padding-top: 2rem;
+  padding-bottom: 1rem;
+  text-align: center;
+  img {
+    max-width: 350px;
+  }
+}
+
+.json-viewer-wrapper {
+  background: #f5f5f5;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-family: monospace;
+  padding-top: 0.25rem;
+  padding-bottom: 0rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
