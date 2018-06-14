@@ -1,5 +1,4 @@
-import * as express from 'express';
-
+import { firebaseApp } from './app'; 
 import OTSyncCtrl from './controllers/ot_sync_controller';
 import OTTrackerCtrl from './controllers/ot_tracker_controller';
 import OTTriggerCtrl from './controllers/ot_trigger_controller';
@@ -32,7 +31,25 @@ export class ClientApiRouter extends RouterWrapper {
     const adminCtrl = new AdminCtrl()
     const researchCtrl = new OTResearchCtrl()
 
-    const firebaseMiddleware = require('express-firebase-middleware');
+    //revised https://github.com/antonybudianto/express-firebase-middleware/blob/master/src/auth.middleware.js
+    const firebaseMiddleware = function firebaseAuthMiddleware(req, res, next) {
+      const authorization = req.header('Authorization');
+      if (authorization) {
+          let token = authorization.split(' ');
+          firebaseApp.auth().verifyIdToken(token[1])
+          .then((decodedToken) => {
+              res.locals.user = decodedToken;
+              next();
+          })
+          .catch(err => {
+              console.log(err);
+              res.sendStatus(401);
+          });
+      } else {
+          console.log('Authorization header is not found');
+          res.sendStatus(401);
+      }
+  }
 
     const omnitrackDeviceCheckMiddleware = (req: Request, res, next) => {
       const deviceId = req.get("OTDeviceId")
@@ -71,7 +88,7 @@ export class ClientApiRouter extends RouterWrapper {
       )
     }
 
-    const assertSignedInMiddleware = [firebaseMiddleware.auth, omnitrackDeviceCheckMiddleware]
+    const assertSignedInMiddleware = [firebaseMiddleware, omnitrackDeviceCheckMiddleware]
 
 
     // admin
@@ -98,10 +115,10 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.get('/items/changes', assertSignedInMiddleware, itemCtrl.getServerChanges)
     this.router.post('/items/changes', assertSignedInMiddleware, itemCtrl.postClientChanges)
 
-    this.router.get('/user/roles', firebaseMiddleware.auth, userCtrl.getRoles)
+    this.router.get('/user/roles', firebaseMiddleware, userCtrl.getRoles)
     this.router.post('/user/role', assertSignedInMiddleware, userCtrl.postRole)
     this.router.post('/user/name', assertSignedInMiddleware, userCtrl.putUserName)
-    this.router.post('/user/device', firebaseMiddleware.auth, userCtrl.putDeviceInfo)
+    this.router.post('/user/device', firebaseMiddleware, userCtrl.putDeviceInfo)
     this.router.post('/user/report', assertSignedInMiddleware, userCtrl.postReport)
     this.router.delete('/user', assertSignedInMiddleware, userCtrl.deleteAccount)
     this.router.post('/user/delete', assertSignedInMiddleware, userCtrl.deleteAccount)
@@ -116,17 +133,17 @@ export class ClientApiRouter extends RouterWrapper {
 
     restCtrlDict.forEach((ctrl, key) => {
       this.router.route('/' + key + "/:id")
-        .get(firebaseMiddleware.auth, ctrl.get)
-        .put(firebaseMiddleware.auth, ctrl.update)
-      this.router.route('/' + key).get(firebaseMiddleware.auth, ctrl.getAllOfUser).post(firebaseMiddleware.auth, ctrl.insert)
+        .get(firebaseMiddleware, ctrl.get)
+        .put(firebaseMiddleware, ctrl.update)
+      this.router.route('/' + key).get(firebaseMiddleware, ctrl.getAllOfUser).post(firebaseMiddleware, ctrl.insert)
     })
 
     // Items
-    this.router.route("/trackers/:trackerId/items").get(firebaseMiddleware.auth, itemCtrl.getAllOfTracker)
+    this.router.route("/trackers/:trackerId/items").get(firebaseMiddleware, itemCtrl.getAllOfTracker)
 
     //data manipulation
-    this.router.post("/item/update_column", firebaseMiddleware.auth, itemCtrl.postItemValue)
-    this.router.post("/item/update_timestamp", firebaseMiddleware.auth, itemCtrl.postItemTimestamp)
+    this.router.post("/item/update_column", firebaseMiddleware, itemCtrl.postItemValue)
+    this.router.post("/item/update_timestamp", firebaseMiddleware, itemCtrl.postItemTimestamp)
 
     this.router.route('/debug/items/all').get(itemCtrl.getAll)
     this.router.route('/debug/users/all').get(userCtrl.getAll)
@@ -154,7 +171,7 @@ export class ClientApiRouter extends RouterWrapper {
 
     this.router.post("/research/experiment/:experimentId/dropout", assertSignedInMiddleware, researchCtrl.dropOutFromExperiment)
 
-    this.router.get('/research/experiments/history', firebaseMiddleware.auth, researchCtrl.getExperimentHistoryOfUser)
+    this.router.get('/research/experiments/history', firebaseMiddleware, researchCtrl.getExperimentHistoryOfUser)
 
     this.router.get('/research/invitations/public', assertSignedInMiddleware, experimentCtrl.getPublicInvitationList)
 

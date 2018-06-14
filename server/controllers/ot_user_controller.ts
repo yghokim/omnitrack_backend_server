@@ -6,7 +6,7 @@ import OTTracker from '../models/ot_tracker';
 import OTTrigger from '../models/ot_trigger';
 import OTUserReport from '../models/ot_user_report';
 import InformationUpdateResult from '../../omnitrack/core/information_update_result';
-import app, {firebaseApp} from '../app';
+import app, { firebaseApp } from '../app';
 import { promise } from 'selenium-webdriver';
 import { SocketConstants } from '../../omnitrack/core/research/socket';
 
@@ -14,33 +14,30 @@ export default class OTUserCtrl extends BaseCtrl {
   model = OTUser
 
   private fetchUserDataToDb(uid: string): Promise<any> {
-    console.log("Firebase app:")
-    console.log(firebaseApp.auth().app.name)
-
     const generate = require("adjective-adjective-animal");
 
     return generate({ adjectives: 2, format: "title" }).then(
       generatedName => {
         return firebaseApp.auth().getUser(uid)
           .then(
-          userRecord => {
-            console.log("fetched Firebase auth user account:")
-            console.log(userRecord)
-            return OTUser.update({ _id: uid }, {
-              $set: {
-                name: generatedName,
-                email: userRecord.email,
-                picture: userRecord.photoURL,
-                accountCreationTime: userRecord.metadata.creationTime,
-                accountLastSignInTime: userRecord.metadata.lastSignInTime,
-                nameUpdatedAt: Date.now()
-              }
-            }, { upsert: true }).then(
-              result => {
-                return OTUser.findOne({ _id: uid })
-              }
+            userRecord => {
+              console.log("fetched Firebase auth user account:")
+              console.log(userRecord)
+              return OTUser.findOneAndUpdate({ _id: uid }, {
+                $set: {
+                  name: generatedName,
+                  email: userRecord.email,
+                  picture: userRecord.photoURL,
+                  accountCreationTime: userRecord.metadata.creationTime,
+                  accountLastSignInTime: userRecord.metadata.lastSignInTime,
+                  nameUpdatedAt: Date.now()
+                }
+              }, { upsert: true, new: true }).then(
+                result => {
+                  return result
+                }
               )
-          }
+            }
           )
       })
   }
@@ -62,7 +59,7 @@ export default class OTUserCtrl extends BaseCtrl {
 
   getRoles = (req, res) => {
     const userId = res.locals.user.uid
-    OTUser.findOne({ _id: userId }).then(
+    OTUser.findById(userId).then(
       result => {
         if (result == null) {
           res.json([])
@@ -73,7 +70,7 @@ export default class OTUserCtrl extends BaseCtrl {
         console.log(error)
         res.status(500).send(error)
       }
-      )
+    )
   }
 
   postRole = (req, res) => {
@@ -101,9 +98,9 @@ export default class OTUserCtrl extends BaseCtrl {
                 // new user role
                 app.omnitrackModule().firstUserPolicyModule.processOnNewUserRole(userId, newRole.role)
                   .then(
-                  () => {
-                    res.status(200).send(true)
-                  }
+                    () => {
+                      res.status(200).send(true)
+                    }
                   )
               } else { res.status(200).send(true) }
             }
@@ -142,30 +139,19 @@ export default class OTUserCtrl extends BaseCtrl {
     const userId = res.locals.user.uid
     const name = req.body.value
     const timestamp = req.body.timestamp
-    OTUser.findOne({ _id: userId }).then(
-      (result: any) => {
-        if (result) {
-          if (result.name !== name) {
-            if ((result.nameUpdatedAt || new Date(0)).getTime() < timestamp) {
-              result.name = name
-              result.nameUpdatedAt = Date.now()
-              result.save(err => {
-                if (err) {
-                  console.log(err)
-                  res.status(500).send(err)
-                } else { res.json(<InformationUpdateResult>{success: true, finalValue: result.name, payloads: new Map([["updatedAt", result.nameUpdatedAt.getTime().toString()]])}) }
-              })
-            } else {
-              res.json(<InformationUpdateResult>{success: false, finalValue: result.name, payloads: new Map([["updatedAt", result.nameUpdatedAt.getTime().toString()]])})
-            }
-          } else {
-            res.json(<InformationUpdateResult>{success: false})
-          }
-        } else {
-          res.json(<InformationUpdateResult>{success: false, payloads: new Map([["reason", "No such user"]])})
-        }
+    OTUser.findOneAndUpdate({
+      _id: userId,
+      $or: [
+        { nameUpdatedAt: { $exists: false } },
+        { nameUpdatedAt: { $lt: timestamp } }
+      ]
+    }, { name: name, nameUpdatedAt: Date.now() }, { new: true, select: {name: true, nameUpdatedAt: true} }).lean().then(user => {
+      if(user){
+        res.json(<InformationUpdateResult>{ success: true, finalValue: user["name"], payloads: new Map([["updatedAt", user["nameUpdatedAt"].getTime().toString()]]) })
+      }else{
+        res.json(<InformationUpdateResult>{ success: false })
       }
-    ).catch(err => {
+    }).catch(err => {
       console.log(err)
       res.status(500).send(err)
     })
@@ -173,7 +159,7 @@ export default class OTUserCtrl extends BaseCtrl {
 
   getDevices = (req, res) => {
     const userId = res.locals.user.uid
-    OTUser.findOne({ _id: userId }).then(
+    OTUser.findOne({ _id: userId },{projection: {devices: true}}).lean().then(
       result => {
         if (result == null) {
           res.json([])
@@ -184,7 +170,7 @@ export default class OTUserCtrl extends BaseCtrl {
         console.log(error)
         res.status(500).send(error)
       }
-      )
+    )
   }
 
   putDeviceInfo = (req, res) => {
@@ -246,7 +232,8 @@ export default class OTUserCtrl extends BaseCtrl {
                 nameUpdatedAt: user.nameUpdatedAt.getTime(),
                 picture: user.picture,
                 updatedAt: user.updatedAt.getTime(),
-                consentApproved: (role != null ? role.isConsentApproved : false).toString() }
+                consentApproved: (role != null ? role.isConsentApproved : false).toString()
+              }
             })
           } else { res.status(500).send({ error: "deviceinfo db update failed." }) }
         }, { upsert: true })
@@ -262,20 +249,21 @@ export default class OTUserCtrl extends BaseCtrl {
     } else if (res.locals.user) {
       userId = res.locals.user.uid
     } else {
-      res.status(500).send({err: "You are neither a researcher nor a user."})
+      res.status(500).send({ err: "You are neither a researcher nor a user." })
     }
 
     const removeData = JSON.parse(req.query.removeData || "false")
 
     const promises: Array<PromiseLike<any>> = [
-      OTUser.collection.findOneAndDelete({_id: userId}).then(result => {
-        return {name: OTUser.modelName, result: result.ok > 0, count: 1}})
+      OTUser.collection.findOneAndDelete({ _id: userId }).then(result => {
+        return { name: OTUser.modelName, result: result.ok > 0, count: 1 }
+      })
     ]
 
     if (removeData) {
       [OTItem, OTTracker, OTTrigger].forEach(model => {
         promises.push(
-          model.remove({user: userId}).then(removeRes => ({name: model.modelName, result: removeRes["ok"] > 0, count: removeRes["n"]}))
+          model.remove({ user: userId }).then(removeRes => ({ name: model.modelName, result: removeRes["ok"] > 0, count: removeRes["n"] }))
         )
       })
     }
@@ -283,9 +271,9 @@ export default class OTUserCtrl extends BaseCtrl {
     Promise.all(promises)
       .then(results => {
         console.log(results)
-        app.socketModule().sendGlobalEvent( results.filter(r => r.count > 0).map( r => {
-            return {model : r.name, event: SocketConstants.EVENT_REMOVED }
-          }))
+        app.socketModule().sendGlobalEvent(results.filter(r => r.count > 0).map(r => {
+          return { model: r.name, event: SocketConstants.EVENT_REMOVED }
+        }))
         res.status(200).send(results)
       }).catch(err => {
         console.log(err)
