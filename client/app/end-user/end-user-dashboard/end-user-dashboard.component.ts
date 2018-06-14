@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { EndUserApiService } from "../services/end-user-api.service";
 import { ITrackerDbEntity, IItemDbEntity } from "../../../../omnitrack/core/db-entity-types";
-import { Subscription ,  Observable, of } from "rxjs";
+import { Subscription, of } from "rxjs";
 import { combineLatest } from 'rxjs/operators';
 import { TrackingSet, ProductivityHelper } from "../../shared-visualization/custom/productivity-helper";
 

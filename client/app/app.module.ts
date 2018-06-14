@@ -11,16 +11,11 @@ import { NotFoundComponent } from './not-found/not-found.component';
 
 import { MaterialDesignModule } from './material-design.module';
 import { YesNoDialogComponent } from './dialogs/yes-no-dialog/yes-no-dialog.component';
-import { BusyOverlayComponent } from './busy-overlay/busy-overlay.component';
-import { ChooseInvitationDialogComponent } from './dialogs/choose-invitation-dialog/choose-invitation-dialog.component';
 
 import { NotificationService } from './services/notification.service';
 
 import { ResearchModule } from './research.module';
 import { TextInputDialogComponent } from './dialogs/text-input-dialog/text-input-dialog.component';
-import { SVGEllipsisDirective } from './directives/svgellipsis.directive';
-import { TableCellValueComponent } from './components/table-cell-value/table-cell-value.component';
-import { ClientDownloadComponent } from './client-download/client-download.component';
 import { EndUserModule } from './end-user.module';
 import { ImageViewDialog } from './experiment-data/image-cell/image-view-dialog/image-view-dialog.component';
 
@@ -31,7 +26,6 @@ import { ImageViewDialog } from './experiment-data/image-cell/image-view-dialog/
     NotFoundComponent,
     YesNoDialogComponent,
     TextInputDialogComponent,
-    BusyOverlayComponent,
     ImageViewDialog
   ],
   imports: [

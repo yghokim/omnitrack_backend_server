@@ -39,12 +39,16 @@ import { ExperimentTrackingEngagementComponent } from './experiment-overview/exp
 import { ClientUsageComponent } from './experiment-overview/client-usage/client-usage.component';
 import { ServerStatusOverviewComponent } from './server-status-overview/server-status-overview.component';
 import { HttpMethodTestingComponent } from './test/http-method-testing/http-method-testing.component';
+import { InstallationWizardComponent } from './installation/installation-wizard/installation-wizard.component';
+import { PreventReinstallationGuard } from './services/prevent-reinstallation.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: 'downloads', pathMatch: 'full', canActivate: [EndUserAuthToMainGuard] },
   { path: 'downloads', component: ClientDownloadComponent },
 
   {path: 'test', component: HttpMethodTestingComponent},
+
+  {path: 'install', component: InstallationWizardComponent, canActivate: [PreventReinstallationGuard]},
 
   {
     path: 'tracking', component: EndUserFrameComponent,
@@ -116,12 +120,6 @@ const routes: Routes = [
     ]
   },
 
-  /*
-  { path: 'register', component: RegisterComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'logout', component: LogoutComponent },
-  { path: 'account', component: AccountComponent},
-  { path: 'admin', component: AdminComponent, canActivate: [AuthGuardAdmin] },*/
   { path: 'notfound', component: NotFoundComponent },
   { path: '**', redirectTo: '/notfound' },
 ];
