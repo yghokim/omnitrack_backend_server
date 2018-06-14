@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Http } from '@angular/http';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-installation-wizard',
@@ -45,7 +46,8 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
   adminCertJson: any = null
   adminCertFile: any
   wrongCertFileUploaded: boolean = false
-  constructor(private http: Http) { }
+
+  constructor(private http: Http, private router: Router) { }
 
   ngOnInit() {
     this.isLoadingServerStatus = true
@@ -58,7 +60,7 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
         err => {
           console.log(err)
           if (err.error === "AlreadyInstalled") {
-            //TODO: installation is already complete. navigate to main page.
+            this.router.navigate(["research/signup"])
           }
         }, () => {
           this.isLoadingServerStatus = false
@@ -173,9 +175,28 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
 
   startOver() {
     this.internalSubscriptions.add(
-      this.http.post("/api/installation/reset", {}).pipe(map(res=>res.json())).subscribe(result => {
+      this.http.post("/api/installation/reset", {}).pipe(map(res => res.json())).subscribe(result => {
         this.handleSummaryResult(result)
       })
+    )
+  }
+
+  completeInstallation() {
+    this.isLoadingServerStatus = true
+    this.internalSubscriptions.add(
+      this.http.post('/api/installation/set/complete_installation', {value: true}).pipe(map(res => res.json())).subscribe(
+        success => {
+          if (success === true) {
+            this.router.navigate(["research/signup"])
+          }
+        },
+        err => {
+
+        },
+        () => {
+          this.isLoadingServerStatus = false
+        }
+      )
     )
   }
 

@@ -40,6 +40,7 @@ import { ClientUsageComponent } from './experiment-overview/client-usage/client-
 import { ServerStatusOverviewComponent } from './server-status-overview/server-status-overview.component';
 import { HttpMethodTestingComponent } from './test/http-method-testing/http-method-testing.component';
 import { InstallationWizardComponent } from './installation/installation-wizard/installation-wizard.component';
+import { PreventReinstallationGuard } from './services/prevent-reinstallation.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: 'downloads', pathMatch: 'full', canActivate: [EndUserAuthToMainGuard] },
@@ -47,7 +48,7 @@ const routes: Routes = [
 
   {path: 'test', component: HttpMethodTestingComponent},
 
-  {path: 'install', component: InstallationWizardComponent},
+  {path: 'install', component: InstallationWizardComponent, canActivate: [PreventReinstallationGuard]},
 
   {
     path: 'tracking', component: EndUserFrameComponent,

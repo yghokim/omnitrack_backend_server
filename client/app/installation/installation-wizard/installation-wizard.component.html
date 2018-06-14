@@ -71,7 +71,7 @@
         </mat-step>
         <mat-step label="Complete the installation process" [enabled]="isInstallationCompletable === true">
           <div class="flex-container flex-align-items-center">
-            <button mat-raised-button color="primary" class="large" [disabled]="isInstallationCompletable === false">
+            <button mat-raised-button color="primary" class="large" [disabled]="isInstallationCompletable === false" (click)="completeInstallation()">
               Complete & Lock Installation
             </button>
             <button mat-button color="accent" (click)="startOver()">
