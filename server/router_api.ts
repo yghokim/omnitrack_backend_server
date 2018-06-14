@@ -100,10 +100,12 @@ export class ClientApiRouter extends RouterWrapper {
 
     this.router.get('/user/roles', firebaseMiddleware.auth, userCtrl.getRoles)
     this.router.post('/user/role', assertSignedInMiddleware, userCtrl.postRole)
-    this.router.put('/user/name', assertSignedInMiddleware, userCtrl.putUserName)
-    this.router.put('/user/device', firebaseMiddleware.auth, userCtrl.putDeviceInfo)
+    this.router.post('/user/name', assertSignedInMiddleware, userCtrl.putUserName)
+    this.router.post('/user/device', firebaseMiddleware.auth, userCtrl.putDeviceInfo)
     this.router.post('/user/report', assertSignedInMiddleware, userCtrl.postReport)
     this.router.delete('/user', assertSignedInMiddleware, userCtrl.deleteAccount)
+    this.router.post('/user/delete', assertSignedInMiddleware, userCtrl.deleteAccount)
+    
 
     // REST API
     const restCtrlDict: Map<string, UserBelongingCtrl> = new Map([

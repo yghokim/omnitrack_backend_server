@@ -12,8 +12,6 @@ const FIREBASE_CERT_PATH = path.join(
 export default class OTInstallationWizardCtrl {
 
   isFirebaseSet(): boolean {
-    console.log("firebaseApp:")
-    console.log(firebaseApp)
     return firebaseApp != null
   }
 

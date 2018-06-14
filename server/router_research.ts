@@ -60,10 +60,14 @@ export class ResearchRouter extends RouterWrapper {
     //Admin API===================================================
     this.router.post('/clients/upload', tokenAdminAuth, clientBinaryCtrl.postClientBinaryFile)
     this.router.delete("/clients/:binaryId", tokenAdminAuth, clientBinaryCtrl.removeClientBinary)
+    this.router.post("/clients/:binaryId/delete", tokenAdminAuth, clientBinaryCtrl.removeClientBinary)
+    
 
     this.router.get('/signatures/all', tokenAdminAuth, clientSignatureCtrl.getSignatures)
     this.router.post('/signatures/update', tokenAdminAuth, clientSignatureCtrl.postSignature)
     this.router.delete('/signatures/:id', tokenAdminAuth, clientSignatureCtrl.removeSignature)
+    this.router.post('/signatures/:id/delete', tokenAdminAuth, clientSignatureCtrl.removeSignature)
+    
 
     this.router.get('/researchers/all', tokenAdminAuth, this.researchCtrl.getResearchers)
     this.router.post('/researchers/:researcherId/approve', tokenAdminAuth, this.researchCtrl.setResearcherAccountApproved)
@@ -86,6 +90,7 @@ export class ResearchRouter extends RouterWrapper {
 
 
     this.router.delete('/experiments/:experimentId', tokenApprovedAuth, experimentCtrl.removeExperiment)
+    this.router.post('/experiments/:experimentId/delete', tokenApprovedAuth, experimentCtrl.removeExperiment)
 
 
     this.router.post("/experiments/:experimentId/collaborators/new", tokenApprovedAuth, experimentCtrl.addCollaborator)
@@ -103,17 +108,25 @@ export class ResearchRouter extends RouterWrapper {
     this.router.post('/experiments/:experimentId/invitations/send', tokenApprovedAuth, this.researchCtrl.sendInvitation)
 
     this.router.delete('/experiments/:experimentId/invitations/:invitationId', tokenApprovedAuth, this.researchCtrl.removeInvitation)
+    this.router.post('/experiments/:experimentId/invitations/:invitationId/delete', tokenApprovedAuth, this.researchCtrl.removeInvitation)
+    
 
     this.router.post('/experiments/:experimentId/packages/update', tokenApprovedAuth, experimentCtrl.updateTrackingPackageToExperiment)
 
     this.router.delete('/experiments/:experimentId/packages/:packageKey', tokenApprovedAuth, experimentCtrl.removeTrackingPackageFromExperiment)
+    this.router.post('/experiments/:experimentId/packages/:packageKey/delete', tokenApprovedAuth, experimentCtrl.removeTrackingPackageFromExperiment)
+    
 
     this.router.post('/experiments/:experimentId/groups/upsert', tokenApprovedAuth, experimentCtrl.upsertExperimentGroup)
     this.router.delete('/experiments/:experimentId/groups/:groupId', tokenApprovedAuth, experimentCtrl.removeExperimentGroup)
+    this.router.post('/experiments/:experimentId/groups/:groupId/delete', tokenApprovedAuth, experimentCtrl.removeExperimentGroup)
+    
 
     this.router.post('/users/notify/message', tokenApprovedAuth, this.researchCtrl.sendNotificationMessageToUser)
 
     this.router.delete('/participants/:participantId', tokenApprovedAuth, this.researchCtrl.removeParticipant)
+    this.router.post('/participants/:participantId/delete', tokenApprovedAuth, this.researchCtrl.removeParticipant)
+    
 
     this.router.post('/participants/:participantId/alias', tokenApprovedAuth, this.researchCtrl.changeParticipantAlias)
 
@@ -122,8 +135,11 @@ export class ResearchRouter extends RouterWrapper {
     this.router.get("/researchers/search", tokenApprovedAuth, this.researchCtrl.searchResearchers)
 
     this.router.delete("/users/:userId", tokenApprovedAuth, this.userCtrl.deleteAccount)
+    this.router.post("/users/:userId/delete", tokenApprovedAuth, this.userCtrl.deleteAccount)
+    
 
-    this.router.delete("/participants/:participantId/drop", tokenApprovedAuth, this.researchCtrl.dropOutFromExperiment)
+    this.router.post("/participants/:participantId/drop", tokenApprovedAuth, this.researchCtrl.dropOutFromExperiment)
+    
 
     this.router.post('/participants/:participantId/excluded_days', tokenApprovedAuth, participantCtrl.postExcludedDays)
 

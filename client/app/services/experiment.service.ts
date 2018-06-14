@@ -252,7 +252,7 @@ export class ExperimentService {
   }
 
   dropParticipant(participantId): Observable<any> {
-    return this.http.delete("/api/research/participants/" + participantId + "/drop", this.researchApi.authorizedOptions)
+    return this.http.post("/api/research/participants/" + participantId + "/drop", this.researchApi.authorizedOptions)
       .pipe(map(res => res.json().success))
   }
 
