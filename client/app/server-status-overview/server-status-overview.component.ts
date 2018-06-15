@@ -15,7 +15,11 @@ export class ServerStatusOverviewComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
   private engagements: Array<any>
-  public chart
+  private logs: Array<any>
+  private usersPerDay: Number = 0
+  private sessionsPerDay: Number = 0
+  private medianSessionDur: Number = 0
+  private averageTimePerDay: Number = 0
 
   constructor(private api: ResearchApiService, public engagementService: EngagementDataService) {
     
@@ -28,13 +32,11 @@ export class ServerStatusOverviewComponent implements OnInit, OnDestroy {
           console.log(list)
           this.engagements = logsToEngagements(list)
           this.engagementService.setEngageLog(this.engagements, null, true, [])
+          this.logs = list
+          this.sessionsPerDay = this.engagementService.totalSessionsPerDay;
+          this.medianSessionDur = this.engagementService.medianSessionDuration;
+          this.averageTimePerDay = this.engagementService.timePerUserPerDay;
           console.log(this.engagements)
-          const chartOptions = HighChartsHelper.makeDefaultChartOptions('line', "40%")
-          chartOptions.tooltip = {
-            shared: true,
-            valueDecimals: 2
-          } 
-
         }
       )
     )
@@ -44,4 +46,8 @@ export class ServerStatusOverviewComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
+  onUsersPerDay(users: number){
+    this.usersPerDay = users;
+  }
+  
 }
