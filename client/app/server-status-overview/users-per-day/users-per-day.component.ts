@@ -69,10 +69,10 @@ export class UsersPerDayComponent implements OnInit {
       zIndex: 1,
       color: "#004d80",
       marker: {
-        fillColor: 'white',
-        lineWidth: 1,
+        fillColor: 'none',
+        lineWidth: 0,
         lineColor: 'black',
-        radius: 2
+        radius: 1
       }
     }]
     chartOptions.yAxis = {
