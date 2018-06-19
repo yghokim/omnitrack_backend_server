@@ -55,7 +55,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
           } else { throw Error("Server error while upserting.") }
         }
         ).then(
-        result => result.map(entry => { console.log("haha"); console.log(entry); return { id: entry._id, synchronizedAt: entry.updatedAt.getTime() } })
+        result => result.map(entry => { return { id: entry._id, synchronizedAt: entry.updatedAt.getTime() } })
         )
     } else { return Promise.resolve([]) }
   }

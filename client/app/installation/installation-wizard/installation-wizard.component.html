@@ -1,0 +1,85 @@
+<div class="container">
+  <div id="installation-header">
+    <img src="assets/omnitrack_research_kit_logo.svg">
+  </div>
+
+  <div class="card card-main">
+    <app-busy-overlay *ngIf="isLoadingServerStatus === true"></app-busy-overlay>
+    <div class="card-header">
+      Server Initialization
+    </div>
+    <div class="card-body">
+      <mat-vertical-stepper linear="false" [selectedIndex]="currentStepIndex" #installationStepper>
+        <mat-step label="Register super-users" [completed]="superUsersComplete===true" [editable]="superUsersComplete!==true">
+          <p>
+            Enter the E-mails of users who will be permitted the super-user previlage.
+          </p>
+          <tag-input [(ngModel)]="superUsers" (onAdd)="onSuperUsersEdited($event)" (onRemove)="onSuperUsersEdited($event)" [validators]="[emailValidator]"
+            [modelAsStrings]="true" placeholder="Add E-mail" secondaryPlaceholder="Insert E-mails" [separatorKeyCodes]="[32,186,188]"></tag-input>
+
+          <div class="top-margin-1em">
+            <button [disabled]="!superUsers || superUsers.length === 0" mat-raised-button color="accent" (click)="submitSuperUsers()">Submit</button>
+          </div>
+        </mat-step>
+        <mat-step label="Set JWT secret" [completed]="jwtTokenComplete === true" [editable]="jwtTokenComplete !== true">
+          <p>
+            Enter a secret string to be used for JWT token process
+          </p>
+          <p>
+            <b>e.g.,</b> OmniTrackIsAwesome
+          </p>
+          <mat-form-field class="example-full-width" style="width: 40%;
+          min-width: 300px;">
+            <input matInput placeholder="Insert any arbitrary string" [(value)]="jwtTokenSecret">
+          </mat-form-field>
+          <div class="top-margin-1em">
+            <button [disabled]="!jwtTokenSecret || jwtTokenSecret.length === 0" mat-raised-button color="accent" (click)="submitJwtTokenSecret()">Submit</button>
+          </div>
+        </mat-step>
+        <mat-step label="Register Firebase admin certificate" [completed]="firebaseCertComplete === true" [editable]="firebaseCertComplete !== true">
+          <p>
+            Upload the Firebase Admin SDK private key file you downloaded from the Firebase project settings.
+          </p>
+          <p>
+            In your
+            <i>Firebase project page</i>, Go to
+            <span class="badge badge-info font-size-original">Settings</span> >
+            <span class="badge  badge-info font-size-original">Service Accounts</span> >
+            <span class="badge badge-info font-size-original">Firebase Admin SDK</span> and press
+            <span class="badge badge-primary  font-size-original">Generate New Private Key</span>
+          </p>
+          <div *ngIf="!adminCertJson" class="fileopen">
+            <label for="packageFileInput">
+              <small>Load Certificate (.json)...</small>
+            </label>
+            <input id="packageFileInput" type="file" accept="application/json" [(ngModel)]="adminCertFile" (change)="onAdminCertFileChanged($event.target.files)">
+          </div>
+
+          <div *ngIf="adminCertJson" class="json-viewer-wrapper">
+            <ngx-json-viewer [json]="adminCertJson"></ngx-json-viewer>
+          </div>
+
+          <button *ngIf="adminCertJson" mat-button color="accent" (click)="onTryAnotherCertFileClicked()">Try another file</button>
+
+          <div *ngIf="wrongCertFileUploaded===true" class="alert alert-danger">
+            Wrong file format. Try another file.
+          </div>
+
+          <div class="top-margin-1em">
+            <button mat-raised-button color="accent" [disabled]="adminCertJson==null" (click)="submitFirebaseCert()">Submit</button>
+          </div>
+        </mat-step>
+        <mat-step label="Complete the installation process" [enabled]="isInstallationCompletable === true">
+          <div class="flex-container flex-align-items-center">
+            <button mat-raised-button color="primary" class="large" [disabled]="isInstallationCompletable === false" (click)="completeInstallation()">
+              Complete & Lock Installation
+            </button>
+            <button mat-button color="accent" (click)="startOver()">
+              Discard the settings and start over
+            </button>
+          </div>
+        </mat-step>
+      </mat-vertical-stepper>
+    </div>
+  </div>
+</div>

@@ -3,10 +3,6 @@ import * as uuid from "uuid";
 import * as path from "path";
 import { ResearcherPrevilages } from '../../omnitrack/core/research/researcher';
 import OTResearcher from "../models/ot_researcher";
-
-import OTExperiment from "../models/ot_experiment";
-import OTResearcherToken from "../models/ot_researcher_token";
-import OTResearcherClient from "../models/ot_researcher_client";
 import env from "../env";
 import app from "../app";
 import { isNullOrBlank } from "../../shared_lib/utils";

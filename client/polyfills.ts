@@ -54,6 +54,7 @@ import 'core-js/es7/reflect';
  * Zone JS is required by Angular itself.
  */
 import 'zone.js/dist/zone';  // Included with Angular CLI.
+import { Http, Response } from '@angular/http';
 
 
 
@@ -72,3 +73,7 @@ import 'zone.js/dist/zone';  // Included with Angular CLI.
 // import 'intl/locale-data/jsonp/en';
 
 (window as any).global = window;
+
+//Uncomment these if your server does not allow some http methods.
+Http.prototype.delete = function(url, options){return this.post(url + "/delete", {}, options)}
+Http.prototype.put = function(url, body, options){return this.post(url, body, options)}

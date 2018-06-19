@@ -28,6 +28,7 @@ import { RoutingModule } from './routing.module';
 import { SharedModule } from './shared/shared.module';
 import { MaterialDesignModule } from './material-design.module';
 import { ClipboardModule } from 'ngx-clipboard';
+import { NgxJsonViewerModule } from 'ngx-json-viewer';
 import { ResearcherPermissionsConfigurationComponent } from './experiment-settings/researcher-permissions-configuration/researcher-permissions-configuration.component';
 import { ResearcherSearchComponentComponent } from './experiment-settings/researcher-search-component/researcher-search-component.component';
 import { ResearchLayoutComponent } from './layouts/research-layout/research-layout.component';
@@ -70,6 +71,8 @@ import { NewTrackingPackageDialogComponent } from './research/omnitrack/new-trac
 import { HttpMethodTestingComponent } from './test/http-method-testing/http-method-testing.component';
 import { UsersPerDayComponent } from './server-status-overview/users-per-day/users-per-day.component';
 import { DevicesPerDayComponent } from './server-status-overview/devices-per-day/devices-per-day.component';
+import { InstallationWizardComponent } from './installation/installation-wizard/installation-wizard.component';
+import { TagInputModule } from 'ngx-chips';
 
 @NgModule({
   imports: [
@@ -80,7 +83,9 @@ import { DevicesPerDayComponent } from './server-status-overview/devices-per-day
     NouisliderModule,
     FroalaEditorModule.forRoot(),
     FroalaViewModule.forRoot(),
-    ProductivityStatisticsModule
+    ProductivityStatisticsModule,
+    TagInputModule,
+    NgxJsonViewerModule
   ],
   declarations: [
     ResearchLoginComponent,
@@ -132,8 +137,8 @@ import { DevicesPerDayComponent } from './server-status-overview/devices-per-day
     NewTrackingPackageDialogComponent,
     HttpMethodTestingComponent,
     UsersPerDayComponent,
-    DevicesPerDayComponent
-    
+    DevicesPerDayComponent,
+    InstallationWizardComponent
   ],
   exports: [
     NouisliderModule,

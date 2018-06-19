@@ -1,6 +1,6 @@
 import OTUser from "../models/ot_user";
-import * as admin from 'firebase-admin';
 import C from '../server_consts';
+import {firebaseApp} from '../app';
 
 export default class PushModule {
 
@@ -52,7 +52,7 @@ export default class PushModule {
       .then(instanceIds => {
         if (instanceIds.length > 0) {
           console.log("send notificationMessage to " + instanceIds)
-          return admin.messaging().sendToDevice(instanceIds, body).then(response => {
+          return firebaseApp.messaging().sendToDevice(instanceIds, body).then(response => {
             console.log(response)
             return response.results.map(device => device.messageId)
           })
@@ -83,7 +83,7 @@ export default class PushModule {
           console.log("send dataPayloadMessage to " + instanceIds)
 
           // send notification to instanceIds
-          return admin.messaging().sendToDevice(instanceIds, { data: messagePayload }).then(
+          return firebaseApp.messaging().sendToDevice(instanceIds, { data: messagePayload }).then(
             response => {
               console.log(response)
               return response.results.map(device => device.messageId)
@@ -115,9 +115,9 @@ export default class PushModule {
     .then(instanceIds => {
       if (instanceIds.length > 0) {
         console.log("send notification to " + instanceIds)
-
+        
         // send notification to instanceIds
-        return admin.messaging().sendToDevice(instanceIds, { data: this.makeFullSyncMessageData().toMessagingPayloadJson() }).then(
+        return firebaseApp.messaging().sendToDevice(instanceIds, { data: this.makeFullSyncMessageData().toMessagingPayloadJson() }).then(
           response => {
             console.log(response)
             return response.results.map(device => device.messageId)
