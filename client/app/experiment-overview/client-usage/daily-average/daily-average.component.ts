@@ -23,11 +23,30 @@ export class DailyAverageComponent implements OnInit {
   set _engageLog(engageLog: Array<DayData>){   
     if(engageLog.length > 0){
       
-      const chartOptions = HighChartsHelper.makeDefaultChartOptions('line', "40%")
+      const chartOptions = HighChartsHelper.makeDefaultChartOptions('line')
 
       chartOptions.tooltip = {
         shared: true,
         valueDecimals: 2
+      }
+      var dateCountValue: any[] = engageLog.map( function(x, i){
+        return [this.dates[i].valueOf() , x.avgCount]
+      }, this)
+      var dateCountRange: any[] = engageLog.map( function(x, i){
+        return [this.dates[i].valueOf() ,x.minCount,x.maxCount]
+      }, this)
+      var dateDurValue: any[] = dateDurValue = engageLog.map( function(x, i){
+        return [this.dates[i].valueOf() , x.avgDuration]
+      }, this)
+      var dateDurRange: any[] = dateDurRange = engageLog.map( function(x, i){
+        return [this.dates[i].valueOf() , x.minDuration, x.maxDuration]
+      }, this)
+
+      chartOptions.xAxis = {
+        type: 'datetime',
+        crosshair: {
+          width: 2 
+        }
       }
       //here a better method for checking whether date or number is needed!
       if(this.dates[0].valueOf() < 1000 ){
@@ -37,30 +56,30 @@ export class DailyAverageComponent implements OnInit {
           valueDecimals: 2,
           headerFormat: '<small>Day {point.key}</small><br>'
         }
-      }
 
-      chartOptions.xAxis = {
-        categories: this.dates,
-        crosshair: {
-          width: 2 
+        chartOptions.xAxis = {
+          crosshair: {
+            width: 2 
+          }
         }
-      }        
+      }
   
       if(this.dataType === "launchCount"){
 
         chartOptions.series = [{
-          name: 'Average app-launches',
-          data: engageLog.map( x => x.avgCount),
+          name: 'App Launches',
+          data: dateCountValue,
           zIndex: 1,
           color: "#004d80",
           marker: {
             fillColor: 'white',
             lineWidth: 1,
-            lineColor: 'black'
+            lineColor: 'black',
+            radius: 2
           }
         },{
           name: 'Range' ,
-          data: engageLog.map(x => [x.minCount,x.maxCount]),
+          data: dateCountRange,
           type: 'arearange',
           lineWidth: 0,
           linkedTo: ':previous',
@@ -86,17 +105,18 @@ export class DailyAverageComponent implements OnInit {
       else if(this.dataType === "sessionEngagement"){   
         
         chartOptions.series = [{
-          name: 'Average session duration',
-          data: engageLog.map( x => x.avgDuration),
+          name: 'Session Duration',
+          data: dateDurValue,
           zIndex: 1,
           marker: {
             fillColor: 'white',
             lineWidth: 1,
-            lineColor: '#84315d'
+            lineColor: '#84315d',
+            radius: 2
           }
         },{
           name: 'Range' ,
-          data: engageLog.map(x => [x.minDuration,x.maxDuration]),
+          data: dateDurRange,
           type: 'arearange',
           lineWidth: 0,
           fillOpacity: 0.3,

@@ -67,8 +67,7 @@ export class EngagementDataService {
       
       this.calculateAvgRange("date", dailyUsers)
       this.calculateAvgRange("relative", relativeUsers)
-      
-      console.log(this.dailyData)
+
     }
   }
 
@@ -81,7 +80,7 @@ export class EngagementDataService {
   } 
 
   get engagementDates(): Array<any>{
-    return this.dates.map(x => x.toDateString());
+    return this.dates;
   }
 
   get relativeDates(): Array<any>{
@@ -90,6 +89,50 @@ export class EngagementDataService {
       dates.push(i+1)
     }
     return dates;
+  }
+
+  get totalSessionsPerDay(): number{
+    if(this.dailyData.length > 0){
+      var overallSessions = 0;
+      for(let date of this.dailyData){
+        for(let element of date.dayElements){
+          overallSessions += element.engagements.length
+        }
+      }
+      overallSessions = overallSessions/this.dailyData.length
+    }
+    return overallSessions;
+  }
+
+  get medianSessionDuration(): number{
+    if(this.engageLog){
+      var engagements =  this.engageLog.map(x => x.engagements).reduce(function(prev,curr){ return prev.concat(curr)})
+      var sortedEngagements = engagements.sort((n1,n2) => n2.duration - n1.duration);
+      if(sortedEngagements.length % 2 === 1){
+        return (sortedEngagements[Math.floor(sortedEngagements.length/2)].duration)/1000
+      }
+      else{
+        var temp = (sortedEngagements[sortedEngagements.length/2].duration - sortedEngagements[(sortedEngagements.length/2)-1].duration)/2
+        return (sortedEngagements[(sortedEngagements.length/2)-1].duration + temp)/1000
+      }
+    }
+  }
+
+  get timePerUserPerDay(): number{
+    if(this.dailyData.length > 0){
+      var overallAverage = 0;
+      for(let day of this.dailyData){
+        var average = 0;
+        for(let user of day.dayElements){
+          average += user.totalDuration
+        }
+        average = average/day.dayElements.length
+        overallAverage += average
+      }
+      overallAverage = overallAverage/this.dailyData.length
+      return overallAverage/1000;
+    }
+    else{ return 0;}
   }
 
 /*  setDayScope(dayScope: Array<any>){

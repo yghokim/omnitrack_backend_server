@@ -69,6 +69,8 @@ import { ServerStatusOverviewComponent } from './server-status-overview/server-s
 import { UpdateClientSignatureDialogComponent } from './server-settings/update-client-signature-dialog/update-client-signature-dialog.component';
 import { NewTrackingPackageDialogComponent } from './research/omnitrack/new-tracking-package-dialog/new-tracking-package-dialog.component';
 import { HttpMethodTestingComponent } from './test/http-method-testing/http-method-testing.component';
+import { UsersPerDayComponent } from './server-status-overview/users-per-day/users-per-day.component';
+import { DevicesPerDayComponent } from './server-status-overview/devices-per-day/devices-per-day.component';
 import { InstallationWizardComponent } from './installation/installation-wizard/installation-wizard.component';
 import { TagInputModule } from 'ngx-chips';
 
@@ -134,6 +136,8 @@ import { TagInputModule } from 'ngx-chips';
     UpdateClientSignatureDialogComponent,
     NewTrackingPackageDialogComponent,
     HttpMethodTestingComponent,
+    UsersPerDayComponent,
+    DevicesPerDayComponent,
     InstallationWizardComponent
   ],
   exports: [
