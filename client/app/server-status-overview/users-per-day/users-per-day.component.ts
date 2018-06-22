@@ -11,7 +11,6 @@ import { Chart } from 'angular-highcharts';
 })
 export class UsersPerDayComponent implements OnInit {
   private chart
-  private logs
   private usersPerDay: Array<any> = [];
   
   @Input('dates')

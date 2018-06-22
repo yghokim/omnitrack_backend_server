@@ -4,7 +4,6 @@ import { Subscription } from 'rxjs';
 import * as moment from 'moment';
 import { logsToEngagements } from '../../../shared_lib/engagement';
 import { EngagementDataService } from '../experiment-overview/client-usage/engagement-data.service';
-import { HighChartsHelper } from '../shared-visualization/highcharts-helper';
 
 @Component({
   selector: 'app-server-status-overview',
