@@ -12,6 +12,9 @@ import { Engagement } from '../../../../../shared_lib/engagement';
 export class DailyAverageComponent implements OnInit {
   
   public chart
+
+  @Input('height')
+  private height: String = '60%'
   
   @Input('dataType')
   private dataType: String
@@ -23,23 +26,23 @@ export class DailyAverageComponent implements OnInit {
   set _engageLog(engageLog: Array<DayData>){   
     if(engageLog.length > 0){
       
-      const chartOptions = HighChartsHelper.makeDefaultChartOptions('line')
+      const chartOptions = HighChartsHelper.makeDefaultChartOptions('line', this.height)
 
       chartOptions.tooltip = {
         shared: true,
         valueDecimals: 2
       }
-      var dateCountValue: any[] = engageLog.map( function(x, i){
-        return [this.dates[i].valueOf() , x.avgCount]
+      var dateCountValue: any[] = engageLog.map( function(x, i){if(i < this.dates.length){
+        return [this.dates[i].valueOf() , x.avgCount]}
       }, this)
-      var dateCountRange: any[] = engageLog.map( function(x, i){
-        return [this.dates[i].valueOf() ,x.minCount,x.maxCount]
+      var dateCountRange: any[] = engageLog.map( function(x, i){if(i < this.dates.length){
+        return [this.dates[i].valueOf() ,x.minCount,x.maxCount]}
       }, this)
-      var dateDurValue: any[] = dateDurValue = engageLog.map( function(x, i){
-        return [this.dates[i].valueOf() , x.avgDuration]
+      var dateDurValue: any[] = dateDurValue = engageLog.map( function(x, i){if(i < this.dates.length){
+        return [this.dates[i].valueOf() , x.avgDuration]}
       }, this)
-      var dateDurRange: any[] = dateDurRange = engageLog.map( function(x, i){
-        return [this.dates[i].valueOf() , x.minDuration, x.maxDuration]
+      var dateDurRange: any[] = dateDurRange = engageLog.map( function(x, i){if(i < this.dates.length){
+        return [this.dates[i].valueOf() , x.minDuration, x.maxDuration]}
       }, this)
 
       chartOptions.xAxis = {
