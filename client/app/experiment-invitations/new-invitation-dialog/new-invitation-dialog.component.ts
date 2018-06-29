@@ -10,8 +10,6 @@ import { ResearchApiService } from '../../services/research-api.service';
 })
 export class NewInvitationDialogComponent implements OnInit {
 
-  public isBusy = true
-
   public selectedTypeKey = AInvitation.SpecificGroupType
   public groups: Array<any>
   public selectedGroupId: string
@@ -20,7 +18,7 @@ export class NewInvitationDialogComponent implements OnInit {
   public specificGroupType = AInvitation.SpecificGroupType
   public randomGroupType = AInvitation.RandomGroupType
 
-  isPublic: boolean = false
+  isPublic = false
 
   constructor(
     private dialogRef: MatDialogRef<NewInvitationDialogComponent>,
@@ -29,8 +27,7 @@ export class NewInvitationDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    if(this.data.groups)
-    {
+    if (this.data.groups) {
       this.groups = this.data.groups
       if (this.groups.length > 0) {
         this.selectedGroupId = this.groups[0]._id
@@ -42,11 +39,11 @@ export class NewInvitationDialogComponent implements OnInit {
   onTabChanged(event) {
     switch (event.index) {
       case 0:
-      this.selectedTypeKey = AInvitation.SpecificGroupType
-      break;
+        this.selectedTypeKey = AInvitation.SpecificGroupType
+        break;
       case 1:
-      this.selectedTypeKey = AInvitation.RandomGroupType
-      break;
+        this.selectedTypeKey = AInvitation.RandomGroupType
+        break;
     }
   }
 
@@ -97,8 +94,8 @@ export class NewInvitationDialogComponent implements OnInit {
           break;
       }
 
-      console.log({groupMechanism: invitation.toJson(), isPublic: this.isPublic})
-      this.dialogRef.close({groupMechanism: invitation.toJson(), isPublic: this.isPublic})
+      console.log({ groupMechanism: invitation.toJson(), isPublic: this.isPublic })
+      this.dialogRef.close({ groupMechanism: invitation.toJson(), isPublic: this.isPublic })
 
       /*
 

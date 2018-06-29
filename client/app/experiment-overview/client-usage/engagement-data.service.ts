@@ -11,7 +11,7 @@ export class EngagementDataService {
   private dates: Array<any> = []
   private dailyData: Array<DayData> = []
   private relativeDailyData: Array<DayData> = []
-  private includeWeekends: boolean = true
+  private includeWeekends = true
   private participants: Array<IParticipantDbEntity>
   private dayScope: Array<number> = []
 
@@ -24,45 +24,44 @@ export class EngagementDataService {
     this.updateDates(includeWeekends)
     console.log(this.engageLog)
 
-    for (var i: number = 0; i < this.dates.length; i++) {
-      var date = this.dates[i];
-      var dailyUsers: DayData = { dayElements: [] }
-      var relativeUsers: DayData = { dayElements: [] }
-      for (let user of engageLog) {
-        var count = 0;
+    for (let i = 0; i < this.dates.length; i++) {
+      const date = this.dates[i];
+      const dailyUsers: DayData = { dayElements: [] }
+      const relativeUsers: DayData = { dayElements: [] }
+      for (const user of engageLog) {
+        let count = 0;
         let duration = 0;
         let relativeCount = 0;
         let relativeDuration = 0;
-        let userData: DayElement = { date: date, user: user.user, engagements: [] }
+        const userData: DayElement = { date: date, user: user.user, engagements: [] }
         const relativeUserData: DayElement = { date: date, user: user.user, engagements: [] }
         let participant;
         if (this.participants) {
           participant = this.participants.find(x => x.user._id === user.user)
           if (participant) {
             const temp = getExperimentDateSequenceOfParticipant(participant, this.dates[this.dates.length - 1], includeWeekends)
-          }
-
-        }
-        for (const engagement of user.engagements) {
-          if (this.participants && participant) {
-            if (temp[i] && engagement.start.toDateString() === temp[i].toDateString()) {
-              relativeUserData.engagements.push(engagement)
-              relativeCount++
-              relativeDuration += engagement.duration
+            for (const engagement of user.engagements) {
+              if (this.participants && participant) {
+                if (temp[i] && engagement.start.toDateString() === temp[i].toDateString()) {
+                  relativeUserData.engagements.push(engagement)
+                  relativeCount++
+                  relativeDuration += engagement.duration
+                }
+              }
+              if (date.toDateString() === engagement.start.toDateString()) {
+                userData.engagements.push(engagement)
+                count++
+                duration += engagement.duration
+              }
             }
-          }
-          if (date.toDateString() === engagement.start.toDateString()) {
-            userData.engagements.push(engagement)
-            count++
-            duration += engagement.duration
+            userData.launchCount = count
+            userData.totalDuration = duration
+            dailyUsers.dayElements.push(userData)
+            relativeUserData.launchCount = relativeCount
+            relativeUserData.totalDuration = relativeDuration
+            relativeUsers.dayElements.push(relativeUserData)
           }
         }
-        userData.launchCount = count
-        userData.totalDuration = duration
-        dailyUsers.dayElements.push(userData)
-        relativeUserData.launchCount = relativeCount
-        relativeUserData.totalDuration = relativeDuration
-        relativeUsers.dayElements.push(relativeUserData)
       }
 
       this.calculateAvgRange("date", dailyUsers)

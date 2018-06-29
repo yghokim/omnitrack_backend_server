@@ -198,7 +198,7 @@ export class ResearchApiService implements OnDestroy {
     return this.http.post("api/research/researchers/" + researcherId + "/approve", { approved: approvedStatus }, this.authorizedOptions).pipe(map(res => res.json()))
   }
 
-  uploadClientBinary(file: File, changelog: Array<string>): Observable<{success: boolean, signatureUpdated: boolean}> {
+  uploadClientBinary(file: File, changelog: Array<string>): Observable<{ success: boolean, signatureUpdated: boolean }> {
     const formData: FormData = new FormData()
     formData.append("file", file, file.name)
     return this.http.post("api/research/clients/upload", formData, this.makeAuthorizedRequestOptions({ changelog: changelog })).pipe(map(res => res.json()))
@@ -218,6 +218,7 @@ export class ResearchApiService implements OnDestroy {
       .pipe(map((res: Response) => res.blob()));
   }
 
+  // tslint:disable-next-line:no-shadowed-variable
   queryUsageLogsAnonymized(filter: any = null, from: string = null, to: string = null): Observable<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>> {
     return this.http.get("/api/research/usage_logs", this.makeAuthorizedRequestOptions({
       filter: JSON.stringify(filter),
@@ -226,15 +227,15 @@ export class ResearchApiService implements OnDestroy {
     })).pipe(map(res => res.json()))
   }
 
-  getClientSignatures(): Observable<Array<IClientSignatureDbEntity>>{
-    return this.http.get("/api/research/signatures/all", this.authorizedOptions).pipe(map(res=>res.json()))
+  getClientSignatures(): Observable<Array<IClientSignatureDbEntity>> {
+    return this.http.get("/api/research/signatures/all", this.authorizedOptions).pipe(map(res => res.json()))
   }
 
-  removeClientSignature(id: string): Observable<boolean>{
-    return this.http.delete("/api/research/signatures/" + id, this.authorizedOptions).pipe(map(res=>res.json()))
+  removeClientSignature(id: string): Observable<boolean> {
+    return this.http.delete("/api/research/signatures/" + id, this.authorizedOptions).pipe(map(res => res.json()))
   }
 
-  upsertClientSignature(id: string = null, key: string, packageName: string, alias: string): Observable<boolean>{
-    return this.http.post("/api/research/signatures/update", {_id: id, key: key, package: packageName, alias: alias}, this.authorizedOptions).pipe(map(res=>res.json()))
+  upsertClientSignature(id: string = null, key: string, packageName: string, alias: string): Observable<boolean> {
+    return this.http.post("/api/research/signatures/update", { _id: id, key: key, package: packageName, alias: alias }, this.authorizedOptions).pipe(map(res => res.json()))
   }
 }

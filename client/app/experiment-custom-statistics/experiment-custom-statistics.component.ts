@@ -6,11 +6,11 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
   styleUrls: ['./experiment-custom-statistics.component.scss']
 })
 export class ExperimentCustomStatisticsComponent implements OnInit {
-  constructor(){
+  constructor() {
 
   }
 
-  ngOnInit(){
+  ngOnInit() {
 
   }
 }
