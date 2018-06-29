@@ -23,7 +23,7 @@ import * as FileSaver from 'file-saver';
 import { UpdateItemCellValueDialogComponent } from "../dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component";
 import { TextInputDialogComponent } from "../dialogs/text-input-dialog/text-input-dialog.component";
 import { TimePoint } from "../../../omnitrack/core/datatypes/field_datatypes";
-import {zip} from 'rxjs';
+import { zip } from 'rxjs';
 import { tap, flatMap, map } from 'rxjs/operators';
 
 @Component({
@@ -148,6 +148,8 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     if (this.selectedTracker !== tracker) {
       this.selectedTracker = tracker;
 
+      console.log(tracker)
+
       this.trackerSubscriptions.unsubscribe();
       this.trackerSubscriptions = new Subscription();
       this.trackerSubscriptions.add(
@@ -175,10 +177,10 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   getItemCountOfTracker(trackerId: string): Observable<number> {
     return this.api.selectedExperimentService.pipe(
-        flatMap(service =>
+      flatMap(service =>
         service.trackingDataService.getItemsOfTracker(trackerId)),
-        map(items => items.length)
-      )
+      map(items => items.length)
+    )
   }
 
   isImageAttribute(attr: IAttributeDbEntity): boolean {
@@ -206,7 +208,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   }
 
   getTimestampValue(item: IItemDbEntity) {
-    let stamp: TimePoint = new TimePoint(item.timestamp, item.timezone)
+    const stamp: TimePoint = new TimePoint(item.timestamp, item.timezone)
     return stamp.toMoment().format("kk:mm (MMM DD YYYY)") + " " + moment().tz(stamp.timezone).format("z")
   }
 
@@ -233,7 +235,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   }
 
   onTimestampClicked(tracker: ITrackerDbEntity, item: IItemDbEntity) {
-    let attribute: IAttributeDbEntity = { name: "Logged At", type: 1 };
+    const attribute: IAttributeDbEntity = { name: "Logged At", type: 1 };
     this._internalSubscriptions.add(
       this.dialog.open(UpdateItemCellValueDialogComponent, { data: { info: { tracker: tracker, attribute: attribute, item: item } } }).afterClosed().subscribe(
         result => {
@@ -259,7 +261,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
             zip(
               service.trackingDataService.trackers,
               service.trackingDataService.items,
-              (trackers, items) => { return { packages: packages, trackers: trackers, items: items } }
+              (trackers, items) => ({ packages: packages, trackers: trackers, items: items })
             )
           )
         ))
@@ -297,7 +299,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                   XLSX.utils.book_append_sheet(workbook, sheet, trackerScheme.name)
                 }
               )
-              //save worksheet
+              // save worksheet
               const workbookOut = XLSX.write(workbook, {
                 bookType: 'xlsx', bookSST: false, type: 'array'
               })
