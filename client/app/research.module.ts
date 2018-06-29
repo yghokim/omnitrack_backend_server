@@ -73,6 +73,8 @@ import { UsersPerDayComponent } from './server-status-overview/users-per-day/use
 import { DevicesPerDayComponent } from './server-status-overview/devices-per-day/devices-per-day.component';
 import { InstallationWizardComponent } from './installation/installation-wizard/installation-wizard.component';
 import { TagInputModule } from 'ngx-chips';
+import { ServerUserListComponent } from './server-status-overview/server-user-list/server-user-list.component';
+import { StatAnalyticsComponent } from './server-status-overview/stat-analytics/stat-analytics.component';
 
 @NgModule({
   imports: [
@@ -138,7 +140,9 @@ import { TagInputModule } from 'ngx-chips';
     HttpMethodTestingComponent,
     UsersPerDayComponent,
     DevicesPerDayComponent,
-    InstallationWizardComponent
+    InstallationWizardComponent,
+    ServerUserListComponent,
+    StatAnalyticsComponent
   ],
   exports: [
     NouisliderModule,
@@ -172,8 +176,7 @@ import { TagInputModule } from 'ngx-chips';
     ResearcherAuthGuardMain,
     ResearcherAuthService,
     SocketService,
-    ResearchApiService,
-    EngagementDataService,
+    ResearchApiService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: [

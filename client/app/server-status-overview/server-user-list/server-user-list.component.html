@@ -1,0 +1,64 @@
+<app-busy-overlay *ngIf="isLoadingUserPool" [scale]="0.5" [overlayClass]="'main'"></app-busy-overlay>
+
+<mat-table class="table-data" #userpoolTable [dataSource]="userPoolDataSource" matSort>
+
+  <ng-container matColumnDef="email">
+    <mat-header-cell *matHeaderCellDef mat-sort-header> Email </mat-header-cell>
+    <mat-cell *matCellDef="let object"> {{object.email}} </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="status">
+    <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
+    <mat-cell *matCellDef="let object">
+      <div>
+        <span *ngIf="getNumExperiment(object) > 0" class="badge badge-primary badge-sm">{{getNumExperiment(object)}} Exp</span>
+      </div>
+    </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="demographic">
+    <mat-header-cell *matHeaderCellDef mat-sort-header> Demographic </mat-header-cell>
+    <mat-cell *matCellDef="let object"> {{exractDemographics(object)}} </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="created">
+    <mat-header-cell *matHeaderCellDef mat-sort-header> Created </mat-header-cell>
+    <mat-cell *matCellDef="let object"> {{object.accountCreationTime | date: 'MMM dd, yyyy'}} </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="signIn">
+    <mat-header-cell *matHeaderCellDef mat-sort-header> Signed In </mat-header-cell>
+    <mat-cell *matCellDef="let object"> {{object.accountLastSignInTime | date: 'MMM dd, yyyy'}} </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="userId">
+    <mat-header-cell *matHeaderCellDef mat-sort-header> User UID </mat-header-cell>
+    <mat-cell *matCellDef="let object"> {{object._id}} </mat-cell>
+  </ng-container>
+  <ng-container matColumnDef="button">
+    <mat-header-cell *matHeaderCellDef mat-sort-header> </mat-header-cell>
+    <mat-cell *matCellDef="let object">
+      <div class="pull-right">
+        <button mat-icon-button [matMenuTriggerFor]="menu">
+          <mat-icon class="material-icons">more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <!--
+          <button mat-menu-item *ngIf="!getParticipationStatusToThisExperimentOfUser(object)" (click)="onSendInvitationClicked(object._id)">
+            <span>Invite</span>
+          </button>-->
+          <button mat-menu-item (click)="onDeleteAccountClicked(object._id)">
+            <span class="text-color-danger">Delete Account</span>
+          </button>
+        </mat-menu>
+      </div>
+    </mat-cell>
+  </ng-container>
+
+  <mat-header-row class="no-right-padding" *matHeaderRowDef="USER_COLUMNS"></mat-header-row>
+  <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: USER_COLUMNS;"></mat-row>
+
+</mat-table>
+
+<div class="card-body card-footer">
+
+  <small *ngIf="userPool== null" class="text-color-gray">User pool not loaded.</small>
+  <small *ngIf="userPool!= null && userPool.length == 0" class="text-color-gray">No users in server.</small>
+  <small *ngIf="userPool!= null && userPool.length > 0" class="text-color-gray">Users: {{userPool.length}}</small>
+
+</div>

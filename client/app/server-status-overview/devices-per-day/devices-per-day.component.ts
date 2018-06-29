@@ -12,18 +12,18 @@ export class DevicesPerDayComponent implements OnInit {
   private chart
   private logs
   private devicesPerDay: Array<any> = [];
-  @Input('dates')
-  private dates: Array<any>
+
+  @Input() private dates: Array<any>
 
   @Input('logs')
-  set _userLogs(userLogs: Array<any>){
-    if(this.dates && userLogs){
-      this.logs = userLogs.map( x => x.logs).reduce(function(prev,curr){ return prev.concat(curr)});
+  set _userLogs(userLogs: Array<any>) {
+    if (this.dates && userLogs && userLogs.length > 0) {
+      this.logs = userLogs.map(x => x.logs).reduce(function (prev, curr) { return prev.concat(curr) });
       this.devicesPerDay = [];
-      for(let date of this.dates){
-        var devices = [];
-        for(let log of this.logs){
-          if(new Date(log.timestamp).toDateString() === date.toDateString() && !devices.includes(log.deviceId)){
+      for (const date of this.dates) {
+        const devices = [];
+        for (const log of this.logs) {
+          if (new Date(log.timestamp).toDateString() === date.toDateString() && !devices.includes(log.deviceId)) {
             devices.push(log.deviceId)
           }
         }
@@ -34,13 +34,13 @@ export class DevicesPerDayComponent implements OnInit {
     this.makeChart()
   }
 
-  constructor( private engagementService: EngagementDataService) { }
+  constructor(private engagementService: EngagementDataService) { }
 
   ngOnInit() {
 
   }
 
-  makeChart(){
+  makeChart() {
     const chartOptions = HighChartsHelper.makeDefaultChartOptions('line')
 
     chartOptions.tooltip = {
@@ -50,7 +50,7 @@ export class DevicesPerDayComponent implements OnInit {
     chartOptions.xAxis = {
       type: 'datetime',
       crosshair: {
-        width: 2 
+        width: 2
       }
     }
     chartOptions.series = [{

@@ -66,7 +66,7 @@ export class ResearcherAuthService implements OnDestroy {
     }
 
     this._internalSubscriptions.add(
-      this.socketService.onConnected.pipe(combineLatest(this.currentResearcher, (socket, researcher) => { return { socket: socket, researcher: researcher } })).subscribe(
+      this.socketService.onConnected.pipe(combineLatest(this.currentResearcher, (socket, researcher) => ({ socket: socket, researcher: researcher }))).subscribe(
         project => {
           console.log("auth service : websocket connected.")
           if (project.socket !== null) {
@@ -79,8 +79,7 @@ export class ResearcherAuthService implements OnDestroy {
               project.socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER, (data) => {
                 console.log("received a updated/researcher websocket event")
               })
-            }
-            else {
+            } else {
               project.socket.emit(SocketConstants.SERVER_EVENT_UNSUBSCRIBE_RESEARCHER, { uid: project.researcher.uid }, () => {
                 console.log("unsubscribed")
                 project.socket.removeListener(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER)
@@ -110,7 +109,7 @@ export class ResearcherAuthService implements OnDestroy {
   }
 
   public verifySignedInStatus(): Observable<boolean> {
-    if (this.isTokenAvailable() == false) {
+    if (this.isTokenAvailable() === false) {
       return of(false)
     }
 
@@ -120,12 +119,11 @@ export class ResearcherAuthService implements OnDestroy {
         return of(false)
       }),
       flatMap(verified => {
-        if (verified == false) {
+        if (verified === false) {
           console.log("token verification was failed. sign out and return false")
-          //sign out
+          // sign out
           return this.signOut().pipe(map(r => false))
-        }
-        else return of(true)
+        } else { return of(true) }
       }))
   }
 
@@ -181,8 +179,7 @@ export class ResearcherAuthService implements OnDestroy {
   public updateInfo(alias?: string, newPassword?: string, originalPassword?: string): Observable<any> {
     if (newPassword && !originalPassword) {
       throw new Error("You should insert the original password.")
-    }
-    else {
+    } else {
       const body: any = {}
       if (alias) {
         body.alias = alias
@@ -201,11 +198,10 @@ export class ResearcherAuthService implements OnDestroy {
             res => {
               if (!isNullOrBlank(res.token)) {
                 return this.setNewToken(res.token)
-              } else throw new Error("No token retrieved.")
+              } else { throw new Error("No token retrieved.") }
             }
           ))
-      }
-      else {
+      } else {
         throw new Error("Set either alias or passwords.")
       }
     }

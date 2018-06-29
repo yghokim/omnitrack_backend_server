@@ -1,0 +1,36 @@
+<div>
+  <mat-grid-list cols="4" rowHeight="6:1">
+    <mat-grid-tile class="title">Active Users/Day</mat-grid-tile>
+    <mat-grid-tile class="title">Session/Day</mat-grid-tile>
+    <mat-grid-tile class="title">Median Session Length</mat-grid-tile>
+    <mat-grid-tile class="title">Avg Time/User/Day</mat-grid-tile>
+    <mat-grid-tile class="number">{{usersPerDay | number : '1.2-2'}}</mat-grid-tile>
+    <mat-grid-tile class="number">{{sessionsPerDay | number : '1.2-2'}}</mat-grid-tile>
+    <mat-grid-tile class="number">{{medianSessionDur | number : '1.1-1'}}
+      <div style="font-size: 60%; margin: 2%">Seconds</div>
+    </mat-grid-tile>
+    <mat-grid-tile class="number">{{averageTimePerDay | number : '1.1-1'}}
+      <div style="font-size: 60%; margin: 2%">Seconds</div>
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>
+<div class="columned-chart-group flex-container flex-container-wrap flex-container-responsive-columns_two">
+  <div class="card-body">
+    <div>
+      <app-daily-average [dataType]="'launchCount'" [engageLog]="engagementService.engagementLogs" [dates]="engagementService.engagementDates"
+        [height]="'60%'"></app-daily-average>
+    </div>
+  </div>
+  <div class="card-body">
+    <app-daily-average [dataType]="'sessionEngagement'" [engageLog]="engagementService.engagementLogs" [dates]="engagementService.engagementDates"
+      [height]="'60%'"></app-daily-average>
+  </div>
+</div>
+<div class="columned-chart-group flex-container flex-container-wrap flex-container-responsive-columns_two">
+  <div class="card-body">
+    <app-users-per-day [engageLog]="engagementService.engagementLogs" [dates]="engagementService.engagementDates" (usersPerDay)="onUsersPerDay($event)"></app-users-per-day>
+  </div>
+  <div class="card-body">
+    <app-devices-per-day [logs]="logs" [dates]="engagementService.engagementDates"></app-devices-per-day>
+  </div>
+</div>

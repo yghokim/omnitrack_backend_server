@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
-import { Subscription, Observable, zip, empty } from 'rxjs';
+import { Subscription, zip, empty } from 'rxjs';
 import { flatMap } from 'rxjs/operators';
 import { MatDialog, MatTableDataSource, MatSort } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
@@ -20,27 +20,17 @@ import { ParticipantExcludedDaysConfigDialogComponent } from '../dialogs/partici
 export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
   readonly PARTICIPANT_COLUMNS = ['alias', 'email', 'status', 'rangeStart', 'excludedDays', 'joined', 'lastSync', 'lastSession', 'userId', 'button']
-  readonly USER_COLUMNS = ['email', 'status', 'demographic', 'created', 'signIn', 'userId', 'button']
-
-  public userPool: Array<any>
-  public userPoolSubscription: Subscription = null
-  public isLoadingUserPool = true
 
   public participants: Array<any>
-  public participantsSubscription: Subscription = null
   public isLoadingParticipants = true
 
   public hoveredRowIndex = -1
   public hoveredParticipantId = null
 
-  public isUserpoolAccessible: boolean = false
-
   public screenExpanded = false
 
   public participantDataSource: MatTableDataSource<any>;
-  public userPoolDataSource: MatTableDataSource<any>;
   @ViewChild(MatSort) participantSort: MatSort;
-  @ViewChild('userpoolTable', { read: MatSort }) userPoolSort: MatSort;
 
   private readonly _internalSubscriptions = new Subscription()
 
@@ -51,81 +41,37 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.onParticipantsTabSelected()
-    this._internalSubscriptions.add(
-      this.api.selectedExperimentService.pipe(flatMap(expService => expService.getMyPermissions()))
-        .subscribe(
-          permissions => {
-            if (permissions) {
-              this.isUserpoolAccessible = permissions.access.userPool
-            }
-          }
-        )
-    )
+    this.isLoadingParticipants = true
+    this._internalSubscriptions.add(this.api.selectedExperimentService.pipe(flatMap(expService => expService.getParticipants())).subscribe(
+      participants => {
+        this.participants = participants
+        this.isLoadingParticipants = false
+        this.participantDataSource = new MatTableDataSource(participants)
+        this.setSortParticipants();
+      }
+    ))
   }
 
   ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
-    if (this.userPoolSubscription) this.userPoolSubscription.unsubscribe()
-    if (this.participantsSubscription) this.participantsSubscription.unsubscribe()
   }
 
   activeParticipantCount() {
-    if (!this.participants) return 0
-    return this.participants.filter(participant => participant.dropped != true && participant.isConsentApproved == true).length
+    if (!this.participants) { return 0 }
+    return this.participants.filter(participant => participant.dropped !== true && participant.isConsentApproved === true).length
   }
 
   droppedParticipantCount() {
-    if (!this.participants) return 0
-    return this.participants.filter(participant => participant.dropped == true).length
+    if (!this.participants) { return 0 }
+    return this.participants.filter(participant => participant.dropped === true).length
   }
 
   pendingInviteeCount() {
-    if (!this.participants) return 0
-    return this.participants.filter(participant => participant.isDenied != true && participant.isConsentApproved != true && participant.dropped != true).length
+    if (!this.participants) { return 0 }
+    return this.participants.filter(participant => participant.isDenied !== true && participant.isConsentApproved !== true && participant.dropped !== true).length
   }
 
-
-
-
-  onTabChanged(event) {
-    this.hoveredRowIndex = -1
-    switch (event.index) {
-      case 0:
-        this.onParticipantsTabSelected()
-        break;
-      case 1:
-        this.onUserPoolTabSelected()
-        break;
-    }
-  }
-
-  onUserPoolTabSelected() {
-    if (!this.userPoolSubscription || this.userPoolSubscription.closed) {
-      this.isLoadingUserPool = true
-      this.userPoolSubscription = this.api.getUserPool().subscribe(userPool => {
-        this.userPool = userPool
-        this.isLoadingUserPool = false
-        this.userPoolDataSource = new MatTableDataSource(userPool)
-        this.setSortUsers();
-      })
-    }
-  }
-
-  onParticipantsTabSelected() {
-    if (!this.participantsSubscription || this.participantsSubscription.closed) {
-      this.isLoadingParticipants = true
-      this.participantsSubscription = this.api.selectedExperimentService.pipe(flatMap(expService => expService.getParticipants())).subscribe(
-        participants => {
-          this.participants = participants
-          this.isLoadingParticipants = false
-          this.participantDataSource = new MatTableDataSource(participants)
-          this.setSortParticipants();
-        }
-      )
-    }
-  }
-
+  /*
   onSendInvitationClicked(userId: string) {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(flatMap(expService =>
@@ -144,9 +90,9 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
                 if (invitationCode) {
                   this.api.selectedExperimentService.pipe(flatMap(exp => {
                     return exp.sendInvitation(invitationCode, [userId], false)
-                  })).subscribe(result => {
-                    this.participantsSubscription.unsubscribe()
-                    this.onUserPoolTabSelected()
+                  })).subscribe(() => {
+                    this.participantsSubscription.unsubscribe();
+                    this.onUserPoolTabSelected();
                   })
                 }
               }
@@ -171,9 +117,9 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
                           )
                         )
                       )
-                    ).subscribe(result => {
-                      this.participantsSubscription.unsubscribe()
-                      this.onUserPoolTabSelected()
+                    ).subscribe(() => {
+                      this.participantsSubscription.unsubscribe();
+                      this.onUserPoolTabSelected();
                     })
                   }
                 })
@@ -184,25 +130,11 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     )
   }
 
-  onDeleteAccountClicked(userId: string) {
-    this._internalSubscriptions.add(
-      this.dialog.open(YesNoDialogComponent, { data: { title: "Delete User Account", message: "Do you want to remove the user account from server? This process cannot be undone.", positiveLabel: "Delete", positiveColor: "warn", negativeColor: "primary" } }).beforeClose().subscribe(res => {
-        if (res === true) {
-          this.api.deleteUserAccount(userId, true).subscribe(result => {
-            if (result === true) {
-              this.userPool.splice(this.userPool.findIndex((user) => user._id === userId), 1)
-            }
-          })
-        }
-      })
-    )
-  }
-
   onCancelInvitationClicked(participantId: string) {
     this.deleteParticipant(participantId,
       'Cancel Invitation',
       'Do you want to cancel the pending invitation to the user?')
-  }
+  }*/
 
   onRemoveParticipantEntryClicked(participantId: string) {
     this.deleteParticipant(participantId,
@@ -275,8 +207,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
           submit: (text) => this.api.selectedExperimentService.pipe(flatMap(service => service.changeParticipantAlias(participant._id, text.trim())))
         }
       }).afterClosed().subscribe(
-        alias => {
-
+        () => {
         }
       )
     )
@@ -285,8 +216,8 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
   onChangeExperimentRangeStartInput(newDate: Date, participant) {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(flatMap(service => service.updateParticipant(participant._id, { "experimentRange.from": newDate.getTime() }))).subscribe(
-        newParticipant => {
-          this.notificationService.pushSnackBarMessage({ message: "Modified the experiment start date of the participant." })
+        () => {
+          this.notificationService.pushSnackBarMessage({ message: "Modified the experiment start date of the participant." });
         },
         err => {
           console.log(err)
@@ -304,7 +235,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
         (newDates: Array<Date>) => {
           if (newDates) {
             return this.api.selectedExperimentService.pipe(flatMap(expService => expService.setParticipantExcludedDays(participant._id, newDates)))
-          } else return empty()
+          } else { return empty() }
         }
       )).subscribe(result => {
         if (result.success === true) {
@@ -313,63 +244,16 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     )
   }
 
-  exractDemographics(user) {
-    if (user.activatedRoles) {
-      const role = user.activatedRoles.find(r => r.role === "ServiceUser")
-      if (role) {
-        return role.information.age + " (" + role.information.gender.charAt(0).toUpperCase() + ") in " + role.information.country
-      }
-    }
-  }
 
-
-  isParticipatingInAnotherExperiment(user: any): any {
-    return user.participantIdentities.find(participant => !participant.isDenied && participant.isConsentApproved && participant.invitation && participant.invitation.experiment._id !== this.api.getSelectedExperimentId()) != null
-  }
 
   getParticipationStatus(participant: any): string {
-    if (participant.isDenied == true) {
+    if (participant.isDenied === true) {
       return 'denied'
-    }
-    else if (participant.dropped == true) {
+    } else if (participant.dropped === true) {
       return 'dropped'
-    }
-    else if (participant.isConsentApproved == true) {
+    } else if (participant.isConsentApproved === true) {
       return 'participating'
-    }
-    else return 'pending'
-  }
-
-  getParticipationStatusToThisExperimentOfUser(user: any): string {
-    const participant = user.participantIdentities.find(participant => {
-      if (participant.invitation !== null) {
-        return participant.invitation.experiment._id === this.api.getSelectedExperimentId()
-      } else return false
-    })
-
-    if (participant) {
-      return this.getParticipationStatus(participant)
-    } else { return null }
-  }
-
-  setSortUsers(): void {
-    this.userPoolDataSource.sort = this.userPoolSort;
-    this.userPoolDataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
-      if (data) {
-        switch (sortHeaderId) {
-          case "status": {
-            if (this.isParticipatingInAnotherExperiment(data)) { return "inAnotherExperiment"; }
-            else { return this.getParticipationStatusToThisExperimentOfUser(data) || ''; }
-          }
-          case "created": { return data.accountCreationTime || ''; }
-          case "signIn": { return data.accountLastSignInTime || ''; }
-          case "userId": { return data._id || ''; }
-          case "email": { return data.email || ''; }
-          case "demographic": { return this.exractDemographics(data) || '' }
-          default: { return ''; }
-        }
-      }
-    }
+    } else { return 'pending' }
   }
 
   setSortParticipants(): void {
@@ -380,16 +264,13 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
           case "alias": { return data.alias || ''; }
           case "email": { if (data.user) { return data.user.email || ''; } break; }
           case "status": {
-            if (data.isDenied) { return 4; }
-            else if (!data.isDenied && !data.isConsentApproved) { return 2; }
-            else if (data.dropped) { return 3; }
-            else if (data.isConsentApproved && !data.dropped) { return 1; }
+            if (data.isDenied) { return 4; } else if (!data.isDenied && !data.isConsentApproved) { return 2; } else if (data.dropped) { return 3; } else if (data.isConsentApproved && !data.dropped) { return 1; }
             break;
           }
           case "excludedDays":
             if (data.excludedDays) {
               return data.excludedDays.length
-            } else return ''
+            } else { return '' }
           case "rangeStart": { if (data.experimentRange) { return data.experimentRange.from } break; }
           case "joined": { return data.approvedAt || '' }
           case "created": { if (data.user) { return data.user.accountCreationTime || ''; } break; }

@@ -1,9 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ResearchApiService } from '../services/research-api.service';
 import { Subscription } from 'rxjs';
-import * as moment from 'moment';
-import { logsToEngagements } from '../../../shared_lib/engagement';
-import { EngagementDataService } from '../experiment-overview/client-usage/engagement-data.service';
+import { ResearcherAuthService } from '../services/researcher.auth.service';
+import { ResearcherPrevilages } from '../../../omnitrack/core/research/researcher';
 
 @Component({
   selector: 'app-server-status-overview',
@@ -13,40 +11,25 @@ import { EngagementDataService } from '../experiment-overview/client-usage/engag
 export class ServerStatusOverviewComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
-  private engagements: Array<any>
-  private logs: Array<any>
-  private usersPerDay: Number = 0
-  private sessionsPerDay: Number = 0
-  private medianSessionDur: Number = 0
-  private averageTimePerDay: Number = 0
 
-  constructor(private api: ResearchApiService, public engagementService: EngagementDataService) {
-    
+  public isUserPoolAvailable = false
+
+  constructor(private auth: ResearcherAuthService) {
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this._internalSubscriptions.add(
-      this.api.queryUsageLogsAnonymized({name: "session"}, moment().subtract(2, 'month').toISOString(), moment().toISOString()).subscribe(
-        list=>{
-          console.log(list)
-          this.engagements = logsToEngagements(list)
-          this.engagementService.setEngageLog(this.engagements, null, true, [])
-          this.logs = list
-          this.sessionsPerDay = this.engagementService.totalSessionsPerDay;
-          this.medianSessionDur = this.engagementService.medianSessionDuration;
-          this.averageTimePerDay = this.engagementService.timePerUserPerDay;
-          console.log(this.engagements)
+      this.auth.currentResearcher.subscribe(
+        researcher => {
+          if (researcher.previlage >= ResearcherPrevilages.ADMIN) {
+            this.isUserPoolAvailable = true
+          }
         }
       )
     )
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
   }
-
-  onUsersPerDay(users: number){
-    this.usersPerDay = users;
-  }
-  
 }
