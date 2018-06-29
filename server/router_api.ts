@@ -1,4 +1,4 @@
-import { firebaseApp } from './app'; 
+import { firebaseApp } from './app';
 import OTSyncCtrl from './controllers/ot_sync_controller';
 import OTTrackerCtrl from './controllers/ot_tracker_controller';
 import OTTriggerCtrl from './controllers/ot_trigger_controller';
@@ -17,6 +17,7 @@ import { Request } from 'express';
 import { Error } from 'mongoose';
 import UserBelongingCtrl from './controllers/user_belongings_base';
 import { RouterWrapper } from './server_utils';
+import { userDataStoreCtrl } from './controllers/ot_user_datastore_controller';
 
 export class ClientApiRouter extends RouterWrapper {
   constructor() {
@@ -35,21 +36,21 @@ export class ClientApiRouter extends RouterWrapper {
     const firebaseMiddleware = function firebaseAuthMiddleware(req, res, next) {
       const authorization = req.header('Authorization');
       if (authorization) {
-          let token = authorization.split(' ');
-          firebaseApp.auth().verifyIdToken(token[1])
+        let token = authorization.split(' ');
+        firebaseApp.auth().verifyIdToken(token[1])
           .then((decodedToken) => {
-              res.locals.user = decodedToken;
-              next();
+            res.locals.user = decodedToken;
+            next();
           })
           .catch(err => {
-              console.log(err);
-              res.sendStatus(401);
+            console.log(err);
+            res.sendStatus(401);
           });
       } else {
-          console.log('Authorization header is not found');
-          res.sendStatus(401);
+        console.log('Authorization header is not found');
+        res.sendStatus(401);
       }
-  }
+    }
 
     const omnitrackDeviceCheckMiddleware = (req: Request, res, next) => {
       const deviceId = req.get("OTDeviceId")
@@ -115,6 +116,47 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.get('/items/changes', assertSignedInMiddleware, itemCtrl.getServerChanges)
     this.router.post('/items/changes', assertSignedInMiddleware, itemCtrl.postClientChanges)
 
+    this.router.route('/user/data_store/:storeKey')
+      .get(assertSignedInMiddleware, (req, res) => {
+        userDataStoreCtrl.getDataStoreValue(res.locals.user.uid, req.params.storeKey).then(
+          entry => {
+            res.status(200).send(entry)
+          }
+        ).catch(err => {
+          console.log(err);
+          res.status(500).send(err)
+        })
+      })
+      .post(assertSignedInMiddleware, (req, res) => {
+        userDataStoreCtrl.setDataStoreValue(res.locals.user.uid, req.params.storeKey, req.body.value, req.body.updatedAt, req.body.force).then(result => {
+          res.status(200).send(result)
+        }).catch(err => {
+          console.log(err);
+          res.status(500).send(err)
+        })
+      })
+
+    this.router.route('/user/data_store/changes')
+      .get(assertSignedInMiddleware, (req, res) => {
+        userDataStoreCtrl.getDataStoreChangedAfter(res.locals.user.uid, req.body.timestamp).then(
+          result => {
+            res.status(200).send(result || [])
+          }
+        ).catch(err => {
+          console.log(err)
+          res.status(500).send(err)
+        })
+      })
+      .post(assertSignedInMiddleware, (req, res) => {
+        userDataStoreCtrl.setDataStore(res.locals.user.uid, req.body.list).then(
+          result => {
+            res.status(200).send(result)
+          }
+        ).catch(err => {
+          res.status(500).send(err)
+        })
+      })
+
     this.router.get('/user/roles', firebaseMiddleware, userCtrl.getRoles)
     this.router.post('/user/role', assertSignedInMiddleware, userCtrl.postRole)
     this.router.post('/user/name', assertSignedInMiddleware, userCtrl.putUserName)
@@ -122,7 +164,7 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.post('/user/report', assertSignedInMiddleware, userCtrl.postReport)
     this.router.delete('/user', assertSignedInMiddleware, userCtrl.deleteAccount)
     this.router.post('/user/delete', assertSignedInMiddleware, userCtrl.deleteAccount)
-    
+
 
     // REST API
     const restCtrlDict: Map<string, UserBelongingCtrl> = new Map([

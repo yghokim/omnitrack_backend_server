@@ -23,7 +23,8 @@ const otUserSchema = new mongoose.Schema({
     information: mongoose.Schema.Types.Mixed
   }],
   deviceLocalKeySeed: {type: Number, required: true, default: 0},
-  devices: [otClientDeviceSchema]
+  devices: [otClientDeviceSchema],
+  dataStore: {type: mongoose.Schema.Types.Mixed, default: {}}
 }, {timestamps: true, toJSON: {virtuals: true}});
 
 otUserSchema.virtual('trackers', {
