@@ -14,12 +14,13 @@ import { logsToEngagements } from '../../../../shared_lib/engagement';
 export class StatAnalyticsComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
+  
   private engagements: Array<any>
-  private logs: Array<any>
-  private usersPerDay: Number = 0
-  private sessionsPerDay: Number = 0
-  private medianSessionDur: Number = 0
-  private averageTimePerDay: Number = 0
+  logs: Array<any>
+  usersPerDay: Number = 0
+  sessionsPerDay: Number = 0
+  medianSessionDur: Number = 0
+  averageTimePerDay: Number = 0
 
   constructor(private api: ResearchApiService, public engagementService: EngagementDataService) { }
 
