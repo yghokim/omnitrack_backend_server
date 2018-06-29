@@ -7,6 +7,7 @@ import app from '../../app';
 import env from '../../env';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
 import OTParticipant from '../../models/ot_participant';
+import { TextMessageData } from '../../modules/push.module';
 
 export default class OTResearchMessageCtrl {
 
@@ -86,7 +87,7 @@ export default class OTResearchMessageCtrl {
 
             switch (casted.type) {
               case "push":
-                return app.pushModule().sendNotificationMessageToUser(receiverUserIds, casted.messageTitle, casted.messageBody).then(
+                return app.pushModule().sendDataMessageToUser(receiverUserIds, new TextMessageData(casted.messageTitle, casted.messageBody)).then(
                   result => {
                     console.log(result)
                     return OTParticipant.find(participantQuery, { _id: 1 }).then(participants => {

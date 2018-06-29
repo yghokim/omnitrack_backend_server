@@ -115,7 +115,7 @@ export default class PushModule {
     .then(instanceIds => {
       if (instanceIds.length > 0) {
         console.log("send notification to " + instanceIds)
-        
+
         // send notification to instanceIds
         return firebaseApp.messaging().sendToDevice(instanceIds, { data: this.makeFullSyncMessageData().toMessagingPayloadJson() }).then(
           response => {
@@ -145,13 +145,35 @@ export class MessageData {
   }
 }
 
+export class TextMessageData extends MessageData{
+  constructor(public title: string, public content: string){
+    super(C.PUSH_DATA_TYPE_TEXT_MESSAGE)
+  }
+
+  toMessagingPayloadJson(): any{
+    const superJson = super.toMessagingPayloadJson()
+    superJson.messageTitle = this.title
+    superJson.messageContent = this.content
+    return superJson
+  }
+}
+
+export class DataStoreMessageData extends MessageData{
+  constructor(public changedKeys: Array<string>){
+    super(C.PUSH_DATA_TYPE_PERSONAL_DATASTORE)
+  }
+
+  toMessagingPayloadJson(): any{
+    const superJson = super.toMessagingPayloadJson()
+    superJson.changedKeyArray = JSON.stringify(this.changedKeys)
+    return superJson
+  }
+}
+
 export class SyncInfo extends MessageData {
 
-  data: Array<{ type: string }>
-
-  constructor(data: Array<{ type: string }>) {
+  constructor(public data: Array<{ type: string }>) {
     super(C.PUSH_DATA_TYPE_SYNC_DOWN);
-    this.data = data
   }
 
   toMessagingPayloadJson(): any {

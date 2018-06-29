@@ -201,6 +201,17 @@ export function groupArrayByVariable(array, variableName): any {
   return result
 }
 
+export function convertHashToArray<T>(hash: any, convert: (key: string, value: any) => T, ignoreNullValue: boolean): Array<T>{
+  const arr = new Array<T>()
+
+  for(const key of Object.keys(hash)){
+    if(!ignoreNullValue || hash[key]){
+      arr.push(convert(key, hash[key]))
+    }
+  }
+  return arr
+}
+
 export function toDurationString(timeInSeconds: number): string {
   if (timeInSeconds === 0) {
     return "0"
