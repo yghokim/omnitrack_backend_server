@@ -10,6 +10,7 @@ const otItemSchema = new mongoose.Schema({
   deviceId: String,
   dataTable: [{_id: false, attrLocalId: String, sVal: String}],
   removed: {type: Boolean, index: true, default: false},
+  metadata: mongoose.Schema.Types.Mixed,
   userUpdatedAt: Number
 }, {timestamps: true});
 
