@@ -10,8 +10,8 @@ import { Chart } from 'angular-highcharts';
   styleUrls: ['./users-per-day.component.scss']
 })
 export class UsersPerDayComponent implements OnInit {
-  private chart
-  private usersPerDay: Array<any> = [];
+  chart
+  usersPerDay: Array<any> = [];
   
   @Input('dates')
   private dates: Array<any>

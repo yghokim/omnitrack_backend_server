@@ -9,9 +9,9 @@ import { EngagementDataService } from '../../experiment-overview/client-usage/en
   styleUrls: ['./devices-per-day.component.scss']
 })
 export class DevicesPerDayComponent implements OnInit {
-  private chart
-  private logs
-  private devicesPerDay: Array<any> = [];
+  chart
+  logs
+  devicesPerDay: Array<any> = [];
 
   @Input() private dates: Array<any>
 
