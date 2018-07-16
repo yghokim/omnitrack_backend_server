@@ -45,6 +45,7 @@ export interface ITrackerDbEntity extends IUserChildDbEntity{
   attributes?: [IAttributeDbEntity],
   lockedProperties?: any,
   flags?: any,
+  redirectUrl?: string,
   userCreatedAt?: Number,
   userUpdateAt?: Number,
   removed?: boolean

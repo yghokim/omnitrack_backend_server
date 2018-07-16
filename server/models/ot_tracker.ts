@@ -29,6 +29,7 @@ const otTrackerSchema = new mongoose.Schema({
   attributes: {type: [otAttributeSchema], default: []},
   lockedProperties: {type: mongoose.Schema.Types.Mixed, default: {}},
   flags: {type: mongoose.Schema.Types.Mixed, default: {}},
+  redirectUrl: {type: String, default: null},
   userCreatedAt: Number,
   userUpdateAt: Number,
   removed: {type: Boolean, index: true, default: false}
