@@ -10,6 +10,7 @@ export class OmniTrackPackageEditComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+
   }
 
 }

@@ -18,7 +18,10 @@ import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
 export default class OTExperimentCtrl {
 
   makeExperimentAndCorrespondingResearcherQuery(experimentId: string, researcherId: string): any {
-    return { $and: [{ _id: experimentId }, { $or: [{ manager: researcherId }, { "experimenters.researcher": researcherId }] }] }
+    return {
+      _id: experimentId,
+      $or: [{ manager: researcherId }, { "experimenters.researcher": researcherId }]
+    }
   }
 
   private _getExperiment(researcherId: string, experimentId: string): Promise<Document> {
@@ -333,15 +336,35 @@ export default class OTExperimentCtrl {
     const name = req.body.name
     const experimentId = req.params.experimentId
     const researcherId = req.researcher.uid
+    const packageKey = req.body.packageKey
 
-    OTExperiment.findOneAndUpdate(this.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId), {
-      $addToSet: {
-        trackingPackages: {
-          name: name,
-          data: packageJson
+    const query = this.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId)
+    var update
+    if (packageKey != null) {
+      //update
+      query["trackingPackages.key"] = packageKey
+      update = {}
+      if(name){
+        update["trackingPackages.$.name"] = name
+      }
+
+      if(packageJson){
+        update["trackingPackages.$.data"] = packageJson
+      }
+    }
+    else {
+      //insert
+      update = {
+        $push: {
+          trackingPackages: {
+            name: name,
+            data: packageJson
+          }
         }
       }
-    }, { new: true }).then(doc => {
+    }
+
+    OTExperiment.findOneAndUpdate(query, update, { new: true }).then(doc => {
       if (doc) {
         res.status(200).send(true)
         app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, { model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_EDITED })

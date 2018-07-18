@@ -13,6 +13,7 @@ import { TrackingDataService } from './tracking-data.service';
 import { IResearchMessage } from '../../../omnitrack/core/research/messaging';
 import { IParticipantDbEntity, IUsageLogDbEntity, getIdPopulateCompat } from '../../../omnitrack/core/db-entity-types';
 import { IExperimentDbEntity, IResearcherDbEntity, IExperimentTrackingPackgeDbEntity, IExperimentGroupDbEntity } from '../../../omnitrack/core/research/db-entity-types';
+import { once } from 'cluster';
 
 export class ExperimentService {
 
@@ -340,6 +341,18 @@ export class ExperimentService {
       packageJson: packageJson,
       name: name
     }, this.researchApi.authorizedOptions).pipe(map(res => res.json()))
+  }
+
+  updateTrackingPackageJson(packageKey: string, packageJson: any, name: string): Observable<boolean>{
+    return this.http.post("api/research/experiments/" + this.experimentId + "/packages/update", {
+      packageJson: packageJson,
+      name: name,
+      packageKey: packageKey
+    }, this.researchApi.authorizedOptions).pipe(map(res => res.json()), tap(changed=>{
+      if(changed == true){
+        this.loadExperimentInfo()
+      }
+    }))
   }
 
   removeTrackingPackage(packageKey: string): Observable<boolean> {

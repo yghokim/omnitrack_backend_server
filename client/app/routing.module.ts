@@ -41,6 +41,7 @@ import { ServerStatusOverviewComponent } from './server-status-overview/server-s
 import { HttpMethodTestingComponent } from './test/http-method-testing/http-method-testing.component';
 import { InstallationWizardComponent } from './installation/installation-wizard/installation-wizard.component';
 import { PreventReinstallationGuard } from './services/prevent-reinstallation.guard';
+import { OmniTrackPackageCodeEditorComponent } from './research/omnitrack/omni-track-package-code-editor/omni-track-package-code-editor.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'downloads', pathMatch: 'full', canActivate: [EndUserAuthToMainGuard] },
@@ -111,7 +112,10 @@ const routes: Routes = [
             children: [
               { path: '', redirectTo: 'packages', pathMatch: 'full' },
               { path: 'packages', component: OmniTrackPackageListComponent, data: { title: "OmniTrack Packages" } },
-              { path: 'packages/:packageKey', component: OmniTrackPackageEditComponent, data: { title: "Edit Tracking Package" } }
+              { path: 'packages/:packageKey', component: OmniTrackPackageCodeEditorComponent, data: {
+                title: "Edit Tracking Package Code",
+                backTitle: "Package List", backNavigationUrl: './omnitrack/packages'
+              }}
             ]
           },
 

@@ -75,6 +75,8 @@ import { InstallationWizardComponent } from './installation/installation-wizard/
 import { TagInputModule } from 'ngx-chips';
 import { ServerUserListComponent } from './server-status-overview/server-user-list/server-user-list.component';
 import { StatAnalyticsComponent } from './server-status-overview/stat-analytics/stat-analytics.component';
+import { OmniTrackPackageCodeEditorComponent } from './research/omnitrack/omni-track-package-code-editor/omni-track-package-code-editor.component';
+import { MonacoEditorModule } from 'ngx-monaco-editor';
 
 @NgModule({
   imports: [
@@ -85,6 +87,7 @@ import { StatAnalyticsComponent } from './server-status-overview/stat-analytics/
     NouisliderModule,
     FroalaEditorModule.forRoot(),
     FroalaViewModule.forRoot(),
+    MonacoEditorModule.forRoot(),
     ProductivityStatisticsModule,
     TagInputModule,
     NgxJsonViewerModule
@@ -142,7 +145,8 @@ import { StatAnalyticsComponent } from './server-status-overview/stat-analytics/
     DevicesPerDayComponent,
     InstallationWizardComponent,
     ServerUserListComponent,
-    StatAnalyticsComponent
+    StatAnalyticsComponent,
+    OmniTrackPackageCodeEditorComponent
   ],
   exports: [
     NouisliderModule,

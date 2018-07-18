@@ -1,0 +1,8 @@
+<div class="code-editor-container">
+  <ngx-monaco-editor class="code-editor" [options]="editorOptions" [(ngModel)]="code" (onInit)="onInitCodeEditor($event)"></ngx-monaco-editor>
+</div>
+<div class="footer flex-container flex-align-items-center">
+  <button type="buton" mat-button color="primary" [disabled]="editorRef.value == null" (click)="onReformatCodeClicked()">Reformat</button>
+  <div class="flex-filler"></div>
+  <button class="small" type="button" mat-button color="accent" [disabled] = "isPackageChanged == false || isCodeValid == false" (click)="onSaveClicked()">Save</button>
+</div>

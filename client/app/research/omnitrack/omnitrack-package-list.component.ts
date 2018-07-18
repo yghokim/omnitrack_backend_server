@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ResearchApiService } from '../../services/research-api.service';
 import { ExperimentService } from '../../services/experiment.service';
 import { Subscription } from 'rxjs';
@@ -19,7 +20,7 @@ export class OmniTrackPackageListComponent implements OnInit, OnDestroy {
 
   private experimentService: ExperimentService
   public packages: Array<any>
-  constructor(private api: ResearchApiService, private dialog: MatDialog, private notification: NotificationService) {
+  constructor(private api: ResearchApiService, private dialog: MatDialog, private notification: NotificationService, private router: Router, private activatedRoute: ActivatedRoute) {
   }
 
   ngOnInit() {
@@ -63,6 +64,10 @@ export class OmniTrackPackageListComponent implements OnInit, OnDestroy {
         }
       )
     )
+  }
+
+  onEditPackageClicked(packageKey: string) {
+    this.router.navigate([packageKey], {relativeTo: this.activatedRoute})
   }
 
   onRemovePackageClicked(packageKey: string) {

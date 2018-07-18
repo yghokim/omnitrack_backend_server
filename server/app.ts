@@ -65,9 +65,9 @@ if (installationWizardCtrl.isInstallationComplete() === true) {
 function installServer() {
   (<any>mongoose).Promise = global.Promise;
   if (env.node_env === "test") {
-    mongoose.connect(env.mongodb_test_uri);
+    mongoose.connect(env.mongodb_test_uri, {useNewUrlParser: true});
   } else {
-    mongoose.connect(env.mongodb_uri);
+    mongoose.connect(env.mongodb_uri, {useNewUrlParser: true});
   }
 
   const db = mongoose.connection;
