@@ -14,7 +14,7 @@ export class OmniTrackPackageCodeEditorComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
 
-  public editorOptions = {
+  public readonly editorOptions = {
     theme: 'vs-dark', language: 'json',
     automaticLayout: true,
     wordWrap: 'on',
@@ -23,9 +23,18 @@ export class OmniTrackPackageCodeEditorComponent implements OnInit, OnDestroy {
     }
   };
 
+  public readonly diffOptions = {
+    theme: 'vs-dark',
+  }
+
+  public diffMode = false
+  public originalModel = null
+  public changedModel = null
+
   _code = null
 
   private originalPackage: any
+  private originalPackageCode: string
 
   public isCodeValid: boolean = false
   public isPackageChanged: boolean = false
@@ -69,11 +78,9 @@ export class OmniTrackPackageCodeEditorComponent implements OnInit, OnDestroy {
           )
       })).subscribe((project: any)=>{
         this.originalPackage = project.packageJson
-        const stringValue = JSON.stringify(project.packageJson)
+        const stringValue = JSON.stringify(project.packageJson, null, "\t")
+        this.originalPackageCode = stringValue
         project.editor.setValue(stringValue)
-        setTimeout(function() {
-          project.editor.getAction('editor.action.formatDocument').run();
-        }, 300);
         this.code = stringValue
       })
     )
@@ -99,6 +106,21 @@ export class OmniTrackPackageCodeEditorComponent implements OnInit, OnDestroy {
         this.router.navigate([".."], {relativeTo: this.activatedRoute})
       })
     )
+  }
+
+  onShowDiffClicked(){
+    this.diffMode = !this.diffMode
+    if(this.diffMode == true){
+      this.originalModel = {
+        code: this.originalPackageCode,
+        language: 'json'
+      }
+      this.changedModel = {
+        code: this.code,
+        language: 'json'
+      }
+
+    }
   }
 
 }
