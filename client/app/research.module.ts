@@ -78,6 +78,7 @@ import { StatAnalyticsComponent } from './server-status-overview/stat-analytics/
 import { OmniTrackPackageCodeEditorComponent } from './research/omnitrack/omni-track-package-code-editor/omni-track-package-code-editor.component';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { ExperimentConsentEditorComponent } from './experiment-consent-editor/experiment-consent-editor.component';
+import { EditExperimentGroupDialogComponent } from './experiment-groups/edit-experiment-group-dialog/edit-experiment-group-dialog.component';
 
 @NgModule({
   imports: [
@@ -148,7 +149,8 @@ import { ExperimentConsentEditorComponent } from './experiment-consent-editor/ex
     ServerUserListComponent,
     StatAnalyticsComponent,
     OmniTrackPackageCodeEditorComponent,
-    ExperimentConsentEditorComponent
+    ExperimentConsentEditorComponent,
+    EditExperimentGroupDialogComponent
   ],
   exports: [
     NouisliderModule,
@@ -194,7 +196,8 @@ import { ExperimentConsentEditorComponent } from './experiment-consent-editor/ex
     UpdateItemCellValueDialogComponent,
     ParticipantExcludedDaysConfigDialogComponent,
     UpdateClientSignatureDialogComponent,
-    NewTrackingPackageDialogComponent
+    NewTrackingPackageDialogComponent,
+    EditExperimentGroupDialogComponent
   ]
 })
 export class ResearchModule { }

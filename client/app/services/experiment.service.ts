@@ -289,6 +289,15 @@ export class ExperimentService {
     }))
   }
 
+  getNumParticipantsInGroup(groupId: string): Observable<number>{
+    return this.participantList.pipe(
+      filter(participants=>participants != null),
+      map(participants => {
+        return participants.filter(p => p.groupId === groupId).length
+      })
+    )
+  }
+
   getVisualizationConfigs(): Observable<VisualizationConfigs> {
     return this.getExperiment().pipe(map(exp => VisualizationConfigs.fromJson(exp.visualizationConfigs)))
   }
@@ -362,9 +371,8 @@ export class ExperimentService {
   upsertExperimentGroup(values: {
     _id?: string,
     name?: string,
-    maxSize?: number,
     trackingPackageKey?: string
-  }): Observable<boolean> {
+  }): Observable<IExperimentGroupDbEntity> {
     return this.http.post("api/research/experiments/" + this.experimentId + "/groups/upsert", values, this.researchApi.authorizedOptions).pipe(map(r => r.json()))
   }
 

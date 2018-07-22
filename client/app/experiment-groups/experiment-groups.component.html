@@ -1,11 +1,16 @@
 <div class="container">
   <div class="flex-container flex-container-responsive-columns">
-    <div class="card participant-group-card card-sm" *ngFor="let group of groups">
+    <div class="card participant-group-card card-sm" *ngFor="let group of experimentInfo.groups">
       <div class="card-header no-padding-top no-padding-bottom no-padding-right flex-container flex-align-items-center">
         <span>{{group.name}}</span>
         <div class="flex-filler"></div>
         <div>
-          <button class="text-color-darkgray" mat-icon-button (click)="onDeleteGroupClicked(group)" [disabled] = "groups.length === 1">
+          <button mat-icon-button class="text-color-darkgray" (click)="onUpsertGroupClicked(group)">
+            <span class="material-icons">
+              edit
+            </span>
+          </button>
+          <button class="text-color-darkgray" mat-icon-button (click)="onDeleteGroupClicked(group)" [disabled]="experimentInfo.groups.length === 1">
             <span class="material-icons">delete</span>
           </button>
         </div>
@@ -14,25 +19,20 @@
         <table class="table table-sm no-horizontal-padding">
           <tr>
             <th>Participants</th>
-            <td>0/{{group.maxSize}}</td>
+            <td>{{getNumParticipantsOfGroup(group._id) | async}}</td>
           </tr>
           <tr>
             <th>Tracking Package</th>
             <td>
               <span *ngIf="group.trackingPackageKey">{{(getOmniTrackPackage(group.trackingPackageKey) | async).name}}</span>
               <span *ngIf="!group.trackingPackageKey">Not assigned</span>
-              <button mat-icon-button class="tiny text-color-darkgray left-margin-dot5em" (click)="onEditPackageClicked(group)">
-                <span class="material-icons">
-                  edit
-                </span>
-              </button>
             </td>
           </tr>
 
         </table>
       </div>
     </div>
-    <div class="card participant-group-card card-sm card-add-new" (click)="onAddNewGroupClicked()">
+    <div class="card participant-group-card card-sm card-add-new" (click)="onUpsertGroupClicked(null)">
       <div class="card-body center">
         <div class="content">
           + Add New Group

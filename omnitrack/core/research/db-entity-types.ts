@@ -3,7 +3,6 @@ import { VisualizationConfigs } from "./configs";
 
 export interface IExperimentGroupDbEntity extends IMongooseDbEntity {
   name: string,
-  maxSize: number,
   trackingPackageKey?: string
 }
 

@@ -344,11 +344,11 @@ export default class OTExperimentCtrl {
       //update
       query["trackingPackages.key"] = packageKey
       update = {}
-      if(name){
+      if (name) {
         update["trackingPackages.$.name"] = name
       }
 
-      if(packageJson){
+      if (packageJson) {
         update["trackingPackages.$.data"] = packageJson
       }
     }
@@ -430,23 +430,33 @@ export default class OTExperimentCtrl {
           update["groups.$." + key] = req.body[key]
         }
       }
-      mongooseQuery = OTExperiment.findOneAndUpdate(query, update, { new: false })
+      mongooseQuery = OTExperiment.findOneAndUpdate(query, update, { new: true, select: "groups" })
     } else {
       // insert
       const update = deepclone(req.body)
       delete update._id
+      delete update.createdAt
+      delete update.updatedAt
       mongooseQuery = OTExperiment.findOneAndUpdate(query, {
         $addToSet: {
           groups: update
         }
-      }, { new: false })
+      }, { new: true, select: "groups" })
     }
 
-    mongooseQuery.then(found => {
+    mongooseQuery.lean().then(found => {
+      console.log(found)
       if (found) {
-        res.status(200).send(true)
+        if (req.body._id) {
+          //update
+          res.status(200).send(found["groups"].find(g => g._id === req.body._id))
+
+        } else {
+          //insert
+          res.status(200).send(found["groups"].reverse().find(g => g.name === req.body.name))
+        }
       } else {
-        res.status(404).send(false)
+        res.status(404).send(null)
       }
     }).catch(err => {
       res.status(500).send(err)

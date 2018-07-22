@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
 import { ExperimentService } from '../services/experiment.service';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription, Observable, empty } from 'rxjs';
 import { flatMap, filter } from 'rxjs/operators';
-import { IExperimentGroupDbEntity } from '../../../omnitrack/core/research/db-entity-types';
+import { IExperimentGroupDbEntity, IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import { MatDialog } from '@angular/material/dialog';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
+import { EditExperimentGroupDialogComponent } from './edit-experiment-group-dialog/edit-experiment-group-dialog.component';
 
 @Component({
   selector: 'app-experiment-groups',
@@ -16,7 +17,7 @@ export class ExperimentGroupsComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
 
-  groups: Array<IExperimentGroupDbEntity> = []
+  public experimentInfo: IExperimentDbEntity
 
   constructor(private api: ResearchApiService, private dialog: MatDialog) {
 
@@ -24,10 +25,12 @@ export class ExperimentGroupsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.pipe(flatMap(expService => expService.getExperiment())).subscribe(
-        experiment => {
-          this.groups = experiment.groups
-        })
+      this.api.selectedExperimentService
+        .pipe(flatMap(expService => expService.getExperiment()))
+        .subscribe(
+          experiment => {
+            this.experimentInfo = experiment
+          })
     )
   }
 
@@ -39,8 +42,42 @@ export class ExperimentGroupsComponent implements OnInit, OnDestroy {
     return this.api.selectedExperimentService.pipe(flatMap(service => service.getOmniTrackPackage(key)))
   }
 
-  onAddNewGroupClicked() {
+  getNumParticipantsOfGroup(groupId: string): Observable<number>{
+    return this.api.selectedExperimentService.pipe(flatMap(service => service.getNumParticipantsInGroup(groupId)))
+  }
 
+  onUpsertGroupClicked(group: IExperimentDbEntity) {
+    this._internalSubscriptions.add(
+      this.dialog.open(EditExperimentGroupDialogComponent, {
+        data: {
+          model: group,
+          experimentInfo: this.experimentInfo
+        }
+      }).afterClosed().pipe(
+        flatMap(model => {
+          if (model) {
+            return this.api.selectedExperimentService.pipe(
+              flatMap(expService => {
+                return expService.upsertExperimentGroup(model)
+              })
+            )
+          } else {
+            return empty()
+          }
+        }))
+        .subscribe(payload => {
+          console.log(payload)
+          if (group) {
+            //update
+            const groupIndex = this.experimentInfo.groups.findIndex(g => g._id === payload._id)
+            this.experimentInfo.groups[groupIndex] = payload
+          }
+          else {
+            //insert
+            this.experimentInfo.groups.push(payload)
+          }
+        })
+    )
   }
 
   onDeleteGroupClicked(group: IExperimentGroupDbEntity) {
@@ -59,9 +96,9 @@ export class ExperimentGroupsComponent implements OnInit, OnDestroy {
         )
         .subscribe(res => {
           if (res === true) {
-            const index = this.groups.findIndex(g => g._id === group._id)
+            const index = this.experimentInfo.groups.findIndex(g => g._id === group._id)
             if (index !== -1) {
-              this.groups.splice(index, 1)
+              this.experimentInfo.groups.splice(index, 1)
             }
           }
         })

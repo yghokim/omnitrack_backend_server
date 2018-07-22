@@ -1,0 +1,24 @@
+<div class="dialog dialog-mid">
+  <div class="card-header">{{isEditMode() === true? 'Edit the' : 'New'}} Experiment Group</div>
+  <div class="card-body">
+    <div class="form-group">
+      <label class="small" for="inputTitle">Name (Required)</label>
+      <input class="form-control" id="inputTitle" type="text" name="name" placeholder="Edit name of the group" [(ngModel)]="model.name"
+        autofocus>
+    </div>
+    <div class="form-group">
+      <label class="small horizontal">Assigned Tracking Package</label>
+      <mat-form-field>
+        <mat-select [(value)]="model.trackingPackageKey" [disabled]="experimentInfo.trackingPackages.length === 0">
+          <mat-option *ngFor="let trackingPackage of experimentInfo.trackingPackages" [value]="trackingPackage.key">{{trackingPackage.name}}</mat-option>
+          <mat-option [value]="null">None</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <hr>
+    <div class="text-right">
+      <button mat-button color="accent" (click)="onNoClick()">Cancel</button>
+      <button mat-raised-button [disabled]="isChangeValid() !== true" color="primary" (click)="onYesClick()">{{isEditMode() === true? 'Apply' : 'Create'}}</button>
+    </div>
+  </div>
+</div>

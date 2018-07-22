@@ -880,6 +880,10 @@ thead.singleline {
   font-size: 0.9em;
 }
 
+.form-control::placeholder{
+  color: #c0c0c0;
+}
+
 .form-control-round {
   border-radius: 500px;
   padding-left: 1.5em;

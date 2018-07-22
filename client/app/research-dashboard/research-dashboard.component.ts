@@ -7,7 +7,7 @@ import { ResearchApiService } from '../services/research-api.service';
 import { NotificationService } from '../services/notification.service';
 import { MatDialog, MatIconRegistry, MatSnackBar } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription, Observable, of, empty } from 'rxjs';
 import { filter, map, flatMap, combineLatest, tap } from 'rxjs/operators';
 
 import { ExperimentPermissions } from '../../../omnitrack/core/research/experiment';
@@ -150,26 +150,36 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // init experiment infos
     this._internalSubscriptions.add(
-      this.activatedRoute.paramMap.subscribe(paramMap => {
-        const paramExpId = paramMap.get('experimentId')
-        if (paramExpId) {
-          console.log('mount an experiment : ' + paramExpId)
-          localStorage.setItem('selectedExperiment', paramExpId)
-          this.onExperimentSelected(paramExpId)
-        } else {
-          this.api.getExperimentInfos().subscribe(experiments => {
-            this.isLoadingExperiments = false
-            this.experimentInfos = experiments
-            if (this.experimentInfos.length > 0) {
-              let selectedId = localStorage.getItem('selectedExperiment') || this.experimentInfos[0]._id
-              if (this.experimentInfos.findIndex(exp => exp._id === selectedId) === -1) {
-                selectedId = this.experimentInfos[0]._id
-              }
-              this.router.navigate(['research/dashboard', selectedId])
-            }
-          })
-        }
-      })
+      this.activatedRoute.paramMap.pipe(
+        map(paramMap => paramMap.get('experimentId')),
+        tap(paramExpId => {
+          if (paramExpId) {
+            console.log('mount an experiment : ' + paramExpId)
+            localStorage.setItem('selectedExperiment', paramExpId)
+            this.onExperimentSelected(paramExpId)
+          }
+        }),
+        flatMap(paramExpId => {
+          if (paramExpId) {
+            return empty()
+          }
+          else {
+            return this.api.getExperimentInfos().pipe(
+              tap(experiments => {
+                this.isLoadingExperiments = false
+                this.experimentInfos = experiments
+                if (this.experimentInfos.length > 0) {
+                  let selectedId = localStorage.getItem('selectedExperiment') || this.experimentInfos[0]._id
+                  if (this.experimentInfos.findIndex(exp => exp._id === selectedId) === -1) {
+                    selectedId = this.experimentInfos[0]._id
+                  }
+                  this.router.navigate(['research/dashboard', selectedId])
+                }
+              })
+            )
+          }
+        })
+      ).subscribe()
     )
 
     console.log('load experiments of user')

@@ -13,9 +13,8 @@ const otExperimentGroupSchema = new mongoose.Schema(
   {
     _id: {type: String, default: uuid.v1, required: true},
     name: {type: String, required: true},
-    maxSize: {type: Number, required: true, default: 20},
     trackingPackageKey: {type: String, default: null}
-  }
+  }, {timestamps: true}
 )
 
 const otExperimentInjectionPackageSchema = new mongoose.Schema(
@@ -32,7 +31,7 @@ const otExperimentInjectionPackageSchema = new mongoose.Schema(
 const otExperimentSchema = new mongoose.Schema({
   _id: {type: String, default: generateNewExperimentId},
   name: {type: String, required: true},
-  groups: {type: [otExperimentGroupSchema], default: [{name: "Default", maxSize: 100, participants: []}]},
+  groups: {type: [otExperimentGroupSchema], default: [{name: "Default", participants: []}]},
   manager: {type: String, ref: 'OTResearcher', required: true},
   visualizationConfigs: {type: mongoose.Schema.Types.Mixed, default: ()=>{return new VisualizationConfigs()}},
   trackingPackages: {type: [otExperimentInjectionPackageSchema], default: []},
