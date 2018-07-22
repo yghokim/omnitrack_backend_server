@@ -71,7 +71,7 @@ export class ResearcherSearchComponentComponent implements OnInit, OnDestroy {
           service => service.addCollaborator(collaborator._id, ExperimentPermissions.makeCollaboratorDefaultPermissions())
         )).subscribe(
           success => {
-            console.log(success)
+            
           }
         )
       )

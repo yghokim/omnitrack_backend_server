@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
-import { ExperimentService } from '../services/experiment.service';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription, empty} from 'rxjs';
 import { flatMap, filter, tap } from 'rxjs/operators';
 import { ExperimentPermissions } from '../../../omnitrack/core/research/experiment';
 import { MatDialog } from '@angular/material';
@@ -12,6 +11,7 @@ import { isNullOrBlank } from '../../../shared_lib/utils';
 import { Router, ActivatedRoute } from '@angular/router';
 import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import * as marked from 'marked';
+import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 
 @Component({
   selector: 'app-experiment-settings',
@@ -114,5 +114,24 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
 
   getTransformedConsent(): string{
     return marked(this.experiment.consent)
+  }
+
+  onExcludeCollaboratorClicked(collaboratorId: string){
+    this._internalSubscriptions.add(
+      this.dialog.open(YesNoDialogComponent, {data: {
+        title: "Exclude collaborator",
+        message: "Do you want to exclude this collaborator?", positiveLabel: "Exclude", positiveColor: "warn", negativeColor: "primary"
+      }}).afterClosed().pipe(
+        flatMap(result => {
+          if(result === true){
+            return this.api.selectedExperimentService.pipe(
+              flatMap(service => service.removeCollaborator(collaboratorId))
+            )
+          }else{
+            return empty()
+          }
+        })
+      ).subscribe()
+    )
   }
 }

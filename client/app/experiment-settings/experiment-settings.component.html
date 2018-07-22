@@ -75,10 +75,10 @@
             {{collaborator.researcher.alias}}
           </td>
           <td>
-
+            
           </td>
-          <td>
-
+          <td class="text-right">
+            <button mat-button color="warn" (click)="onExcludeCollaboratorClicked(collaborator.researcher._id)">Exclude</button>
           </td>
         </tr>
       </tbody>

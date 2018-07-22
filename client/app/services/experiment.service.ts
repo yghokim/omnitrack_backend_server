@@ -289,9 +289,9 @@ export class ExperimentService {
     }))
   }
 
-  getNumParticipantsInGroup(groupId: string): Observable<number>{
+  getNumParticipantsInGroup(groupId: string): Observable<number> {
     return this.participantList.pipe(
-      filter(participants=>participants != null),
+      filter(participants => participants != null),
       map(participants => {
         return participants.filter(p => p.groupId === groupId).length
       })
@@ -342,7 +342,25 @@ export class ExperimentService {
       collaborator: collaboratorId,
       permissions: permissions
     }, this.researchApi.authorizedOptions)
-      .pipe(map(res => res.json()))
+      .pipe(
+        map(res => res.json()),
+        tap((changed) => {
+          if (changed === true) {
+            this.loadExperimentInfo()
+          }
+        })
+      )
+  }
+
+  removeCollaborator(collaboratorId: string): Observable<boolean> {
+    return this.http.delete('api/research/experiments/' + this.experimentId + "/collaborators/" + collaboratorId, this.researchApi.authorizedOptions).pipe(
+      map(res => res.json()),
+      tap(changed => {
+        if(changed === true){
+          this.loadExperimentInfo()
+        }
+      })
+    )
   }
 
   addTrackingPackageJson(packageJson: any, name: string): Observable<boolean> {
@@ -352,13 +370,13 @@ export class ExperimentService {
     }, this.researchApi.authorizedOptions).pipe(map(res => res.json()))
   }
 
-  updateTrackingPackageJson(packageKey: string, packageJson: any, name: string): Observable<boolean>{
+  updateTrackingPackageJson(packageKey: string, packageJson: any, name: string): Observable<boolean> {
     return this.http.post("api/research/experiments/" + this.experimentId + "/packages/update", {
       packageJson: packageJson,
       name: name,
       packageKey: packageKey
-    }, this.researchApi.authorizedOptions).pipe(map(res => res.json()), tap(changed=>{
-      if(changed == true){
+    }, this.researchApi.authorizedOptions).pipe(map(res => res.json()), tap(changed => {
+      if (changed == true) {
         this.loadExperimentInfo()
       }
     }))

@@ -49,7 +49,7 @@ export default class OTExperimentCtrl {
   }
 
   private _addCollaborator(experimentId: string, managerId: string, collaboratorId: string, permissions: ExperimentPermissions): Promise<boolean> {
-    return OTExperiment.findOneAndUpdate({ _id: experimentId, manager: managerId }, {
+    return OTExperiment.findOneAndUpdate({ _id: experimentId, manager: managerId, "experimenters.researcher": { $ne: collaboratorId } }, {
       $push: {
         experimenters: { researcher: collaboratorId, permissions: permissions }
       }
@@ -62,6 +62,16 @@ export default class OTExperimentCtrl {
           return true
         } else { return false }
       }
+    )
+  }
+
+  private _removeCollaborator(experimentId: string, managerId: string, collaboratorId: string): Promise<boolean> {
+    return OTExperiment.findOneAndUpdate({ _id: experimentId, manager: managerId, "experimenters.researcher": collaboratorId}, {
+      $pull: {
+        "experimenters": { researcher: collaboratorId }
+      }
+    }).lean().then(
+      result => result != null
     )
   }
 
@@ -211,6 +221,25 @@ export default class OTExperimentCtrl {
       console.log(err)
       res.status(500).send({ error: err })
     })
+  }
+
+  removeCollaborator = (req, res) => {
+    const managerId = req.researcher.uid
+    const collaboratorId = req.params.collaboratorId
+    const experimentId = req.params.experimentId
+
+    if (!managerId || !collaboratorId || !experimentId) {
+      res.status(401).send({ error: "InvalidArguement" })
+      return
+    }
+
+    this._removeCollaborator(experimentId, managerId, collaboratorId)
+      .then(updated => {
+        res.status(200).send(updated)
+      }).catch(err => {
+        console.log(err)
+        res.status(500).send({error: err})
+      })
   }
 
 
