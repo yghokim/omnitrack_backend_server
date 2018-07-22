@@ -28,6 +28,8 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
 
   public isConsentExpanded = false
 
+  public isManager: boolean
+
   constructor(private api: ResearchApiService, private notification: NotificationService, private dialog: MatDialog, private router: Router, private activatedRoute: ActivatedRoute) {
   }
 
@@ -43,6 +45,14 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
         if (permissions) {
           this.permissions = permissions
         }
+      })
+    )
+
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.pipe(
+        flatMap(expService => expService.getMyRole())
+      ).subscribe(role => {
+        this.isManager = role === "manager"
       })
     )
   }

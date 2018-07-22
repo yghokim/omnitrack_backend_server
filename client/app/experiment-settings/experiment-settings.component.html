@@ -8,7 +8,7 @@
         <th>Name</th>
         <td>
           {{experiment.name}}
-          <button mat-icon-button (click)="onEditNameClicked()">
+          <button *ngIf="isManager === true" mat-icon-button (click)="onEditNameClicked()">
             <mat-icon class="material-icons">edit</mat-icon>
           </button>
         </td>
@@ -28,7 +28,8 @@
     <div class="card-header">
       <div class="flex-container flex-align-items-center flex-stretch">
         <span>Participant Consent Form</span>
-        <mat-slide-toggle *ngIf="isConsentFormContentAvailable() === true" id="ask-consent-in-app-toggle" [checked]="experiment.receiveConsentInApp === true" (change)="onAskConsentInAppToggled($event.checked)">Ask in App</mat-slide-toggle>
+        <mat-slide-toggle *ngIf="isConsentFormContentAvailable() === true" id="ask-consent-in-app-toggle" [checked]="experiment.receiveConsentInApp === true"
+          (change)="onAskConsentInAppToggled($event.checked)">Ask in App</mat-slide-toggle>
         <div class="text-align-center" *ngIf="isConsentFormContentAvailable() === false">
           <button mat-button color="accent" (click)="onEditConsentFormClicked()">Edit Consent Form</button>
         </div>
@@ -41,7 +42,7 @@
             {{isConsentExpanded === true? 'Click to collapse content' : 'Click to expand content'}}
           </mat-panel-title>
         </mat-expansion-panel-header>
-        <div class="markdown-view-content" [innerHtml] = "getTransformedConsent()">
+        <div class="markdown-view-content" [innerHtml]="getTransformedConsent()">
         </div>
       </mat-expansion-panel>
       <div class="card-footer no-padding">
@@ -75,9 +76,9 @@
             {{collaborator.researcher.alias}}
           </td>
           <td>
-            
+
           </td>
-          <td class="text-right">
+          <td class="text-right" *ngIf="permissions && permissions.access.manageCollaborators == true">
             <button mat-button color="warn" (click)="onExcludeCollaboratorClicked(collaborator.researcher._id)">Exclude</button>
           </td>
         </tr>
@@ -85,12 +86,14 @@
     </table>
   </div>
 
-  <hr id="remove">
-  <div class="text-align-center">
-    <button mat-button class="delete-experiment" (click)="onDeleteExperimentClicked()">
-      <mat-icon class="material-icons">delete</mat-icon>
-      <span>Delete Experiment</span>
-    </button>
-  </div>
+  <ng-container *ngIf="isManager === true">
+    <hr id="remove">
+    <div class="text-align-center bottom-margin-1em">
+      <button mat-button class="delete-experiment" (click)="onDeleteExperimentClicked()">
+        <mat-icon class="material-icons">delete</mat-icon>
+        <span>Delete Experiment</span>
+      </button>
+    </div>
+  </ng-container>
 
 </div>
