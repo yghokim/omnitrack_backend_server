@@ -13,7 +13,7 @@ export class EditExperimentGroupDialogComponent implements OnInit {
   private readonly originalModel: IExperimentGroupDbEntity
   public readonly model: IExperimentGroupDbEntity
 
-  private readonly experimentInfo: IExperimentDbEntity
+  public readonly experimentInfo: IExperimentDbEntity
 
   isEditMode(): boolean {
     return this.model._id != null
