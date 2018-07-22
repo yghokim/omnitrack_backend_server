@@ -9,7 +9,9 @@ import { DeleteExperimentConfirmDialogComponent } from '../dialogs/delete-experi
 import { NotificationService } from '../services/notification.service';
 import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
 import { isNullOrBlank } from '../../../shared_lib/utils';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
+import * as marked from 'marked';
 
 @Component({
   selector: 'app-experiment-settings',
@@ -18,20 +20,21 @@ import { Router } from '@angular/router';
 })
 export class ExperimentSettingsComponent implements OnInit, OnDestroy {
 
-  public experiment: any
+  public experiment: IExperimentDbEntity
 
   public permissions: ExperimentPermissions
 
   private _internalSubscriptions = new Subscription()
 
-  constructor(private api: ResearchApiService, private notification: NotificationService, private dialog: MatDialog, private router: Router) {
+  public isConsentExpanded = false
+
+  constructor(private api: ResearchApiService, private notification: NotificationService, private dialog: MatDialog, private router: Router, private activatedRoute: ActivatedRoute) {
   }
 
   ngOnInit() {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(flatMap(expService => expService.getExperiment())).subscribe(experiment => {
         this.experiment = experiment
-        console.log(experiment)
       })
     )
 
@@ -87,4 +90,29 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
     )
   }
 
+  onAskConsentInAppToggled(value: boolean) {
+    this._internalSubscriptions.add(
+      this.api.updateExperiment(this.experiment._id, {
+        receiveConsentInApp: value
+      }).subscribe(
+        changed => {
+          if (changed === true) {
+            this.experiment.receiveConsentInApp = value
+          }
+        }
+      )
+    )
+  }
+
+  isConsentFormContentAvailable(): boolean {
+    return this.experiment.consent!=null && this.experiment.consent.trim().length > 0
+  }
+
+  onEditConsentFormClicked(){
+    this.router.navigate(["consent"], {relativeTo: this.activatedRoute.parent})
+  }
+
+  getTransformedConsent(): string{
+    return marked(this.experiment.consent)
+  }
 }

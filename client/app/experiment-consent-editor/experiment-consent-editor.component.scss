@@ -1,0 +1,15 @@
+.code-editor-container {
+  &.editor-view, &.html-view {
+    width: 50%;
+  }
+
+  &.html-view{
+    left: 50%;
+    background: #ffffff;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    .markdown-view-content{
+      margin: 20px;
+    }
+  }
+}

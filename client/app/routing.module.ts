@@ -42,14 +42,15 @@ import { HttpMethodTestingComponent } from './test/http-method-testing/http-meth
 import { InstallationWizardComponent } from './installation/installation-wizard/installation-wizard.component';
 import { PreventReinstallationGuard } from './services/prevent-reinstallation.guard';
 import { OmniTrackPackageCodeEditorComponent } from './research/omnitrack/omni-track-package-code-editor/omni-track-package-code-editor.component';
+import { ExperimentConsentEditorComponent } from './experiment-consent-editor/experiment-consent-editor.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'downloads', pathMatch: 'full', canActivate: [EndUserAuthToMainGuard] },
   { path: 'downloads', component: ClientDownloadComponent },
 
-  {path: 'test', component: HttpMethodTestingComponent},
+  { path: 'test', component: HttpMethodTestingComponent },
 
-  {path: 'install', component: InstallationWizardComponent, canActivate: [PreventReinstallationGuard]},
+  { path: 'install', component: InstallationWizardComponent, canActivate: [PreventReinstallationGuard] },
 
   {
     path: 'tracking', component: EndUserFrameComponent,
@@ -73,8 +74,8 @@ const routes: Routes = [
       {
         path: '', component: ResearchHomeFrameComponent,
         children: [
-          {path: '', redirectTo: 'status', pathMatch: 'full'},
-          { path: 'status', component: ServerStatusOverviewComponent, canActivate: [ResearcherAuthGuardSecure]},
+          { path: '', redirectTo: 'status', pathMatch: 'full' },
+          { path: 'status', component: ServerStatusOverviewComponent, canActivate: [ResearcherAuthGuardSecure] },
           { path: 'settings', component: ServerSettingsComponent, canActivate: [ResearcherAuthGuardSecure] },
           { path: 'signup', component: ResearchSignupComponent },
           { path: 'login', component: ResearchLoginComponent },
@@ -87,14 +88,14 @@ const routes: Routes = [
         path: 'dashboard/:experimentId', component: ResearchDashboardComponent, canActivate: [ResearcherAuthGuardSecure],
         children: [
           { path: '', redirectTo: 'overview', pathMatch: "full" },
-          { 
+          {
             path: 'overview', component: ExperimentOverviewComponent, data: { title: 'Overview', showTitleBar: false },
             children: [
-              {path: '', redirectTo: 'tracking', pathMatch: 'full'},
-              {path: 'tracking', component: ExperimentTrackingEngagementComponent},
-              {path: 'usage', component: ClientUsageComponent}
+              { path: '', redirectTo: 'tracking', pathMatch: 'full' },
+              { path: 'tracking', component: ExperimentTrackingEngagementComponent },
+              { path: 'usage', component: ClientUsageComponent }
 
-            ] 
+            ]
           },
           { path: 'detailed-overview', component: PerParticipantVisualizationDashboardComponent, data: { title: 'Per-participant Overview' } },
           {
@@ -108,14 +109,23 @@ const routes: Routes = [
           { path: 'invitations', component: ExperimentInvitationsComponent, data: { title: 'Invitations' } },
           { path: 'settings', component: ExperimentSettingsComponent, data: { title: 'Settings' } },
           {
+            path: 'consent', component: ExperimentConsentEditorComponent, data: {
+              title: 'Edit Consent Form',
+              backTitle: "Experiment Settings",
+              backNavigationUrl: "./settings"
+            }
+          },
+          {
             path: 'omnitrack', component: ExperimentOmniTrackComponent, data: { title: 'OmniTrack' },
             children: [
               { path: '', redirectTo: 'packages', pathMatch: 'full' },
               { path: 'packages', component: OmniTrackPackageListComponent, data: { title: "OmniTrack Packages" } },
-              { path: 'packages/:packageKey', component: OmniTrackPackageCodeEditorComponent, data: {
-                title: "Edit Tracking Package Code",
-                backTitle: "Package List", backNavigationUrl: './omnitrack/packages'
-              }}
+              {
+                path: 'packages/:packageKey', component: OmniTrackPackageCodeEditorComponent, data: {
+                  title: "Edit Tracking Package Code",
+                  backTitle: "Package List", backNavigationUrl: './omnitrack/packages'
+                }
+              }
             ]
           },
 

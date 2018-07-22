@@ -1,7 +1,7 @@
-$footer-height: 45px;
+$code-editor-footer-height: 45px;
 .code-editor-container {
   position: absolute;
-  bottom: $footer-height;
+  bottom: $code-editor-footer-height;
   top: 64px;
   left: 0;
   right: 0;
@@ -14,8 +14,8 @@ $footer-height: 45px;
   }
 }
 
-.footer {
-  height: $footer-height;
+.code-editor-footer {
+  height: $code-editor-footer-height;
   position: absolute;
   bottom: 0;
   left: 0;

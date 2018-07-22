@@ -8,7 +8,9 @@
         <th>Name</th>
         <td>
           {{experiment.name}}
-          <button mat-icon-button (click)="onEditNameClicked()"><mat-icon class="material-icons">edit</mat-icon></button>
+          <button mat-icon-button (click)="onEditNameClicked()">
+            <mat-icon class="material-icons">edit</mat-icon>
+          </button>
         </td>
       </tr>
       <tr>
@@ -25,41 +27,70 @@
   <div class="card card-main">
     <div class="card-header">
       <div class="flex-container flex-align-items-center flex-stretch">
+        <span>Participant Consent Form</span>
+        <mat-slide-toggle *ngIf="isConsentFormContentAvailable() === true" id="ask-consent-in-app-toggle" [checked]="experiment.receiveConsentInApp === true" (change)="onAskConsentInAppToggled($event.checked)">Ask in App</mat-slide-toggle>
+        <div class="text-align-center" *ngIf="isConsentFormContentAvailable() === false">
+          <button mat-button color="accent" (click)="onEditConsentFormClicked()">Edit Consent Form</button>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="isConsentFormContentAvailable() === true">
+      <mat-expansion-panel displayMode="flat" [expanded]="isConsentExpanded" (opened)="isConsentExpanded = true" (closed)="isConsentExpanded = false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            {{isConsentExpanded === true? 'Click to collapse content' : 'Click to expand content'}}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="markdown-view-content" [innerHtml] = "getTransformedConsent()">
+        </div>
+      </mat-expansion-panel>
+      <div class="card-footer no-padding">
+        <button mat-button color="primary" (click)="onEditConsentFormClicked()">Edit</button>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="card card-main">
+    <div class="card-header">
+      <div class="flex-container flex-align-items-center flex-stretch">
         <span>Collaborators</span>
         <app-researcher-search-component *ngIf="permissions && permissions.access.manageCollaborators == true"></app-researcher-search-component>
       </div>
     </div>
     <table *ngIf="experiment.experimenters && experiment.experimenters.length > 0" class="table table-data">
-        <thead>
-            <tr>
-              <th>Email</th>
-              <th>Alias</th>
-              <th>Permissions</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="hoverable singleline" *ngFor="let collaborator of experiment.experimenters">
-              <td>
-                {{collaborator.researcher.email}}
-              </td>
-              <td>
-                {{collaborator.researcher.alias}}
-              </td>
-              <td>
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Alias</th>
+          <th>Permissions</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="hoverable singleline" *ngFor="let collaborator of experiment.experimenters">
+          <td>
+            {{collaborator.researcher.email}}
+          </td>
+          <td>
+            {{collaborator.researcher.alias}}
+          </td>
+          <td>
 
-              </td>
-              <td>
+          </td>
+          <td>
 
-              </td>
-            </tr>
-          </tbody>
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
 
   <hr id="remove">
   <div class="text-align-center">
-    <button mat-button class="delete-experiment" (click)="onDeleteExperimentClicked()"><mat-icon class="material-icons">delete</mat-icon><span>Delete Experiment</span></button>
+    <button mat-button class="delete-experiment" (click)="onDeleteExperimentClicked()">
+      <mat-icon class="material-icons">delete</mat-icon>
+      <span>Delete Experiment</span>
+    </button>
   </div>
 
 </div>

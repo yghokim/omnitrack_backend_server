@@ -77,6 +77,7 @@ import { ServerUserListComponent } from './server-status-overview/server-user-li
 import { StatAnalyticsComponent } from './server-status-overview/stat-analytics/stat-analytics.component';
 import { OmniTrackPackageCodeEditorComponent } from './research/omnitrack/omni-track-package-code-editor/omni-track-package-code-editor.component';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
+import { ExperimentConsentEditorComponent } from './experiment-consent-editor/experiment-consent-editor.component';
 
 @NgModule({
   imports: [
@@ -146,7 +147,8 @@ import { MonacoEditorModule } from 'ngx-monaco-editor';
     InstallationWizardComponent,
     ServerUserListComponent,
     StatAnalyticsComponent,
-    OmniTrackPackageCodeEditorComponent
+    OmniTrackPackageCodeEditorComponent,
+    ExperimentConsentEditorComponent
   ],
   exports: [
     NouisliderModule,

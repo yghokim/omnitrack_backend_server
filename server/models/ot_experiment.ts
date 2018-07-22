@@ -36,6 +36,8 @@ const otExperimentSchema = new mongoose.Schema({
   manager: {type: String, ref: 'OTResearcher', required: true},
   visualizationConfigs: {type: mongoose.Schema.Types.Mixed, default: ()=>{return new VisualizationConfigs()}},
   trackingPackages: {type: [otExperimentInjectionPackageSchema], default: []},
+  consent: {type: String, default: null},
+  receiveConsentInApp: {type: Boolean, default: true},
   experimenters: {type: [{
       researcher: {type: String, ref: 'OTResearcher'}, 
       permissions: {type: mongoose.Schema.Types.Mixed, default: ()=>{return ExperimentPermissions.makeCollaboratorDefaultPermissions()}}

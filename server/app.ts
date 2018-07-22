@@ -36,8 +36,8 @@ dotenv.load({ path: ".env" });
 app.set("port", env.port || 3000);
 
 app.use('/', express.static(path.join(__dirname, '../public')));
-app.use(bodyParser.json({limit: '20mb'}));
-app.use(bodyParser.urlencoded({ extended: false, limit: '5mb'}));
+app.use(bodyParser.json({ limit: '20mb' }));
+app.use(bodyParser.urlencoded({ extended: false, limit: '5mb' }));
 
 app.use(morgan("dev"));
 
@@ -63,25 +63,27 @@ if (installationWizardCtrl.isInstallationComplete() === true) {
 }
 
 function installServer() {
-  (<any>mongoose).Promise = global.Promise;
-  if (env.node_env === "test") {
-    mongoose.connect(env.mongodb_test_uri, {useNewUrlParser: true});
-  } else {
-    mongoose.connect(env.mongodb_uri, {useNewUrlParser: true});
+
+  const connectedHandler = (err) => {
+    if (err) {
+      console.error.bind(console, "connection error:")
+    } else {
+      console.log("Connected to MongoDB");
+
+      // Routers===================================
+      app.use("/api", new ClientApiRouter().router);
+      app.use("/api/research", new ResearchRouter(env).router); // research path
+      // ==========================================
+      app.set("omnitrack", new OmniTrackModule(app));
+    }
   }
 
-  const db = mongoose.connection;
-
-  db.on("error", console.error.bind(console, "connection error:"));
-  db.once("open", () => {
-    console.log("Connected to MongoDB");
-
-    // Routers===================================
-    app.use("/api", new ClientApiRouter().router);
-    app.use("/api/research", new ResearchRouter(env).router); // research path
-    // ==========================================
-    app.set("omnitrack", new OmniTrackModule(app));
-  });
+  (<any>mongoose).Promise = global.Promise;
+  if (env.node_env === "test") {
+    mongoose.connect(env.mongodb_test_uri, { useNewUrlParser: true }, connectedHandler);
+  } else {
+    mongoose.connect(env.mongodb_uri, { useNewUrlParser: true }, connectedHandler);
+  }
 }
 
 function initializeFirebase() {
@@ -95,7 +97,7 @@ function initializeFirebase() {
       firebaseApp = firebaseAdmin.initializeApp({
         credential: firebaseAdmin.credential.cert(firebaseServiceAccount)
       }, firebaseServiceAccount.project_id);
-    }else firebaseApp = firebaseAdmin.app(firebaseServiceAccount.project_id)
+    } else firebaseApp = firebaseAdmin.app(firebaseServiceAccount.project_id)
 
   } catch (ex) {
     console.log(ex)
@@ -104,7 +106,7 @@ function initializeFirebase() {
   }
 }
 
-function clearFirebaseApp(){
+function clearFirebaseApp() {
   firebaseApp = null
 }
 

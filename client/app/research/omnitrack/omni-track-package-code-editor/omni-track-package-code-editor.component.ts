@@ -4,11 +4,12 @@ import { Observable, Subscription, BehaviorSubject } from 'rxjs';
 import { flatMap, combineLatest, filter, first } from 'rxjs/operators';
 import { ResearchApiService } from '../../../services/research-api.service';
 import deepEqual from 'deep-equal';
+import { DiffEditorModel } from 'ngx-monaco-editor';
 
 @Component({
   selector: 'app-omni-track-package-code-editor',
   templateUrl: './omni-track-package-code-editor.component.html',
-  styleUrls: ['./omni-track-package-code-editor.component.scss']
+  styleUrls: ['../../../code-editor.scss']
 })
 export class OmniTrackPackageCodeEditorComponent implements OnInit, OnDestroy {
 
@@ -28,8 +29,8 @@ export class OmniTrackPackageCodeEditorComponent implements OnInit, OnDestroy {
   }
 
   public diffMode = false
-  public originalModel = null
-  public changedModel = null
+  public originalModel: DiffEditorModel = null
+  public changedModel: DiffEditorModel = null
 
   _code = null
 
@@ -39,27 +40,25 @@ export class OmniTrackPackageCodeEditorComponent implements OnInit, OnDestroy {
   public isCodeValid: boolean = false
   public isPackageChanged: boolean = false
 
-  private readonly editorRef = new BehaviorSubject<any>(null)
-  public editor: any = null
-
-  private codeTimeoutFuncId = null
+  public readonly editorRef = new BehaviorSubject<any>(null)
+  public editorReady: boolean = false
 
   public packageKey: string
 
-  public get code(): string{ return this._code}
-  public set code(c:string){
+  public get code(): string { return this._code }
+  public set code(c: string) {
     this._code = c
-    try{
+    try {
       const json = JSON.parse(this._code)
       this.isCodeValid = true
       this.isPackageChanged = !deepEqual(this.originalPackage, json)
-    }catch(e){
+    } catch (e) {
       this.isCodeValid = false
     }
   }
 
-  public get editorRefSingle(): Observable<any>{
-    return this.editorRef.pipe(filter(e=>e!=null), first())
+  public get editorRefSingle(): Observable<any> {
+    return this.editorRef.pipe(filter(e => e != null), first())
   }
 
   constructor(private api: ResearchApiService, private activatedRoute: ActivatedRoute, private router: Router) { }
@@ -74,15 +73,15 @@ export class OmniTrackPackageCodeEditorComponent implements OnInit, OnDestroy {
             flatMap(expService => {
               return expService.getOmniTrackPackage(packageKey)
             }),
-            combineLatest(this.editorRefSingle, (packageInfo, editorRef)=>({packageJson: packageInfo.data, editor: editorRef}))
+            combineLatest(this.editorRefSingle, (packageInfo, editorRef) => ({ packageJson: packageInfo.data, editor: editorRef }))
           )
-      })).subscribe((project: any)=>{
-        this.originalPackage = project.packageJson
-        const stringValue = JSON.stringify(project.packageJson, null, "\t")
-        this.originalPackageCode = stringValue
-        project.editor.setValue(stringValue)
-        this.code = stringValue
-      })
+        })).subscribe((project: any) => {
+          this.originalPackage = project.packageJson
+          const stringValue = JSON.stringify(project.packageJson, null, "\t")
+          this.originalPackageCode = stringValue
+          project.editor.setValue(stringValue)
+          this.code = stringValue
+        })
     )
   }
 
@@ -90,27 +89,33 @@ export class OmniTrackPackageCodeEditorComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
-  onInitCodeEditor(editor: any){
+  onInitCodeEditor(editor: any) {
     this.editorRef.next(editor)
-    this.editor = editor
+    this.editorReady = true
   }
 
-  onReformatCodeClicked(){
-    this.editor.getAction('editor.action.formatDocument').run();
+  onReformatCodeClicked() {
+    if (this.editorReady === true) {
+      this._internalSubscriptions.add(
+        this.editorRefSingle.subscribe(editor => {
+          editor.getAction('editor.action.formatDocument').run();
+        })
+      )
+    }
   }
 
-  onSaveClicked(){
+  onSaveClicked() {
     this._internalSubscriptions.add(
-    this.api.selectedExperimentService.pipe(
-      flatMap(expService=>expService.updateTrackingPackageJson(this.packageKey, JSON.parse(this.code), null))).subscribe(changed=>{
-        this.router.navigate([".."], {relativeTo: this.activatedRoute})
-      })
+      this.api.selectedExperimentService.pipe(
+        flatMap(expService => expService.updateTrackingPackageJson(this.packageKey, JSON.parse(this.code), null))).subscribe(changed => {
+          this.router.navigate([".."], { relativeTo: this.activatedRoute })
+        })
     )
   }
 
-  onShowDiffClicked(){
+  onShowDiffClicked() {
     this.diffMode = !this.diffMode
-    if(this.diffMode == true){
+    if (this.diffMode == true) {
       this.originalModel = {
         code: this.originalPackageCode,
         language: 'json'
