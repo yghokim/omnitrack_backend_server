@@ -226,5 +226,7 @@ export class ClientApiRouter extends RouterWrapper {
     //package
     this.router.get('/package/extract', assertSignedInMiddleware, trackingPackageCtrl.getExtractedTrackingPackageJson)
 
+    this.router.post('/package/share', assertSignedInMiddleware,
+    trackingPackageCtrl.postTrackingPackageToGlobalList)
   }
 }
