@@ -1,4 +1,4 @@
-<div class="dialog dialog-mid">
+<div class="dialog">
   <div class="card-header">Add New Tracking Package</div>
   <div class="card-body">
     <div class="form-group">
@@ -8,23 +8,44 @@
       <input id="trackingPackageNameInput" class="form-control" type="text" name="text" placeholder="Enter Name" [(ngModel)]="trackingPackageName"
         autofocus>
     </div>
+
     <div class="form-group" [class.has-danger]="trackingPackageJsonString && !trackingPackage">
-      <div class="flex-container flex-align-items-center">
-        <label for="trackingPackageContentInput">
-          <small>Package Content</small>
-        </label>
-        <div class="flex-filler"></div>
-        <div class="fileopen">
-          <label for="packageFileInput">
-            <small>Open JSON File...</small>
-          </label>
-          <input id="packageFileInput" type="file" accept="application/json">
-        </div>
-      </div>
-      <textarea id="trackingPackageContentInput" class="form-control" [class.form-control-danger]="trackingPackageJsonString && !trackingPackage"
+      <label for="trackingPackageContentInput">
+        <small>Package Content</small>
+      </label>
+
+      <mat-tab-group class="tab-group" (selectedTabChange)="onSelectedTabChanged($event)">
+        <mat-tab label="From Local File">
+          <div class="vertical-padding-normal">
+            <div class="fileopen">
+              <label for="packageFileInput">
+                <small>Open JSON File...</small>
+              </label>
+              <input id="packageFileInput" type="file" accept="application/json" (change)="onPackageJsonFileChanged($event.target.files)">
+            </div>
+          </div>
+        </mat-tab>
+        <mat-tab label="From Instant Share">
+          <div class="vertical-padding-normal">
+            <div *ngIf="loadingSharedTrackingPackage === false" class="flex-container flex-align-items-center">
+              <input type="text" class="form-control" placeholder="Insert code on the app screen." [(ngModel)]="shareCode">
+              <button [disabled]="shareCode==null || shareCode.length === 0" mat-button color="accent" (click)="onGetFromInstantShareClicked()">Load</button>
+            </div>
+            <app-labeled-loading-indicator *ngIf="loadingSharedTrackingPackage === true">
+              <span message>Loading shared tracking package...</span>
+            </app-labeled-loading-indicator>
+          </div>
+        </mat-tab>
+        <mat-tab label="Insert manually">
+
+        </mat-tab>
+
+      </mat-tab-group>
+
+      <textarea [disabled]="selectedLoadType !== 'manual'" id="trackingPackageContentInput" class="form-control" [class.form-control-danger]="trackingPackageJsonString && !trackingPackage"
         placeholder="Tracking package in JSON format" [(ngModel)]="trackingPackageJsonString"></textarea>
 
-      <small *ngIf="trackingPackageJsonString && !trackingPackage" class="text-danger">Wrong JSON format</small>
+      <small *ngIf="trackingPackageJsonString && !trackingPackage" class="text-danger">Provide JSON string</small>
     </div>
   </div>
   <div class="card-body text-right">

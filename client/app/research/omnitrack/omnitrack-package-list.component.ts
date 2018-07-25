@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ResearchApiService } from '../../services/research-api.service';
 import { ExperimentService } from '../../services/experiment.service';
-import { Subscription } from 'rxjs';
+import { Subscription, empty } from 'rxjs';
 import { flatMap, filter } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { YesNoDialogComponent } from '../../dialogs/yes-no-dialog/yes-no-dialog.component';
@@ -53,11 +53,13 @@ export class OmniTrackPackageListComponent implements OnInit, OnDestroy {
 
   onAddNewPackageClicked() {
     this._internalSubscriptions.add(
-      this.dialog.open(NewTrackingPackageDialogComponent, {data: {}}).beforeClose().pipe(
-        flatMap(resultData => this.api.selectedExperimentService.pipe(flatMap(service => service.addTrackingPackageJson(resultData.data, resultData.name))))
+      this.dialog.open(NewTrackingPackageDialogComponent, {data: {api: this.api}}).beforeClose().pipe(
+        flatMap(resultData => 
+          resultData?
+          this.api.selectedExperimentService.pipe(flatMap(service => service.addTrackingPackageJson(resultData.data, resultData.name))): empty()
+        )
       ).subscribe(
         changed=>{
-          console.log("added tracking package")
           if(changed===true){
             this.notification.pushSnackBarMessage({message: "Added new tracking package."})
           }

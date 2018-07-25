@@ -238,4 +238,10 @@ export class ResearchApiService implements OnDestroy {
   upsertClientSignature(id: string = null, key: string, packageName: string, alias: string): Observable<boolean> {
     return this.http.post("/api/research/signatures/update", { _id: id, key: key, package: packageName, alias: alias }, this.authorizedOptions).pipe(map(res => res.json()))
   }
+
+  loadInstantShareTrackingPackage(code: string): Observable<any>{
+    return this.http.get('/api/research/package/temporary/' + code, this.authorizedOptions).pipe(
+      map(res => res.json())
+    )
+  }
 }

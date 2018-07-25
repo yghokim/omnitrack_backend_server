@@ -18,6 +18,7 @@ import { itemCtrl } from './controllers/ot_item_controller';
 import { participantCtrl } from './controllers/research/ot_participant_controller';
 import { clientSignatureCtrl } from './controllers/ot_client_signature_controller';
 import { RouterWrapper } from './server_utils';
+import { trackingPackageCtrl } from './controllers/ot_tracking_package_controller';
 const jwt = require('express-jwt');
 
 export class ResearchRouter extends RouterWrapper {
@@ -118,6 +119,8 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.delete('/experiments/:experimentId/packages/:packageKey', tokenApprovedAuth, experimentCtrl.removeTrackingPackageFromExperiment)
     this.router.post('/experiments/:experimentId/packages/:packageKey/delete', tokenApprovedAuth, experimentCtrl.removeTrackingPackageFromExperiment)
+
+    this.router.get('/package/temporary/:code', tokenApprovedAuth, trackingPackageCtrl.getTemporaryTrackingPackageWithCode)
     
 
     this.router.post('/experiments/:experimentId/groups/upsert', tokenApprovedAuth, experimentCtrl.upsertExperimentGroup)
