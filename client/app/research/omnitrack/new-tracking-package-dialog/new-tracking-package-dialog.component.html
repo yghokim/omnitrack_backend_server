@@ -26,9 +26,9 @@
           </div>
         </mat-tab>
         <mat-tab label="From Instant Share">
-          <div class="vertical-padding-normal">
+          <div class="vertical-padding-normal ">
             <div *ngIf="loadingSharedTrackingPackage === false" class="flex-container flex-align-items-center">
-              <input type="text" class="form-control" placeholder="Insert code on the app screen." [(ngModel)]="shareCode">
+              <input type="text" class="form-control left-margin-dot5em" placeholder="Insert code on the app screen." [(ngModel)]="shareCode">
               <button [disabled]="shareCode==null || shareCode.length === 0" mat-button color="accent" (click)="onGetFromInstantShareClicked()">Load</button>
             </div>
             <app-labeled-loading-indicator *ngIf="loadingSharedTrackingPackage === true">
