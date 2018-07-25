@@ -367,7 +367,14 @@ export class ExperimentService {
     return this.http.post("api/research/experiments/" + this.experimentId + "/packages/update", {
       packageJson: packageJson,
       name: name
-    }, this.researchApi.authorizedOptions).pipe(map(res => res.json()))
+    }, this.researchApi.authorizedOptions).pipe(
+      map(res => res.json()),
+      tap(changed => {
+        if(changed === true){
+          this.loadExperimentInfo()
+        }
+      })
+    )
   }
 
   updateTrackingPackageJson(packageKey: string, packageJson: any, name: string): Observable<boolean> {
