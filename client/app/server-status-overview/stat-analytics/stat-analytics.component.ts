@@ -1,4 +1,4 @@
-import { Component, OnInit,  OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { EngagementDataService } from '../../experiment-overview/client-usage/engagement-data.service';
 import { ResearchApiService } from '../../services/research-api.service';
 import { Subscription } from 'rxjs';
@@ -14,7 +14,7 @@ import { logsToEngagements } from '../../../../shared_lib/engagement';
 export class StatAnalyticsComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
-  
+
   private engagements: Array<any>
   logs: Array<any>
   usersPerDay: Number = 0
@@ -26,7 +26,7 @@ export class StatAnalyticsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this._internalSubscriptions.add(
-      this.api.queryUsageLogsAnonymized({name: "session"}, moment().subtract(2, 'month').toISOString(), moment().toISOString()).subscribe(
+      this.api.queryUsageLogsAnonymized({ name: "session" }, moment().subtract(2, 'month').toISOString(), moment().toISOString()).subscribe(
         list => {
           console.log(list)
           this.engagements = logsToEngagements(list)

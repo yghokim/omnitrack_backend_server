@@ -327,11 +327,11 @@ export class ExperimentService {
     }))
   }
 
-  queryUsageLogsPerParticipant(filter: any = null, userIds: string | Array<string> = null): Observable<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>> {
+  queryUsageLogsPerParticipant(mongooseFilter: any = null, userIds: string | Array<string> = null): Observable<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>> {
     return this.http.get("/api/research/usage_logs", this.researchApi.makeAuthorizedRequestOptions({
       experiment: this.experimentId,
       userIds: userIds,
-      filter: JSON.stringify(filter)
+      filter: JSON.stringify(mongooseFilter)
     })).pipe(map(res => res.json()))
   }
 
@@ -356,7 +356,7 @@ export class ExperimentService {
     return this.http.delete('api/research/experiments/' + this.experimentId + "/collaborators/" + collaboratorId, this.researchApi.authorizedOptions).pipe(
       map(res => res.json()),
       tap(changed => {
-        if(changed === true){
+        if (changed === true) {
           this.loadExperimentInfo()
         }
       })
@@ -370,7 +370,7 @@ export class ExperimentService {
     }, this.researchApi.authorizedOptions).pipe(
       map(res => res.json()),
       tap(changed => {
-        if(changed === true){
+        if (changed === true) {
           this.loadExperimentInfo()
         }
       })
@@ -383,7 +383,7 @@ export class ExperimentService {
       name: name,
       packageKey: packageKey
     }, this.researchApi.authorizedOptions).pipe(map(res => res.json()), tap(changed => {
-      if (changed == true) {
+      if (changed === true) {
         this.loadExperimentInfo()
       }
     }))

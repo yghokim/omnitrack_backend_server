@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Subject ,  BehaviorSubject ,  Observable } from 'rxjs';
+import { Subject, BehaviorSubject, Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 
@@ -19,24 +19,23 @@ export class NotificationService {
 
   constructor() { }
 
-  pushSnackBarMessage(message: SnackBarMessageInfo){
+  pushSnackBarMessage(message: SnackBarMessageInfo) {
     this._snackBarMessageQueue.next(message)
   }
 
-  sendGlobalBusyFlag(isBusy: boolean){
-    if(this._globalBusyQueue.getValue() != isBusy)
-    {
+  sendGlobalBusyFlag(isBusy: boolean) {
+    if (this._globalBusyQueue.getValue() !== isBusy) {
       this._globalBusyQueue.next(isBusy)
     }
   }
 
-  registerGlobalBusyTag(badge: string){
+  registerGlobalBusyTag(badge: string) {
     this._globalBusyTags.add(badge)
     this.sendGlobalBusyFlag(true)
   }
 
-  unregisterGlobalBusyTag(badge: string){
-    if(this._globalBusyTags.delete(badge)){
+  unregisterGlobalBusyTag(badge: string) {
+    if (this._globalBusyTags.delete(badge)) {
       this.sendGlobalBusyFlag(this._globalBusyTags.size > 0)
     }
   }
@@ -44,7 +43,7 @@ export class NotificationService {
 
 }
 
-export interface SnackBarMessageInfo{
+export interface SnackBarMessageInfo {
   message: string,
-  action?: {label: string, navigate: string} 
+  action?: { label: string, navigate: string }
 }

@@ -10,7 +10,7 @@ export default class OTTrackingPackageCtrl {
     const base = model.find().where("_id").in(ids)
     if (ownerId) {
       return base.where("user", ownerId).lean()
-    } else return base.lean()
+    } else { return base.lean() }
   }
   extractTrackingPackage(trackerIds: Array<string>, triggerIds: Array<string>, ownerId: string = null): Promise<PredefinedPackage> {
 
@@ -29,7 +29,7 @@ export default class OTTrackingPackageCtrl {
   getExtractedTrackingPackageJson = (req, res) => {
     const trackerIds: Array<string> = req.query["trackerIds"] || []
     const triggerIds: Array<string> = req.query["triggerIds"] || []
-    var userId = null
+    let userId = null
     if (res.locals.user) {
       userId = res.locals.user.uid
     }
@@ -51,7 +51,7 @@ export default class OTTrackingPackageCtrl {
 
   postTrackingPackageToGlobalList = (req, res) => {
     const userId = res.locals.user.uid
-    const data = isString(req.body.data) === true? JSON.parse(req.body.data) : req.body.data
+    const data = isString(req.body.data) === true ? JSON.parse(req.body.data) : req.body.data
     const logic = (isFirst: boolean) => {
       let accessKey = require('randomstring').generate({ length: 4, charset: 'numeric' })
 
@@ -62,19 +62,18 @@ export default class OTTrackingPackageCtrl {
       }).then(entry => {
         res.status(200).send(entry["accessKey"])
       }).catch(err => {
-        if (err.code === 11000 && isFirst === true) // unique index duplicate
-        {
+        if (err.code === 11000 && isFirst === true) {
           console.log("tracking package access key duplicates. try another one...")
-          OTTrackingPackage.find({}, {select:"accessKey"}).then(
-            entries=>{
+          OTTrackingPackage.find({}, { select: "accessKey" }).then(
+            entries => {
               const keys = entries.map(k => k["accessKey"])
-              while(keys.indexOf(accessKey) != -1){
+              while (keys.indexOf(accessKey) !== -1) {
                 accessKey = require('randomstring').generate({ length: 4, charset: 'numeric' })
               }
               logic(false)
             }
           )
-        } else{
+        } else {
           console.log(err)
           res.status(500).send(err)
         }
@@ -94,15 +93,15 @@ export default class OTTrackingPackageCtrl {
   }
 
   getTemporaryTrackingPackageWithCode = (req, res) => {
-    OTTrackingPackage.findOneAndRemove({accessKey: req.params.code}, {select: "data"}).then(
+    OTTrackingPackage.findOneAndRemove({ accessKey: req.params.code }, { select: "data" }).then(
       doc => {
-        if(doc!=null){
+        if (doc != null) {
           res.status(200).send(doc["data"])
-        }else{
+        } else {
           res.status(404).send(null)
         }
       }
-    ).catch(err=>{
+    ).catch(err => {
       res.status(500).send(err)
     })
   }

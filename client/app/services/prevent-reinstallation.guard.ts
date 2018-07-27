@@ -9,17 +9,16 @@ import { map, catchError } from 'rxjs/operators';
 })
 export class PreventReinstallationGuard implements CanActivate {
 
-  constructor(private http: Http, private router: Router){}
+  constructor(private http: Http, private router: Router) { }
 
   canActivate(
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
 
     return this.http.get('/api/installation/status').pipe(
-      map(res=>res.json()),
+      map(res => res.json()),
       map(installed => {
-        if(installed === false) return true
-        else return false
+        if (installed === false) { return true } else { return false }
       }),
       catchError(err => {
         console.log("installation already done.")

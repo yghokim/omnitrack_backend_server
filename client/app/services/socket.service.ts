@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import * as io from 'socket.io-client';
-import { BehaviorSubject ,  Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { filter } from "rxjs/operators";
-import {SocketConstants} from '../../../omnitrack/core/research/socket'
+import { SocketConstants } from '../../../omnitrack/core/research/socket'
 
 @Injectable()
 export class SocketService {
@@ -11,8 +11,8 @@ export class SocketService {
 
   public readonly _onConnected = new BehaviorSubject<SocketIOClient.Socket>(null)
 
-  get onConnected(): Observable<SocketIOClient.Socket>{
-    return this._onConnected.pipe(filter(socket => socket!=null))
+  get onConnected(): Observable<SocketIOClient.Socket> {
+    return this._onConnected.pipe(filter(socket => socket != null))
   }
 
   constructor() {
@@ -26,18 +26,18 @@ export class SocketService {
     this.socket.connect()
 
     this.socket.on(
-      SocketConstants.SERVER_EVENT_RESET, ()=>{
+      SocketConstants.SERVER_EVENT_RESET, () => {
         console.log("refresh sockets.")
         this._onConnected.next(this.socket)
       }
     )
 
-    this.socket.on("disconnect", ()=>{
-      console.log( 'socket disconnected from server. retry after 3 seconds..' );
-      window.setTimeout( ()=>{ this.socket.connect() }, 3000)
+    this.socket.on("disconnect", () => {
+      console.log('socket disconnected from server. retry after 3 seconds..');
+      window.setTimeout(() => { this.socket.connect() }, 3000)
     })
 
-    this.socket.on("reconnect", ()=>{
+    this.socket.on("reconnect", () => {
       console.log("socket reconnected.")
     })
 

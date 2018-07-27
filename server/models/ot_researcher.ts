@@ -2,15 +2,15 @@ import * as mongoose from 'mongoose';
 import * as uuid from 'uuid';
 
 const otResearcherSchema = new mongoose.Schema({
-  _id: {type: String, default: uuid.v1},
+  _id: { type: String, default: uuid.v1 },
   alias: String,
   email: { type: String, unique: true, required: true },
   hashed_password: { type: String, required: true },
-  passwordSetAt: Date, 
+  passwordSetAt: Date,
   password_reset_token: { type: String },
   reset_token_expires: Date,
   account_approved: Boolean, // null: not approved yet, false: declined by admin
-}, {timestamps: true, toJSON: {virtuals: true}});
+}, { timestamps: true, toJSON: { virtuals: true } });
 
 otResearcherSchema.virtual('managingExperiments', {
   ref: 'OTExperiment',

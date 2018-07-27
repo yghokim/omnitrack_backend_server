@@ -1,5 +1,5 @@
 import { ServiceBase } from './service-base';
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Http, Headers, RequestOptions, Response, ResponseContentType } from '@angular/http';
 import { ResearcherAuthService } from './researcher.auth.service';
 import { Observable, Subscription, BehaviorSubject } from 'rxjs';
@@ -91,6 +91,7 @@ export class ResearchApiService extends ServiceBase {
     )
   }
 
+  // tslint:disable-next-line:use-life-cycle-interface
   ngOnDestroy() {
     this.socketService.socket.emit(SocketConstants.SERVER_EVENT_UNSUBSCRIBE_SERVER_GLOBAL)
     this.socketService.socket.removeListener(SocketConstants.SERVER_EVENT_UPDATED_GLOBAL)
