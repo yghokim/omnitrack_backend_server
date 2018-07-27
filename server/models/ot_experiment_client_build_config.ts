@@ -1,12 +1,11 @@
 import * as mongoose from 'mongoose';
-import OTExperiment from './ot_experiment';
 
-const otExperimentClientBuildConfig = new mongoose.Schema({
-  experiment: {type: String, ref: OTExperiment},
+const otExperimentClientBuildConfigSchema = new mongoose.Schema({
+  experiment: {type: String, ref: 'OTExperiment'},
   platform: {type: String, enum: ['Android', 'iOS'], required: true},
   packageName: {type: String, default: null},
   appName: {type: String, default: null},
-  repository: {type: {type: String, data: mongoose.Schema.Types.Mixed}, default: null},
+  sourceCode: {type: {sourceType: String, data: mongoose.Schema.Types.Mixed}, default: null},
   iconPath: {type: String, default: null},
   disableExternalEntities: {type: Boolean, default: false},
   showTutorials: {type: Boolean, default: true},
@@ -18,6 +17,6 @@ const otExperimentClientBuildConfig = new mongoose.Schema({
   apiKeys: {type: [{key: String, value: mongoose.Schema.Types.Mixed}], default: []},
 }, {timestamps: true});
 
-const OTExperimentClientBuildConfigModel = mongoose.model('OTExperimentClientBuildConfig', otExperimentClientBuildConfig);
+const OTExperimentClientBuildConfigModel = mongoose.model('OTExperimentClientBuildConfig', otExperimentClientBuildConfigSchema);
 
-export {OTExperimentClientBuildConfigModel}
+export default OTExperimentClientBuildConfigModel;

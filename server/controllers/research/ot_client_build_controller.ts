@@ -1,9 +1,33 @@
 import { IClientBuildConfigBase, AndroidBuildCredentials } from '../../../omnitrack/core/research/db-entity-types';
-import { OTExperimentClientBuildConfigModel } from '../../models/ot_experiment_client_build_config';
-import { deepclone } from '../../../shared_lib/utils';
-
+import OTExperimentClientBuildConfigModel from '../../models/ot_experiment_client_build_config';
+import { deepclone, isString, getExtensionFromPath } from '../../../shared_lib/utils';
+import * as fs from 'fs-extra';
+import * as multer from 'multer';
 
 export default class OTClientBuildCtrl {
+
+  private _makeExperimentConfigDirectoryPath(experimentId: string): string {
+    return "storage/experiments/client_configs/" + experimentId
+  }
+
+  private _makeStorage(experimentId: string): StorageEngine {
+    return multer.diskStorage({
+      destination: (req, file, cb) => {
+        const dirPath = this._makeExperimentConfigDirectoryPath(experimentId)
+        fs.ensureDir(dirPath).then(
+          () => {
+            cb(null, dirPath)
+          }
+        ).catch(err => {
+          console.log(err)
+          cb(err, null)
+        })
+      },
+      filename: function (req, file, cb) {
+        cb(null, file.fieldname + "." + getExtensionFromPath(file.originalname))
+      }
+    })
+  }
 
   _getClientBuildConfigsOfExperiment(experimentId: string): Promise<Array<IClientBuildConfigBase<any>>> {
     return OTExperimentClientBuildConfigModel.find({ experiment: experimentId })
@@ -14,7 +38,7 @@ export default class OTClientBuildCtrl {
 
   _initializeDefaultPlatformConfig(experimentId: string, platform: string): Promise<IClientBuildConfigBase<any>> {
     if (platform !== "Android") {
-      throw "Unsupported platform."
+      throw new Error("Unsupported platform.")
     }
 
     const newModel = new OTExperimentClientBuildConfigModel({
@@ -24,7 +48,7 @@ export default class OTClientBuildCtrl {
 
     switch (platform.toLowerCase()) {
       case "android":
-        newModel["credentials"] = { 
+        newModel["credentials"] = {
           googleServices: null
         } as AndroidBuildCredentials
         break;
@@ -58,24 +82,41 @@ export default class OTClientBuildCtrl {
   }
 
   updateClientBuildConfigs = (req, res) => {
-    const configId = req.body.config._id
-    const update = deepclone(req.body.config)
-    delete update._id
-    OTExperimentClientBuildConfigModel.findOneAndUpdate(
-      {
-        _id: configId,
-        experiment: req.params.experimentId
-      },
-      update,
-      { new: true }
-    ).lean().then(
-      newDoc => {
-        console.log(newDoc)
-        res.status(200).send(newDoc)
+
+    const getForm = multer({ storage: this._makeStorage(req.params.experimentId) }).fields([
+      { name: "config", maxCount: 1 },
+      { name: "androidKeystore", maxCount: 1 },
+      { name: "sourceCodeZip", maxCount: 1 }
+    ])
+
+    getForm(req, res, err => {
+      if (err) {
+        console.log(err)
+        res.status(500).send(err)
+        return
       }
-    ).catch(err => {
-      console.log(err)
-      res.status(500).send(err)
+
+      const update = isString(req.body.config) === true ? JSON.parse(req.body.config) : deepclone(req.body.config)
+      const configId = update._id
+      delete update._id
+      delete update.createdAt
+      delete update.updatedAt
+
+      OTExperimentClientBuildConfigModel.findOneAndUpdate(
+        {
+          _id: configId,
+          experiment: req.params.experimentId
+        },
+        update,
+        { new: true }
+      ).lean().then(
+        newDoc => {
+          res.status(200).send(newDoc)
+        }
+      ).catch(updateError => {
+        console.log(updateError)
+        res.status(500).send(updateError)
+      })
     })
   }
 }

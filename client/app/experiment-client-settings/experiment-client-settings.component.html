@@ -1,4 +1,8 @@
 <div class="container">
+  <!--hacks to prevent autofilling wrong fields-->
+
+  <input type="text" style="display:none">
+  <input type="password" style="display:none">
   <div class="card card-main">
     <mat-tab-group>
       <mat-tab [label]="p.platform" *ngFor="let p of supportedPlatforms; trackBy: matchPlatforms">
@@ -71,22 +75,17 @@
                     <app-config-variable-row label="google-services.json" [originalValue]="p.originalConfig.credentials.googleServices" [config]="p.changedConfig.credentials"
                       variableName="googleServices" type="jsonFile"></app-config-variable-row>
 
-                    <app-config-variable-row label="Android keystore file (.jks)" [originalValue]="p.originalConfig.credentials.keystoreFileHash"
-                      [config]="p.changedConfig.credentials" 
-                      (binaryFileChanged)="p.localFiles.androidKeystore = $event"
-                      variableName="keystoreFileHash" 
-                      type="jksFile"></app-config-variable-row>
+                    <app-config-variable-row label="Keystore file (.jks)" [originalValue]="p.originalConfig.credentials.keystoreFileHash" [config]="p.changedConfig.credentials"
+                      (binaryFileChanged)="p.localFiles.androidKeystore = $event" variableName="keystoreFileHash" type="jksFile"></app-config-variable-row>
 
-                    <app-config-variable-row label="Android keystore password" [originalValue]="p.originalConfig.credentials.keystorePassword"
-                      [config]="p.changedConfig.credentials" hintText="Password for the keystore" variableName="keystorePassword" type="password"></app-config-variable-row>
+                    <app-config-variable-row label="Keystore password" [originalValue]="p.originalConfig.credentials.keystorePassword" [config]="p.changedConfig.credentials"
+                      hintText="Password for the keystore" variableName="keystorePassword" type="password"></app-config-variable-row>
 
-                    <app-config-variable-row label="Android keypair alias" [originalValue]="p.originalConfig.credentials.keystoreAlias" [config]="p.changedConfig.credentials"
-                    hintText="Alias of keypair to use"
-                      variableName="keystoreAlias" type="text"></app-config-variable-row>
+                    <app-config-variable-row label="Keypair alias" [originalValue]="p.originalConfig.credentials.keystoreAlias" [config]="p.changedConfig.credentials"
+                      hintText="Alias of keypair to use" variableName="keystoreAlias" type="text"></app-config-variable-row>
 
 
-                    <app-config-variable-row label="Android keypair password" [originalValue]="p.originalConfig.credentials.keystoreKeyPassword"
-                    hintText="Password for the designated keypair"
+                    <app-config-variable-row label="Keypair password" [originalValue]="p.originalConfig.credentials.keystoreKeyPassword" hintText="Password for the designated keypair"
                       [config]="p.changedConfig.credentials" variableName="keystoreKeyPassword" type="password"></app-config-variable-row>
                   </td>
                 </tr>

@@ -20,8 +20,7 @@ export default class TrackingDataCtrl {
       isDenied: { $ne: true }, isConsentApproved: true, dropped: { $ne: true }
     }
 
-    if(userId)
-    {
+    if (userId) {
       participantQuery["user"] = makeArrayLikeQueryCondition(userId)
     }
 
@@ -32,33 +31,32 @@ export default class TrackingDataCtrl {
       participants => {
         if (participants.length > 0) {
           const condition = { user: { $in: participants.map(p => p["user"]) } }
-          if (options.excludeRemoved==true) {
+          if (options.excludeRemoved === true) {
             condition["removed"] = { $ne: true }
           }
 
-          if (options.excludeExternals==true) {
-            if(model === OTItem)
-            {
+          if (options.excludeExternals === true) {
+            if (model === OTItem) {
               const trackerCondition = deepclone(condition)
               trackerCondition["flags.experiment"] = experimentId
-              return OTTracker.find(trackerCondition, {_id: 1}).lean().then(
-                trackers =>{
-                  condition["tracker"] = {$in: trackers.map(t=>t._id)}
+              return OTTracker.find(trackerCondition, { _id: 1 }).lean().then(
+                trackers => {
+                  condition["tracker"] = { $in: trackers.map(t => t._id) }
                   return OTItem.find(condition).lean().then(
                     paginationResult => {
                       return paginationResult
-                      })
+                    })
                 })
-            }else{
+            } else {
               condition["flags.experiment"] = experimentId
             }
             return (model as any).find(condition).lean()
           } else {
-            
+
           }
-      }
-      return []
-    })
+        }
+        return []
+      })
   }
 
   getChildrenOfExperiment(model: mongoose.Model<any>) {
@@ -68,21 +66,20 @@ export default class TrackingDataCtrl {
       this._getModelsOfExperiment(model, experimentId, req.query.userId, options).then(
         list => {
           res.header("Content-Type", "application/json")
-          if(list.length < 200){
+          if (list.length < 200) {
             res.status(200).send(JSON.stringify(list, null, 2))
-          }
-          else{
+          } else {
             res.write("[")
-            res.write(list.map(item =>JSON.stringify(item, null, 2)).join(",\n"))
+            res.write(list.map(item => JSON.stringify(item, null, 2)).join(",\n"))
             res.write("]")
             res.end()
           }
         })
         .catch(
-        err => {
-          console.log(err)
-          res.status(500).send(err)
-        })
+          err => {
+            console.log(err)
+            res.status(500).send(err)
+          })
     }
   }
 

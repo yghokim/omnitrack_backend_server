@@ -368,9 +368,9 @@ export default class OTExperimentCtrl {
     const packageKey = req.body.packageKey
 
     const query = this.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId)
-    var update
+    let update
     if (packageKey != null) {
-      //update
+      // update
       query["trackingPackages.key"] = packageKey
       update = {}
       if (name) {
@@ -380,9 +380,8 @@ export default class OTExperimentCtrl {
       if (packageJson) {
         update["trackingPackages.$.data"] = packageJson
       }
-    }
-    else {
-      //insert
+    } else {
+      // insert
       update = {
         $push: {
           trackingPackages: {
@@ -477,11 +476,11 @@ export default class OTExperimentCtrl {
       console.log(found)
       if (found) {
         if (req.body._id) {
-          //update
+          // update
           res.status(200).send(found["groups"].find(g => g._id === req.body._id))
 
         } else {
-          //insert
+          // insert
           res.status(200).send(found["groups"].reverse().find(g => g.name === req.body.name))
         }
       } else {

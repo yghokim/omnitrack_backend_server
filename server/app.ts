@@ -16,7 +16,7 @@ import { installationWizardCtrl } from './controllers/ot_installation_wizard_con
 import { InstallationRouter } from "./router_installation";
 
 if (fs.pathExistsSync(environmentPath) !== true) {
-  //copy sample file
+  // copy sample file
   try {
     fs.copySync(
       path.join(__dirname, "../../../credentials/environment.sample.json"),
@@ -28,7 +28,7 @@ if (fs.pathExistsSync(environmentPath) !== true) {
   }
 }
 
-var firebaseApp = null
+let firebaseApp = null
 
 const app = express();
 const appWrapper = new AppWrapper(app);
@@ -37,7 +37,7 @@ app.set("port", env.port || 3000);
 
 app.use('/', express.static(path.join(__dirname, '../public')));
 app.use(bodyParser.json({ limit: '20mb' }));
-app.use(bodyParser.urlencoded({ extended: false, limit: '5mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' }));
 
 app.use(morgan("dev"));
 
@@ -93,11 +93,11 @@ function initializeFirebase() {
       "../../../credentials/firebase-cert.json"
     ));
 
-    if (firebaseAdmin.apps.find(app => app.name === firebaseServiceAccount.project_id) == null) {
+    if (firebaseAdmin.apps.find(a => a.name === firebaseServiceAccount.project_id) == null) {
       firebaseApp = firebaseAdmin.initializeApp({
         credential: firebaseAdmin.credential.cert(firebaseServiceAccount)
       }, firebaseServiceAccount.project_id);
-    } else firebaseApp = firebaseAdmin.app(firebaseServiceAccount.project_id)
+    } else { firebaseApp = firebaseAdmin.app(firebaseServiceAccount.project_id) }
 
   } catch (ex) {
     console.log(ex)

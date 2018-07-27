@@ -12,7 +12,7 @@ import * as md5 from 'md5';
 export class ConfigVariableRowComponent implements OnInit {
 
   @Input() originalValue: any = null
-  @Input() type: string = "boolean"
+  @Input() type = "boolean"
   @Input() config: IClientBuildConfigBase<any> = null
   @Input() label: string = null
   @Input() variableName: string = null
@@ -25,15 +25,15 @@ export class ConfigVariableRowComponent implements OnInit {
   ngOnInit() {
   }
 
-  onTextChanged(value){
-    if(value.trim().length === 0){
+  onTextChanged(value) {
+    if (value.trim().length === 0) {
       this.config[this.variableName] = null
-    }else{
+    } else {
       this.config[this.variableName] = value
     }
   }
 
-  onJsonFileChanged(files){
+  onJsonFileChanged(files) {
     const fileReader = new FileReader();
     fileReader.onload = (e) => {
       try {
@@ -45,10 +45,11 @@ export class ConfigVariableRowComponent implements OnInit {
     fileReader.readAsText(files[0])
   }
 
-  onAndroidKeystoreFileChanged(files){
+  onAndroidKeystoreFileChanged(files) {
     const fileReader = new FileReader();
     fileReader.onload = (e) => {
       try {
+        console.log("new md5", md5((e as any).target.result))
         this.config[this.variableName] = md5((e as any).target.result)
         this.binaryFileChanged.emit(files[0])
       } catch (e) {
@@ -58,17 +59,17 @@ export class ConfigVariableRowComponent implements OnInit {
     fileReader.readAsArrayBuffer(files[0])
   }
 
-  jsonObjToString(obj): string{
+  jsonObjToString(obj): string {
     return JSON.stringify(obj, null, 2)
   }
 
-  rollback(){
-    this.config[this.variableName] =  this.originalValue == undefined? null : deepclone(this.originalValue)
+  rollback() {
+    this.config[this.variableName] = this.originalValue === undefined ? null : deepclone(this.originalValue)
     $('input[type="file"]').val('')
     this.binaryFileChanged.emit(null)
   }
 
-  compareValues( v1: any, v2: any): boolean{
+  compareValues(v1: any, v2: any): boolean {
     return deepEqual(v1, v2)
   }
 }

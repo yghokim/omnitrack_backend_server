@@ -1,6 +1,6 @@
 import OTClientBinary from "../../models/ot_client_binary";
 import OTClientSignature from '../../models/ot_client_signature';
-import {clientSignatureCtrl} from '../../controllers/ot_client_signature_controller';
+import { clientSignatureCtrl } from '../../controllers/ot_client_signature_controller';
 import * as multer from "multer";
 import * as mime from "mime";
 import { StorageEngine } from "multer";
@@ -8,7 +8,6 @@ import * as path from "path";
 import { getExtensionFromPath, compareVersions } from "../../../shared_lib/utils";
 import { ClientBinaryUtil } from '../../../omnitrack/core/client_binary_utils';
 import { Extract, OperatingSystem } from 'app-metadata';
-import { ENOTTY } from "constants";
 const randomstring = require('randomstring');
 const md5File = require('md5-file/promise');
 const fs = require("fs-extra");
@@ -29,7 +28,11 @@ export default class OTBinaryCtrl {
   private makeClientBinaryStorage(): StorageEngine {
     return multer.diskStorage({
       destination: function (req, file, cb) {
-        cb(null, "storage/temp/clients")
+        fs.ensureDir("storage/temp/clients").then(() => {
+          cb(null, "storage/temp/clients")
+        }).catch(err => {
+          cb(err, null)
+        })
       },
       filename: function (req, file, cb) {
         const tempName = "temp_client_" + randomstring.generate({ length: 20 })
@@ -46,15 +49,14 @@ export default class OTBinaryCtrl {
       if (err) {
         cb(err, null)
         return
-      }
-      else {
+      } else {
         zipfile.readEntry();
         zipfile.on("entry", (entry) => {
           console.log("entry name: " + entry.fileName)
           if (entry.fileName.toUpperCase() === "META-INF/CERT.RSA") {
-            //keystore file.
+            // keystore file.
             zipfile.openReadStream(entry, (err, readStream) => {
-              if (err) throw err;
+              if (err) { throw err; }
               const keystoreTempFilePath = "storage/temp/temp_keystore_" + randomstring.generate({ length: 20 })
                 + "_" + Date.now() + ".rsa"
               readStream.on("end", function () {
@@ -75,7 +77,7 @@ export default class OTBinaryCtrl {
               });
               readStream.pipe(fs.createWriteStream(keystoreTempFilePath));
             });
-          } else zipfile.readEntry();
+          } else { zipfile.readEntry(); }
         })
       }
     })
@@ -104,7 +106,7 @@ export default class OTBinaryCtrl {
                   const extension = getExtensionFromPath(req.file.originalname)
                   Extract.run(req.file.path).then(
                     packageInfo => {
-                      var platform: string = "unknown"
+                      let platform = "unknown"
                       switch (packageInfo.operatingSystem) {
                         case OperatingSystem.Android:
                           platform = "Android"
@@ -138,16 +140,14 @@ export default class OTBinaryCtrl {
                           }
                           new OTClientBinary(model).save().then(saved => {
                             console.log(saved)
-                            this.extractSignature(filePath, (err, print) => {
-                              if (err) {
-                                res.status(500).send({ error: "UnsignedClient", raw: err })
-                              }
-                              else {
+                            this.extractSignature(filePath, (signatureExtractionError, print) => {
+                              if (signatureExtractionError) {
+                                res.status(500).send({ error: "UnsignedClient", raw: signatureExtractionError })
+                              } else {
                                 console.log("fingerprint: " + print)
                                 clientSignatureCtrl.upsertSignature(null, print, packageInfo.uniqueIdentifier, platform, true).then(
-                                  changed => 
-                                  {
-                                    res.status(200).send({success: true, signatureUpdated: changed})
+                                  changed => {
+                                    res.status(200).send({ success: true, signatureUpdated: changed })
                                   }
                                 )
                               }
@@ -159,9 +159,9 @@ export default class OTBinaryCtrl {
                           res.status(500).send({ error: reason })
                         })
                     })
-                    .catch(err => {
-                      console.log(err)
-                      res.status(500).send({ error: "InvalidPackage", raw: err })
+                    .catch(err2 => {
+                      console.log(err2)
+                      res.status(500).send({ error: "InvalidPackage", raw: err2 })
                     })
                 }
               })
@@ -185,8 +185,7 @@ export default class OTBinaryCtrl {
             }
             res.status(200).send(true)
           })
-        }
-        else {
+        } else {
           res.status(200).send(false)
         }
       }
@@ -247,8 +246,7 @@ export default class OTBinaryCtrl {
           }
           console.log(binaryInfo)
           res.status(200).send(binaryInfo)
-        }
-        else res.status(404).send({ error: "NoBinaryForThisPlatform" })
+        } else { res.status(404).send({ error: "NoBinaryForThisPlatform" }) }
       }
     )
   }

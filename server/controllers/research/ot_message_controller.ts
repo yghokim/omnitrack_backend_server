@@ -19,7 +19,7 @@ export default class OTResearchMessageCtrl {
       this.mailer = require('sib-api-v3-sdk');
       this.mailer.ApiClient.instance.authentications['api-key'].apiKey = env.mailer.api_key
 
-      var api = new this.mailer.AccountApi()
+      const api = new this.mailer.AccountApi()
       api.getAccount().then(account => {
         console.log("your Sendinblue account information:")
         console.log(account)
@@ -64,12 +64,11 @@ export default class OTResearchMessageCtrl {
           return true
         }
 
-        if (casted.isDraft != true) {
+        if (casted.isDraft !== true) {
           if (casted.reservedTime) {
-            //reserve message to agenda
-          }
-          else {
-            //send message immediately
+            // reserve message to agenda
+          } else {
+            // send message immediately
             let receiverUserIds
             switch (casted.receiverRule.type) {
               case MessageReceiverRules.SpecificUsersRule:
@@ -114,15 +113,12 @@ export default class OTResearchMessageCtrl {
                           return onSuccess()
                         })
                       })
-                  }
-                  else return false
+                  } else { return false }
                 })
             }
           }
-        }
-        else return onSuccess()
-      }
-      else false
+        } else { return onSuccess() }
+      } else { return false }
     })
   }
 
@@ -132,8 +128,7 @@ export default class OTResearchMessageCtrl {
         return OTResearchMessage.find({ experiment: experimentId })
           .populate({ path: "receivers", select: "_id alias" })
           .then(res => res as any)
-      }
-      else {
+      } else {
         return Promise.reject("No such experiment with corresponding researcher")
       }
     })
@@ -154,8 +149,7 @@ export default class OTResearchMessageCtrl {
     this._enqueueMessage(req.body, req.params.experimentId).then(success => {
       if (success === true) {
         res.status(200).send(success)
-      }
-      else {
+      } else {
         res.status(200).send(false)
       }
     }).catch(err => {

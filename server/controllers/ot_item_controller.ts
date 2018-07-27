@@ -69,8 +69,8 @@ export default class OTItemCtrl extends UserBelongingCtrl {
   }
 
   setItemTimestamp(itemQuery: any, timestamp: number, timezone?: string): Promise<{ success: boolean, error?: any, changedItem?: IItemDbEntity }> {
-    const set = {timestamp: timestamp}
-    if(timezone){
+    const set = { timestamp: timestamp }
+    if (timezone) {
       set["timezone"] = timezone
     }
     return OTItem.findOneAndUpdate(itemQuery, { $set: set }, { new: true }).then(updatedItem => {

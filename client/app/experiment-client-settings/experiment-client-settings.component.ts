@@ -6,7 +6,7 @@ import { deepclone } from '../../../shared_lib/utils';
 import deepEqual from 'deep-equal';
 import { IClientBuildConfigBase } from '../../../omnitrack/core/research/db-entity-types';
 
-interface ConfigState{
+interface ConfigState {
   isInitialized: boolean,
 
 }
@@ -41,11 +41,11 @@ export class ExperimentClientSettingsComponent implements OnInit, OnDestroy {
         this.clientBuildService.latestConfigOfPlatform(platform.platform).subscribe(
           config => {
             platform.isLoading = false
-            if(config){
+            if (config) {
               platform.isInitialized = true
               platform.originalConfig = config
               platform.changedConfig = deepclone(config)
-            }else{
+            } else {
               platform.isInitialized = false
               platform.originalConfig = null
               platform.changedConfig = null
@@ -54,14 +54,14 @@ export class ExperimentClientSettingsComponent implements OnInit, OnDestroy {
         )
       )
     })
-    
+
   }
 
-  matchPlatforms(index: number, platformEntry: any){
+  matchPlatforms(index: number, platformEntry: any) {
     return platformEntry.platform
   }
 
-  onInitializeClicked(p){
+  onInitializeClicked(p) {
     p.isLoading = true
     this._internalSubscriptions.add(
       this.clientBuildService.initializePlatformDefault(p.platform).subscribe(
@@ -70,25 +70,25 @@ export class ExperimentClientSettingsComponent implements OnInit, OnDestroy {
     )
   }
 
-  onSaveClicked(p){
+  onSaveClicked(p) {
     p.isLoading = true
 
     const files = []
-    for(let key of Object.keys(p.localFiles)){
-      if(p.localFiles.key){
-        files.push({key: key, file: p.localFiles.key})
+    for (const key of Object.keys(p.localFiles)) {
+      if (p.localFiles[key]) {
+        files.push({ key: key, file: p.localFiles[key] })
       }
     }
 
     this._internalSubscriptions.add(
       this.clientBuildService.updateConfig(p.changedConfig, files).subscribe(
-        ()=>{
+        () => {
 
         },
-        err=>{
+        err => {
 
         },
-        ()=>{
+        () => {
           p.isLoading = false
         }
       )
@@ -99,7 +99,7 @@ export class ExperimentClientSettingsComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
-  isConfigChanged(originalConfig: IClientBuildConfigBase<any>, changedConfig: IClientBuildConfigBase<any>): boolean{
+  isConfigChanged(originalConfig: IClientBuildConfigBase<any>, changedConfig: IClientBuildConfigBase<any>): boolean {
     return !deepEqual(originalConfig, changedConfig)
   }
 

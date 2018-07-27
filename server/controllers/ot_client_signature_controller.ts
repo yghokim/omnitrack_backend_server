@@ -15,7 +15,7 @@ export default class OTClientSignatureCtrl {
         if (err) {
           reject(err)
         } else {
-          var collectionChanged = false
+          let collectionChanged = false
           if (raw) {
             if (raw.ok === 1) {
               if (raw.lastErrorObject.updatedExisting) {
@@ -26,31 +26,29 @@ export default class OTClientSignatureCtrl {
                   resolve(false)
                   collectionChanged = false
                 }
-              }
-              else {
-                //new inserted
+              } else {
+                // new inserted
                 resolve(true)
                 collectionChanged = true
               }
-            }
-            else {
+            } else {
               reject("raw query ok is 0")
             }
           } else {
-            //new result was null -> new upserted.
+            // new result was null -> new upserted.
             resolve(true)
             collectionChanged = true
           }
 
           if (collectionChanged === true && notify === true) {
-            //notify via socket
+            // notify via socket
           }
         }
       })
     })
   }
 
-  //admin only apis
+  // admin only apis
   getSignatures = (req, res) => {
     OTClientSignature.find({}).lean().then(
       signatures => {

@@ -16,7 +16,7 @@ export class ClientBuildService extends ServiceBase {
     return this._buildConfigBehaviorSubject.pipe(filter(l => l != null))
   }
   public get currentExperimentId(): string { return this._currentExperimentId }
-  public get clientBuildConfigs(): Array<IClientBuildConfigBase<any>>{
+  public get clientBuildConfigs(): Array<IClientBuildConfigBase<any>> {
     return this._buildConfigBehaviorSubject.value
   }
 
@@ -47,32 +47,38 @@ export class ClientBuildService extends ServiceBase {
     )
   }
 
-  initializePlatformDefault(platform: string): Observable<IClientBuildConfigBase<any>>{
-    return this.http.post("/api/research/experiments/" + this._currentExperimentId + "/client_build_configs/initialize", {platform: platform}, this.api.authorizedOptions).pipe(map(res => res.json()), tap(newConfig=>{
+  initializePlatformDefault(platform: string): Observable<IClientBuildConfigBase<any>> {
+    return this.http.post("/api/research/experiments/" + this._currentExperimentId + "/client_build_configs/initialize", { platform: platform }, this.api.authorizedOptions).pipe(map(res => res.json()), tap(newConfig => {
       const newArray = this.clientBuildConfigs.slice()
       const matchIndex = newArray.findIndex(c => c.platform === platform)
-      if(matchIndex !== -1){
+      if (matchIndex !== -1) {
         newArray[matchIndex] = newConfig
-      }else{
+      } else {
         newArray.push(newConfig)
       }
       this._buildConfigBehaviorSubject.next(newArray)
     }))
   }
 
-  updateConfig(config: IClientBuildConfigBase<any>, files: Array<{key: string, file: File}> = []): Observable<IClientBuildConfigBase<any>>{
+  updateConfig(config: IClientBuildConfigBase<any>, files: Array<{ key: string, file: File }> = []): Observable<IClientBuildConfigBase<any>> {
 
     let body
-    if(files && files.length > 0){
+    if (files && files.length > 0) {
       const formData: FormData = new FormData()
       files.forEach(fileEntry => {
-        formData.append(fileEntry.key, fileEntry.file)
+        formData.append(fileEntry.key, fileEntry.file, fileEntry.file.name)
+        formData.append("fileKeys[]", fileEntry.key)
       })
-      formData.append("config", JSON.stringify(config))
+      formData.set("config", JSON.stringify(config))
       body = formData
-    }else{
-      body = {config: config}
+      for (const key of formData.entries()) {
+        console.log(key[0] + ', ' + key[1])
+      }
+    } else {
+      body = { config: config }
     }
+
+    console.log(body)
 
     return this.http.post("/api/research/experiments/" + this._currentExperimentId + "/client_build_configs", body, this.api.authorizedOptions).pipe(
       map(res => res.json()),
@@ -82,12 +88,12 @@ export class ClientBuildService extends ServiceBase {
     )
   }
 
-  private replaceNewConfigWithId(newConfig: IClientBuildConfigBase<any>){
+  private replaceNewConfigWithId(newConfig: IClientBuildConfigBase<any>) {
     const newArray = this.clientBuildConfigs.slice()
     const matchIndex = newArray.findIndex(c => c._id === newConfig._id)
-    if(matchIndex !== -1){
+    if (matchIndex !== -1) {
       newArray[matchIndex] = newConfig
-    }else{
+    } else {
       newArray.push(newConfig)
     }
     this._buildConfigBehaviorSubject.next(newArray)

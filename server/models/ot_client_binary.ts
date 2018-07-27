@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 
 const otClientBinarySchema = new mongoose.Schema({
+  isolatingExperiment: {type: String, ref: 'OTExperiment', default: null},
   version: {type: String, required: true},
   versionCode: {type: Number, default: 0},
   platform: {type: String, enum: ['Android', 'iOS']},

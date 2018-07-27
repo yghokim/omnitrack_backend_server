@@ -13,7 +13,11 @@ export default class BinaryStorageCtrl {
   private makeUserItemMediaStorage(userId: String, trackerId: String, itemId: String, attrLocalId: String, fileIdentifier: String): StorageEngine {
     return multer.diskStorage({
       destination: function (req, file, cb) {
-        cb(null, "storage/temp/media")
+        fs.ensureDir("storage/temp/media").then(() => {
+          cb(null, "storage/temp/media")
+        }).catch(err => {
+          db(err, null)
+        })
       },
       filename: function (req, file, cb) {
         const tempName = userId + "_" + trackerId + itemId + attrLocalId + "_" + Date.now() + '.' + mime.getExtension(file.mimetype)
@@ -27,10 +31,10 @@ export default class BinaryStorageCtrl {
 
   getAll = (req, res) => {
     OTItemMedia.find({}).then(
-      media=>{
+      media => {
         res.status(200).send(media)
       }
-    ).catch(err=>{
+    ).catch(err => {
       res.status(500).send(err)
     })
   }
@@ -131,7 +135,7 @@ export default class BinaryStorageCtrl {
   }
 
   downloadItemMedia = (req: any, res: Response) => {
-    if(res.locals.user || req.researcher) {
+    if (res.locals.user || req.researcher) {
       const trackerId = req.params.trackerId
       const attrLocalId = req.params.attrLocalId
       const itemId = req.params.itemId
