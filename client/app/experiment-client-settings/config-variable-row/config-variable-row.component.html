@@ -1,0 +1,43 @@
+<div class="config-row flex-container flex-align-items-center" *ngIf="variableName && config">
+  <div class="label">
+    <span>{{label}}</span>
+    <sup class="changed-mark" [style.visibility]="compareValues(originalValue, config[variableName])? 'hidden' : null">Edited</sup>
+  </div>
+  <ng-container [ngSwitch]="type">
+    <input *ngSwitchCase="'text'" type="text" class="text-type form-control" [placeholder]="hintText" [value]="config[variableName]==undefined? null : config[variableName]"
+      (input)="onTextChanged($event.target.value)">
+    <input *ngSwitchCase="'password'" type="password" class="text-type form-control" [placeholder]="hintText" [value]="config[variableName]==undefined? null : config[variableName]"
+      (input)="onTextChanged($event.target.value)">
+    <mat-slide-toggle *ngSwitchCase="'boolean'" [checked]="config[variableName]" (change)="config[variableName] = $event.checked"></mat-slide-toggle>
+    <div *ngSwitchCase="'jsonFile'" class="json-file-type flex-filler">
+      <div class="flex-container flex-align-items-center">
+        <button class="mat-button-small" *ngIf="config[variableName] && !compareValues(originalValue, config[variableName])" mat-button
+          (click)="rollback()">Discard change</button>
+        <div class="flex-filler"></div>
+        <div class="fileopen">
+          <label for="packageFileInput">
+            <small>Read from JSON File...</small>
+          </label>
+          <input id="packageFileInput" type="file" accept="application/json" (change)="onJsonFileChanged($event.target.files)">
+        </div>
+      </div>
+
+      <textarea class="form-control" rows="5" *ngIf="config[variableName]" [disabled]="true">{{jsonObjToString(config[variableName])}}</textarea>
+    </div>
+
+    <div *ngSwitchCase="'jksFile'" class="jks-file-type flex-filler">
+        <div class="file-description" *ngIf="originalValue" >
+          <b>A kestore file is registered. original file hash:</b> 
+          <span class="hash">
+            {{originalValue}}
+          </span>
+        </div>
+        <div class="flex-container flex-align-items-center">
+            <button class="mat-button-small" *ngIf="config[variableName] && !compareValues(originalValue, config[variableName])" mat-button
+              (click)="rollback()">Discard change</button>
+            <div class="flex-filler"></div>
+            <input class="text-right" id="android-keystore-input" type="file" accept=".jks" (change)="onAndroidKeystoreFileChanged($event.target.files)">
+          </div>
+    </div>
+  </ng-container>
+</div>

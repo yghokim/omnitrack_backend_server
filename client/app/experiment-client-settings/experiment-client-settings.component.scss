@@ -1,0 +1,49 @@
+.card-content {
+  font-size: 0.9rem;
+  .header {
+    margin-bottom: 1rem;
+  }
+  .settings-main-table {
+    th.main-settings-header {
+      padding-left: 0;
+      width: 240px;
+    }
+    td.main-settings-container {
+      padding: 0;
+    }
+  }
+}
+
+.saved-timestamp-indicator {
+  font-size: 0.8rem;
+}
+
+.config-row {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  min-height: 46px;
+  justify-content: space-between;
+  &:hover {
+    background: #fafafa;
+  }
+  .label {
+    color: #757575;
+  }
+  .changed-mark {
+    margin-left: 4px;
+    color: #fec093;
+    font-weight: 500;
+  }
+  input.text-type {
+    max-width: 300px;
+  }
+  .flex-filler {
+    margin-left: 3rem;
+  }
+  .file-description {
+    text-align: right;
+    margin-bottom: 7px;
+  }
+}

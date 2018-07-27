@@ -7,6 +7,8 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class LabeledLoadingIndicatorComponent implements OnInit {
 
+  @Input() fitParent = false
+
   @Input() spinnerColor = "primary"
 
   constructor() { }

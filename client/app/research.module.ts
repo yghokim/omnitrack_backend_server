@@ -79,6 +79,8 @@ import { OmniTrackPackageCodeEditorComponent } from './research/omnitrack/omni-t
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { ExperimentConsentEditorComponent } from './experiment-consent-editor/experiment-consent-editor.component';
 import { EditExperimentGroupDialogComponent } from './experiment-groups/edit-experiment-group-dialog/edit-experiment-group-dialog.component';
+import { ExperimentClientSettingsComponent } from './experiment-client-settings/experiment-client-settings.component';
+import { ConfigVariableRowComponent } from './experiment-client-settings/config-variable-row/config-variable-row.component';
 
 @NgModule({
   imports: [
@@ -150,7 +152,9 @@ import { EditExperimentGroupDialogComponent } from './experiment-groups/edit-exp
     StatAnalyticsComponent,
     OmniTrackPackageCodeEditorComponent,
     ExperimentConsentEditorComponent,
-    EditExperimentGroupDialogComponent
+    EditExperimentGroupDialogComponent,
+    ExperimentClientSettingsComponent,
+    ConfigVariableRowComponent
   ],
   exports: [
     NouisliderModule,
@@ -184,7 +188,7 @@ import { EditExperimentGroupDialogComponent } from './experiment-groups/edit-exp
     ResearcherAuthGuardMain,
     ResearcherAuthService,
     SocketService,
-    ResearchApiService
+    ResearchApiService,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: [

@@ -1,4 +1,5 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { ServiceBase } from './service-base';
+import { Injectable } from '@angular/core';
 import { Http, Headers, RequestOptions, Response, ResponseContentType } from '@angular/http';
 import { ResearcherAuthService } from './researcher.auth.service';
 import { Observable, Subscription, BehaviorSubject } from 'rxjs';
@@ -12,7 +13,7 @@ import { IUsageLogDbEntity } from '../../../omnitrack/core/db-entity-types';
 import { IClientSignatureDbEntity, IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 
 @Injectable()
-export class ResearchApiService implements OnDestroy {
+export class ResearchApiService extends ServiceBase {
 
   private tokenHeaders: Headers
 
@@ -31,10 +32,8 @@ export class ResearchApiService implements OnDestroy {
   private readonly _experimentListSubject = new BehaviorSubject<Array<IExperimentDbEntity>>([])
   private readonly _userPoolSubject = new BehaviorSubject<Array<any>>([])
 
-  private readonly _internalSubscriptions = new Subscription()
-
   constructor(private http: Http, private authService: ResearcherAuthService, private socketService: SocketService, private notificationService: NotificationService) {
-
+    super()
     this._internalSubscriptions.add(
       this.authService.tokenSubject.subscribe(token => {
         if (token) {
@@ -95,7 +94,7 @@ export class ResearchApiService implements OnDestroy {
   ngOnDestroy() {
     this.socketService.socket.emit(SocketConstants.SERVER_EVENT_UNSUBSCRIBE_SERVER_GLOBAL)
     this.socketService.socket.removeListener(SocketConstants.SERVER_EVENT_UPDATED_GLOBAL)
-    this._internalSubscriptions.unsubscribe()
+    super.ngOnDestroy()
   }
 
   loadExperimentList() {
