@@ -16,7 +16,7 @@ export default class BinaryStorageCtrl {
         fs.ensureDir("storage/temp/media").then(() => {
           cb(null, "storage/temp/media")
         }).catch(err => {
-          db(err, null)
+          cb(err, null)
         })
       },
       filename: function (req, file, cb) {

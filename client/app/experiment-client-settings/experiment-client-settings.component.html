@@ -39,6 +39,10 @@
 
                   <app-config-variable-row label="Package name" type="text" variableName="packageName" hintText="kr.ac.snu.hcil.omnitrack"
                     [config]="p.changedConfig" [originalValue]="p.originalConfig.packageName"></app-config-variable-row>
+
+
+                  <app-config-variable-row label="Source code" type="sourceCode" variableName="sourceCode" hintText="Source code for app compilation"
+                    [config]="p.changedConfig" [originalValue]="p.originalConfig.sourceCode" (binaryFileChanged)="p.localFiles['sourceCodeZip_' + p.platform] = $event"></app-config-variable-row>
                 </td>
               </tr>
               <tr>

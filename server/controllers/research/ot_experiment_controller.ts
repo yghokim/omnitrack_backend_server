@@ -13,6 +13,7 @@ import { MessageData } from '../../modules/push.module';
 import { deepclone, groupArrayByVariable } from '../../../shared_lib/utils';
 import { makeArrayLikeQueryCondition } from '../../server_utils';
 import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { clientBuildCtrl } from './ot_client_build_controller';
 
 
 export default class OTExperimentCtrl {
@@ -83,7 +84,6 @@ export default class OTExperimentCtrl {
       }, { removed: false }, { multi: true })
     })).then(
       result => {
-        console.log(result)
         return true
       }
     )
@@ -110,14 +110,13 @@ export default class OTExperimentCtrl {
             "flags.experiment": experimentId
           }, { removed: true }, { multi: true })
         })).then(result => {
-          console.log(result)
           return OTParticipant.find({ experiment: experimentId }, { _id: 1, user: 1 }).then(participants => {
             app.pushModule().sendDataMessageToUser(participants.map(r => r["user"]), app.pushModule().makeFullSyncMessageData()).then(
               messageResult => {
                 console.log(messageResult)
               })
 
-            return Promise.all([OTParticipant.remove({ experiment: experimentId }), OTInvitation.remove({ experiment: experimentId })]).then(
+            return Promise.all([OTParticipant.remove({ experiment: experimentId }), OTInvitation.remove({ experiment: experimentId }), clientBuildCtrl.handleExperimentRemoval(experimentId)]).then(
               res => {
                 // socket
                 app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, { model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_REMOVED })
@@ -133,7 +132,6 @@ export default class OTExperimentCtrl {
     const researcherId = req.researcher.uid
     const experimentId = req.params.experimentId
     this._getExperiment(researcherId, experimentId).then(exp => {
-      console.log(exp)
       res.status(200).json(exp)
     })
       .catch(err => {
@@ -329,7 +327,6 @@ export default class OTExperimentCtrl {
   }
 
   getExampleExperimentList = (req, res) => {
-    console.log(app.researchModule().exampleExperimentInformations)
     res.status(200).send(app.researchModule().exampleExperimentInformations)
   }
 
@@ -337,7 +334,6 @@ export default class OTExperimentCtrl {
     const userId = res.locals.user.uid
     this._getPublicInvitations(userId).then(
       invitations => {
-        console.log(invitations)
         res.status(200).send(invitations)
       }
     ).catch(err => {
@@ -497,8 +493,6 @@ export default class OTExperimentCtrl {
     const groupId = req.params.groupId
     const query = this.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId)
     query["groups._id"] = groupId
-    console.log("group search query: ")
-    console.log(query)
     OTExperiment.findOneAndUpdate(query, {
       $pull: {
         groups: {
@@ -511,7 +505,6 @@ export default class OTExperimentCtrl {
         app.researchModule().dropOutImpl({ groupId: groupId }, true, true, null, researcherId)
           .then(
             result => {
-              console.log(result)
               res.status(200).send(true)
             }
           )

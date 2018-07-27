@@ -133,7 +133,10 @@ export class ResearchApiService extends ServiceBase {
 
   addExampleExperimentAndGetId(key: string): Observable<string> {
     console.log(this.authorizedOptions)
-    return this.http.post("/api/research/experiments/examples", { exampleKey: key }, this.authorizedOptions).pipe(map(res => res.json()))
+    return this.http.post("/api/research/experiments/examples", { exampleKey: key }, this.authorizedOptions).pipe(
+      map(res => res.json()),
+      tap(res => { this.loadExperimentList() })
+      )
   }
 
   getSelectedExperimentId(): string {
@@ -167,15 +170,44 @@ export class ResearchApiService extends ServiceBase {
       )
   }
 
-  createExperiment(info: any): Observable<any> {
+  createExperiment(info: any): Observable<IExperimentDbEntity> {
     return this.http.post("/api/research/experiments/new", info, this.authorizedOptions)
       .pipe(map(res => {
         return res.json()
-      }))
+      }),
+        tap((exp) => {
+          if(this._experimentListSubject.value){
+            const list = this._experimentListSubject.value.slice()
+            const matchIndex = list.findIndex(f => f._id === exp._id)
+            if(matchIndex === -1){
+              list.push(exp)
+            }else{
+              list[matchIndex] = exp
+            }
+            this._experimentListSubject.next(list)
+          }else{
+            this.loadExperimentList()
+          }
+        })
+      )
   }
 
   removeExperiment(experimentId: string): Observable<boolean> {
-    return this.http.delete("/api/research/experiments/" + experimentId, this.authorizedOptions).pipe(map(res => res.json()))
+    return this.http.delete("/api/research/experiments/" + experimentId, this.authorizedOptions).pipe(
+      map(res => res.json()),
+      tap(success=>{
+        if(success === true){
+          if(this._experimentListSubject.value){
+            const list = this._experimentListSubject.value.slice()
+            const matchIndex = list.findIndex(e => e._id === experimentId)
+            if(matchIndex !== -1){
+              list.splice(matchIndex, 1)
+              this._experimentListSubject.next(list)
+            }
+          }
+        }
+      })
+    )
   }
 
   searchResearchers(term: string, excludeSelf): Observable<Array<{ _id: string, email: string, alias: string }>> {

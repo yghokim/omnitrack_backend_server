@@ -49,9 +49,10 @@ export class ConfigVariableRowComponent implements OnInit {
     const fileReader = new FileReader();
     fileReader.onload = (e) => {
       try {
-        console.log("new md5", md5((e as any).target.result))
         this.config[this.variableName] = md5((e as any).target.result)
-        this.binaryFileChanged.emit(files[0])
+
+        if (this.isValueChanged() === true)
+          this.binaryFileChanged.emit(files[0])
       } catch (e) {
         console.log(e)
       }
@@ -71,5 +72,46 @@ export class ConfigVariableRowComponent implements OnInit {
 
   compareValues(v1: any, v2: any): boolean {
     return deepEqual(v1, v2)
+  }
+
+  isValueChanged(): boolean {
+    return !this.compareValues(this.originalValue, this.config[this.variableName])
+  }
+
+  sourceCodeTypeChanged(type: string) {
+    if (this.config[this.variableName]) {
+      this.config[this.variableName].sourceType = type
+    } else {
+      this.config[this.variableName] = {
+        sourceType: type,
+        data: {}
+      }
+    }
+  }
+
+  onSourceCodeZipFileChanged(files: Array<File>) {
+    const fileReader = new FileReader();
+    fileReader.onload = (e) => {
+      try {
+        if(this.config[this.variableName] == null){
+          this.config[this.variableName] = {
+            sourceType: 'file',
+            data: {}
+          }
+        }
+
+        if(this.config[this.variableName].data == null){
+          this.config[this.variableName].data = {}
+        }
+        
+        this.config[this.variableName].data.zipFileHash = md5((e as any).target.result)
+        if (this.isValueChanged() === true)
+          this.binaryFileChanged.emit(files[0])
+
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    fileReader.readAsArrayBuffer(files[0])
   }
 }

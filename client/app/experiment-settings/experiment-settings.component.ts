@@ -96,7 +96,17 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
           return this.api.removeExperiment(experimentId)
         })
       )
-        .subscribe()
+        .subscribe(
+          ()=>{
+            this.router.navigate(["/research/experiments"])
+          },
+          err=>{
+            console.log(err)
+          },
+          ()=>{
+            this.notification.unregisterGlobalBusyTag("experiment-deletion")
+          }
+        )
     )
   }
 

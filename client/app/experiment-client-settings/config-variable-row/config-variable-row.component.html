@@ -26,18 +26,30 @@
     </div>
 
     <div *ngSwitchCase="'jksFile'" class="jks-file-type flex-filler">
-        <div class="file-description small" *ngIf="originalValue" >
-          <b>A kestore file is registered. original file hash:</b> 
-          <span class="hash">
-            {{originalValue}}
-          </span>
-        </div>
-        <div class="flex-container flex-align-items-center">
-            <button class="mat-button-small" *ngIf="config[variableName] && !compareValues(originalValue, config[variableName])" mat-button
-              (click)="rollback()">Discard change</button>
-            <div class="flex-filler"></div>
-            <input class="text-right" id="android-keystore-input" type="file" accept=".jks" (change)="onAndroidKeystoreFileChanged($event.target.files)">
-          </div>
+      <div class="file-description small" *ngIf="originalValue">
+        <b>A kestore file is registered. original file hash:</b>
+        <span class="hash">
+          {{originalValue}}
+        </span>
+      </div>
+      <div class="flex-container flex-align-items-center">
+        <button class="mat-button-small" *ngIf="config[variableName] && !compareValues(originalValue, config[variableName])" mat-button
+          (click)="rollback()">Discard change</button>
+        <div class="flex-filler"></div>
+        <input class="text-right" id="android-keystore-input" type="file" accept=".jks" (change)="onAndroidKeystoreFileChanged($event.target.files)">
+      </div>
+    </div>
+
+    <div *ngSwitchCase="'sourceCode'" class="source-code-input">
+      <div class="flex-container flex-align-items-center">
+        <mat-form-field class="mat-form-no-vertical-padding">
+          <mat-select [value]="config[variableName]? config[variableName].sourceType : null" required="true" (selectionChange)="sourceCodeTypeChanged($event.value)">
+            <mat-option value="file">Upload zip file</mat-option>
+            <mat-option value="github" [disabled]="true">Github</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <input class="text-right" id="sourcecode-zip-input" type="file" accept=".zip" (change)="onSourceCodeZipFileChanged($event.target.files)">
+      </div>
     </div>
   </ng-container>
 </div>

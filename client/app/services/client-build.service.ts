@@ -71,14 +71,9 @@ export class ClientBuildService extends ServiceBase {
       })
       formData.set("config", JSON.stringify(config))
       body = formData
-      for (const key of formData.entries()) {
-        console.log(key[0] + ', ' + key[1])
-      }
     } else {
       body = { config: config }
     }
-
-    console.log(body)
 
     return this.http.post("/api/research/experiments/" + this._currentExperimentId + "/client_build_configs", body, this.api.authorizedOptions).pipe(
       map(res => res.json()),

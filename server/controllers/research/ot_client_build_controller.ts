@@ -3,6 +3,7 @@ import OTExperimentClientBuildConfigModel from '../../models/ot_experiment_clien
 import { deepclone, isString, getExtensionFromPath } from '../../../shared_lib/utils';
 import * as fs from 'fs-extra';
 import * as multer from 'multer';
+import { StorageEngine } from 'multer';
 import { app } from '../../app';
 
 export default class OTClientBuildCtrl {
@@ -14,6 +15,7 @@ export default class OTClientBuildCtrl {
   private _makeStorage(experimentId: string): StorageEngine {
     return multer.diskStorage({
       destination: (req, file, cb) => {
+        console.log(req)
         const dirPath = this._makeExperimentConfigDirectoryPath(experimentId)
         fs.ensureDir(dirPath).then(
           () => {
@@ -58,10 +60,14 @@ export default class OTClientBuildCtrl {
     return newModel.save().then(doc => doc.toJSON())
   }
 
+  handleExperimentRemoval(experimentId: string): Promise<void>{
+    const value = this._makeExperimentConfigDirectoryPath(experimentId)
+    return fs.remove(value).then()
+  }
+
   _makeAndroidBuildConfigJson(config: IClientBuildConfigBase<AndroidBuildCredentials>): any {
     const serverIP = app.get("serverIP")
     const port = 3000
-    
   }
 
   initializeDefaultPlatformConfig = (req, res) => {
@@ -93,7 +99,9 @@ export default class OTClientBuildCtrl {
     const getForm = multer({ storage: this._makeStorage(req.params.experimentId) }).fields([
       { name: "config", maxCount: 1 },
       { name: "androidKeystore", maxCount: 1 },
-      { name: "sourceCodeZip", maxCount: 1 }
+      { name: "sourceCodeZip_Android", maxCount: 1 },
+      { name: "sourceCodeZip_iOS", maxCount: 1 }
+      
     ])
 
     getForm(req, res, err => {
