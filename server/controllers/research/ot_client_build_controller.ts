@@ -3,6 +3,7 @@ import OTExperimentClientBuildConfigModel from '../../models/ot_experiment_clien
 import { deepclone, isString, getExtensionFromPath } from '../../../shared_lib/utils';
 import * as fs from 'fs-extra';
 import * as multer from 'multer';
+import { app } from '../../app';
 
 export default class OTClientBuildCtrl {
 
@@ -55,6 +56,12 @@ export default class OTClientBuildCtrl {
     }
 
     return newModel.save().then(doc => doc.toJSON())
+  }
+
+  _makeAndroidBuildConfigJson(config: IClientBuildConfigBase<AndroidBuildCredentials>): any {
+    const serverIP = app.get("serverIP")
+    const port = 3000
+    
   }
 
   initializeDefaultPlatformConfig = (req, res) => {

@@ -75,6 +75,20 @@ function installServer() {
       app.use("/api/research", new ResearchRouter(env).router); // research path
       // ==========================================
       app.set("omnitrack", new OmniTrackModule(app));
+
+      const os = require('os')
+      const netInterfaces = os.networkInterfaces();
+      let ipv4: string = null
+      Object.keys(netInterfaces).forEach((ifgroup) => {
+        netInterfaces[ifgroup].forEach((iface) => {
+          if (iface.internal !== false || iface.family !== 'IPv4') {
+            return
+          }
+          ipv4 = iface.address
+        })
+      })
+      console.log("current server public ip: ", ipv4)
+      app.set("publicIP", ipv4)
     }
   }
 
