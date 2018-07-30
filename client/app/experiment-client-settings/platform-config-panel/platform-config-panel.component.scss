@@ -28,7 +28,7 @@ mat-expansion-panel-header {
 }
 
 .config-row,
-.empty-message {
+.api-keys-header {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   padding-left: 0.5rem;
@@ -38,6 +38,7 @@ mat-expansion-panel-header {
   &:hover {
     background: #fafafa;
   }
+
   .label {
     color: #757575;
   }
@@ -55,6 +56,15 @@ mat-expansion-panel-header {
   .file-description {
     text-align: right;
     margin-bottom: 7px;
+  }
+}
+
+.api-keys-header{
+  
+
+
+  &:hover{
+    background: inherit;
   }
 }
 

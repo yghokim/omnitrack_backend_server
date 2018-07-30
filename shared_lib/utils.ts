@@ -27,8 +27,8 @@ export function merge(objA: any, objB: any, overwrite: boolean, recursive: boole
   return newObj
 }
 
-export function isString(obj: any): boolean{
-  return obj instanceof String || typeof(obj) === "string"
+export function isString(obj: any): boolean {
+  return obj instanceof String || typeof (obj) === "string"
 }
 
 export function deepclone(obj: any): any {
@@ -201,11 +201,11 @@ export function groupArrayByVariable(array, variableName): any {
   return result
 }
 
-export function convertHashToArray<T>(hash: any, convert: (key: string, value: any) => T, ignoreNullValue: boolean): Array<T>{
+export function convertHashToArray<T>(hash: any, convert: (key: string, value: any) => T, ignoreNullValue: boolean): Array<T> {
   const arr = new Array<T>()
 
-  for(const key of Object.keys(hash)){
-    if(!ignoreNullValue || hash[key]){
+  for (const key of Object.keys(hash)) {
+    if (!ignoreNullValue || hash[key]) {
       arr.push(convert(key, hash[key]))
     }
   }

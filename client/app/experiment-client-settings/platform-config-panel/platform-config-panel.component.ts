@@ -183,6 +183,32 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
     }
   }
 
+  onApiKeyPropertiesFileChanged(files: Array<File>) {
+    const fileReader = new FileReader();
+    fileReader.onload = (e) => {
+      try {
+        const lines: Array<string> = (e as any).target.result.split("\n").filter(l => l.length > 0 && l.startsWith('#') === false)
+        lines.forEach(l => {
+          const split = l.split("=").map(s => s.trim().replace(/['"]/g, ''))
+          if (split.length === 2) {
+            if (!this.changedConfig.apiKeys) {
+              this.changedConfig.apiKeys = []
+            }
+            const matchIndex = this.changedConfig.apiKeys.findIndex(a => a.key === split[0])
+            if (matchIndex === -1) {
+              this.changedConfig.apiKeys.push({ key: split[0], value: split[1] })
+            } else {
+              this.changedConfig.apiKeys[matchIndex].value = split[1]
+            }
+          }
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    fileReader.readAsText(files[0])
+  }
+
   onStartBuildClicked() {
     if (this.isBuilding === false) {
       this.isLoading = true

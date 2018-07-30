@@ -21,8 +21,11 @@ export interface BuildResultInfo { sourceFolderPath: string, appBinaryPath: stri
 
 export default class OTClientBuildCtrl {
 
-  private _makeExperimentConfigDirectoryPath(experimentId: string): string {
-    return "storage/experiments/client_configs/" + experimentId
+  private _makeExperimentConfigDirectoryPath(experimentId: string, absolute: boolean = false): string {
+    const rel = "storage/experiments/client_configs/" + experimentId
+    if (absolute === true) {
+      return path.join(__dirname, "../../../../../", rel)
+    } else { return rel }
   }
 
   private _makeStorage(experimentId: string): StorageEngine {
@@ -103,14 +106,15 @@ export default class OTClientBuildCtrl {
     if (buildConfig.sourceCode) {
       return new Promise((resolve, reject) => {
         if (buildConfig.sourceCode.sourceType === 'file') {
-          const configFileDir = this._makeExperimentConfigDirectoryPath(isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id)
+          const experimentId = isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id
+          const configFileDir = this._makeExperimentConfigDirectoryPath(experimentId, false)
           const zipPath = path.join(configFileDir, "sourceCodeZip_" + buildConfig.platform + ".zip")
           fs.pathExists(zipPath, (err, exists) => {
             if (err) {
               reject(err);
             } else {
               if (exists === true) {
-                const extractedPath = path.join(__dirname, "../../../../../", configFileDir, "source_" + buildConfig.platform)
+                const extractedPath = path.join(this._makeExperimentConfigDirectoryPath(experimentId, true), "source_" + buildConfig.platform)
                 fs.remove(extractedPath).then(() => {
                   unzip(zipPath, { dir: extractedPath }, (unzipError) => {
                     if (unzipError) {
@@ -203,7 +207,7 @@ export default class OTClientBuildCtrl {
     })
 
     sourceConfigJson.signing = {
-      releaseKeystoreLocation: path.join("../../", "androidKeystore.jks"),
+      releaseKeystoreLocation: path.join(this._makeExperimentConfigDirectoryPath(experimentId, true), "androidKeystore.jks"),
       "releaseAlias": buildConfig.credentials.keystoreAlias,
       "releaseKeyPassword": buildConfig.credentials.keystoreKeyPassword,
       "releaseStorePassword": buildConfig.credentials.keystorePassword
@@ -220,7 +224,8 @@ export default class OTClientBuildCtrl {
       [
         fs.writeJson(path.join(sourceFolderPath, "omnitrackBuildConfig.json"), sourceConfigJson, { spaces: 2 }),
         fs.writeJson(path.join(sourceFolderPath, "google-services.json"), buildConfig.credentials.googleServices, { spaces: 2 }),
-        fs.writeFile(path.join(sourceFolderPath, "keystore.properties"), keystorePropertiesString)
+        fs.writeFile(path.join(sourceFolderPath, "keystore.properties"), keystorePropertiesString),
+        fs.writeFile(path.join(sourceFolderPath, "gradle.properties"), "android.enableAapt2=false")
       ]
     ).then(res => {
       console.log("generated config files in the source folder.")
@@ -243,7 +248,7 @@ export default class OTClientBuildCtrl {
           break;
       }
 
-      const command = spawn(arg0, ['assembleRelease', '--stacktrace'], { cwd: sourceFolderPath, shell: true })
+      const command = spawn(arg0, ['assembleRelease', '--stacktrace'], { cwd: sourceFolderPath, shell: true, detached: true })
       command.stdout.on('data', (data) => {
         console.log(data.toString())
       })
@@ -279,10 +284,10 @@ export default class OTClientBuildCtrl {
       switch (os.type()) {
         case 'Linux':
         case 'Darwin':
-          command = spawn('sh', ['./setup_from_server.sh'], { cwd: sourceFolderPath })
+          command = spawn('sh', ['./setup_from_server.sh'], { cwd: sourceFolderPath, detached: true })
           break;
         case 'Windows_NT':
-          command = spawn('cmd.exe', ['/c', 'setup_from_server.bat'], { cwd: sourceFolderPath })
+          command = spawn('cmd.exe', ['/c', 'setup_from_server.bat'], { cwd: sourceFolderPath, detached: true })
           break;
       }
 

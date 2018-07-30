@@ -105,7 +105,16 @@
               Third-party service credentials
             </th>
             <td class="main-settings-container">
-              <div *ngIf="changedConfig.apiKeys == null || changedConfig.apiKeys.length === 0" class="empty-message flex-container flex-align-items-center text-color-accented">No api keys are set.</div>
+              <div class="api-keys-header flex-container flex-align-items-center">
+                <div *ngIf="changedConfig.apiKeys == null || changedConfig.apiKeys.length === 0" class="empty-message text-color-accented">No api keys are set.</div>
+                <div class="flex-filler"></div>
+                <div class="fileopen">
+                    <label for="propFileInput">
+                      <small>Overwrite from .properties file...</small>
+                    </label>
+                    <input id="propFileInput" type="file" accept=".properties" (change)="onApiKeyPropertiesFileChanged($event.target.files)">
+                  </div>
+              </div>
 
               <app-config-variable-row *ngFor="let keyEntry of changedConfig.apiKeys" [label]="keyEntry.key" [originalValue]="getOriginalApiKeyValue(keyEntry.key)"
                 [config]="keyEntry" variableName="value" hintText="Insert an API key value" type="text"></app-config-variable-row>
