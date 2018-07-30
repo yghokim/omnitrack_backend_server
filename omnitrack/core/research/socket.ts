@@ -25,6 +25,8 @@ export class SocketConstants{
   static readonly SOCKET_MESSAGE_UPDATED_ITEMS = "updated/items"
   static readonly SOCKET_MESSAGE_UPDATED_TRIGGERS = "updated/triggers"
 
+  static readonly SOCKET_MESSAGE_CLIENT_BUILD_STATUS = "status/client_build"
+
   
   static readonly MODEL_INVITATION = "OTInvitation"
   static readonly MODEL_PARTICIPANT = "OTParticipant"
@@ -50,4 +52,21 @@ export interface UpdateInfo{
   model: string,
   event: string,
   payload?: any
+}
+
+export enum EClientBuildStatus{
+  BUILDING = "building",
+  FAILED = "failed",
+  SUCCEEDED = "succeeded",
+  CANCELED = "canceled"
+}
+
+export interface ClientBuildStatus{
+  experimentId: string,
+  jobId: any,
+  platform: string,
+  configId: string,
+  progress?: number,
+  error?: any,
+  status: EClientBuildStatus
 }

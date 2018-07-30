@@ -24,9 +24,10 @@ export interface IExperimentDbEntity extends IMongooseDbEntity {
   clientBuildConfigs?: Array<any>
 }
 
-export interface IClientBuildConfigBase <T> extends IMongooseDbEntity{
+export interface IClientBuildConfigBase<T> extends IMongooseDbEntity {
   experiment: string | IExperimentDbEntity,
   platform: string,
+  sourceCode: { sourceType: string, data: any },
   packageName: string,
   appName: string,
   repository: string,
@@ -38,10 +39,17 @@ export interface IClientBuildConfigBase <T> extends IMongooseDbEntity{
   hideTriggersTab: boolean,
   hideServicesTab: boolean,
   credentials: T, // dictionary
-  apiKeys: Array<{key: string, value: any}>
+  apiKeys: Array<{ key: string, value: any }>
 }
 
-export interface AndroidBuildCredentials{
+export const APP_THIRD_PARTY_KEYSTORE_KEYS = [
+  "GOOGLE_MAPS_API_KEY",
+  "FITBIT_CLIENT_ID", "FITBIT_CLIENT_SECRET",
+  "MISFIT_APP_KEY", "MISFIT_APP_SECRET",
+  "RESCUETIME_CLIENT_ID", "RESCUETIME_CLIENT_SECRET", "RESCUETIME_REDIRECT_URI",
+  "JAWBONE_CLIENT_ID", "JAWBONE_CLIENT_SECRET", "JAWBONE_REDIRECT_URI"]
+
+export interface AndroidBuildCredentials {
   googleServices: any,
   keystoreFileHash: string,
   keystorePassword: string
@@ -49,7 +57,19 @@ export interface AndroidBuildCredentials{
   keystoreKeyPassword: string,
 }
 
-export interface IAndroidBuildConfig extends IClientBuildConfigBase<AndroidBuildCredentials>{}
+export interface IAndroidBuildConfig extends IClientBuildConfigBase<AndroidBuildCredentials> { }
+
+export interface IClientBuildAction extends IMongooseDbEntity {
+  experiment: string | IExperimentDbEntity,
+  config: string | IClientBuildConfigBase<any>,
+  platform: string,
+  configHash: string,
+  runAt: Date,
+  finishedAt: Date,
+  result: string,
+  lastError: any,
+  binaryFileName: String
+}
 
 export interface IClientSignatureDbEntity extends IMongooseDbEntity {
   key: string,
