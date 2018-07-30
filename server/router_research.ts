@@ -135,6 +135,11 @@ export class ResearchRouter extends RouterWrapper {
     clientBuildCtrl.updateClientBuildConfigs)
     this.router.post('/experiments/:experimentId/client_build_configs/initialize', tokenApprovedAuth,
     clientBuildCtrl.initializeDefaultPlatformConfig)
+
+    this.router.post('/experiments/:experimentId/client_build_configs/build', tokenApprovedAuth, clientBuildCtrl.startBuild)
+    this.router.post('/experiments/:experimentId/client_build_configs/build/cancel', tokenApprovedAuth, clientBuildCtrl.cancelBuild)
+    this.router.get('/experiments/:experimentId/client_build_configs/build/status', tokenApprovedAuth,
+    clientBuildCtrl.getBuildStatus)
     
     this.router.post('/users/notify/message', tokenApprovedAuth, this.researchCtrl.sendNotificationMessageToUser)
 

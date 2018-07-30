@@ -7,7 +7,7 @@ import * as md5 from 'md5';
 @Component({
   selector: 'app-config-variable-row',
   templateUrl: './config-variable-row.component.html',
-  styleUrls: ['./config-variable-row.component.scss', '../experiment-client-settings.component.scss']
+  styleUrls: ['./config-variable-row.component.scss', '../platform-config-panel/platform-config-panel.component.scss']
 })
 export class ConfigVariableRowComponent implements OnInit {
 
@@ -57,7 +57,7 @@ export class ConfigVariableRowComponent implements OnInit {
         console.log(e)
       }
     }
-    fileReader.readAsArrayBuffer(files[0])
+    fileReader.readAsBinaryString(files[0])
   }
 
   jsonObjToString(obj): string {
@@ -103,8 +103,9 @@ export class ConfigVariableRowComponent implements OnInit {
         if(this.config[this.variableName].data == null){
           this.config[this.variableName].data = {}
         }
-        
+
         this.config[this.variableName].data.zipFileHash = md5((e as any).target.result)
+
         if (this.isValueChanged() === true)
           this.binaryFileChanged.emit(files[0])
 
@@ -112,6 +113,6 @@ export class ConfigVariableRowComponent implements OnInit {
         console.log(e)
       }
     }
-    fileReader.readAsArrayBuffer(files[0])
+    fileReader.readAsBinaryString(files[0])
   }
 }

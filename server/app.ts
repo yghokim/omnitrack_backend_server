@@ -8,6 +8,7 @@ import * as firebaseAdmin from "firebase-admin";
 import env from "./env";
 import { environmentPath } from './env';
 import * as fs from "fs-extra";
+import { spawn } from 'child_process';
 import OmniTrackModule from "./modules/omnitrack.module";
 import { AppWrapper } from "./modules/app.interface";
 import { ClientApiRouter } from "./router_api";
@@ -74,7 +75,9 @@ function installServer() {
       app.use("/api", new ClientApiRouter().router);
       app.use("/api/research", new ResearchRouter(env).router); // research path
       // ==========================================
-      app.set("omnitrack", new OmniTrackModule(app));
+      const omnitrackModule = new OmniTrackModule(app)
+      app.set("omnitrack", omnitrackModule);
+      omnitrackModule.bootstrap()
 
       const os = require('os')
       const netInterfaces = os.networkInterfaces();

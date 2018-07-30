@@ -4,7 +4,6 @@ import { filter, map, flatMap } from 'rxjs/operators';
 import { NotificationService } from '../../services/notification.service';
 import { MatSnackBar, MatDialog } from '@angular/material';
 import { AngularFireAuth } from 'angularfire2/auth';
-import { YesNoDialogComponent } from '../../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { Router, NavigationEnd } from '@angular/router';
 
 @Component({

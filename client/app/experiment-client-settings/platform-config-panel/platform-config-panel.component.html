@@ -1,0 +1,148 @@
+<mat-accordion displayMode="flat">
+  <mat-expansion-panel [class.opened]="panelStep === 0" [expanded]="panelStep === 0" (opened)="panelStep = 0" (closed)="onClosedPanel(0)">
+    <mat-expansion-panel-header>
+      <mat-panel-title [class.opened]="panelStep === 0">
+        Client Build Settings
+      </mat-panel-title>
+      <mat-panel-description>
+        <div *ngIf="panelStep !== 0 && isBuilding === true" class="progress-indicator fill-width flex-container flex-align-items-center">
+          <div class="label">Building in progress...</div>
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div class="card-content">
+      <app-labeled-loading-indicator *ngIf="isLoading===true" [fitParent]="originalConfig!=null">
+        <span *ngIf="originalConfig==null" message>Loading platform configuration..</span>
+        <span *ngIf="originalConfig!=null" message>Please wait..</span>
+
+      </app-labeled-loading-indicator>
+      <div class="alert alert-warning no-margin flex-container flex-align-items-center" role="alert" *ngIf="isLoading !== true && isInitialized === false">
+        <span>
+          A build configuration of this platform is not initialized. Do you want to initialize?
+        </span>
+        <div class="flex-filler"></div>
+        <button mat-raised-button color="primary" (click)="onInitializeClicked()">Initialize</button>
+      </div>
+      <ng-container *ngIf="isLoading !== true && isInitialized === true && originalConfig != null">
+        <div class="header flex-container flex-align-items-center">
+          <div class="text-right text-color-lightgray saved-timestamp-indicator">
+            Recently saved at: {{originalConfig.updatedAt | date: 'short'}}
+          </div>
+          <div class="flex-filler"></div>
+          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false" mat-button color="accent" (click)="onDiscardChangedClicked()">Discard changes</button>
+          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false" mat-raised-button color="accent" (click)="onSaveClicked()">Save Changes</button>
+        </div>
+        <table class="table settings-main-table">
+          <tr>
+            <th class="main-settings-header">
+              Basic App Info
+            </th>
+            <td class="main-settings-container">
+              <app-config-variable-row label="App name" type="text" variableName="appName" hintText="Set app name to override 'OmniTrack'"
+                [config]="changedConfig" [originalValue]="originalConfig.appName"></app-config-variable-row>
+
+              <app-config-variable-row label="Package name" type="text" variableName="packageName" hintText="kr.ac.snu.hcil.omnitrack"
+                [config]="changedConfig" [originalValue]="originalConfig.packageName"></app-config-variable-row>
+
+
+              <app-config-variable-row label="Source code" type="sourceCode" variableName="sourceCode" hintText="Source code for app compilation"
+                [config]="changedConfig" [originalValue]="originalConfig.sourceCode" (binaryFileChanged)="localFiles['sourceCodeZip_' + platform] = $event"></app-config-variable-row>
+            </td>
+          </tr>
+          <tr>
+            <th class="main-settings-header">
+              Functionality Locks
+            </th>
+            <td class="main-settings-container">
+              <app-config-variable-row label="Hide the external entities" type="boolean" variableName="disableExternalEntities" hintText="Disable using or adding trackers that are not assigned to this experiment."
+                [config]="changedConfig" [originalValue]="originalConfig.disableExternalEntities"></app-config-variable-row>
+
+              <app-config-variable-row label="Disable tracker creation" type="boolean" variableName="disableTrackerCreation" hintText="Disable participants to create their own trackers."
+                [config]="changedConfig" [originalValue]="originalConfig.disableTrackerCreation"></app-config-variable-row>
+
+              <app-config-variable-row label="Disable trigger creation" type="boolean" variableName="disableTriggerCreation" hintText="Disable participants to create their own triggers."
+                [config]="changedConfig" [originalValue]="originalConfig.disableTriggerCreation"></app-config-variable-row>
+
+              <app-config-variable-row label="Hide trigger list" type="boolean" variableName="hideTriggersTab" hintText="Disable an access to trigger list."
+                [config]="changedConfig" [originalValue]="originalConfig.hideTriggersTab"></app-config-variable-row>
+
+              <app-config-variable-row label="Hide service list" type="boolean" variableName="hideServicesTab" hintText="Disable an access to service list."
+                [config]="changedConfig" [originalValue]="originalConfig.hideServicesTab"></app-config-variable-row>
+
+              <app-config-variable-row label="Show tutorials" type="boolean" variableName="showTutorials" hintText="" [config]="changedConfig"
+                [originalValue]="originalConfig.showTutorials"></app-config-variable-row>
+            </td>
+          </tr>
+
+          <ng-container [ngSwitch]="platform">
+            <tr *ngSwitchCase="'Android'">
+              <th class="main-settings-header">
+                Android Build Settings
+              </th>
+              <td class="main-settings-container">
+                <app-config-variable-row label="google-services.json" [originalValue]="originalConfig.credentials.googleServices" [config]="changedConfig.credentials"
+                  variableName="googleServices" type="jsonFile"></app-config-variable-row>
+
+                <app-config-variable-row label="Keystore file (.jks)" [originalValue]="originalConfig.credentials.keystoreFileHash" [config]="changedConfig.credentials"
+                  (binaryFileChanged)="localFiles.androidKeystore = $event" variableName="keystoreFileHash" type="jksFile"></app-config-variable-row>
+
+                <app-config-variable-row label="Keystore password" [originalValue]="originalConfig.credentials.keystorePassword" [config]="changedConfig.credentials"
+                  hintText="Password for the keystore" variableName="keystorePassword" type="password"></app-config-variable-row>
+
+                <app-config-variable-row label="Keypair alias" [originalValue]="originalConfig.credentials.keystoreAlias" [config]="changedConfig.credentials"
+                  hintText="Alias of keypair to use" variableName="keystoreAlias" type="text"></app-config-variable-row>
+
+
+                <app-config-variable-row label="Keypair password" [originalValue]="originalConfig.credentials.keystoreKeyPassword" hintText="Password for the designated keypair"
+                  [config]="changedConfig.credentials" variableName="keystoreKeyPassword" type="password"></app-config-variable-row>
+              </td>
+            </tr>
+          </ng-container>
+          <tr>
+            <th class="main-settings-header">
+              Third-party service credentials
+            </th>
+            <td class="main-settings-container">
+              <div *ngIf="changedConfig.apiKeys == null || changedConfig.apiKeys.length === 0" class="empty-message flex-container flex-align-items-center text-color-accented">No api keys are set.</div>
+
+              <app-config-variable-row *ngFor="let keyEntry of changedConfig.apiKeys" [label]="keyEntry.key" [originalValue]="getOriginalApiKeyValue(keyEntry.key)"
+                [config]="keyEntry" variableName="value" hintText="Insert an API key value" type="text"></app-config-variable-row>
+
+              <div class="new-api-key-row config-row flex-container flex-align-items-center">
+                <mat-select [value]="selectedNewApiKey" (selectionChange)="onSelectedNewApiKeyChanged($event.value)" placeholder="Choose an API key">
+                  <mat-option *ngFor="let key of getSelectableApiKeyKeys()" [value]="key">{{key}}</mat-option>
+                </mat-select>
+                <input class="flex-filler form-control" placeholder="Insert an API key value" type="text" [(ngModel)]="newApiKeyValue">
+                <button mat-button color="accent" (click)="onAddApiKeyClicked()">Add</button>
+              </div>
+
+            </td>
+          </tr>
+        </table>
+      </ng-container>
+    </div>
+    <hr class="no-margin">
+    <div class="card-body build-footer flex-container flex-align-items-center"  [style.visibility]="isLoading === true? 'hidden' : null">
+      <div class="build-status-progress flex-filler">
+        <ng-container *ngIf="isBuilding === true">
+          <div class="message small">Building {{platform}} App...</div>
+          <mat-progress-bar color="accent" mode="indeterminate"></mat-progress-bar>
+        </ng-container>
+      </div>
+      <div class="left-margin-1em">
+        <button mat-raised-button [color]="isBuilding === true? 'warn' : 'primary'" class="large" (click)="onStartBuildClicked()">{{isBuilding === true? 'Cancel Build' : (isConfigChanged(originalConfig, changedConfig)===true? 'Apply Changes & Start New Build' : 'Start New Build')}}</button>
+      </div>
+    </div>
+
+  </mat-expansion-panel>
+
+  <mat-expansion-panel [expanded]="panelStep === 1" (opened)="panelStep = 1" (closed)="onClosedPanel(1)">
+    <mat-expansion-panel-header>
+      <mat-panel-title [class.opened]="panelStep === 1">
+        Client Binaries
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+  </mat-expansion-panel>
+</mat-accordion>

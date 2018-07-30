@@ -81,6 +81,7 @@ import { ExperimentConsentEditorComponent } from './experiment-consent-editor/ex
 import { EditExperimentGroupDialogComponent } from './experiment-groups/edit-experiment-group-dialog/edit-experiment-group-dialog.component';
 import { ExperimentClientSettingsComponent } from './experiment-client-settings/experiment-client-settings.component';
 import { ConfigVariableRowComponent } from './experiment-client-settings/config-variable-row/config-variable-row.component';
+import { PlatformConfigPanelComponent } from './experiment-client-settings/platform-config-panel/platform-config-panel.component';
 
 @NgModule({
   imports: [
@@ -154,7 +155,8 @@ import { ConfigVariableRowComponent } from './experiment-client-settings/config-
     ExperimentConsentEditorComponent,
     EditExperimentGroupDialogComponent,
     ExperimentClientSettingsComponent,
-    ConfigVariableRowComponent
+    ConfigVariableRowComponent,
+    PlatformConfigPanelComponent
   ],
   exports: [
     NouisliderModule,

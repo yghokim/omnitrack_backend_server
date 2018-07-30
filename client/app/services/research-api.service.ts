@@ -3,7 +3,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { Http, Headers, RequestOptions, Response, ResponseContentType } from '@angular/http';
 import { ResearcherAuthService } from './researcher.auth.service';
 import { Observable, Subscription, BehaviorSubject } from 'rxjs';
-import { filter, combineLatest, flatMap, map, tap } from 'rxjs/operators';
+import { filter, combineLatest, flatMap, map, tap, distinctUntilChanged } from 'rxjs/operators';
 import { SocketService } from './socket.service';
 import { ExperimentService } from './experiment.service';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
@@ -47,13 +47,26 @@ export class ResearchApiService extends ServiceBase {
     )
 
     this._internalSubscriptions.add(
+      this.socketService.onServerReset.pipe(
+        combineLatest(this.authService.tokenSubject, (socket, token) => ({ token: token, socket: socket })),
+        filter(res=>res.socket!=null && res.token!=null)
+      ).subscribe(
+        res=>{
+          console.log("server initialized with a new pair of socket and token")
+          res.socket.emit(SocketConstants.SERVER_EVENT_SUBSCRIBE_SERVER_GLOBAL)
+        }
+      )
+    )
+
+    this._internalSubscriptions.add(
       this.socketService.onConnected
-        .pipe(combineLatest(this.authService.tokenSubject, (socket, token) => ({ token: token, socket: socket })))
+        .pipe(
+          combineLatest(this.authService.tokenSubject, (socket, token) => ({ token: token, socket: socket })),
+          filter(res=>res.socket!=null && res.token!=null)
+        )
         .subscribe(
           res => {
-            console.log("socket or token was refreshed.")
-            res.socket.emit(SocketConstants.SERVER_EVENT_SUBSCRIBE_SERVER_GLOBAL)
-
+            console.log("socket connected with a new pair of socket and token")
             res.socket.on(SocketConstants.SERVER_EVENT_UPDATED_GLOBAL, (data) => {
               if (data instanceof Array) {
                 data.forEach(datum => {
@@ -73,7 +86,7 @@ export class ResearchApiService extends ServiceBase {
                   }
                 })
               }
-            })
+            })      
 
             res.socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER, (data) => {
               console.log("received update researcher socket event.")

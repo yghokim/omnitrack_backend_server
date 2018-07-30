@@ -10,6 +10,8 @@ export default class ServerConstants {
   static readonly TASK_POSTPROCESS_ITEM_MEDIA = "postprocess_item_media"
   static readonly TASK_PUSH_DATA = "push_command"
 
+  static readonly TASK_BUILD_CLIENT_APP = "build_client_app"
+
   static readonly PUSH_DATA_TYPE_SYNC_DOWN = "sync_down"
   static readonly PUSH_DATA_TYPE_FULL_SYNC = "full_sync"
   static readonly PUSH_DATA_TYPE_PERSONAL_DATASTORE = "data_store_changed"

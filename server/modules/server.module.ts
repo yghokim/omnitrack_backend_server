@@ -4,26 +4,37 @@ import OTParticipant from '../models/ot_participant';
 import OTExperiment from '../models/ot_experiment';
 import OTItemMedia from '../models/ot_item_media';
 import OTClientBinary from '../models/ot_client_binary';
-import OTUser from '../models/ot_user';
-import { Express } from 'express';
+import OTClientBuildAction from '../models/ot_client_build_action';
 import * as path from 'path';
 import * as Agenda from 'agenda';
 import * as easyimage from "easyimage";
 import C from "../server_consts"
-import { SyncInfo, PushOptions, MessageData } from '../modules/push.module'
+import { PushOptions, MessageData } from '../modules/push.module'
 import env from '../env'
 import app from '../app'
 import OTResearcher from '../models/ot_researcher';
+import { clientBuildCtrl } from '../controllers/research/ot_client_build_controller';
+import { Job } from 'agenda';
+import appWrapper from '../app';
+import { SocketConstants, ClientBuildStatus, EClientBuildStatus } from '../../omnitrack/core/research/socket';
 
 export default class ServerModule {
 
   readonly agenda: Agenda
 
   constructor() {
-    this.agenda = this.newAgendaBase()
+    let mongoDbUri: string
+    if (env.node_env === 'test') {
+      mongoDbUri = env.mongodb_agenda_test_uri
+    } else {
+      mongoDbUri = env.mongodb_agenda_uri
+    }
+
+    this.agenda = new Agenda({ db: { address: mongoDbUri } })
   }
 
   bootstrap() {
+    console.log("bootstrapping a server module...")
     try {
       /*
       OTParticipant.find({}, {select: "_id experiment invitation user"}).populate("user").populate("experiment").populate("invitation").then(
@@ -36,31 +47,28 @@ export default class ServerModule {
       )*/
 
       //handle super users
-      OTResearcher.updateMany({email: {$in: env.super_users}, account_approved: {$ne: true}}, {account_approved: true}).then((updated)=>{
+      OTResearcher.updateMany({ email: { $in: env.super_users }, account_approved: { $ne: true } }, { account_approved: true }).then((updated) => {
         console.log(updated.nModified + " researchers became new superuser.")
-      }).catch(err=>{
+      }).catch(err => {
         console.log(err)
       })
 
       OTClientBinary.find({}).then(
-        binaries=>{
+        binaries => {
           binaries.forEach(binary => {
             binary["version"] = binary["version"].replace(/ /g, "-")
-            console.log(binary["version"])
             binary.save().then()
           })
         }
-      ).catch(err=>{
+      ).catch(err => {
         console.log(err)
       })
 
-      OTParticipant.find({experimentRange: {$exists:false}, approvedAt: {$exists: true}}).then(
-        participants=>
-        {
-          if(participants)
-          {
+      OTParticipant.find({ experimentRange: { $exists: false }, approvedAt: { $exists: true } }).then(
+        participants => {
+          if (participants) {
             Promise.all(participants.map(participant => {
-              participant["experimentRange"] = {from: participant["approvedAt"], to: null}
+              participant["experimentRange"] = { from: participant["approvedAt"], to: null }
               participant.markModified("experimentRange")
               return participant.save()
             })).then(result => {
@@ -69,22 +77,135 @@ export default class ServerModule {
           }
         }
       )
-      
-      OTExperiment.collection.dropIndex("trackingPackages.key_1").catch(err=>{})
 
-      OTResearcher.collection.dropIndex("password_reset_token_1").catch(err => {})
-      OTItem.collection.dropIndex("objectId_1").catch(err => {})
-      OTTracker.collection.dropIndex("objectId_1").catch(err => {})
+      OTExperiment.collection.dropIndex("trackingPackages.key_1").catch(err => { })
+
+      OTResearcher.collection.dropIndex("password_reset_token_1").catch(err => { })
+      OTItem.collection.dropIndex("objectId_1").catch(err => { })
+      OTTracker.collection.dropIndex("objectId_1").catch(err => { })
 
     } catch (err) {
 
     }
 
     this.agenda.on('ready', () => {
+      console.log("agenda is ready.")
       this.defineItemMediaPostProcessAgenda()
       this.defineDataMessagePushAgenda()
+      this.defineBuildClientAppAgenda()
 
       this.agenda.start()
+    })
+
+    this.agenda.on('start:' + C.TASK_BUILD_CLIENT_APP, (job) => {
+      const statusBase: ClientBuildStatus = {
+        experimentId: job.attrs.data.experimentId,
+        jobId: job.attrs._id,
+        platform: job.attrs.data.platform,
+        configId: job.attrs.data.configId,
+        status: EClientBuildStatus.BUILDING
+      }
+
+      appWrapper.socketModule().sendDataToGlobalSubscribers(SocketConstants.SOCKET_MESSAGE_CLIENT_BUILD_STATUS, statusBase)
+
+      new OTClientBuildAction({
+        experiment: job.attrs.data.experimentId,
+        platform: job.attrs.data.platform,
+        config: job.attrs.data.configId,
+        configHash: job.attrs.data.configHash,
+        jobId: job.attrs._id
+      }).save().then(
+        saved => {
+          console.log("saved new build action: ")
+          console.log(saved)
+        }
+      ).catch(err => {
+        console.error(err)
+      })
+    })
+
+    this.agenda.on('success:' + C.TASK_BUILD_CLIENT_APP, (job) => {
+      const statusBase: ClientBuildStatus = {
+        experimentId: job.attrs.data.experimentId,
+        jobId: job.attrs._id,
+        platform: job.attrs.data.platform,
+        configId: job.attrs.data.configId,
+        status: EClientBuildStatus.SUCCEEDED
+      }
+
+      appWrapper.socketModule().sendDataToGlobalSubscribers(SocketConstants.SOCKET_MESSAGE_CLIENT_BUILD_STATUS, statusBase)
+    })
+
+    this.agenda.on('fail:' + C.TASK_BUILD_CLIENT_APP, (err, job) => {
+      const statusBase: ClientBuildStatus = {
+        experimentId: job.attrs.data.experimentId,
+        jobId: job.attrs._id,
+        platform: job.attrs.data.platform,
+        configId: job.attrs.data.configId,
+        status: EClientBuildStatus.FAILED,
+        error: err
+      }
+      appWrapper.socketModule().sendDataToGlobalSubscribers(SocketConstants.SOCKET_MESSAGE_CLIENT_BUILD_STATUS, statusBase)
+
+
+      OTClientBuildAction.updateOne(
+        { jobId: job.attrs._id },
+        {
+          finishedAt: new Date(),
+          result: EClientBuildStatus.FAILED,
+          lastError: err
+        }
+      ).then((saved) => {
+        if (saved.nModified > 0) {
+          console.log("successfully updated a ClientBuildAction with error result.")
+        } else {
+          console.log("No ClientBuildActions were updated with error result.")
+        }
+      }).catch(e => {
+        console.error(e)
+      })
+    })
+    /*
+        this.agenda.on('error', (err)=>{
+          console.error("agenda error")
+          console.error(err)
+        })*/
+  }
+
+  private defineBuildClientAppAgenda() {
+    this.agenda.define(C.TASK_BUILD_CLIENT_APP, (job, done) => {
+      const experimentId = job.attrs.data.experimentId
+      const configId = job.attrs.data.configId
+
+      console.log("start build app.")
+      if (!experimentId || !configId) {
+        const err = new Error("did not provide proper arguments.")
+        return done(err)
+      }
+
+      this.cancelAllBuildJobsOfPlatform(job.attrs.data.experimentId, job.attrs.data.platform).then(numCanceled => {
+        console.log("canceled", numCanceled, "pending build jobs. start mine.")
+        clientBuildCtrl._build(configId, experimentId).then(
+          buildResult => {
+            console.log("finished client build. job id:", job.attrs._id)
+            console.log("built binary info:")
+            console.log(buildResult)
+            OTClientBuildAction.updateOne({ jobId: job.attrs._id }, {
+              finishedAt: new Date(),
+              resut: EClientBuildStatus.SUCCEEDED,
+              binaryFileName: buildResult.binaryFileName //TODO change this
+            }).then(result => {
+              done()
+            }).catch(err=>{
+              console.error(err)
+              done()
+            })
+          }
+        ).catch(err => {
+          console.log("client build finished with an error. job id:", job.attrs._id)
+          done(err)
+        })
+      })
     })
   }
 
@@ -131,18 +252,6 @@ export default class ServerModule {
     })
   }
 
-  private newAgendaBase(): Agenda {
-    let mongoDbUri: string
-    if (env.node_env === 'test') {
-      mongoDbUri = env.mongodb_test_uri
-    } else {
-      mongoDbUri = env.mongodb_uri
-    }
-
-    return new Agenda({ db: { address: mongoDbUri } })
-  }
-
-
   makeItemMediaFileDirectoryPath(userId: string, trackerId: string, itemId: string): string {
     return "storage/uploads/users/" + userId + "/" + trackerId + "/" + itemId
   }
@@ -164,14 +273,20 @@ export default class ServerModule {
     })
   }
 
-  registerMessageDataPush(userId: string|string[], messageData: MessageData, options: PushOptions = {excludeDeviceIds: []}) {
+  registerMessageDataPush(userId: string | string[], messageData: MessageData, options: PushOptions = { excludeDeviceIds: [] }) {
     console.log("send synchronization push - " + userId)
-    this.agenda.now(C.TASK_PUSH_DATA, {userId: userId, messagePayload: messageData.toMessagingPayloadJson(), options: options}, (err) => {
-      if (err) {
-
-      } else {
-        console.log("sent push messages successfully.")
-      }
+    this.agenda.now(C.TASK_PUSH_DATA, { userId: userId, messagePayload: messageData.toMessagingPayloadJson(), options: options }).then(job => {
+      console.log("sent push messages successfully.")
+    }).catch(err => {
+      console.log(err)
     })
+  }
+
+  startClientBuildAsync(configId: string, experimentId: string, platform: string, configHash: string): Promise<Job> {
+    return this.agenda.now(C.TASK_BUILD_CLIENT_APP, { configId: configId, experimentId: experimentId, platform: platform, configHash: configHash })
+  }
+
+  cancelAllBuildJobsOfPlatform(experimentId: string, platform: string): Promise<number> {
+    return this.agenda.cancel({ name: C.TASK_BUILD_CLIENT_APP, "data.experimentId": experimentId, "data.platform": platform })
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as io from 'socket.io-client';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { filter } from "rxjs/operators";
 import { SocketConstants } from '../../../omnitrack/core/research/socket'
 
@@ -9,10 +9,15 @@ export class SocketService {
 
   public readonly socket: SocketIOClient.Socket
 
-  public readonly _onConnected = new BehaviorSubject<SocketIOClient.Socket>(null)
+  private readonly _onConnected = new BehaviorSubject<SocketIOClient.Socket>(null)
+  private readonly _onServerReset = new BehaviorSubject<SocketIOClient.Socket>(null)
 
   get onConnected(): Observable<SocketIOClient.Socket> {
     return this._onConnected.pipe(filter(socket => socket != null))
+  }
+
+  get onServerReset(): Observable<SocketIOClient.Socket> {
+    return this._onServerReset.pipe(filter(socket => socket != null))
   }
 
   constructor() {
@@ -28,7 +33,7 @@ export class SocketService {
     this.socket.on(
       SocketConstants.SERVER_EVENT_RESET, () => {
         console.log("refresh sockets.")
-        this._onConnected.next(this.socket)
+        this._onServerReset.next(this.socket)
       }
     )
 

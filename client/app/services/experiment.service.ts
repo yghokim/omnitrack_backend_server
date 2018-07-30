@@ -54,11 +54,18 @@ export class ExperimentService {
     this.loadMessageList()
 
     this._internalSubscriptions.add(
+      socketService.onServerReset.subscribe(
+        socket => {
+          console.log("server reset. subscribe experiment-specitic socket events.")
+          socket.emit(SocketConstants.SERVER_EVENT_SUBSCRIBE_EXPERIMENT, { experimentId: this.experimentId })
+        }
+      )
+    )
+
+    this._internalSubscriptions.add(
       socketService.onConnected.subscribe(
         socket => {
           console.log("connect new experiment service to websocket.")
-          socket.emit(SocketConstants.SERVER_EVENT_SUBSCRIBE_EXPERIMENT, { experimentId: this.experimentId })
-
           socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_EXPERIMENT, (data) => {
             console.log("received updated/experiment websocket event.")
             if (data instanceof Array) {

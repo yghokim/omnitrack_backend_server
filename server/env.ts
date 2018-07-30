@@ -38,6 +38,8 @@ export interface IEnvironment{
   node_env?: string,
   mongodb_uri?: string,
   mongodb_test_uri?: string,
+  mongodb_agenda_uri?: string,
+  mongodb_agenda_test_uri?: string,
   jwt_secret?: string,
   use_mailer?: boolean,
   port?: number,

@@ -14,7 +14,7 @@ const otExperimentClientBuildConfigSchema = new mongoose.Schema({
   hideTriggersTab: {type: Boolean, default: false},
   hideServicesTab: {type: Boolean, default: false},
   credentials: {type: mongoose.Schema.Types.Mixed, default: {}}, // dictionary
-  apiKeys: {type: [{key: String, value: mongoose.Schema.Types.Mixed}], default: []},
+  apiKeys: {type: [{key: String, value: String}], default: []}
 }, {timestamps: true});
 
 const OTExperimentClientBuildConfigModel = mongoose.model('OTExperimentClientBuildConfig', otExperimentClientBuildConfigSchema);

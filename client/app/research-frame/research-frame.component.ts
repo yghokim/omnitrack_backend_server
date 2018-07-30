@@ -5,6 +5,9 @@ import { Router } from '@angular/router';
 import { ResearchApiService } from '../services/research-api.service';
 import { Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material';
+import { ResearcherAuthGuardSecure } from '../services/researcher.auth.guard.secure';
+import { ResearcherAuthGuardMain } from '../services/researcher.auth.guard.main';
+import { SocketService } from '../services/socket.service';
 
 @Component({
   selector: 'app-research-frame',

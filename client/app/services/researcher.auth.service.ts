@@ -61,7 +61,8 @@ export class ResearcherAuthService implements OnDestroy {
 
     const token = localStorage.getItem('omnitrack_researcher_token');
     if (token && this.jwtHelper.isTokenExpired(token) === false) {
-      this.tokenSubject.next(token)
+      if(this.tokenSubject.value!==token)
+        this.tokenSubject.next(token)
       this.decodeAndSaveResearcherFromToken(token);
     }
 
