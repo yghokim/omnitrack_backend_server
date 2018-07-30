@@ -15,7 +15,7 @@ import { YesNoDialogComponent } from '../../dialogs/yes-no-dialog/yes-no-dialog.
   templateUrl: './platform-config-panel.component.html',
   styleUrls: ['./platform-config-panel.component.scss']
 })
-export class PlatformConfigPanelComponent implements OnInit {
+export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
 
   private _internalSubscriptions = new Subscription()
 
@@ -81,7 +81,7 @@ export class PlatformConfigPanelComponent implements OnInit {
   onClosedPanel(index: number) {
     if (index === 0) {
       this.panelStep = 1
-    } else this.panelStep = 0
+    } else { this.panelStep = 0 }
   }
 
   matchPlatforms(index: number, platformEntry: any) {
@@ -142,8 +142,8 @@ export class PlatformConfigPanelComponent implements OnInit {
       const match = this.originalConfig.apiKeys.find(e => e.key === key)
       if (match) {
         return match.value
-      } else return null
-    } else return null
+      } else { return null }
+    } else { return null }
   }
 
   getSelectableApiKeyKeys(): Array<string> {
@@ -156,7 +156,7 @@ export class PlatformConfigPanelComponent implements OnInit {
         }
       })
       return keys
-    } else return APP_THIRD_PARTY_KEYSTORE_KEYS
+    } else { return APP_THIRD_PARTY_KEYSTORE_KEYS }
   }
 
   onSelectedNewApiKeyChanged(key: string) {
@@ -189,46 +189,45 @@ export class PlatformConfigPanelComponent implements OnInit {
       this._internalSubscriptions.add(
         defer(() => {
           if (this.isConfigChanged(this.originalConfig, this.changedConfig) === true) {
-            //apply change first
+            // apply change first
             return this.applyChanges()
-          }else return of(null)
+          } else { return of(null) }
         }).pipe(
           flatMap(() => this.clientBuildService.startBuild(this.originalConfig))
         ).subscribe(
-          ()=>{
+          () => {
             this.isBuilding = true
           },
-          (err)=>{
+          (err) => {
             console.log(err)
-            if(err.code === EClientBuildStatus.FAILED){
+            if (err.code === EClientBuildStatus.FAILED) {
               this._internalSubscriptions.add(
                 this.dialog.open(YesNoDialogComponent, {
                   data: {
                     title: "Warning",
-            message: "You have already been failed with the same configuration. Do you want to start build anyway?", positiveLabel: "Build Anyway", positiveColor: "primary", negativeColor: "accent", negativeLabel: "Cancel"
+                    message: "You have already been failed with the same configuration. Do you want to start build anyway?", positiveLabel: "Build Anyway", positiveColor: "primary", negativeColor: "accent", negativeLabel: "Cancel"
                   }
                 }).afterClosed().pipe(
-                  tap(yes=>{
-                    if(yes === true){
+                  tap(yes => {
+                    if (yes === true) {
                       this.isLoading = true
                     }
                   }),
-                  flatMap(yes=>{
-                    if(yes === true){
+                  flatMap(yes => {
+                    if (yes === true) {
                       return this.clientBuildService.startBuild(this.originalConfig, true)
-                    }else return empty()
+                    } else { return empty() }
                   })
-                ).subscribe(()=>{}, err=>{}, ()=>{this.isLoading = false})
+                ).subscribe(() => { }, () => { }, () => { this.isLoading = false })
               )
             }
           },
-          ()=>{
+          () => {
             this.isLoading = false
           }
         )
       )
-    }
-    else {
+    } else {
       this._internalSubscriptions.add(
         this.dialog.open(YesNoDialogComponent, {
           data: {
@@ -239,7 +238,7 @@ export class PlatformConfigPanelComponent implements OnInit {
           flatMap(yes => {
             if (yes === true) {
               return this.clientBuildService.cancelBuild(this.originalConfig)
-            } else return empty()
+            } else { return empty() }
           })
         ).subscribe()
       )

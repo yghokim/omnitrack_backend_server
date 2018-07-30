@@ -49,9 +49,9 @@ export class ResearchApiService extends ServiceBase {
     this._internalSubscriptions.add(
       this.socketService.onServerReset.pipe(
         combineLatest(this.authService.tokenSubject, (socket, token) => ({ token: token, socket: socket })),
-        filter(res=>res.socket!=null && res.token!=null)
+        filter(res => res.socket != null && res.token != null)
       ).subscribe(
-        res=>{
+        res => {
           console.log("server initialized with a new pair of socket and token")
           res.socket.emit(SocketConstants.SERVER_EVENT_SUBSCRIBE_SERVER_GLOBAL)
         }
@@ -62,7 +62,7 @@ export class ResearchApiService extends ServiceBase {
       this.socketService.onConnected
         .pipe(
           combineLatest(this.authService.tokenSubject, (socket, token) => ({ token: token, socket: socket })),
-          filter(res=>res.socket!=null && res.token!=null)
+          filter(res => res.socket != null && res.token != null)
         )
         .subscribe(
           res => {
@@ -86,7 +86,7 @@ export class ResearchApiService extends ServiceBase {
                   }
                 })
               }
-            })      
+            })
 
             res.socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_RESEARCHER, (data) => {
               console.log("received update researcher socket event.")
@@ -149,7 +149,7 @@ export class ResearchApiService extends ServiceBase {
     return this.http.post("/api/research/experiments/examples", { exampleKey: key }, this.authorizedOptions).pipe(
       map(res => res.json()),
       tap(res => { this.loadExperimentList() })
-      )
+    )
   }
 
   getSelectedExperimentId(): string {
@@ -189,16 +189,16 @@ export class ResearchApiService extends ServiceBase {
         return res.json()
       }),
         tap((exp) => {
-          if(this._experimentListSubject.value){
+          if (this._experimentListSubject.value) {
             const list = this._experimentListSubject.value.slice()
             const matchIndex = list.findIndex(f => f._id === exp._id)
-            if(matchIndex === -1){
+            if (matchIndex === -1) {
               list.push(exp)
-            }else{
+            } else {
               list[matchIndex] = exp
             }
             this._experimentListSubject.next(list)
-          }else{
+          } else {
             this.loadExperimentList()
           }
         })
@@ -208,12 +208,12 @@ export class ResearchApiService extends ServiceBase {
   removeExperiment(experimentId: string): Observable<boolean> {
     return this.http.delete("/api/research/experiments/" + experimentId, this.authorizedOptions).pipe(
       map(res => res.json()),
-      tap(success=>{
-        if(success === true){
-          if(this._experimentListSubject.value){
+      tap(success => {
+        if (success === true) {
+          if (this._experimentListSubject.value) {
             const list = this._experimentListSubject.value.slice()
             const matchIndex = list.findIndex(e => e._id === experimentId)
-            if(matchIndex !== -1){
+            if (matchIndex !== -1) {
               list.splice(matchIndex, 1)
               this._experimentListSubject.next(list)
             }

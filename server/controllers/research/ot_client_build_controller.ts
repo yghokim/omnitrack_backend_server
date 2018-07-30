@@ -17,7 +17,7 @@ import C from '.././../server_consts';
 import { ESPIPE } from 'constants';
 import { config } from '../../../node_modules/rxjs';
 
-export type BuildResultInfo = { sourceFolderPath: string, appBinaryPath: string, binaryFileName: string }
+export interface BuildResultInfo { sourceFolderPath: string, appBinaryPath: string, binaryFileName: string }
 
 export default class OTClientBuildCtrl {
 
@@ -44,8 +44,8 @@ export default class OTClientBuildCtrl {
     })
   }
 
-  _makeConfigHash(config: IClientBuildConfigBase<any>): string {
-    const obj: IClientBuildConfigBase<any> = deepclone(config)
+  _makeConfigHash(buildConfig: IClientBuildConfigBase<any>): string {
+    const obj: IClientBuildConfigBase<any> = deepclone(buildConfig)
     delete obj.createdAt
     delete obj.updatedAt
     delete obj._id
@@ -98,41 +98,46 @@ export default class OTClientBuildCtrl {
     return fs.remove(value).then()
   }
 
-  private prepareSourceCodeInFolder(config: IClientBuildConfigBase<any>): Promise<string> {
-    //extract source code
-    if (config.sourceCode) {
+  private prepareSourceCodeInFolder(buildConfig: IClientBuildConfigBase<any>): Promise<string> {
+    // extract source code
+    if (buildConfig.sourceCode) {
       return new Promise((resolve, reject) => {
-        if (config.sourceCode.sourceType === 'file') {
-          const configFileDir = this._makeExperimentConfigDirectoryPath(isString(config.experiment) === true ? config.experiment : (config.experiment as any)._id)
-          const zipPath = path.join(configFileDir, "sourceCodeZip_" + config.platform + ".zip")
+        if (buildConfig.sourceCode.sourceType === 'file') {
+          const configFileDir = this._makeExperimentConfigDirectoryPath(isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id)
+          const zipPath = path.join(configFileDir, "sourceCodeZip_" + buildConfig.platform + ".zip")
           fs.pathExists(zipPath, (err, exists) => {
             if (err) {
               reject(err);
             } else {
               if (exists === true) {
-                const extractedPath = path.join(__dirname, "../../../../../", configFileDir, "source_" + config.platform)
+                const extractedPath = path.join(__dirname, "../../../../../", configFileDir, "source_" + buildConfig.platform)
                 fs.remove(extractedPath).then(() => {
-                  unzip(zipPath, { dir: extractedPath }, (err) => {
-                    if (err) {
-                      reject(err)
+                  unzip(zipPath, { dir: extractedPath }, (unzipError) => {
+                    if (unzipError) {
+                      reject(unzipError)
                     } else {
-                      console.log(extractedPath)
-                      fs.readdir(extractedPath).then(
-                        (files) => {
-                          console.log(files)
-                          if (files.length === 1 && fs.statSync(path.join(extractedPath, files[0])).isDirectory() === true) {
-                            console.log("single directory is in root.")
-                            moveDir(path.join(extractedPath, files[0]), extractedPath).then(
-                              () => {
-                                resolve(extractedPath)
-                              }).catch(err => {
-                                reject(err)
-                              })
-                          } else {
-                            resolve(extractedPath)
-                          }
+                      console.log("find the exact project root folder in [", extractedPath, "]...")
+                      // Find the exact root folder recursively////////////////////////////////////////////////////////////////////////////////////////////////////
+                      const searchDirectory = (directoryPath: string) => {
+                        const fileNames = fs.readdirSync(directoryPath)
+
+                        // TODO separate other platforms.
+                        if (buildConfig.platform === 'Android' && fileNames.indexOf('gradlew') !== -1 && fileNames.indexOf('settings.gradle') !== -1) {
+                          // found the root directory.
+                          return directoryPath
+                        } else {
+                          const firstDir = fileNames.filter(f => fs.statSync(path.join(directoryPath, f)).isDirectory() === true).find(f => searchDirectory(path.join(directoryPath, f)) !== null)
+                          if (firstDir != null) {
+                            return path.join(directoryPath, firstDir)
+                          } else { return null }
                         }
-                      )
+                      }
+
+                      const rootPath = searchDirectory(extractedPath)
+                      if (rootPath != null) {
+                        resolve(rootPath)
+                      } else { reject(new Error("Not containing a valid project root.")) }
+                      ///////////////////////////////////////////////////////////////////////////////////////////////////////
                     }
                   })
                 })
@@ -141,15 +146,14 @@ export default class OTClientBuildCtrl {
               }
             }
           })
-        } else reject(new Error("We do not support other types for now."))
+        } else { reject(new Error("We do not support other types for now.")) }
       })
-    }
-    else {
+    } else {
       return Promise.reject<string>("Source code is not designated")
     }
   }
 
-  private _injectAndroidBuildConfigToSource(config: IClientBuildConfigBase<AndroidBuildCredentials>, sourceFolderPath: string): Promise<string> {
+  private _injectAndroidBuildConfigToSource(buildConfig: IClientBuildConfigBase<AndroidBuildCredentials>, sourceFolderPath: string): Promise<string> {
     const serverIP = app.get("publicIP")
     const port = 3000
     /*{
@@ -173,15 +177,15 @@ export default class OTClientBuildCtrl {
         "hideTriggersTab": false
       }
     */
-    const experimentId = isString(config.experiment) === true ? config.experiment : (config.experiment as any)._id
+    const experimentId = isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id
     const sourceConfigJson = {
       synchronizationServerUrl: "http://" + serverIP + ":" + port,
       mediaStorageUrl: "http://" + serverIP + ":" + port,
       defaultExperimentId: experimentId
     } as any
 
-    if (config.appName) sourceConfigJson.overrideAppName = config.appName
-    if (config.packageName) sourceConfigJson.overridePackageName = config.packageName
+    if (buildConfig.appName) { sourceConfigJson.overrideAppName = buildConfig.appName }
+    if (buildConfig.packageName) { sourceConfigJson.overridePackageName = buildConfig.packageName }
 
     const keys = [
       'disableExternalEntities',
@@ -193,21 +197,21 @@ export default class OTClientBuildCtrl {
     ]
 
     keys.forEach(key => {
-      if (config[key]) {
-        sourceConfigJson[key] = config[key]
+      if (buildConfig[key]) {
+        sourceConfigJson[key] = buildConfig[key]
       }
     })
 
     sourceConfigJson.signing = {
       releaseKeystoreLocation: path.join("../../", "androidKeystore.jks"),
-      "releaseAlias": config.credentials.keystoreAlias,
-      "releaseKeyPassword": config.credentials.keystoreKeyPassword,
-      "releaseStorePassword": config.credentials.keystorePassword
+      "releaseAlias": buildConfig.credentials.keystoreAlias,
+      "releaseKeyPassword": buildConfig.credentials.keystoreKeyPassword,
+      "releaseStorePassword": buildConfig.credentials.keystorePassword
     }
 
     let keystorePropertiesString = ""
-    if (config.apiKeys && config.apiKeys.length > 0) {
-      keystorePropertiesString = config.apiKeys.map(k =>
+    if (buildConfig.apiKeys && buildConfig.apiKeys.length > 0) {
+      keystorePropertiesString = buildConfig.apiKeys.map(k =>
         k.key + " = \"" + k.value + "\""
       ).join("\n")
     }
@@ -215,7 +219,7 @@ export default class OTClientBuildCtrl {
     return Promise.all(
       [
         fs.writeJson(path.join(sourceFolderPath, "omnitrackBuildConfig.json"), sourceConfigJson, { spaces: 2 }),
-        fs.writeJson(path.join(sourceFolderPath, "google-services.json"), config.credentials.googleServices, { spaces: 2 }),
+        fs.writeJson(path.join(sourceFolderPath, "google-services.json"), buildConfig.credentials.googleServices, { spaces: 2 }),
         fs.writeFile(path.join(sourceFolderPath, "keystore.properties"), keystorePropertiesString)
       ]
     ).then(res => {
@@ -260,8 +264,7 @@ export default class OTClientBuildCtrl {
           } catch (err) {
             reject({ code: err.code, lastErrorMessage: lastErrorString })
           }
-        }
-        else {
+        } else {
           reject({ code: code, lastErrorMessage: lastErrorString })
         }
       })
@@ -295,18 +298,17 @@ export default class OTClientBuildCtrl {
       command.on('exit', (code) => {
         if (code === 0) {
           resolve(sourceFolderPath)
-        }
-        else {
+        } else {
           reject({ code: code, lastErrorMessage: lastErrorString })
         }
       })
     })
   }
 
-  public buildAndroidApk(config: IClientBuildConfigBase<AndroidBuildCredentials>): Promise<BuildResultInfo> {
-    return this.prepareSourceCodeInFolder(config)
+  public buildAndroidApk(buildConfig: IClientBuildConfigBase<AndroidBuildCredentials>): Promise<BuildResultInfo> {
+    return this.prepareSourceCodeInFolder(buildConfig)
       .then(sourcePath => this._setupAndroidSource(sourcePath))
-      .then((sourcePath) => this._injectAndroidBuildConfigToSource(config, sourcePath))
+      .then((sourcePath) => this._injectAndroidBuildConfigToSource(buildConfig, sourcePath))
       .then((sourcePath) => this._buildAndroidApk(sourcePath))
   }
 
@@ -316,9 +318,9 @@ export default class OTClientBuildCtrl {
     return OTExperimentClientBuildConfigModel.findOne({
       _id: configId,
       experiment: experimentId
-    }).lean().then(config => {
-      switch (config.platform) {
-        case "Android": return this.buildAndroidApk(config)
+    }).lean().then(buildConfig => {
+      switch (buildConfig.platform) {
+        case "Android": return this.buildAndroidApk(buildConfig)
         default: throw new Error("Unsupported platform.")
       }
     })
@@ -374,7 +376,7 @@ export default class OTClientBuildCtrl {
                 return true
               })
           })
-        } else return false
+        } else { return false }
       }
     )
   }
@@ -405,8 +407,8 @@ export default class OTClientBuildCtrl {
     const experimentId = req.params.experimentId
     const platform = req.body.platform
     this._initializeDefaultPlatformConfig(experimentId, platform).then(
-      config => {
-        res.status(200).send(config)
+      buildConfig => {
+        res.status(200).send(buildConfig)
       }).catch(
         err => {
           res.status(500).send(err)
@@ -467,27 +469,27 @@ export default class OTClientBuildCtrl {
   }
 
   startBuild = (req, res) => {
-    OTExperimentClientBuildConfigModel.findOne({ _id: req.body.configId }).lean().then(config => {
-      if (config) {
-        const hash = this._makeConfigHash(config)
+    OTExperimentClientBuildConfigModel.findOne({ _id: req.body.configId }).lean().then(buildConfig => {
+      if (buildConfig) {
+        const hash = this._makeConfigHash(buildConfig)
         if (req.body.force === true) {
-          return { config: config, hash: hash }
+          return { config: buildConfig, hash: hash }
         } else {
-          return this._getLastCompleteBuildHistoryWithConfig(config._id, hash)
+          return this._getLastCompleteBuildHistoryWithConfig(buildConfig._id, hash)
             .then(buildAction => {
               if (buildAction) {
                 if (buildAction.result === EClientBuildStatus.FAILED) {
-                  throw {code:EClientBuildStatus.FAILED, message: "You have already been failed with the same configuration."}
+                  throw { code: EClientBuildStatus.FAILED, message: "You have already been failed with the same configuration." }
                 }
               }
-              return { config: config, hash: hash }
+              return { config: buildConfig, hash: hash }
             })
         }
-      } else return null
-    }).then(res => {
-      if (res) {
-        return appWrapper.serverModule().startClientBuildAsync(res.config._id, res.config.experiment, res.config.platform, res.hash)
-      } else return null
+      } else { return null }
+    }).then(result => {
+      if (result) {
+        return appWrapper.serverModule().startClientBuildAsync(result.config._id, result.config.experiment, result.config.platform, result.hash)
+      } else { return null }
     }).then(
       job => {
         if (job) {

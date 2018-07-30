@@ -51,8 +51,9 @@ export class ConfigVariableRowComponent implements OnInit {
       try {
         this.config[this.variableName] = md5((e as any).target.result)
 
-        if (this.isValueChanged() === true)
+        if (this.isValueChanged() === true) {
           this.binaryFileChanged.emit(files[0])
+        }
       } catch (e) {
         console.log(e)
       }
@@ -93,21 +94,22 @@ export class ConfigVariableRowComponent implements OnInit {
     const fileReader = new FileReader();
     fileReader.onload = (e) => {
       try {
-        if(this.config[this.variableName] == null){
+        if (this.config[this.variableName] == null) {
           this.config[this.variableName] = {
             sourceType: 'file',
             data: {}
           }
         }
 
-        if(this.config[this.variableName].data == null){
+        if (this.config[this.variableName].data == null) {
           this.config[this.variableName].data = {}
         }
 
         this.config[this.variableName].data.zipFileHash = md5((e as any).target.result)
 
-        if (this.isValueChanged() === true)
+        if (this.isValueChanged() === true) {
           this.binaryFileChanged.emit(files[0])
+        }
 
       } catch (e) {
         console.log(e)

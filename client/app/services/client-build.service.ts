@@ -55,7 +55,8 @@ export class ClientBuildService extends ServiceBase {
     )
   }
 
-  ngOnDestroy(){
+  // tslint:disable-next-line:use-life-cycle-interface
+  ngOnDestroy() {
     super.ngOnDestroy()
     this.socketService.socket.off(SocketConstants.SOCKET_MESSAGE_CLIENT_BUILD_STATUS, this.socketListener)
   }
@@ -93,7 +94,7 @@ export class ClientBuildService extends ServiceBase {
     )
   }
 
-  latestBuildStatusOfPlatform(platform: string): Observable<Array<ClientBuildStatus>>{
+  latestBuildStatusOfPlatform(platform: string): Observable<Array<ClientBuildStatus>> {
     return this.buildStatusSubject.pipe(
       map(list => list.filter(l => l.platform === platform))
     )
@@ -136,20 +137,20 @@ export class ClientBuildService extends ServiceBase {
   }
 
   startBuild(config: IClientBuildConfigBase<any>, force: boolean = false): Observable<boolean> {
-    return this.http.post("/api/research/experiments/" + this._currentExperimentId + "/client_build_configs/build", { configId: config._id, force: force}, this.api.authorizedOptions).pipe(
+    return this.http.post("/api/research/experiments/" + this._currentExperimentId + "/client_build_configs/build", { configId: config._id, force: force }, this.api.authorizedOptions).pipe(
       map(res => res.json()),
-      catchError(err=> {throw err.json()})
+      catchError(err => { throw err.json() })
     )
   }
 
-  cancelBuild(config: IClientBuildConfigBase<any>): Observable<string>{
-    return this.http.post("/api/research/experiments/" + this._currentExperimentId + "/client_build_configs/build/cancel", {configId: config._id}, this.api.authorizedOptions).pipe(
+  cancelBuild(config: IClientBuildConfigBase<any>): Observable<string> {
+    return this.http.post("/api/research/experiments/" + this._currentExperimentId + "/client_build_configs/build/cancel", { configId: config._id }, this.api.authorizedOptions).pipe(
       map(res => res.json()),
       tap(applied => {
-        if(applied === true){
+        if (applied === true) {
           this.reloadBuildStatus()
         }
-      })  
+      })
     )
   }
 
