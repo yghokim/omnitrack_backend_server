@@ -1,10 +1,11 @@
 import * as mongoose from 'mongoose';
 
 const otClientBinarySchema = new mongoose.Schema({
-  isolatingExperiment: {type: String, ref: 'OTExperiment', default: null},
-  version: {type: String, required: true},
+  experiment: {type: String, ref: 'OTExperiment', default: null}, // if experiment is not designate, this client is global.
+  needsConfirm: {type: Boolean, default: false, index: true},
+  version: {type: String, required: true, index: true},
   versionCode: {type: Number, default: 0},
-  platform: {type: String, enum: ['Android', 'iOS']},
+  platform: {type: String, enum: ['Android', 'iOS'], index: true},
   fileSize: {type: Number, required: true},
   minimumOsVersion: {type: String},
   minimumOsVersionReadable: {type: String},

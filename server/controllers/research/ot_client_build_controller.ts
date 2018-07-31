@@ -1,7 +1,8 @@
 import { IClientBuildConfigBase, AndroidBuildCredentials, IClientBuildAction } from '../../../omnitrack/core/research/db-entity-types';
 import OTExperimentClientBuildConfigModel from '../../models/ot_experiment_client_build_config';
 import OTClientBuildAction from '../../models/ot_client_build_action';
-import { deepclone, isString, getExtensionFromPath } from '../../../shared_lib/utils';
+import { deepclone, isString, getExtensionFromPath, parseProperties, compareVersions, extractVersion } from '../../../shared_lib/utils';
+import { clientBinaryCtrl } from "./ot_client_binary_controller";
 import * as jsonHash from 'json-hash';
 import { checkFileExistenceAndType } from '../../server_utils';
 import * as fs from 'fs-extra';
@@ -10,12 +11,12 @@ import * as unzip from 'extract-zip';
 import * as path from 'path';
 import { StorageEngine } from 'multer';
 import { app } from '../../app';
-import { spawn, exec } from 'child_process';
+import { spawn } from 'child_process';
 import appWrapper from '../../app';
 import { ClientBuildStatus, EClientBuildStatus } from '../../../omnitrack/core/research/socket';
 import C from '.././../server_consts';
 import * as deepEqual from 'deep-equal';
-import { config } from '../../../node_modules/rxjs';
+import * as randomstring from 'randomstring';
 
 export interface BuildResultInfo { sourceFolderPath: string, appBinaryPath: string, binaryFileName: string }
 
@@ -31,6 +32,10 @@ export default class OTClientBuildCtrl {
     if (absolute === true) {
       return path.join(__dirname, "../../../../../", rel)
     } else { return rel }
+  }
+
+  _makeClientCollectedLocation(experimentId: string, platform: string, absolute: boolean = false): string {
+    return path.join(this._makeExperimentConfigDirectoryPath(experimentId, absolute), "client_binaries", platform)
   }
 
   private _makeStorage(experimentId: string): StorageEngine {
@@ -57,6 +62,7 @@ export default class OTClientBuildCtrl {
     delete obj.createdAt
     delete obj.updatedAt
     delete obj._id
+    delete obj["__v"]
     if (isString(obj.experiment) !== true && obj.experiment) {
       obj.experiment = (obj.experiment as any)._id
     }
@@ -106,7 +112,7 @@ export default class OTClientBuildCtrl {
     return fs.remove(value).then()
   }
 
-  private prepareSourceCodeInFolder(buildConfig: IClientBuildConfigBase<any>): Promise<{sourceFolderPath:string, skipSetup: boolean}> {
+  private prepareSourceCodeInFolder(buildConfig: IClientBuildConfigBase<any>): Promise<{ sourceFolderPath: string, skipSetup: boolean }> {
     // extract source code
     if (buildConfig.sourceCode) {
       return new Promise((resolve, reject) => {
@@ -121,10 +127,10 @@ export default class OTClientBuildCtrl {
               if (exists === true) {
                 const extractedPath = path.join(this._makeExperimentConfigDirectoryPath(experimentId, true), "source_" + buildConfig.platform)
                 const sourceInfoPath = path.join(extractedPath, 'source_info.json')
-                if(checkFileExistenceAndType(sourceInfoPath) != null){
+                if (checkFileExistenceAndType(sourceInfoPath) != null) {
                   const sourceInfo = fs.readJsonSync(sourceInfoPath)
-                  if(deepEqual(sourceInfo.info, buildConfig.sourceCode)===true){
-                    resolve({sourceFolderPath: sourceInfo.projectRoot, skipSetup: true})
+                  if (deepEqual(sourceInfo.info, buildConfig.sourceCode) === true) {
+                    resolve({ sourceFolderPath: sourceInfo.projectRoot, skipSetup: true })
                     return
                   }
                 }
@@ -156,8 +162,8 @@ export default class OTClientBuildCtrl {
                         fs.writeJsonSync(path.join(extractedPath, "source_info.json"), {
                           info: buildConfig.sourceCode,
                           projectRoot: rootPath
-                        }, {spaces: 2})
-                        resolve({sourceFolderPath: rootPath, skipSetup: false})
+                        }, { spaces: 2 })
+                        resolve({ sourceFolderPath: rootPath, skipSetup: false })
                       } else { reject(new Error("Not containing a valid project root.")) }
                       ///////////////////////////////////////////////////////////////////////////////////////////////////////
                     }
@@ -176,60 +182,97 @@ export default class OTClientBuildCtrl {
   }
 
   private _injectAndroidBuildConfigToSource(buildConfig: IClientBuildConfigBase<AndroidBuildCredentials>, sourceFolderPath: string): Promise<string> {
-    const serverIP = app.get("publicIP")
-    const port = 3000
-    const experimentId = isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id
-    const sourceConfigJson = {
-      synchronizationServerUrl: "http://" + serverIP + ":" + port,
-      mediaStorageUrl: "http://" + serverIP + ":" + port,
-      defaultExperimentId: experimentId
-    } as any
+    const versionPropPath = path.join(sourceFolderPath, "version.properties")
+    return Promise.all([
+      fs.readFile(versionPropPath, 'utf8').then(propString => parseProperties(propString)),
+      clientBinaryCtrl._getLatestVersionInfoForExperiment(isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id, buildConfig.platform)
+    ]).then(
+      result => {
+        const versionProperties = result[0]
+        const latestVersionInfo = result[1]
 
-    if (buildConfig.appName) { sourceConfigJson.overrideAppName = buildConfig.appName }
-    if (buildConfig.packageName) { sourceConfigJson.overridePackageName = buildConfig.packageName }
+        const appVersionCode: number = versionProperties.versionCode
+        const appVersionName: string = versionProperties.versoinName
 
-    const keys = [
-      'disableExternalEntities',
-      'disableTrackerCreation',
-      'disableTriggerCreation',
-      'showTutorials',
-      'hideServicesTab',
-      'hideTriggersTab'
-    ]
+        let newVersionCode: number
+        let newVersionName: string
 
-    keys.forEach(key => {
-      if (buildConfig[key]) {
-        sourceConfigJson[key] = buildConfig[key]
+        if (compareVersions(latestVersionInfo.versionName, appVersionName) >= 0) {
+          //if latestVersion is higher or equal than this
+          const v = extractVersion(latestVersionInfo.versionName)
+          v.numbers[v.numbers.length - 1]++
+          v.numbers[v.numbers.length - 2]++
+          newVersionName = v.numbers.join(".") + "-" + v.suffix
+          console.log("override to latest version name:", newVersionName)
+        } else newVersionName = appVersionName
+
+        if (appVersionCode <= latestVersionInfo.versionCode) {
+          newVersionCode = latestVersionInfo.versionCode + 1
+          console.log("override to latest version code:", newVersionCode)
+        } else newVersionCode = appVersionCode
+
+        if (newVersionCode !== appVersionCode || newVersionName !== appVersionName) {
+          const newVersionPropertiesString = "versionName=" + newVersionName + "\nversionCode=" + newVersionCode
+          return fs.writeFile(versionPropPath, newVersionPropertiesString)
+        } else return Promise.resolve()
       }
-    })
+    ).then(() => {
+      const serverIP = app.get("publicIP")
+      const port = 3000
+      const experimentId = isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id
+      const sourceConfigJson = {
+        synchronizationServerUrl: "http://" + serverIP + ":" + port,
+        mediaStorageUrl: "http://" + serverIP + ":" + port,
+        defaultExperimentId: experimentId,
+        disableVersionAutoIncrement: true
+      } as any
 
-    console.log("\"$rootDir/" + path.join(path.relative(sourceFolderPath, this._makeExperimentConfigDirectoryPath(experimentId, true)), "androidKeystore.jks") + "\"")
+      if (buildConfig.appName) { sourceConfigJson.overrideAppName = buildConfig.appName }
+      if (buildConfig.packageName) { sourceConfigJson.overridePackageName = buildConfig.packageName }
 
-    sourceConfigJson.signing = {
-      //releaseKeystoreLocation: "$rootDir/" + path.join(path.relative(sourceFolderPath, this._makeExperimentConfigDirectoryPath(experimentId, true)), "androidKeystore.jks") + "\"",
-      "releaseKeystoreLocation": path.join(this._makeExperimentConfigDirectoryPath(experimentId, true), "androidKeystore.jks"),
-      "releaseAlias": buildConfig.credentials.keystoreAlias,
-      "releaseKeyPassword": buildConfig.credentials.keystoreKeyPassword,
-      "releaseStorePassword": buildConfig.credentials.keystorePassword
-    }
-
-    let keystorePropertiesString = ""
-    if (buildConfig.apiKeys && buildConfig.apiKeys.length > 0) {
-      keystorePropertiesString = buildConfig.apiKeys.map(k =>
-        k.key + " = \"" + k.value + "\""
-      ).join("\n")
-    }
-
-    return Promise.all(
-      [
-        fs.writeJson(path.join(sourceFolderPath, "omnitrackBuildConfig.json"), sourceConfigJson, { spaces: 2 }),
-        fs.writeJson(path.join(sourceFolderPath, "google-services.json"), buildConfig.credentials.googleServices, { spaces: 2 }),
-        fs.writeFile(path.join(sourceFolderPath, "keystore.properties"), keystorePropertiesString),
-        //fs.writeFile(path.join(sourceFolderPath, "gradle.properties"), "android.enableAapt2=false")
+      const keys = [
+        'disableExternalEntities',
+        'disableTrackerCreation',
+        'disableTriggerCreation',
+        'showTutorials',
+        'hideServicesTab',
+        'hideTriggersTab'
       ]
-    ).then(res => {
-      console.log("generated config files in the source folder.")
-      return sourceFolderPath
+
+      keys.forEach(key => {
+        if (buildConfig[key]) {
+          sourceConfigJson[key] = buildConfig[key]
+        }
+      })
+
+      console.log("\"$rootDir/" + path.join(path.relative(sourceFolderPath, this._makeExperimentConfigDirectoryPath(experimentId, true)), "androidKeystore.jks") + "\"")
+
+      sourceConfigJson.signing = {
+        //releaseKeystoreLocation: "$rootDir/" + path.join(path.relative(sourceFolderPath, this._makeExperimentConfigDirectoryPath(experimentId, true)), "androidKeystore.jks") + "\"",
+        "releaseKeystoreLocation": path.join(this._makeExperimentConfigDirectoryPath(experimentId, true), "androidKeystore.jks"),
+        "releaseAlias": buildConfig.credentials.keystoreAlias,
+        "releaseKeyPassword": buildConfig.credentials.keystoreKeyPassword,
+        "releaseStorePassword": buildConfig.credentials.keystorePassword
+      }
+
+      let keystorePropertiesString = ""
+      if (buildConfig.apiKeys && buildConfig.apiKeys.length > 0) {
+        keystorePropertiesString = buildConfig.apiKeys.map(k =>
+          k.key + " = \"" + k.value + "\""
+        ).join("\n")
+      }
+
+      return Promise.all(
+        [
+          fs.writeJson(path.join(sourceFolderPath, "omnitrackBuildConfig.json"), sourceConfigJson, { spaces: 2 }),
+          fs.writeJson(path.join(sourceFolderPath, "google-services.json"), buildConfig.credentials.googleServices, { spaces: 2 }),
+          fs.writeFile(path.join(sourceFolderPath, "keystore.properties"), keystorePropertiesString),
+          //fs.writeFile(path.join(sourceFolderPath, "gradle.properties"), "android.enableAapt2=false")
+        ]
+      ).then(res => {
+        console.log("generated config files in the source folder.")
+        return sourceFolderPath
+      })
     })
   }
 
@@ -249,7 +292,7 @@ export default class OTClientBuildCtrl {
       }
 
       const command = spawn(arg0, ['assembleRelease', '--stacktrace'], { cwd: sourceFolderPath, stdio: ['ignore', process.stdout, 'pipe'] })
-      
+
       /*
       command.stdout.on('data', (data) => {
         console.log(data.toString())
@@ -279,7 +322,11 @@ export default class OTClientBuildCtrl {
     })
   }
 
-  private _setupAndroidSource(sourceFolderPath: string): Promise<string> {
+  private _setupAndroidSource(sourceFolderPath: string, skip: boolean = false): Promise<string> {
+    if (skip === true) {
+      return Promise.resolve(sourceFolderPath)
+    }
+
     return new Promise((resolve, reject) => {
       console.log("start setup the android source")
       const os = require('os')
@@ -317,63 +364,50 @@ export default class OTClientBuildCtrl {
     })
   }
 
-  public buildAndroidApk(buildConfig: IClientBuildConfigBase<AndroidBuildCredentials>): Promise<BuildResultInfo> {
-    return this.prepareSourceCodeInFolder(buildConfig)
-      .then(result => {
-        if(result.skipSetup===true){
-          console.log("source code is not changed. Use legacy one and skip setup.")
-          return Promise.resolve(result.sourceFolderPath)
-        }
-        else return this._setupAndroidSource(result.sourceFolderPath)
-      })
-      .then((sourcePath) => this._injectAndroidBuildConfigToSource(buildConfig, sourcePath))
-      .then((sourcePath) => this._buildAndroidApk(sourcePath))
-  }
-
-
-
   _build(configId: string, experimentId: string): Promise<BuildResultInfo> {
     return OTExperimentClientBuildConfigModel.findOne({
       _id: configId,
       experiment: experimentId
-    }).lean().then(buildConfig => {
-      switch (buildConfig.platform) {
-        case "Android": return this.buildAndroidApk(buildConfig)
-        default: throw new Error("Unsupported platform.")
-      }
-    })
-    /*
-    return OTExperimentClientBuildConfigModel.findOne({
-      _id: configId,
-      experiment: experimentId
-    }).lean().then(config => {
-      let buildPromise: Promise<BuildResultInfo>
-      switch (config.platform) {
-        case "Android": buildPromise = this.buildAndroidApk(config)
-          break;
-        default: throw new Error("Unsupported platform.")
-      }
-
-      return new OTClientBuildAction(this._makeClientBuildActionBase(experimentId, config)).save().then(
-        savedAction => {
-          console.log(savedAction)
-          return buildPromise.then(buildResult => {
-            savedAction["finishedAt"] = new Date()
-            savedAction["result"] = EClientBuildStatus.SUCCEEDED
-            //TODO handle client binary
-            return buildResult
-          }).catch(err => {
-            savedAction["finishedAt"] = new Date()
-            savedAction["result"] = EClientBuildStatus.FAILED
-            savedAction["lastError"] = err
-            return savedAction.save().then((savedAction) => {
-              console.log(savedAction)
-              return Promise.reject(err)
+    }).lean().then(buildConfig =>
+      this.prepareSourceCodeInFolder(buildConfig)
+        .then(result => {
+          //Platform-dependent logics=======================================================
+          switch (buildConfig.platform) {
+            case "Android":
+              return this._setupAndroidSource(result.sourceFolderPath, result.skipSetup)
+                .then(sourcePath => this._injectAndroidBuildConfigToSource(buildConfig, sourcePath))
+                .then(sourcePath => this._buildAndroidApk(sourcePath))
+            default: throw new Error("Unsupported platform.")
+          }
+          //=================================================================================
+        })
+        .then(buildResult => {
+          console.log("successfully built app. register binary to publish list.")
+          //move client to temp folder
+          const newLocation = this._makeClientCollectedLocation(experimentId, buildConfig.platform)
+          return fs.ensureDir(newLocation).then(() => {
+            const ext = getExtensionFromPath(buildResult.binaryFileName)
+            const newName = path.basename(buildResult.appBinaryPath, "." + ext) + "_" + this._makeConfigHash(buildConfig) + "_" + randomstring.generate(5) + "." + ext
+            const newFullPath = path.join(newLocation, newName)
+            return fs.move(buildResult.appBinaryPath, newFullPath, { overwrite: true }).then(
+              () => {
+                buildResult.appBinaryPath = newFullPath
+                buildResult.binaryFileName = newName
+                return buildResult
+              }
+            ).catch(err => {
+              console.error(err)
+              throw err
             })
           })
-        }
-      )
-    })*/
+        }).then(result => clientBinaryCtrl._registerNewClientBinary(result.appBinaryPath, [], null, null, buildConfig.experiment).then(() => {
+          console.log("Client build process was finished successfully.")
+          return result
+        })).catch(err => {
+          console.error(err)
+          throw err
+        })
+    )
   }
 
   _cancelBuild(configId: string): Promise<boolean> {

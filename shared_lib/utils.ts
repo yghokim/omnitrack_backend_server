@@ -91,9 +91,9 @@ export function getExtensionFromPath(path: string, delimiter: string = '.'): str
   } else { return split[split.length - 1] }
 }
 
-interface Version { numbers: Array<number>, suffix: string }
+export interface Version { numbers: Array<number>, suffix: string }
 
-function extractVersion(versionString: string): Version {
+export function extractVersion(versionString: string): Version {
   const numbers = []
   const versionNumberRegex = /(\d+)[\.\-\s]?/g
   const versionSuffixRegex = /[\-\s]([a-zA-Z0-9]+)/g
@@ -252,4 +252,16 @@ export function toDurationString(timeInSeconds: number): string {
       return result.trim()
     } else { return "before " + result.trim() }
   }
+}
+
+export function parseProperties(propertiesString: string): any {
+  const lines: Array<string> = propertiesString.split("\n").filter(l => l.length > 0 && l.startsWith('#') === false)
+  const result: any = {}
+  lines.forEach(l => {
+    const split = l.split("=").map(s => s.trim().replace(/['"]/g, ''))
+    if (split.length === 2) {
+      result[split[0]] = isNaN(Number(split[1])) !== true ? Number(split[1]) : split[1]
+    }
+  })
+  return result
 }

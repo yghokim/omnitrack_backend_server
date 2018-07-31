@@ -4,7 +4,7 @@ import { ClientBuildService } from '../../services/client-build.service';
 import { Subscription, empty, of, defer, Observable } from 'rxjs';
 import { tap, flatMap } from 'rxjs/operators';
 import { EClientBuildStatus } from '../../../../omnitrack/core/research/socket';
-import { deepclone } from '../../../../shared_lib/utils';
+import { deepclone, parseProperties } from '../../../../shared_lib/utils';
 import deepEqual from 'deep-equal';
 import { IClientBuildConfigBase, APP_THIRD_PARTY_KEYSTORE_KEYS } from '../../../../omnitrack/core/research/db-entity-types';
 import { MatDialog } from '@angular/material/dialog';
@@ -187,21 +187,23 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
     const fileReader = new FileReader();
     fileReader.onload = (e) => {
       try {
-        const lines: Array<string> = (e as any).target.result.split("\n").filter(l => l.length > 0 && l.startsWith('#') === false)
-        lines.forEach(l => {
-          const split = l.split("=").map(s => s.trim().replace(/['"]/g, ''))
-          if (split.length === 2) {
-            if (!this.changedConfig.apiKeys) {
-              this.changedConfig.apiKeys = []
-            }
-            const matchIndex = this.changedConfig.apiKeys.findIndex(a => a.key === split[0])
+        const properties = parseProperties((e as any).target.result)
+
+        const keys = Object.keys(properties)
+        if (keys.length > 0) {
+          if (!this.changedConfig.apiKeys) {
+            this.changedConfig.apiKeys = []
+          }
+
+          for (const key of keys) {
+            const matchIndex = this.changedConfig.apiKeys.findIndex(a => a.key === key)
             if (matchIndex === -1) {
-              this.changedConfig.apiKeys.push({ key: split[0], value: split[1] })
+              this.changedConfig.apiKeys.push({ key: key, value: properties[key] })
             } else {
-              this.changedConfig.apiKeys[matchIndex].value = split[1]
+              this.changedConfig.apiKeys[matchIndex].value = properties[key]
             }
           }
-        })
+        }
       } catch (e) {
         console.log(e)
       }

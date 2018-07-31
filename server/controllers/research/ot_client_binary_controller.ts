@@ -83,6 +83,106 @@ export default class OTBinaryCtrl {
     })
   }
 
+  _getLatestVersionInfoForExperiment(experimentId: string, platform: string): Promise<{versionName:string, versionCode: number}>{
+    return OTClientBinary.findOne({experiment: experimentId, platform: platform}, {}, {sort: {versionCode: -1}}).lean().then(
+      binary => {
+        if (binary) {
+          return {
+            versionName: binary["version"],
+            versionCode: binary["versionCode"]
+          }
+        }else return null
+      }
+    )
+  }
+
+  _registerNewClientBinary(clientFilePath: string, changelog: Array<string>, fileSize?: number, originalName?: string, experimentId?: string): Promise<{ success: boolean, signatureUpdated: boolean }> {
+    return md5File(clientFilePath).then(hash => {
+      const query: any = { checksum: hash }
+      if (experimentId) {
+        query.experiment = experimentId
+      }
+      return OTClientBinary.findOne(query, { select: "_id" }).then(duplicate => {
+        return duplicate == null ? hash : null
+      })
+    }).then(
+      hash => {
+        if (!hash) {
+          throw { error: "FileAlreadyExists" }
+        } else {
+          const extension = getExtensionFromPath(clientFilePath)
+          Extract.run(clientFilePath).then(
+            packageInfo => {
+              let platform = "unknown"
+              switch (packageInfo.operatingSystem) {
+                case OperatingSystem.Android:
+                  platform = "Android"
+                  break;
+                case OperatingSystem.iOS:
+                  platform = "iOS"
+                  break;
+                case OperatingSystem.Windows:
+                  platform = "Windows"
+                  break;
+              }
+              console.log(packageInfo)
+
+              const filename = "omnitrack_client_" + (experimentId ? (experimentId + "_") : "") + platform.toLowerCase() + "_" + Date.now() + "." + extension
+
+              const filePath = this.makeClientFilePath(platform, filename)
+
+              fs.move(clientFilePath, filePath)
+                .then(() => {
+                  if (!fileSize) {
+                    const stat = fs.statSync(filePath)
+                    fileSize = stat.size
+                  }
+
+                  if (!originalName) {
+                    originalName = path.basename(clientFilePath)
+                  }
+
+                  const model = {
+                    experiment: experimentId,
+                    version: ClientBinaryUtil.getAppVersionName(packageInfo),
+                    versionCode: ClientBinaryUtil.getAppVersionCode(packageInfo),
+                    platform: platform,
+                    fileSize: fileSize,
+                    minimumOsVersion: ClientBinaryUtil.getMinimumOSVersion(packageInfo),
+                    minimumOsVersionReadable: ClientBinaryUtil.getMinimumOSVersionString(packageInfo),
+                    fileName: filename,
+                    originalFileName: originalName,
+                    checksum: hash,
+                    needsConfirm: experimentId? true : false,
+                    changelog: changelog
+                  }
+                  new OTClientBinary(model).save().then(saved => {
+                    console.log(saved)
+                    this.extractSignature(filePath, (signatureExtractionError, print) => {
+                      if (signatureExtractionError) {
+                        throw { error: "UnsignedClient", raw: signatureExtractionError }
+                      } else {
+                        console.log("fingerprint: " + print)
+                        clientSignatureCtrl.upsertSignature(null, print, packageInfo.uniqueIdentifier, platform, true).then(
+                          changed => {
+                            return { success: true, signatureUpdated: changed }
+                          }
+                        )
+                      }
+                    })
+                  })
+                })
+                .catch(reason => {
+                  throw { error: reason }
+                })
+            })
+            .catch(err2 => {
+              throw { error: "InvalidPackage", raw: err2 }
+            })
+        }
+      })
+  }
+
   postClientBinaryFile = (req, res) => {
     if (req.researcher) {
       if (req.researcher.previlage >= 1) {
@@ -94,77 +194,11 @@ export default class OTBinaryCtrl {
             console.log(err)
             res.status(500).send(err)
           } else {
-            md5File(req.file.path).then(hash => {
-              return OTClientBinary.findOne({ checksum: hash }, { select: "_id" }).then(duplicate => {
-                return duplicate == null ? hash : null
-              })
-            }).then(
-              hash => {
-                if (!hash) {
-                  res.status(500).send({ error: "FileAlreadyExists" })
-                } else {
-                  const extension = getExtensionFromPath(req.file.originalname)
-                  Extract.run(req.file.path).then(
-                    packageInfo => {
-                      let platform = "unknown"
-                      switch (packageInfo.operatingSystem) {
-                        case OperatingSystem.Android:
-                          platform = "Android"
-                          break;
-                        case OperatingSystem.iOS:
-                          platform = "iOS"
-                          break;
-                        case OperatingSystem.Windows:
-                          platform = "Windows"
-                          break;
-                      }
-                      console.log(packageInfo)
-
-                      const filename = "omnitrack_client_" + platform.toLowerCase() + "_" + Date.now() + "." + extension
-
-                      const filePath = this.makeClientFilePath(platform, filename)
-
-                      fs.move(req.file.path, filePath)
-                        .then(() => {
-                          const model = {
-                            version: ClientBinaryUtil.getAppVersionName(packageInfo),
-                            versionCode: ClientBinaryUtil.getAppVersionCode(packageInfo),
-                            platform: platform,
-                            fileSize: req.file.size,
-                            minimumOsVersion: ClientBinaryUtil.getMinimumOSVersion(packageInfo),
-                            minimumOsVersionReadable: ClientBinaryUtil.getMinimumOSVersionString(packageInfo),
-                            fileName: filename,
-                            originalFileName: req.file.originalname,
-                            checksum: hash,
-                            changelog: changelog
-                          }
-                          new OTClientBinary(model).save().then(saved => {
-                            console.log(saved)
-                            this.extractSignature(filePath, (signatureExtractionError, print) => {
-                              if (signatureExtractionError) {
-                                res.status(500).send({ error: "UnsignedClient", raw: signatureExtractionError })
-                              } else {
-                                console.log("fingerprint: " + print)
-                                clientSignatureCtrl.upsertSignature(null, print, packageInfo.uniqueIdentifier, platform, true).then(
-                                  changed => {
-                                    res.status(200).send({ success: true, signatureUpdated: changed })
-                                  }
-                                )
-                              }
-                            })
-                          })
-                        })
-                        .catch(reason => {
-                          console.log(reason)
-                          res.status(500).send({ error: reason })
-                        })
-                    })
-                    .catch(err2 => {
-                      console.log(err2)
-                      res.status(500).send({ error: "InvalidPackage", raw: err2 })
-                    })
-                }
-              })
+            this._registerNewClientBinary(req.file.path, changelog, req.file.size, req.file.originalname, req.query.experimentId).then(result => {
+              res.status(200).send(result)
+            }).catch(err => {
+              res.status(500).send(err)
+            })
           }
         })
       } else {
@@ -193,7 +227,10 @@ export default class OTBinaryCtrl {
   }
 
   getClientBinaries = (req, res) => {
-    OTClientBinary.aggregate([{ $group: { _id: "$platform", binaries: { $push: "$$ROOT" } } }])
+    
+    OTClientBinary.aggregate([
+      { $match: {experiment: req.body.experiment} },
+      { $group: { _id: "$platform", binaries: { $push: "$$ROOT" } } }])
       .then(
         platforms => {
           platforms.forEach(platform => {
@@ -210,7 +247,8 @@ export default class OTBinaryCtrl {
   }
 
   downloadClientBinary = (req, res) => {
-    OTClientBinary.findOneAndUpdate({ platform: req.query.platform, version: req.query.version }, { $inc: { downloadCount: 1 } }).then(
+    
+    OTClientBinary.findOneAndUpdate({ experiment: (req.query.experimentId === "null" || !req.query.experimentId) ? null : req.query.experimentId, platform: req.query.platform, version: req.query.version }, { $inc: { downloadCount: 1 } }, {sort: {"updatedAt": -1}}).then(
       binary => {
         if (binary) {
           res.download(this.makeClientFilePath(binary["platform"], binary["fileName"]), binary["originalFileName"], err => {
@@ -231,7 +269,7 @@ export default class OTBinaryCtrl {
 
   getLatestVersionInfo = (req, res) => {
     const overrideHostAddress = req.query.host
-    OTClientBinary.find({ platform: req.query.platform }).lean().then(
+    OTClientBinary.find({ experiment: (req.query.experimentId === "null" || !req.query.experimentId) ? null : req.query.experimentId, needsConfirm: {$ne: true}, platform: req.query.platform }).lean().then(
       binaries => {
         if (binaries && binaries.length > 0) {
           binaries.sort((binary1: any, binary2: any) => {
@@ -241,7 +279,7 @@ export default class OTBinaryCtrl {
           const binaryInfo: VersionUpdaterInfo = {
             latestVersion: latestBinary["version"],
             latestVersionCode: latestBinary["versionCode"],
-            url: overrideHostAddress + "/api/clients/download?platform=" + req.query.platform + "&version=" + latestBinary["version"],
+            url: overrideHostAddress + "/api/clients/download?platform=" + req.query.platform + "&version=" + latestBinary["version"] + ((req.query.experimentId === "null" || !req.query.experimentId)? "" :("&experimentId=" + req.query.experimentId)),
             releaseNotes: latestBinary["changeLog"] || []
           }
           console.log(binaryInfo)

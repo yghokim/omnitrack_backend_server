@@ -195,8 +195,9 @@ export default class ServerModule {
             OTClientBuildAction.updateOne({ jobId: job.attrs._id }, {
               finishedAt: new Date(),
               resut: EClientBuildStatus.SUCCEEDED,
-              binaryFileName: buildResult.binaryFileName //TODO change this
+              binaryFileName: buildResult.binaryFileName
             }).then(result => {
+              console.log(result)
               done()
             }).catch(err => {
               console.error(err)
