@@ -3,7 +3,7 @@ import OTExperimentClientBuildConfigModel from '../../models/ot_experiment_clien
 import OTClientBuildAction from '../../models/ot_client_build_action';
 import { deepclone, isString, getExtensionFromPath } from '../../../shared_lib/utils';
 import * as jsonHash from 'json-hash';
-import { moveDir } from '../../server_utils';
+import { checkFileExistenceAndType } from '../../server_utils';
 import * as fs from 'fs-extra';
 import * as multer from 'multer';
 import * as unzip from 'extract-zip';
@@ -14,10 +14,15 @@ import { spawn, exec } from 'child_process';
 import appWrapper from '../../app';
 import { ClientBuildStatus, EClientBuildStatus } from '../../../omnitrack/core/research/socket';
 import C from '.././../server_consts';
-import { ESPIPE } from 'constants';
+import * as deepEqual from 'deep-equal';
 import { config } from '../../../node_modules/rxjs';
 
 export interface BuildResultInfo { sourceFolderPath: string, appBinaryPath: string, binaryFileName: string }
+
+export interface SourceFolderInfo {
+  sourceType: string, // file | github
+  data: any
+}
 
 export default class OTClientBuildCtrl {
 
@@ -101,7 +106,7 @@ export default class OTClientBuildCtrl {
     return fs.remove(value).then()
   }
 
-  private prepareSourceCodeInFolder(buildConfig: IClientBuildConfigBase<any>): Promise<string> {
+  private prepareSourceCodeInFolder(buildConfig: IClientBuildConfigBase<any>): Promise<{sourceFolderPath:string, skipSetup: boolean}> {
     // extract source code
     if (buildConfig.sourceCode) {
       return new Promise((resolve, reject) => {
@@ -115,6 +120,15 @@ export default class OTClientBuildCtrl {
             } else {
               if (exists === true) {
                 const extractedPath = path.join(this._makeExperimentConfigDirectoryPath(experimentId, true), "source_" + buildConfig.platform)
+                const sourceInfoPath = path.join(extractedPath, 'source_info.json')
+                if(checkFileExistenceAndType(sourceInfoPath) != null){
+                  const sourceInfo = fs.readJsonSync(sourceInfoPath)
+                  if(deepEqual(sourceInfo.info, buildConfig.sourceCode)===true){
+                    resolve({sourceFolderPath: sourceInfo.projectRoot, skipSetup: true})
+                    return
+                  }
+                }
+
                 fs.remove(extractedPath).then(() => {
                   unzip(zipPath, { dir: extractedPath }, (unzipError) => {
                     if (unzipError) {
@@ -139,7 +153,11 @@ export default class OTClientBuildCtrl {
 
                       const rootPath = searchDirectory(extractedPath)
                       if (rootPath != null) {
-                        resolve(rootPath)
+                        fs.writeJsonSync(path.join(extractedPath, "source_info.json"), {
+                          info: buildConfig.sourceCode,
+                          projectRoot: rootPath
+                        }, {spaces: 2})
+                        resolve({sourceFolderPath: rootPath, skipSetup: false})
                       } else { reject(new Error("Not containing a valid project root.")) }
                       ///////////////////////////////////////////////////////////////////////////////////////////////////////
                     }
@@ -153,34 +171,13 @@ export default class OTClientBuildCtrl {
         } else { reject(new Error("We do not support other types for now.")) }
       })
     } else {
-      return Promise.reject<string>("Source code is not designated")
+      return Promise.reject<any>("Source code is not designated")
     }
   }
 
   private _injectAndroidBuildConfigToSource(buildConfig: IClientBuildConfigBase<AndroidBuildCredentials>, sourceFolderPath: string): Promise<string> {
     const serverIP = app.get("publicIP")
     const port = 3000
-    /*{
-        "synchronizationServerUrl": null,
-        "mediaStorageUrl": null,
-        "defaultExperimentId": null,
-        "overridePackageName": null,
-        "overrideAppName": null,
-        "disableExternalEntities": false,
-        "disableTrackerCreation": false,
-        "disableTriggerCreation": false,
-
-        "signing": {
-          "releaseKeystoreLocation": null,
-          "releaseAlias": null,
-          "releaseKeyPassword": null,
-          "releaseStorePassword": null
-        },
-        "showTutorials": true,
-        "hideServicesTab": false,
-        "hideTriggersTab": false
-      }
-    */
     const experimentId = isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id
     const sourceConfigJson = {
       synchronizationServerUrl: "http://" + serverIP + ":" + port,
@@ -206,8 +203,11 @@ export default class OTClientBuildCtrl {
       }
     })
 
+    console.log("\"$rootDir/" + path.join(path.relative(sourceFolderPath, this._makeExperimentConfigDirectoryPath(experimentId, true)), "androidKeystore.jks") + "\"")
+
     sourceConfigJson.signing = {
-      releaseKeystoreLocation: path.join(this._makeExperimentConfigDirectoryPath(experimentId, true), "androidKeystore.jks"),
+      //releaseKeystoreLocation: "$rootDir/" + path.join(path.relative(sourceFolderPath, this._makeExperimentConfigDirectoryPath(experimentId, true)), "androidKeystore.jks") + "\"",
+      "releaseKeystoreLocation": path.join(this._makeExperimentConfigDirectoryPath(experimentId, true), "androidKeystore.jks"),
       "releaseAlias": buildConfig.credentials.keystoreAlias,
       "releaseKeyPassword": buildConfig.credentials.keystoreKeyPassword,
       "releaseStorePassword": buildConfig.credentials.keystorePassword
@@ -225,7 +225,7 @@ export default class OTClientBuildCtrl {
         fs.writeJson(path.join(sourceFolderPath, "omnitrackBuildConfig.json"), sourceConfigJson, { spaces: 2 }),
         fs.writeJson(path.join(sourceFolderPath, "google-services.json"), buildConfig.credentials.googleServices, { spaces: 2 }),
         fs.writeFile(path.join(sourceFolderPath, "keystore.properties"), keystorePropertiesString),
-        fs.writeFile(path.join(sourceFolderPath, "gradle.properties"), "android.enableAapt2=false")
+        //fs.writeFile(path.join(sourceFolderPath, "gradle.properties"), "android.enableAapt2=false")
       ]
     ).then(res => {
       console.log("generated config files in the source folder.")
@@ -248,14 +248,17 @@ export default class OTClientBuildCtrl {
           break;
       }
 
-      const command = spawn(arg0, ['assembleRelease', '--stacktrace'], { cwd: sourceFolderPath, shell: true, detached: true })
+      const command = spawn(arg0, ['assembleRelease', '--stacktrace'], { cwd: sourceFolderPath, stdio: ['ignore', process.stdout, 'pipe'] })
+      
+      /*
       command.stdout.on('data', (data) => {
         console.log(data.toString())
-      })
+      })*/
+
       let lastErrorString: string = null
       command.stderr.on('data', (data) => {
         lastErrorString = data.toString()
-        console.log(lastErrorString)
+        console.error("STDERR::", lastErrorString)
       })
       command.on('exit', (code) => {
         if (code === 0) {
@@ -284,26 +287,30 @@ export default class OTClientBuildCtrl {
       switch (os.type()) {
         case 'Linux':
         case 'Darwin':
-          command = spawn('sh', ['./setup_from_server.sh'], { cwd: sourceFolderPath, detached: true })
+          command = spawn('sh', ['./setup_from_server.sh'], { cwd: sourceFolderPath, stdio: ['ignore', process.stdout, 'pipe'] })
           break;
         case 'Windows_NT':
-          command = spawn('cmd.exe', ['/c', 'setup_from_server.bat'], { cwd: sourceFolderPath, detached: true })
+          command = spawn('cmd.exe', ['/c', 'setup_from_server.bat'], { cwd: sourceFolderPath, stdio: ['ignore', process.stdout, 'pipe'] })
           break;
       }
 
       let lastErrorString: string = null
 
+      /*      
       command.stdout.on('data', (data) => {
-        console.log("Stdout:::", data.toString())
-      })
+        console.log(data.toString())
+      })*/
+
       command.stderr.on('data', (data) => {
         lastErrorString = data.toString()
         console.log("StdError:::", lastErrorString)
       })
-      command.on('exit', (code) => {
+      command.on('exit', (code, signal) => {
         if (code === 0) {
+          console.error("Successfully finished preparing the source.")
           resolve(sourceFolderPath)
         } else {
+          console.error("Failed to setup the source.")
           reject({ code: code, lastErrorMessage: lastErrorString })
         }
       })
@@ -312,7 +319,13 @@ export default class OTClientBuildCtrl {
 
   public buildAndroidApk(buildConfig: IClientBuildConfigBase<AndroidBuildCredentials>): Promise<BuildResultInfo> {
     return this.prepareSourceCodeInFolder(buildConfig)
-      .then(sourcePath => this._setupAndroidSource(sourcePath))
+      .then(result => {
+        if(result.skipSetup===true){
+          console.log("source code is not changed. Use legacy one and skip setup.")
+          return Promise.resolve(result.sourceFolderPath)
+        }
+        else return this._setupAndroidSource(result.sourceFolderPath)
+      })
       .then((sourcePath) => this._injectAndroidBuildConfigToSource(buildConfig, sourcePath))
       .then((sourcePath) => this._buildAndroidApk(sourcePath))
   }

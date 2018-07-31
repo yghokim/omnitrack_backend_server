@@ -165,11 +165,13 @@ export default class ServerModule {
         console.error(e)
       })
     })
-    /*
-        this.agenda.on('error', (err)=>{
-          console.error("agenda error")
-          console.error(err)
-        })*/
+
+    this.agenda.on('error', (err) => {
+      if (err.startsWith("Error: Lost MongoDB connection") === true) {
+        console.log("lost mongo connection. refresh aganda")
+        this.agenda.start()
+      }
+    })
   }
 
   private defineBuildClientAppAgenda() {
@@ -196,7 +198,7 @@ export default class ServerModule {
               binaryFileName: buildResult.binaryFileName //TODO change this
             }).then(result => {
               done()
-            }).catch(err=>{
+            }).catch(err => {
               console.error(err)
               done()
             })

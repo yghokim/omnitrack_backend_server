@@ -53,44 +53,11 @@ var promiseAllWait = function(promises) {
   });
 };
 
-var movePromiser = function(from, to, records) {
-  return fs.move(from, to)
-  .then(function() {
-      records.push( {from: from, to: to} );
-  });
-};
-
-export function moveDir(from_dir, to_dir) {
-  return fs.readdir(from_dir)
-  .then(function(children) {
-      return fs.ensureDir(to_dir)
-      .then(function() {
-          var move_promises = [];
-          var moved_records = [];
-          var child;
-          for(var i_child=0; i_child < children.length; i_child++) {
-              child = children[i_child];
-              move_promises.push(movePromiser(
-                  path.join(from_dir, child),
-                  path.join(to_dir, child),
-                  moved_records
-              ));
-          }
-
-          return promiseAllWait(move_promises)
-          .catch(function(err) {
-              var undo_move_promises = [];
-              for(var i_moved_record=0; i_moved_record < moved_records.length; i_moved_record++) {
-                  undo_move_promises.push( fs.move(moved_records[i_moved_record].to, moved_records[i_moved_record].from) );
-              }
-
-              return promiseAllWait(undo_move_promises)
-              .then(function() {
-                  throw err;
-              });
-          });
-      }).then(function() {
-          return fs.rmdir(from_dir);
-      });
-  });
-};
+export function checkFileExistenceAndType(path: string): string{
+  try{
+    const stat = fs.statSync(path)
+    return stat.isDirectory() === true? 'directory' : 'file'
+  }catch(e){
+    return null
+  }
+}
