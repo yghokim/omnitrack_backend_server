@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
-import { Subscription, empty} from 'rxjs';
+import { Subscription, empty } from 'rxjs';
 import { flatMap, filter, tap } from 'rxjs/operators';
 import { ExperimentPermissions } from '../../../omnitrack/core/research/experiment';
 import { MatDialog } from '@angular/material';
@@ -68,7 +68,7 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
           title: "Edit Experiment Name",
           placeholder: "Insert experiment name",
           prefill: this.experiment.name,
-          validator: (text) => { return text !== this.experiment.name && !isNullOrBlank(text) && text.length < 100 },
+          validator: (text) => text !== this.experiment.name && !isNullOrBlank(text) && text.length < 100,
           submit: (newExperimentName) => {
             console.log("new experiment name: " + newExperimentName)
             return this.api.updateExperiment(this.experiment._id, { name: newExperimentName })
@@ -97,13 +97,13 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
         })
       )
         .subscribe(
-          ()=>{
+          () => {
             this.router.navigate(["/research/experiments"])
           },
-          err=>{
+          err => {
             console.log(err)
           },
-          ()=>{
+          () => {
             this.notification.unregisterGlobalBusyTag("experiment-deletion")
           }
         )
@@ -125,29 +125,31 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
   }
 
   isConsentFormContentAvailable(): boolean {
-    return this.experiment.consent!=null && this.experiment.consent.trim().length > 0
+    return this.experiment.consent != null && this.experiment.consent.trim().length > 0
   }
 
-  onEditConsentFormClicked(){
-    this.router.navigate(["consent"], {relativeTo: this.activatedRoute.parent})
+  onEditConsentFormClicked() {
+    this.router.navigate(["consent"], { relativeTo: this.activatedRoute.parent })
   }
 
-  getTransformedConsent(): string{
+  getTransformedConsent(): string {
     return marked(this.experiment.consent)
   }
 
-  onExcludeCollaboratorClicked(collaboratorId: string){
+  onExcludeCollaboratorClicked(collaboratorId: string) {
     this._internalSubscriptions.add(
-      this.dialog.open(YesNoDialogComponent, {data: {
-        title: "Exclude collaborator",
-        message: "Do you want to exclude this collaborator?", positiveLabel: "Exclude", positiveColor: "warn", negativeColor: "primary"
-      }}).afterClosed().pipe(
+      this.dialog.open(YesNoDialogComponent, {
+        data: {
+          title: "Exclude collaborator",
+          message: "Do you want to exclude this collaborator?", positiveLabel: "Exclude", positiveColor: "warn", negativeColor: "primary"
+        }
+      }).afterClosed().pipe(
         flatMap(result => {
-          if(result === true){
+          if (result === true) {
             return this.api.selectedExperimentService.pipe(
               flatMap(service => service.removeCollaborator(collaboratorId))
             )
-          }else{
+          } else {
             return empty()
           }
         })

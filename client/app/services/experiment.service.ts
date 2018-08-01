@@ -19,9 +19,9 @@ export class ExperimentService {
 
   private readonly experimentInfo = new BehaviorSubject<IExperimentDbEntity>(null)
   private readonly managerInfo = new BehaviorSubject<IResearcherDbEntity>(null)
-  private readonly invitationList = new BehaviorSubject<Array<any>>([])
-  private readonly participantList = new BehaviorSubject<Array<IParticipantDbEntity>>([])
-  private readonly messageList = new BehaviorSubject<Array<IResearchMessage>>([])
+  private readonly invitationList = new BehaviorSubject<Array<any>>(null)
+  private readonly participantList = new BehaviorSubject<Array<IParticipantDbEntity>>(null)
+  private readonly messageList = new BehaviorSubject<Array<IResearchMessage>>(null)
 
   private readonly _internalSubscriptions = new Subscription()
 
@@ -140,9 +140,14 @@ export class ExperimentService {
         .subscribe(
           messages => {
             if (messages instanceof Array) {
-              this.notificationService.unregisterGlobalBusyTag("messageList")
               this.messageList.next(messages)
             }
+          },
+          (err) => {
+            console.error(err)
+          },
+          () => {
+            this.notificationService.unregisterGlobalBusyTag("messageList")
           }
         )
     )
@@ -156,9 +161,15 @@ export class ExperimentService {
           return res.json()
         })).subscribe(
           experimentInfo => {
-            this.notificationService.unregisterGlobalBusyTag("experimentList")
             this.experimentInfo.next(experimentInfo)
-          })
+          },
+          err => {
+            console.error(err)
+          },
+          () => {
+            this.notificationService.unregisterGlobalBusyTag("experimentList")
+          }
+        )
     )
   }
 
@@ -171,10 +182,15 @@ export class ExperimentService {
           return res.json()
         })).subscribe(
           manager => {
-
-            this.notificationService.unregisterGlobalBusyTag("managerInfo")
             this.managerInfo.next(manager)
-          })
+          },
+          (err) => {
+            console.error(err)
+          },
+          () => {
+            this.notificationService.unregisterGlobalBusyTag("managerInfo")
+          }
+        )
     )
   }
 
@@ -187,9 +203,15 @@ export class ExperimentService {
           return res.json()
         })).subscribe(
           list => {
-            this.notificationService.unregisterGlobalBusyTag("invitationList")
             this.invitationList.next(list)
-          })
+          },
+          (err) => {
+            console.error(err)
+          },
+          () => {
+            this.notificationService.unregisterGlobalBusyTag("invitationList")
+          }
+        )
     )
   }
 
@@ -200,8 +222,13 @@ export class ExperimentService {
         res => res.json()
       )).subscribe(
         list => {
-          this.notificationService.unregisterGlobalBusyTag("participantList")
           this.participantList.next(list)
+        },
+        err => {
+          console.error(err)
+        },
+        () => {
+          this.notificationService.unregisterGlobalBusyTag("participantList")
         })
     )
   }
@@ -215,11 +242,11 @@ export class ExperimentService {
   }
 
   getInvitations(): Observable<Array<any>> {
-    return this.invitationList.asObservable()
+    return this.invitationList.pipe(filter(res => res != null))
   }
 
   getParticipants(): Observable<Array<IParticipantDbEntity>> {
-    return this.participantList.asObservable()
+    return this.participantList.pipe(filter(res => res != null))
   }
 
   getMessageList(): Observable<Array<IResearchMessage>> {
@@ -229,7 +256,21 @@ export class ExperimentService {
   enqueueMessage(messageInfo: IResearchMessage): Observable<boolean> {
     return this.http
       .post("/api/research/experiments/" + this.experimentId + "/messages/new", messageInfo, this.researchApi.authorizedOptions)
-      .pipe(map(res => res.json()))
+      .pipe(
+        map(res => res.json()),
+        tap(newMessage => {
+          if (this.messageList.value) {
+            const currentList = this.messageList.value.slice()
+            const matchIndex = currentList.findIndex(m => m._id === newMessage._id)
+            if (matchIndex !== -1) {
+              currentList[matchIndex] = newMessage
+            } else {
+              currentList.push(newMessage)
+            }
+            this.messageList.next(currentList)
+          }
+        })
+      )
   }
 
   generateInvitation(information): Observable<any> {

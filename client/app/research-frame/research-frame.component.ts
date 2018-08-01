@@ -1,14 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ResearcherAuthService } from '../services/researcher.auth.service';
 import { NotificationService } from '../services/notification.service';
-import { Router } from '@angular/router';
-import { ResearchApiService } from '../services/research-api.service';
 import { Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material';
-import { debounceTime } from 'rxjs/operators';
-import { ResearcherAuthGuardSecure } from '../services/researcher.auth.guard.secure';
-import { ResearcherAuthGuardMain } from '../services/researcher.auth.guard.main';
-import { SocketService } from '../services/socket.service';
 
 @Component({
   selector: 'app-research-frame',
@@ -23,8 +16,6 @@ export class ResearchFrameComponent implements OnInit {
     private snackBar: MatSnackBar) { }
 
   ngOnInit() {
-
-
     this._internalSubscriptions.add(
       this.notificationService.snackBarMessageQueue.subscribe(
         message => {

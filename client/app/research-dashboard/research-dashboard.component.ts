@@ -34,9 +34,9 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
   upperHeaderTitle;
   backNavigationUrl;
   selectedExperimentName;
-  showTitleBar: boolean = true
+  showTitleBar = true
 
-  researcherPrevilage: number = -1
+  researcherPrevilage = -1
 
   private readonly _internalSubscriptions = new Subscription()
 
@@ -167,8 +167,7 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
         flatMap(paramExpId => {
           if (paramExpId) {
             return empty()
-          }
-          else {
+          } else {
             return this.api.getExperimentInfos().pipe(
               tap(experiments => {
                 this.isLoadingExperiments = false
@@ -232,7 +231,7 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
       )
         .subscribe(
           permissions => {
-            if (permissions && this.experimentPermissions != permissions) {
+            if (permissions && this.experimentPermissions !== permissions) {
               this.experimentPermissions = permissions
               this.applyPermissions(permissions)
             }
@@ -244,8 +243,7 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
       this.authService.currentResearcher.subscribe(researcher => {
         if (researcher && researcher.tokenInfo) {
           this.researcherPrevilage = researcher.previlage
-        }
-        else {
+        } else {
           this.researcherPrevilage = -1
         }
       })
@@ -268,8 +266,7 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
           } else {
 
           }
-        }
-        else {
+        } else {
           menu["disabled"] = true
         }
       })

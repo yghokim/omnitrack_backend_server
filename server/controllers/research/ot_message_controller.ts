@@ -51,7 +51,7 @@ export default class OTResearchMessageCtrl {
 
   }
 
-  _enqueueMessage(message: IResearchMessage, experimentId: string): Promise<boolean> {
+  _enqueueMessage(message: IResearchMessage, experimentId: string): Promise<IResearchMessage> {
     delete message["_id"]
     const instance = new OTResearchMessage(message)
     return instance.save().then(savedMessage => {
@@ -61,7 +61,7 @@ export default class OTResearchMessageCtrl {
 
         const onSuccess = () => {
           app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, { model: SocketConstants.MODEL_RESEARCH_MESSAGE, event: SocketConstants.EVENT_ADDED })
-          return true
+          return savedMessage.populate({ path: "receivers", select: "_id alias" }).execPopulate().then(doc => doc.toJSON())
         }
 
         if (casted.isDraft !== true) {
@@ -102,7 +102,6 @@ export default class OTResearchMessageCtrl {
               case "email":
                 return OTParticipant.find(participantQuery, { _id: 1, user: 1 }).populate({ path: "user", select: "_id email" }).then(participants => {
                   if (participants && participants.length > 0) {
-
                     return this.sendEmailTo(
                       casted.messageTitle,
                       casted.messageBody,
@@ -113,12 +112,12 @@ export default class OTResearchMessageCtrl {
                           return onSuccess()
                         })
                       })
-                  } else { return false }
+                  } else { return null }
                 })
             }
           }
         } else { return onSuccess() }
-      } else { return false }
+      } else { return null }
     })
   }
 
@@ -136,21 +135,19 @@ export default class OTResearchMessageCtrl {
 
   getMessageList = (req, res) => {
     this._getMessageList(req.params.experimentId, req.researcher.uid).then(messages => {
-      console.log("messages: ")
-      console.log(messages)
       res.status(200).send(messages)
     }).catch(err => {
-      console.log(err)
+      console.error(err)
       res.status(500).send(err)
     })
   }
 
   enqueueMessage = (req, res) => {
-    this._enqueueMessage(req.body, req.params.experimentId).then(success => {
-      if (success === true) {
-        res.status(200).send(success)
+    this._enqueueMessage(req.body, req.params.experimentId).then(newMessage => {
+      if (newMessage) {
+        res.status(200).send(newMessage)
       } else {
-        res.status(200).send(false)
+        res.status(200).send(null)
       }
     }).catch(err => {
       console.log(err)

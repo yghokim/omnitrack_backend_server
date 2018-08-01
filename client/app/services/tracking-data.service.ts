@@ -56,12 +56,12 @@ export class TrackingDataService implements OnInit, OnDestroy {
 
   registerConsumer(badge: string): boolean {
     console.log("try register tracking data consumer: " + badge)
-    const needRefresh = this.dataConsumerTags.size == 0
+    const needRefresh = this.dataConsumerTags.size === 0
     const appendedThisTime = !this.dataConsumerTags.has(badge)
     this.dataConsumerTags.add(badge)
 
     if (needRefresh) {
-      //perform load
+      // perform load
       this.reloadTrackers()
       this.reloadTriggers()
       this.reloadItems()
@@ -113,17 +113,14 @@ export class TrackingDataService implements OnInit, OnDestroy {
     return this.trackers.pipe(map(list => list.filter(t => {
       if (userId instanceof Array) {
         return userId.find(u => u === t.user) != null
-      }
-      else {
+      } else {
         return t.user === userId
       }
     }).sort((a, b) => {
       const aName = a.name.toUpperCase()
       const bName = b.name.toUpperCase()
 
-      if (aName > bName) return 1
-      else if (aName < bName) return -1
-      else return 0
+      if (aName > bName) { return 1 } else if (aName < bName) { return -1 } else { return 0 }
     })))
   }
 
@@ -132,8 +129,7 @@ export class TrackingDataService implements OnInit, OnDestroy {
     return this.triggers.pipe(map(list => list.filter(t => {
       if (userId instanceof Array) {
         return userId.find(u => u === t.user) != null
-      }
-      else return t.user === userId
+      } else { return t.user === userId }
     })))
   }
 
@@ -142,8 +138,7 @@ export class TrackingDataService implements OnInit, OnDestroy {
     return this.items.pipe(map(list => list.filter(t => {
       if (userId instanceof Array) {
         return userId.find(u => u === t.user) != null
-      }
-      else return t.user === userId
+      } else { return t.user === userId }
     })))
   }
 
@@ -151,8 +146,7 @@ export class TrackingDataService implements OnInit, OnDestroy {
     return this.items.pipe(map(list => list.filter(i => {
       if (trackerId instanceof Array) {
         return trackerId.find(t => t === i.tracker) != null
-      }
-      else return i.tracker === trackerId
+      } else { return i.tracker === trackerId }
     })))
   }
 
@@ -166,10 +160,9 @@ export class TrackingDataService implements OnInit, OnDestroy {
           if (result.changedItem) {
             if (this.items.value) {
               const matchIndex = this.items.value.findIndex(i => i._id === result.changedItem._id)
-              if (matchIndex != -1) {
+              if (matchIndex !== -1) {
                 this.items.value[matchIndex] = result.changedItem
-              }
-              else {
+              } else {
                 this.items.value.push(result.changedItem)
               }
 
@@ -187,10 +180,9 @@ export class TrackingDataService implements OnInit, OnDestroy {
         if (result.changedItem) {
           if (this.items.value) {
             const matchIndex = this.items.value.findIndex(i => i._id === result.changedItem._id)
-            if (matchIndex != -1) {
+            if (matchIndex !== -1) {
               this.items.value[matchIndex] = result.changedItem
-            }
-            else {
+            } else {
               this.items.value.push(result.changedItem)
             }
 
