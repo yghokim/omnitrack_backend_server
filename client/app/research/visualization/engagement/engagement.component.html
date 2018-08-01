@@ -22,7 +22,7 @@
     patternUnits="userSpaceOnUse">
     <svg:path [ngClass]="pattern.pathClass" [attr.d]="'M-1,1 l2,-2 M0,' + pattern.size + 'l' + pattern.size + ',-' + pattern.size + ' M' + (pattern.size-1)+','+(pattern.size+1)+ ' l2,-2'"></svg:path>
   </svg:pattern>
-  <svg:g visualization #chartMainGroup [attr.transform]="makeTranslate(Y_AXIS_WIDTH, X_AXIS_HEIGHT)">
+  <svg:g visualization #chartMainGroup [attr.transform]="makeTranslate(Y_AXIS_WIDTH, X_AXIS_HEIGHT)" *ngIf="data">
     <svg:g engagementParticipantGroup *ngFor="let participant of data.participantList let index = index" class="participant"
       [height]="calcHeightOfParticipantRow(participant)" [dayScale]="dayAxisScale" [dayIndexRange]="dayIndexRange" [participantRow]="participant"
       [attr.transform]="makeParticipantRowTransform(participant, index)">

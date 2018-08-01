@@ -3,7 +3,7 @@
     <mat-slide-toggle [checked]="configuration.includeWeekends() | async" [tooltips]="[true, true]" (change)="includeWeekendsChanged($event.checked)">Include Weekends</mat-slide-toggle>
 
     <div id="day-index-range-container" *ngIf="dayIndexRange">
-      <nouislider [config]="dayIndexRangeSliderConfigs" [min]="0" [max]="dayIndexMax" [(ngModel)]="dayIndexRange" (ngModelChange)="onDayIndexSliderChanged($event)"></nouislider>
+      <nouislider [config]="dayIndexRangeSliderConfigs" [min]="0" [max]="dayIndexMax" [(ngModel)]="dayIndexRange"></nouislider>
     </div>
   </div>
   <mat-expansion-panel class="mat-elevation-z0 component-border-top" [expanded]="true">
