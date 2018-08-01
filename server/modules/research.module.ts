@@ -226,7 +226,7 @@ export default class ResearchModule {
             return { success: true, experiment: { id: experiment._id.toString(), name: experiment.name.toString(), injectionExists: changedResults.length > 0, joinedAt: participant["approvedAt"].getTime(), droppedAt: droppedDate.getTime() } }
           })
         })).then(results => {
-          if ( multiple === true ) {
+          if (multiple === true) {
             return results
           } else { return results[0] }
         }) as any
@@ -297,9 +297,14 @@ export default class ResearchModule {
     const joinedDate = new Date()
     // find participant information
     return OTInvitation.findOne({ code: invitationCode }, { _id: 1, experiment: 1 })
+      .populate("experiment", { _id: 1, finishDate: 1 })
       .then(invitation => {
         if (!invitation) {
           return { success: false, error: "Could not find such invitation code.", injectionExists: null, experiment: null }
+        }
+
+        if (invitation["experiment"].finishDate != null && invitation["experiment"].finishDate.getTime() <= new Date().getTime()) {
+          return { success: false, error: "Experiment finished", injectionExists: null, experiment: null }
         }
 
         return OTParticipant.find({ "user": userId, "experiment": invitation["experiment"], isConsentApproved: true, dropped: { $ne: true } }).then(participants => {

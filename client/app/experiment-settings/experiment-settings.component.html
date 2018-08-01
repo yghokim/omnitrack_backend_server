@@ -3,7 +3,7 @@
     <div class="card-header">
       Experiment Information
     </div>
-    <table class="table table-data">
+    <table class="table experiment-info">
       <tr class="singleline">
         <th>Name</th>
         <td>
@@ -13,13 +13,27 @@
           </button>
         </td>
       </tr>
-      <tr>
+      <tr class="singleline">
         <th>Experiment Id</th>
         <td>{{experiment._id}}</td>
       </tr>
-      <tr *ngIf="experiment.manager">
+      <tr class="singleline" *ngIf="experiment.manager">
         <th>Manager</th>
         <td>{{experiment.manager.alias}} ({{experiment.manager.email}})</td>
+      </tr>
+      <tr class="singleline">
+        <th>Status</th>
+        <td class="status-cell">
+          <span *ngIf="isFinished()===false" class="badge badge-success">Ongoing</span>
+          <span *ngIf="experiment.finishDate!=null && isFinished() === false" class="badge badge-warning">Finishes on {{experiment.finishDate | date: 'fullDate'}}</span>
+          <span *ngIf="isFinished()===true" class="badge badge-secondary">Finished on {{experiment.finishDate | date: 'fullDate'}}</span>
+          <span class="left-margin-1em">
+            <input style="width: 0" matInput [matDatepicker]="picker" [value]="experiment.finishDate"
+               (dateChange)="onFinishDatePicked($event.value)">
+            <button type="button" mat-button color="accent" class="button small" (click)="picker.open()">{{experiment.finishDate==null? 'Reserve Expiration' : 'Change Finish Date'}}</button>
+            <mat-datepicker #picker></mat-datepicker>
+          </span>
+        </td>
       </tr>
     </table>
   </div>

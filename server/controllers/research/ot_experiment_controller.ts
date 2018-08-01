@@ -7,7 +7,7 @@ import OTInvitation from '../../models/ot_invitation'
 import otUsageLogCtrl from '../ot_usage_log_controller';
 import OTParticipant from '../../models/ot_participant'
 import { IJoinedExperimentInfo, ExperimentPermissions } from '../../../omnitrack/core/research/experiment'
-import { Document, DocumentQuery } from 'mongoose';
+import { Document, DocumentQuery, Query } from 'mongoose';
 import app from '../../app';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
 import { MessageData } from '../../modules/push.module';
@@ -42,10 +42,13 @@ export default class OTExperimentCtrl {
     }
   }
 
-  private _getExperiment(researcherId: string, experimentId: string): Promise<Document> {
-    return OTExperiment.findOne(this.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId))
-      .populate({ path: "manager", select: "_id email alias" })
+  private _populateExperimentDocumentForInfo(doc: any) {
+    return doc.populate({ path: "manager", select: "_id email alias" })
       .populate({ path: "experimenters.researcher", select: "_id email alias" })
+  }
+
+  private _getExperiment(researcherId: string, experimentId: string): Promise<Document> {
+    return this._populateExperimentDocumentForInfo(OTExperiment.findOne(this.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId)))
       .then(doc => doc)
   }
 
@@ -400,7 +403,19 @@ export default class OTExperimentCtrl {
     })
   }
 
-
+  setFinishDateOnExperiment = (req, res) => {
+    this._populateExperimentDocumentForInfo(OTExperiment.findOneAndUpdate({
+      _id: req.params.experimentId,
+      manager: req.researcher.uid
+    }, {
+        finishDate: req.body.date
+      }, { new: true })).lean().then(experiment => {
+        res.status(200).send(experiment)
+      }).catch(err => {
+        console.error(err)
+        res.status(500).send(err)
+      })
+  }
 
   getInvitations = (req, res) => {
     const researcherId = req.researcher.uid

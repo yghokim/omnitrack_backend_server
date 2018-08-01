@@ -105,6 +105,7 @@ export class ResearchRouter extends RouterWrapper {
     this.router.delete('/experiments/:experimentId/invitations/:invitationId', tokenApprovedAuth, experimentCtrl.removeInvitation)
     this.router.post('/experiments/:experimentId/invitations/:invitationId/delete', tokenApprovedAuth, experimentCtrl.removeInvitation)
 
+    this.router.post('/experiments/:experimentId/finish', tokenApprovedAuth, experimentCtrl.setFinishDateOnExperiment)
 
     this.router.post('/experiments/:experimentId/packages/update', tokenApprovedAuth, experimentCtrl.updateTrackingPackageToExperiment)
 

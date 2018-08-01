@@ -7,11 +7,12 @@ import { MatDialog } from '@angular/material';
 import { DeleteExperimentConfirmDialogComponent } from '../dialogs/delete-experiment-confirm-dialog/delete-experiment-confirm-dialog.component';
 import { NotificationService } from '../services/notification.service';
 import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
-import { isNullOrBlank } from '../../../shared_lib/utils';
+import { isNullOrBlank, isString } from '../../../shared_lib/utils';
 import { Router, ActivatedRoute } from '@angular/router';
 import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import * as marked from 'marked';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
+import * as moment from 'moment-timezone';
 
 @Component({
   selector: 'app-experiment-settings',
@@ -37,6 +38,7 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(flatMap(expService => expService.getExperiment())).subscribe(experiment => {
         this.experiment = experiment
+        console.log(experiment)
       })
     )
 
@@ -59,6 +61,24 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this._internalSubscriptions.unsubscribe()
+  }
+
+  isFinished(): boolean {
+    return this.experiment.finishDate != null && this.experiment.finishDate.getTime() <= Date.now()
+  }
+
+  onFinishDatePicked(date) {
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.pipe(flatMap(expService => expService.setFinishDate(moment(date).endOf('days').toDate()))).subscribe(
+        experiment => {
+          console.log(experiment)
+        },
+        err => {
+          console.log(err)
+        }
+      )
+    )
+
   }
 
   onEditNameClicked() {
@@ -87,7 +107,7 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
       this.dialog.open(DeleteExperimentConfirmDialogComponent, { data: { experimentId: this.api.getSelectedExperimentId() } }).afterClosed().pipe(
         filter(
           experimentId => {
-            return experimentId !== null
+            return experimentId !== null && isString(experimentId) === true
           }),
         tap(experimentId => {
           this.notification.registerGlobalBusyTag("experiment-deletion")

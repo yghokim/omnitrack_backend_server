@@ -13,7 +13,7 @@ import { TrackingDataService } from './tracking-data.service';
 import { IResearchMessage } from '../../../omnitrack/core/research/messaging';
 import { IParticipantDbEntity, IUsageLogDbEntity, getIdPopulateCompat } from '../../../omnitrack/core/db-entity-types';
 import { IExperimentDbEntity, IResearcherDbEntity, IExperimentTrackingPackgeDbEntity, IExperimentGroupDbEntity } from '../../../omnitrack/core/research/db-entity-types';
-import { once } from 'cluster';
+import * as moment from 'moment';
 
 export class ExperimentService {
 
@@ -132,6 +132,15 @@ export class ExperimentService {
     this.trackingDataService.ngOnDestroy()
   }
 
+  private processExperimentInfo(info: IExperimentDbEntity): IExperimentDbEntity {
+    info.createdAt = moment(info.createdAt).toDate()
+    info.updatedAt = moment(info.updatedAt).toDate()
+    if (info.finishDate != null) {
+      info.finishDate = moment(info.finishDate).toDate()
+    }
+    return info
+  }
+
   loadMessageList() {
     this.notificationService.registerGlobalBusyTag("messageList")
     this._internalSubscriptions.add(
@@ -161,7 +170,7 @@ export class ExperimentService {
           return res.json()
         })).subscribe(
           experimentInfo => {
-            this.experimentInfo.next(experimentInfo)
+            this.experimentInfo.next(this.processExperimentInfo(experimentInfo))
           },
           err => {
             console.error(err)
@@ -362,6 +371,18 @@ export class ExperimentService {
     return this.getOmniTrackPackages().pipe(map(list => {
       return list.find(l => l.key === key)
     }))
+  }
+
+  setFinishDate(date: Date): Observable<IExperimentDbEntity> {
+    return this.http.post("/api/research/experiments/" + this.experimentId + "/finish", { date: date }, this.researchApi.authorizedOptions)
+      .pipe(
+        map(res => res.json()),
+        tap(refreshedExperiment => {
+          if (refreshedExperiment) {
+            this.experimentInfo.next(this.processExperimentInfo(refreshedExperiment))
+          }
+        })
+      )
   }
 
   getNumParticipantsInGroup(groupId: string): Observable<number> {

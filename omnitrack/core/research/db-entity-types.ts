@@ -17,6 +17,8 @@ export interface IExperimentDbEntity extends IMongooseDbEntity {
   groups: Array<IExperimentGroupDbEntity>,
   manager: string | IResearcherDbEntity,
   visualizationConfigs: VisualizationConfigs,
+  maxExperimentalDay: number,
+  finishDate: Date,
   consent: string,
   receiveConsentInApp: boolean,
   trackingPackages: Array<IExperimentTrackingPackgeDbEntity>,
