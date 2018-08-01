@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, Input, OnInit, AfterViewInit, OnDestroy, Directive, ViewChildren, QueryList } from "@angular/core";
+import { Component, ViewChild, ElementRef, Input, OnInit, AfterViewInit, OnDestroy, Directive, ViewChildren, QueryList, AfterViewChecked } from "@angular/core";
 import { VisualizationBaseComponent } from "../visualization-base.component";
 import { ResearchVisualizationQueryConfigurationService, Scope, FilteredExperimentDataset } from "../../../services/research-visualization-query-configuration.service";
 import { Subscription, Observable, Subject } from "rxjs";
@@ -16,7 +16,7 @@ import { IItemDbEntity } from "../../../../../omnitrack/core/db-entity-types";
 import { EngagementTimelineContainerDirective } from "./engagement-timeline-container.directive";
 import * as groupArray from 'group-array';
 import { Moment } from "moment-timezone";
-import { diffDaysBetweenTwoMoments, aliasCompareFunc } from "../../../../../shared_lib/utils";
+import { diffDaysBetweenTwoMoments, aliasCompareFunc, unique } from "../../../../../shared_lib/utils";
 
 @Component({
   selector: "app-engagement",
@@ -25,7 +25,7 @@ import { diffDaysBetweenTwoMoments, aliasCompareFunc } from "../../../../../shar
 })
 export class EngagementComponent extends D3VisualizationBaseComponent<
 EngagementData
-> implements OnInit, OnDestroy {
+> implements OnInit, OnDestroy{
 
   isBusy = true;
 
@@ -81,10 +81,6 @@ EngagementData
   public sortMethodIndex = 0
 
   private readonly _internalSubscriptions = new Subscription();
-
-  readonly visualizationWidth = new Subject<number>();
-  public timelineChartArea = { width: 0, x: this.Y_AXIS_WIDTH }
-  public countChartArea = { width: this.COUNT_CHART_WIDTH, x: 0 }
 
   public itemCountRangeMax: number = 5
 
@@ -144,24 +140,11 @@ EngagementData
         }),
         combineLatest(this.queryConfigService.dayIndexRange().pipe(tap(range => {
           this.dayIndexRange = range
-        })), this.visualizationWidth, (data, range, width) => {
-          return { data: data, range: range, width: width }
+        })), (data, range) => {
+          return { data: data, range: range }
         })
       ).subscribe(project => {
-        this.timelineChartArea.width = project.width - this.Y_AXIS_WIDTH - this.COUNT_CHART_WIDTH - this.COUNT_CHART_LEFT_MARGIN - this.GLOBAL_PADDING_RIGHT
-
-        this.countChartArea.x = this.timelineChartArea.x + this.timelineChartArea.width + this.COUNT_CHART_LEFT_MARGIN
-
-        // calculate height================
-        if (project.data.participantList.length > 0) {
-          const participantsWithTrackerHeightTotal = project.data.participantList.map(p => this.calcHeightOfParticipantRow(p)).reduce((a, b) => a + b)
-          const numZeroTrackerParticipants = project.data.participantList.filter(p => p.trackingDataList.length === 0).length
-          this.visualizationAreaHeight = participantsWithTrackerHeightTotal + numZeroTrackerParticipants * this.PARTICIPANT_MINIMUM_HEIGHT + this.X_AXIS_HEIGHT + Math.max(0, (project.data.participantList.length - 1)) * this.PARTICIPANT_MARGIN
-        } else {
-          this.visualizationAreaHeight = 0
-        }
-        // -----------------------------
-
+        
         // calculate count====================
         let maxItemCount
         const trackerInjectionIds = []
@@ -184,42 +167,8 @@ EngagementData
 
         // update axis========================
         this.trackerColorScale.domain(trackerInjectionIds)
-
-        this.dayAxisScale.domain([project.range[0], project.range[1] + 1]).range([0, this.timelineChartArea.width])
-        d3.select(this.xAxisGroup.nativeElement)
-          .transition()
-          .duration(500)
-          .call(this.dayAxis).call(
-            (selection) => {
-              selection.selectAll(".tick text")
-                .attr("transform", this.makeTranslate(-(this.dayAxisScale(1) - this.dayAxisScale(0)) / 2, 0))
-            }
-          )
-
         this.countAxisScale.domain([0, maxItemCount]).nice()
-        d3.select(this.countAxisGroup.nativeElement)
-          .transition()
-          .duration(500)
-          .call(this.countAxis)
         // -------------------------------
-
-        $("rect.bar-background")
-          .hover((ev) => {
-            const bar = $(ev.target.parentElement).find("rect.bar-count")
-            switch (ev.type) {
-              case "mouseenter":
-                ev.target.setAttribute("fill", "#f0f0f0")
-                bar.attr("stroke-width", 1)
-                break;
-              case "mouseleave":
-                ev.target.setAttribute("fill", "transparent")
-                bar.attr("stroke-width", 0)
-                break;
-            }
-          })
-
-        const trackerNameElements = $('.tracker-name') as any
-        trackerNameElements.tooltip()
 
         this.onSortMethodChanged(this.sortMethodIndex)
       })
@@ -317,6 +266,22 @@ EngagementData
 
   ngOnDestroy() {
     this._internalSubscriptions.unsubscribe();
+  }
+
+  getFilteredBlocks(trackerRow: TrackerRow): Array<ItemBlockRow>{
+    return trackerRow.itemBlocks.filter(b => { return b.day >= this.dayIndexRange[0] && b.day <= this.dayIndexRange[1] })
+  }
+
+  getDayIndicesOfTracker(trackerRow: TrackerRow): Array<number>{
+    return unique(trackerRow.itemBlocks.map(b => b.day)).filter(b => { return b >= this.dayIndexRange[0] && b <= this.dayIndexRange[1] })
+  }
+
+  getDayBlockWidthRatio(): number{
+    return 1/(this.dayIndexRange[1] - this.dayIndexRange[0] + 1)
+  }
+
+  getDaySequence(): Array<number>{
+    return Array.from(new Array(this.dayIndexRange[1] - this.dayIndexRange[0] + 1), (value, index) => { return index + this.dayIndexRange[0] })
   }
 }
 

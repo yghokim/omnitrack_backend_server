@@ -1,7 +1,7 @@
-<app-d3-chart-frame title="Engagement" [isBusy]="isBusy" [visualizationAreaHeight]="visualizationAreaHeight" (visualizationAreaWidthChanged)="visualizationWidth.next($event)">
+<app-chart-frame title="Engagement" [isBusy]="isBusy">
   <div header>
   </div>
-  <div upper-visualization class="flex-container flex-align-items-center">
+  <div main class="flex-container flex-align-items-center">
     <mat-form-field>
       <mat-select [(value)]="sortMethodIndex" (selectionChange)="onSortMethodChanged($event.value)">
         <mat-option *ngFor="let option of SORT_METHODS; let i = index" [value]="i">
@@ -18,6 +18,39 @@
       </div>
     </div>
   </div>
+  <div main class="engagement-visualization-area">
+    <table class="table table-data" *ngIf="data">
+      <tbody class="header">
+        <td></td>
+        <td></td>
+        <td id="x-axis-cell">
+          <div class="axis-number" *ngFor="let dayIndex of getDaySequence()" [style.left]="(getDayBlockWidthRatio() * (dayIndex - dayIndexRange[0]) + 0.5*getDayBlockWidthRatio()) * 100 + '%'">{{dayIndex+1}}</div>
+        </td>
+        <td></td>
+      </tbody>
+      <tbody>
+        <ng-container *ngFor="let participant of data.participantList; let participantIndex = index">
+          <tr class="tracker-row" *ngFor="let tracker of participant.trackingDataList; let trackerIndex = index">
+            <th *ngIf="trackerIndex===0" class="participant-name-column" [attr.rowspan]="participant.trackingDataList.length" [matTooltip]="participant.email" [matTooltipPosition]="'above'" >{{participant.alias}}</th>
+            <td class="tracker-name-column">{{tracker.trackerName}}</td>
+            <td class="tracker-timeline-column">
+              <div *ngFor="let dayIndex of getDayIndicesOfTracker(tracker)" [style.width]="(getDayBlockWidthRatio() * 100) + '%'" [style.left]="getDayBlockWidthRatio() * (dayIndex - dayIndexRange[0]) * 100 + '%'"
+                class="cell day-cell">
+                <div class="cell-filler"></div>
+              </div>
+              <div *ngFor="let block of getFilteredBlocks(tracker)" class="cell unit-cell" [style.width]="(getDayBlockWidthRatio()/NUM_BLOCKS_PER_DAY)*100 + '%'" 
+              [style.left]="((getDayBlockWidthRatio() * (block.day - dayIndexRange[0]) + block.blockIndex/NUM_BLOCKS_PER_DAY * getDayBlockWidthRatio()) * 100) + '%'"
+              [matTooltip]="'Log count: ' + block.items.length" >
+                <div class="cell-filler" [style.background]="colorScale(block.items.length)"></div>
+              </div>
+            </td>
+            <td class="tracker-count-barchart-column"></td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+  <!--  
   <svg:pattern visualization *ngFor="let pattern of hatchPatterns" [attr.id]="pattern.id" [attr.width]="pattern.size" [attr.height]="pattern.size"
     patternUnits="userSpaceOnUse">
     <svg:path [ngClass]="pattern.pathClass" [attr.d]="'M-1,1 l2,-2 M0,' + pattern.size + 'l' + pattern.size + ',-' + pattern.size + ' M' + (pattern.size-1)+','+(pattern.size+1)+ ' l2,-2'"></svg:path>
@@ -65,4 +98,5 @@
   <svg:g visualization #countAxisGroup [attr.transform]="makeTranslate(countChartArea.x, X_AXIS_HEIGHT)"></svg:g>
   <svg:g visualization #yAxisGroup></svg:g>
   <svg:g visualization #xAxisGroup [attr.transform]="makeTranslate(Y_AXIS_WIDTH, X_AXIS_HEIGHT)"></svg:g>
-</app-d3-chart-frame>
+  !-->
+</app-chart-frame>
