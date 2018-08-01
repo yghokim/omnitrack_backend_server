@@ -4,7 +4,7 @@ import OTTrackerCtrl from './controllers/ot_tracker_controller';
 import OTTriggerCtrl from './controllers/ot_trigger_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
 import { itemCtrl } from './controllers/ot_item_controller';
-import { OTUsageLogCtrl } from './controllers/ot_usage_log_controller';
+import otUsageLogCtrl from './controllers/ot_usage_log_controller';
 import OTResearchCtrl from './controllers/ot_research_controller';
 import OTUser from './models/ot_user';
 import AdminCtrl from './controllers/admin_controller';
@@ -26,17 +26,16 @@ export class ClientApiRouter extends RouterWrapper {
     const trackerCtrl = new OTTrackerCtrl();
     const triggerCtrl = new OTTriggerCtrl();
     const userCtrl = new OTUserCtrl();
-    const usageLogCtrl = new OTUsageLogCtrl();
     const syncCtrl = new OTSyncCtrl(trackerCtrl, triggerCtrl, itemCtrl)
     const storageCtrl = new BinaryStorageCtrl()
     const adminCtrl = new AdminCtrl()
     const researchCtrl = new OTResearchCtrl()
 
-    //revised https://github.com/antonybudianto/express-firebase-middleware/blob/master/src/auth.middleware.js
+    // revised https://github.com/antonybudianto/express-firebase-middleware/blob/master/src/auth.middleware.js
     const firebaseMiddleware = function firebaseAuthMiddleware(req, res, next) {
       const authorization = req.header('Authorization');
       if (authorization) {
-        let token = authorization.split(' ');
+        const token = authorization.split(' ');
         firebaseApp.auth().verifyIdToken(token[1])
           .then((decodedToken) => {
             res.locals.user = decodedToken;
@@ -107,7 +106,7 @@ export class ClientApiRouter extends RouterWrapper {
 
     this.router.route("/admin/tracker/attribute/property/set/:propertyKey").get(adminCtrl.setAttributePropertySerializedValue)
 
-    this.router.post('/usage_logs/batch/insert', omnitrackDeviceCheckMiddleware, usageLogCtrl.insertMany)
+    this.router.post('/usage_logs/batch/insert', omnitrackDeviceCheckMiddleware, otUsageLogCtrl.insertMany)
 
     // batch
     this.router.get('/batch/changes', assertSignedInMiddleware, syncCtrl.batchGetServerChangesAfter)
@@ -183,7 +182,7 @@ export class ClientApiRouter extends RouterWrapper {
     // Items
     this.router.route("/trackers/:trackerId/items").get(firebaseMiddleware, itemCtrl.getAllOfTracker)
 
-    //data manipulation
+    // data manipulation
     this.router.post("/item/update_column", firebaseMiddleware, itemCtrl.postItemValue)
     this.router.post("/item/update_timestamp", firebaseMiddleware, itemCtrl.postItemTimestamp)
 
@@ -191,9 +190,6 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.route('/debug/users/all').get(userCtrl.getAll)
     this.router.route('/debug/trackers/all').get(trackerCtrl.getAll)
     this.router.route('/debug/triggers/all').get(triggerCtrl.getAll)
-
-    this.router.route('/debug/logs').get(usageLogCtrl.getAll)
-    this.router.route('/debug/:userId/logs').get(usageLogCtrl.getLogsOfUser)
 
     /*
     this.router.route('/users/destroy').get(userCtrl.destroy)
@@ -223,7 +219,7 @@ export class ClientApiRouter extends RouterWrapper {
 
     this.router.get('/clients/latest', clientBinaryCtrl.getLatestVersionInfo)
 
-    //package
+    // package
     this.router.get('/package/extract', assertSignedInMiddleware, trackingPackageCtrl.getExtractedTrackingPackageJson)
 
     this.router.post('/package/temporary', assertSignedInMiddleware,

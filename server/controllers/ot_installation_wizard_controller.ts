@@ -38,8 +38,7 @@ export default class OTInstallationWizardCtrl {
         console.log(err)
         return false
       })
-    }
-    else return Promise.resolve(false)
+    } else { return Promise.resolve(false) }
   }
 
   setInstallationMode(modeOn: boolean): Promise<boolean> {
@@ -50,8 +49,7 @@ export default class OTInstallationWizardCtrl {
           console.log(err)
           return false
         })
-      }
-      else return Promise.resolve(false)
+      } else { return Promise.resolve(false) }
     } else {
       env.installation_mode = true
       return saveEnv().then(() => true).catch(err => {
@@ -73,7 +71,7 @@ export default class OTInstallationWizardCtrl {
   }
 
   resetAll(): Promise<boolean> {
-    for (let key of Object.keys(env)) {
+    for (const key of Object.keys(env)) {
       if (key !== "mongodb_uri" && key !== "mongodb_test_uri") {
         delete env[key]
       }

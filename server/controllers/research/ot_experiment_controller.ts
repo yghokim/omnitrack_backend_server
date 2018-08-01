@@ -4,6 +4,7 @@ import OTTracker from '../../models/ot_tracker'
 import OTResearcher from '../../models/ot_researcher'
 import OTExperiment from '../../models/ot_experiment'
 import OTInvitation from '../../models/ot_invitation'
+import otUsageLogCtrl from '../ot_usage_log_controller';
 import OTParticipant from '../../models/ot_participant'
 import { IJoinedExperimentInfo, ExperimentPermissions } from '../../../omnitrack/core/research/experiment'
 import { Document, DocumentQuery } from 'mongoose';
@@ -22,6 +23,22 @@ export default class OTExperimentCtrl {
     return {
       _id: experimentId,
       $or: [{ manager: researcherId }, { "experimenters.researcher": researcherId }]
+    }
+  }
+
+
+  private _makeParticipantQueryConditionForPendingInvitation(invitationId) {
+    return {
+      $and: [
+        { invitation: invitationId },
+        { dropped: { $ne: true } },
+        {
+          $or: [
+            { isDenied: true },
+            { isConsentApproved: { $ne: true } }
+          ]
+        }
+      ]
     }
   }
 
@@ -67,7 +84,7 @@ export default class OTExperimentCtrl {
   }
 
   private _removeCollaborator(experimentId: string, managerId: string, collaboratorId: string): Promise<boolean> {
-    return OTExperiment.findOneAndUpdate({ _id: experimentId, manager: managerId, "experimenters.researcher": collaboratorId}, {
+    return OTExperiment.findOneAndUpdate({ _id: experimentId, manager: managerId, "experimenters.researcher": collaboratorId }, {
       $pull: {
         "experimenters": { researcher: collaboratorId }
       }
@@ -135,6 +152,47 @@ export default class OTExperimentCtrl {
       res.status(200).json(exp)
     })
       .catch(err => {
+        console.log(err)
+        res.status(500).send(err)
+      })
+  }
+
+  getParticipants = (req, res) => {
+    const experimentId = req.params.experimentId
+    OTParticipant.find({ experiment: experimentId }).populate("user").lean()
+      .then(
+        participants => {
+          if (participants) {
+            otUsageLogCtrl.analyzeSessionSummary(null, participants.map(p => p.user._id)).then(
+              usageLogAnalysisResults => {
+                participants.forEach(participant => {
+                  const analysis = usageLogAnalysisResults.find(r =>
+                    r["_id"] === participant.user._id)
+                  if (analysis) {
+                    analysis["logs"].forEach(log => {
+                      switch (log._id.name) {
+                        case "session":
+                          participant["lastSessionTimestamp"] = log["lastTimestamp"]
+                          break;
+                        case "OTSynchronizationService":
+                          participant["lastSyncTimestamp"] = log["lastTimestamp"]
+                          break;
+                      }
+                    })
+                  } else {
+                    console.log("no usage log matches.")
+                  }
+                })
+
+                res.status(200).send(participants)
+              }
+            ).catch(err => {
+              console.log(err)
+              res.status(200).send(participants)
+            })
+          } else { res.status(200).send(participants) }
+        }
+      ).catch(err => {
         console.log(err)
         res.status(500).send(err)
       })
@@ -236,7 +294,7 @@ export default class OTExperimentCtrl {
         res.status(200).send(updated)
       }).catch(err => {
         console.log(err)
-        res.status(500).send({error: err})
+        res.status(500).send({ error: err })
       })
   }
 
@@ -335,6 +393,76 @@ export default class OTExperimentCtrl {
     this._getPublicInvitations(userId).then(
       invitations => {
         res.status(200).send(invitations)
+      }
+    ).catch(err => {
+      console.log(err)
+      res.status(500).send(err)
+    })
+  }
+
+
+
+  getInvitations = (req, res) => {
+    const researcherId = req.researcher.uid
+    const experimentId = req.params.experimentId
+    OTInvitation.find({ experiment: experimentId }).populate({ path: "participants", select: "_id isDenied isConsentApproved dropped" }).lean().then(list => {
+      res.status(200).json(list)
+    })
+      .catch(err => {
+        res.status(500).send(err)
+      })
+  }
+
+  removeInvitation = (req, res) => {
+    const researcherId = req.researcher.uid
+    const experimentId = req.params.experimentId
+    const invitationId = req.params.invitationId
+    OTInvitation.findOneAndRemove({ _id: invitationId, experiment: experimentId }).then(removed => {
+      // remove participants with pending invitation.
+      return OTParticipant.remove(this._makeParticipantQueryConditionForPendingInvitation(invitationId))
+    })
+      .catch(err => {
+        res.status(500).send(err)
+      })
+      .then(result => {
+        console.log(result)
+        app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, { model: SocketConstants.MODEL_INVITATION, event: SocketConstants.EVENT_REMOVED })
+        res.status(200).send(true)
+      })
+  }
+
+  addNewIntivation = (req, res) => {
+    const researcherId = req.researcher.uid
+    const experimentId = req.params.experimentId
+    const data = req.body
+    if (data.code == null) {
+      const crypto = require("crypto");
+      data["code"] = crypto.randomBytes(16).toString('base64')
+    }
+
+    data["experiment"] = experimentId
+    new OTInvitation(data).save()
+      .then(invit => invit.populate({ path: "participants", select: "_id isDenied isConsentApproved dropped" }).execPopulate())
+      .then(
+        invit => {
+          app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId,
+            { model: SocketConstants.MODEL_INVITATION, event: SocketConstants.EVENT_ADDED, payload: invit })
+
+          res.status(200).json(invit.toJSON())
+        }
+      ).catch(err => {
+        console.log(err)
+        res.status(500).send(err)
+      })
+  }
+
+  sendInvitation = (req, res) => {
+    const invitationCode = req.body.invitationCode
+    const userIds = req.body.userIds
+    const force = req.body.force
+    Promise.all(userIds.map(userId => app.researchModule().sendInvitationToUser(invitationCode, userId, force))).then(
+      result => {
+        res.status(200).send(result)
       }
     ).catch(err => {
       console.log(err)

@@ -1,8 +1,14 @@
 <div class="dialog dialog-mid">
   <div class="card-header">New Invitation</div>
   <div class="card-body">
+    <div class="form-group">
+      <label class="small flex-container flex-align-items-center">
+        <span for="inputLabel">Invitation Code (Optional)</span>
+      </label>
+      <input class="form-control" id="inputLabel" type="text" name="code" placeholder="Leave it empty to assign a random code" [(ngModel)]="invitationCode">
+    </div>
     <mat-tab-group class="tab-group" (selectedTabChange)="onTabChanged($event)">
-      <mat-tab label="Specific Group" [value] = "specificGroupType">
+      <mat-tab label="Specific Group" [value]="specificGroupType">
         <div class="card-body">
           <p>
             Participants will be assigned to the selected group.

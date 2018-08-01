@@ -235,14 +235,41 @@ export class ExperimentService {
   generateInvitation(information): Observable<any> {
     return this.http
       .post("/api/research/experiments/" + this.experimentId + '/invitations/new', information, this.researchApi.authorizedOptions)
-      .pipe(map(res => res.json()))
+      .pipe(
+        map(res => res.json()),
+        tap(invitation => {
+          if (this.invitationList.value) {
+            const currentInvitationList = this.invitationList.value.slice()
+            const matchIndex = currentInvitationList.findIndex(i => i._id === invitation._id)
+            if (matchIndex > -1) {
+              currentInvitationList[matchIndex] = invitation
+            } else {
+              currentInvitationList.push(invitation)
+            }
+            this.invitationList.next(currentInvitationList)
+          }
+        })
+      )
   }
 
   removeInvitation(invitation): Observable<any> {
     return this.http
-      .delete("/api/research/experiments/" + this.experimentId + '/invitations/' + invitation._id, this.researchApi.authorizedOptions).pipe(map(
-        res => res.json()
-      ))
+      .delete("/api/research/experiments/" + this.experimentId + '/invitations/' + invitation._id, this.researchApi.authorizedOptions)
+      .pipe(
+        map(res => res.json()),
+        tap(removed => {
+          if (removed === true) {
+            if (this.invitationList.value) {
+              const currentInvitationList = this.invitationList.value.slice()
+              const matchIndex = currentInvitationList.findIndex(i => i._id === invitation._id)
+              if (matchIndex > -1) {
+                currentInvitationList.splice(matchIndex, 1)
+                this.invitationList.next(currentInvitationList)
+              }
+            }
+          }
+        })
+      )
   }
 
   sendInvitation(invitationCode: string, userIds: Array<string>, force: boolean): Observable<Array<{

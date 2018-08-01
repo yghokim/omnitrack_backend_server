@@ -59,11 +59,11 @@ export class ResearchRouter extends RouterWrapper {
     this.router.post('/auth/update', tokenApprovedAuth, this.researchAuthCtrl.update)
     this.router.post('/auth/verify', tokenSignedInAuth, this.researchAuthCtrl.verifyToken)
 
-    //Admin API===================================================
-    
+    // Admin API===================================================
+
     this.router.get('/researchers/all', tokenAdminAuth, this.researchCtrl.getResearchers)
     this.router.post('/researchers/:researcherId/approve', tokenAdminAuth, this.researchCtrl.setResearcherAccountApproved)
-    //=============================================================
+    // =============================================================
 
 
     this.router.get("/experiments/examples", experimentCtrl.getExampleExperimentList)
@@ -88,23 +88,23 @@ export class ResearchRouter extends RouterWrapper {
     this.router.post("/experiments/:experimentId/collaborators/new", tokenApprovedAuth, experimentCtrl.addCollaborator)
     this.router.post("/experiments/:experimentId/collaborators/:collaboratorId/delete", tokenApprovedAuth, experimentCtrl.removeCollaborator)
     this.router.delete("/experiments/:experimentId/collaborators/:collaboratorId", tokenApprovedAuth, experimentCtrl.removeCollaborator)
-    
+
 
     this.router.post("/experiments/:experimentId/collaborators/update", tokenApprovedAuth, experimentCtrl.updateCollaboratorPermissions)
 
     this.router.get('/experiments/manager/:experimentId', tokenApprovedAuth, experimentCtrl.getManagerInfo)
 
-    this.router.get('/experiments/:experimentId/invitations', tokenApprovedAuth, this.researchCtrl.getInvitations)
+    this.router.get('/experiments/:experimentId/invitations', tokenApprovedAuth, experimentCtrl.getInvitations)
 
-    this.router.get('/experiments/:experimentId/participants', tokenApprovedAuth, this.researchCtrl.getParticipants)
+    this.router.get('/experiments/:experimentId/participants', tokenApprovedAuth, experimentCtrl.getParticipants)
 
-    this.router.post('/experiments/:experimentId/invitations/new', tokenApprovedAuth, this.researchCtrl.addNewIntivation)
+    this.router.post('/experiments/:experimentId/invitations/new', tokenApprovedAuth, experimentCtrl.addNewIntivation)
 
-    this.router.post('/experiments/:experimentId/invitations/send', tokenApprovedAuth, this.researchCtrl.sendInvitation)
+    this.router.post('/experiments/:experimentId/invitations/send', tokenApprovedAuth, experimentCtrl.sendInvitation)
 
-    this.router.delete('/experiments/:experimentId/invitations/:invitationId', tokenApprovedAuth, this.researchCtrl.removeInvitation)
-    this.router.post('/experiments/:experimentId/invitations/:invitationId/delete', tokenApprovedAuth, this.researchCtrl.removeInvitation)
-    
+    this.router.delete('/experiments/:experimentId/invitations/:invitationId', tokenApprovedAuth, experimentCtrl.removeInvitation)
+    this.router.post('/experiments/:experimentId/invitations/:invitationId/delete', tokenApprovedAuth, experimentCtrl.removeInvitation)
+
 
     this.router.post('/experiments/:experimentId/packages/update', tokenApprovedAuth, experimentCtrl.updateTrackingPackageToExperiment)
 
@@ -112,30 +112,30 @@ export class ResearchRouter extends RouterWrapper {
     this.router.post('/experiments/:experimentId/packages/:packageKey/delete', tokenApprovedAuth, experimentCtrl.removeTrackingPackageFromExperiment)
 
     this.router.get('/package/temporary/:code', tokenApprovedAuth, trackingPackageCtrl.getTemporaryTrackingPackageWithCode)
-    
+
 
     this.router.post('/experiments/:experimentId/groups/upsert', tokenApprovedAuth, experimentCtrl.upsertExperimentGroup)
     this.router.delete('/experiments/:experimentId/groups/:groupId', tokenApprovedAuth, experimentCtrl.removeExperimentGroup)
     this.router.post('/experiments/:experimentId/groups/:groupId/delete', tokenApprovedAuth, experimentCtrl.removeExperimentGroup)
 
-    //client build
+    // client build
     this.router.get('/experiments/:experimentId/client_build_configs', tokenApprovedAuth,
-    clientBuildCtrl.getClientBuildConfigsOfExperiment)
+      clientBuildCtrl.getClientBuildConfigsOfExperiment)
     this.router.post('/experiments/:experimentId/client_build_configs', tokenApprovedAuth,
-    clientBuildCtrl.updateClientBuildConfigs)
+      clientBuildCtrl.updateClientBuildConfigs)
     this.router.post('/experiments/:experimentId/client_build_configs/initialize', tokenApprovedAuth,
-    clientBuildCtrl.initializeDefaultPlatformConfig)
+      clientBuildCtrl.initializeDefaultPlatformConfig)
 
     this.router.post('/experiments/:experimentId/client_build_configs/build', tokenApprovedAuth, clientBuildCtrl.startBuild)
     this.router.post('/experiments/:experimentId/client_build_configs/build/cancel', tokenApprovedAuth, clientBuildCtrl.cancelBuild)
     this.router.get('/experiments/:experimentId/client_build_configs/build/status', tokenApprovedAuth,
-    clientBuildCtrl.getBuildStatus)
-    
+      clientBuildCtrl.getBuildStatus)
+
     this.router.post('/users/notify/message', tokenApprovedAuth, this.researchCtrl.sendNotificationMessageToUser)
 
     this.router.delete('/participants/:participantId', tokenApprovedAuth, this.researchCtrl.removeParticipant)
     this.router.post('/participants/:participantId/delete', tokenApprovedAuth, this.researchCtrl.removeParticipant)
-    
+
 
     this.router.post('/participants/:participantId/alias', tokenApprovedAuth, this.researchCtrl.changeParticipantAlias)
 
@@ -145,16 +145,16 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.delete("/users/:userId", tokenApprovedAuth, this.userCtrl.deleteAccount)
     this.router.post("/users/:userId/delete", tokenApprovedAuth, this.userCtrl.deleteAccount)
-    
+
 
     this.router.post("/participants/:participantId/drop", tokenApprovedAuth, this.researchCtrl.dropOutFromExperiment)
-    
+
 
     this.router.post('/participants/:participantId/excluded_days', tokenApprovedAuth, participantCtrl.postExcludedDays)
 
     this.router.get('/usage_logs', tokenApprovedAuth, this.usageLogCtrl.getFilteredUserGroupedUsageLogs)
 
-    //tracking data
+    // tracking data
     new Array(
       { url: "trackers", model: ot_tracker },
       { url: "triggers", model: ot_trigger },
@@ -166,7 +166,7 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', tokenApprovedAuth, this.storageCtrl.downloadItemMedia)
 
-    //data manipulation
+    // data manipulation
     this.router.post("/tracking/update/item_column", tokenApprovedAuth, itemCtrl.postItemValue)
 
     this.router.post("/tracking/update/item_timestamp", tokenApprovedAuth, itemCtrl.postItemTimestamp)
@@ -178,13 +178,13 @@ export class ResearchRouter extends RouterWrapper {
     this.router.delete("/clients/:binaryId", tokenApprovedAuth, clientBinaryCtrl.removeClientBinary)
     this.router.post("/clients/:binaryId/delete", tokenApprovedAuth, clientBinaryCtrl.removeClientBinary)
     this.router.post('/clients/:binaryId/publish', tokenApprovedAuth, clientBinaryCtrl.publishClientBinary)
-    
+
 
     this.router.get('/signatures/all', tokenApprovedAuth, clientSignatureCtrl.getSignatures)
     this.router.post('/signatures/update', tokenApprovedAuth, clientSignatureCtrl.postSignature)
     this.router.delete('/signatures/:id', tokenApprovedAuth, clientSignatureCtrl.removeSignature)
     this.router.post('/signatures/:id/delete', tokenApprovedAuth, clientSignatureCtrl.removeSignature)
-  
+
 
     // debuging
     this.router.get("/debug/generate_participant_alias", this.researchCtrl.generateAliasOfParticipants)
@@ -207,25 +207,21 @@ export class ResearchRouter extends RouterWrapper {
   }
 
 
-  private makeTokenAuthMiddleware(pipe: (reseaercher, parsedToken?) => string = () => { return null }): any {
+  private makeTokenAuthMiddleware(pipe: (reseaercher, parsedToken?) => string = () => null): any {
     return jwt({
       secret: this.env.jwt_secret, userProperty: 'researcher', isRevoked: (req, payload, done) => {
         OTResearcher.findById(payload.uid, (idFindErr, researcher) => {
           if (idFindErr) {
             done(idFindErr, true)
             return
-          }
-          else if (researcher) {
+          } else if (researcher) {
             const pipeResult = pipe(researcher)
             if (pipeResult) {
               done(pipeResult, true)
-            }
-            else if (payload.iat < (researcher["passwordSetAt"] || researcher["createdAt"]).getTime() / 1000) {
+            } else if (payload.iat < (researcher["passwordSetAt"] || researcher["createdAt"]).getTime() / 1000) {
               done("passwordChanged", true)
-            }
-            else done(null, false)
-          }
-          else done(null, true)
+            } else { done(null, false) }
+          } else { done(null, true) }
         })
       }
     })

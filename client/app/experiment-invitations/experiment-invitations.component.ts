@@ -39,6 +39,11 @@ export class ExperimentInvitationsComponent implements OnInit, OnDestroy {
       this.api.selectedExperimentService.pipe(flatMap(service => service.getInvitations())).subscribe(
         invitations => {
           this.invitations = invitations
+        },
+        err => {
+
+        },
+        () => {
           this.isLoadingInvitations = false
         }
       )
@@ -93,6 +98,22 @@ export class ExperimentInvitationsComponent implements OnInit, OnDestroy {
             this._internalSubscriptions.add(
               this.api.selectedExperimentService.pipe(flatMap(service => service.generateInvitation(information))).subscribe(
                 newInvitation => {
+                },
+                (err) => {
+                  try {
+                    const errObj = err.json()
+                    console.error(errObj)
+                    if (errObj.code === 11000) {
+                      // duplicate code error
+                      this.notificationService.pushSnackBarMessage({
+                        message: "There already exists an invitation with the same code."
+                      })
+                    }
+                  } catch (ex) {
+                    console.error(ex)
+                  }
+                },
+                () => {
                   this.isLoadingInvitations = false
                 }
               )
@@ -110,18 +131,16 @@ export class ExperimentInvitationsComponent implements OnInit, OnDestroy {
   getNumActiveParticipants(invitation): number {
     const participants = invitation.participants
     if (participants instanceof Array) {
-      return participants.filter(p => p.dropped != true && p.isConsentApproved == true).length
-    }
-    else return 0
+      return participants.filter(p => p.dropped !== true && p.isConsentApproved === true).length
+    } else { return 0 }
   }
 
 
   getNumDeniedParticipants(invitation): number {
     const participants = invitation.participants
     if (participants instanceof Array) {
-      return participants.filter(p => p.isDenied == true).length
-    }
-    else return 0
+      return participants.filter(p => p.isDenied === true).length
+    } else { return 0 }
   }
 
 }

@@ -5,10 +5,9 @@ import { makeArrayLikeQueryCondition } from '../server_utils';
 import BaseCtrl from './base';
 import * as moment from 'moment';
 
-export class OTUsageLogCtrl extends BaseCtrl {
-  model = OTUsageLog
+export class OTUsageLogCtrl {
 
-  protected preprocessBeforeInsertToDb(singleQueryObject: any): any {
+  private preprocessBeforeInsertToDb(singleQueryObject: any): any {
     singleQueryObject.timestamp = new Date(singleQueryObject.timestamp)
     return singleQueryObject
   }
@@ -17,7 +16,7 @@ export class OTUsageLogCtrl extends BaseCtrl {
   // Insert many
   insertMany = (req, res) => {
     const list: Array<any> = req.body.map(b => this.preprocessBeforeInsertToDb(JSON.parse(b)))
-    this.model.insertMany(list, (err, docs) => {
+    OTUsageLog.insertMany(list, (err, docs) => {
       if (err) {
         console.log("usage log insert failed")
         console.log(err)
@@ -37,7 +36,7 @@ export class OTUsageLogCtrl extends BaseCtrl {
     })
   }
 
-  static analyzeSessionSummary(additionalFilter: any = null, userIds: Array<string> = null): Promise<Array<{ user: any, lastTimestamp: number, totalDuration: number }>> {
+  analyzeSessionSummary(additionalFilter: any = null, userIds: Array<string> = null): Promise<Array<{ user: any, lastTimestamp: number, totalDuration: number }>> {
 
     const filterCondition = additionalFilter || {}
     filterCondition["$or"] = [{ name: "session" }, { name: "OTSynchronizationService", sub: "synchronization_finished" }]
@@ -53,7 +52,7 @@ export class OTUsageLogCtrl extends BaseCtrl {
     ]).allowDiskUse(true).exec()
   }
 
-  static filterUserGroupedUsageLogs(filter: any = null, userIds: string | Array<string> = null): Promise<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>> {
+  filterUserGroupedUsageLogs(filter: any = null, userIds: string | Array<string> = null): Promise<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>> {
     const filterCondition = filter || {}
     if (userIds) {
       filterCondition["user"] = makeArrayLikeQueryCondition(userIds)
@@ -65,13 +64,12 @@ export class OTUsageLogCtrl extends BaseCtrl {
       { $group: { _id: "$user", logs: { $push: "$$ROOT" } } }
     ]
 
-    if(Object.keys(filterCondition).length == 0)
-    {
+    if (Object.keys(filterCondition).length === 0) {
       console.log("shift empty condition")
       pipeline.shift()
     }
 
-    return OTUsageLog.aggregate(pipeline).allowDiskUse(true).exec().then(list =>{
+    return OTUsageLog.aggregate(pipeline).allowDiskUse(true).exec().then(list => {
       return list.map(entry => ({ user: entry._id, logs: entry.logs }))
         .filter(entry => entry.user != null)
     })
@@ -92,7 +90,7 @@ export class OTUsageLogCtrl extends BaseCtrl {
       }
     }
 
-    OTUsageLogCtrl.analyzeSessionSummary(filter, req.query.userIds).then(list => {
+    this.analyzeSessionSummary(filter, req.query.userIds).then(list => {
       res.status(200).send(list)
     }).catch(err => {
       res.status(500).send(err)
@@ -103,7 +101,7 @@ export class OTUsageLogCtrl extends BaseCtrl {
     let filter: any
     if (req.query.filter) {
       filter = req.query.filter = JSON.parse(req.query.filter)
-    } else filter = {}
+    } else { filter = {} }
 
     if ((req.query.from !== "null" && req.query.from) || (req.query.to !== "null" && req.query.to)) {
       filter["timestamp"] = {}
@@ -119,19 +117,18 @@ export class OTUsageLogCtrl extends BaseCtrl {
 
     let userIdsPromise: Promise<string | Array<string>>
     if (req.query.experiment) {
-      //filter with experiment
+      // filter with experiment
       userIdsPromise = OTParticipant.find({ experiment: req.query.experiment }).select("user").lean().then(users => {
         const userIds = users.map(u => u.user)
         if (req.query.userIds) {
           if (req.query.userIds instanceof Array) {
             return req.query.userIds.filter(id => userIds.indexOf(id) !== -1)
-          }
-          else {
+          } else {
             if (userIds.indexOf(req.query.userIds) !== -1) {
               return req.query.userIds
-            } else return []
+            } else { return [] }
           }
-        } else return userIds
+        } else { return userIds }
       })
     } else if (req.query.userIds) {
       userIdsPromise = Promise.resolve(req.query.userIds)
@@ -140,18 +137,18 @@ export class OTUsageLogCtrl extends BaseCtrl {
     }
 
     if (userIdsPromise) {
-      userIdsPromise.then(userIds => OTUsageLogCtrl.filterUserGroupedUsageLogs(filter, userIds))
+      userIdsPromise.then(userIds => this.filterUserGroupedUsageLogs(filter, userIds))
         .then(list => {
           res.status(200).send(list)
         }).catch(err => {
           console.log(err)
           res.status(500).send(err)
         })
-    }else{ // did not put user ids. Query whole logs in this server, but anonymise
+    } else { // did not put user ids. Query whole logs in this server, but anonymise
       console.log("return anonymized list")
-      OTUsageLogCtrl.filterUserGroupedUsageLogs(filter, null).then(
-        list=>{
-          //anonymize
+      this.filterUserGroupedUsageLogs(filter, null).then(
+        list => {
+          // anonymize
           const md5 = require("md5");
           list.forEach(userRow => {
             userRow.user = md5(userRow.user)
@@ -161,7 +158,7 @@ export class OTUsageLogCtrl extends BaseCtrl {
           })
           res.status(200).send(list)
         }
-      ).catch(err=>{
+      ).catch(err => {
         console.log(err)
         res.status(500).send(err)
       })
@@ -169,3 +166,6 @@ export class OTUsageLogCtrl extends BaseCtrl {
   }
 
 }
+
+const ctrl = new OTUsageLogCtrl()
+export default ctrl

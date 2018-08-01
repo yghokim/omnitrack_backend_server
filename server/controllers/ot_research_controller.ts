@@ -1,7 +1,5 @@
 import OTUser from '../models/ot_user'
 import OTResearcher from '../models/ot_researcher'
-import OTExperiment from '../models/ot_experiment'
-import OTInvitation from '../models/ot_invitation'
 import OTParticipant from '../models/ot_participant'
 import { IJoinedExperimentInfo } from '../../omnitrack/core/research/experiment'
 import { Document } from 'mongoose';
@@ -9,25 +7,7 @@ import app from '../app';
 import { SocketConstants } from '../../omnitrack/core/research/socket';
 import { OTUsageLogCtrl } from './ot_usage_log_controller';
 
-const crypto = require("crypto");
-
 export default class OTResearchCtrl {
-
-
-  private _makeParticipantQueryConditionForPendingInvitation(invitationId) {
-    return {
-      $and: [
-        { invitation: invitationId },
-        { dropped: { $ne: true } },
-        {
-          $or: [
-            { isDenied: true },
-            { isConsentApproved: { $ne: true } }
-          ]
-        }
-      ]
-    }
-  }
 
   getResearchers = (req, res) => {
     OTResearcher.find({}, { _id: 1, email: 1, alias: 1, account_approved: 1, createdAt: 1 }).lean().then(researchers => {
@@ -60,10 +40,9 @@ export default class OTResearchCtrl {
     }
 
     let condition
-    if (excludeSelf == true) {
+    if (excludeSelf === true) {
       condition = { $and: [{ _id: { $ne: researcherId } }, searchQuery] }
-    }
-    else condition = searchQuery
+    } else { condition = searchQuery }
 
     console.log("search researchers with term " + searchTerm)
 
@@ -86,8 +65,7 @@ export default class OTResearchCtrl {
     let userId
     if (res.locals.user) {
       userId = res.locals.user.uid
-    }
-    else if (req.researcher) {
+    } else if (req.researcher) {
       userId = req.query.userId
     }
 
@@ -104,7 +82,7 @@ export default class OTResearchCtrl {
             name: participant["experiment"].name,
             experimentRangeStart: participant["experimentRange"].from ? participant["experimentRange"].from.getTime() : participant["approvedAt"].getTime(),
             joinedAt: participant["approvedAt"].getTime(),
-            droppedAt: participant["dropped"] == true ? participant["droppedAt"].getTime() : null
+            droppedAt: participant["dropped"] === true ? participant["droppedAt"].getTime() : null
           } as IJoinedExperimentInfo
         })
 
@@ -116,110 +94,6 @@ export default class OTResearchCtrl {
       console.log(err)
       res.status(500).send(err)
     })
-  }
-
-  getInvitations = (req, res) => {
-    const researcherId = req.researcher.uid
-    const experimentId = req.params.experimentId
-    OTInvitation.find({ experiment: experimentId }).populate({ path: "participants", select: "_id isDenied isConsentApproved dropped" }).lean().then(list => {
-      res.status(200).json(list)
-    })
-      .catch(err => {
-        res.status(500).send(err)
-      })
-  }
-
-  removeInvitation = (req, res) => {
-    const researcherId = req.researcher.uid
-    const experimentId = req.params.experimentId
-    const invitationId = req.params.invitationId
-    OTInvitation.findOneAndRemove({ _id: invitationId, experiment: experimentId }).then(removed => {
-      // remove participants with pending invitation.
-      return OTParticipant.remove(this._makeParticipantQueryConditionForPendingInvitation(invitationId))
-    })
-      .catch(err => {
-        res.status(500).send(err)
-      })
-      .then(result => {
-        console.log(result)
-        app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, { model: SocketConstants.MODEL_INVITATION, event: SocketConstants.EVENT_REMOVED })
-        res.status(200).send(true)
-      })
-  }
-
-  addNewIntivation = (req, res) => {
-    const researcherId = req.researcher.uid
-    const experimentId = req.params.experimentId
-    const data = req.body
-    data["code"] = crypto.randomBytes(16).toString('base64')
-    data["experiment"] = experimentId
-    new OTInvitation(data).save().then(
-      invit => {
-        app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId,
-          { model: SocketConstants.MODEL_INVITATION, event: SocketConstants.EVENT_ADDED, payload: invit })
-
-        res.status(200).json(invit)
-      }
-    ).catch(err => {
-      console.log(err)
-      res.status(500).send(err)
-    })
-  }
-
-  sendInvitation = (req, res) => {
-    const invitationCode = req.body.invitationCode
-    const userIds = req.body.userIds
-    const force = req.body.force
-    Promise.all(userIds.map(userId => app.researchModule().sendInvitationToUser(invitationCode, userId, force))).then(
-      result => {
-        res.status(200).send(result)
-      }
-    ).catch(err => {
-      console.log(err)
-      res.status(500).send(err)
-    })
-  }
-
-  getParticipants = (req, res) => {
-    const experimentId = req.params.experimentId
-    OTParticipant.find({ experiment: experimentId }).populate("user").lean()
-      .then(
-        participants => {
-          if (participants) {
-            OTUsageLogCtrl.analyzeSessionSummary(null, participants.map(p => p.user._id)).then(
-              usageLogAnalysisResults => {
-                participants.forEach(participant => {
-                  const analysis = usageLogAnalysisResults.find(r =>
-                    r["_id"] === participant.user._id)
-                  if (analysis) {
-                    analysis["logs"].forEach(log => {
-                      switch (log._id.name) {
-                        case "session":
-                          participant["lastSessionTimestamp"] = log["lastTimestamp"]
-                          break;
-                        case "OTSynchronizationService":
-                          participant["lastSyncTimestamp"] = log["lastTimestamp"]
-                          break;
-                      }
-                    })
-                  }else{
-                    console.log("no usage log matches.")
-                  }
-                })
-
-                res.status(200).send(participants)
-              }
-            ).catch(err => {
-              console.log(err)
-              res.status(200).send(participants)
-            })
-          }
-          else res.status(200).send(participants)
-        }
-      ).catch(err => {
-        console.log(err)
-        res.status(500).send(err)
-      })
   }
 
   getallParticipants = (req, res) => {
@@ -264,8 +138,7 @@ export default class OTResearchCtrl {
         if (updated) {
           app.socketModule().sendUpdateNotificationToExperimentSubscribers(updated["experiment"], { model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_EDITED })
           res.status(200).send(updated)
-        }
-        else {
+        } else {
           res.status(404).send("No such participant with id " + participantId)
         }
       }
@@ -309,8 +182,7 @@ export default class OTResearchCtrl {
     const invitationCode = req.query.invitationCode
     if (!userId || !invitationCode) {
       res.status(500).send("IllegalArgumentException")
-    }
-    else {
+    } else {
 
       app.researchModule().handleInvitationApproval(userId, invitationCode)
         .then(result => {
@@ -327,16 +199,14 @@ export default class OTResearchCtrl {
     const invitationCode = req.query.invitationCode
     if (!userId || !invitationCode) {
       res.status(500).send("IllegalArgumentException")
-    }
-    else {
+    } else {
       OTParticipant.findOneAndUpdate({
         "user._id": userId,
         "invitation.code": invitationCode
       }, { isDenied: true, deniedAt: new Date() }, (err, doc) => {
         if (err) {
           res.status(500).send(err)
-        }
-        else {
+        } else {
           app.socketModule().sendUpdateNotificationToExperimentSubscribers(doc["experiment"], { model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_DENIED, payload: doc })
           res.status(200).send(true)
         }

@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { ResearchApiService } from '../services/research-api.service';
 import { Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material';
+import { debounceTime } from 'rxjs/operators';
 import { ResearcherAuthGuardSecure } from '../services/researcher.auth.guard.secure';
 import { ResearcherAuthGuardMain } from '../services/researcher.auth.guard.main';
 import { SocketService } from '../services/socket.service';
@@ -18,7 +19,7 @@ export class ResearchFrameComponent implements OnInit {
 
   private readonly _internalSubscriptions = new Subscription()
 
-  constructor(private notificationService: NotificationService, 
+  constructor(private notificationService: NotificationService,
     private snackBar: MatSnackBar) { }
 
   ngOnInit() {
@@ -29,8 +30,7 @@ export class ResearchFrameComponent implements OnInit {
         message => {
           if (message.action) {
             this.snackBar.open(message.message, message.action.label, { duration: 3000 })
-          }
-          else this.snackBar.open(message.message, null, { duration: 3000 })
+          } else { this.snackBar.open(message.message, null, { duration: 3000 }) }
         })
     )
   }

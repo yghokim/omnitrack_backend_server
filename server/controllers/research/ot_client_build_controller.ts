@@ -198,23 +198,23 @@ export default class OTClientBuildCtrl {
         let newVersionName: string
 
         if (compareVersions(latestVersionInfo.versionName, appVersionName) >= 0) {
-          //if latestVersion is higher or equal than this
+          // if latestVersion is higher or equal than this
           const v = extractVersion(latestVersionInfo.versionName)
           v.numbers[v.numbers.length - 1]++
           v.numbers[v.numbers.length - 2]++
           newVersionName = v.numbers.join(".") + "-" + v.suffix
           console.log("override to latest version name:", newVersionName)
-        } else newVersionName = appVersionName
+        } else { newVersionName = appVersionName }
 
         if (appVersionCode <= latestVersionInfo.versionCode) {
           newVersionCode = latestVersionInfo.versionCode + 1
           console.log("override to latest version code:", newVersionCode)
-        } else newVersionCode = appVersionCode
+        } else { newVersionCode = appVersionCode }
 
         if (newVersionCode !== appVersionCode || newVersionName !== appVersionName) {
           const newVersionPropertiesString = "versionName=" + newVersionName + "\nversionCode=" + newVersionCode
           return fs.writeFile(versionPropPath, newVersionPropertiesString)
-        } else return Promise.resolve()
+        } else { return Promise.resolve() }
       }
     ).then(() => {
       const serverIP = app.get("publicIP")
@@ -248,7 +248,7 @@ export default class OTClientBuildCtrl {
       console.log("\"$rootDir/" + path.join(path.relative(sourceFolderPath, this._makeExperimentConfigDirectoryPath(experimentId, true)), "androidKeystore.jks") + "\"")
 
       sourceConfigJson.signing = {
-        //releaseKeystoreLocation: "$rootDir/" + path.join(path.relative(sourceFolderPath, this._makeExperimentConfigDirectoryPath(experimentId, true)), "androidKeystore.jks") + "\"",
+        // releaseKeystoreLocation: "$rootDir/" + path.join(path.relative(sourceFolderPath, this._makeExperimentConfigDirectoryPath(experimentId, true)), "androidKeystore.jks") + "\"",
         "releaseKeystoreLocation": path.join(this._makeExperimentConfigDirectoryPath(experimentId, true), "androidKeystore.jks"),
         "releaseAlias": buildConfig.credentials.keystoreAlias,
         "releaseKeyPassword": buildConfig.credentials.keystoreKeyPassword,
@@ -267,7 +267,7 @@ export default class OTClientBuildCtrl {
           fs.writeJson(path.join(sourceFolderPath, "omnitrackBuildConfig.json"), sourceConfigJson, { spaces: 2 }),
           fs.writeJson(path.join(sourceFolderPath, "google-services.json"), buildConfig.credentials.googleServices, { spaces: 2 }),
           fs.writeFile(path.join(sourceFolderPath, "keystore.properties"), keystorePropertiesString),
-          //fs.writeFile(path.join(sourceFolderPath, "gradle.properties"), "android.enableAapt2=false")
+          // fs.writeFile(path.join(sourceFolderPath, "gradle.properties"), "android.enableAapt2=false")
         ]
       ).then(res => {
         console.log("generated config files in the source folder.")
@@ -343,7 +343,7 @@ export default class OTClientBuildCtrl {
 
       let lastErrorString: string = null
 
-      /*      
+      /*
       command.stdout.on('data', (data) => {
         console.log(data.toString())
       })*/
@@ -371,7 +371,7 @@ export default class OTClientBuildCtrl {
     }).lean().then(buildConfig =>
       this.prepareSourceCodeInFolder(buildConfig)
         .then(result => {
-          //Platform-dependent logics=======================================================
+          // Platform-dependent logics=======================================================
           switch (buildConfig.platform) {
             case "Android":
               return this._setupAndroidSource(result.sourceFolderPath, result.skipSetup)
@@ -379,11 +379,11 @@ export default class OTClientBuildCtrl {
                 .then(sourcePath => this._buildAndroidApk(sourcePath))
             default: throw new Error("Unsupported platform.")
           }
-          //=================================================================================
+          // =================================================================================
         })
         .then(buildResult => {
           console.log("successfully built app. register binary to publish list.")
-          //move client to temp folder
+          // move client to temp folder
           const newLocation = this._makeClientCollectedLocation(experimentId, buildConfig.platform)
           return fs.ensureDir(newLocation).then(() => {
             const ext = getExtensionFromPath(buildResult.binaryFileName)

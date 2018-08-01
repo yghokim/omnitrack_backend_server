@@ -46,6 +46,7 @@ export default class OTBinaryCtrl {
   }
 
   private extractSignature(filePath: string): Promise<string> {
+    // tslint:disable-next-line:no-shadowed-variable
     return new Promise((resolve, reject) => {
       yauzl.open(filePath, { lazyEntries: true }, (err, zipfile) => {
         if (err) {
@@ -57,8 +58,8 @@ export default class OTBinaryCtrl {
             console.log("entry name: " + entry.fileName)
             if (entry.fileName.toUpperCase() === "META-INF/CERT.RSA") {
               // keystore file.
-              zipfile.openReadStream(entry, (err, readStream) => {
-                if (err) { throw err; }
+              zipfile.openReadStream(entry, (zipOpenError, readStream) => {
+                if (zipOpenError) { throw zipOpenError; }
                 const keystoreTempFilePath = "storage/temp/temp_keystore_" + randomstring.generate({ length: 20 })
                   + "_" + Date.now() + ".rsa"
                 readStream.on("end", function () {
@@ -94,7 +95,7 @@ export default class OTBinaryCtrl {
             versionName: binary["version"],
             versionCode: binary["versionCode"]
           }
-        } else return null
+        } else { return null }
       }
     )
   }
@@ -194,9 +195,9 @@ export default class OTBinaryCtrl {
         } else {
           this._registerNewClientBinary(req.file.path, changelog, req.file.size, req.file.originalname, req.query.experimentId).then(result => {
             res.status(200).send(result)
-          }).catch(err => {
-            console.error(err)
-            res.status(500).send(err)
+          }).catch(binaryRegisterError => {
+            console.error(binaryRegisterError)
+            res.status(500).send(binaryRegisterError)
           })
         }
       })
@@ -224,14 +225,13 @@ export default class OTBinaryCtrl {
   }
 
   publishClientBinary = (req, res) => {
-    OTClientBinary.findByIdAndUpdate(req.params.binaryId, {needsConfirm: false}).then(
+    OTClientBinary.findByIdAndUpdate(req.params.binaryId, { needsConfirm: false }).then(
       binary => {
-        if(binary){
+        if (binary) {
           res.status(200).send(true)
-        }
-        else res.status(404).send(false)
+        } else { res.status(404).send(false) }
       }
-    ).catch(err=>{
+    ).catch(err => {
       console.error(err)
       res.status(500).send(err)
     })

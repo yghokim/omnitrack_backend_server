@@ -258,8 +258,7 @@ export class ResearchApiService extends ServiceBase {
     if (platform != null) {
       if (!query) {
         query = { platform: platform }
-      }
-      else query.platform = platform
+      } else { query.platform = platform }
     }
 
     return this.http.get("api/clients/all", new RequestOptions({ params: query })).pipe(map(res => res.json()))
@@ -270,7 +269,7 @@ export class ResearchApiService extends ServiceBase {
   }
 
   publishClientBinary(binaryId: string): Observable<boolean> {
-    return this.http.post("api/research/clients/" + binaryId + "/publish", {},this.authorizedOptions).pipe(map(res => res.json()))
+    return this.http.post("api/research/clients/" + binaryId + "/publish", {}, this.authorizedOptions).pipe(map(res => res.json()))
   }
 
   getMedia(trackerId: string, attributeLocalId: string, itemId: string, processingType: string /*"original" | "thumb" | "thumb_retina" */): Observable<Blob> {

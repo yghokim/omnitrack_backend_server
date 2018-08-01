@@ -2,6 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { AInvitation, SpecificGroupInvitation, RandomGroupInvitation } from '../../../../omnitrack/core/research/invitation';
 import { ResearchApiService } from '../../services/research-api.service';
+import { isNullOrBlank } from '../../../../shared_lib/utils';
 
 @Component({
   selector: 'app-new-invitation-dialog',
@@ -17,6 +18,8 @@ export class NewInvitationDialogComponent implements OnInit {
 
   public specificGroupType = AInvitation.SpecificGroupType
   public randomGroupType = AInvitation.RandomGroupType
+
+  public invitationCode: string = null
 
   isPublic = false
 
@@ -94,8 +97,7 @@ export class NewInvitationDialogComponent implements OnInit {
           break;
       }
 
-      console.log({ groupMechanism: invitation.toJson(), isPublic: this.isPublic })
-      this.dialogRef.close({ groupMechanism: invitation.toJson(), isPublic: this.isPublic })
+      this.dialogRef.close({ groupMechanism: invitation.toJson(), code: isNullOrBlank(this.invitationCode) === true ? null : this.invitationCode, isPublic: this.isPublic })
 
       /*
 

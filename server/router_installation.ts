@@ -20,7 +20,7 @@ export class InstallationRouter extends RouterWrapper {
     const assertInstallableStatusMiddleware = (req: Request, res, next) => {
       if (installationWizardCtrl.isInstallationComplete() === true) {
         res.status(500).send({ error: "AlreadyInstalled", message: "You cannot use the installation API because the server installation was already complete." })
-      } else next()
+      } else { next() }
     }
 
     this.router.get('/status', assertInstallableStatusMiddleware, (_, res) => {
@@ -67,12 +67,11 @@ export class InstallationRouter extends RouterWrapper {
       installationWizardCtrl.setInstallationMode(!req.body.value).then(success => {
         if (success === true) {
           if (req.body.value === true) {
-            //installation mode on.
+            // installation mode on.
             installServer()
           }
           res.status(200).send(true)
-        }
-        else {
+        } else {
           res.status(500).send("failed")
         }
 
@@ -85,8 +84,7 @@ export class InstallationRouter extends RouterWrapper {
       installationWizardCtrl.resetAll().then(success => {
         if (success === true) {
           res.status(200).send(this.getSummarizedFlags())
-        }
-        else {
+        } else {
           res.status(500).send("fail")
         }
       }).catch(err => {
