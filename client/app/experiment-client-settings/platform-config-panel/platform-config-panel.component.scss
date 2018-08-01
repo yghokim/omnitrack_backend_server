@@ -38,7 +38,6 @@ mat-expansion-panel-header {
   &:hover {
     background: #fafafa;
   }
-
   .label {
     color: #757575;
   }
@@ -59,11 +58,8 @@ mat-expansion-panel-header {
   }
 }
 
-.api-keys-header{
-  
-
-
-  &:hover{
+.api-keys-header {
+  &:hover {
     background: inherit;
   }
 }
@@ -97,13 +93,25 @@ mat-panel-title.opened {
 
 mat-panel-description {
   .progress-indicator {
-    .label{
+    .label {
       font-size: 0.8rem;
       flex: 0.4;
     }
-
-    mat-progress-bar{
+    mat-progress-bar {
       flex: 1;
+    }
+  }
+}
+
+mat-expansion-panel.binary-list {
+  & /deep/ .mat-expansion-panel-body {
+    padding: 0;
+    font-size: 1rem;
+  }
+
+  & /deep/ th, & /deep/ td{
+    &:first-child{
+      padding-left: 1.5rem;
     }
   }
 }

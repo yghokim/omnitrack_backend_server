@@ -82,6 +82,7 @@ import { EditExperimentGroupDialogComponent } from './experiment-groups/edit-exp
 import { ExperimentClientSettingsComponent } from './experiment-client-settings/experiment-client-settings.component';
 import { ConfigVariableRowComponent } from './experiment-client-settings/config-variable-row/config-variable-row.component';
 import { PlatformConfigPanelComponent } from './experiment-client-settings/platform-config-panel/platform-config-panel.component';
+import { ClientBinaryListComponent } from './components/client-binary-list/client-binary-list.component';
 
 @NgModule({
   imports: [
@@ -156,7 +157,8 @@ import { PlatformConfigPanelComponent } from './experiment-client-settings/platf
     EditExperimentGroupDialogComponent,
     ExperimentClientSettingsComponent,
     ConfigVariableRowComponent,
-    PlatformConfigPanelComponent
+    PlatformConfigPanelComponent,
+    ClientBinaryListComponent
   ],
   exports: [
     NouisliderModule,

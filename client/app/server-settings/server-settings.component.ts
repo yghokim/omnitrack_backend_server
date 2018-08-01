@@ -67,7 +67,7 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
   private reloadClientBinaries() {
     this.isLoadingBinaries = true
     this.internalSubscriptions.add(
-      this.api.getClientBinaries().subscribe(
+      this.api.getClientBinaries(null).subscribe(
         binaryGroups => {
           this.binaryGroupList = binaryGroups
           this.isLoadingBinaries = false
@@ -134,29 +134,6 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
             default:
               this.notificationService.pushSnackBarMessage({ message: "The file was not registered because of the server error." })
               break;
-          }
-        }
-      )
-    )
-  }
-
-  onRemoveBinaryClicked(binaryId: string) {
-    this.internalSubscriptions.add(
-      this.dialog.open(YesNoDialogComponent, { data: { title: "Remove File", message: "Do you want to remove this file?<br>This process cannot be undone.", positiveLabel: "Delete", positiveColor: "warn", negativeColor: "primary" } }).beforeClose().pipe(
-        filter(confirm => confirm === true),
-        flatMap(() =>
-          this.api.removeClientBinary(binaryId))
-      ).subscribe(
-        changed => {
-          if (changed === true) {
-            var index = -1
-            for (const group of this.binaryGroupList) {
-              index = group.binaries.findIndex(b => b._id === binaryId)
-              if (index != -1) {
-                group.binaries.splice(index, 1)
-                break;
-              }
-            }
           }
         }
       )

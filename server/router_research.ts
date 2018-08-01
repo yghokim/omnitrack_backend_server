@@ -60,17 +60,7 @@ export class ResearchRouter extends RouterWrapper {
     this.router.post('/auth/verify', tokenSignedInAuth, this.researchAuthCtrl.verifyToken)
 
     //Admin API===================================================
-    this.router.post('/clients/upload', tokenAdminAuth, clientBinaryCtrl.postClientBinaryFile)
-    this.router.delete("/clients/:binaryId", tokenAdminAuth, clientBinaryCtrl.removeClientBinary)
-    this.router.post("/clients/:binaryId/delete", tokenAdminAuth, clientBinaryCtrl.removeClientBinary)
     
-
-    this.router.get('/signatures/all', tokenAdminAuth, clientSignatureCtrl.getSignatures)
-    this.router.post('/signatures/update', tokenAdminAuth, clientSignatureCtrl.postSignature)
-    this.router.delete('/signatures/:id', tokenAdminAuth, clientSignatureCtrl.removeSignature)
-    this.router.post('/signatures/:id/delete', tokenAdminAuth, clientSignatureCtrl.removeSignature)
-    
-
     this.router.get('/researchers/all', tokenAdminAuth, this.researchCtrl.getResearchers)
     this.router.post('/researchers/:researcherId/approve', tokenAdminAuth, this.researchCtrl.setResearcherAccountApproved)
     //=============================================================
@@ -183,6 +173,18 @@ export class ResearchRouter extends RouterWrapper {
 
 
     this.router.get("/users/all", tokenApprovedAuth, this.researchCtrl.getUsersWithPariticipantInformation)
+
+    this.router.post('/clients/upload', tokenApprovedAuth, clientBinaryCtrl.postClientBinaryFile)
+    this.router.delete("/clients/:binaryId", tokenApprovedAuth, clientBinaryCtrl.removeClientBinary)
+    this.router.post("/clients/:binaryId/delete", tokenApprovedAuth, clientBinaryCtrl.removeClientBinary)
+    this.router.post('/clients/:binaryId/publish', tokenApprovedAuth, clientBinaryCtrl.publishClientBinary)
+    
+
+    this.router.get('/signatures/all', tokenApprovedAuth, clientSignatureCtrl.getSignatures)
+    this.router.post('/signatures/update', tokenApprovedAuth, clientSignatureCtrl.postSignature)
+    this.router.delete('/signatures/:id', tokenApprovedAuth, clientSignatureCtrl.removeSignature)
+    this.router.post('/signatures/:id/delete', tokenApprovedAuth, clientSignatureCtrl.removeSignature)
+  
 
     // debuging
     this.router.get("/debug/generate_participant_alias", this.researchCtrl.generateAliasOfParticipants)

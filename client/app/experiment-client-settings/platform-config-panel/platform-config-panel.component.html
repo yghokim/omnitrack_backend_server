@@ -147,11 +147,18 @@
 
   </mat-expansion-panel>
 
-  <mat-expansion-panel [expanded]="panelStep === 1" (opened)="panelStep = 1" (closed)="onClosedPanel(1)">
+  <mat-expansion-panel class="binary-list" [expanded]="panelStep === 1" (opened)="panelStep = 1" (closed)="onClosedPanel(1)">
     <mat-expansion-panel-header>
       <mat-panel-title [class.opened]="panelStep === 1">
         Client Binaries
       </mat-panel-title>
     </mat-expansion-panel-header>
+    <app-labeled-loading-indicator *ngIf="isLoadingBinaries===true">
+      <span message>Loading client information...</span>
+    </app-labeled-loading-indicator>
+    <app-client-binary-list [binaries]="binaries" [useConfirmColumn]="true" [experimentId]="clientBuildService.currentExperimentId"></app-client-binary-list>
+    <div class="card-footer small" *ngIf="!binaries || binaries.length === 0">
+      No app files are listed.
+    </div>
   </mat-expansion-panel>
 </mat-accordion>

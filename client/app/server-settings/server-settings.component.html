@@ -18,49 +18,11 @@
     </app-labeled-loading-indicator>
     <mat-tab-group *ngIf="isLoadingBinaries!==true && binaryGroupList && binaryGroupList.length > 0" class="tab-group" (selectedTabChange)="onTabChanged($event)">
       <mat-tab *ngFor="let binaryGroup of binaryGroupList; trackBy: matchBinaryGroup" [label]="binaryGroup._id">
-        <table class="table table-data">
-          <thead>
-            <tr class="singleline">
-              <th>App Version</th>
-              <th>Minimum OS</th>
-              <th>File Size</th>
-              <th>Changelog</th>
-              <th>Uploaded</th>
-              <th>Downloads</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="singleline hoverable" *ngFor="let binary of binaryGroup.binaries;  trackBy: matchBinaryItem">
-              <td>{{binary.version}}</td>
-              <td>{{binary.minimumOsVersionReadable}}</td>
-              <td>{{binary.fileSize | fileSize}}</td>
-              <td>
-                <ol *ngIf="binary.changelog" class="changelog-list">
-                  <li *ngFor="let log of binary.changelog">{{log}}</li>
-                </ol>
-              </td>
-              <td>{{binary.createdAt | date: 'short'}}</td>
-              <td>
-                <span class="badge badge-info badge-pill">{{binary.downloadCount}}</span>
-              </td>
-              <td class="button-cell">
-                <div class="text-right">
-                  <a [href]="'/api/clients/download?platform=' + binary.platform + '&version=' + binary.version" mat-icon-button>
-                    <mat-icon class="material-icons">file_download</mat-icon>
-                  </a>
-                  <button mat-icon-button (click)="onRemoveBinaryClicked(binary._id)">
-                    <mat-icon class="material-icons">delete</mat-icon>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <app-client-binary-list [binaries]="binaryGroup.binaries"></app-client-binary-list>
       </mat-tab>
     </mat-tab-group>
     <div class="card-footer small" *ngIf="isEmpty()===true">
-      No app files are assigned in the server.
+      No app files are uploaded.
     </div>
   </div>
 

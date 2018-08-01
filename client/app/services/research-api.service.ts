@@ -249,12 +249,28 @@ export class ResearchApiService extends ServiceBase {
     return this.http.post("api/research/clients/upload", formData, this.makeAuthorizedRequestOptions({ changelog: changelog })).pipe(map(res => res.json()))
   }
 
-  getClientBinaries(): Observable<Array<any>> {
-    return this.http.get("api/clients/all").pipe(map(res => res.json()))
+  getClientBinaries(experimentId?: string, platform?: string): Observable<Array<any>> {
+    let query: any = null
+    if (experimentId != null) {
+      query = { experimentId: experimentId }
+    }
+
+    if (platform != null) {
+      if (!query) {
+        query = { platform: platform }
+      }
+      else query.platform = platform
+    }
+
+    return this.http.get("api/clients/all", new RequestOptions({ params: query })).pipe(map(res => res.json()))
   }
 
   removeClientBinary(binaryId: string): Observable<boolean> {
     return this.http.delete("api/research/clients/" + binaryId, this.authorizedOptions).pipe(map(res => res.json()))
+  }
+
+  publishClientBinary(binaryId: string): Observable<boolean> {
+    return this.http.post("api/research/clients/" + binaryId + "/publish", {},this.authorizedOptions).pipe(map(res => res.json()))
   }
 
   getMedia(trackerId: string, attributeLocalId: string, itemId: string, processingType: string /*"original" | "thumb" | "thumb_retina" */): Observable<Blob> {

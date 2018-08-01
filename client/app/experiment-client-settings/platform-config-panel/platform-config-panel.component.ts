@@ -19,7 +19,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
 
   private _internalSubscriptions = new Subscription()
 
-  public panelStep = 0
+  public panelStep = 1
 
   public platform: string = null
 
@@ -32,6 +32,9 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
   public newApiKeyValue: string = null
   public isBuilding = undefined
   public localFiles: any = {}
+
+  public isLoadingBinaries = true
+  public binaries: Array<any>
 
   @Input("platform") set _platform(platform: string) {
     if (this.platform !== platform) {
@@ -61,14 +64,17 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
               this.isBuilding = true
             } else {
               this.isBuilding = false
+              this.reloadBinaries()
             }
           }
         )
       )
+
+      this.reloadBinaries()
     }
   }
 
-  constructor(private api: ResearchApiService, private clientBuildService: ClientBuildService, private dialog: MatDialog) { }
+  constructor(private api: ResearchApiService, public clientBuildService: ClientBuildService, private dialog: MatDialog) { }
 
   ngOnInit() {
   }
@@ -82,6 +88,32 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
     if (index === 0) {
       this.panelStep = 1
     } else { this.panelStep = 0 }
+  }
+
+  private reloadBinaries() {
+    this.isLoadingBinaries = true
+    this._internalSubscriptions.add(
+      this.api.getClientBinaries(this.clientBuildService.currentExperimentId, this.platform).subscribe(
+        binaryGroup => {
+          console.log(binaryGroup)
+          if (binaryGroup != null && binaryGroup.length > 0) {
+            const group = binaryGroup.find(g => g._id === this.platform)
+            if (group) {
+              this.binaries = group.binaries
+            }
+          }
+        },
+        err=>{
+
+        },
+        ()=>{
+          this.isLoadingBinaries = false
+          if(!this.binaries || this.binaries.length === 0){
+            this.panelStep = 0
+          }
+        }
+      )
+    )
   }
 
   matchPlatforms(index: number, platformEntry: any) {

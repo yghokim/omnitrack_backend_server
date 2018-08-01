@@ -8,6 +8,7 @@ import * as path from "path";
 import { getExtensionFromPath, compareVersions } from "../../../shared_lib/utils";
 import { ClientBinaryUtil } from '../../../omnitrack/core/client_binary_utils';
 import { Extract, OperatingSystem } from 'app-metadata';
+import { resolve } from "dns";
 const randomstring = require('randomstring');
 const md5File = require('md5-file/promise');
 const fs = require("fs-extra");
@@ -44,54 +45,56 @@ export default class OTBinaryCtrl {
     })
   }
 
-  private extractSignature(filePath: string, cb: (err, print: string) => void) {
-    yauzl.open(filePath, { lazyEntries: true }, (err, zipfile) => {
-      if (err) {
-        cb(err, null)
-        return
-      } else {
-        zipfile.readEntry();
-        zipfile.on("entry", (entry) => {
-          console.log("entry name: " + entry.fileName)
-          if (entry.fileName.toUpperCase() === "META-INF/CERT.RSA") {
-            // keystore file.
-            zipfile.openReadStream(entry, (err, readStream) => {
-              if (err) { throw err; }
-              const keystoreTempFilePath = "storage/temp/temp_keystore_" + randomstring.generate({ length: 20 })
-                + "_" + Date.now() + ".rsa"
-              readStream.on("end", function () {
-                console.log("extracted rsa file")
-                const { spawn } = require('child_process'),
-                  keytool = spawn('keytool', ['-printcert', '-file', keystoreTempFilePath]);
-                keytool.stdout.on("data", data => {
-                  keytool.stdout.destroy()
-                  fs.remove(keystoreTempFilePath)
-                  const regex = /\s([0-9A-F]{2}(:[0-9A-F]{2}){19})\s/g
-                  const matches = regex.exec(data)
-                  if (matches.length > 1) {
-                    cb(null, matches[1])
-                  } else {
-                    cb("keytool failed", null)
-                  }
-                })
+  private extractSignature(filePath: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      yauzl.open(filePath, { lazyEntries: true }, (err, zipfile) => {
+        if (err) {
+          reject(err)
+          return
+        } else {
+          zipfile.readEntry();
+          zipfile.on("entry", (entry) => {
+            console.log("entry name: " + entry.fileName)
+            if (entry.fileName.toUpperCase() === "META-INF/CERT.RSA") {
+              // keystore file.
+              zipfile.openReadStream(entry, (err, readStream) => {
+                if (err) { throw err; }
+                const keystoreTempFilePath = "storage/temp/temp_keystore_" + randomstring.generate({ length: 20 })
+                  + "_" + Date.now() + ".rsa"
+                readStream.on("end", function () {
+                  console.log("extracted rsa file")
+                  const { spawn } = require('child_process'),
+                    keytool = spawn('keytool', ['-printcert', '-file', keystoreTempFilePath]);
+                  keytool.stdout.on("data", data => {
+                    keytool.stdout.destroy()
+                    fs.remove(keystoreTempFilePath)
+                    const regex = /\s([0-9A-F]{2}(:[0-9A-F]{2}){19})\s/g
+                    const matches = regex.exec(data)
+                    if (matches.length > 1) {
+                      resolve(matches[1])
+                    } else {
+                      reject(new Error("keytool failed"))
+                    }
+                  })
+                });
+                readStream.pipe(fs.createWriteStream(keystoreTempFilePath));
               });
-              readStream.pipe(fs.createWriteStream(keystoreTempFilePath));
-            });
-          } else { zipfile.readEntry(); }
-        })
-      }
+            } else { zipfile.readEntry(); }
+          })
+        }
+      })
     })
   }
 
-  _getLatestVersionInfoForExperiment(experimentId: string, platform: string): Promise<{versionName:string, versionCode: number}>{
-    return OTClientBinary.findOne({experiment: experimentId, platform: platform}, {}, {sort: {versionCode: -1}}).lean().then(
+  _getLatestVersionInfoForExperiment(experimentId: string, platform: string): Promise<{ versionName: string, versionCode: number }> {
+    return OTClientBinary.findOne({ experiment: experimentId, platform: platform }, {}, { sort: { versionCode: -1 } }).lean().then(
       binary => {
         if (binary) {
           return {
             versionName: binary["version"],
             versionCode: binary["versionCode"]
           }
-        }else return null
+        } else return null
       }
     )
   }
@@ -111,7 +114,7 @@ export default class OTBinaryCtrl {
           throw { error: "FileAlreadyExists" }
         } else {
           const extension = getExtensionFromPath(clientFilePath)
-          Extract.run(clientFilePath).then(
+          return Extract.run(clientFilePath).then(
             packageInfo => {
               let platform = "unknown"
               switch (packageInfo.operatingSystem) {
@@ -131,7 +134,7 @@ export default class OTBinaryCtrl {
 
               const filePath = this.makeClientFilePath(platform, filename)
 
-              fs.move(clientFilePath, filePath)
+              return fs.move(clientFilePath, filePath)
                 .then(() => {
                   if (!fileSize) {
                     const stat = fs.statSync(filePath)
@@ -153,26 +156,22 @@ export default class OTBinaryCtrl {
                     fileName: filename,
                     originalFileName: originalName,
                     checksum: hash,
-                    needsConfirm: experimentId? true : false,
+                    needsConfirm: experimentId ? true : false,
                     changelog: changelog
                   }
-                  new OTClientBinary(model).save().then(saved => {
+                  return new OTClientBinary(model).save().then(saved => {
                     console.log(saved)
-                    this.extractSignature(filePath, (signatureExtractionError, print) => {
-                      if (signatureExtractionError) {
-                        throw { error: "UnsignedClient", raw: signatureExtractionError }
-                      } else {
-                        console.log("fingerprint: " + print)
-                        clientSignatureCtrl.upsertSignature(null, print, packageInfo.uniqueIdentifier, platform, true).then(
-                          changed => {
-                            return { success: true, signatureUpdated: changed }
-                          }
-                        )
-                      }
-                    })
+                    return this.extractSignature(filePath)
+                  }).then(print => {
+                    console.log("fingerprint: " + print)
+                    return clientSignatureCtrl.upsertSignature(null, print, packageInfo.uniqueIdentifier, platform, true).then(
+                      changed => {
+                        return { success: true, signatureUpdated: changed }
+                      })
                   })
                 })
                 .catch(reason => {
+                  console.error(reason)
                   throw { error: reason }
                 })
             })
@@ -184,28 +183,26 @@ export default class OTBinaryCtrl {
   }
 
   postClientBinaryFile = (req, res) => {
-    if (req.researcher) {
-      if (req.researcher.previlage >= 1) {
-        console.log("upload client binary to server.")
-        const upload = multer({ storage: this.makeClientBinaryStorage() }).single("file")
-        const changelog = req.query.changelog
-        upload(req, res, err => {
-          if (err != null) {
-            console.log(err)
+    if (req.researcher.previlage >= 1) {
+      console.log("upload client binary to server.")
+      const upload = multer({ storage: this.makeClientBinaryStorage() }).single("file")
+      const changelog = req.query.changelog
+      upload(req, res, err => {
+        if (err != null) {
+          console.error(err)
+          res.status(500).send(err)
+        } else {
+          this._registerNewClientBinary(req.file.path, changelog, req.file.size, req.file.originalname, req.query.experimentId).then(result => {
+            res.status(200).send(result)
+          }).catch(err => {
+            console.error(err)
             res.status(500).send(err)
-          } else {
-            this._registerNewClientBinary(req.file.path, changelog, req.file.size, req.file.originalname, req.query.experimentId).then(result => {
-              res.status(200).send(result)
-            }).catch(err => {
-              res.status(500).send(err)
-            })
-          }
-        })
-      } else {
-        res.status(500).send({ error: "PermissionDenied" })
-      }
+          })
+        }
+      })
     } else {
-      res.status(500).send({ error: "An admin researcher must be signed in." })
+      console.error("A researcher without permission cannot upload clients.")
+      res.status(500).send({ error: "PermissionDenied" })
     }
   }
 
@@ -226,10 +223,28 @@ export default class OTBinaryCtrl {
     )
   }
 
+  publishClientBinary = (req, res) => {
+    OTClientBinary.findByIdAndUpdate(req.params.binaryId, {needsConfirm: false}).then(
+      binary => {
+        if(binary){
+          res.status(200).send(true)
+        }
+        else res.status(404).send(false)
+      }
+    ).catch(err=>{
+      console.error(err)
+      res.status(500).send(err)
+    })
+  }
+
   getClientBinaries = (req, res) => {
-    
+    const match: any = { experiment: req.query.experimentId }
+    if (req.query.platform) {
+      match.platform = req.query.platform
+    }
+
     OTClientBinary.aggregate([
-      { $match: {experiment: req.body.experiment} },
+      { $match: match },
       { $group: { _id: "$platform", binaries: { $push: "$$ROOT" } } }])
       .then(
         platforms => {
@@ -238,6 +253,8 @@ export default class OTBinaryCtrl {
               return -compareVersions(binary1.version, binary2.version)
             })
           })
+          console.log("bianries:")
+          console.log(platforms)
           res.status(200).send(platforms)
         }
       ).catch(err => {
@@ -247,11 +264,11 @@ export default class OTBinaryCtrl {
   }
 
   downloadClientBinary = (req, res) => {
-    
-    OTClientBinary.findOneAndUpdate({ experiment: (req.query.experimentId === "null" || !req.query.experimentId) ? null : req.query.experimentId, platform: req.query.platform, version: req.query.version }, { $inc: { downloadCount: 1 } }, {sort: {"updatedAt": -1}}).then(
+
+    OTClientBinary.findOneAndUpdate({ experiment: (req.query.experimentId === "null" || !req.query.experimentId) ? null : req.query.experimentId, platform: req.query.platform, version: req.query.version }, { $inc: { downloadCount: 1 } }, { sort: { "updatedAt": -1 } }).then(
       binary => {
         if (binary) {
-          res.download(this.makeClientFilePath(binary["platform"], binary["fileName"]), binary["originalFileName"], err => {
+          res.download(this.makeClientFilePath(binary["platform"], binary["fileName"]), "omnitrack_release_" + binary["version"] + "." + getExtensionFromPath(binary["originalFileName"]), err => {
             if (err) {
               console.log(err)
             }
@@ -269,7 +286,7 @@ export default class OTBinaryCtrl {
 
   getLatestVersionInfo = (req, res) => {
     const overrideHostAddress = req.query.host
-    OTClientBinary.find({ experiment: (req.query.experimentId === "null" || !req.query.experimentId) ? null : req.query.experimentId, needsConfirm: {$ne: true}, platform: req.query.platform }).lean().then(
+    OTClientBinary.find({ experiment: (req.query.experimentId === "null" || !req.query.experimentId) ? null : req.query.experimentId, needsConfirm: { $ne: true }, platform: req.query.platform }).lean().then(
       binaries => {
         if (binaries && binaries.length > 0) {
           binaries.sort((binary1: any, binary2: any) => {
@@ -279,7 +296,7 @@ export default class OTBinaryCtrl {
           const binaryInfo: VersionUpdaterInfo = {
             latestVersion: latestBinary["version"],
             latestVersionCode: latestBinary["versionCode"],
-            url: overrideHostAddress + "/api/clients/download?platform=" + req.query.platform + "&version=" + latestBinary["version"] + ((req.query.experimentId === "null" || !req.query.experimentId)? "" :("&experimentId=" + req.query.experimentId)),
+            url: overrideHostAddress + "/api/clients/download?platform=" + req.query.platform + "&version=" + latestBinary["version"] + ((req.query.experimentId === "null" || !req.query.experimentId) ? "" : ("&experimentId=" + req.query.experimentId)),
             releaseNotes: latestBinary["changeLog"] || []
           }
           console.log(binaryInfo)
