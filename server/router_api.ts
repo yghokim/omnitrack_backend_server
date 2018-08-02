@@ -205,7 +205,7 @@ export class ClientApiRouter extends RouterWrapper {
 
     this.router.post("/research/invitation/approve", assertSignedInMiddleware, researchCtrl.approveExperimentInvitation)
 
-    this.router.post("/research/invitation/reject", assertSignedInMiddleware, researchCtrl.rejectExperimentInvitation)
+    //this.router.post("/research/invitation/reject", assertSignedInMiddleware, researchCtrl.rejectExperimentInvitation)
 
     this.router.post("/research/experiment/:experimentId/dropout", assertSignedInMiddleware, researchCtrl.dropOutFromExperiment)
 

@@ -25,7 +25,7 @@ export class ServerUserListComponent implements OnInit, OnDestroy {
   public userPoolDataSource: MatTableDataSource<any>;
   @ViewChild('userpoolTable', { read: MatSort }) userPoolSort: MatSort;
 
-  constructor( public api: ResearchApiService,
+  constructor(public api: ResearchApiService,
     private notificationService: NotificationService,
     private dialog: MatDialog) { }
 
@@ -79,13 +79,11 @@ export class ServerUserListComponent implements OnInit, OnDestroy {
   }
 
   getParticipationStatus(participant: any): string {
-    if (participant.isDenied === true) {
-      return 'denied'
-    } else if (participant.dropped === true) {
+    if (participant.dropped === true) {
       return 'dropped'
-    } else if (participant.isConsentApproved === true) {
+    } else {
       return 'participating'
-    } else { return 'pending' }
+    }
   }
 
   exractDemographics(user) {
@@ -98,7 +96,7 @@ export class ServerUserListComponent implements OnInit, OnDestroy {
   }
 
   getNumExperiment(user: any): number {
-    return user.participantIdentities.filter(participant => !participant.isDenied && participant.isConsentApproved).length
+    return user.participantIdentities.filter(participant => participant.isDropped !== false).length
   }
 
   onDeleteAccountClicked(userId: string) {

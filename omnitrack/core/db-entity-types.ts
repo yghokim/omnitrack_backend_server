@@ -106,9 +106,6 @@ export interface IParticipantDbEntity extends IUserChildDbEntity{
   groupId?: string
   excludedDays?: Array<number>
   invitation?: any
-  isDenied?: boolean
-  deniedAt?: Date
-  isConsentApproved?: boolean
   approvedAt?: Date
   dropped?: boolean
   droppedReason?: string

@@ -135,12 +135,4 @@ export class ExperimentInvitationsComponent implements OnInit, OnDestroy {
     } else { return 0 }
   }
 
-
-  getNumDeniedParticipants(invitation): number {
-    const participants = invitation.participants
-    if (participants instanceof Array) {
-      return participants.filter(p => p.isDenied === true).length
-    } else { return 0 }
-  }
-
 }

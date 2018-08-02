@@ -26,22 +26,6 @@ export default class OTExperimentCtrl {
     }
   }
 
-
-  private _makeParticipantQueryConditionForPendingInvitation(invitationId) {
-    return {
-      $and: [
-        { invitation: invitationId },
-        { dropped: { $ne: true } },
-        {
-          $or: [
-            { isDenied: true },
-            { isConsentApproved: { $ne: true } }
-          ]
-        }
-      ]
-    }
-  }
-
   private _populateExperimentDocumentForInfo(doc: any) {
     return doc.populate({ path: "manager", select: "_id email alias" })
       .populate({ path: "experimenters.researcher", select: "_id email alias" })
@@ -393,6 +377,9 @@ export default class OTExperimentCtrl {
 
   getPublicInvitationList = (req, res) => {
     const userId = res.locals.user.uid
+    res.status(200).send([])
+    //TODO disable getting public invitations.
+    /*
     this._getPublicInvitations(userId).then(
       invitations => {
         res.status(200).send(invitations)
@@ -400,7 +387,7 @@ export default class OTExperimentCtrl {
     ).catch(err => {
       console.log(err)
       res.status(500).send(err)
-    })
+    })*/
   }
 
   setFinishDateOnExperiment = (req, res) => {
@@ -420,7 +407,7 @@ export default class OTExperimentCtrl {
   getInvitations = (req, res) => {
     const researcherId = req.researcher.uid
     const experimentId = req.params.experimentId
-    OTInvitation.find({ experiment: experimentId }).populate({ path: "participants", select: "_id isDenied isConsentApproved dropped" }).lean().then(list => {
+    OTInvitation.find({ experiment: experimentId }).populate({ path: "participants", select: "_id dropped" }).lean().then(list => {
       res.status(200).json(list)
     })
       .catch(err => {
@@ -432,10 +419,7 @@ export default class OTExperimentCtrl {
     const researcherId = req.researcher.uid
     const experimentId = req.params.experimentId
     const invitationId = req.params.invitationId
-    OTInvitation.findOneAndRemove({ _id: invitationId, experiment: experimentId }).then(removed => {
-      // remove participants with pending invitation.
-      return OTParticipant.remove(this._makeParticipantQueryConditionForPendingInvitation(invitationId))
-    })
+    OTInvitation.findOneAndRemove({ _id: invitationId, experiment: experimentId })
       .catch(err => {
         res.status(500).send(err)
       })
@@ -457,7 +441,7 @@ export default class OTExperimentCtrl {
 
     data["experiment"] = experimentId
     new OTInvitation(data).save()
-      .then(invit => invit.populate({ path: "participants", select: "_id isDenied isConsentApproved dropped" }).execPopulate())
+      .then(invit => invit.populate({ path: "participants", select: "_id dropped" }).execPopulate())
       .then(
         invit => {
           app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId,

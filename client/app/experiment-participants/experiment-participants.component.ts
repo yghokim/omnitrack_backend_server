@@ -66,11 +66,6 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     return this.participants.filter(participant => participant.dropped === true).length
   }
 
-  pendingInviteeCount() {
-    if (!this.participants) { return 0 }
-    return this.participants.filter(participant => participant.isDenied !== true && participant.isConsentApproved !== true && participant.dropped !== true).length
-  }
-
   /*
   onSendInvitationClicked(userId: string) {
     this._internalSubscriptions.add(
@@ -247,13 +242,9 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
 
   getParticipationStatus(participant: any): string {
-    if (participant.isDenied === true) {
-      return 'denied'
-    } else if (participant.dropped === true) {
+    if (participant.dropped === true) {
       return 'dropped'
-    } else if (participant.isConsentApproved === true) {
-      return 'participating'
-    } else { return 'pending' }
+    } else { return 'participating' }
   }
 
   setSortParticipants(): void {
@@ -264,8 +255,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
           case "alias": { return data.alias || ''; }
           case "email": { if (data.user) { return data.user.email || ''; } break; }
           case "status": {
-            if (data.isDenied) { return 4; } else if (!data.isDenied && !data.isConsentApproved) { return 2; } else if (data.dropped) { return 3; } else if (data.isConsentApproved && !data.dropped) { return 1; }
-            break;
+            if (data.dropped) { return 2; } else { return 1; }
           }
           case "excludedDays":
             if (data.excludedDays) {

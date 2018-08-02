@@ -16,10 +16,8 @@
       <ng-container matColumnDef="status">
         <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
         <mat-cell *matCellDef="let object">
-          <div class="badge badge-danger" *ngIf="object.isDenied">Denied</div>
-          <div class="badge badge-warning" *ngIf="!object.isDenied && !object.isConsentApproved">Invitation Pending</div>
-          <div class="badge badge-danger" *ngIf="object.dropped == true">Dropped Out</div>
-          <div class="badge badge-primary" *ngIf="object.isConsentApproved && object.dropped != true">In Experiment</div>
+          <div class="badge badge-danger" *ngIf="object.dropped === true">Dropped</div>
+          <div class="badge badge-primary" *ngIf="object.dropped !== true">Active</div>
         </mat-cell>
       </ng-container>
       <ng-container matColumnDef="excludedDays">
@@ -117,8 +115,7 @@
       <small *ngIf="participants== null" class="text-color-gray">Participants not loaded.</small>
       <small *ngIf="participants!= null && participants.length == 0" class="text-color-gray">No participants in server.</small>
       <div *ngIf="participants!= null && participants.length > 0" class="text-color-gray flex-container flex-align-items-center">
-        <small class="right-margin-3em">Active Participants: {{activeParticipantCount()}}</small>
-        <small class="right-margin-3em">Pending Invitees: {{pendingInviteeCount()}}</small>
+        <small class="right-margin-3em">Active: {{activeParticipantCount()}}</small>
         <small class="right-margin-3em">Dropped: {{droppedParticipantCount()}}</small>
 
       </div>

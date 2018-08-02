@@ -21,7 +21,7 @@ export class NewInvitationDialogComponent implements OnInit {
 
   public invitationCode: string = null
 
-  isPublic = false
+  //isPublic = false
 
   constructor(
     private dialogRef: MatDialogRef<NewInvitationDialogComponent>,
@@ -97,7 +97,7 @@ export class NewInvitationDialogComponent implements OnInit {
           break;
       }
 
-      this.dialogRef.close({ groupMechanism: invitation.toJson(), code: isNullOrBlank(this.invitationCode) === true ? null : this.invitationCode, isPublic: this.isPublic })
+      this.dialogRef.close({ groupMechanism: invitation.toJson(), code: isNullOrBlank(this.invitationCode) === true ? null : this.invitationCode })
 
       /*
 

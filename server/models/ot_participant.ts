@@ -8,9 +8,6 @@ const otParticipantSchema = new mongoose.Schema({
   groupId: String,
   excludedDays: {type: [Date], default: []},
   invitation: {type: mongoose.Schema.Types.ObjectId, ref: "OTInvitation"},
-  isDenied: {type: Boolean, index: true, default: false, required: true},
-  deniedAt: Date,
-  isConsentApproved: {type: Boolean, index: true, default: false, required: true},
   approvedAt: Date,
   dropped: {type: Boolean, index: true, default: false},
   droppedReason: String,
@@ -20,7 +17,7 @@ const otParticipantSchema = new mongoose.Schema({
   experimentRange: {from: Date, to: Date}
 }, {timestamps: true});
 
-otParticipantSchema.index({dropped: 1, isDenied: 1, isConsentApproved: 1})
+otParticipantSchema.index({dropped: 1, isConsentApproved: 1})
 const OTParticipant = mongoose.model('OTParticipant', otParticipantSchema);
 
 export default OTParticipant;

@@ -150,7 +150,7 @@ export default class OTResearchCtrl {
   getUsersWithPariticipantInformation = (req, res) => {
     OTUser.find({}).populate({
       path: 'participantIdentities',
-      select: '_id invitation isDenied isConsentApproved dropped',
+      select: '_id invitation dropped',
       populate: {
         path: 'invitation',
         select: '_id experiment code',
@@ -191,26 +191,6 @@ export default class OTResearchCtrl {
         .catch(error => {
           res.status(500).send(error)
         })
-    }
-  }
-
-  rejectExperimentInvitation = (req, res) => {
-    const userId = req.body.userId
-    const invitationCode = req.query.invitationCode
-    if (!userId || !invitationCode) {
-      res.status(500).send("IllegalArgumentException")
-    } else {
-      OTParticipant.findOneAndUpdate({
-        "user._id": userId,
-        "invitation.code": invitationCode
-      }, { isDenied: true, deniedAt: new Date() }, (err, doc) => {
-        if (err) {
-          res.status(500).send(err)
-        } else {
-          app.socketModule().sendUpdateNotificationToExperimentSubscribers(doc["experiment"], { model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_DENIED, payload: doc })
-          res.status(200).send(true)
-        }
-      })
     }
   }
 

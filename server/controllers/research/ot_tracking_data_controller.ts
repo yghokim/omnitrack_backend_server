@@ -16,8 +16,7 @@ export default class TrackingDataCtrl {
   } = { excludeExternals: true, excludeRemoved: true }): Promise<Array<any>> {
 
     const participantQuery = {
-      experiment: experimentId,
-      isDenied: { $ne: true }, isConsentApproved: true, dropped: { $ne: true }
+      experiment: experimentId, dropped: { $ne: true }
     }
 
     if (userId) {
@@ -25,9 +24,7 @@ export default class TrackingDataCtrl {
     }
 
     return OTParticipant.find({
-      experiment: experimentId,
-      isDenied: { $ne: true }, isConsentApproved: true, dropped: { $ne: true }
-    }, { _id: 1, user: 1 }).lean().then(
+      experiment: experimentId, dropped: { $ne: true }}, { _id: 1, user: 1 }).lean().then(
       participants => {
         if (participants.length > 0) {
           const condition = { user: { $in: participants.map(p => p["user"]) } }

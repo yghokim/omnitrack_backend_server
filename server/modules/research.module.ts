@@ -153,9 +153,6 @@ export default class ResearchModule {
 
       app.socketModule().sendUpdateNotificationToExperimentSubscribers(part.experiment, { model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_REMOVED, payload: { participant: part } })
 
-      if (!part.isDenied && !part.isConsentApproved) {
-        // TODO remove push notification to user
-      }
       return part
     })
   }
@@ -318,8 +315,6 @@ export default class ResearchModule {
                 console.log("this participant's alias: " + alias)
                 return OTParticipant.findOneAndUpdate({ "user": userId, "invitation": invitation._id }, {
                   alias: alias,
-                  isDenied: false,
-                  isConsentApproved: true,
                   approvedAt: joinedDate,
                   dropped: false,
                   droppedAt: null,
@@ -331,8 +326,6 @@ export default class ResearchModule {
                   if (changedParticipant == null) {
                     console.log("No participant. this is the intentional participation. Add new participant instance.")
                     return this.makeParticipantInstanceFromInvitation(invitationCode, userId, alias).then(newParticipant => {
-                      newParticipant["isDenied"] = false
-                      newParticipant["isConsentApproved"] = true
                       newParticipant["approvedAt"] = joinedDate
                       newParticipant["experimentRange"] = { from: joinedDate, to: null }
                       return newParticipant.save().then(participant => {
