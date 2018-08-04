@@ -6,7 +6,7 @@ import OTExperiment from '../../models/ot_experiment'
 import OTInvitation from '../../models/ot_invitation'
 import otUsageLogCtrl from '../ot_usage_log_controller';
 import OTParticipant from '../../models/ot_participant'
-import { IJoinedExperimentInfo, ExperimentPermissions } from '../../../omnitrack/core/research/experiment'
+import { ExperimentPermissions } from '../../../omnitrack/core/research/experiment'
 import { Document, DocumentQuery, Query } from 'mongoose';
 import app from '../../app';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
@@ -93,13 +93,6 @@ export default class OTExperimentCtrl {
     )
   }
 
-  private _getPublicInvitations(userId: string): Promise<Array<any>> {
-    return OTInvitation.find({ isPublic: true })
-      .populate({ path: "experiment", select: "_id name" })
-      .populate({ path: "participants", match: { user: userId } })
-      .then(docs => docs)
-  }
-
   private _createExperimentByInfo(name: string, managerId: string): Promise<Document> {
     const newExperiment = new OTExperiment({ name: name, manager: managerId })
     return newExperiment.save()
@@ -130,6 +123,27 @@ export default class OTExperimentCtrl {
         })
       } else { return false }
     })
+  }
+
+  /**
+   *
+   *
+   * @param {string} invitationCode
+   * @param {string} experimentId
+   * @returns {Promise<boolean>} whether the invitation code is of the experiment.
+   * @memberof OTExperimentCtrl
+   */
+  public matchInvitationWithExperiment(invitationCode: string, experimentId: string): Promise<boolean>{
+    console.log("match invitation code", invitationCode, "and the experiment", experimentId)
+    return OTInvitation.findOne({code: invitationCode, experiment: experimentId}).lean().then(
+      invit => {
+        if(invit){
+          return true
+        }else{
+          return false
+        }
+      }
+    )
   }
 
   getExperiment = (req, res) => {

@@ -1,5 +1,6 @@
 import OTUser from '../models/ot_user'
 import OTResearcher from '../models/ot_researcher'
+import OTExperiment from '../models/ot_experiment'
 import OTParticipant from '../models/ot_participant'
 import { IJoinedExperimentInfo } from '../../omnitrack/core/research/experiment'
 import { Document } from 'mongoose';
@@ -165,6 +166,26 @@ export default class OTResearchCtrl {
       console.log(err)
       res.status(500).send(err)
     })
+  }
+
+
+  getExperimentConsentInfo = (req, res) => {
+    const experimentId = req.params.experimentId || res.locals.experimentId
+    OTExperiment.findOne({
+      _id: experimentId
+    }, {
+        consent: 1,
+        receiveConsentInApp: 1,
+        demographicFormSchema: 1
+      }).lean().then(
+        exp => {
+          if (exp) {
+            res.status(200).send(exp)
+          } else {
+            res.status(404).send("No such experiment.")
+          }
+        }
+      )
   }
 
   approveExperimentInvitation = (req, res) => {

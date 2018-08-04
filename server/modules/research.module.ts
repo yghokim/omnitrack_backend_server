@@ -16,6 +16,7 @@ import { SocketConstants } from '../../omnitrack/core/research/socket'
 import { Document } from 'mongoose';
 import * as path from "path";
 import { IParticipantDbEntity } from '../../omnitrack/core/db-entity-types';
+import { IExperimentDbEntity } from '../../omnitrack/core/research/db-entity-types';
 
 const random_name = require('node-random-name');
 export default class ResearchModule {
@@ -64,16 +65,16 @@ export default class ResearchModule {
     }
   }
 
-  generateRandomUniqueAliasForParticipant(gender: string, prefix: string = "", suffix: string = "?"): Promise<string> {
+  generateRandomUniqueAliasForParticipant(gender: string, prefix: string = "", suffix: string = "?", experimentId: string): Promise<string> {
     const nextName: string = prefix + random_name({ first: true, gender: gender }) + suffix
     console.log("generate participant alias: " + nextName)
-    const validationPromise: Promise<boolean> = OTParticipant.findOne({ alias: nextName }).then(res => res == null).catch(err => true)
+    const validationPromise: Promise<boolean> = OTParticipant.findOne({ alias: nextName, experiment: experimentId }).then(res => res == null).catch(err => true)
 
     return validationPromise.then(
       valid => {
         if (valid) {
           return nextName
-        } else { return this.generateRandomUniqueAliasForParticipant(gender) }
+        } else { return this.generateRandomUniqueAliasForParticipant(gender, prefix, suffix, experimentId) }
       }
     )
   }
@@ -260,7 +261,7 @@ export default class ResearchModule {
 
   putAliasToParticipantsIfNull(): Promise<number> {
     let count = 0
-    const makePromise = () => OTParticipant.findOne({ alias: { $exists: false } }, { select: "_id alias user" }).populate({ path: "user", select: "_id activatedRoles" })
+    const makePromise = () => OTParticipant.findOne({ alias: { $exists: false } }, { select: "_id alias user experiment" }).populate({ path: "user", select: "_id activatedRoles" })
       .then(part => {
         console.log(part)
         const participant = part as any
@@ -270,7 +271,7 @@ export default class ResearchModule {
           if (selectedRole != null && selectedRole.information) {
             gender = selectedRole.information.gender
           }
-          return this.generateRandomUniqueAliasForParticipant(gender || "female", "", gender != null ? "" : "^").then(
+          return this.generateRandomUniqueAliasForParticipant(gender || "female", "", gender != null ? "" : "^", part["experiment"]).then(
             alias => {
               part["alias"] = alias
               return part.save().then(onFulfilled => {
@@ -285,6 +286,71 @@ export default class ResearchModule {
     return makePromise()
   }
 
+  assignParticipantToExperiment(userId: string, invitationCode: string, experimentId: string, demographic: any): Promise<{ participant: IParticipantDbEntity, experiment: IJoinedExperimentInfo }> {
+    return OTInvitation.findOne({
+      code: invitationCode,
+      experiment: experimentId,
+      $or: [
+        { "experiment.finishDate": { $gt: new Date() } },
+        { "experiment.finishDate": null }
+      ]
+    }, { _id: 1, experiment: 1, groupMechanism: 1 }).lean().then(doc => {
+      if (doc) {
+        const typedInvitation = AInvitation.fromJson((doc as any).groupMechanism)
+        const groupId = typedInvitation.pickGroup()
+        return { invitationId: doc._id, experimentId: doc["experiment"], groupId: groupId }
+        throw { error: "IllegalInvitationCodeOrClosedExperiment" }
+      } else {
+      }
+    }).then(result => {
+      return OTExperiment.findOneAndUpdate({
+        _id: result.experimentId,
+        "groups._id": result.groupId,
+      }, { $inc: { participantNumberSeed: 1 } }, { new: true, select: { _id: 1, name: 1, participantNumberSeed: 1, groups: 1, trackingPackages: 1 } }).lean()
+        .then(experiment => {
+          let trackingPackage
+          const group = experiment.groups.find(g => g._id === result.groupId)
+          if (group.trackingPackageKey) {
+            trackingPackage = (experiment.trackingPackages || []).find(p => p.key === group.trackingPackageKey)
+          }
+
+          return OTParticipant.findOneAndUpdate({
+            user: userId,
+            experiment: result.experimentId
+          }, {
+              invitation: result.invitationId,
+              alias: "P" + experiment["participantNumberSeed"],
+              groupId: result.groupId,
+              dropped: false,
+              droppedAt: null,
+              droppedBy: null,
+              demographic: demographic,
+              $currentDate: {
+                approvedAt: true,
+                "experimentRange.from": true
+              }
+            }, { upsert: true, new: true }).lean().then(
+              participant => {
+                if (trackingPackage) {
+                  return app.omnitrackModule().injectPackage(userId, trackingPackage.data,
+                    { injected: true, experiment: experiment._id }).then(res => {
+                      return {
+                        participant: participant,
+                        experiment: {
+                          id: experiment._id,
+                          name: experiment.name,
+                          droppedAt: null,
+                          joinedAt: participant.approvedAt.getTime()
+                        } as IJoinedExperimentInfo
+                      }
+                    })
+                }
+              })
+        }
+        )
+    })
+  }
+
   /**
    * Handles the participation process after the user approved the invitation.
    * @param userId
@@ -297,20 +363,20 @@ export default class ResearchModule {
       .populate("experiment", { _id: 1, finishDate: 1 })
       .then(invitation => {
         if (!invitation) {
-          return { success: false, error: "Could not find such invitation code.", injectionExists: null, experiment: null }
+          return { success: false, error: "IllegalInvitationCode", injectionExists: null, experiment: null }
         }
 
         if (invitation["experiment"].finishDate != null && invitation["experiment"].finishDate.getTime() <= new Date().getTime()) {
-          return { success: false, error: "Experiment finished", injectionExists: null, experiment: null }
+          return { success: false, error: "ExpiredExperiment", injectionExists: null, experiment: null }
         }
 
-        return OTParticipant.find({ "user": userId, "experiment": invitation["experiment"], isConsentApproved: true, dropped: { $ne: true } }).then(participants => {
+        return OTParticipant.find({ "user": userId, "experiment": invitation["experiment"], dropped: { $ne: true } }).then(participants => {
           if (participants.length > 0) {
             console.log("duplicate experiment participation. skip the approval process.")
             // already approved the invitation.
             return { success: false, error: "Already participating in this experiment.", injectionExists: null, experiment: null }
           } else {
-            return this.extractUserRoleInformation(userId, "ServiceUser").then(information => this.generateRandomUniqueAliasForParticipant(information.gender || "female", "", information.gender == null ? "^" : "")).then(
+            return this.extractUserRoleInformation(userId, "ServiceUser").then(information => this.generateRandomUniqueAliasForParticipant(information.gender || "female", "", information.gender == null ? "^" : "", invitation["experiment"]._id)).then(
               alias => {
                 console.log("this participant's alias: " + alias)
                 return OTParticipant.findOneAndUpdate({ "user": userId, "invitation": invitation._id }, {

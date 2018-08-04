@@ -17,11 +17,6 @@ const otUserSchema = new mongoose.Schema({
   email: String,
   accountCreationTime: Date,
   accountLastSignInTime: Date,
-  activatedRoles: [{
-    role: {type: String, required: true},
-    isConsentApproved: {type: Boolean, default: false, required: true},
-    information: mongoose.Schema.Types.Mixed
-  }],
   deviceLocalKeySeed: {type: Number, required: true, default: 0},
   devices: [otClientDeviceSchema],
   dataStore: {type: mongoose.Schema.Types.Mixed, default: {}}

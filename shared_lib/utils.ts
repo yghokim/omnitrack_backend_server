@@ -265,3 +265,15 @@ export function parseProperties(propertiesString: string): any {
   })
   return result
 }
+
+export function deferPromise<T>(defer:()=>Promise<T>): Promise<T>{
+  return defer()
+}
+
+export function selectKeys(obj: any, clone: boolean, ...keys: string[]): any{
+  const out = clone===true? deepclone(obj) : obj
+  for(const key of keys){
+    delete out[key]
+  }
+  return out
+}

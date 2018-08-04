@@ -165,7 +165,7 @@ export default class OTBinaryCtrl {
                     return this.extractSignature(filePath)
                   }).then(print => {
                     console.log("fingerprint: " + print)
-                    return clientSignatureCtrl.upsertSignature(null, print, packageInfo.uniqueIdentifier, platform, true).then(
+                    return clientSignatureCtrl.upsertSignature(null, print, packageInfo.uniqueIdentifier, platform, experimentId, true).then(
                       changed => {
                         return { success: true, signatureUpdated: changed }
                       })

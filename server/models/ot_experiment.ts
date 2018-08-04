@@ -39,6 +39,8 @@ const otExperimentSchema = new mongoose.Schema({
   trackingPackages: { type: [otExperimentInjectionPackageSchema], default: [] },
   consent: { type: String, default: null },
   receiveConsentInApp: { type: Boolean, default: true },
+  demographicFormSchema: {type: mongoose.Schema.Types.Mixed, default: null},
+  participantNumberSeed: {type: Number, default: 0}, /** used for putting a suffix number to new participants */
   experimenters: {
     type: [{
       researcher: { type: String, ref: 'OTResearcher' },

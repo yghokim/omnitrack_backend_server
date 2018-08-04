@@ -2,16 +2,17 @@ import OTClientSignature from '../models/ot_client_signature';
 
 export default class OTClientSignatureCtrl {
 
-  matchSignature(clientSignature: string, pkg: string): Promise<boolean> {
-    return OTClientSignature.findOne({ key: clientSignature, package: pkg }).lean().then(doc => doc != null).catch(err => false)
+  matchSignature(clientSignature: string, pkg: string, experimentId: string = null): Promise<boolean> {
+    return OTClientSignature.findOne({ key: clientSignature, package: pkg, 
+      $or:[{experiment: null}, {experiment: experimentId}] }).lean().then(doc => doc != null).catch(err => false)
   }
 
   /**
    * return: whether changed or not
    */
-  upsertSignature(_id: string = null, key: string, packageName: string, alias: string, notify: boolean = true): Promise<boolean> {
+  upsertSignature(_id: string = null, key: string, packageName: string, alias: string, experimentId?: string, notify: boolean = true): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      OTClientSignature.findOneAndUpdate(_id ? { _id: _id } : { key: key, package: packageName }, { key: key, package: packageName, alias: alias }, { upsert: true, new: false, rawResult: true }, (err, raw: any) => {
+      OTClientSignature.findOneAndUpdate(_id ? { _id: _id } : { key: key, package: packageName }, { key: key, package: packageName, alias: alias, experiment: experimentId }, { upsert: true, new: false, rawResult: true }, (err, raw: any) => {
         if (err) {
           reject(err)
         } else {
@@ -60,7 +61,7 @@ export default class OTClientSignatureCtrl {
   }
 
   postSignature = (req, res) => {
-    this.upsertSignature(req.body._id, req.body.key, req.body.package, req.body.alias, true).then(updated => {
+    this.upsertSignature(req.body._id, req.body.key, req.body.package, req.body.alias, req.body.experimentId, true).then(updated => {
       res.status(200).send(updated)
     }).catch(err => {
       res.status(500).send(err)

@@ -55,19 +55,21 @@ export class ClientApiRouter extends RouterWrapper {
       const deviceId = req.get("OTDeviceId")
       const fingerPrint = req.get("OTFingerPrint")
       const packageName = req.get("OTPackageName")
+      const experimentId = req.get('OTExperiment')
       const role = req.get("OTRole")
       console.log("role:" + role + ", device id : " + deviceId + ", fingerPrint: " + fingerPrint + ", packageName: " + packageName)
 
       res.locals["roleName"] = role
 
-      clientSignatureCtrl.matchSignature(fingerPrint, packageName).then(
+      clientSignatureCtrl.matchSignature(fingerPrint, packageName, experimentId).then(
         match => {
           if (match !== true) {
             console.log("The client is not certificated in the server.")
             res.status(404).send(new Error("The client is not certificated in the server."))
           } else if (deviceId != null) {
             if (res.locals.user) {
-              OTUser.collection.findOne({ _id: res.locals.user.uid, "devices.deviceId": deviceId }).then(
+              res.locals.experimentId = experimentId
+              OTUser.findOne({ _id: res.locals.user.uid, "devices.deviceId": deviceId }).lean().then(
                 user => {
                   if (user != null) {
                     console.log("received an authorized call from device: " + deviceId)
@@ -156,10 +158,15 @@ export class ClientApiRouter extends RouterWrapper {
         })
       })
 
+    this.router.get("/user/auth/check_status/:experimentId", firebaseMiddleware, userCtrl.getParticipationStatus)
+    this.router.post("/user/auth/authenticate", firebaseMiddleware, userCtrl.authenticate)
+    this.router.post('/user/auth/device', assertSignedInMiddleware, userCtrl.upsertDeviceInfo)
+
+
     this.router.get('/user/roles', firebaseMiddleware, userCtrl.getRoles)
     this.router.post('/user/role', assertSignedInMiddleware, userCtrl.postRole)
     this.router.post('/user/name', assertSignedInMiddleware, userCtrl.putUserName)
-    this.router.post('/user/device', firebaseMiddleware, userCtrl.putDeviceInfo)
+    this.router.post('/user/device', firebaseMiddleware, userCtrl.putDeviceInfoDeprecated)
     this.router.post('/user/report', assertSignedInMiddleware, userCtrl.postReport)
     this.router.delete('/user', assertSignedInMiddleware, userCtrl.deleteAccount)
     this.router.post('/user/delete', assertSignedInMiddleware, userCtrl.deleteAccount)
@@ -206,6 +213,10 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.post("/research/invitation/approve", assertSignedInMiddleware, researchCtrl.approveExperimentInvitation)
 
     //this.router.post("/research/invitation/reject", assertSignedInMiddleware, researchCtrl.rejectExperimentInvitation)
+
+    this.router.get('/research/experiment/:experimentId/verify_invitation', firebaseMiddleware, userCtrl.verifyInvitationCode)
+
+    this.router.get('/research/experiment/:experimentId/consent', firebaseMiddleware, researchCtrl.getExperimentConsentInfo)
 
     this.router.post("/research/experiment/:experimentId/dropout", assertSignedInMiddleware, researchCtrl.dropOutFromExperiment)
 

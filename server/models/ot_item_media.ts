@@ -9,7 +9,7 @@ const otItemMediaSchema = new mongoose.Schema({
   fileIdentifier: {type: String, index: true},
   originalFileSize: Number,
   originalFileName: String,
-  processedFileNames: Object,
+  processedFileNames: {type: mongoose.SchemaTypes.Mixed, default: {}},
   isInProcessing: {type: Boolean, default: false, index: true},
   isProcessed: {type: Boolean, default: false, index: true}
 }, {timestamps: true});

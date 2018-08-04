@@ -41,97 +41,86 @@ export default class BinaryStorageCtrl {
 
   uploadItemMedia = (req: Request, res: Response) => {
     const userId = res.locals.user.uid
-    if (userId != null) {
-      const trackerId = req.params.trackerId
-      const attrLocalId = req.params.attrLocalId
-      const itemId = req.params.itemId
-      const fileIdentifier = req.params.fileIdentifier
+    const trackerId = req.params.trackerId
+    const attrLocalId = req.params.attrLocalId
+    const itemId = req.params.itemId
+    const fileIdentifier = req.params.fileIdentifier
 
-      const upload = multer({ storage: this.makeUserItemMediaStorage(userId, trackerId, itemId, attrLocalId, fileIdentifier) })
-        .single("file")
-      upload(req, res, err => {
-        if (err != null) {
-          console.log(err)
-          res.status(500).send({ error: err })
-        } else {
-          const prefix = req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(userId, trackerId, itemId) + "/"
-          const originalFilePath = prefix + req.file["finalName"]
-          fs.move(req.file.path, originalFilePath)
-            .then(() => {
-              const newMedia = {
-                user: userId,
-                tracker: trackerId,
-                attrLocalId: attrLocalId,
-                item: itemId,
-                fileIdentifier: fileIdentifier,
-                mimeType: req.file.mimetype,
-                originalFileSize: req.file.size,
-                originalFileName: req.file["finalName"],
-                processedFileNames: {},
-                isProcessed: false,
-                isInProcessing: false
-              }
+    const upload = multer({ storage: this.makeUserItemMediaStorage(userId, trackerId, itemId, attrLocalId, fileIdentifier) })
+      .single("file")
+    upload(req, res, multerError => {
+      if (multerError != null) {
+        console.log(multerError)
+        res.status(500).send({ error: multerError })
+      } else {
+        const prefix = req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(userId, trackerId, itemId) + "/"
+        const originalFilePath = prefix + req.file["finalName"]
+        fs.move(req.file.path, originalFilePath)
+          .then(() => {
+            const newMedia = {
+              user: userId,
+              tracker: trackerId,
+              attrLocalId: attrLocalId,
+              item: itemId,
+              fileIdentifier: fileIdentifier,
+              mimeType: req.file.mimetype,
+              originalFileSize: req.file.size,
+              originalFileName: req.file["finalName"],
+              processedFileNames: {},
+              isProcessed: false,
+              isInProcessing: false
+            }
 
-              OTItemMedia.collection.findOneAndUpdate(
-                {
-                  tracker: trackerId,
-                  user: userId,
-                  attrLocalId: attrLocalId,
-                  item: itemId,
-                  fileIdentifier: fileIdentifier
-                },
-                newMedia, { upsert: true },
-                (mediaUpdateError, beforeUpdated) => {
-                  if (mediaUpdateError) {
-                    console.log(mediaUpdateError)
-                    res.status(500).send({ error: mediaUpdateError })
-                  } else {
-                    const removalPromises = []
-                    if (beforeUpdated.value != null) {
-                      removalPromises.push(fs.remove(prefix + beforeUpdated.value.originalFileName).catch(fileRemovalError => false))
-                      if (beforeUpdated.value.processedFileNames) {
-                        for (const type in beforeUpdated.value.processedFileNames) {
-                          if (beforeUpdated.value.processedFileNames.hasOwnProperty(type)) {
-                            removalPromises.push(
-                              fs.remove(prefix + beforeUpdated.value.processedFileNames[type]).catch(fileRemoveError => false)
-                            )
-                          }
-                        }
-                      }
-
-                      Promise.all(removalPromises).then(
-                        result => {
-                          req.app.get("omnitrack").serverModule.agenda.now(C.TASK_POSTPROCESS_ITEM_MEDIA, { mediaDbId: beforeUpdated.value._id }, function (agendaError, jobs) {
-
-                          });
-                          res.status(200).send({ result: "success", overwritten: true })
-                        }
-                      ).catch(removalError => {
-                        console.log(removalError)
-                        req.app.get("omnitrack").serverModule.agenda.now(C.TASK_POSTPROCESS_ITEM_MEDIA, { mediaDbId: beforeUpdated.value._id }, function (agendaError, jobs) {
-
-                        });
-                        res.status(200).send({ result: "success", overwritten: true })
-                      })
-                    } else {
-                      req.app.get("omnitrack").serverModule.agenda.now(C.TASK_POSTPROCESS_ITEM_MEDIA, { mediaDbId: beforeUpdated.lastErrorObject.upserted }, function (agendaError, jobs) {
-
-                      });
-                      res.status(200).send({ result: "success", overwritten: false })
+            OTItemMedia.findOne({
+              tracker: trackerId,
+              user: userId,
+              attrLocalId: attrLocalId,
+              item: itemId,
+              fileIdentifier: fileIdentifier
+            }).then(oldDoc => {
+              if (oldDoc) {
+                //update current and change file
+                const removalPromises = []
+                removalPromises.push(fs.remove(prefix + oldDoc["originalFileName"])
+                  .then(() => true).catch(fileRemovalError => false))
+                if (oldDoc["processedFileNames"]) {
+                  for (const type in oldDoc["processedFileNames"]) {
+                    if (oldDoc["processedFileNames"].hasOwnProperty(type)) {
+                      removalPromises.push(
+                        fs.remove(prefix + oldDoc["processedFileNames"][type]).then(() => true).catch(fileRemoveError => false)
+                      )
                     }
                   }
                 }
-              )
-            })
-            .catch(err2 => {
-              console.log(err2)
-              res.status(500).send({ error: err2 })
-            })
-        }
-      })
-    } else {
-      res.status(500).send({ message: "" })
-    }
+
+                return Promise.all(removalPromises).then(
+                  result => {
+                    return oldDoc.update(newMedia).then(() => ({ overwritten: true, _id: oldDoc._id }))
+                  }
+                )
+              } else {
+                //insert new one
+                return new OTItemMedia(newMedia).save().then(newDoc => ({ overwritten: false, _id: newDoc._id }))
+              }
+            }).then(result => {
+              return req.app.get("omnitrack").serverModule.agenda
+              .now(C.TASK_POSTPROCESS_ITEM_MEDIA, { mediaDbId: result._id })
+              .then(job => {
+                console.log("successed postprocessing media.")
+                return result
+              }).catch(processErr=>{
+                console.error(processErr)
+                return result
+              })
+            }).then(result => {
+              res.status(200).send({ result: "success", overwritten: result.overwritten })})
+          })
+          .catch(err => {
+            console.log(err)
+            res.status(500).send({ error: err })
+          })
+      }
+    })
   }
 
   downloadItemMedia = (req: any, res: Response) => {
@@ -142,20 +131,12 @@ export default class BinaryStorageCtrl {
       const fileIdentifier = req.params.fileIdentifier
       const processingType = req.params.processingType || "original"
 
-      OTItemMedia.collection.findOne({
+      OTItemMedia.findOne({
         tracker: trackerId,
         attrLocalId: attrLocalId,
         item: itemId,
         fileIdentifier: fileIdentifier
-      }, (err, media) => {
-        console.log("found one media")
-        console.log(err)
-        console.log(media)
-        if (err) {
-          res.status(500).send({ error: err })
-          return
-        }
-
+      }).lean().then(media => {
         if (media) {
           console.log("found media")
           let fileName: string = media.originalFileName
@@ -181,9 +162,11 @@ export default class BinaryStorageCtrl {
         } else {
           res.status(404).send({ message: "no media." })
         }
+      }).catch(err => {
+        res.status(500).send({ error: err })
       })
     } else {
-      res.status(500).send({ message: "" })
+      res.status(500).send("IllegalArguments")
     }
   }
 }

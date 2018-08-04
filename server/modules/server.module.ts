@@ -78,12 +78,6 @@ export default class ServerModule {
         }
       )
 
-      OTExperiment.collection.dropIndex("trackingPackages.key_1").catch(err => { })
-
-      OTResearcher.collection.dropIndex("password_reset_token_1").catch(err => { })
-      OTItem.collection.dropIndex("objectId_1").catch(err => { })
-      OTTracker.collection.dropIndex("objectId_1").catch(err => { })
-
     } catch (err) {
 
     }
@@ -216,35 +210,40 @@ export default class ServerModule {
     this.agenda.define(C.TASK_POSTPROCESS_ITEM_MEDIA, (job, done) => {
       const mediaDbId = job.attrs.data.mediaDbId
       if (mediaDbId != null) {
-        OTItemMedia.collection.findOne({ _id: mediaDbId }).then(entry => {
-          const location = this.makeItemMediaFileDirectoryPath(entry.user, entry.tracker, entry.item)
-          if (entry.mimeType.startsWith("image")) {
+        OTItemMedia.findOne({ _id: mediaDbId }).then(entry => {
+          const location = this.makeItemMediaFileDirectoryPath(entry["user"], entry["tracker"], entry["item"])
+          if (entry["mimeType"].startsWith("image")) {
             easyimage.thumbnail({
-              src: path.resolve(location, entry.originalFileName),
-              dst: path.resolve(location, "thumb_retina_" + entry.originalFileName),
+              src: path.resolve(location, entry["originalFileName"]),
+              dst: path.resolve(location, "thumb_retina_" + entry["originalFileName"]),
               width: 300,
               height: 300,
             })
               .then((file) => {
                 return easyimage.thumbnail({
-                  src: path.resolve(location, entry.originalFileName),
-                  dst: path.resolve(location, "thumb_" + entry.originalFileName),
+                  src: path.resolve(location, entry["originalFileName"]),
+                  dst: path.resolve(location, "thumb_" + entry["originalFileName"]),
                   width: 150,
                   height: 150,
                 })
               })
               .then((file) => {
                 console.log("thumbnail was converted successfully.")
-                entry.processedFileNames["thumb"] = "thumb_" + entry.originalFileName
-                entry.processedFileNames["thumb_retina"] = "thumb_retina_" + entry.originalFileName
-                console.log(entry)
+                entry["processedFileNames"] = {}
+                entry["processedFileNames"]["thumb"] = "thumb_" + entry["originalFileName"]
+                entry["processedFileNames"]["thumb_retina"] = "thumb_retina_" + entry["originalFileName"]
 
-                entry.isProcessed = true
-                OTItemMedia.collection.findOneAndUpdate({ _id: entry._id }, entry).then(
-                  () => {
-                    done()
-                  })
-              })
+                entry["isProcessed"] = true
+                entry.markModified("processedFileNames")
+                return entry.save()
+              }).then(doc=>{
+                console.log("updated item media:")
+                console.log(doc)
+                done()
+              }).catch( err=>{
+                done(err)
+              }
+              )
           } else {
             // another mime types
           }

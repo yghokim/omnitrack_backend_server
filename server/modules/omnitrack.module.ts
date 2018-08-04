@@ -1,10 +1,9 @@
-import { Express } from 'express';
-import * as Agenda from 'agenda';
+import * as fs from 'fs-extra';
+import * as path from 'path';
 import { ModelConverter } from '../../omnitrack/core/model_converter'
 import ServerModule from './server.module';
 import CommandModule from './command.module';
 import PushModule from './push.module';
-import FirstUserPolicyModule from './first.user.policy.module';
 import PredefinedPackage from '../../omnitrack/core/predefined_package'
 import OTTracker from '../models/ot_tracker'
 import OTTrigger from '../models/ot_trigger'
@@ -17,7 +16,6 @@ import SocketModule from './socket.module';
 export default class OmniTrackModule {
 
   public readonly serverModule: ServerModule
-  public readonly firstUserPolicyModule: FirstUserPolicyModule
   public readonly commandModule: CommandModule
   public readonly pushModule: PushModule
   public readonly researchModule: ResearchModule
@@ -25,7 +23,6 @@ export default class OmniTrackModule {
 
   constructor(private app: any) {
     this.serverModule = new ServerModule()
-    this.firstUserPolicyModule = new FirstUserPolicyModule()
     this.commandModule = new CommandModule()
     this.pushModule = new PushModule()
     this.researchModule = new ResearchModule()
@@ -35,6 +32,14 @@ export default class OmniTrackModule {
   bootstrap() {
     this.serverModule.bootstrap()
     this.socketModule.bootstrap()
+  }
+
+  injectFirstUserExamples(userId: string): Promise<void>{
+    return fs.readJson(path.resolve(__dirname, "../../../../omnitrack/examples/example_trackers.json")).then(
+      pack => {
+        return this.injectPackage(userId, pack, {tag: "example"})
+      }
+    )
   }
 
   injectPackage(userId: string, predefinedPackage: PredefinedPackage, creationFlags?: any): Promise<void> {
