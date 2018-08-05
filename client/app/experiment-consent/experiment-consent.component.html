@@ -1,0 +1,45 @@
+<div class="container">
+  <mat-slide-toggle [disabled]="isConsentFormContentAvailable() !== true" class="bottom-margin-1em" id="ask-consent-in-app-toggle"
+    [checked]="experiment.receiveConsentInApp === true" (change)="onAskConsentInAppToggled($event.checked)">Show the consent and questionnaires in App</mat-slide-toggle>
+
+  <div class="card card-main">
+    <div class="card-header">
+      <div class="flex-container flex-align-items-center flex-stretch">
+        <span>Consent Form</span>
+        <div class="text-align-center" *ngIf="isConsentFormContentAvailable() === false">
+          <button mat-button color="accent" (click)="onEditConsentFormClicked()">Write a Consent</button>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="isConsentFormContentAvailable() === true">
+      <mat-expansion-panel displayMode="flat" [expanded]="isConsentExpanded" (opened)="isConsentExpanded = true" (closed)="isConsentExpanded = false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            {{isConsentExpanded === true? 'Click to collapse content' : 'Click to expand content'}}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="markdown-view-content" [innerHtml]="getTransformedConsent()">
+        </div>
+      </mat-expansion-panel>
+      <div class="card-footer no-padding">
+        <button mat-button color="primary" (click)="onEditConsentFormClicked()">Edit</button>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="card card-main">
+    <div class="card-header">
+      <div class="flex-container flex-align-items-center flex-stretch">
+        <span>Preliminary Questionnaires</span>
+        <div class="text-align-center" *ngIf="isDemographicAvailable() === false">
+          <button mat-button color="accent" (click)="onEditDemographicClicked()">Define Questionnaires</button>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="isDemographicAvailable() === true">
+      <div class="card-footer no-padding">
+        <button mat-button color="primary" (click)="onEditDemographicClicked()">Edit</button>
+      </div>
+    </ng-container>
+  </div>
+</div>

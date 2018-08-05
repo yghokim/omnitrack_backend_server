@@ -44,6 +44,8 @@ import { PreventReinstallationGuard } from './services/prevent-reinstallation.gu
 import { OmniTrackPackageCodeEditorComponent } from './research/omnitrack/omni-track-package-code-editor/omni-track-package-code-editor.component';
 import { ExperimentConsentEditorComponent } from './experiment-consent-editor/experiment-consent-editor.component';
 import { ExperimentClientSettingsComponent } from './experiment-client-settings/experiment-client-settings.component';
+import { ExperimentConsentComponent } from './experiment-consent/experiment-consent.component';
+import { DemographicEditorComponent } from './experiment-consent/demographic-editor/demographic-editor.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'downloads', pathMatch: 'full', canActivate: [EndUserAuthToMainGuard] },
@@ -108,13 +110,21 @@ const routes: Routes = [
           { path: 'participants', component: ExperimentParticipantsComponent, data: { title: 'Participants' } },
           { path: 'groups', component: ExperimentGroupsComponent, data: { title: 'Groups' } },
           { path: 'invitations', component: ExperimentInvitationsComponent, data: { title: 'Invitations' } },
-          { path: 'client-apps', component: ExperimentClientSettingsComponent, data: { title: 'Client Apps'}},
+          { path: 'client-apps', component: ExperimentClientSettingsComponent, data: { title: 'Client Apps' } },
           { path: 'settings', component: ExperimentSettingsComponent, data: { title: 'Settings' } },
+          { path: 'consent', component: ExperimentConsentComponent, data: { title: 'Configure Informed Consent' } },
           {
-            path: 'consent', component: ExperimentConsentEditorComponent, data: {
+            path: 'consent/edit', component: ExperimentConsentEditorComponent, data: {
               title: 'Edit Consent Form',
               backTitle: "Experiment Settings",
-              backNavigationUrl: "./settings"
+              backNavigationUrl: "./consent"
+            }
+          },
+          {
+            path: 'consent/demographic', component: DemographicEditorComponent, data: {
+              title: 'Edit Demographic Questionnaires',
+              backTitle: "Informed Consent Configuration",
+              backNavigationUrl: './consent'
             }
           },
           {

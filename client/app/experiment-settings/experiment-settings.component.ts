@@ -10,7 +10,6 @@ import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-inpu
 import { isNullOrBlank, isString } from '../../../shared_lib/utils';
 import { Router, ActivatedRoute } from '@angular/router';
 import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
-import * as marked from 'marked';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 import * as moment from 'moment-timezone';
 
@@ -26,8 +25,6 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
   public permissions: ExperimentPermissions
 
   private _internalSubscriptions = new Subscription()
-
-  public isConsentExpanded = false
 
   public isManager: boolean
 
@@ -128,32 +125,6 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
           }
         )
     )
-  }
-
-  onAskConsentInAppToggled(value: boolean) {
-    this._internalSubscriptions.add(
-      this.api.updateExperiment(this.experiment._id, {
-        receiveConsentInApp: value
-      }).subscribe(
-        changed => {
-          if (changed === true) {
-            this.experiment.receiveConsentInApp = value
-          }
-        }
-      )
-    )
-  }
-
-  isConsentFormContentAvailable(): boolean {
-    return this.experiment.consent != null && this.experiment.consent.trim().length > 0
-  }
-
-  onEditConsentFormClicked() {
-    this.router.navigate(["consent"], { relativeTo: this.activatedRoute.parent })
-  }
-
-  getTransformedConsent(): string {
-    return marked(this.experiment.consent)
   }
 
   onExcludeCollaboratorClicked(collaboratorId: string) {

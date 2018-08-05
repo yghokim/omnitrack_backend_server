@@ -37,7 +37,6 @@ export class ResearchApiService extends ServiceBase {
     this._internalSubscriptions.add(
       this.authService.tokenSubject.subscribe(token => {
         if (token) {
-          console.log("authorization token : ", token)
           this.tokenHeaders = new Headers({ 'Authorization': 'Bearer ' + token });
           this.authorizedOptions = new RequestOptions({ headers: this.tokenHeaders });
 

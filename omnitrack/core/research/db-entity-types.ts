@@ -20,6 +20,7 @@ export interface IExperimentDbEntity extends IMongooseDbEntity {
   maxExperimentalDay: number,
   finishDate: Date,
   consent: string,
+  demographicFormSchema: any,
   receiveConsentInApp: boolean,
   trackingPackages: Array<IExperimentTrackingPackgeDbEntity>,
   experimenters: Array<{ researcher: string | IResearcherDbEntity, permissions: any }>,

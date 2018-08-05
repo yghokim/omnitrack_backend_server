@@ -299,8 +299,8 @@ export default class ResearchModule {
         const typedInvitation = AInvitation.fromJson((doc as any).groupMechanism)
         const groupId = typedInvitation.pickGroup()
         return { invitationId: doc._id, experimentId: doc["experiment"], groupId: groupId }
-        throw { error: "IllegalInvitationCodeOrClosedExperiment" }
       } else {
+        throw { error: "IllegalInvitationCodeOrClosedExperiment" }
       }
     }).then(result => {
       return OTExperiment.findOneAndUpdate({

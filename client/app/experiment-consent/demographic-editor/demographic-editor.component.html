@@ -1,0 +1,21 @@
+<ng-container *ngIf="diffMode==false">
+    <div class="code-editor-container editor-view">
+      <ngx-monaco-editor class="code-editor" [options]="editorOptions" [(ngModel)]="schemaCode" (onInit)="onInitCodeEditor($event)"></ngx-monaco-editor>
+    </div>
+    <div class="code-editor-container html-view">
+      <div class="jsonform-container"></div>
+    </div>
+  </ng-container>
+  
+  <ng-container *ngIf="diffMode == true">
+    <div class="code-editor-container">
+      <ngx-monaco-diff-editor class="code-editor" [options]="diffOptions" [originalModel]="originalModel" [modifiedModel]="changedModel"></ngx-monaco-diff-editor>
+    </div>
+  </ng-container>
+  
+  <div class="code-editor-footer flex-container flex-align-items-center">
+    <div class="flex-filler"></div>
+    <button class="small" type="button" mat-button color="primary" [disabled]="isSchemaChanged === false" (click)="onShowDiffClicked()">{{diffMode==true? 'Close diff' : 'Show diff'}}</button>
+    <button class="small" type="button" mat-button color="accent" [disabled]="isSchemaChanged === false || isCodeValid !== true" (click)="onSaveClicked()">Save</button>
+  </div>
+  

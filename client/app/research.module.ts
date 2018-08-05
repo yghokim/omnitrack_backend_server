@@ -50,7 +50,6 @@ import { ImageCellComponent } from './experiment-data/image-cell/image-cell.comp
 import { PerParticipantVisualizationDashboardComponent } from './research/visualization/per-participant-visualization-dashboard/per-participant-visualization-dashboard.component';
 import { TrackingDataSynchronizerWidgetComponent } from './research/tracking-data-synchronizer-widget/tracking-data-synchronizer-widget.component';
 import { AudioCellComponent, MinuteSecondsPipe } from './experiment-data/audio-cell/audio-cell.component';
-import { SingletonAudioPlayerServiceService } from './services/singleton-audio-player-service.service';
 import { ExperimentDataSummaryComponent } from './research/visualization/experiment-data-summary/experiment-data-summary.component';
 
 import { ExperimentCustomStatisticsComponent } from './experiment-custom-statistics/experiment-custom-statistics.component';
@@ -83,6 +82,8 @@ import { ExperimentClientSettingsComponent } from './experiment-client-settings/
 import { ConfigVariableRowComponent } from './experiment-client-settings/config-variable-row/config-variable-row.component';
 import { PlatformConfigPanelComponent } from './experiment-client-settings/platform-config-panel/platform-config-panel.component';
 import { ClientBinaryListComponent } from './components/client-binary-list/client-binary-list.component';
+import { ExperimentConsentComponent } from './experiment-consent/experiment-consent.component';
+import { DemographicEditorComponent } from './experiment-consent/demographic-editor/demographic-editor.component';
 
 @NgModule({
   imports: [
@@ -158,7 +159,9 @@ import { ClientBinaryListComponent } from './components/client-binary-list/clien
     ExperimentClientSettingsComponent,
     ConfigVariableRowComponent,
     PlatformConfigPanelComponent,
-    ClientBinaryListComponent
+    ClientBinaryListComponent,
+    ExperimentConsentComponent,
+    DemographicEditorComponent
   ],
   exports: [
     NouisliderModule,

@@ -85,12 +85,22 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
       name: 'Design',
       menus: [
         {
+          name: 'Informed Consent',
+          key: 'consent',
+          icon: 'description'
+        },
+        {
           name: 'Groups',
           key: 'groups',
           icon: 'group'
         },
         {
-          name: 'OmniTrack',
+          name: 'Invitations',
+          key: 'invitations',
+          icon: 'mail'
+        },
+        {
+          name: 'Tracking Packages',
           key: 'omnitrack',
           icon: 'tune'
         }
@@ -99,11 +109,6 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
     {
       name: 'Settings',
       menus: [
-        {
-          name: 'Invitations',
-          key: 'invitations',
-          icon: 'mail'
-        },
         {
           name: 'Client Apps',
           key: 'client-apps',

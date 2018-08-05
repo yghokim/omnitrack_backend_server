@@ -80,7 +80,7 @@ export class ExperimentConsentEditorComponent implements OnInit, OnDestroy {
           if(changed === true){
             this.experimentInfo.consent = this.currentConsent
           }
-          this.router.navigate(['./settings'], {relativeTo: this.activatedRoute.parent})
+          this.router.navigate(['./consent'], {relativeTo: this.activatedRoute.parent})
         }
       )
     )

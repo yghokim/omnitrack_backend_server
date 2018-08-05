@@ -1,0 +1,41 @@
+.jsonform-container {
+  padding: 1rem 1rem;
+  & /deep/ {
+    .jsonform-required>label:after {
+      content: ' (required)';
+      color: #ff9446;
+      font-size: 0.8rem;
+    }
+    .jsonform-hasrequired:before {
+      content: '* Required field';
+      display: block;
+      color: #ff9446;
+      padding-top: 1em;
+    }
+    .form-group {
+      font-weight: initial;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 3px;
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      label {
+        font-weight: 300;
+      }
+      &>label {
+        font-weight: bold;
+      }
+      .radio,
+      .checkbox {
+        &>label {
+          display: flex;
+          align-items: center;
+          input {
+            width: 1.2rem;
+            height: 1.2rem;
+            margin-right: 0.3rem;
+          }
+        }
+      }
+    }
+  }
+}

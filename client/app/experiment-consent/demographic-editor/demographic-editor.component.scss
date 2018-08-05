@@ -1,0 +1,13 @@
+.code-editor-container {
+  &.editor-view {
+    width: 60%;
+  }
+
+  &.html-view{
+    width: 40%;
+    left: 60%;
+    background: #ffffff;
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+}
