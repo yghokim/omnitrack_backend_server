@@ -6,6 +6,13 @@ import { ResearchApiService } from '../services/research-api.service';
 import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import * as marked from 'marked';
 
+interface DemographicFieldInfo{
+  name: string,
+  type: string,
+  title: string,
+  required: boolean
+}
+
 @Component({
   selector: 'app-experiment-consent',
   templateUrl: './experiment-consent.component.html',
@@ -19,6 +26,8 @@ export class ExperimentConsentComponent implements OnInit, OnDestroy {
 
   public isConsentExpanded = false
 
+  public demographicFields : Array<DemographicFieldInfo> = []
+
   constructor(private api: ResearchApiService, private router: Router, private activatedRoute: ActivatedRoute) { }
 
   ngOnInit() {
@@ -26,6 +35,25 @@ export class ExperimentConsentComponent implements OnInit, OnDestroy {
       this.api.selectedExperimentService.pipe(flatMap(expService => expService.getExperiment())).subscribe(experiment => {
         this.experiment = experiment
         console.log(experiment)
+        if(experiment.demographicFormSchema && experiment.demographicFormSchema.schema){
+          if(experiment.demographicFormSchema.form){
+            this.demographicFields = experiment.demographicFormSchema.form.map(
+              f => {
+                const schemaField = experiment.demographicFormSchema.schema[f.key]
+                return {type: schemaField.type, name: f.key, title: schemaField.title, required: schemaField.required || false}
+              }
+            )
+          }else{
+            this.demographicFields = Object.keys(experiment.demographicFormSchema.schema).map(
+              key => {
+                const s = experiment.demographicFormSchema.schema[key]
+                return {type: s.type, name: key, title: s.title, required: s.required || false}
+              }
+            )
+          }
+        }else{
+          this.demographicFields = []
+        }
       })
     )
   }

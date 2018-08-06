@@ -37,6 +37,11 @@
       </div>
     </div>
     <ng-container *ngIf="isDemographicAvailable() === true">
+      <div class="flex-container demographic-field-container">
+        <div *ngFor="let field of demographicFields" class="badge badge-secondary" [matTooltip]="field.title">
+          {{field.name}} <span class="required" *ngIf="field.required === true">*</span>
+        </div>
+      </div>
       <div class="card-footer no-padding">
         <button mat-button color="primary" (click)="onEditDemographicClicked()">Edit</button>
       </div>

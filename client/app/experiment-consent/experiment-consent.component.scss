@@ -1,0 +1,15 @@
+.demographic-field-container {
+  flex-wrap: wrap;
+  padding:1rem;
+  margin-left: -0.5rem;
+  margin-top: -0.5rem;
+
+  .badge {
+    font-size: 0.8rem;
+    font-weight: initial;
+    padding: 0.3rem 0.7rem;
+    line-height: 1rem;
+    margin-left: 0.5rem;
+    margin-top: 0.5rem;
+  }
+}
