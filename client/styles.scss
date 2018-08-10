@@ -281,12 +281,20 @@ a.no-text-effect {
   margin-bottom: 0 !important;
 }
 
+.no-margin {
+  margin: 0;
+}
+
 .no-padding {
-  padding: 0;
+  padding: 0 !important;
 }
 
 .padding-left-tiny {
   padding-left: 0.2em;
+}
+
+.no-padding-left {
+  padding-left: 0 !important;
 }
 
 .no-padding-top {
@@ -522,6 +530,12 @@ label.small.horizontal {
 
 .top-margin-1dot5em {
   margin-top: 1.5em;
+}
+
+.mat-button-small {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.3rem !important;
+  line-height: initial !important;
 }
 
 small.info-text {
@@ -880,7 +894,7 @@ thead.singleline {
   font-size: 0.9em;
 }
 
-.form-control::placeholder{
+.form-control::placeholder {
   color: #c0c0c0;
 }
 
@@ -982,27 +996,27 @@ $duration: 1.4s;
   }
 }
 
-.font-size-original{
+.font-size-original {
   font-size: 100% !important;
 }
 
-.mat-step-icon{
+.mat-step-icon {
   color: white !important;
   font-weight: 600;
 }
 
-.mat-step-label{
+.mat-step-label {
   font-weight: 400;
-  &.mat-step-label-selected{
+  &.mat-step-label-selected {
     font-weight: bold;
   }
 }
 
 .mat-vertical-content {
   p {
-   font-size: 10pt;
-   color: #575757;
- }
+    font-size: 10pt;
+    color: #575757;
+  }
 }
 
 @keyframes rotator {

@@ -41,8 +41,15 @@ const otExperimentSchema = new mongoose.Schema({
       researcher: {type: String, ref: 'OTResearcher'}, 
       permissions: {type: mongoose.Schema.Types.Mixed, default: ()=>{return ExperimentPermissions.makeCollaboratorDefaultPermissions()}}
     }], default: []}
-}, {timestamps: true});
+}, {timestamps: true, toJSON: {virtuals: true}});
 
 const OTExperiment = mongoose.model('OTExperiment', otExperimentSchema);
+
+otExperimentSchema.virtual('clientBuildConfigs', {
+  ref: 'OTExperimentClientBuildConfig',
+  localField: '_id',
+  foreignField: 'experiment',
+  justOne: false
+})
 
 export default OTExperiment;

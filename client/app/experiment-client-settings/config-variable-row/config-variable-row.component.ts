@@ -1,0 +1,74 @@
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
+import { IClientBuildConfigBase } from '../../../../omnitrack/core/research/db-entity-types';
+import { deepclone } from '../../../../shared_lib/utils';
+import * as deepEqual from 'deep-equal';
+import * as md5 from 'md5';
+
+@Component({
+  selector: 'app-config-variable-row',
+  templateUrl: './config-variable-row.component.html',
+  styleUrls: ['./config-variable-row.component.scss', '../experiment-client-settings.component.scss']
+})
+export class ConfigVariableRowComponent implements OnInit {
+
+  @Input() originalValue: any = null
+  @Input() type: string = "boolean"
+  @Input() config: IClientBuildConfigBase<any> = null
+  @Input() label: string = null
+  @Input() variableName: string = null
+  @Input() hintText: string = null
+
+  @Output() binaryFileChanged = new EventEmitter<File>()
+
+  constructor() { }
+
+  ngOnInit() {
+  }
+
+  onTextChanged(value){
+    if(value.trim().length === 0){
+      this.config[this.variableName] = null
+    }else{
+      this.config[this.variableName] = value
+    }
+  }
+
+  onJsonFileChanged(files){
+    const fileReader = new FileReader();
+    fileReader.onload = (e) => {
+      try {
+        this.config[this.variableName] = JSON.parse((e as any).target.result)
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    fileReader.readAsText(files[0])
+  }
+
+  onAndroidKeystoreFileChanged(files){
+    const fileReader = new FileReader();
+    fileReader.onload = (e) => {
+      try {
+        this.config[this.variableName] = md5((e as any).target.result)
+        this.binaryFileChanged.emit(files[0])
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    fileReader.readAsArrayBuffer(files[0])
+  }
+
+  jsonObjToString(obj): string{
+    return JSON.stringify(obj, null, 2)
+  }
+
+  rollback(){
+    this.config[this.variableName] =  this.originalValue == undefined? null : deepclone(this.originalValue)
+    $('input[type="file"]').val('')
+    this.binaryFileChanged.emit(null)
+  }
+
+  compareValues( v1: any, v2: any): boolean{
+    return deepEqual(v1, v2)
+  }
+}

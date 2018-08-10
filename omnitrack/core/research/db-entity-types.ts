@@ -20,8 +20,36 @@ export interface IExperimentDbEntity extends IMongooseDbEntity {
   consent: string,
   receiveConsentInApp: boolean,
   trackingPackages: Array<IExperimentTrackingPackgeDbEntity>,
-  experimenters: Array<{ researcher: string | IResearcherDbEntity, permissions: any }>
+  experimenters: Array<{ researcher: string | IResearcherDbEntity, permissions: any }>,
+  clientBuildConfigs?: Array<any>
 }
+
+export interface IClientBuildConfigBase <T> extends IMongooseDbEntity{
+  experiment: string | IExperimentDbEntity,
+  platform: string,
+  packageName: string,
+  appName: string,
+  repository: string,
+  iconPath: string,
+  disableExternalEntities: boolean,
+  showTutorials: boolean,
+  disableTrackerCreation: boolean,
+  disableTriggerCreation: boolean,
+  hideTriggersTab: boolean,
+  hideServicesTab: boolean,
+  credentials: T, // dictionary
+  apiKeys: Array<{key: string, value: any}>
+}
+
+export interface AndroidBuildCredentials{
+  googleServices: any,
+  keystoreFileHash: string,
+  keystorePassword: string
+  keystoreAlias: string,
+  keystoreKeyPassword: string,
+}
+
+export interface IAndroidBuildConfig extends IClientBuildConfigBase<AndroidBuildCredentials>{}
 
 export interface IClientSignatureDbEntity extends IMongooseDbEntity {
   key: string,

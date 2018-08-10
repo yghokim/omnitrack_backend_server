@@ -43,6 +43,7 @@ import { InstallationWizardComponent } from './installation/installation-wizard/
 import { PreventReinstallationGuard } from './services/prevent-reinstallation.guard';
 import { OmniTrackPackageCodeEditorComponent } from './research/omnitrack/omni-track-package-code-editor/omni-track-package-code-editor.component';
 import { ExperimentConsentEditorComponent } from './experiment-consent-editor/experiment-consent-editor.component';
+import { ExperimentClientSettingsComponent } from './experiment-client-settings/experiment-client-settings.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'downloads', pathMatch: 'full', canActivate: [EndUserAuthToMainGuard] },
@@ -107,6 +108,7 @@ const routes: Routes = [
           { path: 'participants', component: ExperimentParticipantsComponent, data: { title: 'Participants' } },
           { path: 'groups', component: ExperimentGroupsComponent, data: { title: 'Groups' } },
           { path: 'invitations', component: ExperimentInvitationsComponent, data: { title: 'Invitations' } },
+          { path: 'client-apps', component: ExperimentClientSettingsComponent, data: { title: 'Client Apps'}},
           { path: 'settings', component: ExperimentSettingsComponent, data: { title: 'Settings' } },
           {
             path: 'consent', component: ExperimentConsentEditorComponent, data: {

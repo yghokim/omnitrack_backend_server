@@ -19,6 +19,7 @@ import { participantCtrl } from './controllers/research/ot_participant_controlle
 import { clientSignatureCtrl } from './controllers/ot_client_signature_controller';
 import { RouterWrapper } from './server_utils';
 import { trackingPackageCtrl } from './controllers/ot_tracking_package_controller';
+import { clientBuildCtrl } from './controllers/research/ot_client_build_controller';
 const jwt = require('express-jwt');
 
 export class ResearchRouter extends RouterWrapper {
@@ -126,8 +127,15 @@ export class ResearchRouter extends RouterWrapper {
     this.router.post('/experiments/:experimentId/groups/upsert', tokenApprovedAuth, experimentCtrl.upsertExperimentGroup)
     this.router.delete('/experiments/:experimentId/groups/:groupId', tokenApprovedAuth, experimentCtrl.removeExperimentGroup)
     this.router.post('/experiments/:experimentId/groups/:groupId/delete', tokenApprovedAuth, experimentCtrl.removeExperimentGroup)
-    
 
+    //client build
+    this.router.get('/experiments/:experimentId/client_build_configs', tokenApprovedAuth,
+    clientBuildCtrl.getClientBuildConfigsOfExperiment)
+    this.router.post('/experiments/:experimentId/client_build_configs', tokenApprovedAuth,
+    clientBuildCtrl.updateClientBuildConfigs)
+    this.router.post('/experiments/:experimentId/client_build_configs/initialize', tokenApprovedAuth,
+    clientBuildCtrl.initializeDefaultPlatformConfig)
+    
     this.router.post('/users/notify/message', tokenApprovedAuth, this.researchCtrl.sendNotificationMessageToUser)
 
     this.router.delete('/participants/:participantId', tokenApprovedAuth, this.researchCtrl.removeParticipant)

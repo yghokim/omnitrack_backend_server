@@ -105,6 +105,11 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
           icon: 'mail'
         },
         {
+          name: 'Client Apps',
+          key: 'client-apps',
+          icon: 'phone_iphone'
+        },
+        {
           name: 'Experiment Settings',
           key: 'settings',
           icon: 'settings'
