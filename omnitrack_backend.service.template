@@ -1,0 +1,15 @@
+[Unit]
+Documentation=https://github.com/OmniTrack/omnitrack_research_kit/wiki/Installation-Guide
+
+[Service]
+WorkingDirectory=[REPOSITORY_LOCATION]
+ExecStart=tsc -p server && node dist/server/server/app.js
+Restart=always
+RestartSec=2
+
+StandardOutput=syslog
+StandardError=syslog
+
+SyslogIdentifier=omnitrack-backend-server
+Environment="NODE_ENV=production"
+
