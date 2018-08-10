@@ -1,0 +1,11 @@
+{
+  "uid":"omnitrack_backend",
+  "append":true, //append log to existing one.
+  "watch":false, //watch and restart if code is changed.
+  "script":"app.js",
+  "sourceDir":"[PATH]/dist/server/server/",
+  "outFile":"[PATH]/logs/production.log",
+  "logFile":"[PATH]/logs/server.log",
+  "errFile":"[PATH]/logs/error.log",
+  "minUptime": 1000
+}
