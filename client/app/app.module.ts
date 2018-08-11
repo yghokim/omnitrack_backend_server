@@ -16,7 +16,6 @@ import { NotificationService } from './services/notification.service';
 
 import { ResearchModule } from './research.module';
 import { TextInputDialogComponent } from './dialogs/text-input-dialog/text-input-dialog.component';
-import { EndUserModule } from './end-user.module';
 import { ImageViewDialog } from './experiment-data/image-cell/image-view-dialog/image-view-dialog.component';
 
 
@@ -36,7 +35,6 @@ import { ImageViewDialog } from './experiment-data/image-cell/image-view-dialog/
     BrowserAnimationsModule,
     MaterialDesignModule,
     ResearchModule,
-    EndUserModule
   ],
   providers: [
     NotificationService

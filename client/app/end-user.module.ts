@@ -8,21 +8,19 @@ import { EndUserFrameComponent } from './end-user/end-user-frame/end-user-frame.
 import { MaterialDesignModule } from './material-design.module';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireAuthModule } from 'angularfire2/auth';
-import { firebase } from '../credentials/firebase-client-config';
 import { EndUserApiService } from './end-user/services/end-user-api.service';
 import { EndUserAuthCheckGuard } from './end-user/services/end-user-auth-check.guard';
 import { EndUserAuthToMainGuard } from './end-user/services/end-user-auth-to-main.guard';
 import { EndUserDashboardComponent } from './end-user/end-user-dashboard/end-user-dashboard.component';
 import { EndUserTrackerListComponent } from './end-user/end-user-tracker-list/end-user-tracker-list.component';
 import { EndUserTriggerListComponent } from './end-user/end-user-trigger-list/end-user-trigger-list.component';
-import { ClientDownloadComponent } from './client-download/client-download.component';
 
 @NgModule({
   imports: [
     CommonModule,
     SharedModule,
     RoutingModule,
-    AngularFireModule.initializeApp(firebase),
+    AngularFireModule.initializeApp(require('../credentials/firebase-client-config')),
     AngularFireAuthModule
   ],
   exports: [
@@ -35,7 +33,6 @@ import { ClientDownloadComponent } from './client-download/client-download.compo
     EndUserDashboardComponent, 
     EndUserTrackerListComponent, 
     EndUserTriggerListComponent,
-    ClientDownloadComponent
   ],
   providers: [EndUserApiService, EndUserAuthCheckGuard, EndUserAuthToMainGuard],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

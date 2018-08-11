@@ -53,7 +53,7 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
           name: 'Overview',
           key: 'overview',
           icon: 'timeline'
-        },
+        },/*
         {
           name: 'Detailed Overview',
           key: 'detailed-overview',
@@ -63,7 +63,7 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
           name: 'Custom Statistics',
           key: 'custom-statistics',
           icon: 'timeline'
-        },
+        },*/
         {
           name: 'Self-Tracking Data',
           key: 'tracking-data',

@@ -10,6 +10,7 @@ import { ResearcherAuthGuardSecure } from './services/researcher.auth.guard.secu
 import { ResearcherAuthGuardMain } from './services/researcher.auth.guard.main';
 import { ResearchApiService } from './services/research-api.service';
 import { ExperimentOverviewComponent } from './experiment-overview/experiment-overview.component';
+import { ClientDownloadComponent } from './client-download/client-download.component';
 import { ExperimentParticipantsComponent } from './experiment-participants/experiment-participants.component';
 import { ExperimentGroupsComponent } from './experiment-groups/experiment-groups.component';
 import { ExperimentOmniTrackComponent } from './experiment-omnitrack/experiment-omnitrack.component';
@@ -26,7 +27,6 @@ import { AnonymizeEmailPipe } from './pipes/anonymize-email.pipe';
 import { SocketService } from './services/socket.service';
 import { RoutingModule } from './routing.module';
 import { SharedModule } from './shared/shared.module';
-import { MaterialDesignModule } from './material-design.module';
 import { ClipboardModule } from 'ngx-clipboard';
 import { NgxJsonViewerModule } from 'ngx-json-viewer';
 import { ResearcherPermissionsConfigurationComponent } from './experiment-settings/researcher-permissions-configuration/researcher-permissions-configuration.component';
@@ -100,6 +100,7 @@ import { DemographicEditorComponent } from './experiment-consent/demographic-edi
     NgxJsonViewerModule
   ],
   declarations: [
+    ClientDownloadComponent,
     ResearchLoginComponent,
     ResearchSignupComponent,
     ResearchFrameComponent,

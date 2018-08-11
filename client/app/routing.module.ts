@@ -24,15 +24,6 @@ import { ResearchHomeFrameComponent } from './research-home-frame/research-home-
 import { ExperimentListComponent } from './experiment-list/experiment-list.component';
 import { ResearcherAccountSettingsComponent } from './researcher-account-settings/researcher-account-settings.component';
 import { ServerSettingsComponent } from './server-settings/server-settings.component';
-import { ClientDownloadComponent } from './client-download/client-download.component';
-import { EndUserFrameComponent } from './end-user/end-user-frame/end-user-frame.component';
-import { EndUserHomeComponent } from './end-user/end-user-home/end-user-home.component';
-import { EndUserSignInComponent } from './end-user/end-user-sign-in/end-user-sign-in.component';
-import { EndUserAuthCheckGuard } from './end-user/services/end-user-auth-check.guard';
-import { EndUserAuthToMainGuard } from './end-user/services/end-user-auth-to-main.guard';
-import { EndUserDashboardComponent } from './end-user/end-user-dashboard/end-user-dashboard.component';
-import { EndUserTrackerListComponent } from './end-user/end-user-tracker-list/end-user-tracker-list.component';
-import { EndUserTriggerListComponent } from './end-user/end-user-trigger-list/end-user-trigger-list.component';
 import { PerParticipantVisualizationDashboardComponent } from './research/visualization/per-participant-visualization-dashboard/per-participant-visualization-dashboard.component';
 import { ExperimentCustomStatisticsComponent } from './experiment-custom-statistics/experiment-custom-statistics.component';
 import { ExperimentTrackingEngagementComponent } from './experiment-overview/experiment-tracking-engagement/experiment-tracking-engagement.component';
@@ -48,13 +39,12 @@ import { ExperimentConsentComponent } from './experiment-consent/experiment-cons
 import { DemographicEditorComponent } from './experiment-consent/demographic-editor/demographic-editor.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'downloads', pathMatch: 'full', canActivate: [EndUserAuthToMainGuard] },
-  { path: 'downloads', component: ClientDownloadComponent },
+  { path: '', redirectTo: 'research', pathMatch: 'full' },
 
   { path: 'test', component: HttpMethodTestingComponent },
 
   { path: 'install', component: InstallationWizardComponent, canActivate: [PreventReinstallationGuard] },
-
+/*
   {
     path: 'tracking', component: EndUserFrameComponent,
     children: [
@@ -69,7 +59,7 @@ const routes: Routes = [
       },
       { path: 'login', component: EndUserSignInComponent, canActivate: [EndUserAuthToMainGuard], data: { title: "Login" } }
     ]
-  },
+  },*/
 
   {
     path: 'research', component: ResearchFrameComponent,
