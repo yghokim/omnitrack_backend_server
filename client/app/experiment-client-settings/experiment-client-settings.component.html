@@ -5,7 +5,7 @@
   <input type="password" style="display:none">
   <div class="card card-main">
     <mat-tab-group>
-      <mat-tab [label]="p" *ngFor="let p of supportedPlatforms; trackBy: matchPlatforms">
+      <mat-tab [label]="p" *ngFor="let p of supportedPlatforms">
         <app-platform-config-panel [platform]="p"></app-platform-config-panel>
       </mat-tab>
     </mat-tab-group>

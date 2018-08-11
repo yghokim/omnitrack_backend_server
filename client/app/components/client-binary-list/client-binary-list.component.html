@@ -12,7 +12,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr class="singleline hoverable" *ngFor="let binary of binaries;  trackBy: matchBinaryItem">
+    <tr class="singleline hoverable" *ngFor="let binary of binaries">
       <td>{{binary.version}}</td>
       <td>{{binary.minimumOsVersionReadable}}</td>
       <td>{{binary.fileSize | fileSize}}</td>
