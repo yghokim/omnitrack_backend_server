@@ -4,8 +4,6 @@ import { Subscription, zip, empty } from 'rxjs';
 import { flatMap } from 'rxjs/operators';
 import { MatDialog, MatTableDataSource, MatSort } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
-import { ChooseInvitationDialogComponent } from '../dialogs/choose-invitation-dialog/choose-invitation-dialog.component';
-import { NewInvitationDialogComponent } from '../experiment-invitations/new-invitation-dialog/new-invitation-dialog.component';
 import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
 import { NotificationService } from '../services/notification.service';
 import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
@@ -45,6 +43,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(this.api.selectedExperimentService.pipe(flatMap(expService => expService.getParticipants())).subscribe(
       participants => {
         this.participants = participants
+        console.log(participants)
         this.isLoadingParticipants = false
         this.participantDataSource = new MatTableDataSource(participants)
         this.setSortParticipants();
