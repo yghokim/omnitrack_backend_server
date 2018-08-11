@@ -1,31 +1,22 @@
-import { Component, ViewChild, ElementRef, Input, OnInit, AfterViewInit, OnDestroy, Directive, ViewChildren, QueryList, AfterViewChecked } from "@angular/core";
-import { VisualizationBaseComponent } from "../visualization-base.component";
-import { ResearchVisualizationQueryConfigurationService, Scope, FilteredExperimentDataset } from "../../../services/research-visualization-query-configuration.service";
+import { Component, ViewChild, ElementRef, Input, OnInit, OnDestroy } from "@angular/core";
+import { ResearchVisualizationQueryConfigurationService, FilteredExperimentDataset } from "../../../services/research-visualization-query-configuration.service";
 import { Subscription, Observable, Subject } from "rxjs";
 import { tap, combineLatest, map } from 'rxjs/operators';
-import { TrackingDataService } from '../../../services/tracking-data.service';
 import { ResearchApiService } from "../../../services/research-api.service";
-import { NO_ERRORS_SCHEMA } from '@angular/core';
 import * as d3 from 'd3';
 import * as d3chromatic from 'd3-scale-chromatic';
 import { ScaleLinear } from 'd3-scale'
-import { D3VisualizationBaseComponent } from "../d3-visualization-base.component";
-import { ScaleOrdinal, Axis } from "d3";
-import * as moment from "moment";
+import { Axis } from "d3";
 import { IItemDbEntity } from "../../../../../omnitrack/core/db-entity-types";
-import { EngagementTimelineContainerDirective } from "./engagement-timeline-container.directive";
 import * as groupArray from 'group-array';
-import { Moment } from "moment-timezone";
-import { diffDaysBetweenTwoMoments, aliasCompareFunc, unique } from "../../../../../shared_lib/utils";
+import { aliasCompareFunc, unique } from "../../../../../shared_lib/utils";
 
 @Component({
   selector: "app-engagement",
   templateUrl: "./engagement.component.html",
   styleUrls: ["./engagement.component.scss"]
 })
-export class EngagementComponent extends D3VisualizationBaseComponent<
-EngagementData
-> implements OnInit, OnDestroy{
+export class EngagementComponent implements OnInit, OnDestroy{
 
   isBusy = true;
 
@@ -109,11 +100,12 @@ EngagementData
 
   public readonly colorScale: ScaleLinear<d3.RGBColor, string>
 
+  public participantList: Array<ParticipantRow>
+
   constructor(
     private queryConfigService: ResearchVisualizationQueryConfigurationService,
     private api: ResearchApiService
   ) {
-    super();
 
     this.dayAxisScale = d3.scaleLinear()
     this.dayAxis = d3.axisTop(this.dayAxisScale)
@@ -135,7 +127,7 @@ EngagementData
     this._internalSubscriptions.add(
       this.makeDataObservable().pipe(
         tap(data => {
-          this.data = data
+          this.participantList = data.participantList
           this.isBusy = false
         }),
         combineLatest(this.queryConfigService.dayIndexRange().pipe(tap(range => {
@@ -181,8 +173,8 @@ EngagementData
   }
 
   public onSortMethodChanged(index: number) {
-    if (this.data) {
-      this.data.participantList.sort(this.SORT_METHODS[index].sortFunc)
+    if (this.participantList) {
+      this.participantList = this.participantList.slice().sort(this.SORT_METHODS[index].sortFunc)
     }
   }
 
@@ -194,24 +186,6 @@ EngagementData
     array.push({ value: ">" + this.itemCountRangeMax.toFixed(0), color: this.colorScale(this.itemCountRangeMax + 1) })
 
     return array
-  }
-
-  private isWithinScale(dayIndex: number): boolean {
-    return this.dayIndexRange[0] <= dayIndex && this.dayIndexRange[1] >= dayIndex
-  }
-
-  private makeParticipantRowTransform(row: ParticipantRow, index: number): string {
-    let currentY = 0;
-    for (let i = 0; i < index; i++) {
-      currentY += this.calcHeightOfParticipantRow(row)
-      currentY += this.PARTICIPANT_MARGIN
-    }
-    return this.makeTranslate(0, currentY)
-  }
-
-  private calcHeightOfParticipantRow(row: ParticipantRow): number {
-    const numTrackers = row.trackingDataList.length
-    return numTrackers === 0 ? this.PARTICIPANT_MINIMUM_HEIGHT : (numTrackers * this.TRACKER_ROW_HEIGHT + (numTrackers - 1) * this.TRACKER_MARGIN)
   }
 
   private makeDataObservable(): Observable<EngagementData> {

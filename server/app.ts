@@ -45,14 +45,28 @@ app.use(morgan("dev"));
 initializeFirebase();
 
 
+const os = require('os')
+const netInterfaces = os.networkInterfaces();
+let ipv4: string = null
+Object.keys(netInterfaces).forEach((ifgroup) => {
+  netInterfaces[ifgroup].forEach((iface) => {
+    if (iface.internal !== false || iface.family !== 'IPv4') {
+      return
+    }
+    ipv4 = iface.address
+  })
+})
+console.log("current server public ip: ", ipv4)
+app.set("publicIP", ipv4)
+
 if (!module.parent) {
   const server = app.listen(app.get("port"), () => {
     console.log(
       "OmniTrack API Server listening on port " + app.get("port")
     );
   });
+  const io = require("socket.io")(server, { origins: "*:*" });
 
-  const io = require("socket.io")(server);
   app.set("io", io);
 }
 
@@ -78,20 +92,6 @@ function installServer() {
       const omnitrackModule = new OmniTrackModule(app)
       app.set("omnitrack", omnitrackModule);
       omnitrackModule.bootstrap()
-
-      const os = require('os')
-      const netInterfaces = os.networkInterfaces();
-      let ipv4: string = null
-      Object.keys(netInterfaces).forEach((ifgroup) => {
-        netInterfaces[ifgroup].forEach((iface) => {
-          if (iface.internal !== false || iface.family !== 'IPv4') {
-            return
-          }
-          ipv4 = iface.address
-        })
-      })
-      console.log("current server public ip: ", ipv4)
-      app.set("publicIP", ipv4)
     }
   }
 

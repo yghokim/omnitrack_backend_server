@@ -19,7 +19,7 @@
     </div>
   </div>
   <div main class="engagement-visualization-area">
-    <table class="table table-data" *ngIf="data">
+    <table class="table table-data" *ngIf="participantList">
       <tbody class="header">
         <td></td>
         <td></td>
@@ -29,7 +29,7 @@
         <td></td>
       </tbody>
       <tbody>
-        <ng-container *ngFor="let participant of data.participantList; let participantIndex = index">
+        <ng-container *ngFor="let participant of participantList; let participantIndex = index">
           <tr class="tracker-row" *ngFor="let tracker of participant.trackingDataList; let trackerIndex = index">
             <th *ngIf="trackerIndex===0" class="participant-name-column" [attr.rowspan]="participant.trackingDataList.length" [matTooltip]="participant.email" [matTooltipPosition]="'above'" >{{participant.alias}}</th>
             <td class="tracker-name-column">{{tracker.trackerName}}</td>

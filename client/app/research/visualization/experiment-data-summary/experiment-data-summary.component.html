@@ -7,9 +7,9 @@
   </div>
 </ng-template>
 
-<div class="card card-main">
+<div class="card card-main" *ngIf="statisticsPerTracker && statisticsPerTracker.length > 0">
   <div class="card-header">Summary</div>
-  <div *ngIf="statisticsPerTracker && statisticsPerTracker.length > 0">
+  <div>
     <table class="table">
       <thead class="thead-dark">
         <tr>
@@ -29,12 +29,12 @@
           <td class="text-color-darkgray">
             <b>{{row.total}}</b>
           </td>
-          <td class="text-color-darkgray">{{row.count}}</td>
-          <td class="text-color-darkgray">{{row.min}}</td>
-          <td class="text-color-darkgray">{{row.max}}</td>
-          <td class="text-color-darkgray">{{row.mean.toFixed(2)}}</td>
-          <td class="text-color-darkgray">{{row.median}}</td>
-          <td class="text-color-darkgray">{{row.stdev.toFixed(2)}}</td>
+          <td class="text-color-darkgray"><span *ngIf="row.count">{{row.count}}</span></td>
+          <td class="text-color-darkgray"><span *ngIf="row.min">{{row.min}}</span></td>
+          <td class="text-color-darkgray"><span *ngIf="row.max">{{row.max}}</span></td>
+          <td class="text-color-darkgray"><span *ngIf="row.mean">{{row.mean.toFixed(2)}}</span></td>
+          <td class="text-color-darkgray"><span *ngIf="row.median">{{row.median}}</span></td>
+          <td class="text-color-darkgray"><span *ngIf="row.stdev">{{row.stdev.toFixed(2)}}</span></td>
         </tr>
         <tr class="thead-light">
           <th>Total</th>
@@ -42,9 +42,9 @@
           <th class="text-color-darkgray">{{numParticipants}}</th>
           <th class="text-color-darkgray">-</th>
           <th class="text-color-darkgray">-</th>
-          <th class="text-color-darkgray">{{logsPerParticipant.toFixed(2)}}</th>
+          <th class="text-color-darkgray"><span *ngIf="logsPerParticipant">{{logsPerParticipant.toFixed(2)}}</span></th>
           <th class="text-color-darkgray">-</th>
-          <th class="text-color-darkgray">{{logsPerParticipantStDev.toFixed(2)}}</th>
+          <th class="text-color-darkgray"><span *ngIf="logsPerParticipantStDev">{{logsPerParticipantStDev.toFixed(2)}}</span></th>
         </tr>
       </tbody>
     </table>

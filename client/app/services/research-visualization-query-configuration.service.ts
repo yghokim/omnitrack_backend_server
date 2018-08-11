@@ -87,19 +87,8 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
               }
 
               const daySequenceOfParticipant = getExperimentDateSequenceOfParticipant(participant, today.toDate(), project.scope.includeWeekends)
-
               const trackingDataList = trackers.filter(tracker => tracker.user === participant.user._id).map(tracker => {
-                const decodedItems = items.filter(item => {
-                  if (item.tracker === tracker._id) {
-                    if (project.scope.includeWeekends) {
-                      return true
-                    } else {
-                      const dow = moment(item.timestamp).isoWeekday()
-                      return dow !== 6 && dow !== 7
-                    }
-                  }
-                  return false
-                }).map(item => {
+                const decodedItems = items.filter(item => item.tracker === tracker._id).map(item => {
                   const timestampMoment = moment(item.timestamp)
                   const day = daySequenceOfParticipant.findIndex(d => moment(d).isSame(timestampMoment, 'day'))
                   const dayRatio = timestampMoment.diff(moment(timestampMoment).startOf("day"), "days", true)
