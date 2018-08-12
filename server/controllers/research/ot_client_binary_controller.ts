@@ -301,7 +301,7 @@ export default class OTBinaryCtrl {
           }
           console.log(binaryInfo)
           res.status(200).send(binaryInfo)
-        } else { res.status(404).send({ error: "NoBinaryForThisPlatform" }) }
+        } else { res.status(200).send(null) }
       }
     )
   }
