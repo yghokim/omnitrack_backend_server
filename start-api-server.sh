@@ -1,2 +1,2 @@
 sudo service mongod start
-tsc -p server && node dist/server/server/app.js
+tsc -p server && node dist/backend/server/app.js

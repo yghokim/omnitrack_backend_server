@@ -133,7 +133,7 @@
       </ng-container>
     </div>
     <hr class="no-margin">
-    <div class="card-body build-footer flex-container flex-align-items-center"  [style.visibility]="isLoading === true? 'hidden' : null">
+    <div class="card-body build-footer flex-container flex-align-items-center"  [style.visibility]="isLoading === true? 'hidden' : null" *ngIf="isInitialized === true">
       <div class="build-status-progress flex-filler">
         <ng-container *ngIf="isBuilding === true">
           <div class="message small">Building {{platform}} App...</div>

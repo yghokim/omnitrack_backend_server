@@ -1,6 +1,6 @@
 import { IEnvironment } from './env';
 import OTResearcher from './models/ot_researcher';
-import OTResearchAuthCtrl from './controllers/ot_research_auth_controller';
+import { OTResearchAuthCtrl } from './controllers/research/ot_research_auth_controller';
 import AdminCtrl from "./controllers/admin_controller";
 import OTResearchCtrl from './controllers/ot_research_controller';
 import { experimentCtrl } from './controllers/research/ot_experiment_controller';
@@ -25,11 +25,11 @@ const jwt = require('express-jwt');
 export class ResearchRouter extends RouterWrapper {
 
   private readonly researchCtrl = new OTResearchCtrl()
-  private readonly researchAuthCtrl = new OTResearchAuthCtrl()
   private readonly adminCtrl = new AdminCtrl()
   private readonly userCtrl = new OTUserCtrl()
   private readonly storageCtrl = new BinaryStorageCtrl()
   private readonly usageLogCtrl = new OTUsageLogCtrl()
+  private readonly researchAuthCtrl = new OTResearchAuthCtrl()
 
   constructor(private env: IEnvironment) {
     super()

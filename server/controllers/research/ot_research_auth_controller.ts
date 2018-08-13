@@ -1,14 +1,15 @@
 import * as jwt from "jsonwebtoken";
 import * as uuid from "uuid";
 import * as path from "path";
-import { ResearcherPrevilages } from '../../omnitrack/core/research/researcher';
-import OTResearcher from "../models/ot_researcher";
-import env from "../env";
-import app from "../app";
-import { isNullOrBlank } from "../../shared_lib/utils";
+import env from '../../env';
+import { ResearcherPrevilages } from '../../../omnitrack/core/research/researcher';
+import OTResearcher from "../../models/ot_researcher";
+import { isNullOrBlank } from "../../../shared_lib/utils";
 import { Document } from "mongoose";
+import { IResearcherDbEntity } from "../../../omnitrack/core/research/db-entity-types";
+import { resolve } from "../../../node_modules/@types/q";
 
-export default class OTResearchAuthCtrl {
+export class OTResearchAuthCtrl {
   private bcrypt = require("bcryptjs");
   private crypto = require("crypto");
 
@@ -20,6 +21,18 @@ export default class OTResearchAuthCtrl {
         cb(err, null);
       }
     });
+  }
+
+  private hashPasswordPromise(password): Promise<string>{
+    return new Promise((resolve, reject)=>{
+      this.hashPassword(password, (err, hashedPassword) => {
+        if(err){
+          reject(err)
+        }else{
+          resolve(hashedPassword)
+        }
+      })
+    })
   }
 
   private generateJWTToken(user, iat?: Date): string {
@@ -40,9 +53,44 @@ export default class OTResearchAuthCtrl {
     );
   }
 
-  registerResearcher = (req, res) => {
-    console.log("try register researcher.");
+  _registerResearcher(email: string, password: string, alias: string): Promise<IResearcherDbEntity>
+  {
+    return OTResearcher.where("email", email)
+    .findOne()
+    .catch(err => {
+      console.log(err);
+    })
+    .then(user => {
+      if (user != null) {
+        console.log("a researcher already exists.");
+        return user
+      } else {
+        return this.hashPasswordPromise(password).then(
+          hashedPassword => {
+            const researcherId = uuid.v1();
+          console.log(
+            "generate example experiments with researcher id: " +
+            researcherId
+          );
+          const newResearcher = new OTResearcher({
+            _id: researcherId,
+            email: email,
+            hashed_password: hashedPassword,
+            passwordSetAt: new Date(),
+            alias: alias,
+            account_approved: env.super_users.indexOf(email) !== -1 ? true : null
+          });
+          return newResearcher
+            .save()
+            .then(doc =>
+              doc.toJSON())
+          }
+        )
+      }
+    });
+  }
 
+  registerResearcher = (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     const alias = req.body.alias;
@@ -50,54 +98,13 @@ export default class OTResearchAuthCtrl {
     if (email == null || password == null || alias == null) {
       res.status(401).send({ error: "One or more entries are null." });
     } else {
-      console.log("find researcher with email: " + email);
-      OTResearcher.where("email", email)
-        .findOne()
-        .catch(err => {
-          console.log(err);
-        })
-        .then(user => {
-          if (user != null) {
-            console.log("a researcher already exists.");
-            res.status(500).send({ error: "User already exists." });
-          } else {
-            console.log("hash the password.");
-            this.hashPassword(password, (err, hashedPassword) => {
-              const researcherId = uuid.v1();
-              console.log(
-                "generate example experiments with researcher id: " +
-                researcherId
-              );
-              app
-                .researchModule()
-                .generateExampleExperimentToResearcher(
-                  "productivity_diary",
-                  researcherId
-                )
-                .then(experimentId => {
-                  const newResearcher = new OTResearcher({
-                    _id: researcherId,
-                    email: email,
-                    hashed_password: hashedPassword,
-                    passwordSetAt: new Date(),
-                    alias: alias,
-                    account_approved: env.super_users.indexOf(email) !== -1 ? true : null
-                  });
-                  newResearcher
-                    .save()
-                    .catch(saveError => {
-                      console.log(saveError);
-                      res.status(500).send({ error: saveError });
-                    })
-                    .then(researcher => {
-                      res.status(200).send({
-                        token: this.generateJWTToken(researcher)
-                      });
-                    });
-                });
-            });
-          }
-        });
+      this._registerResearcher(email, password, alias).then(
+        researcher => {
+          res.status(200).send({
+            token: this.generateJWTToken(researcher)
+          });
+        }
+      )
     }
   };
 

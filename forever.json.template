@@ -3,7 +3,7 @@
   "append":true, //append log to existing one.
   "watch":false, //watch and restart if code is changed.
   "script":"app.js",
-  "sourceDir":"[PATH]/dist/server/server/",
+  "sourceDir":"[PATH]/dist/backend/server/",
   "outFile":"[PATH]/logs/production.log",
   "logFile":"[PATH]/logs/server.log",
   "errFile":"[PATH]/logs/error.log",

@@ -1,7 +1,7 @@
 module.exports = {
   apps : [{
     name      : 'omnitrack-backend',
-    script    : './dist/server/server/app.js',
+    script    : './dist/backend/server/app.js',
     log: './logs/production.log',
     error: './logs/error.log',
     output: './logs/server.log',

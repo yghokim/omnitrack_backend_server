@@ -3,7 +3,7 @@ Documentation=https://github.com/OmniTrack/omnitrack_research_kit/wiki/Installat
 
 [Service]
 WorkingDirectory=[REPOSITORY_LOCATION]
-ExecStart=tsc -p server && node dist/server/server/app.js
+ExecStart=tsc -p server && node dist/backend/server/app.js
 Restart=always
 RestartSec=2
 

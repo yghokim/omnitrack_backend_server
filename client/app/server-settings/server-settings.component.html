@@ -50,6 +50,7 @@
       <thead>
         <th>Fingerprint</th>
         <th>Package</th>
+        <th>Experiment</th>
         <th>Alias</th>
         <th></th>
       </thead>
@@ -57,6 +58,10 @@
         <tr class="singleline" *ngFor="let signature of clientSignatures">
           <td class="cell-fingerprint">{{signature.key}}</td>
           <td>{{signature.package}}</td>
+          <td>
+            <span *ngIf="signature.experiment">{{signature.experiment}}</span>
+            <span *ngIf="!signature.experiment" class="text-color-lightgray">Granted all</span>
+          </td>
           <td>{{signature.alias}}</td>
           <td class="button-cell">
             <div class="text-right">
