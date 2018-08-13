@@ -74,6 +74,10 @@ export class ClientBuildService extends ServiceBase {
       this.http.get("/api/research/experiments/" + this._currentExperimentId + "/client_build_configs", this.api.authorizedOptions).pipe(map(res => res.json())).subscribe(
         result => {
           this._buildConfigBehaviorSubject.next(result)
+        },
+        err =>{
+          console.error("BuildConfig loading error:")
+          console.error(err)
         }
       ))
   }
@@ -83,6 +87,10 @@ export class ClientBuildService extends ServiceBase {
       this.http.get("/api/research/experiments/" + this._currentExperimentId + "/client_build_configs/build/status", this.api.authorizedOptions).pipe(map(res => res.json())).subscribe(
         result => {
           this._buildStatusBehaviorSubject.next(result)
+        },
+        err =>{
+          console.error("Build Status loading error:")
+          console.error(err)
         }
       )
     )

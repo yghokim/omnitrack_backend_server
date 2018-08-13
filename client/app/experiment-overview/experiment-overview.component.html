@@ -1,39 +1,99 @@
-<div #sidePanel id="experiment-side-panel" class="card" [style.width]="sidePanelWidth + 'px'">
-  <div class="card-body">
-    <mat-slide-toggle [checked]="configuration.includeWeekends() | async" [tooltips]="[true, true]" (change)="includeWeekendsChanged($event.checked)">Include Weekends</mat-slide-toggle>
-
-    <div id="day-index-range-container" *ngIf="dayIndexRange">
-      <nouislider [config]="dayIndexRangeSliderConfigs" [min]="0" [max]="dayIndexMax" [(ngModel)]="dayIndexRange"></nouislider>
-    </div>
-  </div>
-  <mat-expansion-panel class="mat-elevation-z0 component-border-top" [expanded]="true">
-    <mat-expansion-panel-header>Participants</mat-expansion-panel-header>
-    <div class="flex-container flex-align-items-center bottom-margin-1em">
-      <button type="button" class="btn btn-sm btn-light" (click)="configuration.clearParticipantFilter()">Select All</button>
-      <div class="flex-filler"></div>
-      <span *ngIf="(configuration.filteredParticipantIds | async).length > 0">{{(configuration.filteredParticipantIds | async).length}} hidden</span>
-    </div>
-    <ng-container *ngFor="let participant of participants">
-      <mat-checkbox [checked]="(configuration.filteredParticipantIds | async).includes(participant._id)!==true" (change)="onFilteredParticipantToggle(participant._id, $event.checked)">
-        {{participant.alias}}
-      </mat-checkbox>
-      <mat-divider class="bottom-margin-dot5em"></mat-divider>
-    </ng-container>
-  </mat-expansion-panel>
-</div>
-<div [style.padding-left]="sidePanelWidth + 'px'">
-
+<ng-container *ngIf="isParticipantsExist === false">
   <div class="container">
     <div class="card card-main">
-      <nav mat-tab-nav-bar>
-        <a class="gnb-link" mat-tab-link *ngFor="let link of tablinks" [routerLink]="link.path" routerLinkActive #rla="routerLinkActive"
-          [active]="rla.isActive">
-          {{link.label}}
-        </a>
-      </nav>
+      <div class="card-body">
+        <span class="text-color-accented">
+          No participants are in the experiment.</span>
+        <hr>
+        <table class="stepper">
+          <tr class="title-row">
+            <th class="bullet">
+              <div>1</div>
+            </th>
+            <td class="title">Manage Experiment Groups</td>
+          </tr>
+          <tr class="middle">
+            <th class="columnline">
+              <div class="line"></div>
+            </th>
+            <td class="content">
+              <p>Manage the experiment groups that study participants will be assigned to.</p>
+              <button mat-raised-button color="primary" (click)="goToGroupsPage()">Go to group settings</button>
+            </td>
+          </tr>
+          <tr class="title-row">
+            <th class="bullet">
+              <div>2</div>
+            </th>
+            <td class="title">Manage Invitations</td>
+          </tr>
+          <tr class="middle">
+            <th class="columnline">
+              <div class="line"></div>
+            </th>
+            <td class="content">
+              <p>Manage invitations and pair them to the experimental groups.</p>
+              <button mat-raised-button color="primary" (click)="goToInvitationPage()">Go to the invitation page</button>
+            </td>
+          </tr>
+          <tr class="title-row">
+            <th class="bullet">
+              <div>3</div>
+            </th>
+            <td class="title">Manage Client Apps</td>
+          </tr>
+          <tr class="middle">
+            <th class="columnline">
+
+            </th>
+            <td class="content">
+              <p>Build client apps that participants will use.</p>
+              <button mat-raised-button color="primary" (click)="goToClientAppPage()">Go to the client apps page</button>
+            </td>
+          </tr>
+        </table>
+      </div>
     </div>
   </div>
-  <div class="container main">
-    <router-outlet></router-outlet>
+</ng-container>
+<ng-container *ngIf="isParticipantsExist===true">
+  <div #sidePanel id="experiment-side-panel" class="card" [style.width]="sidePanelWidth + 'px'">
+    <div class="card-body">
+      <mat-slide-toggle [checked]="configuration.includeWeekends() | async" [tooltips]="[true, true]" (change)="includeWeekendsChanged($event.checked)">Include Weekends</mat-slide-toggle>
+
+      <div id="day-index-range-container" *ngIf="dayIndexRange">
+        <nouislider [config]="dayIndexRangeSliderConfigs" [min]="0" [max]="dayIndexMax" [(ngModel)]="dayIndexRange"></nouislider>
+      </div>
+    </div>
+    <mat-expansion-panel class="mat-elevation-z0 component-border-top" [expanded]="true">
+      <mat-expansion-panel-header>Participants</mat-expansion-panel-header>
+      <div class="flex-container flex-align-items-center bottom-margin-1em">
+        <button type="button" class="btn btn-sm btn-light" (click)="configuration.clearParticipantFilter()">Select All</button>
+        <div class="flex-filler"></div>
+        <span *ngIf="(configuration.filteredParticipantIds | async).length > 0">{{(configuration.filteredParticipantIds | async).length}} hidden</span>
+      </div>
+      <ng-container *ngFor="let participant of participants">
+        <mat-checkbox [checked]="(configuration.filteredParticipantIds | async).includes(participant._id)!==true" (change)="onFilteredParticipantToggle(participant._id, $event.checked)">
+          {{participant.alias}}
+        </mat-checkbox>
+        <mat-divider class="bottom-margin-dot5em"></mat-divider>
+      </ng-container>
+    </mat-expansion-panel>
   </div>
-</div>
+  <div [style.padding-left]="sidePanelWidth + 'px'">
+
+    <div class="container">
+      <div class="card card-main">
+        <nav mat-tab-nav-bar>
+          <a class="gnb-link" mat-tab-link *ngFor="let link of tablinks" [routerLink]="link.path" routerLinkActive #rla="routerLinkActive"
+            [active]="rla.isActive">
+            {{link.label}}
+          </a>
+        </nav>
+      </div>
+    </div>
+    <div class="container main">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</ng-container>

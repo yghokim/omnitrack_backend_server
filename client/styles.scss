@@ -1019,6 +1019,49 @@ $duration: 1.4s;
   }
 }
 
+table.stepper {
+  tr.title-row {
+    th.bullet {
+      div {
+        width: 1.5rem;
+        height: 1.5rem;
+        background: #c6c6c6;
+        text-align: center;
+        color: white;
+        border-radius: 100%;
+        margin-right: 0.5rem;
+      }
+    }
+    td.title {
+      font-weight: bold;
+    }
+  }
+  tr.middle {
+    th.columnline {
+      position: relative;
+      .line {
+        position: absolute;
+        top: 0.25rem;
+        bottom: 0.25rem;
+        left: 0.75rem;
+        border-left: 1px dashed #a5a5a5;
+      }
+    }
+    td.content {
+      padding-bottom: 2.5rem;
+      p {
+        font-size: 0.9rem;
+        color: #757575;
+      }
+    }
+  }
+  tr.middle:last-child {
+    td.content {
+      padding-bottom: 1rem;
+    }
+  }
+}
+
 @keyframes rotator {
   0% {
     transform: rotate(0deg);

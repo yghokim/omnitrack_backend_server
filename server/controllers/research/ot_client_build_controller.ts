@@ -467,6 +467,7 @@ export default class OTClientBuildCtrl {
         res.status(200).send(buildConfig)
       }).catch(
         err => {
+          console.error(err)
           res.status(500).send(err)
         })
   }
@@ -479,6 +480,7 @@ export default class OTClientBuildCtrl {
           res.status(200).send(list)
         }
       ).catch(err => {
+        console.error(err)
         res.status(500).send(err)
       })
   }
@@ -577,6 +579,7 @@ export default class OTClientBuildCtrl {
         res.status(200).send(statusList)
       }
     ).catch(err => {
+      console.error(err)
       res.status(500).send(err)
     })
   }

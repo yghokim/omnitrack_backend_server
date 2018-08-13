@@ -1,8 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ResearchVisualizationQueryConfigurationService } from '../services/research-visualization-query-configuration.service';
 import { ResearchApiService } from '../services/research-api.service';
 import { Subscription, Subject } from 'rxjs';
-import { debounceTime, flatMap, combineLatest } from 'rxjs/operators';
+import { debounceTime, flatMap, combineLatest, tap } from 'rxjs/operators';
 import * as moment from "moment-timezone";
 import { diffDaysBetweenTwoMoments } from '../../../shared_lib/utils';
 import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
@@ -27,6 +28,7 @@ export class ExperimentOverviewComponent implements OnInit {
     }
   ]
 
+  public isParticipantsExist
 
   public sidePanelWidth = 250
   public isSidePanelExpanded = true
@@ -63,7 +65,9 @@ export class ExperimentOverviewComponent implements OnInit {
 
   constructor(
     private api: ResearchApiService,
-    public configuration: ResearchVisualizationQueryConfigurationService) {
+    public configuration: ResearchVisualizationQueryConfigurationService,
+    private router: Router,
+    private activatedRoute: ActivatedRoute) {
   }
 
   ngOnInit() {
@@ -79,7 +83,12 @@ export class ExperimentOverviewComponent implements OnInit {
     this._internalSubscriptions.add(
       this.configuration.scopeSubject.pipe(
         combineLatest(
-          this.api.selectedExperimentService.pipe(flatMap(service => service.getParticipants())), this.api.selectedExperimentService.pipe(flatMap(service => service.getExperiment())), (scope, participants, experimentInfo) => ({ scope: scope, participants: participants, experiment: experimentInfo }))).subscribe(
+          this.api.selectedExperimentService.pipe(
+            flatMap(service => service.getParticipants()),
+            tap(participants => {
+              this.isParticipantsExist = participants.length > 0
+            })
+          ), this.api.selectedExperimentService.pipe(flatMap(service => service.getExperiment())), (scope, participants, experimentInfo) => ({ scope: scope, participants: participants, experiment: experimentInfo }))).subscribe(
             project => {
               this.participants = project.participants
 
@@ -123,4 +132,17 @@ export class ExperimentOverviewComponent implements OnInit {
     this.configuration.setParticipantFiltered(participantId, !checked)
   }
 
+  goToGroupsPage() {
+    this.router.navigate(["groups"], { relativeTo: this.activatedRoute.parent })
+  }
+
+  goToInvitationPage() {
+
+    this.router.navigate(["invitations"], { relativeTo: this.activatedRoute.parent })
+  }
+
+  goToClientAppPage() {
+
+    this.router.navigate(["client-apps"], { relativeTo: this.activatedRoute.parent })
+  }
 }

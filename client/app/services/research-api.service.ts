@@ -250,10 +250,7 @@ export class ResearchApiService extends ServiceBase {
   }
 
   getClientBinaries(experimentId?: string, platform?: string): Observable<Array<any>> {
-    let query: any = null
-    if (experimentId != null) {
-      query = { experimentId: experimentId }
-    }
+    let query: any = { experimentId: experimentId }
 
     if (platform != null) {
       if (!query) {
