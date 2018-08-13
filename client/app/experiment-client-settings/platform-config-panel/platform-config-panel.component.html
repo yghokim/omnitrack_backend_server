@@ -156,7 +156,7 @@
     <app-labeled-loading-indicator *ngIf="isLoadingBinaries===true">
       <span message>Loading client information...</span>
     </app-labeled-loading-indicator>
-    <app-client-binary-list [binaries]="binaries" [useConfirmColumn]="true" [experimentId]="clientBuildService.currentExperimentId"></app-client-binary-list>
+    <app-client-binary-list [binaries]="binaries" [useConfirmColumn]="true" [experimentId]="clientBuildService.currentExperimentId" [hideChangelogs]="true"></app-client-binary-list>
     <div class="card-footer small" *ngIf="!binaries || binaries.length === 0">
       No app files are listed.
     </div>

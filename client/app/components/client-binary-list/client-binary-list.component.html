@@ -4,7 +4,7 @@
       <th>App Version</th>
       <th>Minimum OS</th>
       <th>File Size</th>
-      <th>Changelog</th>
+      <th *ngIf="hideChangelogs!==true">Changelog</th>
       <th>Uploaded</th>
       <th>Downloads</th>
       <th *ngIf="useConfirmColumn === true && hasBinariesToPublish() === true"></th>
@@ -16,7 +16,7 @@
       <td>{{binary.version}}</td>
       <td>{{binary.minimumOsVersionReadable}}</td>
       <td>{{binary.fileSize | fileSize}}</td>
-      <td>
+      <td *ngIf="hideChangelogs !== true">
         <ol *ngIf="binary.changelog" class="changelog-list">
           <li *ngFor="let log of binary.changelog">{{log}}</li>
         </ol>
@@ -25,10 +25,17 @@
       <td>
         <span class="badge badge-info badge-pill">{{binary.downloadCount}}</span>
       </td>
-      <td *ngIf="useConfirmColumn === true && hasBinariesToPublish() === true"><button *ngIf="binary.needsConfirm === true" type="button" class="btn btn-success btn-sm" (click)="onPublishClicked(binary._id)">Click to Publish</button></td>
+      <td *ngIf="useConfirmColumn === true && hasBinariesToPublish() === true">
+        <button *ngIf="binary.needsConfirm === true" type="button" class="btn btn-success btn-sm" (click)="onPublishClicked(binary._id)">Click to Publish</button>
+      </td>
       <td class="button-cell">
         <div class="text-right">
-          <a [href]="'/api/clients/download?platform=' + binary.platform + '&version=' + binary.version + (experimentId? ('&experimentId='+experimentId):'')" mat-icon-button>
+          <button mat-icon-button ngxClipboard [cbContent]="retrieveShortUrl(binary) | async" matTooltip="Copy a shortened URL" (cbOnSuccess)="onShortUrlCopied(binary)">
+            <mat-icon class="material-icons">link</mat-icon>
+          </button>
+
+          <a [href]="makeBinaryDownloadUrl(binary)"
+            mat-icon-button>
             <mat-icon class="material-icons">file_download</mat-icon>
           </a>
           <button mat-icon-button (click)="onRemoveBinaryClicked(binary._id)">
