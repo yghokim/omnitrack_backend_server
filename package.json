@@ -9,7 +9,7 @@
   "angular-cli": {},
   "scripts": {
     "ng": "ng",
-    "build": "ng build",
+    "build": "ng build --aot --prod",
     "start": "node dist/backend/server/app.js",
     "predev": "tsc -p server",
     "dev": "concurrently \"mongod\" \"ng serve --host 0.0.0.0 --disable-host-check --proxy-config proxy.conf.json --open\" \"tsc -w -p server\" \"nodemon dist/backend/server/app.js\"",

@@ -194,27 +194,30 @@ export default class OTClientBuildCtrl {
         const appVersionCode: number = versionProperties.versionCode
         const appVersionName: string = versionProperties.versoinName
 
-        let newVersionCode: number
-        let newVersionName: string
+        let newVersionCode: number = null
+        let newVersionName: string = null
 
-        if (compareVersions(latestVersionInfo.versionName, appVersionName) >= 0) {
-          // if latestVersion is higher or equal than this
-          const v = extractVersion(latestVersionInfo.versionName)
-          v.numbers[v.numbers.length - 1]++
-          v.numbers[v.numbers.length - 2]++
-          newVersionName = v.numbers.join(".") + "-" + v.suffix
-          console.log("override to latest version name:", newVersionName)
-        } else { newVersionName = appVersionName }
+        if(latestVersionInfo){
+          if (compareVersions(latestVersionInfo.versionName, appVersionName) >= 0) {
+            // if latestVersion is higher or equal than this
+            const v = extractVersion(latestVersionInfo.versionName)
+            v.numbers[v.numbers.length - 1]++
+            v.numbers[v.numbers.length - 2]++
+            newVersionName = v.numbers.join(".") + "-" + v.suffix
+            console.log("override to latest version name:", newVersionName)
+          } else { newVersionName = appVersionName }
 
-        if (appVersionCode <= latestVersionInfo.versionCode) {
-          newVersionCode = latestVersionInfo.versionCode + 1
-          console.log("override to latest version code:", newVersionCode)
-        } else { newVersionCode = appVersionCode }
+          if (appVersionCode <= latestVersionInfo.versionCode) {
+            newVersionCode = latestVersionInfo.versionCode + 1
+            console.log("override to latest version code:", newVersionCode)
+          } else { newVersionCode = appVersionCode }
 
-        if (newVersionCode !== appVersionCode || newVersionName !== appVersionName) {
-          const newVersionPropertiesString = "versionName=" + newVersionName + "\nversionCode=" + newVersionCode
-          return fs.writeFile(versionPropPath, newVersionPropertiesString)
-        } else { return Promise.resolve() }
+          if(newVersionCode !== appVersionCode || newVersionName !== appVersionName) {
+            const newVersionPropertiesString = "versionName=" + newVersionName + "\nversionCode=" + newVersionCode
+            return fs.writeFile(versionPropPath, newVersionPropertiesString)
+          }
+        }
+        return Promise.resolve()
       }
     ).then(() => {
       const serverIP = app.get("publicIP")
@@ -244,8 +247,6 @@ export default class OTClientBuildCtrl {
           sourceConfigJson[key] = buildConfig[key]
         }
       })
-
-      console.log("\"$rootDir/" + path.join(path.relative(sourceFolderPath, this._makeExperimentConfigDirectoryPath(experimentId, true)), "androidKeystore.jks") + "\"")
 
       sourceConfigJson.signing = {
         // releaseKeystoreLocation: "$rootDir/" + path.join(path.relative(sourceFolderPath, this._makeExperimentConfigDirectoryPath(experimentId, true)), "androidKeystore.jks") + "\"",
@@ -291,7 +292,10 @@ export default class OTClientBuildCtrl {
           break;
       }
 
-      const command = spawn(arg0, ['assembleRelease', '--stacktrace'], { cwd: sourceFolderPath, stdio: ['ignore', process.stdout, 'pipe'] })
+      console.log("env:")
+      console.log(process.env)
+
+      const command = spawn(arg0, ['assembleRelease', '--stacktrace'], { cwd: sourceFolderPath, env: process.env, stdio: ['ignore', process.stdout, 'pipe'] })
 
       /*
       command.stdout.on('data', (data) => {
