@@ -20,6 +20,7 @@ import { clientSignatureCtrl } from './controllers/ot_client_signature_controlle
 import { RouterWrapper } from './server_utils';
 import { trackingPackageCtrl } from './controllers/ot_tracking_package_controller';
 import { clientBuildCtrl } from './controllers/research/ot_client_build_controller';
+import OTShortUrl from './models/ot_short_url';
 const jwt = require('express-jwt');
 
 export class ResearchRouter extends RouterWrapper {
@@ -64,7 +65,18 @@ export class ResearchRouter extends RouterWrapper {
     this.router.get('/researchers/all', tokenAdminAuth, this.researchCtrl.getResearchers)
     this.router.post('/researchers/:researcherId/approve', tokenAdminAuth, this.researchCtrl.setResearcherAccountApproved)
     // =============================================================
-
+    this.router.post("/shorten", tokenApprovedAuth, (req, res) => {
+      if(req.body.longUrl){
+        OTShortUrl.findOneAndUpdate({
+          longUrl: req.body.longUrl
+        }, {}, {upsert: true, setDefaultsOnInsert: true, new: true})
+        .lean().then(doc => {
+          res.status(200).send(doc.shortId)
+        })
+      }else{
+        res.status(400).send("No LongUrl sent in body.")
+      }
+    })
 
     this.router.get("/experiments/examples", experimentCtrl.getExampleExperimentList)
     this.router.post("/experiments/examples", tokenApprovedAuth, experimentCtrl.addExampleExperiment)

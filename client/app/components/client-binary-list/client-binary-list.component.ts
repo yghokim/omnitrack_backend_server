@@ -20,7 +20,15 @@ export class ClientBinaryListComponent implements OnInit, OnDestroy {
   @Input() hideChangelogs: boolean = false
   @Input() experimentId: string
   @Input() useConfirmColumn: boolean
-  @Input() binaries: Array<any>
+
+  private _binaries: Array<any>
+  @Input("binaries") set setBinaries(arr: Array<any>) {
+    this._binaries = arr
+  }
+
+  public get binaries(): Array<any> {
+    return this._binaries
+  }
 
   constructor(private api: ResearchApiService, private notificationService: NotificationService, private dialog: MatDialog, private http: Http) { }
 
@@ -36,9 +44,11 @@ export class ClientBinaryListComponent implements OnInit, OnDestroy {
   }
 
   retrieveShortUrl(binary: any): Observable<string> {
-    const url = window.location.protocol + "//" + window.location.host + this.makeBinaryDownloadUrl(binary)
-    return this.http.get('http://tinyurl.com/api-create.php?url=' + encodeURIComponent(url)).pipe(
-      map(res => res.text()),
+    const url = this.makeBinaryDownloadUrl(binary)
+    return this.api.shortenUrlToShortId(url).pipe(
+      map(shortId => {
+        return window.location.protocol + "//" + window.location.host + "api/s/" + shortId
+      }),
       catchError(err => {
         console.error(err)
         this.notificationService.pushSnackBarMessage({ message: "An error occurred retrieving a short url." })
@@ -47,23 +57,8 @@ export class ClientBinaryListComponent implements OnInit, OnDestroy {
     )
   }
 
-  onShortUrlCopied(binary: any){
+  onShortUrlCopied(binary: any) {
     this.notificationService.pushSnackBarMessage({ message: "A shorted URL was copied to clipboard." })
-  }
-
-  onRetrieveLinkClicked(binary: any) {
-    const url = window.location.protocol + "//" + window.location.host + this.makeBinaryDownloadUrl(binary)
-    this._internalSubscriptions.add(
-      this.http.get('http://tinyurl.com/api-create.php?url=' + encodeURIComponent(url)).subscribe(shorten => {
-        console.log(shorten)
-      },
-        err => {
-          console.error(err)
-          this.notificationService.pushSnackBarMessage({ message: "An error occurred retrieving a short url." })
-        }
-      )
-    )
-
   }
 
   onRemoveBinaryClicked(binaryId: string) {

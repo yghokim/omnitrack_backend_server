@@ -15,6 +15,7 @@ import { ClientApiRouter } from "./router_api";
 import { ResearchRouter } from "./router_research";
 import { installationWizardCtrl } from './controllers/ot_installation_wizard_controller';
 import { InstallationRouter } from "./router_installation";
+import { ShortUrlRouter } from "./router_shorturl";
 
 if (fs.pathExistsSync(environmentPath) !== true) {
   // copy sample file
@@ -86,6 +87,7 @@ function installServer() {
       console.log("Connected to MongoDB");
 
       // Routers===================================
+      app.use("/api/s", new ShortUrlRouter().router);
       app.use("/api", new ClientApiRouter().router);
       app.use("/api/research", new ResearchRouter(env).router); // research path
       // ==========================================
