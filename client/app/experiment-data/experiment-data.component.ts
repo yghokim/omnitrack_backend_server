@@ -20,6 +20,7 @@ import { aliasCompareFunc } from "../../../shared_lib/utils";
 import * as moment from 'moment-timezone';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
+import * as JSZip from 'jszip';
 import { UpdateItemCellValueDialogComponent } from "../dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component";
 import { TextInputDialogComponent } from "../dialogs/text-input-dialog/text-input-dialog.component";
 import { TimePoint } from "../../../omnitrack/core/datatypes/field_datatypes";
@@ -254,6 +255,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   }
 
   onExportClicked() {
+    this.notificationService.pushSnackBarMessage({ message: "Start packing captured items.." })
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(
         flatMap(service => service.getOmniTrackPackages().pipe(
@@ -264,13 +266,12 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
               (trackers, items) => ({ packages: packages, trackers: trackers, items: items })
             )
           )
-        ))
-      ).subscribe(
-        result => {
-          const workbook = XLSX.utils.book_new()
+        )),
+        map(result => {
           const commonColumns = ["participant_alias"]
-          result.packages.forEach(
+          const packageFiles = result.packages.map(
             pack => {
+              const workbook = XLSX.utils.book_new()
               pack.data.trackers.forEach(
                 trackerScheme => {
                   console.log(trackerScheme)
@@ -303,10 +304,71 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
               const workbookOut = XLSX.write(workbook, {
                 bookType: 'xlsx', bookSST: false, type: 'array'
               })
+              return {
+                blob: new Blob([workbookOut], { type: "application/octet-stream" }),
+                name: this.api.getSelectedExperimentId() + "_experiment-tracking-data_" + pack.name + ".xlsx"
+              }
+            })
 
-              FileSaver.saveAs(new Blob([workbookOut], { type: "application/octet-stream" }), this.api.getSelectedExperimentId() + "_experiment-tracking-data.xlsx")
+          //extract custom trackers of each participant
+          const participantCustomTrackerFiles = []
+          this.participants.forEach(
+            participant => {
+              const trackers = result.trackers.filter(t => (t.flags || {}).experiment === this.api.getSelectedExperimentId() && participant.user._id === t.user)
+              if (trackers.length > 0) {
+                const workbook = XLSX.utils.book_new()
+
+                trackers.forEach(tracker => {
+                  const itemRows: Array<Array<any>> = [
+                    commonColumns.concat(tracker.attributes.map(attr => attr.name)).concat("logged at")
+                  ]
+                  result.items.filter(i => i.tracker === tracker._id).forEach(
+                    item => {
+                      const values = tracker.attributes.map(attr => {
+                        return this.getItemValue(item, attr, true)
+                      })
+                      itemRows.push([participant.alias].concat(values).concat(moment(item.timestamp).format()))
+                    }
+                  )
+                  const sheet = XLSX.utils.aoa_to_sheet(itemRows)
+                  XLSX.utils.book_append_sheet(workbook, sheet, tracker.name)
+                })
+                // save worksheet
+                const workbookOut = XLSX.write(workbook, {
+                  bookType: 'xlsx', bookSST: false, type: 'array'
+                })
+
+                participantCustomTrackerFiles.push(
+                  {
+                    blob: new Blob([workbookOut], { type: "application/octet-stream" }),
+                    name: this.api.getSelectedExperimentId() + "_experiment-tracking-data-custom_" + participant.alias + ".xlsx"
+                  }
+                )
+              }
             }
           )
+
+          return packageFiles.concat(participantCustomTrackerFiles)
+        })
+      ).subscribe(
+        blobInfos => {
+          console.log(blobInfos)
+          if (blobInfos.length === 0) {
+            this.notificationService.pushSnackBarMessage({ message: "No tracking items." })
+          }
+          else if (blobInfos.length === 1) {
+            FileSaver.saveAs(blobInfos[0].blob, blobInfos[0].name)
+          }
+          else {
+            const jsZip = new JSZip()
+            blobInfos.forEach(b => {
+              jsZip.file(b.name, b.blob)
+            })
+            jsZip.generateAsync({ type: 'blob' })
+              .then(zipFile => {
+                FileSaver.saveAs(zipFile, this.api.getSelectedExperimentId() + "_experiment-tracking-data.zip")
+              })
+          }
         }
       ))
   }
