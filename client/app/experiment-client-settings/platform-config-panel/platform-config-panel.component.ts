@@ -103,12 +103,12 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
             }
           }
         },
-        err=>{
+        err => {
 
         },
-        ()=>{
+        () => {
           this.isLoadingBinaries = false
-          if(!this.binaries || this.binaries.length === 0){
+          if (!this.binaries || this.binaries.length === 0) {
             this.panelStep = 0
           }
         }

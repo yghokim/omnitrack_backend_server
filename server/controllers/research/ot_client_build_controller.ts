@@ -1,4 +1,4 @@
-import { IClientBuildConfigBase, AndroidBuildCredentials, IClientBuildAction } from '../../../omnitrack/core/research/db-entity-types';
+import { IClientBuildConfigBase, AndroidBuildCredentials, IClientBuildAction, IAndroidBuildConfig } from '../../../omnitrack/core/research/db-entity-types';
 import OTExperimentClientBuildConfigModel from '../../models/ot_experiment_client_build_config';
 import OTClientBuildAction from '../../models/ot_client_build_action';
 import { deepclone, isString, getExtensionFromPath, parseProperties, compareVersions, extractVersion } from '../../../shared_lib/utils';
@@ -17,6 +17,7 @@ import { ClientBuildStatus, EClientBuildStatus } from '../../../omnitrack/core/r
 import C from '.././../server_consts';
 import * as deepEqual from 'deep-equal';
 import * as randomstring from 'randomstring';
+import * as http from 'http';
 
 export interface BuildResultInfo { sourceFolderPath: string, appBinaryPath: string, binaryFileName: string }
 
@@ -112,13 +113,33 @@ export default class OTClientBuildCtrl {
     return fs.remove(value).then()
   }
 
+  private findAndroidSourceRoot(extractedPath: string, buildConfig: IAndroidBuildConfig): string {
+    const searchDirectory = (directoryPath: string) => {
+      const fileNames = fs.readdirSync(directoryPath)
+
+      // TODO separate other platforms.
+      if (buildConfig.platform === 'Android' && fileNames.indexOf('gradlew') !== -1 && fileNames.indexOf('settings.gradle') !== -1) {
+        // found the root directory.
+        return directoryPath
+      } else {
+        const firstDir = fileNames.filter(f => fs.statSync(path.join(directoryPath, f)).isDirectory() === true).find(f => searchDirectory(path.join(directoryPath, f)) !== null)
+        if (firstDir != null) {
+          return path.join(directoryPath, firstDir)
+        } else { return null }
+      }
+    }
+
+    const rootPath = searchDirectory(extractedPath)
+    return rootPath
+  }
+
   private prepareSourceCodeInFolder(buildConfig: IClientBuildConfigBase<any>): Promise<{ sourceFolderPath: string, skipSetup: boolean }> {
     // extract source code
     if (buildConfig.sourceCode) {
       return new Promise((resolve, reject) => {
+        const experimentId = isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id
+        const configFileDir = this._makeExperimentConfigDirectoryPath(experimentId, false)
         if (buildConfig.sourceCode.sourceType === 'file') {
-          const experimentId = isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id
-          const configFileDir = this._makeExperimentConfigDirectoryPath(experimentId, false)
           const zipPath = path.join(configFileDir, "sourceCodeZip_" + buildConfig.platform + ".zip")
           fs.pathExists(zipPath, (err, exists) => {
             if (err) {
@@ -142,22 +163,7 @@ export default class OTClientBuildCtrl {
                     } else {
                       console.log("find the exact project root folder in [", extractedPath, "]...")
                       // Find the exact root folder recursively////////////////////////////////////////////////////////////////////////////////////////////////////
-                      const searchDirectory = (directoryPath: string) => {
-                        const fileNames = fs.readdirSync(directoryPath)
-
-                        // TODO separate other platforms.
-                        if (buildConfig.platform === 'Android' && fileNames.indexOf('gradlew') !== -1 && fileNames.indexOf('settings.gradle') !== -1) {
-                          // found the root directory.
-                          return directoryPath
-                        } else {
-                          const firstDir = fileNames.filter(f => fs.statSync(path.join(directoryPath, f)).isDirectory() === true).find(f => searchDirectory(path.join(directoryPath, f)) !== null)
-                          if (firstDir != null) {
-                            return path.join(directoryPath, firstDir)
-                          } else { return null }
-                        }
-                      }
-
-                      const rootPath = searchDirectory(extractedPath)
+                      const rootPath = this.findAndroidSourceRoot(extractedPath, buildConfig)
                       if (rootPath != null) {
                         fs.writeJsonSync(path.join(extractedPath, "source_info.json"), {
                           info: buildConfig.sourceCode,
@@ -174,7 +180,70 @@ export default class OTClientBuildCtrl {
               }
             }
           })
-        } else { reject(new Error("We do not support other types for now.")) }
+        } else if (buildConfig.sourceCode.sourceType === 'github') {
+
+          console.log("start download github archive.")
+          if (buildConfig.sourceCode.data) {
+            let repo: string
+            if (buildConfig.sourceCode.data.useOfficial === true) {
+              // TODO platform repositories for useOfficial
+              switch (buildConfig.platform) {
+                case 'Android':
+                  repo = "muclipse/omnitrack_android"
+                  break;
+              }
+            } else {
+              repo = buildConfig.sourceCode.data.repository
+            }
+
+            const zipPath = path.join(configFileDir, "github_source_" + buildConfig.platform + Date.now() + ".zip")
+            console.log("start download from", "http://github.com/" + repo)
+            const repoFileStream = fs.createWriteStream(zipPath)
+            const githubArchive = require('github-archive-stream')
+
+            repoFileStream.on('finish', () => {
+              repoFileStream.close((err) => {
+                if (err) {
+                  console.error(err)
+                  reject(err)
+                } else {
+                  console.log("successfully downloaded a github archive.");
+                  const extractedPath = path.join(this._makeExperimentConfigDirectoryPath(experimentId, true), "source_" + buildConfig.platform)
+                  fs.remove(extractedPath).then(() => {
+                    unzip(zipPath, { dir: extractedPath }, (unzipError) => {
+                      fs.removeSync(zipPath)
+                      if (unzipError) {
+                        console.error(unzipError)
+                        reject(unzipError)
+                      } else {
+                        console.log("unziped the github archive.");
+                        const rootPath = this.findAndroidSourceRoot(extractedPath, buildConfig)
+                        if (rootPath != null) {
+                          fs.writeJsonSync(path.join(extractedPath, "source_info.json"), {
+                            info: buildConfig.sourceCode,
+                            projectRoot: rootPath
+                          }, { spaces: 2 })
+                          resolve({ sourceFolderPath: rootPath, skipSetup: false })
+                        } else { reject(new Error("Not containing a valid project root.")) }
+                      }
+                    })
+                  })
+                }
+              })
+            })
+
+            githubArchive({
+              repo: repo,
+              ref: 'master',
+              format: 'zipball'
+            }).pipe(repoFileStream)
+
+          } else {
+            reject(new Error("did not provide data on github repo."))
+          }
+        } else {
+          reject(new Error("We do not support other types for now."))
+        }
       })
     } else {
       return Promise.reject<any>("Source code is not designated")
@@ -197,7 +266,7 @@ export default class OTClientBuildCtrl {
         let newVersionCode: number = null
         let newVersionName: string = null
 
-        if(latestVersionInfo){
+        if (latestVersionInfo) {
           if (compareVersions(latestVersionInfo.versionName, appVersionName) >= 0) {
             // if latestVersion is higher or equal than this
             const v = extractVersion(latestVersionInfo.versionName)
@@ -212,7 +281,7 @@ export default class OTClientBuildCtrl {
             console.log("override to latest version code:", newVersionCode)
           } else { newVersionCode = appVersionCode }
 
-          if(newVersionCode !== appVersionCode || newVersionName !== appVersionName) {
+          if (newVersionCode !== appVersionCode || newVersionName !== appVersionName) {
             const newVersionPropertiesString = "versionName=" + newVersionName + "\nversionCode=" + newVersionCode
             return fs.writeFile(versionPropPath, newVersionPropertiesString)
           }
@@ -291,9 +360,6 @@ export default class OTClientBuildCtrl {
           arg0 = 'gradlew'
           break;
       }
-
-      console.log("env:")
-      console.log(process.env)
 
       const command = spawn(arg0, ['assembleRelease', '--stacktrace'], { cwd: sourceFolderPath, env: process.env, stdio: ['ignore', process.stdout, 'pipe'] })
 

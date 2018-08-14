@@ -90,6 +90,16 @@ export class ConfigVariableRowComponent implements OnInit {
     }
   }
 
+  onSourceCodeUseOfficialChecked(checked: boolean) {
+    if (this.config[this.variableName].data == null) {
+      this.config[this.variableName].data = {
+        useOfficial: checked
+      }
+    } else {
+      this.config[this.variableName].data.useOfficial = checked
+    }
+  }
+
   onSourceCodeZipFileChanged(files: Array<File>) {
     const fileReader = new FileReader();
     fileReader.onload = (e) => {
@@ -116,5 +126,15 @@ export class ConfigVariableRowComponent implements OnInit {
       }
     }
     fileReader.readAsBinaryString(files[0])
+  }
+
+  onSourceCodeRepositoryChanged(repository: String) {
+    if (this.config[this.variableName].data) {
+      this.config[this.variableName].data.repository = repository
+    } else {
+      this.config[this.variableName].data = {
+        repository: repository
+      }
+    }
   }
 }

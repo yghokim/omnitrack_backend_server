@@ -41,14 +41,25 @@
     </div>
 
     <div *ngSwitchCase="'sourceCode'" class="source-code-input">
-      <div class="flex-container flex-align-items-center">
+      <div class="flex-container">
         <mat-form-field class="mat-form-no-vertical-padding">
           <mat-select [value]="config[variableName]? config[variableName].sourceType : null" required="true" (selectionChange)="sourceCodeTypeChanged($event.value)">
-            <mat-option value="file">Upload zip file</mat-option>
-            <mat-option value="github" [disabled]="true">Github</mat-option>
+            <mat-option value="file">Upload source code as zip</mat-option>
+            <mat-option value="github">Github</mat-option>
           </mat-select>
         </mat-form-field>
-        <input class="text-right" id="sourcecode-zip-input" type="file" accept=".zip" (change)="onSourceCodeZipFileChanged($event.target.files)">
+        <ng-container [ngSwitch]="config[variableName].sourceType">
+          <input *ngSwitchCase="'file'" class="text-right" id="sourcecode-zip-input" type="file" accept=".zip" (change)="onSourceCodeZipFileChanged($event.target.files)">
+          <div class="github-container" *ngSwitchCase="'github'">
+            <mat-checkbox class="small" [checked]="config[variableName].data !=null ? config[variableName].data.useOfficial : false" (change)="onSourceCodeUseOfficialChecked($event.checked)">Use the official repo</mat-checkbox>
+            <input *ngIf="config[variableName].data && config[variableName].data.useOfficial !== true" class="form-control" type="text"
+              placeholder="muclipse/omnitrack_android"
+              [value] = "(config[variableName].data || {'repository': ''}).repository || ''"
+              (input) = "onSourceCodeRepositoryChanged($event.target.value)"
+              >
+
+          </div>
+        </ng-container>
       </div>
     </div>
   </ng-container>

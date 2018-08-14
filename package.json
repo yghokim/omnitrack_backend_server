@@ -71,6 +71,7 @@
     "firebaseui": "^3.2.0",
     "font-awesome": "^4.7.0",
     "fs-extra": "^7.0.0",
+    "github-archive-stream": "^2.0.0",
     "group-array": "^0.3.3",
     "hammerjs": "^2.0.8",
     "highcharts": "^6.1.1",
