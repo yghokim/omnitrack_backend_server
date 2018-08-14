@@ -361,7 +361,7 @@ export default class OTClientBuildCtrl {
           break;
       }
 
-      const command = spawn(arg0, ['assembleRelease', '--stacktrace'], { cwd: sourceFolderPath, env: process.env, stdio: ['ignore', process.stdout, 'pipe'] })
+      const command = spawn(arg0, ['assembleRelease', '--stacktrace', '--no-daemon'], { cwd: sourceFolderPath, env: process.env, stdio: ['ignore', process.stdout, 'pipe'] })
 
       /*
       command.stdout.on('data', (data) => {

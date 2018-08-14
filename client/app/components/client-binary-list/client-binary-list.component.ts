@@ -46,11 +46,11 @@ export class ClientBinaryListComponent implements OnInit, OnDestroy {
   }
 
   onShortUrlClicked(binary: any) {
-    const url = "this.makeBinaryDownloadUrl(binary)"
+    const url = this.makeBinaryDownloadUrl(binary)
     this._internalSubscriptions.add(
       this.api.shortenUrlToShortId(url).pipe(
         map(shortId => {
-          return window.location.protocol + "//" + window.location.host + "api/s/" + shortId
+          return window.location.protocol + "//" + window.location.host + "/api/s/" + shortId
         }),
         catchError(err => {
           console.error(err)
