@@ -9,6 +9,8 @@ import * as heatmap from 'highcharts/modules/heatmap.src';
 import * as xrange from 'highcharts/modules/xrange.src';
 
 
+import { ClipboardModule } from 'ngx-clipboard';
+
 import { ToastComponent } from './toast/toast.component';
 import { LoadingComponent } from './loading/loading.component';
 import { TableCellValueComponent } from '../components/table-cell-value/table-cell-value.component';
@@ -31,6 +33,7 @@ import { TextFieldInputComponent } from '../components/field-inputs/text-field-i
 import { ChoiceFieldInputComponent } from '../components/field-inputs/choice-field-input/choice-field-input.component';
 import { LabeledLoadingIndicatorComponent } from '../labeled-loading-indicator/labeled-loading-indicator.component';
 import { BusyOverlayComponent } from '../busy-overlay/busy-overlay.component';
+import { TextClipboardPastedBottomSheetComponent } from '../components/text-clipboard-pasted-bottom-sheet/text-clipboard-pasted-bottom-sheet.component';
 
 @NgModule({
   imports: [
@@ -40,7 +43,8 @@ import { BusyOverlayComponent } from '../busy-overlay/busy-overlay.component';
     HttpModule,
     FileDropModule,
     MaterialDesignModule,
-    ChartModule
+    ChartModule,
+    ClipboardModule
   ],
   exports: [
     // Shared Modules
@@ -51,6 +55,7 @@ import { BusyOverlayComponent } from '../busy-overlay/busy-overlay.component';
     FileDropModule,
     MaterialDesignModule,
     ChartModule,
+    ClipboardModule,
     // Shared Components
     ToastComponent,
     LoadingComponent,
@@ -89,7 +94,11 @@ import { BusyOverlayComponent } from '../busy-overlay/busy-overlay.component';
     TimePointFieldInputComponent,
     TextFieldInputComponent,
     ChoiceFieldInputComponent,
-    LabeledLoadingIndicatorComponent
+    LabeledLoadingIndicatorComponent,
+    TextClipboardPastedBottomSheetComponent
+  ],
+  entryComponents: [
+    TextClipboardPastedBottomSheetComponent
   ],
   providers: [
     ToastComponent,

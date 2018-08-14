@@ -1,3 +1,7 @@
+<button mat-icon-button ngxClipboard matTooltip="Copy a shortened URL" (click)="onShortUrlClicked(null)">
+    <mat-icon class="material-icons">link</mat-icon>
+  </button>
+
 <table class="table table-data">
   <thead>
     <tr class="singleline">
@@ -30,7 +34,7 @@
       </td>
       <td class="button-cell">
         <div class="text-right">
-          <button mat-icon-button ngxClipboard [cbContent]="retrieveShortUrl(binary) | async" matTooltip="Copy a shortened URL" (cbOnSuccess)="onShortUrlCopied(binary)">
+          <button mat-icon-button ngxClipboard matTooltip="Copy a shortened URL" (click)="onShortUrlClicked(binary)">
             <mat-icon class="material-icons">link</mat-icon>
           </button>
 

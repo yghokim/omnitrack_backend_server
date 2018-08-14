@@ -27,7 +27,6 @@ import { AnonymizeEmailPipe } from './pipes/anonymize-email.pipe';
 import { SocketService } from './services/socket.service';
 import { RoutingModule } from './routing.module';
 import { SharedModule } from './shared/shared.module';
-import { ClipboardModule } from 'ngx-clipboard';
 import { NgxJsonViewerModule } from 'ngx-json-viewer';
 import { ResearcherPermissionsConfigurationComponent } from './experiment-settings/researcher-permissions-configuration/researcher-permissions-configuration.component';
 import { ResearcherSearchComponentComponent } from './experiment-settings/researcher-search-component/researcher-search-component.component';
@@ -90,7 +89,6 @@ import { DemographicEditorComponent } from './experiment-consent/demographic-edi
     CommonModule,
     SharedModule,
     RoutingModule,
-    ClipboardModule,
     NouisliderModule,
     FroalaEditorModule.forRoot(),
     FroalaViewModule.forRoot(),

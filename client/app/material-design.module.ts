@@ -27,6 +27,7 @@ import { MatListModule } from '@angular/material/list';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatStepperModule} from '@angular/material/stepper';
 import { MatNativeDateModule } from '@angular/material';
+import {MatBottomSheetModule} from '@angular/material/bottom-sheet';
 
 
 @NgModule({
@@ -58,7 +59,8 @@ import { MatNativeDateModule } from '@angular/material';
     MatSortModule,
     MatExpansionModule,
     MatListModule,
-    MatStepperModule
+    MatStepperModule,
+    MatBottomSheetModule
   ],
   exports: [
     MatDialogModule,
@@ -86,7 +88,8 @@ import { MatNativeDateModule } from '@angular/material';
     MatDividerModule,
     MatExpansionModule,
     MatListModule,
-    MatStepperModule
+    MatStepperModule,
+    MatBottomSheetModule
   ],
   providers: [
     MatIconRegistry]

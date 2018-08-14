@@ -1,0 +1,9 @@
+<div class="bottomsheet">
+  <p>
+    {{message}}
+  </p>
+  <div class="flex-container flex-align-items-center">
+      <input class="form-control flex-filler" type="text" [disabled]="true" [value]="content"/>
+      <button mat-button ngxClipboard [cbContent]="content" (cbOnSuccess)="onCopied()">Copy & Close</button>
+  </div>
+</div>

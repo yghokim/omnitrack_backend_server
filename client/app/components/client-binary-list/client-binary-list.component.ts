@@ -3,10 +3,12 @@ import { ResearchApiService } from '../../services/research-api.service';
 import { Subscription, Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { YesNoDialogComponent } from '../../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { filter, flatMap } from 'rxjs/operators';
 import { Http } from '@angular/http';
 import { NotificationService } from '../../services/notification.service';
+import { TextClipboardPastedBottomSheetComponent } from '../text-clipboard-pasted-bottom-sheet/text-clipboard-pasted-bottom-sheet.component';
 
 @Component({
   selector: 'app-client-binary-list',
@@ -30,7 +32,7 @@ export class ClientBinaryListComponent implements OnInit, OnDestroy {
     return this._binaries
   }
 
-  constructor(private api: ResearchApiService, private notificationService: NotificationService, private dialog: MatDialog, private http: Http) { }
+  constructor(private api: ResearchApiService, private notificationService: NotificationService, private dialog: MatDialog, private http: Http, private bottomSheet: MatBottomSheet) { }
 
   ngOnInit() {
   }
@@ -43,22 +45,27 @@ export class ClientBinaryListComponent implements OnInit, OnDestroy {
     return '/api/clients/download?platform=' + binary.platform + '&version=' + binary.version + (this.experimentId ? ('&experimentId=' + this.experimentId) : '')
   }
 
-  retrieveShortUrl(binary: any): Observable<string> {
-    const url = this.makeBinaryDownloadUrl(binary)
-    return this.api.shortenUrlToShortId(url).pipe(
-      map(shortId => {
-        return window.location.protocol + "//" + window.location.host + "api/s/" + shortId
-      }),
-      catchError(err => {
-        console.error(err)
-        this.notificationService.pushSnackBarMessage({ message: "An error occurred retrieving a short url." })
-        throw err
-      })
+  onShortUrlClicked(binary: any) {
+    const url = "this.makeBinaryDownloadUrl(binary)"
+    this._internalSubscriptions.add(
+      this.api.shortenUrlToShortId(url).pipe(
+        map(shortId => {
+          return window.location.protocol + "//" + window.location.host + "api/s/" + shortId
+        }),
+        catchError(err => {
+          console.error(err)
+          this.notificationService.pushSnackBarMessage({ message: "An error occurred retrieving a short url." })
+          throw err
+        })
+      ).subscribe(
+        shortUrl => {
+          this.bottomSheet.open(TextClipboardPastedBottomSheetComponent, {data: {
+            message: "Copy this URL to clipboard.",
+            content: shortUrl
+          }})
+        }
+      )
     )
-  }
-
-  onShortUrlCopied(binary: any) {
-    this.notificationService.pushSnackBarMessage({ message: "A shorted URL was copied to clipboard." })
   }
 
   onRemoveBinaryClicked(binaryId: string) {
