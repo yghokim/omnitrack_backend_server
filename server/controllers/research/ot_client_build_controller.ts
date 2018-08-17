@@ -339,7 +339,7 @@ export default class OTClientBuildCtrl {
           break;
       }
 
-      const command = spawn(arg0, ['assembleMinApi19Release', '--stacktrace', '--no-daemon', '-Dorg.gradle.jvmargs=\"-Xmx1024m -XX:MaxPermSize=512m\"'], { cwd: sourceFolderPath, env: process.env, stdio: ['ignore', process.stdout, 'pipe'] })
+      const command = spawn(arg0, ['assembleMinApi19Release', '--stacktrace', '--no-daemon', "-Dorg.gradle.jvmargs=-Xmx1280M -XX:MaxPermSize=256M"], { cwd: sourceFolderPath, env: process.env, stdio: ['ignore', process.stdout, 'pipe'] })
 
       /*
       command.stdout.on('data', (data) => {
