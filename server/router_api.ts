@@ -61,7 +61,7 @@ export class ClientApiRouter extends RouterWrapper {
 
       res.locals["roleName"] = role
 
-      clientSignatureCtrl.matchSignature(fingerPrint, packageName, experimentId).then(
+      clientSignatureCtrl.matchSignature(fingerPrint, packageName).then(
         match => {
           if (match !== true) {
             console.log("The client is not certificated in the server.")

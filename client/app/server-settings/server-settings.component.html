@@ -50,7 +50,7 @@
       <thead>
         <th>Fingerprint</th>
         <th>Package</th>
-        <th>Experiment</th>
+        <th>Experiments</th>
         <th>Alias</th>
         <th></th>
       </thead>
@@ -59,8 +59,12 @@
           <td class="cell-fingerprint">{{signature.key}}</td>
           <td>{{signature.package}}</td>
           <td>
-            <span *ngIf="signature.experiment">{{signature.experiment}}</span>
-            <span *ngIf="!signature.experiment" class="text-color-lightgray">Granted all</span>
+            <ng-container *ngIf="signature.experiments && signature.experiments.length > 0">
+              <div *ngFor="let experiment of signature.experiments">
+                {{experiment}}
+              </div>
+            </ng-container>
+            <span *ngIf="!signature.experiments || signature.experiments.length === 0" class="text-color-lightgray">Unspecified</span>
           </td>
           <td>{{signature.alias}}</td>
           <td class="button-cell">

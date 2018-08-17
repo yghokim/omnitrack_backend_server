@@ -2,56 +2,52 @@ import OTClientSignature from '../models/ot_client_signature';
 
 export default class OTClientSignatureCtrl {
 
-  matchSignature(clientSignature: string, pkg: string, experimentId: string = null): Promise<boolean> {
-    return OTClientSignature.findOne({ key: clientSignature, package: pkg, 
-      $or:[{experiment: null}, {experiment: experimentId}] }).lean().then(doc => doc != null).catch(err => false)
+  matchSignature(clientSignature: string, pkg: string): Promise<boolean> {
+    return OTClientSignature.findOne({ key: clientSignature, package: pkg }).lean().then(doc => doc != null).catch(err => false)
   }
 
   /**
    * return: whether changed or not
    */
   upsertSignature(_id: string = null, key: string, packageName: string, alias: string, experimentId?: string, notify: boolean = true): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      OTClientSignature.findOneAndUpdate(_id ? { _id: _id } : { key: key, package: packageName }, { key: key, package: packageName, alias: alias, experiment: experimentId }, { upsert: true, new: false, rawResult: true }, (err, raw: any) => {
-        if (err) {
-          reject(err)
-        } else {
-          let collectionChanged = false
-          if (raw) {
-            if (raw.ok === 1) {
-              if (raw.lastErrorObject.updatedExisting) {
-                if (raw.lastErrorObject.key !== key || raw.lastErrorObject.alias !== alias || raw.lastErrorObject.package !== packageName) {
-                  resolve(true)
-                  collectionChanged = true
-                } else {
-                  resolve(false)
-                  collectionChanged = false
-                }
-              } else {
-                // new inserted
-                resolve(true)
-                collectionChanged = true
-              }
-            } else {
-              reject("raw query ok is 0")
+    return OTClientSignature.findOne(_id ? { _id: _id } : { key: key, package: packageName }).then(
+      doc => {
+        if (doc) {
+          let changed = false
+          if (experimentId != null) {
+            if (doc["experiments"] == null) {
+              doc["experiments"] = [experimentId]
+            } else if (doc["experiments"].indexOf(experimentId) === -1) {
+              doc["experiments"].push(experimentId)
             }
-          } else {
-            // new result was null -> new upserted.
-            resolve(true)
-            collectionChanged = true
+            changed = true
           }
-
-          if (collectionChanged === true && notify === true) {
-            // notify via socket
+          if (doc["alias"] !== alias) {
+            doc["alias"] = alias
+            changed = true
           }
+          if (changed === true) {
+            return doc.save().then(() => true)
+          } else return false
+        } else {
+          const val = {
+            key: key,
+            package: packageName,
+            alias: alias,
+            experiments: []
+          } as any
+          if (experimentId != null) {
+            val.experiments.push(experimentId)
+          }
+          return new OTClientSignature(val).save().then(()=>true)
         }
-      })
-    })
+      }
+    )
   }
 
   // admin only apis
   getSignatures = (req, res) => {
-    OTClientSignature.find({}).lean().then(
+    OTClientSignature.find({}).populate("experiments", {name: 1}).lean().then(
       signatures => {
         res.status(200).send(signatures)
       }
