@@ -182,7 +182,6 @@ export default class OTClientBuildCtrl {
           })
         } else if (buildConfig.sourceCode.sourceType === 'github') {
 
-          console.log("start download github archive.")
           if (buildConfig.sourceCode.data) {
             let repo: string
             if (buildConfig.sourceCode.data.useOfficial === true) {
@@ -196,48 +195,26 @@ export default class OTClientBuildCtrl {
               repo = buildConfig.sourceCode.data.repository
             }
 
-            const zipPath = path.join(configFileDir, "github_source_" + buildConfig.platform + Date.now() + ".zip")
-            console.log("start download from", "http://github.com/" + repo)
-            const repoFileStream = fs.createWriteStream(zipPath)
-            const githubArchive = require('github-archive-stream')
+            console.log("start download github archive. - ", repo)
 
-            repoFileStream.on('finish', () => {
-              repoFileStream.close((err) => {
-                if (err) {
-                  console.error(err)
-                  reject(err)
-                } else {
-                  console.log("successfully downloaded a github archive.");
-                  const extractedPath = path.join(this._makeExperimentConfigDirectoryPath(experimentId, true), "source_" + buildConfig.platform)
-                  fs.remove(extractedPath).then(() => {
-                    unzip(zipPath, { dir: extractedPath }, (unzipError) => {
-                      fs.removeSync(zipPath)
-                      if (unzipError) {
-                        console.error(unzipError)
-                        reject(unzipError)
-                      } else {
-                        console.log("unziped the github archive.");
-                        const rootPath = this.findAndroidSourceRoot(extractedPath, buildConfig)
-                        if (rootPath != null) {
-                          fs.writeJsonSync(path.join(extractedPath, "source_info.json"), {
-                            info: buildConfig.sourceCode,
-                            projectRoot: rootPath
-                          }, { spaces: 2 })
-                          resolve({ sourceFolderPath: rootPath, skipSetup: false })
-                        } else { reject(new Error("Not containing a valid project root.")) }
-                      }
-                    })
-                  })
-                }
-              })
+            const repoTargetPath = path.join(this._makeExperimentConfigDirectoryPath(experimentId, true), "source_" + buildConfig.platform)
+            const downloadGit = require('download-git-repo')
+            downloadGit("github:" + repo + (buildConfig.sourceCode.data.branch ? ("#" + buildConfig.sourceCode.data.branch) : ""), repoTargetPath, (err) => {
+              if (err) {
+                console.error(err)
+                reject(err)
+              } else {
+                console.log("successfully downloaded the github repository.");
+                const rootPath = this.findAndroidSourceRoot(repoTargetPath, buildConfig)
+                if (rootPath != null) {
+                  fs.writeJsonSync(path.join(repoTargetPath, "source_info.json"), {
+                    info: buildConfig.sourceCode,
+                    projectRoot: rootPath
+                  }, { spaces: 2 })
+                  resolve({ sourceFolderPath: rootPath, skipSetup: false })
+                } else { reject(new Error("Not containing a valid project root.")) }
+              }
             })
-
-            githubArchive({
-              repo: repo,
-              ref: 'master',
-              format: 'zipball'
-            }).pipe(repoFileStream)
-
           } else {
             reject(new Error("did not provide data on github repo."))
           }
@@ -361,7 +338,7 @@ export default class OTClientBuildCtrl {
           break;
       }
 
-      const command = spawn(arg0, ['assembleRelease', '--stacktrace', '--no-daemon'], { cwd: sourceFolderPath, env: process.env, stdio: ['ignore', process.stdout, 'pipe'] })
+      const command = spawn(arg0, ['assembleMinApi19Release', '--debug', '--no-daemon'], { cwd: sourceFolderPath, env: process.env, stdio: ['ignore', process.stdout, 'pipe'] })
 
       /*
       command.stdout.on('data', (data) => {
@@ -371,7 +348,7 @@ export default class OTClientBuildCtrl {
       let lastErrorString: string = null
       command.stderr.on('data', (data) => {
         lastErrorString = data.toString()
-        console.error("STDERR::", lastErrorString)
+        console.error(lastErrorString)
       })
       command.on('exit', (code) => {
         if (code === 0) {
@@ -424,7 +401,7 @@ export default class OTClientBuildCtrl {
       })
       command.on('exit', (code, signal) => {
         if (code === 0) {
-          console.error("Successfully finished preparing the source.")
+          console.log("Successfully finished preparing the source.")
           resolve(sourceFolderPath)
         } else {
           console.error("Failed to setup the source.")
