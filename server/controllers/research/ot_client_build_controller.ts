@@ -198,6 +198,7 @@ export default class OTClientBuildCtrl {
             console.log("start download github archive. - ", repo)
 
             const repoTargetPath = path.join(this._makeExperimentConfigDirectoryPath(experimentId, true), "source_" + buildConfig.platform)
+            try{fs.removeSync(repoTargetPath)}catch(err){}
             const downloadGit = require('download-git-repo')
             downloadGit("github:" + repo + (buildConfig.sourceCode.data.branch ? ("#" + buildConfig.sourceCode.data.branch) : ""), repoTargetPath, (err) => {
               if (err) {
@@ -338,7 +339,7 @@ export default class OTClientBuildCtrl {
           break;
       }
 
-      const command = spawn(arg0, ['assembleMinApi19Release', '--debug', '--no-daemon'], { cwd: sourceFolderPath, env: process.env, stdio: ['ignore', process.stdout, 'pipe'] })
+      const command = spawn(arg0, ['assembleMinApi19Release', '--stacktrace', '--no-daemon', '-Dorg.gradle.jvmargs=\"-Xmx1024m -XX:MaxPermSize=512m\"'], { cwd: sourceFolderPath, env: process.env, stdio: ['ignore', process.stdout, 'pipe'] })
 
       /*
       command.stdout.on('data', (data) => {
@@ -352,7 +353,7 @@ export default class OTClientBuildCtrl {
       })
       command.on('exit', (code) => {
         if (code === 0) {
-          const appBinaryFolorPath = path.join(sourceFolderPath, "app/build/outputs/apk/release/")
+          const appBinaryFolorPath = path.join(sourceFolderPath, "app/build/outputs/apk/minApi19/release/")
           const outputInfo = fs.readJsonSync(path.join(appBinaryFolorPath, "output.json"))
           const fileName = outputInfo.find(o => o.outputType.type === 'APK').path
           const appBinaryPath = path.join(appBinaryFolorPath, fileName)
