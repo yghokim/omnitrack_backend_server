@@ -41,21 +41,21 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
           }
         }
         )).then(
-        result => {
-          console.log("bulkwrite result: ")
-          console.log(result)
-          console.log(result.hasWriteErrors())
-          console.log(result.getWriteErrors())
-          result.getWriteErrors().forEach(error => {
-            console.log(error.toJSON())
-          })
-          console.log("ok: " + result.ok + ", nIn: " + result.nInserted + ", nUp: " + result.nUpserted + ", nMatched: " + result.nMatched)
-          if (result.ok === 1) {
-            return this.model.find({ _id: { $in: clientChangeList.map(element => element.objectId) } }, { updatedAt: 1 })
-          } else { throw Error("Server error while upserting.") }
-        }
+          result => {
+            console.log("bulkwrite result: ")
+            console.log(result)
+            console.log(result.hasWriteErrors())
+            console.log(result.getWriteErrors())
+            result.getWriteErrors().forEach(error => {
+              console.log(error.toJSON())
+            })
+            console.log("ok: " + result.ok + ", nIn: " + result.nInserted + ", nUp: " + result.nUpserted + ", nMatched: " + result.nMatched)
+            if (result.ok === 1) {
+              return this.model.find({ _id: { $in: clientChangeList.map(element => element.objectId) } }, { updatedAt: 1 })
+            } else { throw Error("Server error while upserting.") }
+          }
         ).then(
-        result => result.map(entry => { return { id: entry._id, synchronizedAt: entry.updatedAt.getTime() } })
+          result => result.map(entry => ({ id: entry._id, synchronizedAt: entry.updatedAt.getTime() }))
         )
     } else { return Promise.resolve([]) }
   }
@@ -76,7 +76,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
           console.log(err)
           res.status(400).send({ error: err })
         }
-        )
+      )
     } else {
       res.status(400).send({ error: "No user id was passed." })
     }
@@ -99,7 +99,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
           err => {
             res.status(500).send({ error: err })
           }
-          )
+        )
 
         if (list.length > 0) {
           this.model.collection.bulkWrite(
@@ -118,20 +118,20 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
               }
             }
             )).then(
-            result => {
-              console.log(result)
-              if (result.ok === 1) {
-                return this.model.find({ _id: { $in: list.map(element => element.objectId) } }, { updatedAt: 1 })
-              } else { res.status(500).send({ error: "Server error while upserting." }) }
-            }
+              result => {
+                console.log(result)
+                if (result.ok === 1) {
+                  return this.model.find({ _id: { $in: list.map(element => element.objectId) } }, { updatedAt: 1 })
+                } else { res.status(500).send({ error: "Server error while upserting." }) }
+              }
             ).then(
-            result => {
-              const mappedResult = result.map(entry => ({ id: entry._id, synchronizedAt: entry.updatedAt.getTime() }))
-              console.log(mappedResult)
-              res.status(200).send(
-                mappedResult
-              )
-            }
+              result => {
+                const mappedResult = result.map(entry => ({ id: entry._id, synchronizedAt: entry.updatedAt.getTime() }))
+                console.log(mappedResult)
+                res.status(200).send(
+                  mappedResult
+                )
+              }
             ).catch(err => {
               console.log(err)
               res.status(500).send({ error: "Server error in progress of posting local changes." })
@@ -150,9 +150,9 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
           res.status(200).send([])
         }
       }
-    ).catch( ex => {
+    ).catch(ex => {
       console.log(ex)
-      res.status(500).send({error: ex})
+      res.status(500).send({ error: ex })
     })
   }
 }

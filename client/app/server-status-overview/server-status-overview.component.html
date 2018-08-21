@@ -7,6 +7,11 @@
           <app-stat-analytics></app-stat-analytics>
         </div>
       </mat-tab>
+      <mat-tab label="Client Error Logs">
+        <div class="card-body">
+          <app-client-crash-logs></app-client-crash-logs>
+        </div>
+      </mat-tab>
       <mat-tab label="Users" *ngIf="isUserPoolAvailable === true">
         <app-server-user-list></app-server-user-list>
       </mat-tab>

@@ -83,6 +83,7 @@ import { PlatformConfigPanelComponent } from './experiment-client-settings/platf
 import { ClientBinaryListComponent } from './components/client-binary-list/client-binary-list.component';
 import { ExperimentConsentComponent } from './experiment-consent/experiment-consent.component';
 import { DemographicEditorComponent } from './experiment-consent/demographic-editor/demographic-editor.component';
+import { ClientCrashLogsComponent } from './server-status-overview/client-crash-logs/client-crash-logs.component';
 
 @NgModule({
   imports: [
@@ -160,7 +161,8 @@ import { DemographicEditorComponent } from './experiment-consent/demographic-edi
     PlatformConfigPanelComponent,
     ClientBinaryListComponent,
     ExperimentConsentComponent,
-    DemographicEditorComponent
+    DemographicEditorComponent,
+    ClientCrashLogsComponent
   ],
   exports: [
     NouisliderModule,

@@ -28,7 +28,7 @@ export default class OTClientSignatureCtrl {
           }
           if (changed === true) {
             return doc.save().then(() => true)
-          } else return false
+          } else { return false }
         } else {
           const val = {
             key: key,
@@ -39,7 +39,7 @@ export default class OTClientSignatureCtrl {
           if (experimentId != null) {
             val.experiments.push(experimentId)
           }
-          return new OTClientSignature(val).save().then(()=>true)
+          return new OTClientSignature(val).save().then(() => true)
         }
       }
     )
@@ -47,7 +47,7 @@ export default class OTClientSignatureCtrl {
 
   // admin only apis
   getSignatures = (req, res) => {
-    OTClientSignature.find({}).populate("experiments", {name: 1}).lean().then(
+    OTClientSignature.find({}).populate("experiments", { name: 1 }).lean().then(
       signatures => {
         res.status(200).send(signatures)
       }

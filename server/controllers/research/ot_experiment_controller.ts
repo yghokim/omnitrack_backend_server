@@ -133,13 +133,13 @@ export default class OTExperimentCtrl {
    * @returns {Promise<boolean>} whether the invitation code is of the experiment.
    * @memberof OTExperimentCtrl
    */
-  public matchInvitationWithExperiment(invitationCode: string, experimentId: string): Promise<boolean>{
+  public matchInvitationWithExperiment(invitationCode: string, experimentId: string): Promise<boolean> {
     console.log("match invitation code", invitationCode, "and the experiment", experimentId)
-    return OTInvitation.findOne({code: invitationCode, experiment: experimentId}).lean().then(
+    return OTInvitation.findOne({ code: invitationCode, experiment: experimentId }).lean().then(
       invit => {
-        if(invit){
+        if (invit) {
           return true
-        }else{
+        } else {
           return false
         }
       }
@@ -392,7 +392,7 @@ export default class OTExperimentCtrl {
   getPublicInvitationList = (req, res) => {
     const userId = res.locals.user.uid
     res.status(200).send([])
-    //TODO disable getting public invitations.
+    // TODO disable getting public invitations.
     /*
     this._getPublicInvitations(userId).then(
       invitations => {

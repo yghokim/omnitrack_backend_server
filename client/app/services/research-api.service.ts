@@ -276,9 +276,17 @@ export class ResearchApiService extends ServiceBase {
   }
 
   // tslint:disable-next-line:no-shadowed-variable
-  queryUsageLogsAnonymized(filter: any = null, from: string = null, to: string = null): Observable<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>> {
-    return this.http.get("/api/research/usage_logs", this.makeAuthorizedRequestOptions({
-      filter: JSON.stringify(filter),
+  queryUsageLogsAnonymized(filterBase: any = null, from: string = null, to: string = null): Observable<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>> {
+    return this.http.get("/api/research/diagnostics/logs/usage", this.makeAuthorizedRequestOptions({
+      filter: JSON.stringify(filterBase),
+      from: from,
+      to: to
+    })).pipe(map(res => res.json()))
+  }
+
+  queryClientErrorLogs(filterBase: any = null, from: string = null, to: string = null): Observable<Array<IUsageLogDbEntity>> {
+    return this.http.get("/api/research/diagnostics/logs/error", this.makeAuthorizedRequestOptions({
+      filter: JSON.stringify(filterBase),
       from: from,
       to: to
     })).pipe(map(res => res.json()))
@@ -302,7 +310,7 @@ export class ResearchApiService extends ServiceBase {
     )
   }
 
-  shortenUrlToShortId(longUrl: string): Observable<string>{
+  shortenUrlToShortId(longUrl: string): Observable<string> {
     return this.http.post("/api/research/shorten", {
       longUrl: longUrl
     }, this.authorizedOptions).pipe(

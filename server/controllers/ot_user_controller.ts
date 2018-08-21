@@ -31,40 +31,39 @@ export default class OTUserCtrl extends BaseCtrl {
   _authenticate(uid: string, deviceInfo: IClientDevice, invitationCode?: string, experimentId?: string, demographic?: any): Promise<{ user: IUserDbEntity, deviceLocalKey: number, inserted: boolean }> {
     return deferPromise(() => {
       if (invitationCode != null && experimentId != null) {
-        //check invitation code and experimentId
+        // check invitation code and experimentId
         return experimentCtrl.matchInvitationWithExperiment(invitationCode, experimentId).then(match => {
           if (match === true) {
             return this.getUserOrInsert(uid)
-          } else throw { code: "IllegalInvitationCode" }
+          } else { throw { code: "IllegalInvitationCode" } }
         })
       } else {
         return this.getUserOrInsert(uid)
       }
     }).then(result => {
-      //handle new user examples=======================
+      // handle new user examples=======================
       if (result.inserted === true && experimentId == null) {
-        //new user
+        // new user
         return app.omnitrackModule().injectFirstUserExamples(uid).then(() => result)
-      }
-      //-----------------------------------------------
-      else return result
+      } else { return result }
     }).then(result => {
-      //handle updating deviceInfo===========================
+      // handle updating deviceInfo===========================
       const deviceUpdateResult = this.upsertDeviceInfoLocally(result.user, deviceInfo)
-      //----------------------------------------
+      // ----------------------------------------
       return (result.user as any as mongoose.Document).save().then(() => ({ user: result.user, deviceLocalKey: deviceUpdateResult.localKey, inserted: result.inserted }))
     }).then(
       result => {
-        if(experimentId!=null){
+        if (experimentId != null) {
           return this._checkExperimentParticipationStatus(uid, experimentId).then(
             isInParticipation => {
-              if(isInParticipation){
+              if (isInParticipation) {
                 return result
-              }else return app.researchModule().assignParticipantToExperiment(uid, invitationCode, experimentId, demographic).then(assignExperimentResult => {
+              } else { return app.researchModule().assignParticipantToExperiment(uid, invitationCode, experimentId, demographic).then(assignExperimentResult => {
                 return result
               })
+              }
             })
-        }else return result
+        } else { return result }
       }
     )
   }
@@ -397,7 +396,7 @@ export default class OTUserCtrl extends BaseCtrl {
       verified => {
         res.status(200).send(verified)
       }
-    ).catch(err=>{
+    ).catch(err => {
       console.error(err)
       res.status(500).send(err)
     })

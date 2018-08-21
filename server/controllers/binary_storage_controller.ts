@@ -79,7 +79,7 @@ export default class BinaryStorageCtrl {
               fileIdentifier: fileIdentifier
             }).then(oldDoc => {
               if (oldDoc) {
-                //update current and change file
+                // update current and change file
                 const removalPromises = []
                 removalPromises.push(fs.remove(prefix + oldDoc["originalFileName"])
                   .then(() => true).catch(fileRemovalError => false))
@@ -99,21 +99,22 @@ export default class BinaryStorageCtrl {
                   }
                 )
               } else {
-                //insert new one
+                // insert new one
                 return new OTItemMedia(newMedia).save().then(newDoc => ({ overwritten: false, _id: newDoc._id }))
               }
             }).then(result => {
               return req.app.get("omnitrack").serverModule.agenda
-              .now(C.TASK_POSTPROCESS_ITEM_MEDIA, { mediaDbId: result._id })
-              .then(job => {
-                console.log("successed postprocessing media.")
-                return result
-              }).catch(processErr=>{
-                console.error(processErr)
-                return result
-              })
+                .now(C.TASK_POSTPROCESS_ITEM_MEDIA, { mediaDbId: result._id })
+                .then(job => {
+                  console.log("successed postprocessing media.")
+                  return result
+                }).catch(processErr => {
+                  console.error(processErr)
+                  return result
+                })
             }).then(result => {
-              res.status(200).send({ result: "success", overwritten: result.overwritten })})
+              res.status(200).send({ result: "success", overwritten: result.overwritten })
+            })
           })
           .catch(err => {
             console.log(err)

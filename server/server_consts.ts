@@ -21,10 +21,10 @@ export default class ServerConstants {
   static readonly PUSH_DATA_TYPE_CLIENT_UPDATED = "refresh_client_updated"
 
   static readonly PUSH_DATA_TYPE_TEXT_MESSAGE = "text_message"
-  
 
-  static getSyncTypeFromModel(model: any){
-    switch(model){
+
+  static getSyncTypeFromModel(model: any) {
+    switch (model) {
       case OTTracker: return ServerConstants.SYNC_TYPE_TRACKER
       case OTTrigger: return ServerConstants.SYNC_TYPE_TRIGGER
       case OTItem: return ServerConstants.SYNC_TYPE_ITEM

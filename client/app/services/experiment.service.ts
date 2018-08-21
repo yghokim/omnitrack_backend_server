@@ -332,12 +332,12 @@ export class ExperimentService {
   }
 
   removeParticipant(participantId): Observable<any> {
-    return this.http.delete("/api/research/participants/" + participantId,this.researchApi.authorizedOptions)
+    return this.http.delete("/api/research/participants/" + participantId, this.researchApi.authorizedOptions)
       .pipe(map(res => res.json()))
   }
 
   dropParticipant(participantId): Observable<any> {
-    return this.http.post("/api/research/participants/" + participantId + "/drop", {},this.researchApi.authorizedOptions)
+    return this.http.post("/api/research/participants/" + participantId + "/drop", {}, this.researchApi.authorizedOptions)
       .pipe(map(res => res.json().success))
   }
 
@@ -424,7 +424,7 @@ export class ExperimentService {
   }
 
   queryUsageLogsPerParticipant(mongooseFilter: any = null, userIds: string | Array<string> = null): Observable<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>> {
-    return this.http.get("/api/research/usage_logs", this.researchApi.makeAuthorizedRequestOptions({
+    return this.http.get("/api/research/diagnostics/logs/usage", this.researchApi.makeAuthorizedRequestOptions({
       experiment: this.experimentId,
       userIds: userIds,
       filter: JSON.stringify(mongooseFilter)

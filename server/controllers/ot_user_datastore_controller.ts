@@ -23,9 +23,8 @@ export class OTUserDataStoreController {
         const obj = user["dataStore"]
         if (obj) {
           return convertHashToArray(obj, this.hashConvertFunc, true)
-        }
-        else return []
-      } else return []
+        } else { return [] }
+      } else { return [] }
     })
   }
 
@@ -35,7 +34,7 @@ export class OTUserDataStoreController {
     return OTUser.findById(userId, select).then(user => {
       if (user) {
         return user["dataStore"][key]
-      } else return null
+      } else { return null }
     })
   }
 
@@ -63,7 +62,7 @@ export class OTUserDataStoreController {
             replaced: timestamp !== user.dataStore[key].updatedAt
           }
         } else {
-          throw "No value inserted. check your logic."
+          throw new Error("No value inserted. check your logic.")
         }
       } else {
         return null
@@ -74,7 +73,7 @@ export class OTUserDataStoreController {
   setDataStore(userId: string, dataEntryList: Array<IDataStoreEntryWithKey>, force: boolean = false): Promise<Array<IDataStoreEntryWithKey>> {
     return OTUser.findById(userId, "dataStore").then(user => {
       if (user) {
-        var changed = false
+        let changed = false
         if (user["dataStore"] == null) {
           user["dataStore"] = {}
           changed = true
@@ -87,15 +86,14 @@ export class OTUserDataStoreController {
               user["dataStore"][entry.key].updatedAt = entry.updatedAt
               changed = true
             }
-          }
-          else {
+          } else {
             user["dataStore"][entry.key] = { value: entry.value, updatedAt: entry.updatedAt }
             changed = true
           }
         })
 
         const finalList = dataEntryList.map(entry => {
-          return {key: user["dataStore"][entry.key], updatedAt: user["dataStore"][entry.updatedAt], value: user["dataStore"][entry.key].value}
+          return { key: user["dataStore"][entry.key], updatedAt: user["dataStore"][entry.updatedAt], value: user["dataStore"][entry.key].value }
         })
 
         if (changed === true) {
@@ -103,8 +101,8 @@ export class OTUserDataStoreController {
           return user.save().then(() => {
             return finalList
           })
-        } else return finalList
-      } else return []
+        } else { return finalList }
+      } else { return [] }
     })
   }
 

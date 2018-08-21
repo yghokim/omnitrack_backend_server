@@ -4,12 +4,19 @@ import OTUsageLog from '../models/ot_usage_log';
 import { makeArrayLikeQueryCondition } from '../server_utils';
 import BaseCtrl from './base';
 import * as moment from 'moment';
+import { deepclone } from '../../shared_lib/utils';
 
 export class OTUsageLogCtrl {
 
   private preprocessBeforeInsertToDb(singleQueryObject: any): any {
     singleQueryObject.timestamp = new Date(singleQueryObject.timestamp)
     return singleQueryObject
+  }
+
+  _getErrorLogs(filterBase: any): Promise<Array<IUsageLogDbEntity>> {
+    const filter = deepclone(filterBase)
+    filter.name = "exception"
+    return OTUsageLog.find(filter).populate("user", { email: 1 }).sort({ timestamp: -1 }).lean().then(docs => docs)
   }
 
 
@@ -106,11 +113,11 @@ export class OTUsageLogCtrl {
     if ((req.query.from !== "null" && req.query.from) || (req.query.to !== "null" && req.query.to)) {
       filter["timestamp"] = {}
 
-      if (req.query.from) {
+      if (req.query.from !== "null" && req.query.from) {
         filter["timestamp"]["$gte"] = moment(req.query.from).toDate()
       }
 
-      if (req.query.to) {
+      if (req.query.to !== "null" && req.query.to) {
         filter["timestamp"]["$lte"] = moment(req.query.to).toDate()
       }
     }
@@ -165,6 +172,31 @@ export class OTUsageLogCtrl {
     }
   }
 
+  getErrorLogs = (req, res) => {
+    let filter: any
+    if (req.query.filter) {
+      filter = req.query.filter = JSON.parse(req.query.filter)
+    } else { filter = {} }
+
+    if ((req.query.from !== "null" && req.query.from != null) || (req.query.to !== "null" && req.query.to != null)) {
+      filter["timestamp"] = {}
+
+      if (req.query.from !== "null" && req.query.from != null) {
+        filter["timestamp"]["$gte"] = moment(req.query.from).toDate()
+      }
+
+      if (req.query.to !== "null" && req.query.to != null) {
+        filter["timestamp"]["$lte"] = moment(req.query.to).toDate()
+      }
+    }
+
+    this._getErrorLogs(filter).then(logs => {
+      res.status(200).send(logs)
+    }).catch(ex => {
+      console.error(ex)
+      res.status(500).send(ex)
+    })
+  }
 }
 
 const ctrl = new OTUsageLogCtrl()

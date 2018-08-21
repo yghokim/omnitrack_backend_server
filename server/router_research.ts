@@ -66,14 +66,14 @@ export class ResearchRouter extends RouterWrapper {
     this.router.post('/researchers/:researcherId/approve', tokenAdminAuth, this.researchCtrl.setResearcherAccountApproved)
     // =============================================================
     this.router.post("/shorten", tokenApprovedAuth, (req, res) => {
-      if(req.body.longUrl){
+      if (req.body.longUrl) {
         OTShortUrl.findOneAndUpdate({
           longUrl: req.body.longUrl
-        }, {}, {upsert: true, setDefaultsOnInsert: true, new: true})
-        .lean().then(doc => {
-          res.status(200).send(doc.shortId)
-        })
-      }else{
+        }, {}, { upsert: true, setDefaultsOnInsert: true, new: true })
+          .lean().then(doc => {
+            res.status(200).send(doc.shortId)
+          })
+      } else {
         res.status(400).send("No LongUrl sent in body.")
       }
     })
@@ -165,8 +165,6 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.post('/participants/:participantId/excluded_days', tokenApprovedAuth, participantCtrl.postExcludedDays)
 
-    this.router.get('/usage_logs', tokenApprovedAuth, this.usageLogCtrl.getFilteredUserGroupedUsageLogs)
-
     // tracking data
     new Array(
       { url: "trackers", model: ot_tracker },
@@ -199,13 +197,11 @@ export class ResearchRouter extends RouterWrapper {
     this.router.post('/signatures/:id/delete', tokenApprovedAuth, clientSignatureCtrl.removeSignature)
 
 
+    this.router.get('/diagnostics/logs/usage', tokenApprovedAuth, this.usageLogCtrl.getFilteredUserGroupedUsageLogs)
+    this.router.get('/diagnostics/logs/error', tokenAdminAuth, this.usageLogCtrl.getErrorLogs)
+
     // debuging
     this.router.get("/debug/generate_participant_alias", this.researchCtrl.generateAliasOfParticipants)
-    this.router.get('/debug/clear_researchers', this.adminCtrl.clearResearchers)
-    this.router.get('/debug/remove_researcher/:researcherId', this.adminCtrl.removeResearcher)
-    this.router.get('/debug/push_users', this.adminCtrl.pushUsers)
-    this.router.get('/debug/participants/all', this.researchCtrl.getallParticipants)
-    this.router.get('/debug/restore_experiment_data/:experimentId', experimentCtrl.restoreExperimentTrackingEntities)
     this.router.get('/debug/push_command', experimentCtrl.sendPushCommand)
 
     const methodTestHandler = (req, res) => {

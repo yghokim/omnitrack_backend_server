@@ -198,7 +198,7 @@ export default class OTClientBuildCtrl {
             console.log("start download github archive. - ", repo)
 
             const repoTargetPath = path.join(this._makeExperimentConfigDirectoryPath(experimentId, true), "source_" + buildConfig.platform)
-            try{fs.removeSync(repoTargetPath)}catch(err){}
+            try { fs.removeSync(repoTargetPath) } catch (err) { }
             const downloadGit = require('download-git-repo')
             downloadGit("github:" + repo + (buildConfig.sourceCode.data.branch ? ("#" + buildConfig.sourceCode.data.branch) : ""), repoTargetPath, (err) => {
               if (err) {

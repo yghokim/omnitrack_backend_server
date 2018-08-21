@@ -13,6 +13,7 @@ export class ServerStatusOverviewComponent implements OnInit, OnDestroy {
   private readonly _internalSubscriptions = new Subscription()
 
   public isUserPoolAvailable = false
+  public isErrorLogAvailable = false
 
   constructor(private auth: ResearcherAuthService) {
   }
@@ -23,6 +24,7 @@ export class ServerStatusOverviewComponent implements OnInit, OnDestroy {
         researcher => {
           if (researcher.previlage >= ResearcherPrevilages.ADMIN) {
             this.isUserPoolAvailable = true
+            this.isErrorLogAvailable = true
           }
         }
       )
