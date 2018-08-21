@@ -59,7 +59,8 @@ export default class OTBinaryCtrl {
             if (entry.fileName.toUpperCase() === "META-INF/CERT.RSA") {
               // keystore file.
               zipfile.openReadStream(entry, (zipOpenError, readStream) => {
-                if (zipOpenError) { throw zipOpenError; }
+	      	if (zipOpenError) { reject(zipOpenError) }
+		fs.ensureDirSync("storage/temp")
                 const keystoreTempFilePath = "storage/temp/temp_keystore_" + randomstring.generate({ length: 20 })
                   + "_" + Date.now() + ".rsa"
                 readStream.on("end", function () {

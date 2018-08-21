@@ -35,7 +35,7 @@ let firebaseApp = null
 const app = express();
 const appWrapper = new AppWrapper(app);
 dotenv.load({ path: ".env" });
-app.set("port", env.port || 3000);
+app.set("port", 3000);
 
 app.use('/', express.static(path.join(__dirname, '../public')));
 app.use(bodyParser.json({ limit: '20mb' }));

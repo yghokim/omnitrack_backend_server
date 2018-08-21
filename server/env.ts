@@ -42,7 +42,6 @@ export interface IEnvironment{
   mongodb_agenda_test_uri?: string,
   jwt_secret?: string,
   use_mailer?: boolean,
-  port?: number,
   mailer?: {
     provider?: string,
     api_key?: string,
