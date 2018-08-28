@@ -6,9 +6,6 @@ import * as mongoose from "mongoose";
 import * as path from "path";
 import * as firebaseAdmin from "firebase-admin";
 import env from "./env";
-import { environmentPath } from "./env";
-import * as fs from "fs-extra";
-import { spawn } from "child_process";
 import OmniTrackModule from "./modules/omnitrack.module";
 import { AppWrapper } from "./modules/app.interface";
 import { ClientApiRouter } from "./router_api";
@@ -17,19 +14,6 @@ import { installationWizardCtrl } from "./controllers/ot_installation_wizard_con
 import { InstallationRouter } from "./router_installation";
 import { ShortUrlRouter } from "./router_shorturl";
 import { checkFileExistenceAndType } from "./server_utils";
-
-if (fs.pathExistsSync(environmentPath) !== true) {
-  // copy sample file
-  try {
-    fs.copySync(
-      path.join(__dirname, "../../../credentials/environment.sample.json"),
-      environmentPath
-    );
-  } catch (err) {
-    console.log(err);
-    console.log("check for the environment.sample.json file existing.");
-  }
-}
 
 let firebaseApp = null;
 

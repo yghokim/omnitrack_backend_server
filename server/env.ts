@@ -9,6 +9,19 @@ const environmentPath = path.join(
 
 let env: IEnvironment;
 
+if (fs.pathExistsSync(environmentPath) !== true) {
+  // copy sample file
+  try {
+    fs.copySync(
+      path.join(__dirname, "../../../credentials/environment.sample.json"),
+      environmentPath
+    );
+  } catch (err) {
+    console.log(err);
+    console.log("check for the environment.sample.json file existing.");
+  }
+}
+
 function reloadEnvironment(fromJson?: IEnvironment) {
   if (fromJson) {
     env = merge(env, fromJson, true, true);

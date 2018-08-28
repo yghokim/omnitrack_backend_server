@@ -80,7 +80,7 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
   }
 
   private handleSummaryResult(result: any) {
-    this.superUsersComplete = result.flags.super_users || false;
+    this.superUsersComplete = result.flags.super_users && result.flags.super_users.length > 0;
     this.firebaseCertComplete = result.flags.firebase_cert || false;
     this.jwtTokenComplete = result.flags.jwt_secret || false;
     this.isInstallationCompletable = result.completable;
