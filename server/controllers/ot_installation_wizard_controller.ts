@@ -4,6 +4,10 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import { saveEnv } from '../env';
 
+
+const wizardKeys = ["installation_mode", "super_users", "jwt_secret", "use_mailer", "mailer"]
+
+
 const FIREBASE_CERT_PATH = path.join(
   __dirname,
   "../../../../credentials/firebase-cert.json"
@@ -60,7 +64,7 @@ export default class OTInstallationWizardCtrl {
   }
 
   setFirebaseCert(cert: any): Promise<boolean> {
-    return fs.writeJson(FIREBASE_CERT_PATH, cert, {spaces: 2, EOL: '\n'}).then(() => {
+    return fs.writeJson(FIREBASE_CERT_PATH, cert, { spaces: 2, EOL: '\n' }).then(() => {
       initializeFirebase()
       return true
     }).catch(err => {
@@ -71,10 +75,8 @@ export default class OTInstallationWizardCtrl {
   }
 
   resetAll(): Promise<boolean> {
-    for (const key of Object.keys(env)) {
-      if (key !== "mongodb_uri" && key !== "mongodb_test_uri") {
-        delete env[key]
-      }
+    for (const key of wizardKeys) {
+      delete env[key]
     }
 
     return Promise.all(
