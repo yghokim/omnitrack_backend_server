@@ -6,16 +6,17 @@ import * as mongoose from "mongoose";
 import * as path from "path";
 import * as firebaseAdmin from "firebase-admin";
 import env from "./env";
-import { environmentPath } from './env';
+import { environmentPath } from "./env";
 import * as fs from "fs-extra";
-import { spawn } from 'child_process';
+import { spawn } from "child_process";
 import OmniTrackModule from "./modules/omnitrack.module";
 import { AppWrapper } from "./modules/app.interface";
 import { ClientApiRouter } from "./router_api";
 import { ResearchRouter } from "./router_research";
-import { installationWizardCtrl } from './controllers/ot_installation_wizard_controller';
+import { installationWizardCtrl } from "./controllers/ot_installation_wizard_controller";
 import { InstallationRouter } from "./router_installation";
 import { ShortUrlRouter } from "./router_shorturl";
+import { checkFileExistenceAndType } from "./server_utils";
 
 if (fs.pathExistsSync(environmentPath) !== true) {
   // copy sample file
@@ -23,48 +24,65 @@ if (fs.pathExistsSync(environmentPath) !== true) {
     fs.copySync(
       path.join(__dirname, "../../../credentials/environment.sample.json"),
       environmentPath
-    )
+    );
   } catch (err) {
-    console.log(err)
-    console.log("check for the environment.sample.json file existing.")
+    console.log(err);
+    console.log("check for the environment.sample.json file existing.");
   }
 }
 
-let firebaseApp = null
+let firebaseApp = null;
 
 const app = express();
 const appWrapper = new AppWrapper(app);
 dotenv.load({ path: ".env" });
 app.set("port", 3000);
 
-app.use('/', express.static(path.join(__dirname, '../public')));
-app.use(bodyParser.json({ limit: '20mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' }));
+app.use("/", express.static(path.join(__dirname, "../public")));
+app.use(bodyParser.json({ limit: "20mb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: "5mb" }));
 
 app.use(morgan("dev"));
 
+// Debug =====================
+app.get("/debug/logs/production", (req, res) => {
+  if (checkFileExistenceAndType("logs/production.log") != null) {
+    res.download("logs/production.log");
+  } else {
+    res.status(200).send("No production log.");
+  }
+});
+// ============================
+
 initializeFirebase();
 
-
-const os = require('os')
+const os = require("os");
 const netInterfaces = os.networkInterfaces();
-let ipv4: string = null
-Object.keys(netInterfaces).forEach((ifgroup) => {
-  netInterfaces[ifgroup].forEach((iface) => {
-    if (iface.internal !== false || iface.family !== 'IPv4') {
-      return
+let ipv4: string = null;
+Object.keys(netInterfaces).forEach(ifgroup => {
+  netInterfaces[ifgroup].forEach(iface => {
+    if (iface.internal !== false || iface.family !== "IPv4") {
+      return;
     }
-    ipv4 = iface.address
-  })
-})
-console.log("current server public ip: ", ipv4)
-app.set("publicIP", ipv4)
+    ipv4 = iface.address;
+  });
+});
+console.log("current server private ip: ", ipv4);
+app.set("privateIP", ipv4);
+
+const exec = require("child_process").exec;
+exec("curl ifconfig.co", (err, stdout, stderr) => {
+  if (err) {
+    console.error(err);
+  } else {
+    console.log("current server public ip: ", stdout);
+    app.set("publicIP", stdout);
+  }
+});
 
 if (!module.parent) {
   const server = app.listen(app.get("port"), () => {
-    console.log(
-      "OmniTrack API Server listening on port " + app.get("port")
-    );
+    console.log("OmniTrack API Server listening on port " + app.get("port"));
   });
   const io = require("socket.io")(server, { origins: "*:*" });
 
@@ -72,17 +90,18 @@ if (!module.parent) {
 }
 
 if (installationWizardCtrl.isInstallationComplete() === true) {
-  installServer()
+  installServer();
 } else {
-  console.log("the server installation is not yet finished. Attached the installation routes.")
+  console.log(
+    "the server installation is not yet finished. Attached the installation routes."
+  );
   app.use("/api/installation", new InstallationRouter().router);
 }
 
 function installServer() {
-
-  const connectedHandler = (err) => {
+  const connectedHandler = err => {
     if (err) {
-      console.error.bind(console, "connection error:")
+      console.error.bind(console, "connection error:");
     } else {
       console.log("Connected to MongoDB");
 
@@ -91,17 +110,25 @@ function installServer() {
       app.use("/api", new ClientApiRouter().router);
       app.use("/api/research", new ResearchRouter(env).router); // research path
       // ==========================================
-      const omnitrackModule = new OmniTrackModule(app)
+      const omnitrackModule = new OmniTrackModule(app);
       app.set("omnitrack", omnitrackModule);
-      omnitrackModule.bootstrap()
+      omnitrackModule.bootstrap();
     }
-  }
+  };
 
   (<any>mongoose).Promise = global.Promise;
   if (env.node_env === "test") {
-    mongoose.connect(env.mongodb_test_uri, { useNewUrlParser: true }, connectedHandler);
+    mongoose.connect(
+      env.mongodb_test_uri,
+      { useNewUrlParser: true },
+      connectedHandler
+    );
   } else {
-    mongoose.connect(env.mongodb_uri, { useNewUrlParser: true }, connectedHandler);
+    mongoose.connect(
+      env.mongodb_uri,
+      { useNewUrlParser: true },
+      connectedHandler
+    );
   }
 }
 
@@ -112,22 +139,36 @@ function initializeFirebase() {
       "../../../credentials/firebase-cert.json"
     ));
 
-    if (firebaseAdmin.apps.find(a => a.name === firebaseServiceAccount.project_id) == null) {
-      firebaseApp = firebaseAdmin.initializeApp({
-        credential: firebaseAdmin.credential.cert(firebaseServiceAccount)
-      }, firebaseServiceAccount.project_id);
-    } else { firebaseApp = firebaseAdmin.app(firebaseServiceAccount.project_id) }
-
+    if (
+      firebaseAdmin.apps.find(
+        a => a.name === firebaseServiceAccount.project_id
+      ) == null
+    ) {
+      firebaseApp = firebaseAdmin.initializeApp(
+        {
+          credential: firebaseAdmin.credential.cert(firebaseServiceAccount)
+        },
+        firebaseServiceAccount.project_id
+      );
+    } else {
+      firebaseApp = firebaseAdmin.app(firebaseServiceAccount.project_id);
+    }
   } catch (ex) {
-    console.log(ex)
-    console.log("could not initialize the Firebase admin.")
-    firebaseApp = null
+    console.log(ex);
+    console.log("could not initialize the Firebase admin.");
+    firebaseApp = null;
   }
 }
 
 function clearFirebaseApp() {
-  firebaseApp = null
+  firebaseApp = null;
 }
 
-export { app, firebaseApp, initializeFirebase, installServer, clearFirebaseApp };
+export {
+  app,
+  firebaseApp,
+  initializeFirebase,
+  installServer,
+  clearFirebaseApp
+};
 export default appWrapper;

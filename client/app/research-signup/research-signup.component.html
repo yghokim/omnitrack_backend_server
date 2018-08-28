@@ -6,6 +6,10 @@
     </div>
     <div class="card-body">
       <form [formGroup]="registerForm" (ngSubmit)="register()">
+
+        <input id="prevent_autofill" type="text" style="display:none;" value="" name="prevent_autofill">
+        <input id="password_fake" type="password" style="display:none;" value="" name="password_fake">
+
         <div class="form-group">
           <label class="small" for="inputEmail">Email address</label>
           <input formControlName="email" type="email" [ngClass]="setClassEmail()" class="form-control" id="inputEmail" aria-describedby="emailHelp"
@@ -16,13 +20,13 @@
         <div formGroupName="matchingPassword">
           <div class="form-group">
             <label class="small" for="inputPassword">Password</label>
-            <input formControlName="password" type="password" class="form-control" [ngClass]="setClassPassword()"
-              id="inputPassword" placeholder="Password">
+            <input formControlName="password" type="password" class="form-control" [ngClass]="setClassPassword()" id="inputPassword"
+              placeholder="Password">
           </div>
 
           <label class="small" for="inputConfirmPassword">Confirm Password</label>
-          <input formControlName="confirmPassword" type="password" class="form-control" [ngClass]="setClassConfirmPassword()"
-            id="inputConfirmPassword" placeholder="Password">
+          <input formControlName="confirmPassword" type="password" class="form-control" [ngClass]="setClassConfirmPassword()" id="inputConfirmPassword"
+            placeholder="Password">
         </div>
         <hr>
 
@@ -40,7 +44,7 @@
 
       <p></p>
       <a [routerLink]="['/research/login']" class="card-link">I already have a researcher account.</a>
-      
+
     </div>
   </div>
 </div>

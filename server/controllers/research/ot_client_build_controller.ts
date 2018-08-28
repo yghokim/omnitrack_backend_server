@@ -17,7 +17,7 @@ import { ClientBuildStatus, EClientBuildStatus } from '../../../omnitrack/core/r
 import C from '.././../server_consts';
 import * as deepEqual from 'deep-equal';
 import * as randomstring from 'randomstring';
-import * as http from 'http';
+import env from '../../env';
 
 export interface BuildResultInfo { sourceFolderPath: string, appBinaryPath: string, binaryFileName: string }
 
@@ -267,7 +267,8 @@ export default class OTClientBuildCtrl {
         return Promise.resolve()
       }
     ).then(() => {
-      const serverIP = app.get("publicIP")
+
+      const serverIP = env.force_private_ip === true ? app.get("privateIP") : app.get("publicIP")
       const port = 3000
       const experimentId = isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id
       const sourceConfigJson = {

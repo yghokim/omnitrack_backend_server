@@ -17,3 +17,18 @@
   max-height: 200px;
   overflow-y: auto;
 }
+
+.super-user-container{
+  max-width: 400px;
+
+  ul{
+    li{
+      display: inline;
+      margin-left: 0.5rem;
+
+      &:first-child{
+        margin-left: 0;
+      }
+    }
+  }
+}

@@ -35,7 +35,7 @@ export default class OTInstallationWizardCtrl {
     if (env[variableName] !== newValue) {
       env[variableName] = newValue
       return saveEnv().then(() => true).catch(err => {
-        console.log(err)
+        console.error(err)
         return false
       })
     } else { return Promise.resolve(false) }
@@ -46,14 +46,14 @@ export default class OTInstallationWizardCtrl {
       if (this.isCriticalConditionMet() === true) {
         env.installation_mode = false
         return saveEnv().then(() => true).catch(err => {
-          console.log(err)
+          console.error(err)
           return false
         })
       } else { return Promise.resolve(false) }
     } else {
       env.installation_mode = true
       return saveEnv().then(() => true).catch(err => {
-        console.log(err)
+        console.error(err)
         return false
       })
     }
@@ -64,8 +64,8 @@ export default class OTInstallationWizardCtrl {
       initializeFirebase()
       return true
     }).catch(err => {
-      console.log("firebase error")
-      console.log(err)
+      console.error("firebase error")
+      console.error(err)
       return false
     })
   }
@@ -80,7 +80,7 @@ export default class OTInstallationWizardCtrl {
     return Promise.all(
       [
         fs.remove(FIREBASE_CERT_PATH).then(() => { clearFirebaseApp(); return true }).catch(err => {
-          console.log(err)
+          console.error(err)
           return false
         }),
         saveEnv().then(() => true).catch(err => false)

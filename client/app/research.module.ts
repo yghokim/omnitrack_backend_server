@@ -70,7 +70,6 @@ import { HttpMethodTestingComponent } from './test/http-method-testing/http-meth
 import { UsersPerDayComponent } from './server-status-overview/users-per-day/users-per-day.component';
 import { DevicesPerDayComponent } from './server-status-overview/devices-per-day/devices-per-day.component';
 import { InstallationWizardComponent } from './installation/installation-wizard/installation-wizard.component';
-import { TagInputModule } from 'ngx-chips';
 import { ServerUserListComponent } from './server-status-overview/server-user-list/server-user-list.component';
 import { StatAnalyticsComponent } from './server-status-overview/stat-analytics/stat-analytics.component';
 import { OmniTrackPackageCodeEditorComponent } from './research/omnitrack/omni-track-package-code-editor/omni-track-package-code-editor.component';
@@ -84,6 +83,7 @@ import { ClientBinaryListComponent } from './components/client-binary-list/clien
 import { ExperimentConsentComponent } from './experiment-consent/experiment-consent.component';
 import { DemographicEditorComponent } from './experiment-consent/demographic-editor/demographic-editor.component';
 import { ClientCrashLogsComponent } from './server-status-overview/client-crash-logs/client-crash-logs.component';
+import { CheckInstallationGuard } from './services/check-installation.guard';
 
 @NgModule({
   imports: [
@@ -95,7 +95,6 @@ import { ClientCrashLogsComponent } from './server-status-overview/client-crash-
     FroalaViewModule.forRoot(),
     MonacoEditorModule.forRoot(),
     ProductivityStatisticsModule,
-    TagInputModule,
     NgxJsonViewerModule
   ],
   declarations: [
@@ -197,6 +196,7 @@ import { ClientCrashLogsComponent } from './server-status-overview/client-crash-
     ResearcherAuthService,
     SocketService,
     ResearchApiService,
+    CheckInstallationGuard
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: [

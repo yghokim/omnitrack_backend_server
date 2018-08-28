@@ -14,8 +14,30 @@
           <p>
             Enter the E-mails of users who will be permitted the super-user previlage.
           </p>
-          <tag-input [(ngModel)]="superUsers" (onAdd)="onSuperUsersEdited($event)" (onRemove)="onSuperUsersEdited($event)" [validators]="[emailValidator]"
-            [modelAsStrings]="true" placeholder="Add E-mail" secondaryPlaceholder="Insert E-mails" [separatorKeyCodes]="[32,186,188]"></tag-input>
+
+          <div class="super-user-container">
+            <div class="alert alert-secondary alert-sm" *ngIf="!superUsers || superUsers.length === 0">No super users are
+              set.</div>
+            <ul *ngIf="superUsers && superUsers.length > 0" class="list list-inline">
+              <li *ngFor="let user of superUsers">
+                <div class="badge badge-secondary">
+                  <div class="flex-container flex-align-items-center">
+                    <span>{{user}}</span>
+                    <button mat-icon-button class="tiny" (click)="onRemoveSuperUserClicked(user)">
+                      <span class="material-icons">clear</span>
+                    </button>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <div class="flex-container flex-align-items-center">
+              <input type="email" class="form-control form-control-sm" id="inputEmail" placeholder="Enter email" [(ngModel)]="newInputSuperUser"
+                (keyup)="onKeyDownInNewSuperUser($event)" />
+              <button mat-button color="primary" (click)="onAddNewSuperUserClicked()">Add</button>
+            </div>
+            <div class="small text-danger" *ngIf="isNewInputSuperUserValid===false">Please enter a valid E-mail address.
+            </div>
+          </div>
 
           <div class="top-margin-1em">
             <button [disabled]="!superUsers || superUsers.length === 0" mat-raised-button color="accent" (click)="submitSuperUsers()">Submit</button>

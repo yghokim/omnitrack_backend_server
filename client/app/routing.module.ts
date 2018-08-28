@@ -37,9 +37,10 @@ import { ExperimentConsentEditorComponent } from './experiment-consent-editor/ex
 import { ExperimentClientSettingsComponent } from './experiment-client-settings/experiment-client-settings.component';
 import { ExperimentConsentComponent } from './experiment-consent/experiment-consent.component';
 import { DemographicEditorComponent } from './experiment-consent/demographic-editor/demographic-editor.component';
+import { CheckInstallationGuard } from './services/check-installation.guard';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'research', pathMatch: 'full' },
+  { path: '', redirectTo: 'research', pathMatch: 'full'},
 
   { path: 'test', component: HttpMethodTestingComponent },
 
@@ -63,6 +64,7 @@ const routes: Routes = [
 
   {
     path: 'research', component: ResearchFrameComponent,
+    canActivate: [CheckInstallationGuard],
     children: [
       {
         path: '', component: ResearchHomeFrameComponent,
