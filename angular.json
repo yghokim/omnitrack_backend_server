@@ -23,10 +23,7 @@
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/font-awesome/css/font-awesome.min.css",
               "node_modules/material-design-icons-iconfont/dist/material-design-icons.scss",
-              "node_modules/froala-editor/css/froala_editor.pkgd.min.css",
-              "node_modules/froala-editor/css/froala_style.min.css",
               "client/styles.scss"
             ],
             "scripts": [
@@ -35,7 +32,6 @@
               "node_modules/popper.js/dist/umd/popper.min.js",
               "node_modules/hammerjs/hammer.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.min.js",
-              "node_modules/froala-editor/js/froala_editor.pkgd.min.js",
               "node_modules/jsonform/deps/underscore.js",
               "node_modules/jsonform/lib/jsonform.js"
             ]
@@ -89,16 +85,11 @@
               "node_modules/tether/dist/js/tether.min.js",
               "node_modules/popper.js/dist/umd/popper.min.js",
               "node_modules/hammerjs/hammer.min.js",
-              "node_modules/bootstrap/dist/js/bootstrap.min.js",
-              "node_modules/froala-editor/js/froala_editor.pkgd.min.js"
+              "node_modules/bootstrap/dist/js/bootstrap.min.js"
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/font-awesome/css/font-awesome.min.css",
-              "node_modules/material-design-icons-iconfont/dist/material-design-icons.scss",
-              "node_modules/froala-editor/css/froala_editor.pkgd.min.css",
-              "node_modules/froala-editor/css/froala_style.min.css",
-              "client/styles.scss"
+              "node_modules/material-design-icons-iconfont/dist/material-design-icons.scss"
             ],
             "assets": [
               "client/assets",

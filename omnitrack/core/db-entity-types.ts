@@ -107,8 +107,18 @@ export interface IItemDbEntity extends IUserChildDbEntity {
   deviceId: string,
   dataTable: [{ attrLocalId: string, sVal: string }],
   removed: boolean,
-  metadata: any,
+  metadata?: IItemMetadata,
   userUpdatedAt: number
+}
+
+export interface IItemMetadata{
+  pingIndex?: number,
+  pivotDate?: string,//YYYY-MM-DD
+  conditionType?: string,
+  reservedAt?: number,
+  actuallyFiredAt?: number,
+  screenAcesssedAt?: number,
+  accessedDirectlyFromReminder?: boolean
 }
 
 export interface IUsageLogDbEntity extends IUserChildDbEntity {

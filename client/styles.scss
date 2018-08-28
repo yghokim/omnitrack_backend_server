@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
-
 @import '~@angular/material/theming';
+@import "~nouislider/distribute/nouislider.min.css";
+
 // Plus imports for other components in your app.
 $material-typography: mat-typography-config( $font-family: "Roboto, 'Open Sans', 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans KR', 'Malgun Gothic', sans-serif");
 // Include the common styles for Angular Material. We include this here so that you only
@@ -77,7 +78,6 @@ $visualization_heatmap_color_overflow: #173958;
   }
 }
 
-@import "~nouislider/distribute/nouislider.min.css";
 nouislider {
   padding-right: 12px;
   padding-left: 12px;

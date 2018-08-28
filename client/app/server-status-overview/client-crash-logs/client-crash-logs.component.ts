@@ -62,7 +62,7 @@ export class ClientCrashLogsComponent implements OnInit, OnDestroy {
 
   getErrorVersionCode(log: IUsageLogDbEntity): string {
     if (log.content) {
-      return log.content.version_code
+      return log.content.versionCode
     } return ""
   }
 

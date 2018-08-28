@@ -10,7 +10,6 @@ import { BehaviorSubject, Subscription } from "rxjs";
 import { flatMap } from "rxjs/operators";
 import { Router, ActivatedRoute } from "@angular/router";
 import * as moment from "moment-timezone";
-import { FroalaEditorModule } from "angular-froala-wysiwyg/editor/editor.module";
 import { IParticipantDbEntity } from "../../../../omnitrack/core/db-entity-types";
 declare var $: any;
 
@@ -64,6 +63,11 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
   deliveryDate: Date = new Date();
   deliveryTime = "12:00";
 
+  public editorOptions = {
+    theme: "vs-dark",
+    language: 'markdown'
+  }
+  /*
   froalaOptions = {
     placeHolder: "Insert the email content",
     multiline: true,
@@ -78,7 +82,7 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
     enter: $.FroalaEditor.ENTER_BR,
     height: 300,
     heightMin: 200
-  };
+  };*/
 
   constructor(
     private api: ResearchApiService,

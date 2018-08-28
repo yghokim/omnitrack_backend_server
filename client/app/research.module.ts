@@ -41,7 +41,6 @@ import { NouisliderModule, NouisliderComponent } from 'ng2-nouislider';
 import { NewExperimentDialogComponent } from './experiment-list/new-experiment-dialog/new-experiment-dialog.component';
 import { EngagementParticipantGroupDirective } from './research/visualization/engagement/engagement-participant-group.directive';
 import { DeleteExperimentConfirmDialogComponent } from './dialogs/delete-experiment-confirm-dialog/delete-experiment-confirm-dialog.component';
-import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
 import { TableCellValueComponent } from './components/table-cell-value/table-cell-value.component';
 import { ServerSettingsComponent } from './server-settings/server-settings.component';
 import { UploadClientBinaryDialogComponent } from './server-settings/upload-client-binary-dialog/upload-client-binary-dialog.component';
@@ -91,8 +90,6 @@ import { CheckInstallationGuard } from './services/check-installation.guard';
     SharedModule,
     RoutingModule,
     NouisliderModule,
-    FroalaEditorModule.forRoot(),
-    FroalaViewModule.forRoot(),
     MonacoEditorModule.forRoot(),
     ProductivityStatisticsModule,
     NgxJsonViewerModule
