@@ -75,6 +75,9 @@ if (!module.parent) {
 
 if (installationWizardCtrl.isInstallationComplete() === true) {
   installServer();
+  app.get("/api/installation/status", (_, res) => {
+    res.status(200).send(true)
+  })
 } else {
   console.log(
     "the server installation is not yet finished. Attached the installation routes."
@@ -94,6 +97,7 @@ function installServer() {
       app.use("/api", new ClientApiRouter().router);
       app.use("/api/research", new ResearchRouter(env).router); // research path
       // ==========================================
+
       const omnitrackModule = new OmniTrackModule(app);
       app.set("omnitrack", omnitrackModule);
       omnitrackModule.bootstrap();
@@ -117,30 +121,35 @@ function installServer() {
 }
 
 function initializeFirebase() {
-  try {
-    const firebaseServiceAccount = require(path.join(
-      __dirname,
-      "../../../credentials/firebase-cert.json"
-    ));
+  const CERT_PATH = path.join(
+    __dirname,
+    "../../../credentials/firebase-cert.json"
+  )
+  if (checkFileExistenceAndType(CERT_PATH) != null) {
+    try {
+      const firebaseServiceAccount = require(CERT_PATH);
 
-    if (
-      firebaseAdmin.apps.find(
-        a => a.name === firebaseServiceAccount.project_id
-      ) == null
-    ) {
-      firebaseApp = firebaseAdmin.initializeApp(
-        {
-          credential: firebaseAdmin.credential.cert(firebaseServiceAccount)
-        },
-        firebaseServiceAccount.project_id
-      );
-    } else {
-      firebaseApp = firebaseAdmin.app(firebaseServiceAccount.project_id);
+      if (
+        firebaseAdmin.apps.find(
+          a => a.name === firebaseServiceAccount.project_id
+        ) == null
+      ) {
+        firebaseApp = firebaseAdmin.initializeApp(
+          {
+            credential: firebaseAdmin.credential.cert(firebaseServiceAccount)
+          },
+          firebaseServiceAccount.project_id
+        );
+      } else {
+        firebaseApp = firebaseAdmin.app(firebaseServiceAccount.project_id);
+      }
+    } catch (ex) {
+      console.log(ex);
+      console.log("could not initialize the Firebase admin.");
+      firebaseApp = null;
     }
-  } catch (ex) {
-    console.log(ex);
-    console.log("could not initialize the Firebase admin.");
-    firebaseApp = null;
+  }else{
+    console.log("Firebase Certificate file does not exist.")
   }
 }
 

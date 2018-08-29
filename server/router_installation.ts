@@ -29,7 +29,7 @@ export class InstallationRouter extends RouterWrapper {
       }
     };
 
-    this.router.get("/status", assertInstallableStatusMiddleware, (_, res) => {
+    this.router.get("/status", (_, res) => {
       res.status(200).send(installationWizardCtrl.isInstallationComplete());
     });
 
@@ -95,9 +95,10 @@ export class InstallationRouter extends RouterWrapper {
         try {
           installationWizardCtrl
             .setValue(req.body.value, "super_users")
-            .then(success => {
+            .then(changed => {
               res.status(200).send({
-                success: success,
+                success: true,
+                changed: changed,
                 completable: installationWizardCtrl.isCriticalConditionMet()
               });
             })
@@ -119,9 +120,10 @@ export class InstallationRouter extends RouterWrapper {
         try {
           installationWizardCtrl
             .setValue(req.body.value, "jwt_secret")
-            .then(success => {
+            .then(changed => {
               res.status(200).send({
-                success: success,
+                success: true,
+                changed: changed,
                 completable: installationWizardCtrl.isCriticalConditionMet()
               });
             })

@@ -18,7 +18,11 @@ export class PreventReinstallationGuard implements CanActivate {
     return this.http.get('/api/installation/status').pipe(
       map(res => res.json()),
       map(installed => {
-        if (installed === false) { return true } else { return false }
+        if (installed === false) { return true } else {
+          console.log("installation already done.")
+          this.router.navigate(["research"])
+          return false
+        }
       }),
       catchError(err => {
         console.log("installation already done.")
