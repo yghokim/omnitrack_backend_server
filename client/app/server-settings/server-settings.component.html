@@ -18,15 +18,11 @@
         <button mat-raised-button color="primary" (click)="onUploadClicked()">Upload</button>
       </div>
     </div>
-    <app-labeled-loading-indicator *ngIf="isLoadingBinaries===true">
-      <span message>Loading client information...</span>
-    </app-labeled-loading-indicator>
-
-      <mat-tab-group>
-        <mat-tab [label]="p" *ngFor="let p of supportedPlatforms">
-          <app-platform-config-panel [platform]="p"></app-platform-config-panel>
-        </mat-tab>
-      </mat-tab-group>
+    <mat-tab-group>
+      <mat-tab [label]="p" *ngFor="let p of supportedPlatforms">
+        <app-platform-config-panel [platform]="p"></app-platform-config-panel>
+      </mat-tab>
+    </mat-tab-group>
     <!--
     <mat-tab-group *ngIf="isLoadingBinaries!==true && binaryGroupList && binaryGroupList.length > 0" class="tab-group"
       (selectedTabChange)="onTabChanged($event)">
