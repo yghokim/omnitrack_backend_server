@@ -80,7 +80,7 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
   }
 
   private handleSummaryResult(result: any) {
-    this.superUsersComplete = result.flags.super_users && result.flags.super_users.length > 0;
+    this.superUsersComplete = result.flags.super_users || false;
     this.firebaseCertComplete = result.flags.firebase_cert || false;
     this.jwtTokenComplete = result.flags.jwt_secret || false;
     this.isInstallationCompletable = result.completable;
@@ -90,15 +90,19 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
   private jumpToTheFirstAvailableStep() {
     const flags = [
       this.superUsersComplete,
-      this.firebaseCertComplete,
-      this.jwtTokenComplete
+      this.jwtTokenComplete,
+      this.firebaseCertComplete
     ];
+
+    console.log(this);
     this.currentStepIndex = 0;
-    flags.forEach((f, i) => {
-      if (f === true) {
-        this.currentStepIndex++;
+    for (let i = 0; i < flags.length; i++) {
+      if (flags[i] === true) {
+        this.currentStepIndex = i + 1;
+      } else {
+        break;
       }
-    });
+    }
     console.log("next index: " + this.currentStepIndex);
   }
 
@@ -252,7 +256,9 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
         .subscribe(
           success => {
             if (success === true) {
-              this.router.navigate(["research/signup"], {queryParams: {presetEmail: this.superUsers[0]}});
+              this.router.navigate(["research/signup"], {
+                queryParams: { presetEmail: this.superUsers[0] }
+              });
             }
           },
           err => {},

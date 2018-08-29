@@ -10,13 +10,13 @@
     </div>
     <div class="card-body">
       <mat-vertical-stepper linear="false" [selectedIndex]="currentStepIndex" #installationStepper>
-        <mat-step label="Register super-users" [completed]="superUsersComplete===true" [editable]="superUsersComplete!==true">
+        <mat-step label="Register admin researchers" [completed]="superUsersComplete===true" [editable]="superUsersComplete!==true">
           <p>
-            Enter the E-mails of users who will be permitted the super-user previlage.
+            Enter the E-mails of users who will be permitted the administrator previlage.
           </p>
 
           <div class="super-user-container">
-            <div class="alert alert-secondary alert-sm" *ngIf="!superUsers || superUsers.length === 0">No super users are
+            <div class="alert alert-secondary alert-sm" *ngIf="!superUsers || superUsers.length === 0">No admin emails are
               set.</div>
             <ul *ngIf="superUsers && superUsers.length > 0" class="list list-inline">
               <li *ngFor="let user of superUsers">

@@ -6,9 +6,9 @@
   <div class="card card-main">
     <div class="card-header container-vertical-padding">
       <div class="flex-container flex-align-items-center flex-stretch">
-        <div>
-          <span>OmniTrack Client Apps</span>
-          <div class="description">Manages client executable files downloadable by people.</div>
+        <div class="header-left">
+          <span>Unlocked OmniTrack Apps for Researcher</span>
+          <div class="description">Manage the unlocked OmniTrack apps with a full functionality. <span class="text-color-danger">Do NOT share these clients with study participants.</span></div>
         </div>
         <button mat-raised-button color="primary" (click)="onUploadClicked()">Upload</button>
       </div>
@@ -29,9 +29,9 @@
   <div class="card card-main">
     <div class="card-header container-vertical-padding">
       <div class="flex-container flex-align-items-center flex-stretch">
-        <div>
+        <div class="header-left">
           <span>Certified Client Signatures</span>
-          <div class="description">Manages signature keys of certified client apps that are connectable to this server.</div>
+          <div class="description">Manage signature keys of certified client apps that are connectable to this server.</div>
         </div>
         <button mat-raised-button color="primary" (click)="onEditSignatureClicked(null)">Add</button>
       </div>
@@ -39,11 +39,8 @@
     <app-labeled-loading-indicator *ngIf="isLoadingSignatures===true">
       <span message>Loading signatures...</span>
     </app-labeled-loading-indicator>
-    <div class="card-body" *ngIf="isLoadingSignatures !== true && (!clientSignatures || clientSignatures.length == 0)">
-      <div class="alert alert-sm alert-danger no-margin-bottom" role="alert">
-        No clients are certified in this server. This means that no clients will be synchronized with this server. Upload a new signed
-        client executable or add signature manually.
-      </div>
+    <div class="card-footer small" *ngIf="isLoadingSignatures !== true && (!clientSignatures || clientSignatures.length == 0)">
+      No client signatures.
     </div>
 
     <table *ngIf="isLoadingSignatures !== true && clientSignatures && clientSignatures.length > 0" class="table table-data">
