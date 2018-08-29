@@ -33,7 +33,6 @@ export interface IClientBuildConfigBase<T> extends IMongooseDbEntity {
   sourceCode: { sourceType: string, data: any },
   packageName: string,
   appName: string,
-  repository: string,
   iconPath: string,
   disableExternalEntities: boolean,
   showTutorials: boolean,
@@ -51,6 +50,8 @@ export const APP_THIRD_PARTY_KEYSTORE_KEYS = [
   "MISFIT_APP_KEY", "MISFIT_APP_SECRET",
   "RESCUETIME_CLIENT_ID", "RESCUETIME_CLIENT_SECRET", "RESCUETIME_REDIRECT_URI",
   "JAWBONE_CLIENT_ID", "JAWBONE_CLIENT_SECRET", "JAWBONE_REDIRECT_URI"]
+
+export const ANDROID_PACKAGE_NAME_REGEX = /^([A-Za-z]{1}[A-Za-z\d_]*\.)*[A-Za-z][A-Za-z\d_]*$/
 
 export interface AndroidBuildCredentials {
   googleServices: any,

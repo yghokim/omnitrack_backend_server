@@ -9,6 +9,8 @@ import deepEqual from 'deep-equal';
 import { IClientBuildConfigBase, APP_THIRD_PARTY_KEYSTORE_KEYS } from '../../../../omnitrack/core/research/db-entity-types';
 import { MatDialog } from '@angular/material/dialog';
 import { YesNoDialogComponent } from '../../dialogs/yes-no-dialog/yes-no-dialog.component';
+import { validateBuildConfig } from '../../../../omnitrack/core/research/build-config-utils';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-platform-config-panel',
@@ -35,6 +37,8 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
 
   public isLoadingBinaries = true
   public binaries: Array<any>
+
+  public validationErrors: Array<{ key: string, message: string }>
 
   @Input("platform") set _platform(platform: string) {
     if (this.platform !== platform) {
@@ -74,7 +78,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  constructor(private api: ResearchApiService, public clientBuildService: ClientBuildService, private dialog: MatDialog) { }
+  constructor(private api: ResearchApiService, public clientBuildService: ClientBuildService, private dialog: MatDialog, private notificationService: NotificationService) { }
 
   ngOnInit() {
   }
@@ -124,7 +128,9 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
     this.isLoading = true
     this._internalSubscriptions.add(
       this.clientBuildService.initializePlatformDefault(this.platform).subscribe(
-
+        () => {
+          this.validateConfig()
+        }
       )
     )
   }
@@ -133,6 +139,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
     this.localFiles = {}
     this.changedConfig = deepclone(this.originalConfig)
     $('input[type="file"]').val('')
+    this.validateConfig()
   }
 
   onSaveClicked() {
@@ -140,7 +147,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(
       this.applyChanges().subscribe(
         () => {
-
+          this.validateConfig()
         },
         err => {
 
@@ -243,6 +250,23 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
     fileReader.readAsText(files[0])
   }
 
+  validateConfig(): boolean {
+    const errors = validateBuildConfig(this.originalConfig)
+    this.validationErrors = errors
+    return !errors || errors.length === 0
+  }
+
+  getValidationError(key: string): string {
+    if (this.validationErrors) {
+      const match = this.validationErrors.find(v => v.key === key)
+      if (match) {
+        return match.message
+      } else return null
+    } else {
+      return null
+    }
+  }
+
   onStartBuildClicked() {
     if (this.isBuilding === false) {
       this.isLoading = true
@@ -253,7 +277,13 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
             return this.applyChanges()
           } else { return of(null) }
         }).pipe(
-          flatMap(() => this.clientBuildService.startBuild(this.originalConfig))
+          flatMap(() => {
+            if (this.validateConfig() === true) {
+              return this.clientBuildService.startBuild(this.originalConfig)
+            } else {
+              throw { code: "ValidationFailed" }
+            }
+          })
         ).subscribe(
           () => {
             this.isBuilding = true
@@ -280,6 +310,12 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
                   })
                 ).subscribe(() => { }, () => { }, () => { this.isLoading = false })
               )
+            } else if (err.code === "ValidationFailed") {
+              console.log(this.validationErrors)
+              this.notificationService.pushSnackBarMessage({
+                message: "Configuration is not valid or incomplete."
+              })
+              this.isLoading = false
             }
           },
           () => {

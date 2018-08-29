@@ -1,7 +1,7 @@
 import { IClientBuildConfigBase, AndroidBuildCredentials, IClientBuildAction, IAndroidBuildConfig } from '../../../omnitrack/core/research/db-entity-types';
 import OTExperimentClientBuildConfigModel from '../../models/ot_experiment_client_build_config';
 import OTClientBuildAction from '../../models/ot_client_build_action';
-import { deepclone, isString, getExtensionFromPath, parseProperties, compareVersions, extractVersion } from '../../../shared_lib/utils';
+import { deepclone, isString, getExtensionFromPath, parseProperties, compareVersions, extractVersion, deferPromise } from '../../../shared_lib/utils';
 import { clientBinaryCtrl } from "./ot_client_binary_controller";
 import * as jsonHash from 'json-hash';
 import { checkFileExistenceAndType } from '../../server_utils';
@@ -18,6 +18,7 @@ import C from '.././../server_consts';
 import * as deepEqual from 'deep-equal';
 import * as randomstring from 'randomstring';
 import env from '../../env';
+import OTExperiment from '../../models/ot_experiment';
 
 export interface BuildResultInfo { sourceFolderPath: string, appBinaryPath: string, binaryFileName: string }
 
@@ -87,25 +88,50 @@ export default class OTClientBuildCtrl {
       })
   }
 
-  _initializeDefaultPlatformConfig(experimentId: string, platform: string): Promise<IClientBuildConfigBase<any>> {
+  _initializeDefaultPlatformConfig(platform: string, researcherEmail: string, experimentId?: string, ): Promise<IClientBuildConfigBase<any>> {
     if (platform !== "Android") {
       throw new Error("Unsupported platform.")
     }
 
-    const newModel = new OTExperimentClientBuildConfigModel({
-      experiment: experimentId,
-      platform: platform
-    })
+    const prefix = "io.github.omnitrack."
 
-    switch (platform.toLowerCase()) {
-      case "android":
-        newModel["credentials"] = {
-          googleServices: null
-        } as AndroidBuildCredentials
-        break;
-    }
+    return deferPromise(() => {
+      if (experimentId) {
+        return OTExperiment.findById(experimentId).select({
+          name: 1,
+          manager: 1
+        }).populate("manager", { email: 1 }).lean().then(doc => {
+          const expName = doc.name
+          const managerEmail = doc.manager.email
+          const emailParts = managerEmail.split('@')
+          const snakeCase = require('snake-case');
+          return prefix + snakeCase(emailParts[0]) + "." + snakeCase(expName)
+        })
+      } else {
+        const emailParts = researcherEmail.split('@')
+        const snakeCase = require('snake-case');
+        return Promise.resolve("io.github.omnitrack." + snakeCase(emailParts[0]))
+      }
+    }).then(
+      (fallbackPackageName) => {
 
-    return newModel.save().then(doc => doc.toJSON())
+        const newModel = new OTExperimentClientBuildConfigModel({
+          packageName: fallbackPackageName,
+          experiment: experimentId,
+          platform: platform
+        })
+
+        switch (platform.toLowerCase()) {
+          case "android":
+            newModel["credentials"] = {
+              googleServices: null
+            } as AndroidBuildCredentials
+            break;
+        }
+
+        return newModel.save().then(doc => doc.toJSON())
+      }
+    )
   }
 
   handleExperimentRemoval(experimentId: string): Promise<void> {
@@ -507,7 +533,7 @@ export default class OTClientBuildCtrl {
   initializeDefaultPlatformConfig = (req, res) => {
     const experimentId = req.params.experimentId
     const platform = req.body.platform
-    this._initializeDefaultPlatformConfig(experimentId, platform).then(
+    this._initializeDefaultPlatformConfig(platform, req.researcher.email, experimentId).then(
       buildConfig => {
         res.status(200).send(buildConfig)
       }).catch(

@@ -18,6 +18,8 @@ export class ConfigVariableRowComponent implements OnInit {
   @Input() variableName: string = null
   @Input() hintText: string = null
 
+  @Input() validationFailedMessage: string = null
+
   @Output() binaryFileChanged = new EventEmitter<File>()
 
   constructor() { }

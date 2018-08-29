@@ -36,7 +36,7 @@ mat-expansion-panel-header {
   min-height: 46px;
   justify-content: space-between;
   &:hover {
-    background: #fafafa;
+    background: rgba(0,0,0,0.07);
   }
   .label {
     color: #757575;

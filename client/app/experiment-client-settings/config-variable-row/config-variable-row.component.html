@@ -1,66 +1,72 @@
-<div class="config-row flex-container flex-align-items-center" *ngIf="variableName && config">
-  <div class="label">
-    <span>{{label}}</span>
-    <sup class="changed-mark" [style.visibility]="compareValues(originalValue, config[variableName])? 'hidden' : null">Edited</sup>
-  </div>
-  <ng-container [ngSwitch]="type">
-    <input *ngSwitchCase="'text'" type="text" class="text-type form-control" [placeholder]="hintText" [value]="config[variableName]==undefined? null : config[variableName]"
-      (input)="onTextChanged($event.target.value)">
-    <input *ngSwitchCase="'password'" type="password" class="text-type form-control" [placeholder]="hintText" [value]="config[variableName]==undefined? null : config[variableName]"
-      (input)="onTextChanged($event.target.value)">
-    <mat-slide-toggle *ngSwitchCase="'boolean'" [checked]="config[variableName]" (change)="config[variableName] = $event.checked"></mat-slide-toggle>
-    <div *ngSwitchCase="'jsonFile'" class="json-file-type flex-filler">
-      <div class="flex-container flex-align-items-center">
-        <button class="mat-button-small" *ngIf="config[variableName] && !compareValues(originalValue, config[variableName])" mat-button
-          (click)="rollback()">Discard change</button>
-        <div class="flex-filler"></div>
-        <div class="fileopen">
-          <label for="packageFileInput">
-            <small>Read from JSON File...</small>
-          </label>
-          <input id="packageFileInput" type="file" accept="application/json" (change)="onJsonFileChanged($event.target.files)">
+<div class="validation-container" [class.invalid]="validationFailedMessage">
+
+  <div class="config-row flex-container flex-align-items-center" *ngIf="variableName && config">
+    <div class="label">
+      <span>{{label}}</span>
+      <sup class="changed-mark" [style.visibility]="compareValues(originalValue, config[variableName])? 'hidden' : null">Edited</sup>
+    </div>
+    <ng-container [ngSwitch]="type">
+      <input *ngSwitchCase="'text'" type="text" class="text-type form-control"  [class.is-invalid]="validationFailedMessage!=null" [placeholder]="hintText" [value]="config[variableName]==undefined? null : config[variableName]"
+        (input)="onTextChanged($event.target.value)">
+      <input *ngSwitchCase="'password'" type="password" class="text-type form-control"  [class.is-invalid]="validationFailedMessage!=null" [placeholder]="hintText" [value]="config[variableName]==undefined? null : config[variableName]"
+        (input)="onTextChanged($event.target.value)">
+      <mat-slide-toggle *ngSwitchCase="'boolean'" [checked]="config[variableName]" (change)="config[variableName] = $event.checked"></mat-slide-toggle>
+      <div *ngSwitchCase="'jsonFile'" class="json-file-type flex-filler">
+        <div class="flex-container flex-align-items-center">
+          <button class="mat-button-small" *ngIf="config[variableName] && !compareValues(originalValue, config[variableName])" mat-button
+            (click)="rollback()">Discard change</button>
+          <div class="flex-filler"></div>
+          <div class="fileopen">
+            <label for="packageFileInput">
+              <small>Read from JSON File...</small>
+            </label>
+            <input id="packageFileInput" type="file" accept="application/json" (change)="onJsonFileChanged($event.target.files)">
+          </div>
+        </div>
+
+        <textarea class="form-control"  [class.is-invalid]="validationFailedMessage!=null" rows="5" *ngIf="config[variableName]" [disabled]="true">{{jsonObjToString(config[variableName])}}</textarea>
+      </div>
+
+      <div *ngSwitchCase="'jksFile'" class="jks-file-type flex-filler">
+        <div class="file-description small" *ngIf="originalValue">
+          <b>A kestore file is registered. original file hash:</b>
+          <span class="hash">
+            {{originalValue}}
+          </span>
+        </div>
+        <div class="flex-container flex-align-items-center">
+          <button class="mat-button-small" *ngIf="config[variableName] && !compareValues(originalValue, config[variableName])" mat-button
+            (click)="rollback()">Discard change</button>
+          <div class="flex-filler"></div>
+          <input class="text-right" id="android-keystore-input" type="file" accept=".jks" (change)="onAndroidKeystoreFileChanged($event.target.files)">
         </div>
       </div>
 
-      <textarea class="form-control" rows="5" *ngIf="config[variableName]" [disabled]="true">{{jsonObjToString(config[variableName])}}</textarea>
-    </div>
+      <div *ngSwitchCase="'sourceCode'" class="source-code-input">
+        <div class="flex-container">
+          <mat-form-field class="mat-form-no-vertical-padding">
+            <mat-select [value]="config[variableName]? config[variableName].sourceType : null" required="true" (selectionChange)="sourceCodeTypeChanged($event.value)">
+              <mat-option value="file">Upload source code as zip</mat-option>
+              <mat-option value="github">Github</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <ng-container [ngSwitch]="config[variableName].sourceType">
+            <input *ngSwitchCase="'file'" class="text-right" id="sourcecode-zip-input" type="file" accept=".zip" (change)="onSourceCodeZipFileChanged($event.target.files)">
+            <div class="github-container" *ngSwitchCase="'github'">
+              <mat-checkbox class="small" [checked]="config[variableName].data !=null ? config[variableName].data.useOfficial : false"
+                (change)="onSourceCodeUseOfficialChecked($event.checked)">Use the official repo</mat-checkbox>
+              <input *ngIf="config[variableName].data && config[variableName].data.useOfficial !== true" class="form-control" type="text"
+                placeholder="muclipse/omnitrack_android" [value]="(config[variableName].data || {'repository': ''}).repository || ''"
+                (input)="onSourceCodeRepositoryChanged($event.target.value)">
 
-    <div *ngSwitchCase="'jksFile'" class="jks-file-type flex-filler">
-      <div class="file-description small" *ngIf="originalValue">
-        <b>A kestore file is registered. original file hash:</b>
-        <span class="hash">
-          {{originalValue}}
-        </span>
+            </div>
+          </ng-container>
+        </div>
       </div>
-      <div class="flex-container flex-align-items-center">
-        <button class="mat-button-small" *ngIf="config[variableName] && !compareValues(originalValue, config[variableName])" mat-button
-          (click)="rollback()">Discard change</button>
-        <div class="flex-filler"></div>
-        <input class="text-right" id="android-keystore-input" type="file" accept=".jks" (change)="onAndroidKeystoreFileChanged($event.target.files)">
-      </div>
-    </div>
+    </ng-container>
+  </div>
+  <div class="invalid-message small text-color-danger">
+    {{validationFailedMessage}}
+  </div>
 
-    <div *ngSwitchCase="'sourceCode'" class="source-code-input">
-      <div class="flex-container">
-        <mat-form-field class="mat-form-no-vertical-padding">
-          <mat-select [value]="config[variableName]? config[variableName].sourceType : null" required="true" (selectionChange)="sourceCodeTypeChanged($event.value)">
-            <mat-option value="file">Upload source code as zip</mat-option>
-            <mat-option value="github">Github</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <ng-container [ngSwitch]="config[variableName].sourceType">
-          <input *ngSwitchCase="'file'" class="text-right" id="sourcecode-zip-input" type="file" accept=".zip" (change)="onSourceCodeZipFileChanged($event.target.files)">
-          <div class="github-container" *ngSwitchCase="'github'">
-            <mat-checkbox class="small" [checked]="config[variableName].data !=null ? config[variableName].data.useOfficial : false" (change)="onSourceCodeUseOfficialChecked($event.checked)">Use the official repo</mat-checkbox>
-            <input *ngIf="config[variableName].data && config[variableName].data.useOfficial !== true" class="form-control" type="text"
-              placeholder="muclipse/omnitrack_android"
-              [value] = "(config[variableName].data || {'repository': ''}).repository || ''"
-              (input) = "onSourceCodeRepositoryChanged($event.target.value)"
-              >
-
-          </div>
-        </ng-container>
-      </div>
-    </div>
-  </ng-container>
 </div>

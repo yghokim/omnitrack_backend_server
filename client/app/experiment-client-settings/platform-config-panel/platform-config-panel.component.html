@@ -43,12 +43,12 @@
               <app-config-variable-row label="App name" type="text" variableName="appName" hintText="Set app name to override 'OmniTrack'"
                 [config]="changedConfig" [originalValue]="originalConfig.appName"></app-config-variable-row>
 
-              <app-config-variable-row label="Package name" type="text" variableName="packageName" hintText="kr.ac.snu.hcil.omnitrack"
-                [config]="changedConfig" [originalValue]="originalConfig.packageName"></app-config-variable-row>
+              <app-config-variable-row label="Package name" type="text" variableName="packageName" hintText="An experiment-wise unique package address"
+                [config]="changedConfig" [originalValue]="originalConfig.packageName" [validationFailedMessage]="getValidationError('packageName')"></app-config-variable-row>
 
 
               <app-config-variable-row label="Source code" type="sourceCode" variableName="sourceCode" hintText="Source code for app compilation"
-                [config]="changedConfig" [originalValue]="originalConfig.sourceCode" (binaryFileChanged)="localFiles['sourceCodeZip_' + platform] = $event"></app-config-variable-row>
+                [config]="changedConfig" [originalValue]="originalConfig.sourceCode" (binaryFileChanged)="localFiles['sourceCodeZip_' + platform] = $event" [validationFailedMessage]="getValidationError('sourceCode')"></app-config-variable-row>
             </td>
           </tr>
           <tr>
@@ -83,20 +83,20 @@
               </th>
               <td class="main-settings-container">
                 <app-config-variable-row label="google-services.json" [originalValue]="originalConfig.credentials.googleServices" [config]="changedConfig.credentials"
-                  variableName="googleServices" type="jsonFile"></app-config-variable-row>
+                  variableName="googleServices" type="jsonFile" [validationFailedMessage]="getValidationError('credentials.googleServices')"></app-config-variable-row>
 
                 <app-config-variable-row label="Keystore file (.jks)" [originalValue]="originalConfig.credentials.keystoreFileHash" [config]="changedConfig.credentials"
-                  (binaryFileChanged)="localFiles.androidKeystore = $event" variableName="keystoreFileHash" type="jksFile"></app-config-variable-row>
+                  (binaryFileChanged)="localFiles.androidKeystore = $event" variableName="keystoreFileHash" type="jksFile" [validationFailedMessage]="getValidationError('credentials.keystoreFileHash')"></app-config-variable-row>
 
                 <app-config-variable-row label="Keystore password" [originalValue]="originalConfig.credentials.keystorePassword" [config]="changedConfig.credentials"
-                  hintText="Password for the keystore" variableName="keystorePassword" type="password"></app-config-variable-row>
+                  hintText="Password for the keystore" variableName="keystorePassword" type="password" [validationFailedMessage]="getValidationError('credentials.keystorePassword')"></app-config-variable-row>
 
                 <app-config-variable-row label="Keypair alias" [originalValue]="originalConfig.credentials.keystoreAlias" [config]="changedConfig.credentials"
-                  hintText="Alias of keypair to use" variableName="keystoreAlias" type="text"></app-config-variable-row>
+                  hintText="Alias of keypair to use" variableName="keystoreAlias" type="text" [validationFailedMessage]="getValidationError('credentials.kestoreAlias')"></app-config-variable-row>
 
 
                 <app-config-variable-row label="Keypair password" [originalValue]="originalConfig.credentials.keystoreKeyPassword" hintText="Password for the designated keypair"
-                  [config]="changedConfig.credentials" variableName="keystoreKeyPassword" type="password"></app-config-variable-row>
+                  [config]="changedConfig.credentials" variableName="keystoreKeyPassword" type="password" [validationFailedMessage]="getValidationError('credentials.keystorePairPassword')"></app-config-variable-row>
               </td>
             </tr>
           </ng-container>

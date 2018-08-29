@@ -1,7 +1,20 @@
-#sourcecode-zip-input{
+#sourcecode-zip-input {
   margin-left: 0.5rem;
 }
 
-.github-container{
+.github-container {
   margin-left: 1rem;
+}
+
+.validation-container {
+  &.invalid {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    background: #ffecec;
+    border-radius: 6px;
+  }
+
+  .invalid-message{
+    padding: 0.5rem;
+  }
 }

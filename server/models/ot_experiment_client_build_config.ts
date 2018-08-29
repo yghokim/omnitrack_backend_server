@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 
 const otExperimentClientBuildConfigSchema = new mongoose.Schema({
-  experiment: {type: String, ref: 'OTExperiment'},
+  experiment: {type: String, ref: 'OTExperiment', default: null},
   platform: {type: String, enum: ['Android', 'iOS'], required: true},
   packageName: {type: String, default: null},
   appName: {type: String, default: null},
@@ -14,7 +14,8 @@ const otExperimentClientBuildConfigSchema = new mongoose.Schema({
   hideTriggersTab: {type: Boolean, default: false},
   hideServicesTab: {type: Boolean, default: false},
   credentials: {type: mongoose.Schema.Types.Mixed, default: {}}, // dictionary
-  apiKeys: {type: [{key: String, value: String}], default: []}
+  apiKeys: {type: [{key: String, value: String}], default: []},
+  researcherMode: {type: Boolean, default: false}
 }, {timestamps: true});
 
 const OTExperimentClientBuildConfigModel = mongoose.model('OTExperimentClientBuildConfig', otExperimentClientBuildConfigSchema);
