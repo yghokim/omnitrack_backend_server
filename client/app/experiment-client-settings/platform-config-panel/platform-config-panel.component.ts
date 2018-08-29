@@ -21,6 +21,8 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
 
   private _internalSubscriptions = new Subscription()
 
+  public researcherMode: boolean = null
+
   public panelStep = 1
 
   public platform: string = null
@@ -63,7 +65,6 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
       this._internalSubscriptions.add(
         this.clientBuildService.latestBuildStatusOfPlatform(this.platform).subscribe(
           statusList => {
-            console.log(statusList)
             if (statusList.find(s => s.status === EClientBuildStatus.BUILDING)) {
               this.isBuilding = true
             } else {
@@ -81,12 +82,22 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
   constructor(private api: ResearchApiService, public clientBuildService: ClientBuildService, private dialog: MatDialog, private notificationService: NotificationService) { }
 
   ngOnInit() {
+    this._internalSubscriptions.add(
+      this.clientBuildService.isInitialized.subscribe(
+        initialized => {
+          if(initialized === true){
+            if(this.clientBuildService.researcherMode === true){
+              this.researcherMode = true
+            }else this.researcherMode = false
+          }
+        }
+      )
+    )
   }
 
   ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
   }
-
 
   onClosedPanel(index: number) {
     if (index === 0) {
@@ -99,7 +110,6 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(
       this.api.getClientBinaries(this.clientBuildService.currentExperimentId, this.platform).subscribe(
         binaryGroup => {
-          console.log(binaryGroup)
           if (binaryGroup != null && binaryGroup.length > 0) {
             const group = binaryGroup.find(g => g._id === this.platform)
             if (group) {
@@ -217,8 +227,6 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
       }
       this.selectedNewApiKey = null
       this.newApiKeyValue = null
-
-      console.log(this.changedConfig.apiKeys)
     }
   }
 

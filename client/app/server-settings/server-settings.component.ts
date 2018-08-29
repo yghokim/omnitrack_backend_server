@@ -9,35 +9,42 @@ import { NotificationService } from '../services/notification.service';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { IClientSignatureDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import { UpdateClientSignatureDialogComponent } from './update-client-signature-dialog/update-client-signature-dialog.component';
+import { ClientBuildService } from '../services/client-build.service';
 
 @Component({
   selector: 'app-server-settings',
   templateUrl: './server-settings.component.html',
-  styleUrls: ['./server-settings.component.scss']
+  styleUrls: ['./server-settings.component.scss'],
+  providers: [ClientBuildService]
 })
 export class ServerSettingsComponent implements OnInit, OnDestroy {
 
+  public readonly supportedPlatforms = ["Android"]
+
   private readonly internalSubscriptions = new Subscription()
-  selectedOperatingSystemIndex: number = 0
-  binaryGroupList: Array<{ _id: string, binaries: Array<any> }>
+
+  clientSignatures: Array<IClientSignatureDbEntity>
 
   myId: string
 
   researchers: Array<any>
-  clientSignatures: Array<IClientSignatureDbEntity>
 
   isLoadingSignatures: boolean = true
   isLoadingResearchers: boolean = true
-  isLoadingBinaries: boolean = true
 
   constructor(
     private auth: ResearcherAuthService,
     private api: ResearchApiService,
+    private clientBuildService: ClientBuildService,
     private notificationService: NotificationService,
     private dialog: MatDialog
   ) { }
 
   ngOnInit() {
+
+    this.clientBuildService.initializeResearcherMode();
+    this.clientBuildService.reloadBuildStatus();
+
     this.internalSubscriptions.add(
       this.auth.currentResearcher.subscribe(
         researcher => {
@@ -48,7 +55,6 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
     )
 
     this.reloadSignatures()
-    this.reloadClientBinaries()
     this.reloadResearchers()
   }
 
@@ -59,18 +65,6 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
         signatures => {
           this.clientSignatures = signatures
           this.isLoadingSignatures = false
-        }
-      )
-    )
-  }
-
-  private reloadClientBinaries() {
-    this.isLoadingBinaries = true
-    this.internalSubscriptions.add(
-      this.api.getClientBinaries(null).subscribe(
-        binaryGroups => {
-          this.binaryGroupList = binaryGroups
-          this.isLoadingBinaries = false
         }
       )
     )
@@ -117,7 +111,7 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
         )
       ).subscribe(
         result => {
-          this.reloadClientBinaries()
+          //this.reloadClientBinaries()
           console.log("upload client: " + result)
           if (result.signatureUpdated === true) {
             this.reloadSignatures()
@@ -140,19 +134,6 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
     )
   }
 
-  isEmpty(): boolean {
-    if (this.binaryGroupList) {
-      if (this.binaryGroupList[this.selectedOperatingSystemIndex]) {
-        if (this.binaryGroupList[this.selectedOperatingSystemIndex].binaries.length > 0) {
-          return false
-        }
-      }
-    }
-    return true
-  }
-
-  onTabChanged(event) {
-  }
 
   onRemoveSignatureClicked(signatureId: string) {
     this.internalSubscriptions.add(

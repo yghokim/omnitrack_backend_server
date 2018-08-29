@@ -59,8 +59,9 @@ exec("curl ifconfig.co", (err, stdout, stderr) => {
   if (err) {
     console.error(err);
   } else {
-    console.log("current server public ip: ", stdout);
-    app.set("publicIP", stdout);
+    const ip = String(stdout).trim()
+    console.log("current server public ip: ", ip);
+    app.set("publicIP", ip);
   }
 });
 

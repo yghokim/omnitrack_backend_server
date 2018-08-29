@@ -41,6 +41,7 @@ export interface IClientBuildConfigBase<T> extends IMongooseDbEntity {
   hideTriggersTab: boolean,
   hideServicesTab: boolean,
   credentials: T, // dictionary
+  researcherMode: boolean,
   apiKeys: Array<{ key: string, value: any }>
 }
 
@@ -64,7 +65,8 @@ export interface AndroidBuildCredentials {
 export interface IAndroidBuildConfig extends IClientBuildConfigBase<AndroidBuildCredentials> { }
 
 export interface IClientBuildAction extends IMongooseDbEntity {
-  experiment: string | IExperimentDbEntity,
+  experiment?: string | IExperimentDbEntity,
+  researcherMode?: boolean,
   config: string | IClientBuildConfigBase<any>,
   platform: string,
   configHash: string,

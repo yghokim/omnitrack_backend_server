@@ -62,7 +62,8 @@ export enum EClientBuildStatus{
 }
 
 export interface ClientBuildStatus{
-  experimentId: string,
+  experimentId?: string,
+  researcherMode?: boolean,
   jobId: any,
   platform: string,
   configId: string,

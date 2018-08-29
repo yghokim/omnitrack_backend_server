@@ -131,18 +131,22 @@ export class ResearchRouter extends RouterWrapper {
     this.router.delete('/experiments/:experimentId/groups/:groupId', tokenApprovedAuth, experimentCtrl.removeExperimentGroup)
     this.router.post('/experiments/:experimentId/groups/:groupId/delete', tokenApprovedAuth, experimentCtrl.removeExperimentGroup)
 
-    // client build
-    this.router.get('/experiments/:experimentId/client_build_configs', tokenApprovedAuth,
-      clientBuildCtrl.getClientBuildConfigsOfExperiment)
-    this.router.post('/experiments/:experimentId/client_build_configs', tokenApprovedAuth,
+    // client build ================================================================
+    this.router.get('/build/configs/all/:experimentId?', tokenApprovedAuth,
+      clientBuildCtrl.getClientBuildConfigs)
+    this.router.post('/build/configs', tokenApprovedAuth,
       clientBuildCtrl.updateClientBuildConfigs)
-    this.router.post('/experiments/:experimentId/client_build_configs/initialize', tokenApprovedAuth,
+    this.router.post('/build/configs/initialize', tokenApprovedAuth,
       clientBuildCtrl.initializeDefaultPlatformConfig)
 
-    this.router.post('/experiments/:experimentId/client_build_configs/build', tokenApprovedAuth, clientBuildCtrl.startBuild)
-    this.router.post('/experiments/:experimentId/client_build_configs/build/cancel', tokenApprovedAuth, clientBuildCtrl.cancelBuild)
-    this.router.get('/experiments/:experimentId/client_build_configs/build/status', tokenApprovedAuth,
+    this.router.post('/build/start', tokenApprovedAuth, clientBuildCtrl.startBuild)
+    this.router.post('/build/cancel', tokenApprovedAuth, clientBuildCtrl.cancelBuild)
+    this.router.get('/build/status', tokenApprovedAuth,
       clientBuildCtrl.getBuildStatus)
+
+
+
+    // ==============================================================================
 
     this.router.post('/users/notify/message', tokenApprovedAuth, this.researchCtrl.sendNotificationMessageToUser)
 

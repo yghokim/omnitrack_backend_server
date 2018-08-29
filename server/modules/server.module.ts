@@ -94,6 +94,7 @@ export default class ServerModule {
     this.agenda.on('start:' + C.TASK_BUILD_CLIENT_APP, (job) => {
       const statusBase: ClientBuildStatus = {
         experimentId: job.attrs.data.experimentId,
+        researcherMode: job.attrs.data.researcherMode,
         jobId: job.attrs._id,
         platform: job.attrs.data.platform,
         configId: job.attrs.data.configId,
@@ -104,6 +105,7 @@ export default class ServerModule {
 
       new OTClientBuildAction({
         experiment: job.attrs.data.experimentId,
+        researcherMode: job.attrs.data.researcherMode,
         platform: job.attrs.data.platform,
         config: job.attrs.data.configId,
         configHash: job.attrs.data.configHash,
@@ -121,6 +123,7 @@ export default class ServerModule {
     this.agenda.on('success:' + C.TASK_BUILD_CLIENT_APP, (job) => {
       const statusBase: ClientBuildStatus = {
         experimentId: job.attrs.data.experimentId,
+        researcherMode: job.attrs.data.researcherMode,
         jobId: job.attrs._id,
         platform: job.attrs.data.platform,
         configId: job.attrs.data.configId,
@@ -133,6 +136,7 @@ export default class ServerModule {
     this.agenda.on('fail:' + C.TASK_BUILD_CLIENT_APP, (err, job) => {
       const statusBase: ClientBuildStatus = {
         experimentId: job.attrs.data.experimentId,
+        researcherMode: job.attrs.data.researcherMode,
         jobId: job.attrs._id,
         platform: job.attrs.data.platform,
         configId: job.attrs.data.configId,
@@ -174,7 +178,7 @@ export default class ServerModule {
       const configId = job.attrs.data.configId
 
       console.log("start build app.")
-      if (!experimentId || !configId) {
+      if ((!experimentId && job.attrs.data.researcherMode===false) || !configId) {
         const err = new Error("did not provide proper arguments.")
         return done(err)
       }
@@ -285,10 +289,15 @@ export default class ServerModule {
   }
 
   startClientBuildAsync(configId: string, experimentId: string, platform: string, configHash: string): Promise<Job> {
-    return this.agenda.now(C.TASK_BUILD_CLIENT_APP, { configId: configId, experimentId: experimentId, platform: platform, configHash: configHash })
+    return this.agenda.now(C.TASK_BUILD_CLIENT_APP, { configId: configId, experimentId: experimentId, researcherMode: experimentId? false: true, platform: platform, configHash: configHash })
   }
 
   cancelAllBuildJobsOfPlatform(experimentId: string, platform: string): Promise<number> {
-    return this.agenda.cancel({ name: C.TASK_BUILD_CLIENT_APP, "data.experimentId": experimentId, "data.platform": platform })
+    const value = { name: C.TASK_BUILD_CLIENT_APP, "data.platform": platform }
+    if(experimentId != null){
+      value["data.experimentId"] = experimentId
+    }else value["data.researcherMode"] = true
+
+      return this.agenda.cancel(value)
   }
 }

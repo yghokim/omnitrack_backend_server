@@ -3,7 +3,8 @@ import * as mongoose from 'mongoose';
 const otClientBuildActionSchema = new mongoose.Schema({
   jobId: {type: String, index: true},
   pid: {type: Number, default: null},
-  experiment: {type: String, ref: 'OTExperiment'},
+  experiment: {type: String, ref: 'OTExperiment', default: null},
+  researcherMode: {type: Boolean, default: false},
   config: {type: String, ref: 'OTExperimentClientBuildConfig'},
   platform: {type: String, enum: ['Android', 'iOS'], required: true, index: true},
   configHash: {type: String, required: true, index: true},

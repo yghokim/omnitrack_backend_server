@@ -1,5 +1,5 @@
 import { IClientBuildConfigBase, AndroidBuildCredentials, IClientBuildAction, IAndroidBuildConfig } from '../../../omnitrack/core/research/db-entity-types';
-import OTExperimentClientBuildConfigModel from '../../models/ot_experiment_client_build_config';
+import OTClientBuildConfigModel from '../../models/ot_client_build_config';
 import OTClientBuildAction from '../../models/ot_client_build_action';
 import { deepclone, isString, getExtensionFromPath, parseProperties, compareVersions, extractVersion, deferPromise } from '../../../shared_lib/utils';
 import { clientBinaryCtrl } from "./ot_client_binary_controller";
@@ -14,7 +14,6 @@ import { app } from '../../app';
 import { spawn } from 'child_process';
 import appWrapper from '../../app';
 import { ClientBuildStatus, EClientBuildStatus } from '../../../omnitrack/core/research/socket';
-import C from '.././../server_consts';
 import * as deepEqual from 'deep-equal';
 import * as randomstring from 'randomstring';
 import env from '../../env';
@@ -29,8 +28,12 @@ export interface SourceFolderInfo {
 
 export default class OTClientBuildCtrl {
 
+  private getExperimentIdFromConfig(buildConfig: any): string{
+    return buildConfig.researcherMode !== true? (isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id) : null
+  }
+
   private _makeExperimentConfigDirectoryPath(experimentId: string, absolute: boolean = false): string {
-    const rel = "storage/experiments/client_configs/" + experimentId
+    const rel = experimentId? "storage/experiments/client_configs/" + experimentId : "storage/super/client_configs"
     if (absolute === true) {
       return path.join(__dirname, "../../../../../", rel)
     } else { return rel }
@@ -49,7 +52,7 @@ export default class OTClientBuildCtrl {
             cb(null, dirPath)
           }
         ).catch(err => {
-          console.log(err)
+          console.error(err)
           cb(err, null)
         })
       },
@@ -75,14 +78,16 @@ export default class OTClientBuildCtrl {
     return {
       configId: isString(buildAction.config) === true ? buildAction.config : (buildAction.config as any)._id,
       platform: buildAction.platform,
-      experimentId: isString(buildAction.experiment) === true ? buildAction.experiment : (buildAction.experiment as any)._id,
+      researcherMode: buildAction.researcherMode,
+      experimentId: this.getExperimentIdFromConfig(buildAction),
       status: buildAction.finishedAt == null ? EClientBuildStatus.BUILDING : buildAction.result,
       error: buildAction.result === EClientBuildStatus.FAILED ? buildAction.lastError : null
     } as ClientBuildStatus
   }
 
-  _getClientBuildConfigsOfExperiment(experimentId: string): Promise<Array<IClientBuildConfigBase<any>>> {
-    return OTExperimentClientBuildConfigModel.find({ experiment: experimentId })
+  _getClientBuildConfigs(experimentId: string): Promise<Array<IClientBuildConfigBase<any>>> {
+    
+    return OTClientBuildConfigModel.find( experimentId != null? { experiment: experimentId } : { researcherMode: true })
       .lean().then(documents => {
         return documents.map(d => d)
       })
@@ -115,11 +120,21 @@ export default class OTClientBuildCtrl {
     }).then(
       (fallbackPackageName) => {
 
-        const newModel = new OTExperimentClientBuildConfigModel({
+        const newModel = new OTClientBuildConfigModel({
           packageName: fallbackPackageName,
           experiment: experimentId,
+          researcherMode: experimentId!=null? false: true,
           platform: platform
         })
+
+        if(experimentId!=null){
+          //experiment mode
+          newModel["disableExternalEntities"] = true
+        }
+        else{
+          //researcher mode
+          newModel["disableExternalEntities"] = false
+        }
 
         switch (platform.toLowerCase()) {
           case "android":
@@ -163,7 +178,7 @@ export default class OTClientBuildCtrl {
     // extract source code
     if (buildConfig.sourceCode) {
       return new Promise((resolve, reject) => {
-        const experimentId = isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id
+        const experimentId = this.getExperimentIdFromConfig(buildConfig)
         const configFileDir = this._makeExperimentConfigDirectoryPath(experimentId, false)
         if (buildConfig.sourceCode.sourceType === 'file') {
           const zipPath = path.join(configFileDir, "sourceCodeZip_" + buildConfig.platform + ".zip")
@@ -258,7 +273,7 @@ export default class OTClientBuildCtrl {
     const versionPropPath = path.join(sourceFolderPath, "version.properties")
     return Promise.all([
       fs.readFile(versionPropPath, 'utf8').then(propString => parseProperties(propString)),
-      clientBinaryCtrl._getLatestVersionInfoForExperiment(isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id, buildConfig.platform)
+      clientBinaryCtrl._getLatestVersionInfoForExperiment(this.getExperimentIdFromConfig(buildConfig), buildConfig.platform)
     ]).then(
       result => {
         const versionProperties = result[0]
@@ -296,7 +311,7 @@ export default class OTClientBuildCtrl {
 
       const serverIP = env.force_private_ip === true ? app.get("privateIP") : app.get("publicIP")
       const port = 3000
-      const experimentId = isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id
+      const experimentId = this.getExperimentIdFromConfig(buildConfig)
       const sourceConfigJson = {
         synchronizationServerUrl: "http://" + serverIP + ":" + port,
         mediaStorageUrl: "http://" + serverIP + ":" + port,
@@ -356,17 +371,23 @@ export default class OTClientBuildCtrl {
       console.log("start building the android app")
       const os = require('os')
       let arg0: string
+      let arg1: Array<string> 
+      
+      const buildArgs = ['assembleMinApi19Release', '--stacktrace', '--no-daemon', "-Dorg.gradle.jvmargs=-Xmx1280M -XX:MaxPermSize=256M"]
+
       switch (os.type()) {
         case 'Linux':
         case 'Darwin':
           arg0 = './gradlew'
+          arg1 = buildArgs
           break;
         case 'Windows_NT':
-          arg0 = 'gradlew'
+          arg0 = 'cmd',
+          arg1 = ["/c", "gradlew.bat"].concat(buildArgs)
           break;
       }
 
-      const command = spawn(arg0, ['assembleMinApi19Release', '--stacktrace', '--no-daemon', "-Dorg.gradle.jvmargs=-Xmx1280M -XX:MaxPermSize=256M"], { cwd: sourceFolderPath, env: process.env, stdio: ['ignore', process.stdout, 'pipe'] })
+      const command = spawn(arg0, arg1, { cwd: sourceFolderPath, env: process.env, stdio: ['ignore', process.stdout, 'pipe'] })
 
       /*
       command.stdout.on('data', (data) => {
@@ -425,7 +446,7 @@ export default class OTClientBuildCtrl {
 
       command.stderr.on('data', (data) => {
         lastErrorString = data.toString()
-        console.log("StdError:::", lastErrorString)
+        console.error("StdError:::", lastErrorString)
       })
       command.on('exit', (code, signal) => {
         if (code === 0) {
@@ -439,10 +460,9 @@ export default class OTClientBuildCtrl {
     })
   }
 
-  _build(configId: string, experimentId: string): Promise<BuildResultInfo> {
-    return OTExperimentClientBuildConfigModel.findOne({
-      _id: configId,
-      experiment: experimentId
+  _build(configId: string, experimentId?: string): Promise<BuildResultInfo> {
+    return OTClientBuildConfigModel.findOne({
+      _id: configId
     }).lean().then(buildConfig =>
       this.prepareSourceCodeInFolder(buildConfig)
         .then(result => {
@@ -486,13 +506,14 @@ export default class OTClientBuildCtrl {
   }
 
   _cancelBuild(configId: string): Promise<boolean> {
-    return OTExperimentClientBuildConfigModel.findOne({ _id: configId }, "_id experiment platform").lean().then(
+    return OTClientBuildConfigModel.findOne({ _id: configId }, "_id experiment researcherMode platform").lean().then(
       old => {
         console.log(old)
         if (old != null) {
           return appWrapper.serverModule().cancelAllBuildJobsOfPlatform(old.experiment, old.platform).then(numCanceled => {
             return OTClientBuildAction.update({
               experiment: old.experiment,
+              researcherMode: old.researcherMode,
               platform: old.platform,
               finishedAt: null
             }, {
@@ -512,7 +533,12 @@ export default class OTClientBuildCtrl {
     const query: any = { finishedAt: null }
     if (experimentId) {
       query.experiment = experimentId
+    }else{
+      query.researcherMode = true
     }
+
+    console.log("buildActionQuery:")
+    console.log(query)
 
     return OTClientBuildAction.find(query).lean().then(
       actions => {
@@ -531,7 +557,7 @@ export default class OTClientBuildCtrl {
   }
 
   initializeDefaultPlatformConfig = (req, res) => {
-    const experimentId = req.params.experimentId
+    const experimentId = req.body.experimentId
     const platform = req.body.platform
     this._initializeDefaultPlatformConfig(platform, req.researcher.email, experimentId).then(
       buildConfig => {
@@ -543,9 +569,9 @@ export default class OTClientBuildCtrl {
         })
   }
 
-  getClientBuildConfigsOfExperiment = (req, res) => {
+  getClientBuildConfigs = (req, res) => {
     const experimentId = req.params.experimentId
-    this._getClientBuildConfigsOfExperiment(experimentId)
+    this._getClientBuildConfigs(experimentId)
       .then(
         list => {
           res.status(200).send(list)
@@ -558,7 +584,7 @@ export default class OTClientBuildCtrl {
 
   updateClientBuildConfigs = (req, res) => {
 
-    const getForm = multer({ storage: this._makeStorage(req.params.experimentId) }).fields([
+    const getForm = multer({ storage: this._makeStorage(req.body.experimentId) }).fields([
       { name: "config", maxCount: 1 },
       { name: "androidKeystore", maxCount: 1 },
       { name: "sourceCodeZip_Android", maxCount: 1 },
@@ -568,7 +594,7 @@ export default class OTClientBuildCtrl {
 
     getForm(req, res, err => {
       if (err) {
-        console.log(err)
+        console.error(err)
         res.status(500).send(err)
         return
       }
@@ -579,10 +605,9 @@ export default class OTClientBuildCtrl {
       delete update.createdAt
       delete update.updatedAt
 
-      OTExperimentClientBuildConfigModel.findOneAndUpdate(
+      OTClientBuildConfigModel.findOneAndUpdate(
         {
-          _id: configId,
-          experiment: req.params.experimentId
+          _id: configId
         },
         update,
         { new: true }
@@ -591,14 +616,14 @@ export default class OTClientBuildCtrl {
           res.status(200).send(newDoc)
         }
       ).catch(updateError => {
-        console.log(updateError)
+        console.error(updateError)
         res.status(500).send(updateError)
       })
     })
   }
 
   startBuild = (req, res) => {
-    OTExperimentClientBuildConfigModel.findOne({ _id: req.body.configId }).lean().then(buildConfig => {
+    OTClientBuildConfigModel.findOne({ _id: req.body.configId }).lean().then(buildConfig => {
       if (buildConfig) {
         const hash = this._makeConfigHash(buildConfig)
         if (req.body.force === true) {
@@ -629,7 +654,7 @@ export default class OTClientBuildCtrl {
         }
       }
     ).catch(err => {
-      console.log(err)
+      console.error(err)
       res.status(500).send(err)
     })
   }
@@ -644,7 +669,7 @@ export default class OTClientBuildCtrl {
   }
 
   getBuildStatus = (req, res) => {
-    const experimentId = req.params.experimentId
+    const experimentId = req.query.experimentId
     this._getOngoingBuildJobs(experimentId).then(
       statusList => {
         res.status(200).send(statusList)

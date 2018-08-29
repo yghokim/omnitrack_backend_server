@@ -11,6 +11,7 @@ import { SocketService } from './socket.service';
 @Injectable()
 export class ClientBuildService extends ServiceBase {
 
+  private _researcherMode: boolean = false
   private _currentExperimentId: string
 
   private _buildConfigBehaviorSubject = new BehaviorSubject<Array<IClientBuildConfigBase<any>>>(null)
@@ -22,14 +23,18 @@ export class ClientBuildService extends ServiceBase {
     return this._buildConfigBehaviorSubject.value
   }
 
-  private _buildStatusBehaviorSubject = new BehaviorSubject<Array<ClientBuildStatus>>(null)
+  public get researcherMode(): boolean { return this._researcherMode }
+
+  private readonly _initializedSubject = new BehaviorSubject<boolean>(false)
+  public get isInitialized(): Observable<boolean> { return this._initializedSubject }
+
+  private readonly _buildStatusBehaviorSubject = new BehaviorSubject<Array<ClientBuildStatus>>(null)
   public get buildStatusSubject(): Observable<Array<ClientBuildStatus>> {
     return this._buildStatusBehaviorSubject.pipe(filter(l => l != null))
   }
 
   private readonly socketListener = (data: ClientBuildStatus) => {
-    console.log(data)
-    if (data.experimentId === this._currentExperimentId) {
+    if ((this.researcherMode === false && data.experimentId === this._currentExperimentId ) || (this.researcherMode === true && data.researcherMode === true)) {
       if (this._buildStatusBehaviorSubject.value) {
         const arr = this._buildStatusBehaviorSubject.value.slice()
         const matchIndex = arr.findIndex(e => e.configId === data.configId)
@@ -61,17 +66,27 @@ export class ClientBuildService extends ServiceBase {
     this.socketService.socket.off(SocketConstants.SOCKET_MESSAGE_CLIENT_BUILD_STATUS, this.socketListener)
   }
 
-  initialize(experimentId: string) {
+  initializeExperimentMode(experimentId: string) {
     if (this._currentExperimentId !== experimentId) {
       this._currentExperimentId = experimentId
       this._buildConfigBehaviorSubject.next(null)
       this.reloadBuildConfigs()
+      this._initializedSubject.next(true)
+    }
+  }
+
+  initializeResearcherMode(){
+    if (this._researcherMode === false) {
+      this._researcherMode = true
+      this._buildConfigBehaviorSubject.next(null)
+      this.reloadBuildConfigs()
+      this._initializedSubject.next(true)
     }
   }
 
   reloadBuildConfigs() {
     this._internalSubscriptions.add(
-      this.http.get("/api/research/experiments/" + this._currentExperimentId + "/client_build_configs", this.api.authorizedOptions).pipe(map(res => res.json())).subscribe(
+      this.http.get("/api/research/build/configs/all" + (this.researcherMode === true? "" : ("/"+this._currentExperimentId)), this.api.authorizedOptions).pipe(map(res => res.json())).subscribe(
         result => {
           this._buildConfigBehaviorSubject.next(result)
         },
@@ -84,7 +99,9 @@ export class ClientBuildService extends ServiceBase {
 
   reloadBuildStatus() {
     this._internalSubscriptions.add(
-      this.http.get("/api/research/experiments/" + this._currentExperimentId + "/client_build_configs/build/status", this.api.authorizedOptions).pipe(map(res => res.json())).subscribe(
+      this.http.get("/api/research/build/status", 
+      this.researcherMode === true? this.api.authorizedOptions : this.api.makeAuthorizedRequestOptions({experimentId: this._currentExperimentId})
+    ).pipe(map(res => res.json())).subscribe(
         result => {
           this._buildStatusBehaviorSubject.next(result)
         },
@@ -109,7 +126,10 @@ export class ClientBuildService extends ServiceBase {
   }
 
   initializePlatformDefault(platform: string): Observable<IClientBuildConfigBase<any>> {
-    return this.http.post("/api/research/experiments/" + this._currentExperimentId + "/client_build_configs/initialize", { platform: platform }, this.api.authorizedOptions).pipe(map(res => res.json()), tap(newConfig => {
+    return this.http.post("/api/research/build/configs/initialize", { 
+      platform: platform,
+      experimentId: (this.researcherMode === true? null : this._currentExperimentId)
+    }, this.api.authorizedOptions).pipe(map(res => res.json()), tap(newConfig => {
       const newArray = this.clientBuildConfigs.slice()
       const matchIndex = newArray.findIndex(c => c.platform === platform)
       if (matchIndex !== -1) {
@@ -136,7 +156,7 @@ export class ClientBuildService extends ServiceBase {
       body = { config: config }
     }
 
-    return this.http.post("/api/research/experiments/" + this._currentExperimentId + "/client_build_configs", body, this.api.authorizedOptions).pipe(
+    return this.http.post("/api/research/build/configs", body, this.api.authorizedOptions).pipe(
       map(res => res.json()),
       tap(uploadedConfig => {
         this.replaceNewConfigWithId(uploadedConfig)
@@ -145,7 +165,10 @@ export class ClientBuildService extends ServiceBase {
   }
 
   startBuild(config: IClientBuildConfigBase<any>, force: boolean = false): Observable<boolean> {
-    return this.http.post("/api/research/experiments/" + this._currentExperimentId + "/client_build_configs/build", { configId: config._id, force: force }, this.api.authorizedOptions).pipe(
+    return this.http.post("/api/research/build/start", { 
+      configId: config._id, 
+      force: force
+    }, this.api.authorizedOptions).pipe(
       map(res => res.json()),
       catchError(err => { throw err.json() }),
       tap((buildSuccess)=>{
@@ -157,7 +180,9 @@ export class ClientBuildService extends ServiceBase {
   }
 
   cancelBuild(config: IClientBuildConfigBase<any>): Observable<string> {
-    return this.http.post("/api/research/experiments/" + this._currentExperimentId + "/client_build_configs/build/cancel", { configId: config._id }, this.api.authorizedOptions).pipe(
+    return this.http.post("/api/research/build/cancel", { 
+      configId: config._id
+    }, this.api.authorizedOptions).pipe(
       map(res => res.json()),
       tap(applied => {
         if (applied === true) {

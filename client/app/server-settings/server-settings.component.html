@@ -1,3 +1,5 @@
+<input type="text" style="display:none">
+<input type="password" style="display:none">
 <div class="container">
   <h1 class="global-page-title">
     Server Settings
@@ -8,7 +10,10 @@
       <div class="flex-container flex-align-items-center flex-stretch">
         <div class="header-left">
           <span>Unlocked OmniTrack Apps for Researcher</span>
-          <div class="description">Manage the unlocked OmniTrack apps with a full functionality. <span class="text-color-danger">Do NOT share these clients with study participants.</span></div>
+          <div class="description">
+            <span>Manage the unlocked OmniTrack apps with a full functionality.</span>
+            <span class="text-color-danger">Do NOT share these clients with study participants.</span>
+          </div>
         </div>
         <button mat-raised-button color="primary" (click)="onUploadClicked()">Upload</button>
       </div>
@@ -16,14 +21,22 @@
     <app-labeled-loading-indicator *ngIf="isLoadingBinaries===true">
       <span message>Loading client information...</span>
     </app-labeled-loading-indicator>
-    <mat-tab-group *ngIf="isLoadingBinaries!==true && binaryGroupList && binaryGroupList.length > 0" class="tab-group" (selectedTabChange)="onTabChanged($event)">
+
+      <mat-tab-group>
+        <mat-tab [label]="p" *ngFor="let p of supportedPlatforms">
+          <app-platform-config-panel [platform]="p"></app-platform-config-panel>
+        </mat-tab>
+      </mat-tab-group>
+    <!--
+    <mat-tab-group *ngIf="isLoadingBinaries!==true && binaryGroupList && binaryGroupList.length > 0" class="tab-group"
+      (selectedTabChange)="onTabChanged($event)">
       <mat-tab *ngFor="let binaryGroup of binaryGroupList; trackBy: matchBinaryGroup" [label]="binaryGroup._id">
         <app-client-binary-list [binaries]="binaryGroup.binaries"></app-client-binary-list>
       </mat-tab>
     </mat-tab-group>
     <div class="card-footer small" *ngIf="isEmpty()===true">
       No app files are uploaded.
-    </div>
+    </div>-->
   </div>
 
   <div class="card card-main">

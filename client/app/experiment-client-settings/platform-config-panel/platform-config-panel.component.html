@@ -40,7 +40,7 @@
               Basic App Info
             </th>
             <td class="main-settings-container">
-              <app-config-variable-row label="App name" type="text" variableName="appName" hintText="Set app name to override 'OmniTrack'"
+              <app-config-variable-row *ngIf="researcherMode === false" label="App name" type="text" variableName="appName" hintText="Set app name to override 'OmniTrack'"
                 [config]="changedConfig" [originalValue]="originalConfig.appName"></app-config-variable-row>
 
               <app-config-variable-row label="Package name" type="text" variableName="packageName" hintText="An experiment-wise unique package address"
@@ -51,13 +51,14 @@
                 [config]="changedConfig" [originalValue]="originalConfig.sourceCode" (binaryFileChanged)="localFiles['sourceCodeZip_' + platform] = $event" [validationFailedMessage]="getValidationError('sourceCode')"></app-config-variable-row>
             </td>
           </tr>
-          <tr>
+          <tr *ngIf="researcherMode === false">
             <th class="main-settings-header">
               Functionality Locks
             </th>
             <td class="main-settings-container">
+              <!--
               <app-config-variable-row label="Hide the external entities" type="boolean" variableName="disableExternalEntities" hintText="Disable using or adding trackers that are not assigned to this experiment."
-                [config]="changedConfig" [originalValue]="originalConfig.disableExternalEntities"></app-config-variable-row>
+                [config]="changedConfig" [originalValue]="originalConfig.disableExternalEntities"></app-config-variable-row>-->
 
               <app-config-variable-row label="Disable tracker creation" type="boolean" variableName="disableTrackerCreation" hintText="Disable participants to create their own trackers."
                 [config]="changedConfig" [originalValue]="originalConfig.disableTrackerCreation"></app-config-variable-row>

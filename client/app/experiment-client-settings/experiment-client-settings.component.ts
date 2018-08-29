@@ -1,30 +1,26 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { ClientBuildService } from '../services/client-build.service';
-import { ResearchApiService } from '../services/research-api.service';
+import { Component, OnInit } from "@angular/core";
+import { ClientBuildService } from "../services/client-build.service";
+import { ResearchApiService } from "../services/research-api.service";
 
 @Component({
-  selector: 'app-experiment-client-settings',
-  templateUrl: './experiment-client-settings.component.html',
-  styleUrls: ['./experiment-client-settings.component.scss'],
+  selector: "app-experiment-client-settings",
+  templateUrl: "./experiment-client-settings.component.html",
+  styleUrls: ["./experiment-client-settings.component.scss"],
   providers: [ClientBuildService]
 })
-export class ExperimentClientSettingsComponent implements OnInit, OnDestroy {
+export class ExperimentClientSettingsComponent implements OnInit {
 
-  private _internalSubscriptions = new Subscription()
+  public supportedPlatforms = ["Android"];
 
-  public supportedPlatforms = ["Android"]
-
-  constructor(private api: ResearchApiService, private clientBuildService: ClientBuildService) {
-
-  }
+  constructor(
+    private api: ResearchApiService,
+    private clientBuildService: ClientBuildService
+  ) {}
 
   ngOnInit() {
-    this.clientBuildService.initialize(this.api.getSelectedExperimentId())
-    this.clientBuildService.reloadBuildStatus()
-  }
-
-  ngOnDestroy() {
-    this._internalSubscriptions.unsubscribe()
+    if (this.api.getSelectedExperimentId() != null) {
+      this.clientBuildService.initializeExperimentMode(this.api.getSelectedExperimentId());
+      this.clientBuildService.reloadBuildStatus();
+    }
   }
 }
