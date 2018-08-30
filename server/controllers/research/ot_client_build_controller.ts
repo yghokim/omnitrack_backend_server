@@ -122,7 +122,7 @@ export default class OTClientBuildCtrl {
       else{
         return new Promise<string>((resolve, reject)=>{  
           const exec = require("child_process").exec;
-          exec('keytool -list -keystore "' + keystoreFileLocation + '" -storepass ' + buildConfig.credentials.keystorePassword + " -alias " + buildConfig.credentials.keystoreAlias , (err, stdout, stderr) => {
+          exec('keytool -list -v -keystore "' + keystoreFileLocation + '" -storepass ' + buildConfig.credentials.keystorePassword + " -alias " + buildConfig.credentials.keystoreAlias , (err, stdout, stderr) => {
             if (err) {
               console.error(err);
               reject({
@@ -131,9 +131,8 @@ export default class OTClientBuildCtrl {
             } else {
               const regex = /\s([0-9A-F]{2}(:[0-9A-F]{2}){19})\s/g
               const matches = regex.exec(stdout)
-              if (matches.length > 1) {
-                console.log(matches[1])
-                resolve(matches[1])
+              if (matches && matches.length > 1) {
+                resolve(matches[1].trim())
               } else {
                 console.error(stderr)
                 reject({code: "KeystoreError", message: "Wrong keytool information. Check your alias and passwords."})
