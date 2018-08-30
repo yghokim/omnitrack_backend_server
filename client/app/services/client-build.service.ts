@@ -164,6 +164,18 @@ export class ClientBuildService extends ServiceBase {
     )
   }
 
+  validateSignature(config: IClientBuildConfigBase<any>): Observable<string>{
+    return this.http.get("/api/research/build/configs/" + config._id + "/validate_signature", this.api.authorizedOptions).pipe(
+      tap(res => {
+        console.log(res)
+      }),
+      map(res => res.text()),
+      catchError(err => {
+        throw err.json()
+      })
+    )
+  }
+
   startBuild(config: IClientBuildConfigBase<any>, force: boolean = false): Observable<boolean> {
     return this.http.post("/api/research/build/start", { 
       configId: config._id, 

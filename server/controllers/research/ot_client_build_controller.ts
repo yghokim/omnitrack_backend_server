@@ -93,6 +93,60 @@ export default class OTClientBuildCtrl {
       })
   }
 
+  _validateAndGetSignatureFromJavaKeystore(configId: string, payloadBuildConfig?: IAndroidBuildConfig): Promise<string>{
+    return deferPromise(() => {
+      if(payloadBuildConfig){
+        return Promise.resolve(payloadBuildConfig)
+      }else{
+        return OTClientBuildConfigModel.findById(configId).select({_id: 1, credentials: 1, experiment: 1, researcherMode: 1}).lean().then(doc=>doc as IAndroidBuildConfig)
+      }
+    }).then(buildConfig => {
+      const keystoreFileLocation = path.join(this._makeExperimentConfigDirectoryPath(this.getExperimentIdFromConfig(buildConfig), true), "androidKeystore.jks")
+      console.log("check keystore file in ", keystoreFileLocation)
+      const fileExists = checkFileExistenceAndType(keystoreFileLocation) != null
+      const keystorePasswordExists = buildConfig.credentials.keystorePassword != null
+      const keystoreKeyPasswordExists = buildConfig.credentials.keystoreKeyPassword != null
+      const keystoreAliasExists = buildConfig.credentials.keystoreAlias != null
+      if(fileExists === false || keystorePasswordExists === false || keystoreKeyPasswordExists === false || keystoreAliasExists === false){
+        return Promise.reject({
+          code: "IncompleteKeystoreInformation",
+          message: "Please complete all the fields for keystore.",
+          existence: {
+            keystoreFile: fileExists,
+            keystorePassword: keystorePasswordExists,
+            keystoreKeyPassword: keystoreKeyPasswordExists,
+            keystoreAlias: keystoreAliasExists
+          }
+        })
+      }
+      else{
+        return new Promise<string>((resolve, reject)=>{  
+          const exec = require("child_process").exec;
+          exec('keytool -list -keystore "' + keystoreFileLocation + '" -storepass ' + buildConfig.credentials.keystorePassword + " -alias " + buildConfig.credentials.keystoreAlias , (err, stdout, stderr) => {
+            if (err) {
+              console.error(err);
+              reject({
+                code: "KeystoreError", message: "Wrong keytool information. Check your alias and passwords."
+              })
+            } else {
+              const regex = /\s([0-9A-F]{2}(:[0-9A-F]{2}){19})\s/g
+              const matches = regex.exec(stdout)
+              if (matches.length > 1) {
+                console.log(matches[1])
+                resolve(matches[1])
+              } else {
+                console.error(stderr)
+                reject({code: "KeystoreError", message: "Wrong keytool information. Check your alias and passwords."})
+              }
+            }
+          });
+        })
+      }
+    })
+    
+    
+  }
+
   _initializeDefaultPlatformConfig(platform: string, researcherEmail: string, experimentId?: string, ): Promise<IClientBuildConfigBase<any>> {
     if (platform !== "Android") {
       throw new Error("Unsupported platform.")
@@ -677,6 +731,15 @@ export default class OTClientBuildCtrl {
     ).catch(err => {
       console.error(err)
       res.status(500).send(err)
+    })
+  }
+
+  validateAndGetSignatureFromJavaKeystore = (req, res) => {
+    this._validateAndGetSignatureFromJavaKeystore(req.params.configId).then(signature=>{
+      res.status(200).send(signature)
+    }).catch(e=>{
+      console.error(e)
+      res.status(500).send(e)
     })
   }
 }

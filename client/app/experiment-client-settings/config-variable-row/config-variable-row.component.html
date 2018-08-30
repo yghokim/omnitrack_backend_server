@@ -65,7 +65,7 @@
       </div>
     </ng-container>
   </div>
-  <div class="invalid-message small text-color-danger">
+  <div *ngIf="validationFailedMessage" class="invalid-message small text-color-danger">
     {{validationFailedMessage}}
   </div>
 

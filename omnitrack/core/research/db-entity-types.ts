@@ -59,7 +59,7 @@ export interface AndroidBuildCredentials {
   keystoreFileHash: string,
   keystorePassword: string
   keystoreAlias: string,
-  keystoreKeyPassword: string,
+  keystoreKeyPassword: string
 }
 
 export interface IAndroidBuildConfig extends IClientBuildConfigBase<AndroidBuildCredentials> { }

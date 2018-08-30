@@ -1,0 +1,24 @@
+<div class="dialog">
+    <div class="card-header">Keystore Information is Valid</div>
+    <div class="card-body">
+      <p>Use this information when you add new App in your <b>Firebase project.</b> After this app is built, it will contain the information to be distinguished from other apps.</p>
+      <p>If you already created an app on your Firebase project, Add this signing certificate by <b>Add Fingerprint</b> in your Firebase app.</p>
+      <table class="table table-sm">
+        <tr class="singleline">
+          <th>App package name</th>
+          <td class="package-name"><div class="alert alert-sm alert-secondary">{{packageName}}</div></td>
+        </tr>
+        <tr class="singleline">
+          <th>App signing certificate (Fingerprint)</th>
+          <td class="signature"><div class="alert alert-sm alert-secondary">{{signature}}</div></td>
+        </tr>
+      </table>
+
+      <a class="small" href="https://console.firebase.google.com" target="_blank">Open Firebase Console</a>
+      
+      <hr>
+      <div class="text-right">
+          <button mat-raised-button color="primary" (click)="onYesClick()">OK</button>
+      </div>
+    </div>
+  </div>

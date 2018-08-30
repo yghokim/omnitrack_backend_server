@@ -1,6 +1,5 @@
 import { TimePoint, TimeSpan, ServerFile, LatLng, Fraction } from './datatypes/field_datatypes'
 import * as bigdecimal from 'bigdecimal';
-import * as StringBuilder from 'stringbuilder';
 
 export default class TypedStringSerializer {
   static readonly TYPENAME_INT = "I"

@@ -83,9 +83,7 @@
                 Android Build Settings
               </th>
               <td class="main-settings-container">
-                <app-config-variable-row label="google-services.json" [originalValue]="originalConfig.credentials.googleServices" [config]="changedConfig.credentials"
-                  variableName="googleServices" type="jsonFile" [validationFailedMessage]="getValidationError('credentials.googleServices')"></app-config-variable-row>
-
+                
                 <app-config-variable-row label="Keystore file (.jks)" [originalValue]="originalConfig.credentials.keystoreFileHash" [config]="changedConfig.credentials"
                   (binaryFileChanged)="localFiles.androidKeystore = $event" variableName="keystoreFileHash" type="jksFile" [validationFailedMessage]="getValidationError('credentials.keystoreFileHash')"></app-config-variable-row>
 
@@ -95,9 +93,18 @@
                 <app-config-variable-row label="Keypair alias" [originalValue]="originalConfig.credentials.keystoreAlias" [config]="changedConfig.credentials"
                   hintText="Alias of keypair to use" variableName="keystoreAlias" type="text" [validationFailedMessage]="getValidationError('credentials.kestoreAlias')"></app-config-variable-row>
 
-
                 <app-config-variable-row label="Keypair password" [originalValue]="originalConfig.credentials.keystoreKeyPassword" hintText="Password for the designated keypair"
-                  [config]="changedConfig.credentials" variableName="keystoreKeyPassword" type="password" [validationFailedMessage]="getValidationError('credentials.keystorePairPassword')"></app-config-variable-row>
+                  [config]="changedConfig.credentials" variableName="keystoreKeyPassword" type="password" [validationFailedMessage]="getValidationError('credentials.keystoreKeyPassword')"></app-config-variable-row>
+
+                <div class="config-row text-right">
+                  <button mat-raised-button color="accent" (click)="onValidateSignatureClicked()">
+                      {{isConfigChanged(originalConfig, changedConfig)===true? 'Save Changes & Validate the Keystore' : 'Validate the Keystore'}}
+                  </button>
+                </div>
+
+                <app-config-variable-row label="google-services.json" [originalValue]="originalConfig.credentials.googleServices" [config]="changedConfig.credentials"
+                  variableName="googleServices" type="jsonFile" [validationFailedMessage]="getValidationError('credentials.googleServices')"></app-config-variable-row>
+
               </td>
             </tr>
           </ng-container>

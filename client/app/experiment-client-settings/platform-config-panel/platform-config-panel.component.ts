@@ -11,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { YesNoDialogComponent } from '../../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { validateBuildConfig } from '../../../../omnitrack/core/research/build-config-utils';
 import { NotificationService } from '../../services/notification.service';
+import { SignatureValidationCompleteDialogComponent } from './signature-validation-complete-dialog/signature-validation-complete-dialog.component';
 
 @Component({
   selector: 'app-platform-config-panel',
@@ -273,6 +274,39 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
     } else {
       return null
     }
+  }
+
+  onValidateSignatureClicked(){
+    this._internalSubscriptions.add(
+      defer(()=>{
+        if(this.isConfigChanged(this.originalConfig, this.changedConfig) === true){
+          return this.applyChanges()
+        }else return of(null)
+      }).pipe(
+        flatMap(()=>{
+          return this.clientBuildService.validateSignature(this.originalConfig)
+        }),
+        tap(signature=>{
+          this.validateConfig()
+        })
+      ).subscribe(signature => {
+        this.dialog.open(SignatureValidationCompleteDialogComponent, {data: {
+          packageName: this.originalConfig.packageName,
+          signature: signature
+        }})
+      }, err => {
+        console.log(err)
+        if(err.code === "KeystoreError"){
+          this.notificationService.pushSnackBarMessage({
+            message: err.message
+          })
+        }else if(err.code === "IncompleteKeystoreInformation"){
+          this.notificationService.pushSnackBarMessage({
+            message: err.message
+          })
+        }
+      })
+    )
   }
 
   onStartBuildClicked() {

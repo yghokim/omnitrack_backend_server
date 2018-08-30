@@ -1,0 +1,21 @@
+p {
+  max-width: 550px;
+}
+
+.table {
+  font-size: 0.8rem;
+
+  th,
+  td {
+    border: none;
+  }
+
+  .signature,
+  .package-name {
+    font-family: monospace;
+
+    .alert {
+      margin-bottom: 0;
+    }
+  }
+}

@@ -83,6 +83,7 @@ import { ExperimentConsentComponent } from './experiment-consent/experiment-cons
 import { DemographicEditorComponent } from './experiment-consent/demographic-editor/demographic-editor.component';
 import { ClientCrashLogsComponent } from './server-status-overview/client-crash-logs/client-crash-logs.component';
 import { CheckInstallationGuard } from './services/check-installation.guard';
+import { SignatureValidationCompleteDialogComponent } from './experiment-client-settings/platform-config-panel/signature-validation-complete-dialog/signature-validation-complete-dialog.component';
 
 @NgModule({
   imports: [
@@ -158,7 +159,8 @@ import { CheckInstallationGuard } from './services/check-installation.guard';
     ClientBinaryListComponent,
     ExperimentConsentComponent,
     DemographicEditorComponent,
-    ClientCrashLogsComponent
+    ClientCrashLogsComponent,
+    SignatureValidationCompleteDialogComponent
   ],
   exports: [
     NouisliderModule,
@@ -206,7 +208,8 @@ import { CheckInstallationGuard } from './services/check-installation.guard';
     ParticipantExcludedDaysConfigDialogComponent,
     UpdateClientSignatureDialogComponent,
     NewTrackingPackageDialogComponent,
-    EditExperimentGroupDialogComponent
+    EditExperimentGroupDialogComponent,
+    SignatureValidationCompleteDialogComponent
   ]
 })
 export class ResearchModule { }
