@@ -208,6 +208,7 @@ export class ResearchRouter extends RouterWrapper {
     // debuging
     this.router.get("/debug/generate_participant_alias", this.researchCtrl.generateAliasOfParticipants)
     this.router.get('/debug/push_command', experimentCtrl.sendPushCommand)
+    this.router.get("/debug/migrate_experiment/:userId/to/:experimentId", experimentCtrl.migrateUserTrackingEntitiesToExperiment)
 
     const methodTestHandler = (req, res) => {
       res.status(200).send(true)
