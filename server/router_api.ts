@@ -193,10 +193,10 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.post("/item/update_column", firebaseMiddleware, itemCtrl.postItemValue)
     this.router.post("/item/update_timestamp", firebaseMiddleware, itemCtrl.postItemTimestamp)
 
-    this.router.route('/debug/items/all').get(itemCtrl.getAll)
-    this.router.route('/debug/users/all').get(userCtrl.getAll)
-    this.router.route('/debug/trackers/all').get(trackerCtrl.getAll)
-    this.router.route('/debug/triggers/all').get(triggerCtrl.getAll)
+//    this.router.route('/debug/items/all').get(itemCtrl.getAll)
+//    this.router.route('/debug/users/all').get(userCtrl.getAll)
+//    this.router.route('/debug/trackers/all').get(trackerCtrl.getAll)
+//    this.router.route('/debug/triggers/all').get(triggerCtrl.getAll)
 
     /*
     this.router.route('/users/destroy').get(userCtrl.destroy)
