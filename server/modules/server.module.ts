@@ -4,6 +4,7 @@ import OTParticipant from '../models/ot_participant';
 import OTExperiment from '../models/ot_experiment';
 import OTItemMedia from '../models/ot_item_media';
 import OTClientBinary from '../models/ot_client_binary';
+import OTClientSignature from '../models/ot_client_signature';
 import OTClientBuildAction from '../models/ot_client_build_action';
 import * as path from 'path';
 import * as Agenda from 'agenda';
@@ -63,6 +64,12 @@ export default class ServerModule {
       ).catch(err => {
         console.log(err)
       })
+
+      OTClientSignature.collection.dropIndex('key_1').then(l => {
+      }).catch(ex=>{
+
+      })
+      
 
       OTParticipant.find({ experimentRange: { $exists: false }, approvedAt: { $exists: true } }).then(
         participants => {

@@ -26,6 +26,17 @@ export default class OTClientSignatureCtrl {
             doc["alias"] = alias
             changed = true
           }
+
+          if (doc["key"] !== key) {
+            doc["key"] = key
+            changed = true
+          }
+
+          if (doc["package"] !== packageName) {
+            doc["package"] = packageName
+            changed = true
+          }
+
           if (changed === true) {
             return doc.save().then(() => true)
           } else { return false }
