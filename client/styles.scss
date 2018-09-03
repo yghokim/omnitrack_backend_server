@@ -159,7 +159,6 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
 $research_header_height: 45px;
 $research_sidebar_width: 185px;
 html {
-  min-height: 100%;
   background: #fcf7ea;
   /* Old browsers */
   background: -moz-linear-gradient(-45deg, #fcf7ea 0%, #cedbd4 100%);
@@ -175,8 +174,6 @@ html {
 body {
   font-family: Roboto, "Open Sans", "Segoe UI", "Helvetica Neue", Arial, "Noto Sans KR", "Malgun Gothic", sans-serif;
   background: initial;
-  margin-top: 0px;
-  margin-bottom: 10px;
 }
 
 a.no-text-effect {

@@ -1,37 +1,40 @@
-<div id="research-header">
-  <div class="content">
-    <div class="logo_container">
-      <img class="logo" src="/assets/omnitrack_research_kit_logo.svg">
-    </div>
-    <div class="heading_container">
-      <ng-content select="[header]"></ng-content>
-    </div>
-    <div class="profile_container">
-      <div class="sign_in" *ngIf="(authService.currentResearcher | async).signedIn != true">
-        <button mat-button color="primary" (click)="goToSignIn()">Sign In</button>
+<div id="global-container">
+  <div id="research-header">
+    <div class="content">
+      <div class="logo_container">
+        <img class="logo" src="/assets/omnitrack_research_kit_logo.svg">
       </div>
-      <div class="signed_in_profile flex-container flex-align-items-center" *ngIf="(authService.currentResearcher | async).signedIn == true">
-        <div class="information">
-          <div class="name font-weight-bold">
-            {{(authService.currentResearcher | async).alias}}
-          </div>
-          <div class="email font-weight-light">
-            {{(authService.currentResearcher | async).email}}
-          </div>
+      <div class="heading_container">
+        <ng-content select="[header]"></ng-content>
+      </div>
+      <div class="profile_container">
+        <div class="sign_in" *ngIf="(authService.currentResearcher | async).signedIn != true">
+          <button mat-button color="primary" (click)="goToSignIn()">Sign In</button>
         </div>
-        <button mat-icon-button [matMenuTriggerFor]="menu">
-          <mat-icon class="material-icons text-color-darkgray">more_vert</mat-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-          <button mat-menu-item class="btn btn-secondary btn-sm" (click)="onAccountSettingsClicked()">Account Settings</button>
-          <mat-divider></mat-divider>
-          <button mat-menu-item class="btn btn-secondary btn-sm" (click)="onSignOutClicked()">Sign Out</button>
-        </mat-menu>
+        <div class="signed_in_profile flex-container flex-align-items-center" *ngIf="(authService.currentResearcher | async).signedIn == true">
+          <div class="information">
+            <div class="name font-weight-bold">
+              {{(authService.currentResearcher | async).alias}}
+            </div>
+            <div class="email font-weight-light">
+              {{(authService.currentResearcher | async).email}}
+            </div>
+          </div>
+          <button mat-icon-button [matMenuTriggerFor]="menu">
+            <mat-icon class="material-icons text-color-darkgray">more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item class="btn btn-secondary btn-sm" (click)="onAccountSettingsClicked()">Account
+              Settings</button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item class="btn btn-secondary btn-sm" (click)="onSignOutClicked()">Sign Out</button>
+          </mat-menu>
+        </div>
       </div>
+      <!--<div class="header-border"></div>-->
     </div>
-    <!--<div class="header-border"></div>-->
   </div>
-</div>
-<div id="research-main">
-  <ng-content select="[main]"></ng-content>
+  <div id="research-main">
+    <ng-content select="[main]"></ng-content>
+  </div>
 </div>

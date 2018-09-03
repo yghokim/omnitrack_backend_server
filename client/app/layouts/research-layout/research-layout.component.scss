@@ -6,17 +6,23 @@
   }
 }
 
+#global-container{
+  display:flex;
+  flex-direction: column;
+  justify-content: stretch;
+  height: 100vh;
+}
+
+#research-main{
+  flex: 1;
+  overflow-y: scroll;
+}
+
 #research-header{
   height: $research_header_height;
-  position: fixed;
   z-index: 1000;
-  width: 100%;
   background: white;
   box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
-  .haeder_block{
-    height: 100%;
-    position: relative;
-  }
 
   .content{
     height: $research_header_height;
