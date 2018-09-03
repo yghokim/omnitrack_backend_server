@@ -654,6 +654,25 @@ export default class OTExperimentCtrl {
       }
     })
   }
+
+  migrateUserTrackingEntitiesToExperiment = (req, res) => {
+    const experimentId = req.params.experimentId
+    const userId = req.params.userId
+    if (userId != null && userId != "null" && experimentId != null && experimentId != "null") {
+
+      const models = [OTTracker, OTTrigger]
+      Promise.all(models.map(model=>{
+        model.updateMany({user: userId, "flags.experiment": null}, {"flags.experiment": experimentId}).then(result => {
+          console.log(result)
+          return {count: result.n}
+        })
+      })).then(result => {
+        res.status(200).send(result)
+      })
+    } else {
+      res.status(500).send("You did not properly insert the user id and experiment id.")
+    }
+  }
 }
 
 const experimentCtrl = new OTExperimentCtrl()
