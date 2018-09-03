@@ -28,12 +28,12 @@ export interface SourceFolderInfo {
 
 export default class OTClientBuildCtrl {
 
-  private getExperimentIdFromConfig(buildConfig: any): string{
-    return buildConfig.researcherMode !== true? (isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id) : null
+  private getExperimentIdFromConfig(buildConfig: any): string {
+    return buildConfig.researcherMode !== true ? (isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id) : null
   }
 
   private _makeExperimentConfigDirectoryPath(experimentId: string, absolute: boolean = false): string {
-    const rel = experimentId? "storage/experiments/client_configs/" + experimentId : "storage/super/client_configs"
+    const rel = experimentId ? "storage/experiments/client_configs/" + experimentId : "storage/super/client_configs"
     if (absolute === true) {
       return path.join(__dirname, "../../../../../", rel)
     } else { return rel }
@@ -86,19 +86,19 @@ export default class OTClientBuildCtrl {
   }
 
   _getClientBuildConfigs(experimentId: string): Promise<Array<IClientBuildConfigBase<any>>> {
-    
-    return OTClientBuildConfigModel.find( experimentId != null? { experiment: experimentId } : { researcherMode: true })
+
+    return OTClientBuildConfigModel.find(experimentId != null ? { experiment: experimentId } : { researcherMode: true })
       .lean().then(documents => {
         return documents.map(d => d)
       })
   }
 
-  _validateAndGetSignatureFromJavaKeystore(configId: string, payloadBuildConfig?: IAndroidBuildConfig): Promise<string>{
+  _validateAndGetSignatureFromJavaKeystore(configId: string, payloadBuildConfig?: IAndroidBuildConfig): Promise<string> {
     return deferPromise(() => {
-      if(payloadBuildConfig){
+      if (payloadBuildConfig) {
         return Promise.resolve(payloadBuildConfig)
-      }else{
-        return OTClientBuildConfigModel.findById(configId).select({_id: 1, credentials: 1, experiment: 1, researcherMode: 1}).lean().then(doc=>doc as IAndroidBuildConfig)
+      } else {
+        return OTClientBuildConfigModel.findById(configId).select({ _id: 1, credentials: 1, experiment: 1, researcherMode: 1 }).lean().then(doc => doc as IAndroidBuildConfig)
       }
     }).then(buildConfig => {
       const keystoreFileLocation = path.join(this._makeExperimentConfigDirectoryPath(this.getExperimentIdFromConfig(buildConfig), true), "androidKeystore.jks")
@@ -107,7 +107,7 @@ export default class OTClientBuildCtrl {
       const keystorePasswordExists = buildConfig.credentials.keystorePassword != null
       const keystoreKeyPasswordExists = buildConfig.credentials.keystoreKeyPassword != null
       const keystoreAliasExists = buildConfig.credentials.keystoreAlias != null
-      if(fileExists === false || keystorePasswordExists === false || keystoreKeyPasswordExists === false || keystoreAliasExists === false){
+      if (fileExists === false || keystorePasswordExists === false || keystoreKeyPasswordExists === false || keystoreAliasExists === false) {
         return Promise.reject({
           code: "IncompleteKeystoreInformation",
           message: "Please complete all the fields for keystore.",
@@ -119,10 +119,10 @@ export default class OTClientBuildCtrl {
           }
         })
       }
-      else{
-        return new Promise<string>((resolve, reject)=>{  
+      else {
+        return new Promise<string>((resolve, reject) => {
           const exec = require("child_process").exec;
-          exec('keytool -list -v -keystore "' + keystoreFileLocation + '" -storepass ' + buildConfig.credentials.keystorePassword + " -alias " + buildConfig.credentials.keystoreAlias , (err, stdout, stderr) => {
+          exec('keytool -list -v -keystore "' + keystoreFileLocation + '" -storepass ' + buildConfig.credentials.keystorePassword + " -alias " + buildConfig.credentials.keystoreAlias, (err, stdout, stderr) => {
             if (err) {
               console.error(err);
               reject({
@@ -135,15 +135,15 @@ export default class OTClientBuildCtrl {
                 resolve(matches[1].trim())
               } else {
                 console.error(stderr)
-                reject({code: "KeystoreError", message: "Wrong keytool information. Check your alias and passwords."})
+                reject({ code: "KeystoreError", message: "Wrong keytool information. Check your alias and passwords." })
               }
             }
           });
         })
       }
     })
-    
-    
+
+
   }
 
   _initializeDefaultPlatformConfig(platform: string, researcherEmail: string, experimentId?: string, ): Promise<IClientBuildConfigBase<any>> {
@@ -176,15 +176,15 @@ export default class OTClientBuildCtrl {
         const newModel = new OTClientBuildConfigModel({
           packageName: fallbackPackageName,
           experiment: experimentId,
-          researcherMode: experimentId!=null? false: true,
+          researcherMode: experimentId != null ? false : true,
           platform: platform
         })
 
-        if(experimentId!=null){
+        if (experimentId != null) {
           //experiment mode
           newModel["disableExternalEntities"] = true
         }
-        else{
+        else {
           //researcher mode
           newModel["disableExternalEntities"] = false
         }
@@ -197,7 +197,21 @@ export default class OTClientBuildCtrl {
             break;
         }
 
-        return newModel.save().then(doc => doc.toJSON())
+        return deferPromise(() => {
+          if (experimentId != null) {
+            //get the master config's api keys
+            return OTClientBuildConfigModel.findOne({
+              experiment: null,
+              platform: platform,
+              researcherMode: true
+            }, { apiKeys: 1 }).lean().then(masterConfig => {
+              if (masterConfig != null) {
+                newModel["apiKeys"] = masterConfig.apiKeys
+              }
+              return null
+            })
+          } else return Promise.resolve()
+        }).then(() => newModel.save().then(doc => doc.toJSON()))
       }
     )
   }
@@ -424,8 +438,8 @@ export default class OTClientBuildCtrl {
       console.log("start building the android app")
       const os = require('os')
       let arg0: string
-      let arg1: Array<string> 
-      
+      let arg1: Array<string>
+
       const buildArgs = ['assembleMinApi19Release', '--stacktrace', '--no-daemon', "-Dorg.gradle.jvmargs=-Xmx1280M -XX:MaxPermSize=256M"]
 
       switch (os.type()) {
@@ -436,7 +450,7 @@ export default class OTClientBuildCtrl {
           break;
         case 'Windows_NT':
           arg0 = 'cmd',
-          arg1 = ["/c", "gradlew.bat"].concat(buildArgs)
+            arg1 = ["/c", "gradlew.bat"].concat(buildArgs)
           break;
       }
 
@@ -586,7 +600,7 @@ export default class OTClientBuildCtrl {
     const query: any = { finishedAt: null }
     if (experimentId) {
       query.experiment = experimentId
-    }else{
+    } else {
       query.researcherMode = true
     }
 
@@ -734,9 +748,9 @@ export default class OTClientBuildCtrl {
   }
 
   validateAndGetSignatureFromJavaKeystore = (req, res) => {
-    this._validateAndGetSignatureFromJavaKeystore(req.params.configId).then(signature=>{
+    this._validateAndGetSignatureFromJavaKeystore(req.params.configId).then(signature => {
       res.status(200).send(signature)
-    }).catch(e=>{
+    }).catch(e => {
       console.error(e)
       res.status(500).send(e)
     })
