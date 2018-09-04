@@ -13,10 +13,9 @@
     </mat-expansion-panel-header>
 
     <div class="card-content">
-      <app-labeled-loading-indicator *ngIf="isLoading===true" [fitParent]="originalConfig!=null">
+      <app-labeled-loading-indicator class="loading-indicator" *ngIf="isLoading===true" [fitParent]="originalConfig!=null">
         <span *ngIf="originalConfig==null" message>Loading platform configuration..</span>
         <span *ngIf="originalConfig!=null" message>Please wait..</span>
-
       </app-labeled-loading-indicator>
       <div class="alert alert-warning no-margin flex-container flex-align-items-center" role="alert" *ngIf="isLoading !== true && isInitialized === false">
         <span>
@@ -25,7 +24,7 @@
         <div class="flex-filler"></div>
         <button mat-raised-button color="primary" (click)="onInitializeClicked()">Initialize</button>
       </div>
-      <ng-container *ngIf="isLoading !== true && isInitialized === true && originalConfig != null">
+      <ng-container *ngIf="isInitialized === true && originalConfig != null">
         <div class="header flex-container flex-align-items-center">
           <div class="text-right text-color-lightgray saved-timestamp-indicator">
             Recently saved at: {{originalConfig.updatedAt | date: 'short'}}

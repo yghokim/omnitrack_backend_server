@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ResearchApiService } from '../../services/research-api.service';
 import { ClientBuildService } from '../../services/client-build.service';
 import { Subscription, empty, of, defer, Observable } from 'rxjs';
@@ -17,7 +17,8 @@ import { CreateNewJavaKeystoreDialogComponent } from './create-new-java-keystore
 @Component({
   selector: 'app-platform-config-panel',
   templateUrl: './platform-config-panel.component.html',
-  styleUrls: ['./platform-config-panel.component.scss']
+  styleUrls: ['./platform-config-panel.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
 
@@ -60,6 +61,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
               this.originalConfig = null
               this.changedConfig = null
             }
+            this.changeDetector.markForCheck()
           }
         )
       )
@@ -81,7 +83,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  constructor(private api: ResearchApiService, public clientBuildService: ClientBuildService, private dialog: MatDialog, private notificationService: NotificationService) { }
+  constructor(private changeDetector: ChangeDetectorRef, private api: ResearchApiService, public clientBuildService: ClientBuildService, private dialog: MatDialog, private notificationService: NotificationService) { }
 
   ngOnInit() {
     this._internalSubscriptions.add(
@@ -127,6 +129,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
           if (!this.binaries || this.binaries.length === 0) {
             this.panelStep = 0
           }
+          this.changeDetector.markForCheck()
         }
       )
     )
@@ -156,6 +159,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
 
   onSaveClicked() {
     this.isLoading = true
+    this.changeDetector.markForCheck()
     this._internalSubscriptions.add(
       this.applyChanges().subscribe(
         () => {
@@ -166,6 +170,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
         },
         () => {
           this.isLoading = false
+          this.changeDetector.markForCheck()
         }
       )
     )
@@ -267,6 +272,8 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
   validateConfig(): boolean {
     const errors = validateBuildConfig(this.originalConfig)
     this.validationErrors = errors
+    this.changeDetector.markForCheck()
+  
     return !errors || errors.length === 0
   }
 
