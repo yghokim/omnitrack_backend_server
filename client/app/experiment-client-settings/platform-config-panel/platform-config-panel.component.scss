@@ -78,6 +78,12 @@ mat-expansion-panel-header {
   }
 }
 
+.no-hover{
+  &:hover {
+    background: inherit;
+  }
+}
+
 .build-footer {
   //background: #f0f0f0;
 }

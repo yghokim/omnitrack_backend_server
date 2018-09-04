@@ -31,8 +31,10 @@
             Recently saved at: {{originalConfig.updatedAt | date: 'short'}}
           </div>
           <div class="flex-filler"></div>
-          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false" mat-button color="accent" (click)="onDiscardChangedClicked()">Discard changes</button>
-          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false" mat-raised-button color="accent" (click)="onSaveClicked()">Save Changes</button>
+          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false" mat-button color="accent"
+            (click)="onDiscardChangedClicked()">Discard changes</button>
+          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false" mat-raised-button color="accent"
+            (click)="onSaveClicked()">Save Changes</button>
         </div>
         <table class="table settings-main-table">
           <tr>
@@ -40,15 +42,16 @@
               Basic App Info
             </th>
             <td class="main-settings-container">
-              <app-config-variable-row *ngIf="researcherMode === false" label="App name" type="text" variableName="appName" hintText="Set app name to override 'OmniTrack'"
-                [config]="changedConfig" [originalValue]="originalConfig.appName"></app-config-variable-row>
+              <app-config-variable-row *ngIf="researcherMode === false" label="App name" type="text" variableName="appName"
+                hintText="Set app name to override 'OmniTrack'" [config]="changedConfig" [originalValue]="originalConfig.appName"></app-config-variable-row>
 
               <app-config-variable-row label="Package name" type="text" variableName="packageName" hintText="An experiment-wise unique package address"
                 [config]="changedConfig" [originalValue]="originalConfig.packageName" [validationFailedMessage]="getValidationError('packageName')"></app-config-variable-row>
 
 
               <app-config-variable-row label="Source code" type="sourceCode" variableName="sourceCode" hintText="Source code for app compilation"
-                [config]="changedConfig" [originalValue]="originalConfig.sourceCode" (binaryFileChanged)="localFiles['sourceCodeZip_' + platform] = $event" [validationFailedMessage]="getValidationError('sourceCode')"></app-config-variable-row>
+                [config]="changedConfig" [originalValue]="originalConfig.sourceCode" (binaryFileChanged)="localFiles['sourceCodeZip_' + platform] = $event"
+                [validationFailedMessage]="getValidationError('sourceCode')"></app-config-variable-row>
             </td>
           </tr>
           <tr *ngIf="researcherMode === false">
@@ -60,11 +63,11 @@
               <app-config-variable-row label="Hide the external entities" type="boolean" variableName="disableExternalEntities" hintText="Disable using or adding trackers that are not assigned to this experiment."
                 [config]="changedConfig" [originalValue]="originalConfig.disableExternalEntities"></app-config-variable-row>-->
 
-              <app-config-variable-row label="Disable tracker creation" type="boolean" variableName="disableTrackerCreation" hintText="Disable participants to create their own trackers."
-                [config]="changedConfig" [originalValue]="originalConfig.disableTrackerCreation"></app-config-variable-row>
+              <app-config-variable-row label="Disable tracker creation" type="boolean" variableName="disableTrackerCreation"
+                hintText="Disable participants to create their own trackers." [config]="changedConfig" [originalValue]="originalConfig.disableTrackerCreation"></app-config-variable-row>
 
-              <app-config-variable-row label="Disable trigger creation" type="boolean" variableName="disableTriggerCreation" hintText="Disable participants to create their own triggers."
-                [config]="changedConfig" [originalValue]="originalConfig.disableTriggerCreation"></app-config-variable-row>
+              <app-config-variable-row label="Disable trigger creation" type="boolean" variableName="disableTriggerCreation"
+                hintText="Disable participants to create their own triggers." [config]="changedConfig" [originalValue]="originalConfig.disableTriggerCreation"></app-config-variable-row>
 
               <app-config-variable-row label="Hide trigger list" type="boolean" variableName="hideTriggersTab" hintText="Disable an access to trigger list."
                 [config]="changedConfig" [originalValue]="originalConfig.hideTriggersTab"></app-config-variable-row>
@@ -72,8 +75,8 @@
               <app-config-variable-row label="Hide service list" type="boolean" variableName="hideServicesTab" hintText="Disable an access to service list."
                 [config]="changedConfig" [originalValue]="originalConfig.hideServicesTab"></app-config-variable-row>
 
-              <app-config-variable-row label="Show tutorials" type="boolean" variableName="showTutorials" hintText="" [config]="changedConfig"
-                [originalValue]="originalConfig.showTutorials"></app-config-variable-row>
+              <app-config-variable-row label="Show tutorials" type="boolean" variableName="showTutorials" hintText=""
+                [config]="changedConfig" [originalValue]="originalConfig.showTutorials"></app-config-variable-row>
             </td>
           </tr>
 
@@ -83,27 +86,44 @@
                 Android Build Settings
               </th>
               <td class="main-settings-container">
-                
-                <app-config-variable-row label="Keystore file (.jks)" [originalValue]="originalConfig.credentials.keystoreFileHash" [config]="changedConfig.credentials"
-                  (binaryFileChanged)="localFiles.androidKeystore = $event" variableName="keystoreFileHash" type="jksFile" [validationFailedMessage]="getValidationError('credentials.keystoreFileHash')"></app-config-variable-row>
+                <!--
+                <div class="config-row no-hover text-right flex-container">
+                  <div class="flex-filler"></div>
+                  <div class="alert alert-warning no-margin-bottom flex-container flex-align-items-center">
+                    <div class="small right-margin-1em">
+                      <i>Don't have a keystore of your own?</i>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-info" (click)="onCreateNewKeystoreClicked()">
+                      Create New Keystore
+                    </button>
+                  </div>
+                </div>-->
+                <app-config-variable-row label="Keystore file (.jks)" [originalValue]="originalConfig.credentials.keystoreFileHash"
+                  [config]="changedConfig.credentials" (binaryFileChanged)="localFiles.androidKeystore = $event"
+                  variableName="keystoreFileHash" type="jksFile" [validationFailedMessage]="getValidationError('credentials.keystoreFileHash')"></app-config-variable-row>
 
-                <app-config-variable-row label="Keystore password" [originalValue]="originalConfig.credentials.keystorePassword" [config]="changedConfig.credentials"
-                  hintText="Password for the keystore" variableName="keystorePassword" type="password" [validationFailedMessage]="getValidationError('credentials.keystorePassword')"></app-config-variable-row>
+                <app-config-variable-row label="Keystore password" [originalValue]="originalConfig.credentials.keystorePassword"
+                  [config]="changedConfig.credentials" hintText="Password for the keystore" variableName="keystorePassword"
+                  type="password" [validationFailedMessage]="getValidationError('credentials.keystorePassword')"></app-config-variable-row>
 
-                <app-config-variable-row label="Keypair alias" [originalValue]="originalConfig.credentials.keystoreAlias" [config]="changedConfig.credentials"
-                  hintText="Alias of keypair to use" variableName="keystoreAlias" type="text" [validationFailedMessage]="getValidationError('credentials.kestoreAlias')"></app-config-variable-row>
+                <app-config-variable-row label="Keypair alias" [originalValue]="originalConfig.credentials.keystoreAlias"
+                  [config]="changedConfig.credentials" hintText="Alias of keypair to use" variableName="keystoreAlias"
+                  type="text" [validationFailedMessage]="getValidationError('credentials.kestoreAlias')"></app-config-variable-row>
 
-                <app-config-variable-row label="Keypair password" [originalValue]="originalConfig.credentials.keystoreKeyPassword" hintText="Password for the designated keypair"
-                  [config]="changedConfig.credentials" variableName="keystoreKeyPassword" type="password" [validationFailedMessage]="getValidationError('credentials.keystoreKeyPassword')"></app-config-variable-row>
+                <app-config-variable-row label="Keypair password" [originalValue]="originalConfig.credentials.keystoreKeyPassword"
+                  hintText="Password for the designated keypair" [config]="changedConfig.credentials" variableName="keystoreKeyPassword"
+                  type="password" [validationFailedMessage]="getValidationError('credentials.keystoreKeyPassword')"></app-config-variable-row>
 
-                <div class="config-row text-right">
+                <div class="config-row no-hover text-right">
                   <button mat-raised-button color="accent" (click)="onValidateSignatureClicked()">
-                      {{isConfigChanged(originalConfig, changedConfig)===true? 'Save Changes & Validate the Keystore' : 'Validate the Keystore'}}
+                    {{isConfigChanged(originalConfig, changedConfig)===true? 'Save Changes & Validate the Keystore' :
+                    'Validate the Keystore'}}
                   </button>
                 </div>
 
-                <app-config-variable-row label="google-services.json" [originalValue]="originalConfig.credentials.googleServices" [config]="changedConfig.credentials"
-                  variableName="googleServices" type="jsonFile" [validationFailedMessage]="getValidationError('credentials.googleServices')"></app-config-variable-row>
+                <app-config-variable-row label="google-services.json" [originalValue]="originalConfig.credentials.googleServices"
+                  [config]="changedConfig.credentials" variableName="googleServices" type="jsonFile"
+                  [validationFailedMessage]="getValidationError('credentials.googleServices')"></app-config-variable-row>
 
               </td>
             </tr>
@@ -114,21 +134,24 @@
             </th>
             <td class="main-settings-container">
               <div class="api-keys-header flex-container flex-align-items-center">
-                <div *ngIf="changedConfig.apiKeys == null || changedConfig.apiKeys.length === 0" class="empty-message text-color-accented">No api keys are set.</div>
+                <div *ngIf="changedConfig.apiKeys == null || changedConfig.apiKeys.length === 0" class="empty-message text-color-accented">No
+                  api keys are set.</div>
                 <div class="flex-filler"></div>
                 <div class="fileopen">
-                    <label for="propFileInput">
-                      <small>Overwrite from .properties file...</small>
-                    </label>
-                    <input id="propFileInput" type="file" accept=".properties" (change)="onApiKeyPropertiesFileChanged($event.target.files)">
-                  </div>
+                  <label for="propFileInput">
+                    <small>Overwrite from .properties file...</small>
+                  </label>
+                  <input id="propFileInput" type="file" accept=".properties" (change)="onApiKeyPropertiesFileChanged($event.target.files)">
+                </div>
               </div>
 
-              <app-config-variable-row *ngFor="let keyEntry of changedConfig.apiKeys" [label]="keyEntry.key" [originalValue]="getOriginalApiKeyValue(keyEntry.key)"
-                [config]="keyEntry" variableName="value" hintText="Insert an API key value" type="text"></app-config-variable-row>
+              <app-config-variable-row *ngFor="let keyEntry of changedConfig.apiKeys" [label]="keyEntry.key"
+                [originalValue]="getOriginalApiKeyValue(keyEntry.key)" [config]="keyEntry" variableName="value"
+                hintText="Insert an API key value" type="text"></app-config-variable-row>
 
               <div class="new-api-key-row config-row flex-container flex-align-items-center">
-                <mat-select [value]="selectedNewApiKey" (selectionChange)="onSelectedNewApiKeyChanged($event.value)" placeholder="Choose an API key">
+                <mat-select [value]="selectedNewApiKey" (selectionChange)="onSelectedNewApiKeyChanged($event.value)"
+                  placeholder="Choose an API key">
                   <mat-option *ngFor="let key of getSelectableApiKeyKeys()" [value]="key">{{key}}</mat-option>
                 </mat-select>
                 <input class="flex-filler form-control" placeholder="Insert an API key value" type="text" [(ngModel)]="newApiKeyValue">
@@ -141,7 +164,8 @@
       </ng-container>
     </div>
     <hr class="no-margin">
-    <div class="card-body build-footer flex-container flex-align-items-center"  [style.visibility]="isLoading === true? 'hidden' : null" *ngIf="isInitialized === true">
+    <div class="card-body build-footer flex-container flex-align-items-center" [style.visibility]="isLoading === true? 'hidden' : null"
+      *ngIf="isInitialized === true">
       <div class="build-status-progress flex-filler">
         <ng-container *ngIf="isBuilding === true">
           <div class="message small">Building {{platform}} App...</div>
@@ -149,7 +173,9 @@
         </ng-container>
       </div>
       <div class="left-margin-1em">
-        <button mat-raised-button [color]="isBuilding === true? 'warn' : 'primary'" class="large" (click)="onStartBuildClicked()">{{isBuilding === true? 'Cancel Build' : (isConfigChanged(originalConfig, changedConfig)===true? 'Apply Changes & Start New Build' : 'Start New Build')}}</button>
+        <button mat-raised-button [color]="isBuilding === true? 'warn' : 'primary'" class="large" (click)="onStartBuildClicked()">{{isBuilding
+          === true? 'Cancel Build' : (isConfigChanged(originalConfig, changedConfig)===true? 'Apply Changes & Start New
+          Build' : 'Start New Build')}}</button>
       </div>
     </div>
 
@@ -164,7 +190,8 @@
     <app-labeled-loading-indicator *ngIf="isLoadingBinaries===true">
       <span message>Loading client information...</span>
     </app-labeled-loading-indicator>
-    <app-client-binary-list [binaries]="binaries" [useConfirmColumn]="true" [experimentId]="clientBuildService.currentExperimentId" [hideChangelogs]="true"></app-client-binary-list>
+    <app-client-binary-list [binaries]="binaries" [useConfirmColumn]="true" [experimentId]="clientBuildService.currentExperimentId"
+      [hideChangelogs]="true"></app-client-binary-list>
     <div class="card-footer small" *ngIf="!binaries || binaries.length === 0">
       No app files are listed.
     </div>

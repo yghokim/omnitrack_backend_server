@@ -1,0 +1,12 @@
+<div class="card-header flex-container flex-align-items-center">
+  <span>Turn on the switch to restrict the functionality</span>
+<div class="flex-filler"></div>
+<button mat-button color="primary" [disabled]="!isChanged()" (click)="onApplyClicked()">Apply</button>
+</div>
+<div class="card-body">
+  <div *ngFor="let key of keys" class="key-row flex-container flex-align-items-center">
+    <div class="label">{{getFlagName(key)}} <span *ngIf="isFlagChanged(key)===true" class="changed small text-color-lightgray">(changed)</span></div>
+    <div class="flex-filler"></div>
+    <mat-slide-toggle [checked]="isFlagLocked(key)" (change)="setFlag(key,$event.checked)"></mat-slide-toggle>
+  </div>
+</div>

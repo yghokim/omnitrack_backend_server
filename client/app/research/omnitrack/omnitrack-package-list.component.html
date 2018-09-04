@@ -1,21 +1,22 @@
 <div class="container">
   <div class="flex-container flex-stretch container-vertical-padding">
     <small class="flex-element info-text">Packages: {{packages.length}}</small>
-    <button mat-button color="primary" class="flex-element" (click)="onAddNewPackageClicked()">+ Add New Tracking Package</button>
+    <button mat-button color="primary" class="flex-element" (click)="onAddNewPackageClicked()">+ Add New Tracking
+      Package</button>
   </div>
   <div class="package-list">
-    <div class="card omnitrack-card" *ngFor="let package of packages">
+    <div class="card omnitrack-card" *ngFor="let package of packages; trackBy: trackByPackage">
       <div class="card-header card-header-with-button">
         <div class="flex-container flex-stretch">
           <div class="bold flex-element">
             {{package.name}}
           </div>
           <div class="flex-element">
+            <button mat-icon-button class="text-color-darkgray" (click)="onEditPackageClicked(package.key)">
+              <mat-icon class="material-icons">code</mat-icon>
+            </button>
             <button mat-icon-button class="text-color-darkgray" (click)="onRemovePackageClicked(package.key)">
               <mat-icon class="material-icons">delete</mat-icon>
-            </button>
-            <button mat-icon-button class="text-color-darkgray" (click)="onEditPackageClicked(package.key)">
-              <mat-icon class="material-icons">edit</mat-icon>
             </button>
           </div>
         </div>
@@ -24,34 +25,14 @@
         <div class="card-body entity-list-container tracker-list-container" *ngIf="package.data.trackers && package.data.trackers.length > 0">
           <h6>Trackers</h6>
           <div class="tracker-list">
-            <div *ngFor="let tracker of package.data.trackers" class="card card-sm card-component card-entity">
-              <div class="card-strip" [style.background]="getTrackerColorString(tracker)"></div>
-              <div class="card-header">
-                {{tracker.name}}
-              </div>
-              <ul class="list-group list-group-flush attribute-list">
-                <li class="list-group-item font-color-gray" *ngFor="let attribute of tracker.attributes">{{attribute.name}}
-                  <sup class="text-color-accented font-weight-bold" *ngIf="attribute.isRequired">*</sup>
-                </li>
-              </ul>
-            </div>
+            <app-tracker-view *ngFor="let tracker of package.data.trackers; trackBy: trackByEntity" [tracker]="tracker" [reminders]="getRemindersOf(tracker, package.data.triggers)" (trackerChange)="onPackageEdited(package.key, package)"></app-tracker-view>
           </div>
         </div>
-        <div class="card-body entity-list-container trigger-list-container"  *ngIf="package.data.triggers && package.data.triggers.length > 0">
+        <div class="card-body entity-list-container trigger-list-container" *ngIf="package.data.triggers && filterLoggingTriggers(package.data.triggers).length > 0">
           <h6>Triggers</h6>
           <div class="trigger-list">
-            <div *ngFor="let trigger of package.data.triggers" class="card card-sm card-component card-entity">
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item font-color-gray">
-                  <div class="badge badge-lg badge-light" *ngFor="let trackerId of trigger.trackers">
-                    <div class="badge-content flex-container flex-align-items-center">
-                      <div class="circle-inline margin-right-small" [style.background]="getTrackerColorString(findTracker(package, trackerId))"></div>
-                      <span class="text-color-dark">{{findTracker(package, trackerId).name}}</span>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-            </div>
+            <app-trigger-view *ngFor="let trigger of filterLoggingTriggers(package.data.triggers); trackBy: trackByEntity" [trigger]="trigger"
+              [trackingPackage]="package" (flagChange)="onPackageEdited(package.key, package)"></app-trigger-view>
           </div>
         </div>
       </div>

@@ -1,0 +1,14 @@
+:host(.card-entity){
+  &:last-child{
+    margin-bottom: 0;
+  }
+}
+
+label {
+  font-size: 0.8rem;
+  margin-left: 0.75rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+  font-weight: 500;
+  color: #b1b1b1;
+}

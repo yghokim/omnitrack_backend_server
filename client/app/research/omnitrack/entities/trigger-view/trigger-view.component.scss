@@ -1,0 +1,24 @@
+.attached-trackers {
+  border-top: 1px solid #e6e6e6;
+
+  li {
+    padding: 0.75rem;
+  }
+}
+
+.trigger-body {
+  .condition-frame {
+    flex: 1;
+    padding: 0.5rem;
+  }
+
+  app-lock-flag-button {
+    margin: 0.5rem;
+  }
+}
+
+.badge.trigger-type {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 500;
+}

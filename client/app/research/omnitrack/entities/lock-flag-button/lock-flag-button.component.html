@@ -1,0 +1,6 @@
+<button #tooltipParent class="small-button-with-icon-and-text btn btn-sm btn-light flex-container flex-align-items-center" [style.opacity]="propertyKeyList().length === 0? '0.5' : '1.0'"
+  [matTooltip]="tooltipContent()" matTooltipPosition="above"
+  (click)="onClicked()">
+  <span class="material-icons text-color-gray">{{propertyKeyList().length > 0? 'lock':'lock_open'}}</span>
+  <span class="info">{{propertyKeyList().length}}</span>
+</button>

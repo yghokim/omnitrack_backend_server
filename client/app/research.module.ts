@@ -84,6 +84,11 @@ import { DemographicEditorComponent } from './experiment-consent/demographic-edi
 import { ClientCrashLogsComponent } from './server-status-overview/client-crash-logs/client-crash-logs.component';
 import { CheckInstallationGuard } from './services/check-installation.guard';
 import { SignatureValidationCompleteDialogComponent } from './experiment-client-settings/platform-config-panel/signature-validation-complete-dialog/signature-validation-complete-dialog.component';
+import { CreateNewJavaKeystoreDialogComponent } from './experiment-client-settings/platform-config-panel/create-new-java-keystore-dialog/create-new-java-keystore-dialog.component';
+import { TrackerViewComponent } from './research/omnitrack/entities/tracker-view/tracker-view.component';
+import { TriggerViewComponent } from './research/omnitrack/entities/trigger-view/trigger-view.component';
+import { LockFlagButtonComponent } from './research/omnitrack/entities/lock-flag-button/lock-flag-button.component';
+import { LockConfigurationSheetComponent } from './research/omnitrack/entities/lock-flag-button/lock-configuration-sheet/lock-configuration-sheet.component';
 
 @NgModule({
   imports: [
@@ -160,7 +165,12 @@ import { SignatureValidationCompleteDialogComponent } from './experiment-client-
     ExperimentConsentComponent,
     DemographicEditorComponent,
     ClientCrashLogsComponent,
-    SignatureValidationCompleteDialogComponent
+    SignatureValidationCompleteDialogComponent,
+    CreateNewJavaKeystoreDialogComponent,
+    TrackerViewComponent,
+    TriggerViewComponent,
+    LockFlagButtonComponent,
+    LockConfigurationSheetComponent
   ],
   exports: [
     NouisliderModule,
@@ -209,7 +219,9 @@ import { SignatureValidationCompleteDialogComponent } from './experiment-client-
     UpdateClientSignatureDialogComponent,
     NewTrackingPackageDialogComponent,
     EditExperimentGroupDialogComponent,
-    SignatureValidationCompleteDialogComponent
+    SignatureValidationCompleteDialogComponent,
+    CreateNewJavaKeystoreDialogComponent,
+    LockConfigurationSheetComponent
   ]
 })
 export class ResearchModule { }

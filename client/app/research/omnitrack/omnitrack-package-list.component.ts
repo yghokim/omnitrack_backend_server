@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ResearchApiService } from '../../services/research-api.service';
 import { ExperimentService } from '../../services/experiment.service';
@@ -8,11 +8,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { YesNoDialogComponent } from '../../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { NotificationService } from '../../services/notification.service';
 import { NewTrackingPackageDialogComponent } from './new-tracking-package-dialog/new-tracking-package-dialog.component';
+import { ITriggerDbEntity, ITrackerDbEntity } from '../../../../omnitrack/core/db-entity-types';
+import { TriggerConstants } from '../../../../omnitrack/core/trigger-constants';
 
 @Component({
   selector: 'app-omnitrack-package-list',
   templateUrl: './omnitrack-package-list.component.html',
-  styleUrls: ['./omnitrack-package-list.component.scss']
+  styleUrls: ['./omnitrack-package-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OmniTrackPackageListComponent implements OnInit, OnDestroy {
 
@@ -20,14 +23,14 @@ export class OmniTrackPackageListComponent implements OnInit, OnDestroy {
 
   private experimentService: ExperimentService
   public packages: Array<any>
-  constructor(private api: ResearchApiService, private dialog: MatDialog, private notification: NotificationService, private router: Router, private activatedRoute: ActivatedRoute) {
+  constructor(private changeDetector: ChangeDetectorRef, private api: ResearchApiService, private dialog: MatDialog, private notification: NotificationService, private router: Router, private activatedRoute: ActivatedRoute) {
   }
 
   ngOnInit() {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(flatMap(expService => expService.getOmniTrackPackages())).subscribe(packages => {
         this.packages = packages
-        console.log(packages)
+        this.changeDetector.markForCheck()
       })
     )
   }
@@ -36,19 +39,12 @@ export class OmniTrackPackageListComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
-  getTrackerColorString(tracker: any): string {
-    const colorInt = tracker.color
-    if (colorInt) {
-      const alpha = (colorInt >> 24) & 0xFF
-      const red = (colorInt >> 16) & 0xFF
-      const green = (colorInt >> 8) & 0xFF
-      const blue = (colorInt) & 0xFF
-      return "rgba(" + red + "," + green + "," + blue + "," + (alpha / 255) + ")"
-    } else { return "transparent" }
+  trackByPackage(index, pack){
+    return pack.key
   }
 
-  findTracker(pack, trackerId) {
-    return pack.data.trackers.find(tracker => tracker.objectId === trackerId)
+  trackByEntity(index, entity){
+    return entity.objectId
   }
 
   onAddNewPackageClicked() {
@@ -87,6 +83,26 @@ export class OmniTrackPackageListComponent implements OnInit, OnDestroy {
             if(index !== -1){
               this.packages.splice(index, 1)
             }
+          }
+        }
+      )
+    )
+  }
+
+  filterLoggingTriggers(triggers: Array<ITriggerDbEntity>): Array<ITriggerDbEntity>{
+    return triggers.filter(t => t.actionType === TriggerConstants.ACTION_TYPE_LOG)
+  }
+
+  getRemindersOf(tracker: ITrackerDbEntity, triggers: Array<ITriggerDbEntity>): Array<ITriggerDbEntity>{
+    return triggers.filter(t => t.actionType === TriggerConstants.ACTION_TYPE_REMIND && t.trackers.indexOf(tracker["objectId"]) !== -1)
+  }
+
+  onPackageEdited(packageKey: string, pack: any){
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.pipe(flatMap(service => service.updateTrackingPackageJson(packageKey, pack.data, null))).subscribe(
+        result=>{
+          if(result === true){
+            this.notification.pushSnackBarMessage({message: "Changes were saved."})
           }
         }
       )

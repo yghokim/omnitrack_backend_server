@@ -12,6 +12,7 @@ import {
 } from "@angular/forms";
 import { ResearcherAuthService } from "../services/researcher.auth.service";
 import { Subscription } from "rxjs";
+import { makeMatchingPasswordFormGroup } from "../client-helper";
 
 @Component({
   selector: "app-research-signup",
@@ -58,22 +59,8 @@ export class ResearchSignupComponent implements OnInit, OnDestroy {
     this.registerForm = this.formBuilder.group({
       email: this.email,
       alias: this.alias,
-      matchingPassword: this.formBuilder.group(
-        {
-          password: this.password,
-          confirmPassword: this.confirmPassword
-        },
-        {
-          validator: (group: FormGroup) => {
-            const passwordInput = group.controls["password"];
-            const confirmPasswordInput = group.controls["confirmPassword"];
-            if (passwordInput.value !== confirmPasswordInput.value) {
-              return confirmPasswordInput.setErrors({ passwordNotMatch: true });
-            } else {
-              return null;
-            }
-          }
-        }
+      matchingPassword: makeMatchingPasswordFormGroup(
+        this.formBuilder, this.password, this.confirmPassword
       )
     });
   }

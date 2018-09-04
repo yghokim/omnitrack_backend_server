@@ -58,7 +58,7 @@ export class ExperimentConsentEditorComponent implements OnInit, OnDestroy {
         this.originalConsent = (consent || "")
 
         if(consent == null){
-          this.currentConsent = "### Writing an Informed Consent Form\n\n---\n\n*Remove this content* and write your own consent form here.\n\nUse **Markdown syntax** whici is Github-flavored. See [this guide](https://guides.github.com/features/mastering-markdown/) for detailed guide to Markdown."
+          this.currentConsent = "### Writing an Informed Consent Form\n\n---\n\n*Remove this content* and write your own consent form here.\n\nUse **Markdown syntax** which is Github-flavored. See [this guide](https://guides.github.com/features/mastering-markdown/) for detailed guide to Markdown."
         }else this.currentConsent = consent.toString()
       })
     )

@@ -1,9 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 @import '~@angular/material/theming';
 @import "~nouislider/distribute/nouislider.min.css";
-
 // Plus imports for other components in your app.
-$material-typography: mat-typography-config( $font-family: "Roboto, 'Open Sans', 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans KR', 'Malgun Gothic', sans-serif");
+$material-typography: mat-typography-config($font-family: "Roboto, 'Open Sans', 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans KR', 'Malgun Gothic', sans-serif");
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
 // Be sure that you only ever include this mixin once!
@@ -21,6 +20,7 @@ $candy-app-theme: mat-light-theme($candy-app-primary, $candy-app-accent, $candy-
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 @include angular-material-theme($candy-app-theme);
+
 @media (min-width: 1200px) {
   .container {
     width: 960px;
@@ -37,6 +37,7 @@ $visualization_encoded_color_thicker: #077baa;
 $visualization_heatmap_color_lightest: #cceb77;
 $visualization_heatmap_color_darkest: #2387a0;
 $visualization_heatmap_color_overflow: #173958;
+
 @mixin horizontal-gradient($from, $to, $stop: 100%) {
   /* fallback/image non-cover color */
   background-color: $from;
@@ -53,7 +54,7 @@ $visualization_heatmap_color_overflow: #173958;
   /* Standard */
   background: linear-gradient(to right, $from 0%, $to $stop);
   /* IE6-9 */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$from', endColorstr='$to', GradientType=1);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$from', endColorstr='$to', GradientType=1);
 }
 
 @mixin main-gradient {
@@ -73,6 +74,7 @@ $visualization_heatmap_color_overflow: #173958;
     flex-direction: column;
     align-content: stretch;
   }
+
   &>* {
     flex: 1;
   }
@@ -85,6 +87,7 @@ nouislider {
 
 .noUi-horizontal {
   height: 10px;
+
   .noUi-handle {
     width: 24px;
     height: 24px;
@@ -96,6 +99,7 @@ nouislider {
     background: $color_accent_light;
     box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
   }
+
   .noUi-tooltip {
     transform: translate(-50%, 0);
     left: 50%;
@@ -137,16 +141,20 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
 
 .tooltip {
   .arrow {}
+
   .tooltip-inner {
     max-width: 300px;
+
     /* If max-width does not work, try using width instead */
     table.tooltip-content {
+
       th,
       td {
         text-align: left;
         vertical-align: top;
         padding-bottom: 0.5rem;
       }
+
       th {
         opacity: 0.75;
         padding-right: 1rem;
@@ -158,6 +166,7 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
 
 $research_header_height: 45px;
 $research_sidebar_width: 185px;
+
 html {
   background: #fcf7ea;
   /* Old browsers */
@@ -167,7 +176,7 @@ html {
   /* Chrome10-25,Safari5.1-6 */
   background: linear-gradient(135deg, #fcf7ea 0%, #cedbd4 100%);
   /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcf7ea', endColorstr='#cedbd4', GradientType=1);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fcf7ea', endColorstr='#cedbd4', GradientType=1);
   /* IE6-9 fallback on horizontal gradient */
 }
 
@@ -222,6 +231,7 @@ a.no-text-effect {
   width: 24px;
   height: 24px;
   line-height: 24px;
+
   .material-icons {
     font-size: 16px;
   }
@@ -264,6 +274,7 @@ a.no-text-effect {
 .list-flex-wrap {
   display: flex;
   flex-wrap: wrap;
+
   .card {
     margin-right: 1em;
     margin-bottom: 1em;
@@ -333,7 +344,9 @@ a.no-text-effect {
 .hide_on_mobile {
   @media screen and (max-width: 575px) {
     display: none !important;
-  } // Small devices (landscape phones, less than 768px)
+  }
+
+  // Small devices (landscape phones, less than 768px)
 }
 
 .hide-on-print {
@@ -349,12 +362,15 @@ a.no-text-effect {
 
 .flex-container {
   display: flex;
+
   &>.flex-element {
     align-self: center;
   }
+
   &>.flex-element-fill {
     flex: 1;
   }
+
   &>.flex-align-self-start {
     align-self: flex-start;
   }
@@ -370,6 +386,7 @@ a.no-text-effect {
 
 .flex-container.flex-padded-content {
   margin: -0.8rem;
+
   &>* {
     padding: 0.8rem;
   }
@@ -380,11 +397,14 @@ a.no-text-effect {
     flex-direction: column;
     align-items: stretch;
   }
+
   &>* {
     width: 33%; // Medium devices (tablets, less than 992px)
+
     @media screen and (max-width: 991px) {
       width: 50%
     }
+
     @media screen and (max-width: 575px) {
       width: initial;
     }
@@ -429,10 +449,24 @@ a.no-text-effect {
   justify-content: space-between;
 }
 
+.small-button-with-icon-and-text {
+  .material-icons {
+    font-size: 1.0rem;
+  }
+
+  .info {
+    color: #575757;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: 0.15rem;
+  }
+}
+
 .btn.btn-link-medium {
   font-weight: bold;
   text-transform: uppercase;
   font-size: 0.9em;
+
   &:hover,
   &:active {
     background: rgba(0, 0, 0, 0.1);
@@ -452,6 +486,7 @@ a.no-text-effect {
 .btn.btn-primary {
   background: $color-pointed; //@include pointed-gradient();
   border-color: #47a594;
+
   &:hover {
     background: $color_pointed_darker; //@include pointed-gradient-darker();
   }
@@ -561,6 +596,7 @@ mat-form-field.mat-form-no-vertical-padding {
   border: none;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.17);
   border-radius: 0;
+
   .list-group,
   .list-group-item {
     border-radius: 0 !important;
@@ -579,6 +615,7 @@ mat-form-field.mat-form-no-vertical-padding {
 
 .card {
   overflow: hidden;
+
   .list-group-item:first-child {
     border-top: none;
   }
@@ -610,10 +647,12 @@ mat-form-field.mat-form-no-vertical-padding {
   background: transparent;
   border: 3px dotted #afafaf;
   box-shadow: none;
+
   .card-body {
     height: 100%;
     text-align: center;
   }
+
   &:hover {
     background: $color_pointed;
   }
@@ -645,6 +684,7 @@ button.table-cell-clickable-text {
 .center {
   display: flex;
   align-content: center;
+
   .content {
     align-self: center;
     width: 100%;
@@ -661,24 +701,30 @@ mat-dialog-container .dialog {
 
 .dialog {
   position: relative;
+
   &>.card-header {
     border-radius: 0;
     @include main-gradient();
     color: white;
     font-weight: 300;
   }
+
   &>.card-body {
     padding: 1.0rem;
   }
+
   p {
     color: $color_dark_gray;
     font-size: 0.9em;
+
     &:last-child {
       margin-bottom: 0;
     }
   }
+
   &.dialog-mid {
     width: 500px;
+
     @media screen and (max-width: 575px) {
       min-width: initial;
     }
@@ -714,6 +760,7 @@ mat-dialog-container .dialog {
 .card {
   border: hidden;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+
   &.narrow {
     max-width: 500px;
   }
@@ -732,6 +779,7 @@ mat-dialog-container .dialog {
   .card-header {
     padding: .5rem 0.8rem;
   }
+
   .card-body {
     font-size: 0.8em;
     padding: 0.9rem;
@@ -740,6 +788,7 @@ mat-dialog-container .dialog {
 
 .card-main {
   border-radius: 0px;
+
   .card-header {
     background: inherit;
     font-weight: light;
@@ -757,24 +806,29 @@ mat-dialog-container .dialog {
 
 .card {
   .table {
+
     th:first-child,
     td:first-child {
       padding-left: 1.25em;
     }
+
     th:last-child,
     td:last-child {
       padding-right: 1.25em;
     }
+
     margin-bottom: 0px;
   }
 }
 
 .card-sm {
   .table {
+
     th:first-child,
     td:first-child {
       padding-left: 0.9em;
     }
+
     th:last-child,
     td:last-child {
       padding-right: 0.9em;
@@ -794,6 +848,7 @@ button.mat-raised-button.large {
 
 tr.singleline,
 thead.singleline {
+
   td,
   th {
     vertical-align: middle;
@@ -802,16 +857,20 @@ thead.singleline {
 
 .table-data {
   font-size: 0.7em;
+
   mat-cell {
     font-size: 1.1em;
   }
+
   .badge {
     font-size: 1.0em;
     font-weight: 400;
   }
+
   thead,
   mat-header-row {
     background: #f8f8f8;
+
     td,
     th,
     mat-header-cell {
@@ -820,21 +879,26 @@ thead.singleline {
       border-bottom-width: 1px;
     }
   }
+
   mat-header-row {
     padding-top: 0;
     padding-bottom: 0;
   }
+
   tbody,
   mat-row {
+
     &,
     &>mat-cell {
       color: #717171;
     }
+
     tr.hoverable:hover,
     &.hoverable:hover {
       background: #fafafa;
     }
   }
+
   td,
   th,
   mat-cell,
@@ -844,26 +908,31 @@ thead.singleline {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
+
   td.button-cell,
   mat-cell.button-cell,
   mat-header-cell.button-cell {
     padding-top: 0.5em;
     padding-bottom: 0.5em;
     padding-left: 0;
+
     &:last-child {
       padding-right: 0.2em;
     }
   }
+
   td.button-cell.right-padding:last-child {
     padding-right: 1.25em;
   }
 }
 
 .table.no-horizontal-padding {
+
   th:first-child,
   td:first-child {
     padding-left: 0em !important;
   }
+
   th:last-child,
   td:last-child {
     padding-right: 0em !important;
@@ -871,6 +940,7 @@ thead.singleline {
 }
 
 .table.no-borders {
+
   td,
   th {
     border: hidden;
@@ -878,10 +948,12 @@ thead.singleline {
 }
 
 .table-print {
+
   td,
   th {
     color: black;
   }
+
   td {
     font-size: 0.85rem;
   }
@@ -904,6 +976,7 @@ thead.singleline {
 .form-group {
   label {
     font-weight: 500;
+
     small {
       font-weight: 500;
     }
@@ -938,7 +1011,7 @@ h1.global-page-title {
   /* Chrome10-25,Safari5.1-6 */
   background: linear-gradient(135deg, #e77676 0%, #bc526c 100%);
   /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e77676', endColorstr='#bc526c', GradientType=1);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e77676', endColorstr='#bc526c', GradientType=1);
   /* IE6-9 fallback on horizontal gradient */
 }
 
@@ -949,6 +1022,7 @@ h1.global-page-title {
 
 $offset: 187;
 $duration: 1.4s;
+
 .spinner {
   animation: rotator $duration linear infinite;
 }
@@ -957,15 +1031,17 @@ $duration: 1.4s;
   padding: 0.5em;
   text-transform: capitalize;
   font-weight: 500;
+
   &.collaborator {
     background: #78c8eb;
   }
+
   &.manager {
     background: #e97a9b;
   }
 }
 
-.bottomsheet{
+.bottomsheet {
   padding-bottom: 1em;
 }
 
@@ -975,6 +1051,7 @@ $duration: 1.4s;
   border-radius: 0.6rem;
   background: #f0f0f0;
   padding: 0.8rem;
+
   &>.content {
     height: inherit !important;
   }
@@ -987,11 +1064,13 @@ $duration: 1.4s;
     padding: 0.2rem 0.5rem;
     border-radius: 3px;
     margin-bottom: 0;
+
     &:hover {
       background: #fec6874d;
       ;
     }
   }
+
   input[type='file'] {
     display: none;
   }
@@ -1008,6 +1087,7 @@ $duration: 1.4s;
 
 .mat-step-label {
   font-weight: 400;
+
   &.mat-step-label-selected {
     font-weight: bold;
   }
@@ -1033,13 +1113,16 @@ table.stepper {
         margin-right: 0.5rem;
       }
     }
+
     td.title {
       font-weight: bold;
     }
   }
+
   tr.middle {
     th.columnline {
       position: relative;
+
       .line {
         position: absolute;
         top: 0.25rem;
@@ -1048,14 +1131,17 @@ table.stepper {
         border-left: 1px dashed #a5a5a5;
       }
     }
+
     td.content {
       padding-bottom: 2.5rem;
+
       p {
         font-size: 0.9rem;
         color: #757575;
       }
     }
   }
+
   tr.middle:last-child {
     td.content {
       padding-bottom: 1rem;
@@ -1063,10 +1149,24 @@ table.stepper {
   }
 }
 
+.bottom-sheet {
+  padding: 0 !important;
+
+  .card-header {
+    background: inherit;
+    font-weight: light;
+    color: #757575;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    font-weight: 300;
+  }
+}
+
 @keyframes rotator {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(270deg);
   }
@@ -1083,15 +1183,19 @@ table.stepper {
   0% {
     stroke: #4285F4;
   }
+
   25% {
     stroke: #DE3E35;
   }
+
   50% {
     stroke: #F7C223;
   }
+
   75% {
     stroke: #1B9A59;
   }
+
   100% {
     stroke: #4285F4;
   }
@@ -1101,10 +1205,12 @@ table.stepper {
   0% {
     stroke-dashoffset: $offset;
   }
+
   50% {
     stroke-dashoffset: $offset/4;
     transform: rotate(135deg);
   }
+
   100% {
     stroke-dashoffset: $offset;
     transform: rotate(450deg);

@@ -12,6 +12,7 @@ import { YesNoDialogComponent } from '../../dialogs/yes-no-dialog/yes-no-dialog.
 import { validateBuildConfig } from '../../../../omnitrack/core/research/build-config-utils';
 import { NotificationService } from '../../services/notification.service';
 import { SignatureValidationCompleteDialogComponent } from './signature-validation-complete-dialog/signature-validation-complete-dialog.component';
+import { CreateNewJavaKeystoreDialogComponent } from './create-new-java-keystore-dialog/create-new-java-keystore-dialog.component';
 
 @Component({
   selector: 'app-platform-config-panel',
@@ -211,6 +212,10 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
 
   onSelectedNewApiKeyChanged(key: string) {
     this.selectedNewApiKey = key
+  }
+
+  onCreateNewKeystoreClicked(){
+    this.dialog.open(CreateNewJavaKeystoreDialogComponent)
   }
 
   onAddApiKeyClicked() {
