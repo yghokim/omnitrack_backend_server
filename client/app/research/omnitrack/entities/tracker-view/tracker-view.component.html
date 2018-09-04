@@ -7,7 +7,7 @@
   <button class="small-button-with-icon-and-text btn btn-sm btn-light flex-container flex-align-items-center"
     matTooltipPosition="above" (click)="onRedirectUrlButtonClicked()">
     <span class="material-icons text-color-gray">public</span>
-    <span class="info">{{tracker.redirectUrl? ('Redirect to ' + tracker.redirectUrl) : 'Redirect to Url'}}</span>
+    <span class="info">{{getRedirectUrlHostName()? ('Redirect to ' + getRedirectUrlHostName()) : 'Configure Redirection'}}</span>
   </button>
 
   <app-lock-flag-button [model]="tracker" lockType="tracker" (flagChange)="onFlagChanged()"></app-lock-flag-button>

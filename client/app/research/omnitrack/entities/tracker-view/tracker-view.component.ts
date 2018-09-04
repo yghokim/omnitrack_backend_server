@@ -19,7 +19,7 @@ export class TrackerViewComponent implements OnInit {
 
   @Input() tracker: ITrackerDbEntity
 
-  @Input() reminders: ITriggerDbEntity
+  @Input() reminders: Array<ITriggerDbEntity>
 
   @Output() trackerChange: EventEmitter<void> = new EventEmitter()
 
@@ -60,6 +60,17 @@ export class TrackerViewComponent implements OnInit {
         }
       })
     )
+  }
+
+  getRedirectUrlHostName(){
+    if(this.tracker && this.tracker.redirectUrl && this.tracker.redirectUrl.length > 0){
+      try{
+      return new URL(this.tracker.redirectUrl).hostname
+      }catch(ex){
+        console.log(ex)
+        return null
+      }
+    }else return null
   }
 
 }
