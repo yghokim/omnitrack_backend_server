@@ -134,7 +134,7 @@ export class ResearchRouter extends RouterWrapper {
     // client build ================================================================
     this.router.get('/build/configs/all/:experimentId?', tokenApprovedAuth,
       clientBuildCtrl.getClientBuildConfigs)
-    this.router.post('/build/configs', tokenApprovedAuth,
+    this.router.post('/build/configs/:experimentId?', tokenApprovedAuth,
       clientBuildCtrl.updateClientBuildConfigs)
     this.router.post('/build/configs/initialize', tokenApprovedAuth,
       clientBuildCtrl.initializeDefaultPlatformConfig)

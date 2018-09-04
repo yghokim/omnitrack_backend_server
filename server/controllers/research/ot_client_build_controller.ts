@@ -47,6 +47,7 @@ export default class OTClientBuildCtrl {
     return multer.diskStorage({
       destination: (req, file, cb) => {
         const dirPath = this._makeExperimentConfigDirectoryPath(experimentId)
+        console.log("ensure the directory", dirPath)
         fs.ensureDir(dirPath).then(
           () => {
             cb(null, dirPath)
@@ -651,7 +652,7 @@ export default class OTClientBuildCtrl {
 
   updateClientBuildConfigs = (req, res) => {
 
-    const getForm = multer({ storage: this._makeStorage(req.body.experimentId) }).fields([
+    const getForm = multer({ storage: this._makeStorage(req.params.experimentId) }).fields([
       { name: "config", maxCount: 1 },
       { name: "androidKeystore", maxCount: 1 },
       { name: "sourceCodeZip_Android", maxCount: 1 },
