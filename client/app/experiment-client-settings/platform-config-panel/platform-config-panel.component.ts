@@ -18,7 +18,7 @@ import { CreateNewJavaKeystoreDialogComponent } from './create-new-java-keystore
   selector: 'app-platform-config-panel',
   templateUrl: './platform-config-panel.component.html',
   styleUrls: ['./platform-config-panel.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.Default
 })
 export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
 
@@ -33,6 +33,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
   public originalConfig: IClientBuildConfigBase<any>
   public changedConfig: IClientBuildConfigBase<any>
 
+  public isApplyingChanges = false
   public isLoading = true
   public isInitialized = false
   public selectedNewApiKey: string = null
@@ -158,7 +159,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
   }
 
   onSaveClicked() {
-    this.isLoading = true
+    this.isApplyingChanges = true
     this.changeDetector.markForCheck()
     this._internalSubscriptions.add(
       this.applyChanges().subscribe(
@@ -169,7 +170,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
 
         },
         () => {
-          this.isLoading = false
+          this.isApplyingChanges = false
           this.changeDetector.markForCheck()
         }
       )
@@ -178,6 +179,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
 
   private applyChanges(): Observable<IClientBuildConfigBase<any>> {
     return defer(() => {
+      this.isApplyingChanges = true
       const files = []
       for (const key of Object.keys(this.localFiles)) {
         if (this.localFiles[key]) {
@@ -186,7 +188,11 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
       }
       this.localFiles = {}
       return this.clientBuildService.updateConfig(this.changedConfig, files)
-    })
+    }).pipe(
+      tap(()=>{
+        this.isApplyingChanges = false
+      })
+    )
   }
 
   isConfigChanged(originalConfig: IClientBuildConfigBase<any>, changedConfig: IClientBuildConfigBase<any>): boolean {
@@ -324,6 +330,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
   onStartBuildClicked() {
     if (this.isBuilding === false) {
       this.isLoading = true
+      this.changeDetector.markForCheck()
       this._internalSubscriptions.add(
         defer(() => {
           if (this.isConfigChanged(this.originalConfig, this.changedConfig) === true) {
@@ -341,6 +348,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
         ).subscribe(
           () => {
             this.isBuilding = true
+            this.changeDetector.markForCheck()
           },
           (err) => {
             console.log(err)

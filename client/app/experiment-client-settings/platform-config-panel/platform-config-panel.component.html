@@ -30,9 +30,9 @@
             Recently saved at: {{originalConfig.updatedAt | date: 'short'}}
           </div>
           <div class="flex-filler"></div>
-          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false" mat-button color="accent"
+          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false || isApplyingChanges === true" mat-button color="accent"
             (click)="onDiscardChangedClicked()">Discard changes</button>
-          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false" mat-raised-button color="accent"
+          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false || isApplyingChanges === true" mat-raised-button color="accent"
             (click)="onSaveClicked()">Save Changes</button>
         </div>
         <table class="table settings-main-table">
@@ -114,7 +114,7 @@
                   type="password" [validationFailedMessage]="getValidationError('credentials.keystoreKeyPassword')"></app-config-variable-row>
 
                 <div class="config-row no-hover text-right">
-                  <button mat-raised-button color="accent" (click)="onValidateSignatureClicked()">
+                  <button [disabled]="isApplyingChanges === true" mat-raised-button color="accent" (click)="onValidateSignatureClicked()">
                     {{isConfigChanged(originalConfig, changedConfig)===true? 'Save Changes & Validate the Keystore' :
                     'Validate the Keystore'}}
                   </button>
