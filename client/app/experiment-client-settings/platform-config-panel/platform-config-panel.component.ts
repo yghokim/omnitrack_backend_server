@@ -148,7 +148,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
           this.validateConfig()
         },
         (err)=>{
-          
+          console.error(err)
         },
         ()=>{
           this.isLoading = false
