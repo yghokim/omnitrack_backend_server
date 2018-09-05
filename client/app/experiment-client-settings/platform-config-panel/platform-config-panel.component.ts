@@ -146,6 +146,12 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
       this.clientBuildService.initializePlatformDefault(this.platform).subscribe(
         () => {
           this.validateConfig()
+        },
+        (err)=>{
+          
+        },
+        ()=>{
+          this.isLoading = false
         }
       )
     )

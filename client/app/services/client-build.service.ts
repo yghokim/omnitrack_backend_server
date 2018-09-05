@@ -156,7 +156,7 @@ export class ClientBuildService extends ServiceBase {
       body = { config: config }
     }
 
-    return this.http.post("/api/research/build/configs" + (config.researcherMode===true? "" : "/" + config.experiment) , body, this.api.authorizedOptions).pipe(
+    return this.http.post("/api/research/build/configs/update" + (config.researcherMode===true? "" : "/" + config.experiment) , body, this.api.authorizedOptions).pipe(
       map(res => res.json()),
       tap(uploadedConfig => {
         this.replaceNewConfigWithId(uploadedConfig)

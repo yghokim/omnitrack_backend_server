@@ -134,17 +134,18 @@ export class ResearchRouter extends RouterWrapper {
     // client build ================================================================
     this.router.get('/build/configs/all/:experimentId?', tokenApprovedAuth,
       clientBuildCtrl.getClientBuildConfigs)
-    this.router.post('/build/configs/:experimentId?', tokenApprovedAuth,
+      this.router.post('/build/configs/initialize', tokenApprovedAuth,
+        clientBuildCtrl.initializeDefaultPlatformConfig)
+    this.router.post('/build/configs/update/:experimentId?', tokenApprovedAuth,
       clientBuildCtrl.updateClientBuildConfigs)
-    this.router.post('/build/configs/initialize', tokenApprovedAuth,
-      clientBuildCtrl.initializeDefaultPlatformConfig)
+      
+    this.router.get("/build/configs/:configId/validate_signature", tokenApprovedAuth, clientBuildCtrl.validateAndGetSignatureFromJavaKeystore)
+
 
     this.router.post('/build/start', tokenApprovedAuth, clientBuildCtrl.startBuild)
     this.router.post('/build/cancel', tokenApprovedAuth, clientBuildCtrl.cancelBuild)
     this.router.get('/build/status', tokenApprovedAuth,
       clientBuildCtrl.getBuildStatus)
-
-    this.router.get("/build/configs/:configId/validate_signature", tokenApprovedAuth, clientBuildCtrl.validateAndGetSignatureFromJavaKeystore)
 
 
     // ==============================================================================

@@ -576,7 +576,6 @@ export default class OTClientBuildCtrl {
   _cancelBuild(configId: string): Promise<boolean> {
     return OTClientBuildConfigModel.findOne({ _id: configId }, "_id experiment researcherMode platform").lean().then(
       old => {
-        console.log(old)
         if (old != null) {
           return appWrapper.serverModule().cancelAllBuildJobsOfPlatform(old.experiment, old.platform).then(numCanceled => {
             return OTClientBuildAction.update({
@@ -605,12 +604,8 @@ export default class OTClientBuildCtrl {
       query.researcherMode = true
     }
 
-    console.log("buildActionQuery:")
-    console.log(query)
-
     return OTClientBuildAction.find(query).lean().then(
       actions => {
-        console.log(actions)
         return actions.map(a => this._makeClientBuildStatus(a))
       }
     )
@@ -627,6 +622,7 @@ export default class OTClientBuildCtrl {
   initializeDefaultPlatformConfig = (req, res) => {
     const experimentId = req.body.experimentId
     const platform = req.body.platform
+    console.log("initialize " + platform + " build config for " + experimentId)
     this._initializeDefaultPlatformConfig(platform, req.researcher.email, experimentId).then(
       buildConfig => {
         res.status(200).send(buildConfig)
@@ -667,26 +663,31 @@ export default class OTClientBuildCtrl {
         return
       }
 
-      const update = isString(req.body.config) === true ? JSON.parse(req.body.config) : deepclone(req.body.config)
-      const configId = update._id
-      delete update._id
-      delete update.createdAt
-      delete update.updatedAt
+      if(req.body.config){
+        const update = isString(req.body.config) === true ? JSON.parse(req.body.config) : deepclone(req.body.config)
+      
+        const configId = update._id
+        delete update._id
+        delete update.createdAt
+        delete update.updatedAt
 
-      OTClientBuildConfigModel.findOneAndUpdate(
-        {
-          _id: configId
-        },
-        update,
-        { new: true }
-      ).lean().then(
-        newDoc => {
-          res.status(200).send(newDoc)
-        }
-      ).catch(updateError => {
-        console.error(updateError)
-        res.status(500).send(updateError)
-      })
+        OTClientBuildConfigModel.findOneAndUpdate(
+          {
+            _id: configId
+          },
+          update,
+          { new: true }
+        ).lean().then(
+          newDoc => {
+            res.status(200).send(newDoc)
+          }
+        ).catch(updateError => {
+          console.error(updateError)
+          res.status(500).send(updateError)
+        })
+      }else{
+        res.status(200).send
+      }
     })
   }
 
