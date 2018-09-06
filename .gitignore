@@ -37,6 +37,7 @@ testem.log
 /typings
 
 /*.log
+/omnitrack_research_kit_frontend.zip
 
 # e2e
 /e2e/*.js

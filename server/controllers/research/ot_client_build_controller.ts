@@ -445,7 +445,7 @@ export default class OTClientBuildCtrl {
       ]
 
       keys.forEach(key => {
-        if (buildConfig[key]) {
+        if (buildConfig[key]!=null) {
           sourceConfigJson[key] = buildConfig[key]
         }
       })
