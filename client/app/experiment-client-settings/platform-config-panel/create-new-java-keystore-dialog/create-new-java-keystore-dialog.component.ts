@@ -10,6 +10,7 @@ import { makeMatchingPasswordFormGroup } from '../../../client-helper';
 import { deepclone } from '../../../../../shared_lib/utils';
 import { Subscription } from 'rxjs';
 import { ClientBuildService } from '../../../services/client-build.service';
+import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'app-create-new-java-keystore-dialog',
@@ -19,6 +20,8 @@ import { ClientBuildService } from '../../../services/client-build.service';
 export class CreateNewJavaKeystoreDialogComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
+
+  public isGenerating = false
 
   public keytoolForm: FormGroup;
 
@@ -84,6 +87,7 @@ export class CreateNewJavaKeystoreDialogComponent implements OnInit, OnDestroy {
   }
 
   onNoClick() {
+    this._internalSubscriptions.unsubscribe()
     this.dialogRef.close(null)
   }
 
@@ -98,10 +102,13 @@ export class CreateNewJavaKeystoreDialogComponent implements OnInit, OnDestroy {
       formValue.keyPassword = formValue.matchingKeyPassword.password
       formValue.storePassword = formValue.matchingStorePassword.password
       console.log("submit java keystore form.")
+      this.isGenerating = true
       this._internalSubscriptions.add(
         this.buildService.generateJavaKeystore(formValue).subscribe(
-          res=>{
-            console.log(res)
+          blob=>{
+            console.log(blob)
+            FileSaver.saveAs(blob, 'keystore.jks')
+            this.dialogRef.close()
           },
           err => {
             console.error(err)

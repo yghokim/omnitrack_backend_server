@@ -47,6 +47,7 @@ export default class OTClientBuildCtrl {
     return multer.diskStorage({
       destination: (req, file, cb) => {
         const dirPath = this._makeExperimentConfigDirectoryPath(experimentId)
+        console.log("ensure the directory", dirPath)
         fs.ensureDir(dirPath).then(
           () => {
             cb(null, dirPath)
@@ -104,7 +105,19 @@ export default class OTClientBuildCtrl {
 
       console.log("generate a keystore file at " + keystorePath)
 
-      const command = 'keytool -genkeypair -keystore "' + keystorePath + '" -storetype jks -storePass ' + value.storePassword + ' -alias ' + value.alias + ' -keyPass ' + value.keyPassword + ' -keyalg RSA -keysize 4096 -sigalg SHA512withRSA'
+      const dnames = {
+        CN: value.name,
+        OU: value.organizationalUnit,
+        O: value.organization,
+        L: value.city,
+        S: value.province,
+        C: value.countryCode
+      }
+
+      const command = 'keytool -genkeypair -keystore "' + keystorePath + '" -storetype jks -storePass ' + value.storePassword + ' -alias ' + value.alias + ' -keyPass ' + value.keyPassword + ' -keyalg RSA -keysize 4096 -sigalg SHA512withRSA' + ' -dname "' + Object.keys(dnames).map(key=>{
+        console.log(dnames[key])
+        return key + "=" + (dnames[key]!=null? dnames[key] : 'Unknown')
+      }).join(", ") + '"'
       
       console.log("generate keytool")
       console.log(command)
@@ -608,7 +621,6 @@ export default class OTClientBuildCtrl {
   _cancelBuild(configId: string): Promise<boolean> {
     return OTClientBuildConfigModel.findOne({ _id: configId }, "_id experiment researcherMode platform").lean().then(
       old => {
-        console.log(old)
         if (old != null) {
           return appWrapper.serverModule().cancelAllBuildJobsOfPlatform(old.experiment, old.platform).then(numCanceled => {
             return OTClientBuildAction.update({
@@ -637,12 +649,8 @@ export default class OTClientBuildCtrl {
       query.researcherMode = true
     }
 
-    console.log("buildActionQuery:")
-    console.log(query)
-
     return OTClientBuildAction.find(query).lean().then(
       actions => {
-        console.log(actions)
         return actions.map(a => this._makeClientBuildStatus(a))
       }
     )
@@ -659,6 +667,7 @@ export default class OTClientBuildCtrl {
   initializeDefaultPlatformConfig = (req, res) => {
     const experimentId = req.body.experimentId
     const platform = req.body.platform
+    console.log("initialize " + platform + " build config for " + experimentId)
     this._initializeDefaultPlatformConfig(platform, req.researcher.email, experimentId).then(
       buildConfig => {
         res.status(200).send(buildConfig)
@@ -684,7 +693,7 @@ export default class OTClientBuildCtrl {
 
   updateClientBuildConfigs = (req, res) => {
 
-    const getForm = multer({ storage: this._makeStorage(req.body.experimentId) }).fields([
+    const getForm = multer({ storage: this._makeStorage(req.params.experimentId) }).fields([
       { name: "config", maxCount: 1 },
       { name: "androidKeystore", maxCount: 1 },
       { name: "sourceCodeZip_Android", maxCount: 1 },
@@ -699,26 +708,31 @@ export default class OTClientBuildCtrl {
         return
       }
 
-      const update = isString(req.body.config) === true ? JSON.parse(req.body.config) : deepclone(req.body.config)
-      const configId = update._id
-      delete update._id
-      delete update.createdAt
-      delete update.updatedAt
+      if(req.body.config){
+        const update = isString(req.body.config) === true ? JSON.parse(req.body.config) : deepclone(req.body.config)
+      
+        const configId = update._id
+        delete update._id
+        delete update.createdAt
+        delete update.updatedAt
 
-      OTClientBuildConfigModel.findOneAndUpdate(
-        {
-          _id: configId
-        },
-        update,
-        { new: true }
-      ).lean().then(
-        newDoc => {
-          res.status(200).send(newDoc)
-        }
-      ).catch(updateError => {
-        console.error(updateError)
-        res.status(500).send(updateError)
-      })
+        OTClientBuildConfigModel.findOneAndUpdate(
+          {
+            _id: configId
+          },
+          update,
+          { new: true }
+        ).lean().then(
+          newDoc => {
+            res.status(200).send(newDoc)
+          }
+        ).catch(updateError => {
+          console.error(updateError)
+          res.status(500).send(updateError)
+        })
+      }else{
+        res.status(200).send
+      }
     })
   }
 
@@ -799,7 +813,7 @@ export default class OTClientBuildCtrl {
           }else{
             console.log("successfully sent a keystore file.")
           }
-          fs.removeFileSync(filePath)
+          fs.removeSync(filePath)
         })
       }
     ).catch(err => {

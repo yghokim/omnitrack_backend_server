@@ -1,5 +1,5 @@
 <div class="card-header flex-container flex-align-items-center">
-  <span>Turn on the switch to restrict the functionality</span>
+  <span>Click to toggle the restriction status of the features</span>
 <div class="flex-filler"></div>
 <button mat-button color="primary" [disabled]="!isChanged()" (click)="onApplyClicked()">Apply</button>
 </div>
@@ -7,6 +7,8 @@
   <div *ngFor="let key of keys" class="key-row flex-container flex-align-items-center">
     <div class="label">{{getFlagName(key)}} <span *ngIf="isFlagChanged(key)===true" class="changed small text-color-lightgray">(changed)</span></div>
     <div class="flex-filler"></div>
-    <mat-slide-toggle [checked]="isFlagLocked(key)" (change)="setFlag(key,$event.checked)"></mat-slide-toggle>
+    <button type="button" class="btn btn-sm" [class.btn-success]="isFlagLocked(key)===false" [class.btn-danger]="isFlagLocked(key)===true" (click)="setFlag(key, !isFlagLocked(key))">
+      <span>{{isFlagLocked(key)===true? 'Not Allowed':'Allowed'}}</span>
+    </button>
   </div>
 </div>

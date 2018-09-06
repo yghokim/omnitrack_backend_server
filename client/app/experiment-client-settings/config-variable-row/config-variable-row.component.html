@@ -10,7 +10,9 @@
         (input)="onTextChanged($event.target.value)">
       <input *ngSwitchCase="'password'" type="password" class="text-type form-control"  [class.is-invalid]="validationFailedMessage!=null" [placeholder]="hintText" [value]="config[variableName]==undefined? null : config[variableName]"
         (input)="onTextChanged($event.target.value)">
-      <mat-slide-toggle *ngSwitchCase="'boolean'" [checked]="config[variableName]" (change)="config[variableName] = $event.checked"></mat-slide-toggle>
+      
+      <mat-slide-toggle *ngSwitchCase="'boolean'" [checked]="getFallbackBooleanValue()" (change)="config[variableName] = inverseBoolean===true? !$event.checked : $event.checked"></mat-slide-toggle>
+      
       <div *ngSwitchCase="'jsonFile'" class="json-file-type flex-filler">
         <div class="flex-container flex-align-items-center">
           <button class="mat-button-small" *ngIf="config[variableName] && !compareValues(originalValue, config[variableName])" mat-button

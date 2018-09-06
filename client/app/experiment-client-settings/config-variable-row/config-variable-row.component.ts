@@ -17,6 +17,7 @@ export class ConfigVariableRowComponent implements OnInit {
   @Input() label: string = null
   @Input() variableName: string = null
   @Input() hintText: string = null
+  @Input() inverseBoolean: boolean = false
 
   @Input() validationFailedMessage: string = null
 
@@ -27,6 +28,11 @@ export class ConfigVariableRowComponent implements OnInit {
   ngOnInit() {
   }
 
+  getFallbackBooleanValue(): boolean{
+    const value = this.config[this.variableName]? this.config[this.variableName] : false
+    return this.inverseBoolean===true? !value : value
+  }
+  
   onTextChanged(value) {
     if (value.trim().length === 0) {
       this.config[this.variableName] = null

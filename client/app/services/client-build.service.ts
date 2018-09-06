@@ -156,7 +156,7 @@ export class ClientBuildService extends ServiceBase {
       body = { config: config }
     }
 
-    return this.http.post("/api/research/build/configs", body, this.api.authorizedOptions).pipe(
+    return this.http.post("/api/research/build/configs/update" + (config.researcherMode===true? "" : "/" + config.experiment) , body, this.api.authorizedOptions).pipe(
       map(res => res.json()),
       tap(uploadedConfig => {
         this.replaceNewConfigWithId(uploadedConfig)
@@ -176,11 +176,10 @@ export class ClientBuildService extends ServiceBase {
     )
   }
 
-  generateJavaKeystore(args: any): Observable<any> {
+  generateJavaKeystore(args: any): Observable<Blob> {
     return this.http.post("/api/research/build/generate_keystore", args, this.api.makeAuthorizedRequestOptions(null, ResponseContentType.Blob)).pipe(
       map(r => {
-        console.log(r)
-        return r
+        return r.blob()
       })
     )
   }

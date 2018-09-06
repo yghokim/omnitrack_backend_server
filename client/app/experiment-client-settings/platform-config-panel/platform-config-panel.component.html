@@ -13,10 +13,9 @@
     </mat-expansion-panel-header>
 
     <div class="card-content">
-      <app-labeled-loading-indicator *ngIf="isLoading===true" [fitParent]="originalConfig!=null">
+      <app-labeled-loading-indicator class="loading-indicator" *ngIf="isLoading===true" [fitParent]="originalConfig!=null">
         <span *ngIf="originalConfig==null" message>Loading platform configuration..</span>
         <span *ngIf="originalConfig!=null" message>Please wait..</span>
-
       </app-labeled-loading-indicator>
       <div class="alert alert-warning no-margin flex-container flex-align-items-center" role="alert" *ngIf="isLoading !== true && isInitialized === false">
         <span>
@@ -25,15 +24,15 @@
         <div class="flex-filler"></div>
         <button mat-raised-button color="primary" (click)="onInitializeClicked()">Initialize</button>
       </div>
-      <ng-container *ngIf="isLoading !== true && isInitialized === true && originalConfig != null">
+      <ng-container *ngIf="isInitialized === true && originalConfig != null">
         <div class="header flex-container flex-align-items-center">
           <div class="text-right text-color-lightgray saved-timestamp-indicator">
             Recently saved at: {{originalConfig.updatedAt | date: 'short'}}
           </div>
           <div class="flex-filler"></div>
-          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false" mat-button color="accent"
+          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false || isApplyingChanges === true" mat-button color="accent"
             (click)="onDiscardChangedClicked()">Discard changes</button>
-          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false" mat-raised-button color="accent"
+          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false || isApplyingChanges === true" mat-raised-button color="accent"
             (click)="onSaveClicked()">Save Changes</button>
         </div>
         <table class="table settings-main-table">
@@ -63,17 +62,17 @@
               <app-config-variable-row label="Hide the external entities" type="boolean" variableName="disableExternalEntities" hintText="Disable using or adding trackers that are not assigned to this experiment."
                 [config]="changedConfig" [originalValue]="originalConfig.disableExternalEntities"></app-config-variable-row>-->
 
-              <app-config-variable-row label="Disable tracker creation" type="boolean" variableName="disableTrackerCreation"
-                hintText="Disable participants to create their own trackers." [config]="changedConfig" [originalValue]="originalConfig.disableTrackerCreation"></app-config-variable-row>
+              <app-config-variable-row label="Enable tracker creation" type="boolean" variableName="disableTrackerCreation"
+                hintText="Disable participants to create their own trackers." [inverseBoolean]="true" [config]="changedConfig" [originalValue]="originalConfig.disableTrackerCreation"></app-config-variable-row>
 
-              <app-config-variable-row label="Disable trigger creation" type="boolean" variableName="disableTriggerCreation"
-                hintText="Disable participants to create their own triggers." [config]="changedConfig" [originalValue]="originalConfig.disableTriggerCreation"></app-config-variable-row>
+              <app-config-variable-row label="Enable trigger creation" type="boolean" variableName="disableTriggerCreation"
+                hintText="Disable participants to create their own triggers." [inverseBoolean]="true" [config]="changedConfig" [originalValue]="originalConfig.disableTriggerCreation"></app-config-variable-row>
 
-              <app-config-variable-row label="Hide trigger list" type="boolean" variableName="hideTriggersTab" hintText="Disable an access to trigger list."
-                [config]="changedConfig" [originalValue]="originalConfig.hideTriggersTab"></app-config-variable-row>
+              <app-config-variable-row label="Show trigger list" type="boolean" variableName="hideTriggersTab" hintText="Disable an access to trigger list."
+              [inverseBoolean]="true" [config]="changedConfig" [originalValue]="originalConfig.hideTriggersTab"></app-config-variable-row>
 
-              <app-config-variable-row label="Hide service list" type="boolean" variableName="hideServicesTab" hintText="Disable an access to service list."
-                [config]="changedConfig" [originalValue]="originalConfig.hideServicesTab"></app-config-variable-row>
+              <app-config-variable-row label="Show service list" type="boolean" variableName="hideServicesTab" hintText="Disable an access to service list."
+              [inverseBoolean]="true" [config]="changedConfig" [originalValue]="originalConfig.hideServicesTab"></app-config-variable-row>
 
               <app-config-variable-row label="Show tutorials" type="boolean" variableName="showTutorials" hintText=""
                 [config]="changedConfig" [originalValue]="originalConfig.showTutorials"></app-config-variable-row>
@@ -114,7 +113,7 @@
                   type="password" [validationFailedMessage]="getValidationError('credentials.keystoreKeyPassword')"></app-config-variable-row>
 
                 <div class="config-row no-hover text-right">
-                  <button mat-raised-button color="accent" (click)="onValidateSignatureClicked()">
+                  <button [disabled]="isApplyingChanges === true" mat-raised-button color="accent" (click)="onValidateSignatureClicked()">
                     {{isConfigChanged(originalConfig, changedConfig)===true? 'Save Changes & Validate the Keystore' :
                     'Validate the Keystore'}}
                   </button>
