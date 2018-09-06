@@ -227,8 +227,12 @@ export class ResearchApiService extends ServiceBase {
     return this.http.get("/api/research/researchers/search", { headers: this.tokenHeaders, params: { term: term, excludeSelf: excludeSelf } }).pipe(map(res => res.json()))
   }
 
-  makeAuthorizedRequestOptions(query: any): RequestOptions {
-    return new RequestOptions({ headers: this.tokenHeaders, params: query })
+  makeAuthorizedRequestOptions(query: any, responseType?: ResponseContentType): RequestOptions {
+    const options: any = { headers: this.tokenHeaders, params: query }
+    if(responseType){
+      options.responseType = responseType
+    }
+    return new RequestOptions(options)
   }
 
   updateExperiment(experimentId: string, update: any): Observable<boolean> {

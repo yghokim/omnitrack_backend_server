@@ -1,21 +1,26 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import {
   FormGroup,
   FormControl,
   Validators,
   FormBuilder
 } from "@angular/forms";
-import { MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { makeMatchingPasswordFormGroup } from '../../../client-helper';
+import { deepclone } from '../../../../../shared_lib/utils';
+import { Subscription } from 'rxjs';
+import { ClientBuildService } from '../../../services/client-build.service';
 
 @Component({
   selector: 'app-create-new-java-keystore-dialog',
   templateUrl: './create-new-java-keystore-dialog.component.html',
   styleUrls: ['./create-new-java-keystore-dialog.component.scss']
 })
-export class CreateNewJavaKeystoreDialogComponent implements OnInit {
+export class CreateNewJavaKeystoreDialogComponent implements OnInit, OnDestroy {
 
-  keytoolForm: FormGroup;
+  private readonly _internalSubscriptions = new Subscription()
+
+  public keytoolForm: FormGroup;
 
   storePassword = new FormControl("", [
     Validators.required,
@@ -42,7 +47,7 @@ export class CreateNewJavaKeystoreDialogComponent implements OnInit {
     Validators.required
   ]);
 
-  year = new FormControl(25)
+  year = new FormControl(25, [Validators.min(1)])
 
   name = new FormControl(null)
   organUnit = new FormControl(null)
@@ -51,9 +56,13 @@ export class CreateNewJavaKeystoreDialogComponent implements OnInit {
   province = new FormControl(null)
   countryCode = new FormControl(null)
 
-  constructor( private formBuilder: FormBuilder, public dialogRef: MatDialogRef<CreateNewJavaKeystoreDialogComponent>,
+  private buildService: ClientBuildService
+
+  constructor(private formBuilder: FormBuilder, public dialogRef: MatDialogRef<CreateNewJavaKeystoreDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) { }
+  ) {
+    this.buildService = data.clientBuildService
+   }
 
   ngOnInit() {
     this.keytoolForm = this.formBuilder.group({
@@ -70,11 +79,39 @@ export class CreateNewJavaKeystoreDialogComponent implements OnInit {
     })
   }
 
-  onYesClick(){
+  ngOnDestroy() {
+    this._internalSubscriptions.unsubscribe()
   }
 
-  onNoClick(){
+  onNoClick() {
     this.dialogRef.close(null)
+  }
+
+  getValidationClass(key: string) {
+    return !this[key].valid ? "is-invalid" : ":valid";
+  }
+
+  submitKeystore(){
+    this.keytoolForm.updateValueAndValidity()
+    if(this.keytoolForm.valid===true){
+      const formValue = deepclone(this.keytoolForm.value)
+      formValue.keyPassword = formValue.matchingKeyPassword.password
+      formValue.storePassword = formValue.matchingStorePassword.password
+      console.log("submit java keystore form.")
+      this._internalSubscriptions.add(
+        this.buildService.generateJavaKeystore(formValue).subscribe(
+          res=>{
+            console.log(res)
+          },
+          err => {
+            console.error(err)
+          }
+        )
+      )
+    }
+    else{
+      console.log("form is invalid.")
+    }
   }
 
 }

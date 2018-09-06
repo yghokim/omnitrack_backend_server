@@ -93,6 +93,39 @@ export default class OTClientBuildCtrl {
       })
   }
 
+  _generateJavaKeystoreFile(value: any): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      const exec = require("child_process").exec;
+      const keystoreDirectoryPath =path.join(__dirname, "../../../../../",  "storage/temp/keystore/")
+
+      fs.ensureDirSync(keystoreDirectoryPath)
+
+      const keystorePath = keystoreDirectoryPath + "keystore_" + randomstring.generate(5) + ".jks"
+
+      console.log("generate a keystore file at " + keystorePath)
+
+      const command = 'keytool -genkeypair -keystore "' + keystorePath + '" -storetype jks -storePass ' + value.storePassword + ' -alias ' + value.alias + ' -keyPass ' + value.keyPassword + ' -keyalg RSA -keysize 4096 -sigalg SHA512withRSA'
+      
+      console.log("generate keytool")
+      console.log(command)
+      exec(command, (err, stdout, stderr) => {
+        if (err) {
+          console.error(err)
+          reject(err)
+        } else {
+          if (checkFileExistenceAndType(keystorePath)) {
+            console.log(stdout)
+            resolve(keystorePath)
+          } else {
+            console.error(stdout)
+            console.error(stderr)
+            reject(stderr)
+          }
+        }
+      })
+    })
+  }
+
   _validateAndGetSignatureFromJavaKeystore(configId: string, payloadBuildConfig?: IAndroidBuildConfig): Promise<string> {
     return deferPromise(() => {
       if (payloadBuildConfig) {
@@ -753,6 +786,25 @@ export default class OTClientBuildCtrl {
     }).catch(e => {
       console.error(e)
       res.status(500).send(e)
+    })
+  }
+
+  generateJavaKeystore = (req, res) => {
+    this._generateJavaKeystoreFile(req.body).then(
+      filePath => {
+        res.download(filePath, 'keystore.jks', (err) => {
+          if(err){
+            console.error("keystore send error")
+            console.error(err)  
+          }else{
+            console.log("successfully sent a keystore file.")
+          }
+          fs.removeFileSync(filePath)
+        })
+      }
+    ).catch(err => {
+      console.error(err)
+      res.status(500).send(err)
     })
   }
 }

@@ -86,7 +86,6 @@
                 Android Build Settings
               </th>
               <td class="main-settings-container">
-                <!--
                 <div class="config-row no-hover text-right flex-container">
                   <div class="flex-filler"></div>
                   <div class="alert alert-warning no-margin-bottom flex-container flex-align-items-center">
@@ -97,7 +96,7 @@
                       Create New Keystore
                     </button>
                   </div>
-                </div>-->
+                </div>
                 <app-config-variable-row label="Keystore file (.jks)" [originalValue]="originalConfig.credentials.keystoreFileHash"
                   [config]="changedConfig.credentials" (binaryFileChanged)="localFiles.androidKeystore = $event"
                   variableName="keystoreFileHash" type="jksFile" [validationFailedMessage]="getValidationError('credentials.keystoreFileHash')"></app-config-variable-row>

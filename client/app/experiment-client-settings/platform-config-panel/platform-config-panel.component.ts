@@ -215,7 +215,9 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
   }
 
   onCreateNewKeystoreClicked(){
-    this.dialog.open(CreateNewJavaKeystoreDialogComponent)
+    this.dialog.open(CreateNewJavaKeystoreDialogComponent, {data:{
+      clientBuildService: this.clientBuildService
+    }})
   }
 
   onAddApiKeyClicked() {

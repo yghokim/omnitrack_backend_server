@@ -146,6 +146,8 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.get("/build/configs/:configId/validate_signature", tokenApprovedAuth, clientBuildCtrl.validateAndGetSignatureFromJavaKeystore)
 
+    this.router.post('/build/generate_keystore', tokenApprovedAuth, clientBuildCtrl.generateJavaKeystore)
+
 
     // ==============================================================================
 

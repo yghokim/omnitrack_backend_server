@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { Http, ResponseContentType } from '@angular/http';
 import { ServiceBase } from "./service-base";
 import { ResearchApiService } from "./research-api.service";
 import { IClientBuildConfigBase } from "../../../omnitrack/core/research/db-entity-types";
@@ -34,7 +34,7 @@ export class ClientBuildService extends ServiceBase {
   }
 
   private readonly socketListener = (data: ClientBuildStatus) => {
-    if ((this.researcherMode === false && data.experimentId === this._currentExperimentId ) || (this.researcherMode === true && data.researcherMode === true)) {
+    if ((this.researcherMode === false && data.experimentId === this._currentExperimentId) || (this.researcherMode === true && data.researcherMode === true)) {
       if (this._buildStatusBehaviorSubject.value) {
         const arr = this._buildStatusBehaviorSubject.value.slice()
         const matchIndex = arr.findIndex(e => e.configId === data.configId)
@@ -75,7 +75,7 @@ export class ClientBuildService extends ServiceBase {
     }
   }
 
-  initializeResearcherMode(){
+  initializeResearcherMode() {
     if (this._researcherMode === false) {
       this._researcherMode = true
       this._buildConfigBehaviorSubject.next(null)
@@ -86,11 +86,11 @@ export class ClientBuildService extends ServiceBase {
 
   reloadBuildConfigs() {
     this._internalSubscriptions.add(
-      this.http.get("/api/research/build/configs/all" + (this.researcherMode === true? "" : ("/"+this._currentExperimentId)), this.api.authorizedOptions).pipe(map(res => res.json())).subscribe(
+      this.http.get("/api/research/build/configs/all" + (this.researcherMode === true ? "" : ("/" + this._currentExperimentId)), this.api.authorizedOptions).pipe(map(res => res.json())).subscribe(
         result => {
           this._buildConfigBehaviorSubject.next(result)
         },
-        err =>{
+        err => {
           console.error("BuildConfig loading error:")
           console.error(err)
         }
@@ -99,13 +99,13 @@ export class ClientBuildService extends ServiceBase {
 
   reloadBuildStatus() {
     this._internalSubscriptions.add(
-      this.http.get("/api/research/build/status", 
-      this.researcherMode === true? this.api.authorizedOptions : this.api.makeAuthorizedRequestOptions({experimentId: this._currentExperimentId})
-    ).pipe(map(res => res.json())).subscribe(
+      this.http.get("/api/research/build/status",
+        this.researcherMode === true ? this.api.authorizedOptions : this.api.makeAuthorizedRequestOptions({ experimentId: this._currentExperimentId })
+      ).pipe(map(res => res.json())).subscribe(
         result => {
           this._buildStatusBehaviorSubject.next(result)
         },
-        err =>{
+        err => {
           console.error("Build Status loading error:")
           console.error(err)
         }
@@ -126,9 +126,9 @@ export class ClientBuildService extends ServiceBase {
   }
 
   initializePlatformDefault(platform: string): Observable<IClientBuildConfigBase<any>> {
-    return this.http.post("/api/research/build/configs/initialize", { 
+    return this.http.post("/api/research/build/configs/initialize", {
       platform: platform,
-      experimentId: (this.researcherMode === true? null : this._currentExperimentId)
+      experimentId: (this.researcherMode === true ? null : this._currentExperimentId)
     }, this.api.authorizedOptions).pipe(map(res => res.json()), tap(newConfig => {
       const newArray = this.clientBuildConfigs.slice()
       const matchIndex = newArray.findIndex(c => c.platform === platform)
@@ -164,7 +164,7 @@ export class ClientBuildService extends ServiceBase {
     )
   }
 
-  validateSignature(config: IClientBuildConfigBase<any>): Observable<string>{
+  validateSignature(config: IClientBuildConfigBase<any>): Observable<string> {
     return this.http.get("/api/research/build/configs/" + config._id + "/validate_signature", this.api.authorizedOptions).pipe(
       tap(res => {
         console.log(res)
@@ -176,15 +176,24 @@ export class ClientBuildService extends ServiceBase {
     )
   }
 
+  generateJavaKeystore(args: any): Observable<any> {
+    return this.http.post("/api/research/build/generate_keystore", args, this.api.makeAuthorizedRequestOptions(null, ResponseContentType.Blob)).pipe(
+      map(r => {
+        console.log(r)
+        return r
+      })
+    )
+  }
+
   startBuild(config: IClientBuildConfigBase<any>, force: boolean = false): Observable<boolean> {
-    return this.http.post("/api/research/build/start", { 
-      configId: config._id, 
+    return this.http.post("/api/research/build/start", {
+      configId: config._id,
       force: force
     }, this.api.authorizedOptions).pipe(
       map(res => res.json()),
       catchError(err => { throw err.json() }),
-      tap((buildSuccess)=>{
-        if(buildSuccess === true){
+      tap((buildSuccess) => {
+        if (buildSuccess === true) {
           this.reloadBuildStatus()
         }
       })
@@ -192,7 +201,7 @@ export class ClientBuildService extends ServiceBase {
   }
 
   cancelBuild(config: IClientBuildConfigBase<any>): Observable<string> {
-    return this.http.post("/api/research/build/cancel", { 
+    return this.http.post("/api/research/build/cancel", {
       configId: config._id
     }, this.api.authorizedOptions).pipe(
       map(res => res.json()),
