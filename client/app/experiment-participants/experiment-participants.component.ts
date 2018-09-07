@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
 import { Subscription, zip, empty } from 'rxjs';
 import { flatMap } from 'rxjs/operators';
@@ -13,7 +13,8 @@ import { ParticipantExcludedDaysConfigDialogComponent } from '../dialogs/partici
 @Component({
   selector: 'app-experiment-participants',
   templateUrl: './experiment-participants.component.html',
-  styleUrls: ['./experiment-participants.component.scss']
+  styleUrls: ['./experiment-participants.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
@@ -35,7 +36,8 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
   constructor(
     public api: ResearchApiService,
     private notificationService: NotificationService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private detector: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -43,10 +45,10 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(this.api.selectedExperimentService.pipe(flatMap(expService => expService.getParticipants())).subscribe(
       participants => {
         this.participants = participants
-        console.log(participants)
         this.isLoadingParticipants = false
         this.participantDataSource = new MatTableDataSource(participants)
         this.setSortParticipants();
+        this.detector.markForCheck()
       }
     ))
   }
@@ -64,71 +66,6 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     if (!this.participants) { return 0 }
     return this.participants.filter(participant => participant.dropped === true).length
   }
-
-  /*
-  onSendInvitationClicked(userId: string) {
-    this._internalSubscriptions.add(
-      this.api.selectedExperimentService.pipe(flatMap(expService =>
-        zip(expService.getInvitations(), expService.getExperiment()))).subscribe(result => {
-          const invitations = result[0]
-          const groups = result[1].groups
-          if (invitations.length > 0) { // Has invitations. Show selection window.
-            this.dialog.open(ChooseInvitationDialogComponent, {
-              data: {
-                groups: groups,
-                invitations: invitations,
-                positiveLabel: "Send"
-              }
-            }).afterClosed().subscribe(
-              invitationCode => {
-                if (invitationCode) {
-                  this.api.selectedExperimentService.pipe(flatMap(exp => {
-                    return exp.sendInvitation(invitationCode, [userId], false)
-                  })).subscribe(() => {
-                    this.participantsSubscription.unsubscribe();
-                    this.onUserPoolTabSelected();
-                  })
-                }
-              }
-            )
-          } else {
-            // No invitation. Ask to make the invitation.
-            this.dialog.open(YesNoDialogComponent, {
-              data: {
-                title: "No Invitation",
-                message: "There are no invitations to current experiment. Do you want to create a new one and invite the user?",
-                positiveLabel: "Create New Invitation"
-              }
-            }).afterClosed().subscribe(yes => {
-              if (yes === true) {
-                this.dialog.open(NewInvitationDialogComponent, { data: { groups: groups } }).afterClosed().subscribe(invitationInfo => {
-                  if (invitationInfo) {
-                    this.api.selectedExperimentService.pipe(
-                      flatMap(service => service.generateInvitation(invitationInfo)
-                        .pipe(
-                          flatMap(newInvitation =>
-                            service.sendInvitation(newInvitation.code, [userId], false)
-                          )
-                        )
-                      )
-                    ).subscribe(() => {
-                      this.participantsSubscription.unsubscribe();
-                      this.onUserPoolTabSelected();
-                    })
-                  }
-                })
-              }
-            })
-          }
-        })
-    )
-  }
-
-  onCancelInvitationClicked(participantId: string) {
-    this.deleteParticipant(participantId,
-      'Cancel Invitation',
-      'Do you want to cancel the pending invitation to the user?')
-  }*/
 
   onRemoveParticipantEntryClicked(participantId: string) {
     this.deleteParticipant(participantId,
@@ -153,8 +90,8 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
           this.api.selectedExperimentService.pipe(flatMap(expService => expService.removeParticipant(participantId)))
             .subscribe(
               removed => {
-                if (removed) {
-                  this.participants.splice(this.participants.findIndex(part => part._id === participantId), 1)
+                if(removed===true){
+                  this.notificationService.pushSnackBarMessage({message: "Removed the participant entry."})
                 }
               }
             )
@@ -178,8 +115,8 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
           this.api.selectedExperimentService.pipe(flatMap(expService => expService.dropParticipant(participantId)))
             .subscribe(
               removed => {
-                if (removed) {
-                  this.participants.splice(this.participants.findIndex(part => part._id === participantId), 1)
+                if (removed===true) {
+                  this.notificationService.pushSnackBarMessage({message: "Dropped the participant."})
                 }
               })
         }

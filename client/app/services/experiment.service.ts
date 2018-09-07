@@ -331,12 +331,24 @@ export class ExperimentService {
       .pipe(map(res => res.json()))
   }
 
-  removeParticipant(participantId): Observable<any> {
+  removeParticipant(participantId: string): Observable<any> {
     return this.http.delete("/api/research/participants/" + participantId, this.researchApi.authorizedOptions)
-      .pipe(map(res => res.json()))
+      .pipe(
+        map(res => res.json()),
+        tap(removed => {
+          if (removed === true && this.participantList.getValue() != null) {
+            const newList = this.participantList.getValue().splice(0)
+            const index = newList.findIndex(p => p._id === participantId)
+            if (index !== -1) {
+              newList.splice(index, 1)
+              this.participantList.next(newList)
+            }
+          }
+        })
+      )
   }
 
-  dropParticipant(participantId): Observable<any> {
+  dropParticipant(participantId: string): Observable<any> {
     return this.http.post("/api/research/participants/" + participantId + "/drop", {}, this.researchApi.authorizedOptions)
       .pipe(map(res => res.json().success))
   }
