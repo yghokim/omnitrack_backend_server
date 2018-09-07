@@ -9,11 +9,12 @@ export const LOCKED_PROPERTY_KEYS_TRACKER = LOCKED_PROPERTY_KEYS_COMMON.concat([
   "bookmark", 
   "removeAttributes",
   "editAttributes",
-  "addAttributes",
+  "addNewAttribute",
   "changeName",
   "changeAttributeOrder",
   "enterItemList",
-  "enterVisualization"
+  "enterVisualization",
+  "addNewReminder"
 ])
 
 export const LOCKED_PROPERTY_KEYS_ATTRIBUTE = LOCKED_PROPERTY_KEYS_COMMON.concat([
@@ -29,13 +30,14 @@ export const LOCKED_PROPERTY_KEYS_TRIGGER = LOCKED_PROPERTY_KEYS_COMMON.concat([
 
 export interface ITrackerLockedProperties extends IEntityLockedProperties {
   bookmark?: boolean
-  addAttributes?: boolean
+  addNewAttribute?: boolean
   removeAttributes?: boolean
   editAttributes?: boolean
   changeName?: boolean
   changeAttributeOrder?: boolean
   enterItemList?: boolean
   enterVisualization?: boolean
+  addNewReminder?: boolean
 }
 
 export interface IAttributeLockedProperties extends IEntityLockedProperties{
