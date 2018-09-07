@@ -1,6 +1,6 @@
 {
   "name": "@omnitrack/official_server",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "license": "MIT",
   "homepage": "https://omnitrack.github.io",
   "author": "Young-Ho Kim (The OmniTrack Team)",
@@ -23,7 +23,7 @@
     "lintbe": "tslint server/**/**.ts{,x}",
     "e2e": "ng e2e",
     "bundle-report": "webpack-bundle-analyzer dist/public/stats.json",
-    "version": "echo $npm_package_version > client/app/release_version && git add client/app/release_version" 
+    "version": "echo $npm_package_version > client/app/release_version && git add client/app/release_version"
   },
   "private": true,
   "dependencies": {
