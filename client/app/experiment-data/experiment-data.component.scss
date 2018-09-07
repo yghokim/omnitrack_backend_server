@@ -1,10 +1,22 @@
-.cell-value-clickable{
+.cell-value-clickable {
   cursor: pointer;
   padding: 2px 4px;
   display: inline;
   border-radius: 5px;
 
-  &:hover{
+  &:hover {
     background: #fdffa4;
   }
+}
+
+.badge-trigger {
+  background: #e9a96c;
+  font-weight: bold;
+  color: white;
+}
+
+.badge-manual {
+  background: #6aafbd;
+  font-weight: bold;
+  color: white;
 }

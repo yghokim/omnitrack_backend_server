@@ -10,7 +10,7 @@ import {
 } from "../../../omnitrack/core/db-entity-types";
 import TypedStringSerializer from "../../../omnitrack/core/typed_string_serializer";
 import AttributeManager from "../../../omnitrack/core/attributes/attribute.manager";
-import { MatTableDataSource, MatSort, MatPaginator, MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material';
 
 import { Element } from "@angular/compiler";
 import attributeTypes from "../../../omnitrack/core/attributes/attribute-types";
@@ -39,6 +39,8 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   public printFriendlyMode = false
 
+  public showMetadata = true
+
   private userSubscriptions = new Subscription();
   private trackerSubscriptions = new Subscription();
 
@@ -51,11 +53,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   public userTrackers: Array<ITrackerDbEntity> = [];
 
-  public trackerDataSource: MatTableDataSource<IItemDbEntity>;
-
   public trackerItems: Array<IItemDbEntity> = [];
-
-  @ViewChild(MatSort) sort: MatSort;
 
   public screenExpanded = true
 
@@ -115,6 +113,10 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     this.userSubscriptions.unsubscribe();
   }
 
+  trackItems(index, item) {
+    return item._id
+  }
+
   onExpandButtonClicked() {
     this.screenExpanded = !this.screenExpanded
   }
@@ -162,19 +164,8 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
               service.trackingDataService.getItemsOfTracker(tracker._id)
             ))
             .subscribe(items => {
-              this.trackerItems = items;
-              this.trackerDataSource = new MatTableDataSource(items)
-              this.trackerDataSource.sortingDataAccessor = (data: IItemDbEntity, sortHeaderId: string) => {
-                if (sortHeaderId === 'timestamp') { return data.timestamp || ''; }
-                for (const item of data.dataTable) {
-                  if (item.attrLocalId === sortHeaderId) {
-                    return item.sVal || '';
-                  }
-                }
-                return '';
-              }
-              this.trackerDataSource.sort = this.sort;
-
+              this.trackerItems = items;     
+              console.log(items);         
               this.detector.markForCheck()
             })
         );
@@ -193,6 +184,9 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   isImageAttribute(attr: IAttributeDbEntity): boolean {
     return attr.type === attributeTypes.ATTR_TYPE_IMAGE
   }
+
+  getImageType(): number { return attributeTypes.ATTR_TYPE_IMAGE }
+  getAudioType(): number { return attributeTypes.ATTR_TYPE_AUDIO }
 
   isAudioAttribute(attr: IAttributeDbEntity): boolean {
     return attr.type === attributeTypes.ATTR_TYPE_AUDIO
@@ -222,6 +216,14 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   getTrackerColumns(tracker: ITrackerDbEntity): any[] {
     const temp = tracker.attributes.map((attribute) => attribute.localId)
     return temp.concat('timestamp')
+  }
+
+  getItemSourceText(source: string){
+    switch(source){
+      case "Trigger": return "by trigger"
+      case "Manual": return "manually"
+      default: return "unknown"
+    }
   }
 
   onCellValueClicked(tracker: ITrackerDbEntity, attribute: IAttributeDbEntity, item: IItemDbEntity) {
@@ -283,7 +285,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                   console.log(trackerScheme)
                   const injectedAttrNames = trackerScheme.attributes.map(attr => attr.name)
                   const itemRows: Array<Array<any>> = [
-                    commonColumns.concat(injectedAttrNames).concat("logged at")
+                    commonColumns.concat(injectedAttrNames).concat(["logged at", "captured"])
                   ]
                   const trackers = result.trackers.filter(t => (t.flags || {}).injectionId === trackerScheme.flags.injectionId && this.participants.find(p => p.user._id === t.user))
                   trackers.forEach(
@@ -296,7 +298,11 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                             return this.getItemValue(item, attr, true)
                           })
 
-                          itemRows.push([participant.alias].concat(values).concat(moment(item.timestamp).format()))
+                          itemRows.push(
+                            [participant.alias]
+                            .concat(values)
+                            .concat([moment(item.timestamp).format(), this.getItemSourceText(item.source)])
+                          )
                         }
                       )
                     }
@@ -326,14 +332,18 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
                 trackers.forEach(tracker => {
                   const itemRows: Array<Array<any>> = [
-                    commonColumns.concat(tracker.attributes.map(attr => attr.name)).concat("logged at")
+                    commonColumns.concat(tracker.attributes.map(attr => attr.name)).concat(["logged at", "captured"])
                   ]
                   result.items.filter(i => i.tracker === tracker._id).forEach(
                     item => {
                       const values = tracker.attributes.map(attr => {
                         return this.getItemValue(item, attr, true)
                       })
-                      itemRows.push([participant.alias].concat(values).concat(moment(item.timestamp).format()))
+                      itemRows.push(
+                        [participant.alias]
+                        .concat(values)
+                        .concat([moment(item.timestamp).format(), this.getItemSourceText(item.source)])
+                        )
                     }
                   )
                   const sheet = XLSX.utils.aoa_to_sheet(itemRows)
