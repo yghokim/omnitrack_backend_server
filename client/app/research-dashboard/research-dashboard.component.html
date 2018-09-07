@@ -2,40 +2,51 @@
   <div header class="dropdown experiment" *ngIf="!isLoadingSelectedExperiment && api.getSelectedExperimentId()">
 
     <mat-menu #researchDashboardMenu="matMenu" [overlapTrigger]="false">
-        <h6 class="dropdown-header text-color-accented" *ngIf="myExperimentInfos.length > 0">Your experiments</h6>
-        <a class="dropdown-item small dropdown-item-experiment" (click)="onExperimentSelected(exp._id)" *ngFor="let exp of myExperimentInfos">{{exp.name}}</a>
-        <h6 class="dropdown-header text-color-accented" *ngIf="guestExperimentInfos.length > 0">Guest experiments</h6>
-        <a class="dropdown-item small dropdown-item-experiment" (click)="onExperimentSelected(exp._id)" *ngFor="let exp of guestExperimentInfos">{{exp.name}}</a>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item small dropdown-item-experiment" [routerLink]="['/research/experiments']">Experiment List</a>
-        <a class="dropdown-item small dropdown-item-experiment" [routerLink]="['/research/status']">Server Status</a>
-        <a class="dropdown-item small dropdown-item-experiment" *ngIf="researcherPrevilage >= 1" [routerLink]="['/research/settings']">Server Settings</a>
+      <h6 class="dropdown-header text-color-accented" *ngIf="myExperimentInfos.length > 0">Your experiments</h6>
+      <a class="dropdown-item small dropdown-item-experiment" (click)="onExperimentSelected(exp._id)" *ngFor="let exp of myExperimentInfos">{{exp.name}}</a>
+      <h6 class="dropdown-header text-color-accented" *ngIf="guestExperimentInfos.length > 0">Guest experiments</h6>
+      <a class="dropdown-item small dropdown-item-experiment" (click)="onExperimentSelected(exp._id)" *ngFor="let exp of guestExperimentInfos">{{exp.name}}</a>
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item small dropdown-item-experiment" [routerLink]="['/research/experiments']">Experiment List</a>
+      <a class="dropdown-item small dropdown-item-experiment" [routerLink]="['/research/status']">Server Status</a>
+      <a class="dropdown-item small dropdown-item-experiment" *ngIf="researcherPrevilage >= 1" [routerLink]="['/research/settings']">Server
+        Settings</a>
     </mat-menu>
 
     <button class="research-dropdown-button" mat-button [matMenuTriggerFor]="researchDashboardMenu">
-        {{selectedExperimentName}}
+      {{selectedExperimentName}}
     </button>
   </div>
 
-  <span header class="badge badge-primary badge-researcher-role flex-align-self-center left-margin-1em flex-container flex-align-items-center" *ngIf="(getMyRole() | async)"
-    [ngClass]="(getMyRole() | async)" matTooltip="Your role in this experiment." matTooltipPosition="below">
+  <span header class="badge badge-primary badge-researcher-role flex-align-self-center left-margin-1em flex-container flex-align-items-center"
+    *ngIf="(getMyRole() | async)" [ngClass]="(getMyRole() | async)" matTooltip="Your role in this experiment."
+    matTooltipPosition="below">
     <span>{{getMyRole() | async}}</span>
     <mat-icon class="material-icons left-margin-dot2em text-size-1dot2em">help_outline</mat-icon>
   </span>
 
   <mat-sidenav-container main id="research-dashboard-wrapper" *ngIf="!isLoadingSelectedExperiment">
     <mat-sidenav mode="side" opened id="research-column-sidebar">
-      <div class="nav nav-pills flex-column">
-        <div class="group" *ngFor="let group of dashboardNavigationGroups">
-          <div class="small nav-link nav-subtitle">{{group.name}}</div>
-          <a class="nav-link flex-container flex-align-items-center" [class.disabled]="menu.disabled===true" *ngFor="let menu of group.menus"
-            [routerLink]="['/research/dashboard', api.getSelectedExperimentId(), menu.key]" [routerLinkActive]="['active']">
-            <mat-icon *ngIf="menu.icon" class="gnb-icon material-icons">{{menu.icon}}</mat-icon>
-            <!--<img class="gnb-icon material-icons" *ngIf="menu.iconPath" [src]="menu.iconPath">
+      <div id="sidebar-nav-container">
+        <div class="nav nav-pills flex-column">
+          <div class="group" *ngFor="let group of dashboardNavigationGroups">
+            <div class="small nav-link nav-subtitle">{{group.name}}</div>
+            <a class="nav-link flex-container flex-align-items-center" [class.disabled]="menu.disabled===true" *ngFor="let menu of group.menus"
+              [routerLink]="['/research/dashboard', api.getSelectedExperimentId(), menu.key]" [routerLinkActive]="['active']">
+              <mat-icon *ngIf="menu.icon" class="gnb-icon material-icons">{{menu.icon}}</mat-icon>
+              <!--<img class="gnb-icon material-icons" *ngIf="menu.iconPath" [src]="menu.iconPath">
                     <mat-icon *ngIf="menu.svgIcon" class="gnb-icon material-icons" [svgIcon]="menu.svgIcon"></mat-icon>-->
 
-            <span>{{menu.name}}</span>
-          </a>
+              <span>{{menu.name}}</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div id="sidebar-footer">
+        <div class="flex-container flex-align-items-center">
+            <small>v{{clientVersion}}</small>
+            <div class="flex-filler"></div>
+            <a mat-button color="accent" href="https://github.com/OmniTrack/omnitrack_research_kit/wiki" target=_blank>Go to Doc</a>
         </div>
       </div>
     </mat-sidenav>
@@ -53,7 +64,8 @@
             </div>
           </div>
         </div>
-        <mat-progress-bar [@ySlide]="(notificationService.globalBusyFlag | async)" id="main-progress-bar" mode="indeterminate" color="accent"></mat-progress-bar>
+        <mat-progress-bar [@ySlide]="(notificationService.globalBusyFlag | async)" id="main-progress-bar" mode="indeterminate"
+          color="accent"></mat-progress-bar>
       </div>
       <div class="container-fluid">
         <router-outlet></router-outlet>

@@ -52,12 +52,12 @@ export class CreateNewJavaKeystoreDialogComponent implements OnInit, OnDestroy {
 
   year = new FormControl(25, [Validators.min(1)])
 
-  name = new FormControl(null)
-  organUnit = new FormControl(null)
-  organ = new FormControl(null)
-  city = new FormControl(null)
-  province = new FormControl(null)
-  countryCode = new FormControl(null)
+  name = new FormControl(null, [Validators.required])
+  organUnit = new FormControl(null, [Validators.required])
+  organ = new FormControl(null, [Validators.required])
+  city = new FormControl(null, [Validators.required])
+  province = new FormControl(null, [Validators.required])
+  countryCode = new FormControl(null, [Validators.required])
 
   private buildService: ClientBuildService
 

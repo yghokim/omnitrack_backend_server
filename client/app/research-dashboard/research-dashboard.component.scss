@@ -1,6 +1,6 @@
 @import '../../styles.scss';
 
-.header-border{
+.header-border {
   position: absolute;
   bottom: 0px;
   width: 100%;
@@ -8,14 +8,19 @@
   display: block;
   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#1e5799+0,2989d8+50,207cca+51,7db9e8+100;Blue+Gloss+Default */
   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#d81e75+0,cff72e+50,15a8a5+100 */
-  background: #d81e75; /* Old browsers */
-  background: -moz-linear-gradient(left, #d81e75 0%, #cff72e 50%, #15a8a5 100%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(left, #d81e75 0%,#cff72e 50%,#15a8a5 100%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(to right, #d81e75 0%,#cff72e 50%,#15a8a5 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d81e75', endColorstr='#15a8a5',GradientType=1 ); /* IE6-9 */  
+  background: #d81e75;
+  /* Old browsers */
+  background: -moz-linear-gradient(left, #d81e75 0%, #cff72e 50%, #15a8a5 100%);
+  /* FF3.6-15 */
+  background: -webkit-linear-gradient(left, #d81e75 0%, #cff72e 50%, #15a8a5 100%);
+  /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to right, #d81e75 0%, #cff72e 50%, #15a8a5 100%);
+  /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d81e75', endColorstr='#15a8a5', GradientType=1);
+  /* IE6-9 */
 }
 
-.btn.select-experiment{
+.btn.select-experiment {
   border: hidden;
   border-radius: 0px;
   font-weight: 500;
@@ -24,80 +29,96 @@
   color: #575757;
   height: $research_header_height - 2px;
 
-  &:hover{
+  &:hover {
     background: #f0f0f0;
   }
 }
 
-#research-dashboard-wrapper{
+#research-dashboard-wrapper {
   //padding-left: $research_sidebar_width;
   position: absolute;
-  top: $research_header_height;;
+  top: $research_header_height;
+  ;
   bottom: 0;
   left: 0;
   right: 0;
 
-  @media print{
+  @media print {
     padding-left: initial;
     padding-top: initial;
   }
 
-  #research-column-sidebar{
+  #research-column-sidebar {
     width: $research_sidebar_width;
     background: #393939;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 
-    @media print{
+    @media print {
       display: none;
     }
 
-    .nav-subtitle{
-      text-transform: uppercase;
-      color: #9e9e9e;
-      font-size: 0.7em;
-      padding-bottom: 0.5em;
-      padding-top: 0.5em;
-      background: rgba(255, 255, 255, 0.05);
-      margin-top: 2em;
-      font-weight: 500;
-      &:first-of-type{
-        margin-top: 0;
+    #sidebar-nav-container {
+      flex: 1;
+      overflow-y: auto;
+
+      .nav-subtitle {
+        text-transform: uppercase;
+        color: #9e9e9e;
+        font-size: 0.7em;
+        padding-bottom: 0.5em;
+        padding-top: 0.5em;
+        background: rgba(255, 255, 255, 0.05);
+        margin-top: 2em;
+        font-weight: 500;
+
+        &:first-of-type {
+          margin-top: 0;
+        }
+      }
+
+      .gnb-icon {
+        font-size: 1.2em;
+        margin-right: 0.5em;
       }
     }
 
-    .gnb-icon{
-      font-size: 1.2em;
-      margin-right: 0.5em;
+    #sidebar-footer {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.5rem 0.75rem;
+      padding-right: 0.2rem;
+      color: #a0a0a0;
     }
-    
   }
 
-  #research_column_main{
+  #research_column_main {
     overflow-y: auto;
-    .title-header-container{
+
+    .title-header-container {
       margin-bottom: 2em;
-      &.hidden{
+
+      &.hidden {
         margin-bottom: 0;
       }
 
-      .title-header{
+      .title-header {
         @include main-gradient();
         padding: .5rem 0.9rem;
         border-radius: 0;
-  
-        &.with-button{
+
+        &.with-button {
           padding-left: 0.2rem;
         }
-  
-        .dashboard-title{
+
+        .dashboard-title {
           color: white;
           text-transform: uppercase;
           font-size: 1.0em;
           font-weight: 500;
         }
-  
-        small.dashboard-back-title{
-          color: rgba(255,255,255,0.8);
+
+        small.dashboard-back-title {
+          color: rgba(255, 255, 255, 0.8);
           font-weight: 500;
         }
       }
@@ -105,62 +126,66 @@
   }
 }
 
-#main-progress-bar{
+#main-progress-bar {
   z-index: -1;
 }
 
-a.nav-link{
+a.nav-link {
   cursor: pointer;
   color: #bfbfbf;
-  &:not[href]{
+
+  &:not[href] {
     color: #bfbfbf;
   }
-  &:hover{
+
+  &:hover {
     color: white;
   }
 }
 
-.research-dropdown-button{
+.research-dropdown-button {
   font-size: 0.8rem;
 }
 
-.dropdown-header{
+.dropdown-header {
   padding-bottom: 0.2rem;
   font-size: 0.7rem;
   padding-top: 0.7rem;
   font-weight: bold;
 }
 
-.nav-link{
+.nav-link {
   border-radius: 0;
   font-size: 0.8em;
   padding-top: 11px;
   padding-bottom: 10px;
   color: #bfbfbf;
-  &:not[href]{
-    color: #bfbfbf;  
+
+  &:not[href] {
+    color: #bfbfbf;
   }
 
-  &.active:visited, &.active {
+  &.active:visited,
+  &.active {
     background-color: #2fadc2;
   }
 
-  &.active:hover{
+  &.active:hover {
     background-color: #2fadc2;
   }
 
-  &:hover{
+  &:hover {
     color: white;
-    background-color: rgba(255,255,255,0.07);
+    background-color: rgba(255, 255, 255, 0.07);
   }
 
-  &.disabled{
+  &.disabled {
     pointer-events: none;
     cursor: default;
     opacity: 0.5;
   }
 }
 
-.mat-drawer-container{
+.mat-drawer-container {
   background-color: transparent;
 }

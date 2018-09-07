@@ -13,6 +13,7 @@ import { filter, map, flatMap, combineLatest, tap } from 'rxjs/operators';
 import { ExperimentPermissions } from '../../../omnitrack/core/research/experiment';
 import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import { getIdPopulateCompat } from '../../../omnitrack/core/db-entity-types';
+import { PACKAGE_VERSION } from '../release_version';
 
 @Component({
   selector: 'app-research-dashboard',
@@ -29,6 +30,8 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
 
   isLoadingSelectedExperiment = true;
   isLoadingExperiments = true;
+
+  public clientVersion = PACKAGE_VERSION
 
   headerTitle;
   upperHeaderTitle;
@@ -155,6 +158,8 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
           this.showTitleBar = data['showTitleBar'];
         })
     )
+
+    console.log(PACKAGE_VERSION)
   }
 
   ngOnInit() {
