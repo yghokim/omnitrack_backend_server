@@ -41,6 +41,12 @@
           </th>
           <th class="header-timestamp">Logged At</th>
           <th>Captured</th>
+          <ng-container *ngIf="showMetadata===true">
+            <th *ngFor="let metadataKey of metadataColumns">
+              <div class="badge badge-sm badge-metadata">meta</div>
+              <div class="metadata-column-name">{{styleMetadataKeyString(metadataKey)}}</div>
+            </th>
+          </ng-container>
         </thead>
         <tbody>
           <tr class="hoverable singleline" *ngFor="let item of trackerItems; trackBy: trackItems">
@@ -48,7 +54,8 @@
               <ng-container *ngIf="getItemValue(item, attr, true)" [ngSwitch]="attr.type">
                 <app-image-cell *ngSwitchCase="getImageType()" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'attributeLocalId': attr.localId}"></app-image-cell>
                 <app-audio-cell *ngSwitchCase="getAudioType()" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'attributeLocalId': attr.localId}"></app-audio-cell>
-                <div *ngSwitchDefault class="cell-value-clickable" (click)="onCellValueClicked(selectedTracker, attr, item)">{{this.getItemValue(item, attr, true)}}</div>
+                <div *ngSwitchDefault class="cell-value-clickable" (click)="onCellValueClicked(selectedTracker, attr, item)">{{this.getItemValue(item,
+                  attr, true)}}</div>
               </ng-container>
             </td>
             <td class="cell-timestamp">
@@ -61,6 +68,9 @@
               <span *ngSwitchCase="'Manual'" class="badge badge-sm badge-manual">manually</span>
               <span *ngSwitchDefault class="badge badge-sm badge-dark">unknown</span>
             </td>
+            <ng-container *ngIf="showMetadata===true">
+              <td *ngFor="let metadataKey of metadataColumns">{{getMetadataValue(metadataKey)}}</td>
+            </ng-container>
           </tr>
         </tbody>
       </table>
@@ -88,10 +98,10 @@
       </td>
       <td class="cell-timestamp">{{item.timestamp | date: 'short'}}</td>
       <td class="cell-source" [ngSwitch]="item.source">
-          <span *ngSwitchCase="'Trigger'">by trigger</span>
-          <span *ngSwitchCase="'Manual'">manually</span>
-          <span *ngSwitchDefault>unknown</span>
-        </td>
+        <span *ngSwitchCase="'Trigger'">by trigger</span>
+        <span *ngSwitchCase="'Manual'">manually</span>
+        <span *ngSwitchDefault>unknown</span>
+      </td>
     </tr>
   </tbody>
 </table>

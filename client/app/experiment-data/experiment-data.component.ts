@@ -12,9 +12,7 @@ import TypedStringSerializer from "../../../omnitrack/core/typed_string_serializ
 import AttributeManager from "../../../omnitrack/core/attributes/attribute.manager";
 import { MatDialog } from '@angular/material';
 
-import { Element } from "@angular/compiler";
 import attributeTypes from "../../../omnitrack/core/attributes/attribute-types";
-import { Response } from "@angular/http";
 import { SingletonAudioPlayerServiceService } from "../services/singleton-audio-player-service.service";
 import { aliasCompareFunc } from "../../../shared_lib/utils";
 import * as moment from 'moment-timezone';
@@ -22,10 +20,10 @@ import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import * as JSZip from 'jszip';
 import { UpdateItemCellValueDialogComponent } from "../dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component";
-import { TextInputDialogComponent } from "../dialogs/text-input-dialog/text-input-dialog.component";
 import { TimePoint } from "../../../omnitrack/core/datatypes/field_datatypes";
 import { zip } from 'rxjs';
 import { tap, flatMap, map } from 'rxjs/operators';
+const snakeCase = require('snake-case');
 
 @Component({
   selector: "app-experiment-data",
@@ -54,6 +52,8 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   public userTrackers: Array<ITrackerDbEntity> = [];
 
   public trackerItems: Array<IItemDbEntity> = [];
+
+  public metadataColumns: Array<string> = [];
 
   public screenExpanded = true
 
@@ -164,13 +164,35 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
               service.trackingDataService.getItemsOfTracker(tracker._id)
             ))
             .subscribe(items => {
-              this.trackerItems = items;     
-              console.log(items);         
+              this.trackerItems = items;
+              console.log(items);
+
+              this.metadataColumns = []
+              for (const item of items) {
+                if (item.metadata != null) {
+                  for(const key of Object.keys(item.metadata)){
+                    if(this.metadataColumns.indexOf(key) === -1){
+                      this.metadataColumns.push(key)
+                    }
+                  }
+                }
+              }
+
               this.detector.markForCheck()
             })
         );
       }
     }
+  }
+
+  styleMetadataKeyString(key: string): string{
+    return snakeCase(key).replace(/_/g, " ")
+  }
+
+  getMetadataValue(item: IItemDbEntity, metadataKey: string): any{
+    if(item.metadata!=null){
+      return item.metadata[metadataKey]
+    }else return null
   }
 
   getItemCountOfTracker(trackerId: string): Observable<number> {
@@ -218,8 +240,8 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     return temp.concat('timestamp')
   }
 
-  getItemSourceText(source: string){
-    switch(source){
+  getItemSourceText(source: string) {
+    switch (source) {
       case "Trigger": return "by trigger"
       case "Manual": return "manually"
       default: return "unknown"
@@ -300,8 +322,8 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
                           itemRows.push(
                             [participant.alias]
-                            .concat(values)
-                            .concat([moment(item.timestamp).format(), this.getItemSourceText(item.source)])
+                              .concat(values)
+                              .concat([moment(item.timestamp).format(), this.getItemSourceText(item.source)])
                           )
                         }
                       )
@@ -341,9 +363,9 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                       })
                       itemRows.push(
                         [participant.alias]
-                        .concat(values)
-                        .concat([moment(item.timestamp).format(), this.getItemSourceText(item.source)])
-                        )
+                          .concat(values)
+                          .concat([moment(item.timestamp).format(), this.getItemSourceText(item.source)])
+                      )
                     }
                   )
                   const sheet = XLSX.utils.aoa_to_sheet(itemRows)
