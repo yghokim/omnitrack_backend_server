@@ -22,7 +22,8 @@
     "lint": "ng lint",
     "lintbe": "tslint server/**/**.ts{,x}",
     "e2e": "ng e2e",
-    "bundle-report": "webpack-bundle-analyzer dist/public/stats.json"
+    "bundle-report": "webpack-bundle-analyzer dist/public/stats.json",
+    "version": "echo $npm_package_version > client/app/release_version && git add client/app/release_version" 
   },
   "private": true,
   "dependencies": {
