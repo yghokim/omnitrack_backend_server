@@ -51,7 +51,6 @@ export class AudioCellComponent implements OnInit {
       this.api.getMedia(info.trackerId, info.attributeLocalId, info.itemId, "").subscribe(response => {
         this.createAudio(response);
       }, err => {
-        console.log("audio data load error: " + err)
       })
     )
   }

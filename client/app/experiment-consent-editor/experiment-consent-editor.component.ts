@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription, BehaviorSubject } from 'rxjs';
 import { flatMap, map, tap } from 'rxjs/operators';
@@ -10,7 +10,8 @@ import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-
 @Component({
   selector: 'app-experiment-consent-editor',
   templateUrl: './experiment-consent-editor.component.html',
-  styleUrls: ['../code-editor.scss', './experiment-consent-editor.component.scss']
+  styleUrls: ['../code-editor.scss', './experiment-consent-editor.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExperimentConsentEditorComponent implements OnInit, OnDestroy {
 
@@ -42,9 +43,9 @@ export class ExperimentConsentEditorComponent implements OnInit, OnDestroy {
 
   private experimentInfo: IExperimentDbEntity
 
-  constructor(private api: ResearchApiService, private router: Router, private activatedRoute: ActivatedRoute) {
+  constructor(private api: ResearchApiService, private router: Router, private activatedRoute: ActivatedRoute, private detector: ChangeDetectorRef) {
 
-   }
+  }
 
   ngOnInit() {
     this._internalSubscriptions.add(
@@ -57,9 +58,10 @@ export class ExperimentConsentEditorComponent implements OnInit, OnDestroy {
       ).subscribe(consent => {
         this.originalConsent = (consent || "")
 
-        if(consent == null){
+        if (consent == null) {
           this.currentConsent = "### Writing an Informed Consent Form\n\n---\n\n*Remove this content* and write your own consent form here.\n\nUse **Markdown syntax** which is Github-flavored. See [this guide](https://guides.github.com/features/mastering-markdown/) for detailed guide to Markdown."
-        }else this.currentConsent = consent.toString()
+        } else this.currentConsent = consent.toString()
+        
       })
     )
   }
@@ -68,27 +70,27 @@ export class ExperimentConsentEditorComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
-  onInitCodeEditor(editor){
+  onInitCodeEditor(editor) {
     this.editorReady = true
     this.editorRef.next(editor)
   }
 
-  onSaveClicked(){
+  onSaveClicked() {
     this._internalSubscriptions.add(
-      this.api.updateExperiment(this.api.getSelectedExperimentId(), {consent: this.currentConsent}).subscribe(
+      this.api.updateExperiment(this.api.getSelectedExperimentId(), { consent: this.currentConsent }).subscribe(
         changed => {
-          if(changed === true){
+          if (changed === true) {
             this.experimentInfo.consent = this.currentConsent
           }
-          this.router.navigate(['./consent'], {relativeTo: this.activatedRoute.parent})
+          this.router.navigate(['./consent'], { relativeTo: this.activatedRoute.parent })
         }
       )
     )
   }
 
-  onShowDiffClicked(){
+  onShowDiffClicked() {
     this.diffMode = !this.diffMode
-    if(this.diffMode === true){
+    if (this.diffMode === true) {
       this.originalModel = {
         language: 'markdown',
         code: this.originalConsent
@@ -100,7 +102,7 @@ export class ExperimentConsentEditorComponent implements OnInit, OnDestroy {
     }
   }
 
-  transformMarkdownToHtml(markdown: string): string{
+  transformMarkdownToHtml(markdown: string): string {
     return marked(markdown)
   }
 }

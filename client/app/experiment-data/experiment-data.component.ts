@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit } from "@angular/core";
-import { Subscription, BehaviorSubject, Observable } from "rxjs";
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from "@angular/core";
+import { Subscription, Observable } from "rxjs";
 import { ResearchApiService } from "../services/research-api.service";
 import { NotificationService } from "../services/notification.service";
 import {
@@ -31,7 +31,8 @@ import { tap, flatMap, map } from 'rxjs/operators';
   selector: "app-experiment-data",
   templateUrl: "./experiment-data.component.html",
   styleUrls: ["./experiment-data.component.scss"],
-  providers: [SingletonAudioPlayerServiceService]
+  providers: [SingletonAudioPlayerServiceService],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExperimentDataComponent implements OnInit, OnDestroy {
   private readonly _internalSubscriptions = new Subscription();
@@ -41,7 +42,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   private userSubscriptions = new Subscription();
   private trackerSubscriptions = new Subscription();
 
-  public participants: Array<IParticipantDbEntity> = [];
+  public participants: Array<IParticipantDbEntity>;
 
   public selectedParticipantId: string;
   public selectedTracker: ITrackerDbEntity;
@@ -56,7 +57,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   @ViewChild(MatSort) sort: MatSort;
 
-  public screenExpanded = false
+  public screenExpanded = true
 
   private tableSchema: Array<{
     localId: string;
@@ -68,7 +69,8 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   constructor(
     private api: ResearchApiService,
     private notificationService: NotificationService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private detector: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -97,6 +99,8 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
           this.notificationService.unregisterGlobalBusyTag(
             "participantsInDataComponent"
           );
+
+          this.detector.markForCheck()
         })
     );
   }
@@ -149,30 +153,32 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     if (this.selectedTracker !== tracker) {
       this.selectedTracker = tracker;
 
-      console.log(tracker)
-
       this.trackerSubscriptions.unsubscribe();
       this.trackerSubscriptions = new Subscription();
-      this.trackerSubscriptions.add(
-        this.api.selectedExperimentService.pipe(
-          flatMap(service =>
-            service.trackingDataService.getItemsOfTracker(tracker._id)
-          ))
-          .subscribe(items => {
-            this.trackerItems = items;
-            this.trackerDataSource = new MatTableDataSource(items)
-            this.trackerDataSource.sortingDataAccessor = (data: IItemDbEntity, sortHeaderId: string) => {
-              if (sortHeaderId === 'timestamp') { return data.timestamp || ''; }
-              for (const item of data.dataTable) {
-                if (item.attrLocalId === sortHeaderId) {
-                  return item.sVal || '';
+      if (tracker != null) {
+        this.trackerSubscriptions.add(
+          this.api.selectedExperimentService.pipe(
+            flatMap(service =>
+              service.trackingDataService.getItemsOfTracker(tracker._id)
+            ))
+            .subscribe(items => {
+              this.trackerItems = items;
+              this.trackerDataSource = new MatTableDataSource(items)
+              this.trackerDataSource.sortingDataAccessor = (data: IItemDbEntity, sortHeaderId: string) => {
+                if (sortHeaderId === 'timestamp') { return data.timestamp || ''; }
+                for (const item of data.dataTable) {
+                  if (item.attrLocalId === sortHeaderId) {
+                    return item.sVal || '';
+                  }
                 }
+                return '';
               }
-              return '';
-            }
-            this.trackerDataSource.sort = this.sort;
-          })
-      );
+              this.trackerDataSource.sort = this.sort;
+
+              this.detector.markForCheck()
+            })
+        );
+      }
     }
   }
 

@@ -22,13 +22,10 @@ export class ImageCellComponent implements OnInit {
 
   @Input("mediaInfo")
   set _mediaInfo(info: {trackerId: string, attributeLocalId: string, itemId: string }){
-    console.log("load image media")
-    console.log(info.itemId)
     this._internalSubscriptions.add(
       this.api.getMedia(info.trackerId, info.attributeLocalId, info.itemId, "original").subscribe(response => {
         this.createImageFromBlob(response);
       }, err => {
-        console.log("image media load error: " + err)
       })
     )
   }
