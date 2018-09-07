@@ -307,7 +307,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                   console.log(trackerScheme)
                   const injectedAttrNames = trackerScheme.attributes.map(attr => attr.name)
                   const itemRows: Array<Array<any>> = [
-                    commonColumns.concat(injectedAttrNames).concat(["logged at", "captured"])
+                    commonColumns.concat(injectedAttrNames).concat(["logged at", "captured"]).concat(this.metadataColumns)
                   ]
                   const trackers = result.trackers.filter(t => (t.flags || {}).injectionId === trackerScheme.flags.injectionId && this.participants.find(p => p.user._id === t.user))
                   trackers.forEach(
@@ -323,7 +323,9 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                           itemRows.push(
                             [participant.alias]
                               .concat(values)
-                              .concat([moment(item.timestamp).format(), this.getItemSourceText(item.source)])
+                              .concat([moment(item.timestamp).format(), this.getItemSourceText(item.source)]
+                              .concat(this.metadataColumns.map(m => this.getMetadataValue(item, m)))
+                            )
                           )
                         }
                       )
@@ -354,7 +356,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
                 trackers.forEach(tracker => {
                   const itemRows: Array<Array<any>> = [
-                    commonColumns.concat(tracker.attributes.map(attr => attr.name)).concat(["logged at", "captured"])
+                    commonColumns.concat(tracker.attributes.map(attr => attr.name)).concat(["logged at", "captured"]).concat(this.metadataColumns)
                   ]
                   result.items.filter(i => i.tracker === tracker._id).forEach(
                     item => {
@@ -365,6 +367,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                         [participant.alias]
                           .concat(values)
                           .concat([moment(item.timestamp).format(), this.getItemSourceText(item.source)])
+                          .concat(this.metadataColumns.map(m => this.getMetadataValue(item, m)))
                       )
                     }
                   )

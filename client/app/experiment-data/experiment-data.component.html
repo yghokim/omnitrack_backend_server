@@ -69,7 +69,7 @@
               <span *ngSwitchDefault class="badge badge-sm badge-dark">unknown</span>
             </td>
             <ng-container *ngIf="showMetadata===true">
-              <td *ngFor="let metadataKey of metadataColumns">{{getMetadataValue(metadataKey)}}</td>
+              <td class="cell-metadata" *ngFor="let metadataKey of metadataColumns">{{getMetadataValue(item, metadataKey)}}</td>
             </ng-container>
           </tr>
         </tbody>
