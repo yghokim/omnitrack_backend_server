@@ -25,6 +25,23 @@ import { zip } from 'rxjs';
 import { tap, flatMap, map } from 'rxjs/operators';
 const snakeCase = require('snake-case');
 
+enum CellValueType {
+  DATETIME_SECONDS = "seconds",
+  DATETIME_MINUTES = "minutes",
+  DATE = "date",
+  CUSTOM = "custom",
+  ENUM = "enum"
+}
+
+const METADATA_VALUE_TYPE_TABLE = {
+  pivotDate: CellValueType.DATE,
+  conditionType: CellValueType.ENUM,
+  reservedAt: CellValueType.DATETIME_SECONDS,
+  actuallyFiredAt: CellValueType.DATETIME_SECONDS,
+  screenAccessedAt: CellValueType.DATETIME_SECONDS,
+  accessedDirectlyFromReminder: CellValueType.ENUM
+}
+
 @Component({
   selector: "app-experiment-data",
   templateUrl: "./experiment-data.component.html",
@@ -165,13 +182,12 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
             ))
             .subscribe(items => {
               this.trackerItems = items;
-              console.log(items);
 
               this.metadataColumns = []
               for (const item of items) {
                 if (item.metadata != null) {
-                  for(const key of Object.keys(item.metadata)){
-                    if(this.metadataColumns.indexOf(key) === -1){
+                  for (const key of Object.keys(item.metadata)) {
+                    if (this.metadataColumns.indexOf(key) === -1) {
                       this.metadataColumns.push(key)
                     }
                   }
@@ -185,14 +201,26 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     }
   }
 
-  styleMetadataKeyString(key: string): string{
+  styleMetadataKeyString(key: string): string {
     return snakeCase(key).replace(/_/g, " ")
   }
 
-  getMetadataValue(item: IItemDbEntity, metadataKey: string): any{
-    if(item.metadata!=null){
-      return item.metadata[metadataKey]
-    }else return null
+  getMetadataCellType(key: string): string {
+    return METADATA_VALUE_TYPE_TABLE[key] || CellValueType.CUSTOM
+  }
+
+  getMetadataValue(item: IItemDbEntity, metadataKey: string): any {
+    if (item.metadata != null) {
+      const value = item.metadata[metadataKey]
+      if (value) {
+        switch (this.getMetadataCellType(metadataKey)) {
+          case CellValueType.DATE: return new TimePoint(value, item.timezone).toMoment().format("YYYY-MM-DD")
+          case CellValueType.DATETIME_MINUTES: return new TimePoint(value, item.timezone).toMoment().format("hh:mm MM-DD")
+          case CellValueType.DATETIME_SECONDS: return new TimePoint(value, item.timezone).toMoment().format("hh:mm:ss MM-DD")
+          default: return value
+        }
+      } else return null
+    } else return null
   }
 
   getItemCountOfTracker(trackerId: string): Observable<number> {
@@ -323,9 +351,9 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                           itemRows.push(
                             [participant.alias]
                               .concat(values)
-                              .concat([moment(item.timestamp).format(), this.getItemSourceText(item.source)]
-                              .concat(this.metadataColumns.map(m => this.getMetadataValue(item, m)))
-                            )
+                              .concat([moment(item.timestamp).tz(item.timezone).format(), this.getItemSourceText(item.source)]
+                                .concat(this.metadataColumns.map(m => this.getMetadataValue(item, m)))
+                              )
                           )
                         }
                       )
@@ -366,7 +394,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                       itemRows.push(
                         [participant.alias]
                           .concat(values)
-                          .concat([moment(item.timestamp).format(), this.getItemSourceText(item.source)])
+                          .concat([moment(item.timestamp).tz(item.timezone).format(), this.getItemSourceText(item.source)])
                           .concat(this.metadataColumns.map(m => this.getMetadataValue(item, m)))
                       )
                     }

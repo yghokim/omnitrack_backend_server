@@ -117,7 +117,7 @@ export interface IItemMetadata{
   conditionType?: string,
   reservedAt?: number,
   actuallyFiredAt?: number,
-  screenAcesssedAt?: number,
+  screenAccessedAt?: number,
   accessedDirectlyFromReminder?: boolean
 }
 

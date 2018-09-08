@@ -29,6 +29,32 @@
   font-weight: bold;
 }
 
+.badge-enum{
+  text-transform: uppercase;
+  color: white;
+  background: #575757;
+}
+
+.enum-true{
+  background: #6cbee4;
+}
+
+.enum-false{
+  background: #d69090;
+}
+
+.enum-sampling{
+  background: #f8b654;
+}
+
+.enum-alarm{
+  background: #8cc9ad;
+}
+
+.enum-interval{
+  background: #c7a8c9;
+}
+
 .metadata-column-name{
   text-transform: capitalize;
 }
