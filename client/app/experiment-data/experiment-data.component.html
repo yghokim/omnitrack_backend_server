@@ -71,13 +71,15 @@
                 <span *ngSwitchDefault class="badge badge-sm badge-dark">unknown</span>
               </td>
               <ng-container *ngIf="showMetadata===true">
-                <td class="cell-metadata" *ngFor="let metadataKey of metadataColumns" [ngSwitch]="getMetadataCellType(metadataKey)">
+                <td class="cell-metadata" *ngFor="let metadataKey of metadataColumns">
+                  <ng-container *ngIf="getMetadataValue(item, metadataKey)!=null" [ngSwitch]="getMetadataCellType(metadataKey)">
                   <span *ngSwitchCase="'enum'" [class]="'badge badge-sm badge-enum ' + 'enum-'+getMetadataValue(item, metadataKey)">
                     {{getMetadataValue(item, metadataKey)}}
                   </span>
                   <span *ngSwitchDefault>
                     {{getMetadataValue(item, metadataKey)}}
                   </span>
+                </ng-container>
                 </td>
               </ng-container>
             </tr>

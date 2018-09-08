@@ -217,7 +217,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   getMetadataValue(item: IItemDbEntity, metadataKey: string): any {
     if (item.metadata != null) {
       const value = item.metadata[metadataKey]
-      if (value) {
+      if (value != null) {
         switch (this.getMetadataCellType(metadataKey)) {
           case CellValueType.DATE: return new TimePoint(value, item.timezone).toMoment().format("YYYY-MM-DD")
           case CellValueType.DATETIME_MINUTES: return new TimePoint(value, item.timezone).toMoment().format("hh:mm MM-DD")
@@ -337,7 +337,6 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
               const workbook = XLSX.utils.book_new()
               pack.data.trackers.forEach(
                 trackerScheme => {
-                  console.log(trackerScheme)
                   const injectedAttrNames = trackerScheme.attributes.map(attr => attr.name)
                   const itemRows: Array<Array<any>> = [
                     commonColumns.concat(injectedAttrNames).concat(["logged at", "captured"]).concat(this.metadataColumns.map(c => this.styleMetadataKeyString(c)))
@@ -426,7 +425,6 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
         })
       ).subscribe(
         blobInfos => {
-          console.log(blobInfos)
           if (blobInfos.length === 0) {
             this.notificationService.pushSnackBarMessage({ message: "No tracking items." })
           }
