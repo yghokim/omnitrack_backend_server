@@ -15,87 +15,90 @@
     </div>
     <div *ngIf="participants && participants.length > 0" class="card card-main">
       <div class="card-header container-vertical-padding">
-        <div class="flex-container flex-align-items-center flex-stretch">
+        <div class="flex-container flex-align-items-center">
           <mat-form-field class="mat-form-no-vertical-padding">
             <mat-select [(value)]="selectedParticipantId" required="true" (selectionChange)="onParticipantSelectionChanged($event)">
               <mat-option *ngFor="let participant of participants" [value]="participant._id">{{participant.alias}}
                 ({{participant.experimentRange.from | date: 'yyyy-MM-dd'}})</mat-option>
             </mat-select>
           </mat-form-field>
+          <div class="flex-filler"></div>
+          <mat-slide-toggle class="right-margin-1em" *ngIf="metadataColumns && metadataColumns.length > 0" [checked]="showMetadata" (change)="showMetadata = $event.checked">Show Metadata</mat-slide-toggle>
           <button mat-icon-button [matTooltip]="screenExpanded===true? 'contract' : 'expand'" (click)="screenExpanded = !screenExpanded">
             <mat-icon class="material-icons">{{screenExpanded===true? 'picture_in_picture' : 'aspect_ratio'}}</mat-icon>
           </button>
         </div>
       </div>
       <mat-tab-group class="tab-group" [(selectedIndex)]="selectedTrackerIndex" (selectedTabChange)="onTrackerTabChanged($event)">
-        <mat-tab *ngFor="let tracker of userTrackers" [label]="tracker.name + '(' + (getItemCountOfTracker(tracker._id) | async) + ')'"
+        <mat-tab *ngFor="let tracker of userTrackers; trackBy: trackDbObject" [label]="tracker.name + '(' + (getItemCountOfTracker(tracker._id) | async) + ')'"
           [value]="tracker._id">
         </mat-tab>
       </mat-tab-group>
 
-
-      <table class="table table-data" *ngIf="printFriendlyMode===false && selectedTracker">
-        <thead class="singleline">
-          <th *ngFor="let attr of selectedTracker.attributes">
-            {{attr.name}}
-          </th>
-          <th class="header-timestamp">Logged At</th>
-          <th>Captured</th>
-          <ng-container *ngIf="showMetadata===true">
-            <th *ngFor="let metadataKey of metadataColumns">
-              <div class="badge badge-sm badge-metadata">meta</div>
-              <div class="metadata-column-name">{{styleMetadataKeyString(metadataKey)}}</div>
+      <div class="table-container">
+        <table class="table table-data" *ngIf="printFriendlyMode===false && selectedTracker">
+          <thead class="singleline">
+            <th *ngFor="let attr of selectedTracker.attributes; trackBy: trackAttributes">
+              {{attr.name}}
             </th>
-          </ng-container>
-        </thead>
-        <tbody>
-          <tr class="hoverable singleline" *ngFor="let item of trackerItems; trackBy: trackItems">
-            <td *ngFor="let attr of selectedTracker.attributes">
-              <ng-container *ngIf="getItemValue(item, attr, true)" [ngSwitch]="attr.type">
-                <app-image-cell *ngSwitchCase="getImageType()" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'attributeLocalId': attr.localId}"></app-image-cell>
-                <app-audio-cell *ngSwitchCase="getAudioType()" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'attributeLocalId': attr.localId}"></app-audio-cell>
-                <div *ngSwitchDefault class="cell-value-clickable" (click)="onCellValueClicked(selectedTracker, attr, item)">{{this.getItemValue(item,
-                  attr, true)}}</div>
-              </ng-container>
-            </td>
-            <td class="cell-timestamp">
-              <div class="cell-value-clickable" (click)="onTimestampClicked(selectedTracker, item)">
-                {{this.getTimestampValue(item)}}
-              </div>
-            </td>
-            <td class="cell-source" [ngSwitch]="item.source">
-              <span *ngSwitchCase="'Trigger'" class="badge badge-sm badge-trigger">by trigger</span>
-              <span *ngSwitchCase="'Manual'" class="badge badge-sm badge-manual">manually</span>
-              <span *ngSwitchDefault class="badge badge-sm badge-dark">unknown</span>
-            </td>
+            <th class="header-timestamp">Logged At</th>
+            <th>Captured</th>
             <ng-container *ngIf="showMetadata===true">
-              <td class="cell-metadata" *ngFor="let metadataKey of metadataColumns" [ngSwitch]="getMetadataCellType(metadataKey)">
-                <span *ngSwitchCase="'enum'" [class]="'badge badge-sm badge-enum ' + 'enum-'+getMetadataValue(item, metadataKey)">
-                    {{getMetadataValue(item, metadataKey)}}
-                </span>
-                <span *ngSwitchDefault>
-                    {{getMetadataValue(item, metadataKey)}}
-                </span>
-              </td>
+              <th *ngFor="let metadataKey of metadataColumns">
+                <div class="badge badge-sm badge-metadata">meta</div>
+                <div class="metadata-column-name">{{styleMetadataKeyString(metadataKey)}}</div>
+              </th>
             </ng-container>
-          </tr>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <tr class="hoverable singleline" *ngFor="let item of trackerItems; trackBy: trackDbObject">
+              <td *ngFor="let attr of selectedTracker.attributes; trackBy: trackAttributes">
+                <ng-container *ngIf="getItemValue(item, attr, true)" [ngSwitch]="attr.type">
+                  <app-image-cell *ngSwitchCase="getImageType()" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'attributeLocalId': attr.localId}"></app-image-cell>
+                  <app-audio-cell *ngSwitchCase="getAudioType()" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'attributeLocalId': attr.localId}"></app-audio-cell>
+                  <div *ngSwitchDefault class="cell-value-clickable" (click)="onCellValueClicked(selectedTracker, attr, item)">{{this.getItemValue(item,
+                    attr, true)}}</div>
+                </ng-container>
+              </td>
+              <td class="cell-timestamp">
+                <div class="cell-value-clickable" (click)="onTimestampClicked(selectedTracker, item)">
+                  {{this.getTimestampValue(item)}}
+                </div>
+              </td>
+              <td class="cell-source" [ngSwitch]="item.source">
+                <span *ngSwitchCase="'Trigger'" class="badge badge-sm badge-trigger">by trigger</span>
+                <span *ngSwitchCase="'Manual'" class="badge badge-sm badge-manual">manually</span>
+                <span *ngSwitchDefault class="badge badge-sm badge-dark">unknown</span>
+              </td>
+              <ng-container *ngIf="showMetadata===true">
+                <td class="cell-metadata" *ngFor="let metadataKey of metadataColumns" [ngSwitch]="getMetadataCellType(metadataKey)">
+                  <span *ngSwitchCase="'enum'" [class]="'badge badge-sm badge-enum ' + 'enum-'+getMetadataValue(item, metadataKey)">
+                    {{getMetadataValue(item, metadataKey)}}
+                  </span>
+                  <span *ngSwitchDefault>
+                    {{getMetadataValue(item, metadataKey)}}
+                  </span>
+                </td>
+              </ng-container>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </ng-container>
 </div>
 
 <table class="table table-data table-print" *ngIf="printFriendlyMode===true&&selectedTracker">
   <thead class="singleline">
-    <th *ngFor="let attr of selectedTracker.attributes">
+    <th *ngFor="let attr of selectedTracker.attributes; trackBy: trackAttributes">
       {{attr.name}}
     </th>
     <th class="header-timestamp">Logged At</th>
     <th>Captured</th>
   </thead>
   <tbody>
-    <tr class="hoverable singleline" *ngFor="let item of trackerItems; trackBy: trackItems">
-      <td *ngFor="let attr of selectedTracker.attributes">
+    <tr class="hoverable singleline" *ngFor="let item of trackerItems; trackBy: trackDbObject">
+      <td *ngFor="let attr of selectedTracker.attributes; trackBy: trackAttributes">
         <ng-container *ngIf="getItemValue(item, attr, true)">
           <span *ngIf="isImageAttribute(attr) !== true">{{this.getItemValue(item, attr, true)}}</span>
           <span *ngIf="isImageAttribute(attr) === true">

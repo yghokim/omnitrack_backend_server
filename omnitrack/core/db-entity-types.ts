@@ -118,7 +118,8 @@ export interface IItemMetadata{
   reservedAt?: number,
   actuallyFiredAt?: number,
   screenAccessedAt?: number,
-  accessedDirectlyFromReminder?: boolean
+  accessedDirectlyFromReminder?: boolean,
+  pairedToReminder?: boolean
 }
 
 export interface IUsageLogDbEntity extends IUserChildDbEntity {

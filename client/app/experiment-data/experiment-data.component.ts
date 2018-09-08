@@ -39,7 +39,8 @@ const METADATA_VALUE_TYPE_TABLE = {
   reservedAt: CellValueType.DATETIME_SECONDS,
   actuallyFiredAt: CellValueType.DATETIME_SECONDS,
   screenAccessedAt: CellValueType.DATETIME_SECONDS,
-  accessedDirectlyFromReminder: CellValueType.ENUM
+  accessedDirectlyFromReminder: CellValueType.ENUM,
+  pairedToReminder: CellValueType.ENUM
 }
 
 @Component({
@@ -130,8 +131,12 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     this.userSubscriptions.unsubscribe();
   }
 
-  trackItems(index, item) {
-    return item._id
+  trackDbObject(index, obj) {
+    return obj._id
+  }
+
+  trackAttributes(index, attribute: IAttributeDbEntity){
+    return attribute.localId
   }
 
   onExpandButtonClicked() {
@@ -202,7 +207,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   }
 
   styleMetadataKeyString(key: string): string {
-    return snakeCase(key).replace(/_/g, " ")
+    return snakeCase(key.replace(/^returned::/g, "")).replace(/_/g, " ")
   }
 
   getMetadataCellType(key: string): string {
@@ -335,7 +340,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                   console.log(trackerScheme)
                   const injectedAttrNames = trackerScheme.attributes.map(attr => attr.name)
                   const itemRows: Array<Array<any>> = [
-                    commonColumns.concat(injectedAttrNames).concat(["logged at", "captured"]).concat(this.metadataColumns)
+                    commonColumns.concat(injectedAttrNames).concat(["logged at", "captured"]).concat(this.metadataColumns.map(c => this.styleMetadataKeyString(c)))
                   ]
                   const trackers = result.trackers.filter(t => (t.flags || {}).injectionId === trackerScheme.flags.injectionId && this.participants.find(p => p.user._id === t.user))
                   trackers.forEach(
@@ -384,7 +389,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
                 trackers.forEach(tracker => {
                   const itemRows: Array<Array<any>> = [
-                    commonColumns.concat(tracker.attributes.map(attr => attr.name)).concat(["logged at", "captured"]).concat(this.metadataColumns)
+                    commonColumns.concat(tracker.attributes.map(attr => attr.name)).concat(["logged at", "captured"]).concat(this.metadataColumns.map(c => this.styleMetadataKeyString(c)))
                   ]
                   result.items.filter(i => i.tracker === tracker._id).forEach(
                     item => {
