@@ -221,7 +221,7 @@ export default class ResearchModule {
 
             app.socketModule().sendUpdateNotificationToExperimentSubscribers(experiment._id, { model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_DROPPED, payload: { participant: participant } })
 
-            app.pushModule().sendDataMessageToUser(participant["user"], new ExperimentData(C.PUSH_DATA_TYPE_EXPERIMENT_DROPPED, experiment._id, {droppedBy: participant["droppedBy"]}))
+            app.serverModule().registerMessageDataPush(participant["user"], new ExperimentData(C.PUSH_DATA_TYPE_EXPERIMENT_DROPPED, experiment._id, {droppedBy: participant["droppedBy"]}))
 
             return { success: true, experiment: { id: experiment._id.toString(), name: experiment.name.toString(), injectionExists: changedResults.length > 0, joinedAt: participant["approvedAt"].getTime(), droppedAt: droppedDate.getTime() } }
           })
