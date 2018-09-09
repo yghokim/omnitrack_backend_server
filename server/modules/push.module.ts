@@ -145,6 +145,23 @@ export class MessageData {
   }
 }
 
+export class ExperimentData extends MessageData{
+  constructor(command: string, public readonly experimentId: string, public readonly payload: any=null){
+    super(command)
+  }
+
+  toMessagingPayloadJson(): any{
+    const superJson = super.toMessagingPayloadJson()
+    superJson.experimentId = this.experimentId
+    if(this.payload != null){
+      for(const key of Object.keys(this.payload)){
+        superJson[key] = this.payload[key]
+      }
+    }
+    return superJson
+  }
+}
+
 export class TextMessageData extends MessageData{
   constructor(public title: string, public content: string){
     super(C.PUSH_DATA_TYPE_TEXT_MESSAGE)
