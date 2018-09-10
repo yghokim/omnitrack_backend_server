@@ -19,7 +19,7 @@ export default class ServerConstants {
   static readonly PUSH_DATA_TYPE_DUMP_DB = "dump_db"
   static readonly PUSH_DATA_TYPE_REFRESH_RESEARCH = "refresh_research"
   static readonly PUSH_DATA_TYPE_CLIENT_UPDATED = "update_released"
-  static readonly PUSH_DATA_TYPE_EXPERIMENT_DROPPED = "refresh_experiment_dropped"
+  static readonly PUSH_DATA_TYPE_EXPERIMENT_DROPPED = "experiment_dropped"
   
 
   static readonly PUSH_DATA_TYPE_TEXT_MESSAGE = "text_message"
