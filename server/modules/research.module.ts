@@ -17,6 +17,7 @@ import * as path from "path";
 import { IParticipantDbEntity } from '../../omnitrack/core/db-entity-types';
 import { IExperimentDbEntity } from '../../omnitrack/core/research/db-entity-types';
 import { MessageData, ExperimentData } from './push.module';
+import { isString } from '../../shared_lib/utils';
 
 const random_name = require('node-random-name');
 export default class ResearchModule {
@@ -221,7 +222,7 @@ export default class ResearchModule {
 
             app.socketModule().sendUpdateNotificationToExperimentSubscribers(experiment._id, { model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_DROPPED, payload: { participant: participant } })
 
-            app.serverModule().registerMessageDataPush(participant["user"], new ExperimentData(C.PUSH_DATA_TYPE_EXPERIMENT_DROPPED, experiment._id, {droppedBy: participant["droppedBy"]}))
+            app.serverModule().registerMessageDataPush(participant["user"], new ExperimentData(C.PUSH_DATA_TYPE_EXPERIMENT_DROPPED, experiment._id, {droppedBySelf: (participant["droppedBy"]==null).toString()}))
 
             return { success: true, experiment: { id: experiment._id.toString(), name: experiment.name.toString(), injectionExists: changedResults.length > 0, joinedAt: participant["approvedAt"].getTime(), droppedAt: droppedDate.getTime() } }
           })
