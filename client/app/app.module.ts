@@ -17,7 +17,7 @@ import { NotificationService } from './services/notification.service';
 import { ResearchModule } from './research.module';
 import { TextInputDialogComponent } from './dialogs/text-input-dialog/text-input-dialog.component';
 import { ImageViewDialog } from './experiment-data/image-cell/image-view-dialog/image-view-dialog.component';
-
+import { PlatformVersionCheckService } from './services/platform-version-check.service';
 
 @NgModule({
   declarations: [
@@ -37,7 +37,8 @@ import { ImageViewDialog } from './experiment-data/image-cell/image-view-dialog/
     ResearchModule,
   ],
   providers: [
-    NotificationService
+    NotificationService,
+    PlatformVersionCheckService
   ],
   entryComponents: [
     YesNoDialogComponent,

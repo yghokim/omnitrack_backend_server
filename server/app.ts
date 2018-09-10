@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 import * as express from "express";
 import * as morgan from "morgan";
 import * as mongoose from "mongoose";
+import * as fs from 'fs-extra';
 import * as path from "path";
 import * as firebaseAdmin from "firebase-admin";
 import env from "./env";
@@ -37,6 +38,19 @@ app.get("/debug/logs/production", (req, res) => {
   }
 });
 // ============================
+
+app.get("/api/version", (req, res) => {
+  fs.readJson('./package.json')
+    .then(packageObj => {
+      console.log("project version:",packageObj.version) // => 0.1.3
+      res.status(200).send(packageObj.version)
+    })
+    .catch(err => {
+      console.error(err)
+      res.status(500).send(err)
+    })
+
+})
 
 initializeFirebase();
 
@@ -149,7 +163,7 @@ function initializeFirebase() {
       console.log("could not initialize the Firebase admin.");
       firebaseApp = null;
     }
-  }else{
+  } else {
     console.log("Firebase Certificate file does not exist.")
   }
 }

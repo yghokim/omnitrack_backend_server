@@ -88,6 +88,16 @@
       padding: 0.5rem 0.75rem;
       padding-right: 0.2rem;
       color: #a0a0a0;
+
+      .version{
+        table{
+          font-size: 0.7rem;
+          th{
+            font-size: 0.6rem;
+            padding-right: 0.25rem;
+          }
+        }
+      }
     }
   }
 

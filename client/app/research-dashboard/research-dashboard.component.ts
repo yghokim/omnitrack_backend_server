@@ -14,6 +14,7 @@ import { ExperimentPermissions } from '../../../omnitrack/core/research/experime
 import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import { getIdPopulateCompat } from '../../../omnitrack/core/db-entity-types';
 import { PACKAGE_VERSION } from '../release_version';
+import { PlatformVersionCheckService } from '../services/platform-version-check.service';
 
 @Component({
   selector: 'app-research-dashboard',
@@ -127,6 +128,10 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
 
   ];
 
+  public loadingVersions = true
+  public frontendVersion = null
+  public backendVersion = null
+
   private experimentPermissions: ExperimentPermissions
 
   constructor(
@@ -137,7 +142,8 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private dialog: MatDialog,
     private sanitizer: DomSanitizer,
-    private iconRegistry: MatIconRegistry
+    private iconRegistry: MatIconRegistry,
+    public versionChecker: PlatformVersionCheckService
   ) {
     iconRegistry.addSvgIcon("omnitrack", sanitizer.bypassSecurityTrustResourceUrl("/assets/ic_omnitrack_24px.svg"))
 
@@ -257,6 +263,22 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
           this.researcherPrevilage = -1
         }
       })
+    )
+
+    this._internalSubscriptions.add(
+      this.versionChecker.readBackendVersion().subscribe(
+        version => {
+          this.frontendVersion = this.versionChecker.readFrontendVersion()
+          this.backendVersion = version
+        },
+        err => {
+          console.error("version check error")
+          console.error(err)
+        },
+        ()=>{
+          this.loadingVersions = false
+        }
+      )
     )
   }
 

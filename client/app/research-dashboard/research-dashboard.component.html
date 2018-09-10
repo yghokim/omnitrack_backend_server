@@ -44,7 +44,12 @@
       </div>
       <div id="sidebar-footer">
         <div class="flex-container flex-align-items-center">
-            <small>v{{clientVersion}}</small>
+            <div class="version" *ngIf="loadingVersions!==true">
+              <table>
+                <tr><th>Web</th><td [class.text-color-danger]="frontendVersion !== backendVersion">{{frontendVersion}}</td></tr>
+                <tr><th>Server</th><td [class.text-color-danger]="frontendVersion !== backendVersion">{{backendVersion}}</td></tr>
+              </table>
+            </div>
             <div class="flex-filler"></div>
             <a mat-button color="accent" href="https://github.com/OmniTrack/omnitrack_research_kit/wiki" target=_blank>Go to Doc</a>
         </div>

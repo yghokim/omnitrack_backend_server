@@ -43,6 +43,7 @@ export class ResearchLoginComponent implements OnInit, OnDestroy {
         this.router.navigate(['/research'])
       }, err => {
         console.log("authorize error")
+        console.error(err)
         const errBody = err.json()
         switch (errBody.error) {
           case "CredentialWrong":
