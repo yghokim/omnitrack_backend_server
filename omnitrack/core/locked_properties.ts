@@ -14,7 +14,8 @@ export const LOCKED_PROPERTY_KEYS_TRACKER = LOCKED_PROPERTY_KEYS_COMMON.concat([
   "changeAttributeOrder",
   "enterItemList",
   "enterVisualization",
-  "addNewReminder"
+  "addNewReminder",
+  "independentInput"
 ])
 
 export const LOCKED_PROPERTY_KEYS_ATTRIBUTE = LOCKED_PROPERTY_KEYS_COMMON.concat([
@@ -38,6 +39,7 @@ export interface ITrackerLockedProperties extends IEntityLockedProperties {
   enterItemList?: boolean
   enterVisualization?: boolean
   addNewReminder?: boolean
+  independentInput?: boolean
 }
 
 export interface IAttributeLockedProperties extends IEntityLockedProperties{

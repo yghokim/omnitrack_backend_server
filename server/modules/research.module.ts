@@ -423,7 +423,7 @@ export default class ResearchModule {
                     } else {
                       return Promise.reject("The group contains trackingPackage which does not exist in the experiment.")
                     }
-                  } else { return { success: true, injectionExists: false, experiment: experimentInfo } }
+                  } else { return { success: true, injectionExists: false, experiment: experimentInfo, participant: changedParticipant } }
                 } else {
                   return Promise.reject("The invitation is no longer available.")
                 }

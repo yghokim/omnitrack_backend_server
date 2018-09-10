@@ -68,6 +68,7 @@ export class ExperimentService {
           console.log("connect new experiment service to websocket.")
           socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_EXPERIMENT, (data) => {
             console.log("received updated/experiment websocket event.")
+            console.log(data)
             if (data instanceof Array) {
               data.forEach(datum => {
                 if (datum.model) {
@@ -87,6 +88,7 @@ export class ExperimentService {
                       this.researchApi.loadUserPool()
                       switch (datum.event) {
                         case SocketConstants.EVENT_APPROVED:
+                          console.log("new participant entered to the experiment.")
                           this.notificationService.pushSnackBarMessage({
                             message: "A user started participating in the experiment."
                           })
