@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ResearchVisualizationQueryConfigurationService } from '../services/research-visualization-query-configuration.service';
 import { ResearchApiService } from '../services/research-api.service';
@@ -13,7 +13,8 @@ import * as deepEqual from 'deep-equal';
   selector: 'app-experiment-overview',
   templateUrl: './experiment-overview.component.html',
   styleUrls: ['./experiment-overview.component.scss'],
-  providers: [ResearchVisualizationQueryConfigurationService]
+  providers: [ResearchVisualizationQueryConfigurationService],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExperimentOverviewComponent implements OnInit {
 
@@ -67,7 +68,8 @@ export class ExperimentOverviewComponent implements OnInit {
     private api: ResearchApiService,
     public configuration: ResearchVisualizationQueryConfigurationService,
     private router: Router,
-    private activatedRoute: ActivatedRoute) {
+    private activatedRoute: ActivatedRoute,
+    private changeDetector: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -108,6 +110,8 @@ export class ExperimentOverviewComponent implements OnInit {
               if (longestNumDays != null) {
                 this.dayIndexMax = Math.max(1, longestNumDays)
               }
+
+              this.changeDetector.markForCheck()
             }
           )
     )
@@ -116,6 +120,7 @@ export class ExperimentOverviewComponent implements OnInit {
       this.configuration.dayIndexRange().subscribe(
         dayIndexRange => {
           this._dayIndexRange = dayIndexRange
+          this.changeDetector.markForCheck()
         }
       )
     )

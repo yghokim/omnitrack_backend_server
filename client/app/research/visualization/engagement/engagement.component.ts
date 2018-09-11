@@ -168,6 +168,10 @@ export class EngagementComponent implements OnInit, OnDestroy{
 
   }
 
+  public trackById(index, obj){
+    return obj._id
+  }
+
   public toDarkerColor(color: string): string {
     return d3.hsl(color).darker(2).toString()
   }

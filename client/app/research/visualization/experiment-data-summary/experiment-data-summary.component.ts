@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ResearchVisualizationQueryConfigurationService, FilteredExperimentDataset } from '../../../services/research-visualization-query-configuration.service';
 import { ResearchApiService } from '../../../services/research-api.service';
 import { Subscription } from 'rxjs';
@@ -9,7 +9,8 @@ import { unique, isNullOrBlank } from '../../../../../shared_lib/utils';
 @Component({
   selector: 'app-experiment-data-summary',
   templateUrl: './experiment-data-summary.component.html',
-  styleUrls: ['./experiment-data-summary.component.scss']
+  styleUrls: ['./experiment-data-summary.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExperimentDataSummaryComponent implements OnInit, OnDestroy {
 
@@ -25,7 +26,8 @@ export class ExperimentDataSummaryComponent implements OnInit, OnDestroy {
 
   constructor(
     private queryConfigService: ResearchVisualizationQueryConfigurationService,
-    private api: ResearchApiService) {
+    private api: ResearchApiService,
+    private changeDetector: ChangeDetectorRef) {
 
     }
 
@@ -88,6 +90,8 @@ export class ExperimentDataSummaryComponent implements OnInit, OnDestroy {
               count: row.logCountPerParticipant.length
             }
           })
+
+          this.changeDetector.markForCheck()
       })
     )
   }

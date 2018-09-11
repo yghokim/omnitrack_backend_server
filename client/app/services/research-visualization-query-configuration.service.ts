@@ -49,8 +49,13 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
     )
 
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.pipe(flatMap(service => service.getParticipants())).subscribe(
-        participants => {
+      this.api.selectedExperimentService.pipe(flatMap(service => 
+        service.getParticipants().pipe(
+          combineLatest(service.getExperiment(), (participants, experiment)=>({experiment: experiment, participants: participants}))
+        ))).subscribe(
+        project => {
+          const participants = project.participants
+          const experiment = project.experiment
           let earliestExperimentStart: number = null
 
           participants.forEach(participant => {
@@ -60,9 +65,11 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
             }
           })
 
+
           if (earliestExperimentStart != null) {
-            const today = moment().endOf("day")
-            const numDays = diffDaysBetweenTwoMoments(today, moment(earliestExperimentStart).startOf("day"), this.scope.includeWeekends) + 1
+            const today = moment().endOf("day").toDate()
+            const end = Math.min((project.experiment.finishDate || today).getTime(), today.getTime())
+            const numDays = diffDaysBetweenTwoMoments(moment(end), moment(earliestExperimentStart).startOf("day"), this.scope.includeWeekends) + 1
 
             this._dayIndexRangeSubject.next(
               { from: 0, to: numDays - 1 }
