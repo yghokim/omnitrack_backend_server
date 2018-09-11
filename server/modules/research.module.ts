@@ -222,7 +222,7 @@ export default class ResearchModule {
 
             app.socketModule().sendUpdateNotificationToExperimentSubscribers(experiment._id, { model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_DROPPED, payload: { participant: participant } })
 
-            app.serverModule().registerMessageDataPush(participant["user"], new ExperimentData(C.PUSH_DATA_TYPE_EXPERIMENT_DROPPED, experiment._id, {droppedBySelf: (participant["droppedBy"]==null).toString()}))
+            app.serverModule().registerMessageDataPush(participant["user"], new ExperimentData(C.PUSH_DATA_TYPE_EXPERIMENT_DROPPED, experiment._id, { droppedBySelf: (participant["droppedBy"] == null).toString() }))
 
             return { success: true, experiment: { id: experiment._id.toString(), name: experiment.name.toString(), injectionExists: changedResults.length > 0, joinedAt: participant["approvedAt"].getTime(), droppedAt: droppedDate.getTime() } }
           })
@@ -335,6 +335,7 @@ export default class ResearchModule {
             }, { upsert: true, new: true }).lean().then(
               participant => {
                 if (trackingPackage) {
+                  //inject tracking package
                   return app.omnitrackModule().injectPackage(userId, trackingPackage.data,
                     { injected: true, experiment: experiment._id }).then(res => {
                       return {
@@ -347,10 +348,23 @@ export default class ResearchModule {
                         } as IJoinedExperimentInfo
                       }
                     })
+                } else {
+                  //not inject tracking package
+                  return {
+                    participant: participant,
+                    experiment: {
+                      id: experiment._id,
+                      name: experiment.name,
+                      droppedAt: null,
+                      joinedAt: participant.approvedAt.getTime()
+                    } as IJoinedExperimentInfo
+                  }
                 }
               })
-        }
-        )
+        })
+    }).then(result => {
+      app.socketModule().sendUpdateNotificationToExperimentSubscribers(result.experiment.id, { model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_APPROVED, payload: result })
+      return result
     })
   }
 
