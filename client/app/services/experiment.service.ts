@@ -1,6 +1,6 @@
 import { ResearcherAuthService } from './researcher.auth.service';
 import { ResearchApiService } from './research-api.service';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, Subscription, Subject } from 'rxjs';
 import { map, filter, tap, combineLatest } from 'rxjs/operators';
 import { SocketService } from './socket.service';
@@ -35,7 +35,7 @@ export class ExperimentService {
 
   constructor(
     readonly experimentId: string,
-    private http: Http,
+    private http: HttpClient,
     private authService: ResearcherAuthService,
     private researchApi: ResearchApiService,
     private socketService: SocketService,
@@ -146,8 +146,7 @@ export class ExperimentService {
   loadMessageList() {
     this.notificationService.registerGlobalBusyTag("messageList")
     this._internalSubscriptions.add(
-      this.http.get("/api/research/experiments/" + this.experimentId + "/messages", this.researchApi.authorizedOptions)
-        .pipe(map(res => res.json()))
+      this.http.get<Array<any>>("/api/research/experiments/" + this.experimentId + "/messages", this.researchApi.authorizedOptions)
         .subscribe(
           messages => {
             if (messages instanceof Array) {
@@ -167,10 +166,7 @@ export class ExperimentService {
   loadExperimentInfo() {
     this.notificationService.registerGlobalBusyTag("experimentList")
     this._internalSubscriptions.add(
-      this.http.get('/api/research/experiments/' + this.experimentId, this.researchApi.authorizedOptions)
-        .pipe(map(res => {
-          return res.json()
-        })).subscribe(
+      this.http.get<IExperimentDbEntity>('/api/research/experiments/' + this.experimentId, this.researchApi.authorizedOptions).subscribe(
           experimentInfo => {
             this.experimentInfo.next(this.processExperimentInfo(experimentInfo))
           },
@@ -188,10 +184,8 @@ export class ExperimentService {
     this.notificationService.registerGlobalBusyTag("managerInfo")
     this._internalSubscriptions.add(
       this.http
-        .get('/api/research/experiments/manager/' + this.experimentId, this.researchApi.authorizedOptions)
-        .pipe(map(res => {
-          return res.json()
-        })).subscribe(
+        .get<IResearcherDbEntity>('/api/research/experiments/manager/' + this.experimentId, this.researchApi.authorizedOptions)
+        .subscribe(
           manager => {
             this.managerInfo.next(manager)
           },
@@ -209,10 +203,8 @@ export class ExperimentService {
     this.notificationService.registerGlobalBusyTag("invitationList")
     this._internalSubscriptions.add(
       this.http
-        .get('/api/research/experiments/' + this.experimentId + "/invitations", this.researchApi.authorizedOptions)
-        .pipe(map(res => {
-          return res.json()
-        })).subscribe(
+        .get<Array<any>>('/api/research/experiments/' + this.experimentId + "/invitations", this.researchApi.authorizedOptions)
+        .subscribe(
           list => {
             this.invitationList.next(list)
           },
@@ -229,9 +221,7 @@ export class ExperimentService {
   loadParticipantList() {
     this.notificationService.registerGlobalBusyTag("participantList")
     this._internalSubscriptions.add(
-      this.http.get("/api/research/experiments/" + this.experimentId + '/participants', this.researchApi.authorizedOptions).pipe(map(
-        res => res.json()
-      )).subscribe(
+      this.http.get<Array<IParticipantDbEntity>>("/api/research/experiments/" + this.experimentId + '/participants', this.researchApi.authorizedOptions).subscribe(
         list => {
           this.participantList.next(list)
         },
@@ -264,11 +254,10 @@ export class ExperimentService {
     return this.messageList.pipe(filter(res => res != null))
   }
 
-  enqueueMessage(messageInfo: IResearchMessage): Observable<boolean> {
+  enqueueMessage(messageInfo: IResearchMessage): Observable<any> {
     return this.http
       .post("/api/research/experiments/" + this.experimentId + "/messages/new", messageInfo, this.researchApi.authorizedOptions)
       .pipe(
-        map(res => res.json()),
         tap(newMessage => {
           if (this.messageList.value) {
             const currentList = this.messageList.value.slice()
@@ -288,7 +277,6 @@ export class ExperimentService {
     return this.http
       .post("/api/research/experiments/" + this.experimentId + '/invitations/new', information, this.researchApi.authorizedOptions)
       .pipe(
-        map(res => res.json()),
         tap(invitation => {
           if (this.invitationList.value) {
             const currentInvitationList = this.invitationList.value.slice()
@@ -308,7 +296,6 @@ export class ExperimentService {
     return this.http
       .delete("/api/research/experiments/" + this.experimentId + '/invitations/' + invitation._id, this.researchApi.authorizedOptions)
       .pipe(
-        map(res => res.json()),
         tap(removed => {
           if (removed === true) {
             if (this.invitationList.value) {
@@ -329,14 +316,15 @@ export class ExperimentService {
     participant: any
   }>> {
     return this.http
-      .post("/api/research/experiments/" + this.experimentId + "/invitations/send", { invitationCode: invitationCode, userIds: userIds, force: force }, this.researchApi.authorizedOptions)
-      .pipe(map(res => res.json()))
+      .post<Array<{
+        invitationAlreadySent: boolean,
+        participant: any
+      }>>("/api/research/experiments/" + this.experimentId + "/invitations/send", { invitationCode: invitationCode, userIds: userIds, force: force }, this.researchApi.authorizedOptions)
   }
 
   removeParticipant(participantId: string): Observable<any> {
     return this.http.delete("/api/research/participants/" + participantId, this.researchApi.authorizedOptions)
       .pipe(
-        map(res => res.json()),
         tap(removed => {
           if (removed === true && this.participantList.getValue() != null) {
             const newList = this.participantList.getValue().splice(0)
@@ -351,22 +339,21 @@ export class ExperimentService {
   }
 
   dropParticipant(participantId: string): Observable<any> {
-    return this.http.post("/api/research/participants/" + participantId + "/drop", {}, this.researchApi.authorizedOptions)
-      .pipe(map(res => res.json().success))
+    return this.http.post<any>("/api/research/participants/" + participantId + "/drop", {}, this.researchApi.authorizedOptions)
+      .pipe(map(res => res.success))
   }
 
   changeParticipantAlias(participantId, alias): Observable<boolean> {
-    return this.http.post("/api/research/participants/" + participantId + "/alias", { alias: alias }, this.researchApi.authorizedOptions).pipe(map(res => res.json()))
+    return this.http.post<boolean>("/api/research/participants/" + participantId + "/alias", { alias: alias }, this.researchApi.authorizedOptions)
   }
 
   updateParticipant(participantId, update): Observable<any> {
     return this.http.post("/api/research/participants/" + participantId + "/update", { update: update },
-      this.researchApi.authorizedOptions).pipe(map(res => res.json()))
+      this.researchApi.authorizedOptions)
   }
 
   setParticipantExcludedDays(participantId: string, excludedDays: Array<Date>): Observable<any> {
     return this.http.post("/api/research/participants/" + participantId + "/excluded_days", { excludedDays: excludedDays }, this.researchApi.authorizedOptions).pipe(
-      map(res => res.json()),
       tap(result => {
         if (result.success === true) {
           this.loadParticipantList()
@@ -388,9 +375,8 @@ export class ExperimentService {
   }
 
   setFinishDate(date: Date): Observable<IExperimentDbEntity> {
-    return this.http.post("/api/research/experiments/" + this.experimentId + "/finish", { date: date }, this.researchApi.authorizedOptions)
+    return this.http.post<IExperimentDbEntity>("/api/research/experiments/" + this.experimentId + "/finish", { date: date }, this.researchApi.authorizedOptions)
       .pipe(
-        map(res => res.json()),
         tap(refreshedExperiment => {
           if (refreshedExperiment) {
             this.experimentInfo.next(this.processExperimentInfo(refreshedExperiment))
@@ -438,22 +424,21 @@ export class ExperimentService {
   }
 
   queryUsageLogsPerParticipant(mongooseFilter: any = null, userIds: string | Array<string> = null): Observable<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>> {
-    return this.http.get("/api/research/diagnostics/logs/usage", this.researchApi.makeAuthorizedRequestOptions({
+    return this.http.get<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>>("/api/research/diagnostics/logs/usage", this.researchApi.makeAuthorizedRequestOptions({
       experiment: this.experimentId,
       userIds: userIds,
       filter: JSON.stringify(mongooseFilter)
-    })).pipe(map(res => res.json()))
+    }))
   }
 
   // commands====================
 
   addCollaborator(collaboratorId: string, permissions: ExperimentPermissions): Observable<boolean> {
-    return this.http.post("api/research/experiments/" + this.experimentId + "/collaborators/new", {
+    return this.http.post<boolean>("api/research/experiments/" + this.experimentId + "/collaborators/new", {
       collaborator: collaboratorId,
       permissions: permissions
     }, this.researchApi.authorizedOptions)
       .pipe(
-        map(res => res.json()),
         tap((changed) => {
           if (changed === true) {
             this.loadExperimentInfo()
@@ -463,8 +448,7 @@ export class ExperimentService {
   }
 
   removeCollaborator(collaboratorId: string): Observable<boolean> {
-    return this.http.delete('api/research/experiments/' + this.experimentId + "/collaborators/" + collaboratorId, this.researchApi.authorizedOptions).pipe(
-      map(res => res.json()),
+    return this.http.delete<boolean>('api/research/experiments/' + this.experimentId + "/collaborators/" + collaboratorId, this.researchApi.authorizedOptions).pipe(
       tap(changed => {
         if (changed === true) {
           this.loadExperimentInfo()
@@ -474,11 +458,10 @@ export class ExperimentService {
   }
 
   addTrackingPackageJson(packageJson: any, name: string): Observable<boolean> {
-    return this.http.post("api/research/experiments/" + this.experimentId + "/packages/update", {
+    return this.http.post<boolean>("api/research/experiments/" + this.experimentId + "/packages/update", {
       packageJson: packageJson,
       name: name
     }, this.researchApi.authorizedOptions).pipe(
-      map(res => res.json()),
       tap(changed => {
         if (changed === true) {
           this.loadExperimentInfo()
@@ -488,11 +471,11 @@ export class ExperimentService {
   }
 
   updateTrackingPackageJson(packageKey: string, packageJson: any, name: string): Observable<boolean> {
-    return this.http.post("api/research/experiments/" + this.experimentId + "/packages/update", {
+    return this.http.post<boolean>("api/research/experiments/" + this.experimentId + "/packages/update", {
       packageJson: packageJson,
       name: name,
       packageKey: packageKey
-    }, this.researchApi.authorizedOptions).pipe(map(res => res.json()), tap(changed => {
+    }, this.researchApi.authorizedOptions).pipe(tap(changed => {
       if (changed === true) {
         this.loadExperimentInfo()
       }
@@ -500,7 +483,7 @@ export class ExperimentService {
   }
 
   removeTrackingPackage(packageKey: string): Observable<boolean> {
-    return this.http.delete("api/research/experiments/" + this.experimentId + "/packages/" + packageKey, this.researchApi.authorizedOptions).pipe(map(res => res.json()))
+    return this.http.delete<boolean>("api/research/experiments/" + this.experimentId + "/packages/" + packageKey, this.researchApi.authorizedOptions)
   }
 
   upsertExperimentGroup(values: {
@@ -508,10 +491,10 @@ export class ExperimentService {
     name?: string,
     trackingPackageKey?: string
   }): Observable<IExperimentGroupDbEntity> {
-    return this.http.post("api/research/experiments/" + this.experimentId + "/groups/upsert", values, this.researchApi.authorizedOptions).pipe(map(r => r.json()))
+    return this.http.post<IExperimentGroupDbEntity>("api/research/experiments/" + this.experimentId + "/groups/upsert", values, this.researchApi.authorizedOptions)
   }
 
   deleteExperimentGroup(groupId: string) {
-    return this.http.delete("api/research/experiments/" + this.experimentId + "/groups/" + groupId, this.researchApi.authorizedOptions).pipe(map(r => r.json()))
+    return this.http.delete("api/research/experiments/" + this.experimentId + "/groups/" + groupId, this.researchApi.authorizedOptions)
   }
 }

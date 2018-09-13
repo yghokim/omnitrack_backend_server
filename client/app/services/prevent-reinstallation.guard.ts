@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { map, catchError } from 'rxjs/operators';
 
 @Injectable({
@@ -9,14 +9,13 @@ import { map, catchError } from 'rxjs/operators';
 })
 export class PreventReinstallationGuard implements CanActivate {
 
-  constructor(private http: Http, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router) { }
 
   canActivate(
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
 
     return this.http.get('/api/installation/status').pipe(
-      map(res => res.json()),
       map(installed => {
         if (installed === false) { return true } else {
           console.log("installation already done.")

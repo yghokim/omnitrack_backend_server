@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { Http, Headers, RequestOptions } from '@angular/http';
+import { HttpClient, HttpHeaders, } from '@angular/common/http';
 import { Observable, BehaviorSubject, Subscription, of, defer } from 'rxjs';
 import { map, flatMap, combineLatest, catchError } from 'rxjs/operators';
 import { SocketService } from './socket.service';
@@ -43,11 +43,11 @@ export class ResearcherAuthInfo {
 
 @Injectable()
 export class ResearcherAuthService implements OnDestroy {
-  private readonly jsonHeaders = new Headers({ 'Content-Type': 'application/json', 'charset': 'UTF-8' });
-  private readonly formHeaders = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded', 'charset': 'UTF-8' });
+  private readonly jsonHeaders = new HttpHeaders({ 'Content-Type': 'application/json', 'charset': 'UTF-8' });
+  private readonly formHeaders = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded', 'charset': 'UTF-8' });
 
-  private readonly jsonOptions = new RequestOptions({ headers: this.jsonHeaders });
-  private readonly formOptions = new RequestOptions({ headers: this.formHeaders });
+  private readonly jsonOptions: {headers: any, observe: 'body'} = { headers: this.jsonHeaders, observe: 'body' };
+  private readonly formOptions: {headers: any, observe: 'body'} = { headers: this.formHeaders, observe: 'body' };
 
   private readonly _internalSubscriptions = new Subscription()
 
@@ -57,7 +57,7 @@ export class ResearcherAuthService implements OnDestroy {
 
   readonly tokenSubject = new BehaviorSubject<string>(null)
 
-  constructor(private http: Http, private socketService: SocketService) {
+  constructor(private http: HttpClient, private socketService: SocketService) {
 
     const token = localStorage.getItem('omnitrack_researcher_token');
     if (token && this.jwtHelper.isTokenExpired(token) === false) {
@@ -99,9 +99,9 @@ export class ResearcherAuthService implements OnDestroy {
     return localStorage.getItem('omnitrack_researcher_token')
   }
 
-  makeAuthorizedOptions(): RequestOptions {
-    const tokenHeaders = new Headers({ 'Authorization': 'Bearer ' + this.token() });
-    return new RequestOptions({ headers: tokenHeaders });
+  makeAuthorizedOptions(): {headers: any, observe: 'body'} {
+    const tokenHeaders = new HttpHeaders({ 'Authorization': 'Bearer ' + this.token() });
+    return { headers: tokenHeaders, observe: 'body' };
   }
 
   public isTokenAvailable(): boolean {
@@ -114,8 +114,7 @@ export class ResearcherAuthService implements OnDestroy {
       return of(false)
     }
 
-    return this.http.post("/api/research/auth/verify", null, this.makeAuthorizedOptions()).pipe(
-      map(result => result.json()),
+    return this.http.post<boolean>("/api/research/auth/verify", null, this.makeAuthorizedOptions()).pipe(
       catchError(err => {
         return of(false)
       }),
@@ -136,9 +135,9 @@ export class ResearcherAuthService implements OnDestroy {
   }
 
   public register(info): Observable<any> {
-    return this.http.post('/api/research/auth/register', JSON.stringify(info), this.jsonOptions)
+    return this.http.post<any>('/api/research/auth/register', JSON.stringify(info), this.jsonOptions)
       .pipe(map(res => {
-        const token = res.json().token
+        const token = res.token
         if (token != null) {
           this.setNewToken(token)
         }
@@ -167,9 +166,9 @@ export class ResearcherAuthService implements OnDestroy {
       username: email,
       password: password
     }
-    return this.http.post('/api/research/auth/authenticate', JSON.stringify(requestBody), this.jsonOptions)
+    return this.http.post<any>('/api/research/auth/authenticate', requestBody, this.jsonOptions)
       .pipe(map(res => {
-        const token = res.json().token
+        const token = res.token
         if (token != null) {
           this.setNewToken(token)
         }
@@ -193,8 +192,7 @@ export class ResearcherAuthService implements OnDestroy {
       }
 
       if (Object.keys(body).length > 0) {
-        return this.http.post("/api/research/auth/update", body, this.makeAuthorizedOptions()).pipe(
-          map(res => res.json()),
+        return this.http.post<any>("/api/research/auth/update", body, this.makeAuthorizedOptions()).pipe(
           map(
             res => {
               if (!isNullOrBlank(res.token)) {

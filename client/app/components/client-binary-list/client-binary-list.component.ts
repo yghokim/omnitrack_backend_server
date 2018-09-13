@@ -6,7 +6,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { YesNoDialogComponent } from '../../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { filter, flatMap } from 'rxjs/operators';
-import { Http } from '@angular/http';
 import { NotificationService } from '../../services/notification.service';
 import { TextClipboardPastedBottomSheetComponent } from '../text-clipboard-pasted-bottom-sheet/text-clipboard-pasted-bottom-sheet.component';
 
@@ -32,7 +31,7 @@ export class ClientBinaryListComponent implements OnInit, OnDestroy {
     return this._binaries
   }
 
-  constructor(private api: ResearchApiService, private notificationService: NotificationService, private dialog: MatDialog, private http: Http, private bottomSheet: MatBottomSheet) { }
+  constructor(private api: ResearchApiService, private notificationService: NotificationService, private dialog: MatDialog, private bottomSheet: MatBottomSheet) { }
 
   ngOnInit() {
   }

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { ChartModule, HIGHCHARTS_MODULES } from 'angular-highcharts';
 import * as more from 'highcharts/highcharts-more.src';
 import * as exporting from 'highcharts/modules/exporting.src';
@@ -40,7 +40,7 @@ import { TextClipboardPastedBottomSheetComponent } from '../components/text-clip
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpModule,
+    HttpClientModule,
     FileDropModule,
     MaterialDesignModule,
     ChartModule,
@@ -51,7 +51,7 @@ import { TextClipboardPastedBottomSheetComponent } from '../components/text-clip
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpModule,
+    HttpClientModule,
     FileDropModule,
     MaterialDesignModule,
     ChartModule,

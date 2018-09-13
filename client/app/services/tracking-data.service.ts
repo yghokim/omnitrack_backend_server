@@ -1,5 +1,5 @@
 import { Injectable, OnInit, OnDestroy } from '@angular/core';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { ResearchApiService } from './research-api.service';
 import { ExperimentService } from './experiment.service';
 import { SocketService } from './socket.service';
@@ -24,7 +24,7 @@ export class TrackingDataService implements OnInit, OnDestroy {
   }
 
   constructor(
-    private http: Http,
+    private http: HttpClient,
     private socketService: SocketService,
     private api: ResearchApiService,
     private experimentService: ExperimentService) {
@@ -84,7 +84,7 @@ export class TrackingDataService implements OnInit, OnDestroy {
     this._internalSubscriptions.add(
       this.http.get(this.makeEntitiesQueryUrl(modelPath), this.api.makeAuthorizedRequestOptions({ userId: userId })).subscribe(
         entities => {
-          subject.next(entities.json())
+          subject.next(entities)
           this.lastSynchronizedAt.next(new Date().getTime())
         }
       )
@@ -151,9 +151,8 @@ export class TrackingDataService implements OnInit, OnDestroy {
   }
 
   setItemColumnValue(attribute: IAttributeDbEntity, item: IItemDbEntity, newSerializedValue: string): Observable<{ success: boolean, error?: any, changedItem?: IItemDbEntity }> {
-    return this.http.post("/api/research/tracking/update/item_column", { attrLocalId: attribute.localId, itemQuery: { _id: item._id }, serializedValue: newSerializedValue },
+    return this.http.post<{ success: boolean, error?: any, changedItem?: IItemDbEntity }>("/api/research/tracking/update/item_column", { attrLocalId: attribute.localId, itemQuery: { _id: item._id }, serializedValue: newSerializedValue },
       this.api.authorizedOptions).pipe(
-        map(r => r.json()),
         tap(result => {
           console.log(result)
           if (result.changedItem) {
@@ -174,8 +173,7 @@ export class TrackingDataService implements OnInit, OnDestroy {
   }
 
   setItemTimestamp(item: IItemDbEntity, newTimestamp: number, newTimezone?: string): Observable<{ success: boolean, error?: any, changedItem?: IItemDbEntity }> {
-    return this.http.post('/api/research/tracking/update/item_timestamp', { itemQuery: { _id: item._id }, timestamp: newTimestamp, timezone: newTimezone }, this.api.authorizedOptions).pipe(
-      map(r => r.json()),
+    return this.http.post<{ success: boolean, error?: any, changedItem?: IItemDbEntity }>('/api/research/tracking/update/item_timestamp', { itemQuery: { _id: item._id }, timestamp: newTimestamp, timezone: newTimezone }, this.api.authorizedOptions).pipe(
       tap(result => {
         if (result.changedItem) {
           if (this.items.value) {

@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { Subscription } from "rxjs";
-import { map } from "rxjs/operators";
-import { Http } from "@angular/http";
+import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
 
 @Component({
@@ -49,14 +48,13 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
     return re.test(String(email).toLowerCase());
   };
 
-  constructor(private http: Http, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit() {
     this.isLoadingServerStatus = true;
     this.internalSubscriptions.add(
       this.http
         .get("/api/installation/status/each")
-        .pipe(map(res => res.json()))
         .subscribe(
           result => {
             this.handleSummaryResult(result);
@@ -196,8 +194,7 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
         .post("/api/installation/set/firebase_cert", {
           value: this.adminCertJson
         })
-        .pipe(map(res => res.json()))
-        .subscribe(result => {
+        .subscribe((result : any) => {
           console.log(result);
           this.firebaseCertComplete = result.success;
           this.isInstallationCompletable = result.completable;
@@ -212,8 +209,7 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
         .post("/api/installation/set/super_users", {
           value: this.superUsers
         })
-        .pipe(map(res => res.json()))
-        .subscribe(result => {
+        .subscribe((result : any) => {
           this.superUsersComplete = result.success;
           this.isInstallationCompletable = result.completable;
           this.jumpToTheFirstAvailableStep();
@@ -227,8 +223,7 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
         .post("/api/installation/set/jwt_secret", {
           value: this.jwtTokenSecret
         })
-        .pipe(map(res => res.json()))
-        .subscribe(result => {
+        .subscribe((result : any) => {
           this.jwtTokenComplete = result.success;
           this.isInstallationCompletable = result.completable;
           this.jumpToTheFirstAvailableStep();
@@ -240,7 +235,6 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
     this.internalSubscriptions.add(
       this.http
         .post("/api/installation/reset", {})
-        .pipe(map(res => res.json()))
         .subscribe(result => {
           this.handleSummaryResult(result);
         })
@@ -252,7 +246,6 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
     this.internalSubscriptions.add(
       this.http
         .post("/api/installation/set/complete_installation", { value: true })
-        .pipe(map(res => res.json()))
         .subscribe(
           success => {
             if (success === true) {

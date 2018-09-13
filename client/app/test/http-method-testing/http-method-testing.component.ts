@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs/internal/Subscription';
 
 @Component({
@@ -16,7 +16,7 @@ export class HttpMethodTestingComponent implements OnInit, OnDestroy {
 
   response: any
 
-  constructor(private http: Http) { }
+  constructor(private http: HttpClient) { }
 
   ngOnInit() {
   }

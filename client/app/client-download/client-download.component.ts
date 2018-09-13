@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
 import * as platformDetector from 'platform';
 
 @Component({
@@ -19,16 +18,16 @@ export class ClientDownloadComponent implements OnInit {
 
   latestBinary: any
 
-  constructor(private http: Http) { }
+  constructor(private http: HttpClient) { }
 
   ngOnInit() {
     const realPlatform = platformDetector.os.family
     console.log("platform: " + realPlatform)
 
     this.internalSubscriptions.add(
-      this.http.get("api/clients/all").pipe(map(res => res.json())).subscribe(
+      this.http.get("api/clients/all").subscribe(
         data => {
-          this.clientBinaryPlatformList = data || []
+          this.clientBinaryPlatformList = (data as any) || []
           if (this.clientBinaryPlatformList.length > 0) {
             const platformText = realPlatform.toLowerCase().replace(/ /g, "")
 

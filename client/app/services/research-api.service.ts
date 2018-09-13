@@ -1,6 +1,6 @@
 import { ServiceBase } from './service-base';
 import { Injectable, OnDestroy } from '@angular/core';
-import { Http, Headers, RequestOptions, Response, ResponseContentType } from '@angular/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { ResearcherAuthService } from './researcher.auth.service';
 import { Observable, Subscription, BehaviorSubject } from 'rxjs';
 import { filter, combineLatest, flatMap, map, tap, distinctUntilChanged } from 'rxjs/operators';
@@ -9,15 +9,15 @@ import { ExperimentService } from './experiment.service';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
 import { NotificationService } from './notification.service';
 import { ExampleExperimentInfo } from '../../../omnitrack/core/research/experiment';
-import { IUsageLogDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { IUsageLogDbEntity, IUserDbEntity } from '../../../omnitrack/core/db-entity-types';
 import { IClientSignatureDbEntity, IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 
 @Injectable()
 export class ResearchApiService extends ServiceBase {
 
-  private tokenHeaders: Headers
+  private tokenHeaders: HttpHeaders
 
-  public authorizedOptions: RequestOptions
+  public authorizedOptions: { headers: HttpHeaders, observe: "body" }
 
   private selectedExperimentId: string = null
 
@@ -30,16 +30,15 @@ export class ResearchApiService extends ServiceBase {
   }
 
   private readonly _experimentListSubject = new BehaviorSubject<Array<IExperimentDbEntity>>([])
-  private readonly _userPoolSubject = new BehaviorSubject<Array<any>>([])
+  private readonly _userPoolSubject = new BehaviorSubject<Array<IUserDbEntity>>([])
 
-  constructor(private http: Http, private authService: ResearcherAuthService, private socketService: SocketService, private notificationService: NotificationService) {
+  constructor(private http: HttpClient, private authService: ResearcherAuthService, private socketService: SocketService, private notificationService: NotificationService) {
     super()
     this._internalSubscriptions.add(
       this.authService.tokenSubject.subscribe(token => {
         if (token) {
-          this.tokenHeaders = new Headers({ 'Authorization': 'Bearer ' + token });
-          this.authorizedOptions = new RequestOptions({ headers: this.tokenHeaders });
-
+          this.tokenHeaders = new HttpHeaders({ 'Authorization': 'Bearer ' + token });
+          this.authorizedOptions = { headers: this.tokenHeaders, observe: "body" };
           this.loadExperimentList()
           this.loadUserPool()
         }
@@ -114,20 +113,19 @@ export class ResearchApiService extends ServiceBase {
   loadExperimentList() {
     this.notificationService.registerGlobalBusyTag("experimentInfo")
     this._internalSubscriptions.add(
-      this.http.get('/api/research/experiments/all', this.authorizedOptions).pipe(map(res => res.json())).subscribe(
-        list => {
-          this.notificationService.unregisterGlobalBusyTag("experimentInfo")
-          this._experimentListSubject.next(list)
-        })
+      this.http.get<Array<IExperimentDbEntity>>('/api/research/experiments/all', this.authorizedOptions)
+        .subscribe(
+          list => {
+            this.notificationService.unregisterGlobalBusyTag("experimentInfo")
+            this._experimentListSubject.next(list)
+          })
     )
   }
 
   loadUserPool() {
     this.notificationService.registerGlobalBusyTag("userPool")
     this._internalSubscriptions.add(
-      this.http.get("/api/research/users/all", this.authorizedOptions).pipe(map(res => {
-        return res.json()
-      })).subscribe(
+      this.http.get<Array<IUserDbEntity>>("/api/research/users/all", this.authorizedOptions).subscribe(
         list => {
           this.notificationService.unregisterGlobalBusyTag("userPool")
           this._userPoolSubject.next(list)
@@ -141,13 +139,12 @@ export class ResearchApiService extends ServiceBase {
   }
 
   getExampleExperimentList(): Observable<Array<ExampleExperimentInfo>> {
-    return this.http.get("/api/research/experiments/examples").pipe(map(res => { console.log(res.json()); return res.json() }))
+    return this.http.get<Array<ExampleExperimentInfo>>("/api/research/experiments/examples")
   }
 
   addExampleExperimentAndGetId(key: string): Observable<string> {
     console.log(this.authorizedOptions)
-    return this.http.post("/api/research/experiments/examples", { exampleKey: key }, this.authorizedOptions).pipe(
-      map(res => res.json()),
+    return this.http.post<string>("/api/research/experiments/examples", { exampleKey: key }, this.authorizedOptions).pipe(
       tap(res => { this.loadExperimentList() })
     )
   }
@@ -171,7 +168,7 @@ export class ResearchApiService extends ServiceBase {
   }
 
   deleteUserAccount(userId: string, removeData: boolean): Observable<boolean> {
-    return this.http.delete('/api/research/users/' + userId, new RequestOptions({ headers: this.tokenHeaders, params: { removeData: removeData } }))
+    return this.http.delete('/api/research/users/' + userId, this.makeAuthorizedRequestOptions({ removeData: removeData }))
       .pipe(
         map(res => {
           return true
@@ -184,10 +181,8 @@ export class ResearchApiService extends ServiceBase {
   }
 
   createExperiment(info: any): Observable<IExperimentDbEntity> {
-    return this.http.post("/api/research/experiments/new", info, this.authorizedOptions)
-      .pipe(map(res => {
-        return res.json()
-      }),
+    return this.http.post<IExperimentDbEntity>("/api/research/experiments/new", info, this.authorizedOptions)
+      .pipe(
         tap((exp) => {
           if (this._experimentListSubject.value) {
             const list = this._experimentListSubject.value.slice()
@@ -206,8 +201,7 @@ export class ResearchApiService extends ServiceBase {
   }
 
   removeExperiment(experimentId: string): Observable<boolean> {
-    return this.http.delete("/api/research/experiments/" + experimentId, this.authorizedOptions).pipe(
-      map(res => res.json()),
+    return this.http.delete<boolean>("/api/research/experiments/" + experimentId, this.authorizedOptions).pipe(
       tap(success => {
         if (success === true) {
           if (this._experimentListSubject.value) {
@@ -224,33 +218,39 @@ export class ResearchApiService extends ServiceBase {
   }
 
   searchResearchers(term: string, excludeSelf): Observable<Array<{ _id: string, email: string, alias: string }>> {
-    return this.http.get("/api/research/researchers/search", { headers: this.tokenHeaders, params: { term: term, excludeSelf: excludeSelf } }).pipe(map(res => res.json()))
+    return this.http.get<Array<{ _id: string, email: string, alias: string }>>("/api/research/researchers/search", { headers: this.tokenHeaders, params: { term: term, excludeSelf: excludeSelf } })
   }
 
-  makeAuthorizedRequestOptions(query: any, responseType?: ResponseContentType): RequestOptions {
-    const options: any = { headers: this.tokenHeaders, params: query }
-    if(responseType){
+  makeAuthorizedRequestOptions(query: any, responseType?: string): { observe: "body" } {
+    const params = new HttpParams()
+    for (const queryKey of Object.keys(query)) {
+      if (query[queryKey] != null) {
+        params.set(queryKey, query[queryKey])
+      }
+    }
+    const options: any = { headers: this.tokenHeaders, params: params, observe: "body" }
+    if (responseType) {
       options.responseType = responseType
     }
-    return new RequestOptions(options)
+    return options
   }
 
   updateExperiment(experimentId: string, update: any): Observable<boolean> {
-    return this.http.post("api/research/experiments/" + experimentId + "/update", update, this.authorizedOptions).pipe(map(res => res.json().updated))
+    return this.http.post<boolean>("api/research/experiments/" + experimentId + "/update", update, this.authorizedOptions)
   }
 
   getAllResearchers(): Observable<Array<any>> {
-    return this.http.get("api/research/researchers/all", this.authorizedOptions).pipe(map(res => res.json()))
+    return this.http.get<Array<any>>("api/research/researchers/all", this.authorizedOptions)
   }
 
   setResearcherAccountApproval(researcherId: string, approvedStatus: boolean): Observable<boolean> {
-    return this.http.post("api/research/researchers/" + researcherId + "/approve", { approved: approvedStatus }, this.authorizedOptions).pipe(map(res => res.json()))
+    return this.http.post<boolean>("api/research/researchers/" + researcherId + "/approve", { approved: approvedStatus }, this.authorizedOptions)
   }
 
   uploadClientBinary(file: File, changelog: Array<string>): Observable<{ success: boolean, signatureUpdated: boolean }> {
     const formData: FormData = new FormData()
     formData.append("file", file, file.name)
-    return this.http.post("api/research/clients/upload", formData, this.makeAuthorizedRequestOptions({ changelog: changelog })).pipe(map(res => res.json()))
+    return this.http.post<{ success: boolean, signatureUpdated: boolean }>("api/research/clients/upload", formData, this.makeAuthorizedRequestOptions({ changelog: changelog }))
   }
 
   getClientBinaries(experimentId?: string, platform?: string): Observable<Array<any>> {
@@ -262,63 +262,58 @@ export class ResearchApiService extends ServiceBase {
       } else { query.platform = platform }
     }
 
-    return this.http.get("api/clients/all", new RequestOptions({ params: query })).pipe(map(res => res.json()))
+    return this.http.get<Array<any>>("api/clients/all", this.makeAuthorizedRequestOptions(query))
   }
 
   removeClientBinary(binaryId: string): Observable<boolean> {
-    return this.http.delete("api/research/clients/" + binaryId, this.authorizedOptions).pipe(map(res => res.json()))
+    return this.http.delete<boolean>("api/research/clients/" + binaryId, this.authorizedOptions)
   }
 
   publishClientBinary(binaryId: string): Observable<boolean> {
-    return this.http.post("api/research/clients/" + binaryId + "/publish", {}, this.authorizedOptions).pipe(map(res => res.json()))
+    return this.http.post<boolean>("api/research/clients/" + binaryId + "/publish", {}, this.authorizedOptions)
   }
 
   getMedia(trackerId: string, attributeLocalId: string, itemId: string, processingType: string /*"original" | "thumb" | "thumb_retina" */): Observable<Blob> {
     // :trackerId/:itemId/:attrLocalId/:fileIdentifier
-    return this.http.get("api/research/files/item_media/" + trackerId + "/" + itemId + "/" + attributeLocalId + "/" + "0" + "/" + processingType, new RequestOptions({ headers: this.tokenHeaders, responseType: ResponseContentType.Blob }))
-      .pipe(map((res: Response) => res.blob()));
+    return this.http.get<Blob>("api/research/files/item_media/" + trackerId + "/" + itemId + "/" + attributeLocalId + "/" + "0" + "/" + processingType, this.makeAuthorizedRequestOptions(null, 'blob'))
   }
 
   // tslint:disable-next-line:no-shadowed-variable
   queryUsageLogsAnonymized(filterBase: any = null, from: string = null, to: string = null): Observable<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>> {
-    return this.http.get("/api/research/diagnostics/logs/usage", this.makeAuthorizedRequestOptions({
+    return this.http.get<Array<{ user: string, logs: Array<IUsageLogDbEntity> }>>("/api/research/diagnostics/logs/usage", this.makeAuthorizedRequestOptions({
       filter: JSON.stringify(filterBase),
       from: from,
       to: to
-    })).pipe(map(res => res.json()))
+    }))
   }
 
   queryClientErrorLogs(filterBase: any = null, from: string = null, to: string = null): Observable<Array<IUsageLogDbEntity>> {
-    return this.http.get("/api/research/diagnostics/logs/error", this.makeAuthorizedRequestOptions({
+    return this.http.get<Array<IUsageLogDbEntity>>("/api/research/diagnostics/logs/error", this.makeAuthorizedRequestOptions({
       filter: JSON.stringify(filterBase),
       from: from,
       to: to
-    })).pipe(map(res => res.json()))
+    }))
   }
 
   getClientSignatures(): Observable<Array<IClientSignatureDbEntity>> {
-    return this.http.get("/api/research/signatures/all", this.authorizedOptions).pipe(map(res => res.json()))
+    return this.http.get<Array<IClientSignatureDbEntity>>("/api/research/signatures/all", this.authorizedOptions)
   }
 
   removeClientSignature(id: string): Observable<boolean> {
-    return this.http.delete("/api/research/signatures/" + id, this.authorizedOptions).pipe(map(res => res.json()))
+    return this.http.delete<boolean>("/api/research/signatures/" + id, this.authorizedOptions)
   }
 
   upsertClientSignature(id: string = null, key: string, packageName: string, alias: string): Observable<boolean> {
-    return this.http.post("/api/research/signatures/update", { _id: id, key: key, package: packageName, alias: alias }, this.authorizedOptions).pipe(map(res => res.json()))
+    return this.http.post<boolean>("/api/research/signatures/update", { _id: id, key: key, package: packageName, alias: alias }, this.authorizedOptions)
   }
 
   loadInstantShareTrackingPackage(code: string): Observable<any> {
-    return this.http.get('/api/research/package/temporary/' + code, this.authorizedOptions).pipe(
-      map(res => res.json())
-    )
+    return this.http.get('/api/research/package/temporary/' + code, this.authorizedOptions)
   }
 
   shortenUrlToShortId(longUrl: string): Observable<string> {
-    return this.http.post("/api/research/shorten", {
+    return this.http.post<string>("/api/research/shorten", {
       longUrl: longUrl
-    }, this.authorizedOptions).pipe(
-      map(res => res.text())
-    )
+    }, this.authorizedOptions)
   }
 }

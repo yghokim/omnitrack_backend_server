@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PACKAGE_VERSION } from '../release_version';
 import { map } from 'rxjs/operators';
 
 @Injectable()
 export class PlatformVersionCheckService {
-  constructor(private http: Http) {
+  constructor(private http: HttpClient) {
 
   }
 
@@ -15,9 +15,7 @@ export class PlatformVersionCheckService {
   }
 
   readBackendVersion(): Observable<string>{
-    return this.http.get("/api/version").pipe(
-      map(res => res.text())
-    )
+    return this.http.get("/api/version", {observe: "body", responseType: 'text'})
   }
 
   isVersionMatch(): Observable<boolean>{
