@@ -320,8 +320,8 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
           packageName: this.originalConfig.packageName,
           signature: signature
         }})
-      }, err => {
-        console.log(err)
+      }, errObj => {
+        const err = JSON.parse(errObj.error)
         if(err.code === "KeystoreError"){
           this.notificationService.pushSnackBarMessage({
             message: err.message
@@ -329,6 +329,11 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
         }else if(err.code === "IncompleteKeystoreInformation"){
           this.notificationService.pushSnackBarMessage({
             message: err.message
+          })
+        }else{
+          console.log(errObj)
+          this.notificationService.pushSnackBarMessage({
+            message: "Unknown error occurred."
           })
         }
       })
