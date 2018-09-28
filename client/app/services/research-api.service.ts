@@ -316,6 +316,6 @@ export class ResearchApiService extends ServiceBase {
   shortenUrlToShortId(longUrl: string): Observable<string> {
     return this.http.post<string>("/api/research/shorten", {
       longUrl: longUrl
-    }, this.authorizedOptions)
+    }, this.makeAuthorizedRequestOptions(null, 'text'))
   }
 }
