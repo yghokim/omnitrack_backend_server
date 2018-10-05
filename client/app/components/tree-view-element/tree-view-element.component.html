@@ -1,0 +1,10 @@
+<div [style.padding-left]="(1+cascadingLevel) + 'rem'" class="main-element flex-container flex-align-items-center"
+  [class.highlighted]="isHighlighted===true" [class.hoverable]="isSelectable===true" (click)="onClicked($event)">
+  <div *ngIf="isLeaf===false" [class.opened]="isOpen===true" class="material-icons tree-icon" (click)="onIconClicked($event)">{{isOpen
+    === true?
+    'indeterminate_check_box' : 'add_box'}}</div>
+  <div class="main-content">
+    <ng-content select="[main]"></ng-content>
+  </div>
+</div>
+<ng-content *ngIf="isOpen===true" select="[child]"></ng-content>

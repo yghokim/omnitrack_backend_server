@@ -1,0 +1,52 @@
+<app-labeled-loading-indicator *ngIf="participants == null">
+  <span message>Loading Tracking Data...</span>
+</app-labeled-loading-indicator>
+<div *ngIf="participants != null && participants.length === 0" class="page-info-message">
+  No participants in the experiment.
+</div>
+<div *ngIf="participants != null && participants.length > 0" class="content-fill-container">
+  <div class="panel-header container-vertical-padding">
+    <div class="flex-container flex-align-items-center">
+      <mat-form-field class="mat-form-no-vertical-padding">
+        <mat-select [(value)]="selectedParticipantId" required="true" (selectionChange)="onSelectedParticipantIdChanged($event.value)">
+          <mat-option *ngFor="let participant of participants" [value]="participant._id">{{participant.alias}}
+            ({{participant.experimentRange.from | date: 'yyyy-MM-dd'}})</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <div class="flex-filler"></div>
+    </div>
+  </div>
+
+  <div class="panel-body">
+    <div class="panel-entity-list">
+      <div *ngIf="loadingParticipantInfo===true" class="card-body">
+        <app-labeled-loading-indicator>
+          <span message>Loading trackers and triggers ...</span>
+        </app-labeled-loading-indicator>
+      </div>
+      <div class="entity-list-content" *ngIf="loadingParticipantInfo!==true">
+        <ng-container *ngIf='participantTrackers!=null && participantTrackers.length > 0'>
+          <div class="entity-list-subheader">
+            Trackers
+          </div>
+          <app-tracker-tree-view *ngFor="let tracker of participantTrackers" [tracker]="tracker" [triggers]="participantTriggers" (treeItemClick)="onElementSelected(tracker, $event)"></app-tracker-tree-view>
+        </ng-container>
+        <ng-container *ngIf='participantTriggers!=null && getLoggingTriggerList(participantTriggers).length > 0'>
+          <div class="entity-list-subheader">
+            Triggers
+          </div>
+          <app-trigger-tree-view *ngFor="let trigger of getLoggingTriggerList(participantTriggers)" [trigger]="trigger" [trackers]="participantTrackers" (treeItemClick)="onElementSelected(trigger, $event)"></app-trigger-tree-view>
+        </ng-container>
+      </div>
+    </div>
+    <div class="panel-entity-code">
+      <div class="code-editor-container">
+        <ngx-monaco-editor class="code-editor" [options]="editorOptions" [(ngModel)]="selectedEntityCode"></ngx-monaco-editor>
+      </div>
+      <div class="code-editor-footer flex-container flex-align-items-center">
+        <div class="flex-filler"></div>
+        <!--<button mat-button color="accent">Apply</button>-->
+      </div>
+    </div>
+  </div>
+</div>

@@ -4,6 +4,7 @@ import { merge } from "../../../shared_lib/utils";
 export class ExperimentConstants{
   static readonly PAGE_OVERVIEW = "overview"
   static readonly PAGE_SELF_TRACKING_DATA = "tracking-data"
+  static readonly PAGE_TRACKING_ENTITIES = "entity-status"
   static readonly PAGE_PARTICIPANTS = "participants"
   static readonly PAGE_MESSAGING = "messaging"
   static readonly PAGE_INVITATIONS = "invitations"
@@ -47,6 +48,7 @@ export class ExperimentPermissions{
     this.allowedPages[ExperimentConstants.PAGE_PARTICIPANTS] = true
     this.allowedPages[ExperimentConstants.PAGE_MESSAGING] = true
     this.allowedPages[ExperimentConstants.PAGE_SELF_TRACKING_DATA] = true
+    this.allowedPages[ExperimentConstants.PAGE_TRACKING_ENTITIES] = true
     this.allowedPages[ExperimentConstants.PAGE_SETTINGS] = true
     this.allowedPages[ExperimentConstants.PAGE_GROUPS] = true
     this.allowedPages[ExperimentConstants.PAGE_OMNITRACK] = true

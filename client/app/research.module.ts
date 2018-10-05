@@ -89,6 +89,10 @@ import { TrackerViewComponent } from './research/omnitrack/entities/tracker-view
 import { TriggerViewComponent } from './research/omnitrack/entities/trigger-view/trigger-view.component';
 import { LockFlagButtonComponent } from './research/omnitrack/entities/lock-flag-button/lock-flag-button.component';
 import { LockConfigurationSheetComponent } from './research/omnitrack/entities/lock-flag-button/lock-configuration-sheet/lock-configuration-sheet.component';
+import { ExperimentTrackingEntityStatusComponent } from './experiment-tracking-entity-status/experiment-tracking-entity-status.component';
+import { TrackerTreeViewComponent } from './research/omnitrack/entities/tracker-tree-view/tracker-tree-view.component';
+import { TriggerTreeViewComponent } from './research/omnitrack/entities/trigger-tree-view/trigger-tree-view.component';
+import { TreeViewElementComponent } from './components/tree-view-element/tree-view-element.component';
 
 @NgModule({
   imports: [
@@ -170,7 +174,11 @@ import { LockConfigurationSheetComponent } from './research/omnitrack/entities/l
     TrackerViewComponent,
     TriggerViewComponent,
     LockFlagButtonComponent,
-    LockConfigurationSheetComponent
+    LockConfigurationSheetComponent,
+    ExperimentTrackingEntityStatusComponent,
+    TrackerTreeViewComponent,
+    TriggerTreeViewComponent,
+    TreeViewElementComponent
   ],
   exports: [
     NouisliderModule,

@@ -38,29 +38,30 @@ import { ExperimentClientSettingsComponent } from './experiment-client-settings/
 import { ExperimentConsentComponent } from './experiment-consent/experiment-consent.component';
 import { DemographicEditorComponent } from './experiment-consent/demographic-editor/demographic-editor.component';
 import { CheckInstallationGuard } from './services/check-installation.guard';
+import { ExperimentTrackingEntityStatusComponent } from './experiment-tracking-entity-status/experiment-tracking-entity-status.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'research', pathMatch: 'full'},
+  { path: '', redirectTo: 'research', pathMatch: 'full' },
 
   { path: 'test', component: HttpMethodTestingComponent },
 
   { path: 'install', component: InstallationWizardComponent, canActivate: [PreventReinstallationGuard] },
-/*
-  {
-    path: 'tracking', component: EndUserFrameComponent,
-    children: [
-      {
-        path: '', component: EndUserHomeComponent, canActivate: [EndUserAuthCheckGuard], data: { title: "OmniTrack" },
-        children: [
-          { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-          { path: 'dashboard', component: EndUserDashboardComponent },
-          { path: 'trackers', component: EndUserTrackerListComponent },
-          { path: 'triggers', component: EndUserTriggerListComponent }
-        ]
-      },
-      { path: 'login', component: EndUserSignInComponent, canActivate: [EndUserAuthToMainGuard], data: { title: "Login" } }
-    ]
-  },*/
+  /*
+    {
+      path: 'tracking', component: EndUserFrameComponent,
+      children: [
+        {
+          path: '', component: EndUserHomeComponent, canActivate: [EndUserAuthCheckGuard], data: { title: "OmniTrack" },
+          children: [
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: 'dashboard', component: EndUserDashboardComponent },
+            { path: 'trackers', component: EndUserTrackerListComponent },
+            { path: 'triggers', component: EndUserTriggerListComponent }
+          ]
+        },
+        { path: 'login', component: EndUserSignInComponent, canActivate: [EndUserAuthToMainGuard], data: { title: "Login" } }
+      ]
+    },*/
 
   {
     path: 'research', component: ResearchFrameComponent,
@@ -92,13 +93,12 @@ const routes: Routes = [
 
             ]
           },
-          { path: 'detailed-overview', component: PerParticipantVisualizationDashboardComponent, data: { title: 'Per-participant Overview' } },
-          {
-            path: 'custom-statistics', component: ExperimentCustomStatisticsComponent, data: { title: 'Custom Statistics' }
-          },
           { path: 'messaging', component: ExperimentMessagingComponent, data: { title: "Messaging" } },
           { path: 'messaging/new', component: ComposeMessageComponent, data: { title: "Compose Message", backTitle: "Messaging", backNavigationUrl: './messaging' } },
-          { path: 'tracking-data', component: ExperimentDataComponent, data: { title: 'Tracking Data' } },
+          { path: 'tracking-data', component: ExperimentDataComponent, data: { title: 'Captured Items' } },
+          {
+            path: 'entity-status', component: ExperimentTrackingEntityStatusComponent, data: { title: 'Tracking Entity Status' }
+          },
           { path: 'participants', component: ExperimentParticipantsComponent, data: { title: 'Participants' } },
           { path: 'groups', component: ExperimentGroupsComponent, data: { title: 'Groups' } },
           { path: 'invitations', component: ExperimentInvitationsComponent, data: { title: 'Invitations' } },

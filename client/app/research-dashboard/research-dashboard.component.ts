@@ -51,7 +51,7 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
 
   dashboardNavigationGroups = [
     {
-      name: 'Research',
+      name: 'Experiment',
       menus: [
         {
           name: 'Overview',
@@ -69,8 +69,13 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
           icon: 'timeline'
         },*/
         {
-          name: 'Self-Tracking Data',
+          name: 'Captured Items',
           key: 'tracking-data',
+          icon: 'view_list'
+        },
+        {
+          name: "Tracking Entity Status",
+          key: "entity-status",
           icon: 'view_list'
         },
         {

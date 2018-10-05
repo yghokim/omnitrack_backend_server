@@ -1,0 +1,13 @@
+<app-tree-view-element *ngIf="trigger!=null" [cascadingLevel]="oppendCascadingLevel" [isSelectable]="true" [selectionData]="{'type':'trigger', 'obj': trigger}" (treeItemClick)="onElementClicked($event)">
+    <div main>
+      {{makeShortenConditionString()}} {{getType()}}
+    </div>
+    <app-tree-view-element child [cascadingLevel]="oppendCascadingLevel + 1" [isLeaf]="true" [isSelectable]="true" [selectionData]="{'type':'triggerCondition', 'obj': trigger.condition}" (treeItemClick)="onElementClicked($event)">
+      <span main>Condition</span>
+    </app-tree-view-element>
+
+    <app-tree-view-element child [cascadingLevel]="oppendCascadingLevel + 1" [isLeaf]="true" [isSelectable]="true" [selectionData]="{'type':'triggerAction', 'obj': trigger.action}" (treeItemClick)="onElementClicked($event)">
+      <span main>Action</span>
+    </app-tree-view-element>
+  </app-tree-view-element>
+  
