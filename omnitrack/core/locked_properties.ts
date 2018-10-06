@@ -15,7 +15,8 @@ export const LOCKED_PROPERTY_KEYS_TRACKER = LOCKED_PROPERTY_KEYS_COMMON.concat([
   "enterItemList",
   "enterVisualization",
   "addNewReminder",
-  "independentInput"
+  "selfInitiatedInput",
+  "visibleInApp"
 ])
 
 export const LOCKED_PROPERTY_KEYS_ATTRIBUTE = LOCKED_PROPERTY_KEYS_COMMON.concat([
@@ -24,7 +25,8 @@ export const LOCKED_PROPERTY_KEYS_ATTRIBUTE = LOCKED_PROPERTY_KEYS_COMMON.concat
 
 export const LOCKED_PROPERTY_KEYS_TRIGGER = LOCKED_PROPERTY_KEYS_COMMON.concat([
   "changeSwitch", 
-  "changeAssignedTrackers"
+  "changeAssignedTrackers",
+  "visibleInApp"
 ])
 
 
@@ -39,7 +41,8 @@ export interface ITrackerLockedProperties extends IEntityLockedProperties {
   enterItemList?: boolean
   enterVisualization?: boolean
   addNewReminder?: boolean
-  independentInput?: boolean
+  selfInitiatedInput?: boolean
+  visibleInApp?: boolean
 }
 
 export interface IAttributeLockedProperties extends IEntityLockedProperties{
@@ -49,4 +52,5 @@ export interface IAttributeLockedProperties extends IEntityLockedProperties{
 export interface ITriggerLockedProperties extends IEntityLockedProperties {
   changeSwitch?: boolean
   changeAssignedTrackers?: boolean
+  visibleInApp?: boolean
 }
