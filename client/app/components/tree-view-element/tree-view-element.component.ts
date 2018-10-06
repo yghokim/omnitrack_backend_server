@@ -23,7 +23,7 @@ export class TreeViewElementComponent implements OnInit {
 
   }
 
-  onClicked() {
+  onClicked(event) {
     if (this.isSelectable === true)
       this.treeItemClick.emit(this.selectionData)
     else if (this.isLeaf === false) {
