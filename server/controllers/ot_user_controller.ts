@@ -12,7 +12,6 @@ import { experimentCtrl } from './research/ot_experiment_controller';
 import { IUserDbEntity, IClientDevice } from '../../omnitrack/core/db-entity-types';
 import { deferPromise } from '../../shared_lib/utils';
 import OTParticipant from '../models/ot_participant';
-import OTExperiment from 'models/ot_experiment';
 import * as moment from 'moment';
 
 export default class OTUserCtrl extends BaseCtrl {

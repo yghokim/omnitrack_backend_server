@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { ITriggerDbEntity, ITrackerDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
 import { TriggerConstants } from '../../../../../../omnitrack/core/trigger-constants';
 import * as moment from 'moment-timezone';
@@ -6,7 +6,8 @@ import * as moment from 'moment-timezone';
 @Component({
   selector: 'app-trigger-tree-view',
   templateUrl: './trigger-tree-view.component.html',
-  styleUrls: ['./trigger-tree-view.component.scss']
+  styleUrls: ['./trigger-tree-view.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Default
 })
 export class TriggerTreeViewComponent implements OnInit {
 

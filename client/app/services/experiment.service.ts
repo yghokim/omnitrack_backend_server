@@ -1,7 +1,7 @@
 import { ResearcherAuthService } from './researcher.auth.service';
 import { ResearchApiService } from './research-api.service';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, Subscription, Subject } from 'rxjs';
+import { Observable, BehaviorSubject, Subscription, Subject, of } from 'rxjs';
 import { map, filter, tap, combineLatest } from 'rxjs/operators';
 import { SocketService } from './socket.service';
 import { SocketConstants } from '../../../omnitrack/core/research/socket'
@@ -11,7 +11,7 @@ import { ExperimentPermissions } from '../../../omnitrack/core/research/experime
 import { VisualizationConfigs } from '../../../omnitrack/core/research/configs';
 import { TrackingDataService } from './tracking-data.service';
 import { IResearchMessage } from '../../../omnitrack/core/research/messaging';
-import { IParticipantDbEntity, IUsageLogDbEntity, getIdPopulateCompat } from '../../../omnitrack/core/db-entity-types';
+import { IParticipantDbEntity, IUsageLogDbEntity, getIdPopulateCompat, ITriggerDbEntity, ITrackerDbEntity } from '../../../omnitrack/core/db-entity-types';
 import { IExperimentDbEntity, IResearcherDbEntity, IExperimentTrackingPackgeDbEntity, IExperimentGroupDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import * as moment from 'moment';
 
@@ -496,5 +496,52 @@ export class ExperimentService {
 
   deleteExperimentGroup(groupId: string) {
     return this.http.delete("api/research/experiments/" + this.experimentId + "/groups/" + groupId, this.researchApi.authorizedOptions)
+  }
+
+  getEntitiesOfUserInExperiment(userId: string): Observable<{trackers: Array<ITrackerDbEntity>, triggers: Array<ITriggerDbEntity>}>{
+    return this.http.get<{
+      trackers: Array<ITrackerDbEntity>, 
+      triggers: Array<ITriggerDbEntity>}>(
+      "/api/research/experiments/" + this.experimentId + "/entities/user/" + userId,
+      this.researchApi.authorizedOptions
+    )
+  }
+  
+  updateTrigger(triggerId: string, update: any): Observable<{updated: ITriggerDbEntity}>{
+    return this.http.post<{updated: ITriggerDbEntity}>(
+      '/api/research/tracking/update/trigger',
+      {
+        experimentId: this.experimentId,
+        triggerId: triggerId,
+        update: update
+      },
+      this.researchApi.authorizedOptions
+    )
+  }
+
+  updateTracker(trackerId: string, update: any): Observable<{updated: ITrackerDbEntity}>{
+    return this.http.post<{updated: ITrackerDbEntity}>(
+      '/api/research/tracking/update/tracker',
+      {
+        experimentId: this.experimentId,
+        trackerId: trackerId,
+        update: update
+      },
+      this.researchApi.authorizedOptions
+    )
+  }
+
+  
+  updateAttributeOfTracker(trackerId: string, attributeLocalId: string, update: any): Observable<{updated: ITrackerDbEntity}>{
+    return this.http.post<{updated: ITrackerDbEntity}>(
+      '/api/research/tracking/update/attribute',
+      {
+        experimentId: this.experimentId,
+        trackerId: trackerId,
+        attributeLocalId: attributeLocalId,
+        update: update
+      },
+      this.researchApi.authorizedOptions
+    )
   }
 }

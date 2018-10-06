@@ -29,13 +29,13 @@
           <div class="entity-list-subheader">
             Trackers
           </div>
-          <app-tracker-tree-view *ngFor="let tracker of participantTrackers" [tracker]="tracker" [triggers]="participantTriggers" (treeItemClick)="onElementSelected(tracker, $event)"></app-tracker-tree-view>
+          <app-tracker-tree-view *ngFor="let tracker of participantTrackers; trackBy: trackById" [tracker]="tracker" [triggers]="participantTriggers" (treeItemClick)="onElementSelected(tracker, $event)"></app-tracker-tree-view>
         </ng-container>
         <ng-container *ngIf='participantTriggers!=null && getLoggingTriggerList(participantTriggers).length > 0'>
           <div class="entity-list-subheader">
             Triggers
           </div>
-          <app-trigger-tree-view *ngFor="let trigger of getLoggingTriggerList(participantTriggers)" [trigger]="trigger" [trackers]="participantTrackers" (treeItemClick)="onElementSelected(trigger, $event)"></app-trigger-tree-view>
+          <app-trigger-tree-view *ngFor="let trigger of getLoggingTriggerList(participantTriggers); trackBy: trackById" [trigger]="trigger" [trackers]="participantTrackers" (treeItemClick)="onElementSelected(trigger, $event)"></app-trigger-tree-view>
         </ng-container>
       </div>
     </div>
@@ -45,7 +45,8 @@
       </div>
       <div class="code-editor-footer flex-container flex-align-items-center">
         <div class="flex-filler"></div>
-        <!--<button mat-button color="accent">Apply</button>-->
+        <button mat-button color="primary" [disabled]="isCodeChanged() === false" (click)="onCodeResetClicked()">Reset</button>
+        <button mat-button color="accent" [disabled]="isCurrentCodeValid()!==true || isCodeChanged() !== true" (click)="onApplyChangesClicked()">Apply Changes</button>
       </div>
     </div>
   </div>

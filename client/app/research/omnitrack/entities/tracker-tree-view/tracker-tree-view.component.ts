@@ -7,7 +7,7 @@ import { TriggerConstants } from '../../../../../../omnitrack/core/trigger-const
   selector: 'app-tracker-tree-view',
   templateUrl: './tracker-tree-view.component.html',
   styleUrls: ['./tracker-tree-view.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.Default
 })
 export class TrackerTreeViewComponent implements OnInit {
 
@@ -31,5 +31,13 @@ export class TrackerTreeViewComponent implements OnInit {
 
   getReminders(): Array<ITriggerDbEntity>{
     return (this.triggers!=null && this.tracker!=null)? this.triggers.filter(t => t.actionType === TriggerConstants.ACTION_TYPE_REMIND && t.trackers.findIndex(trackerId => trackerId === this.tracker._id) !== -1) : []
+  }
+
+  public trackByLocalId(index, item){
+    return item.localId
+  }
+
+  public trackById(index, item){
+    return item._id
   }
 }

@@ -1,15 +1,23 @@
-import OTUser from '../../models/ot_user';
-import OTResearcher from '../../models/ot_researcher'
 import OTTracker from '../../models/ot_tracker'
 import OTTrigger from '../../models/ot_trigger'
 import OTItem from '../../models/ot_item'
 import OTParticipant from '../../models/ot_participant'
 import * as mongoose from 'mongoose';
-import { PARAMETERS } from '@angular/core/src/util/decorators';
 import { merge, deepclone } from '../../../shared_lib/utils';
 import { makeArrayLikeQueryCondition } from '../../server_utils';
+import { experimentCtrl } from './ot_experiment_controller';
+import OTExperiment from '../../models/ot_experiment';
+import app from '../../app';
+import C from '../../server_consts'
+import { ITrackerDbEntity, ITriggerDbEntity } from '../../../omnitrack/core/db-entity-types';
 
 export default class TrackingDataCtrl {
+
+  private _checkResearcherPermitted(researcherId: string, experimentId: string): Promise<boolean>{
+    return OTExperiment.findOne(experimentCtrl.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId), {_id: 1})
+      .lean().then(exp => exp != null)
+  }
+
   private _getModelsOfExperiment(model: mongoose.Model<any>, experimentId: string, userId: string | Array<string> = null, options: {
     excludeRemoved?: boolean
     excludeExternals?: boolean
@@ -23,8 +31,7 @@ export default class TrackingDataCtrl {
       participantQuery["user"] = makeArrayLikeQueryCondition(userId)
     }
 
-    return OTParticipant.find({
-      experiment: experimentId, dropped: { $ne: true }}, { _id: 1, user: 1 }).lean().then(
+    return OTParticipant.find(participantQuery, { _id: 1, user: 1 }).lean().then(
       participants => {
         if (participants.length > 0) {
           const condition = { user: { $in: participants.map(p => p["user"]) } }
@@ -32,27 +39,19 @@ export default class TrackingDataCtrl {
             condition["removed"] = { $ne: true }
           }
 
-          if (options.excludeExternals === true) {
-            if (model === OTItem) {
-              const trackerCondition = deepclone(condition)
-              trackerCondition["flags.experiment"] = experimentId
-              return OTTracker.find(trackerCondition, { _id: 1 }).lean().then(
-                trackers => {
-                  condition["tracker"] = { $in: trackers.map(t => t._id) }
-                  return OTItem.find(condition).lean().then(
-                    paginationResult => {
-                      return paginationResult
-                    })
-                })
-            } else {
-              condition["flags.experiment"] = experimentId
-            }
-            return (model as any).find(condition).lean()
+          if (model === OTItem) {
+            const trackerCondition = deepclone(condition)
+            trackerCondition["flags.experiment"] = experimentId
+            return OTTracker.find(trackerCondition, { _id: 1 }).lean().then(
+              trackers => {
+                condition["tracker"] = { $in: trackers.map(t => t._id) }
+                return OTItem.find(condition).lean()
+              })
           } else {
-
+            condition["flags.experiment"] = experimentId
           }
-        }
-        return []
+          return (model as any).find(condition).lean()
+        }else return []
       })
   }
 
@@ -74,12 +73,146 @@ export default class TrackingDataCtrl {
         })
         .catch(
           err => {
-            console.log(err)
+            console.error(err)
             res.status(500).send(err)
           })
     }
   }
 
+  private _getEntitiesOfUserInExperiment(experimentId: string, researcherId: string, userId: string): Promise<{trackers: Array<ITrackerDbEntity>, triggers: Array<ITriggerDbEntity>}>{
+    return this._checkResearcherPermitted(researcherId, experimentId).then(
+      permitted=>{
+        if(permitted === true){          
+          return Promise.all(
+            [OTTracker, OTTrigger].map(m => this._getModelsOfExperiment(m, experimentId, userId, {excludeExternals: true, excludeRemoved: false}))
+          ).then(result => ({trackers: result[0], triggers: result[1]}))
+        }else{
+          throw Error("NotPermitted")
+        }
+      }
+    )
+  }
+
+  getEntitiesOfUserInExperiment = (req, res)=>{
+    const researcherId = req.researcher.uid
+    const experimentId = req.params.experimentId
+    const userId = req.params.userId
+    this._getEntitiesOfUserInExperiment(experimentId, researcherId, userId).then(
+      result => {
+        res.status(200).send(result)
+      }
+    ).catch(ex=>{
+      console.error(ex)
+      res.status(500).send(ex)
+    })
+  }
+
+  updateTriggerOfExperiment = (req, res)=>{
+    const researcherId = req.researcher.uid
+    const experimentId = req.body.experimentId
+    const triggerId = req.body.triggerId
+    this._checkResearcherPermitted(researcherId, experimentId).then(
+      permitted=>{
+        if(permitted===false){
+          res.status(500).send({error:"NotPermitted"})
+        }else{
+          OTTrigger.findOneAndUpdate({_id: triggerId, "flags.experiment": experimentId}, req.body.update, {new: true})
+            .lean()
+            .then(trigger => {
+              if(trigger!=null){
+                app.pushModule().sendSyncDataMessageToUser(trigger.user, [C.SYNC_TYPE_TRIGGER]).then(
+                  pushResult=>{
+                    res.status(200).send({updated: trigger})
+                  }
+                )
+              }else{
+                res.status(404).send({error: "NoSuchTrigger"})
+              }
+            })
+            .catch(err => {
+              console.error(err)
+              res.status(500).send(err)
+            })
+        }
+      }
+    )
+  }
+
+  updateTrackerOfExperiment = (req, res) => {
+    const researcherId = req.researcher.uid
+    const experimentId = req.body.experimentId
+    const trackerId = req.body.trackerId
+
+    this._checkResearcherPermitted(researcherId, experimentId).then(
+      permitted=>{
+        if(permitted===false){
+          res.status(500).send({error:"NotPermitted"})
+        }else{
+          OTTracker.findOneAndUpdate({_id: trackerId, "flags.experiment": experimentId}, req.body.update, {new: true})
+            .lean()
+            .then(tracker => {
+              if(tracker!=null){
+                app.pushModule().sendSyncDataMessageToUser(tracker.user, [C.SYNC_TYPE_TRACKER]).then(
+                  pushResult=>{
+                    res.status(200).send({updated: tracker})
+                  }
+                )
+              }else{
+                res.status(404).send({error: "NoSuchTracker"})
+              }
+            })
+            .catch(err => {
+              console.error(err)
+              res.status(500).send(err)
+            })
+        }
+      }
+    )
+  }
+
+  updateAttributeOfTrackerOfExperiment = (req, res) => {
+    
+    const researcherId = req.researcher.uid
+    const experimentId = req.body.experimentId
+    const trackerId = req.body.trackerId
+    const attributeLocalId = req.body.attributeLocalId
+
+    const update = {}
+    for(const key of Object.keys(req.body.update)){
+      update["attributes.$." + key] = req.body.update[key]
+    }
+
+    this._checkResearcherPermitted(researcherId, experimentId).then(
+      permitted=>{
+        if(permitted===false){
+          res.status(500).send({error:"NotPermitted"})
+        }else{
+          OTTracker.findOneAndUpdate({
+            _id: trackerId, 
+            "flags.experiment": experimentId, 
+            "attributes.localId": attributeLocalId},
+            update, 
+            {new: true})
+            .lean()
+            .then(tracker => {
+              if(tracker!=null){
+                app.pushModule().sendSyncDataMessageToUser(tracker.user, [C.SYNC_TYPE_TRACKER]).then(
+                  pushResult=>{
+                    res.status(200).send({updated: tracker})
+                  }
+                )
+              }else{
+                res.status(404).send({error: "NoSuchTracker"})
+              }
+            })
+            .catch(err => {
+              console.error(err)
+              res.status(500).send(err)
+            })
+        }
+      }
+    )
+  }
 }
 
 const trackingDataCtrl = new TrackingDataCtrl()

@@ -119,13 +119,15 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.post('/experiments/:experimentId/finish', tokenApprovedAuth, experimentCtrl.setFinishDateOnExperiment)
 
+    //tracking package API===========================
     this.router.post('/experiments/:experimentId/packages/update', tokenApprovedAuth, experimentCtrl.updateTrackingPackageToExperiment)
 
     this.router.delete('/experiments/:experimentId/packages/:packageKey', tokenApprovedAuth, experimentCtrl.removeTrackingPackageFromExperiment)
     this.router.post('/experiments/:experimentId/packages/:packageKey/delete', tokenApprovedAuth, experimentCtrl.removeTrackingPackageFromExperiment)
 
     this.router.get('/package/temporary/:code', tokenApprovedAuth, trackingPackageCtrl.getTemporaryTrackingPackageWithCode)
-
+    //===============================================
+  
 
     this.router.post('/experiments/:experimentId/groups/upsert', tokenApprovedAuth, experimentCtrl.upsertExperimentGroup)
     this.router.delete('/experiments/:experimentId/groups/:groupId', tokenApprovedAuth, experimentCtrl.removeExperimentGroup)
@@ -175,22 +177,29 @@ export class ResearchRouter extends RouterWrapper {
     this.router.post('/participants/:participantId/excluded_days', tokenApprovedAuth, participantCtrl.postExcludedDays)
 
     // tracking data
+
     new Array(
       { url: "trackers", model: ot_tracker },
       { url: "triggers", model: ot_trigger },
-      { url: "items", model: ot_item }).forEach(
-        info => {
-          this.router.get('/experiments/:experimentId/data/' + info.url, tokenApprovedAuth, trackingDataCtrl.getChildrenOfExperiment(info.model))
-        }
-      )
+      { url: "items", model: ot_item }
+    ).forEach(
+      info => {
+        this.router.get('/experiments/:experimentId/data/' + info.url, tokenApprovedAuth, trackingDataCtrl.getChildrenOfExperiment(info.model))
+      }
+    )
 
+    this.router.get('/experiments/:experimentId/entities/user/:userId', tokenApprovedAuth, trackingDataCtrl.getEntitiesOfUserInExperiment)
+
+    
     this.router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', tokenApprovedAuth, this.storageCtrl.downloadItemMedia)
 
     // data manipulation
     this.router.post("/tracking/update/item_column", tokenApprovedAuth, itemCtrl.postItemValue)
-
     this.router.post("/tracking/update/item_timestamp", tokenApprovedAuth, itemCtrl.postItemTimestamp)
-
+    this.router.post('/tracking/update/trigger', tokenApprovedAuth, trackingDataCtrl.updateTriggerOfExperiment)
+    this.router.post('/tracking/update/tracker', tokenApprovedAuth, trackingDataCtrl.updateTrackerOfExperiment)
+    this.router.post('/tracking/update/attribute', tokenApprovedAuth, trackingDataCtrl.updateAttributeOfTrackerOfExperiment)
+    
 
     this.router.get("/users/all", tokenApprovedAuth, this.researchCtrl.getUsersWithPariticipantInformation)
 
