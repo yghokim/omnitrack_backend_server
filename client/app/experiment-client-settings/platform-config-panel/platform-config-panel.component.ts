@@ -363,8 +363,8 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
             this.isBuilding = true
             this.changeDetector.markForCheck()
           },
-          (err) => {
-            console.log(err)
+          (error) => {
+            const err = error.error
             if (err.code === EClientBuildStatus.FAILED) {
               this._internalSubscriptions.add(
                 this.dialog.open(YesNoDialogComponent, {

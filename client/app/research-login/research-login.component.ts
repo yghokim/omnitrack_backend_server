@@ -44,7 +44,7 @@ export class ResearchLoginComponent implements OnInit, OnDestroy {
       }, err => {
         console.log("authorize error")
         console.error(err)
-        const errBody = err.json()
+        const errBody = err.error
         switch (errBody.error) {
           case "CredentialWrong":
             this.errorMessage = "A researcher with the login information is wrong."

@@ -117,8 +117,8 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
             this.reloadSignatures()
           }
         }, error => {
-          console.log(error.json())
-          switch (error.json().error) {
+          console.log(error)
+          switch (error.error.error) {
             case "InvalidPackage":
               this.notificationService.pushSnackBarMessage({ message: "The file is not a valid client installation file." })
               break;

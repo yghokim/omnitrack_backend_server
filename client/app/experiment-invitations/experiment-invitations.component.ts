@@ -101,8 +101,7 @@ export class ExperimentInvitationsComponent implements OnInit, OnDestroy {
                 },
                 (err) => {
                   try {
-                    const errObj = err.json()
-                    console.error(errObj)
+                    const errObj = err.error
                     if (errObj.code === 11000) {
                       // duplicate code error
                       this.notificationService.pushSnackBarMessage({
