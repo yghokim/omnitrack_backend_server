@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
-import { LOCKED_PROPERTY_KEYS_TRACKER, LOCKED_PROPERTY_KEYS_TRIGGER, LOCKED_PROPERTY_KEYS_ATTRIBUTE, LOCKED_PROPERTY_KEYS_COMMON } from '../../../../../../../omnitrack/core/locked_properties';
+import { LOCKED_PROPERTY_KEYS_TRACKER, LOCKED_PROPERTY_KEYS_TRIGGER, LOCKED_PROPERTY_KEYS_ATTRIBUTE, LOCKED_PROPERTY_KEYS_COMMON, LockDefinition, TRACKER_LOCK_DEFINITION, LOGGING_TRIGGER_LOCK_DEFINITION, REMINDER_LOCK_DEFINITION, ATTRIBUTE_LOCK_DEFINITION } from '../../../../../../../omnitrack/core/locked_properties';
 import { deepclone } from '../../../../../../../shared_lib/utils';
 import * as deepEqual from 'deep-equal';
 const snakeCase = require('snake-case');
@@ -15,7 +15,7 @@ export class LockConfigurationSheetComponent implements OnInit {
   public lockType: string
   public flags: any
   public originalFlags: any
-  public keys: Array<string>
+  public lockDefinition: LockDefinition
 
   constructor(private bottomSheetRef: MatBottomSheetRef<LockConfigurationSheetComponent>, @Inject(MAT_BOTTOM_SHEET_DATA) data: any) {
     this.lockType = data.type? data.type : "normal"
@@ -24,17 +24,16 @@ export class LockConfigurationSheetComponent implements OnInit {
       
     switch(this.lockType){
       case "tracker":
-      this.keys = LOCKED_PROPERTY_KEYS_TRACKER
+      this.lockDefinition = TRACKER_LOCK_DEFINITION
       break;
       case "trigger":
-      this.keys = LOCKED_PROPERTY_KEYS_TRIGGER
+      this.lockDefinition = LOGGING_TRIGGER_LOCK_DEFINITION
+      break;
+      case "reminder":
+      this.lockDefinition = REMINDER_LOCK_DEFINITION
       break;
       case "attribute":
-      this.keys = LOCKED_PROPERTY_KEYS_ATTRIBUTE
-      break;
-      case "normal":
-      default:
-      this.keys = LOCKED_PROPERTY_KEYS_COMMON
+      this.lockDefinition = ATTRIBUTE_LOCK_DEFINITION
       break;
     }
   }
@@ -61,7 +60,7 @@ export class LockConfigurationSheetComponent implements OnInit {
   }
 
   getFlagName(key: string): string{
-    return snakeCase(key).replace(/_/gi, " ")
+    return this.lockDefinition.flags.find(f => f.name === key).display
   }
 
   ngOnInit() {

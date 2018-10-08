@@ -4,7 +4,7 @@
       <div class="badge badge-info trigger-type">{{getTimeTriggerTypeString(trigger.condition.cType)}}</div>
     </div>
   </div>
-  <app-lock-flag-button [model]="trigger" lockType="trigger" (flagChange)="onFlagChanged()"></app-lock-flag-button>
+  <app-lock-flag-button [model]="trigger" [lockType]="isReminder() === true ? 'reminder':'trigger'" (flagChange)="onFlagChanged()"></app-lock-flag-button>
 </div>
 
 <div *ngIf="isReminder()===false" class="attached-trackers">

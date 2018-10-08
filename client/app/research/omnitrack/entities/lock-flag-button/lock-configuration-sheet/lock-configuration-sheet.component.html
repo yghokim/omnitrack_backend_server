@@ -3,12 +3,15 @@
 <div class="flex-filler"></div>
 <button mat-button color="primary" [disabled]="!isChanged()" (click)="onApplyClicked()">Apply</button>
 </div>
-<div class="card-body">
-  <div *ngFor="let key of keys" class="key-row flex-container flex-align-items-center">
-    <div class="label">{{getFlagName(key)}} <span *ngIf="isFlagChanged(key)===true" class="changed small text-color-lightgray">(changed)</span></div>
-    <div class="flex-filler"></div>
-    <button type="button" class="btn btn-sm" [class.btn-success]="isFlagLocked(key)===false" [class.btn-danger]="isFlagLocked(key)===true" (click)="setFlag(key, !isFlagLocked(key))">
-      <span>{{isFlagLocked(key)===true? 'Not Allowed':'Allowed'}}</span>
-    </button>
+<div class="card-body" *ngIf="lockDefinition!=null">
+  <div class="lock-group" *ngFor="let lockGroup of lockDefinition.groups">
+    <div class="lock-group-header">{{lockGroup.name}}</div>
+    <div *ngFor="let flagDefinition of lockDefinition.getFlagDefinitionsOfGroup(lockGroup.key)" class="key-row flex-container flex-align-items-center">
+        <div class="label">{{flagDefinition.display}} <span *ngIf="isFlagChanged(flagDefinition.name)===true" class="changed small text-color-lightgray">(changed)</span></div>
+        <div class="flex-filler"></div>
+        <button type="button" class="btn btn-sm" [class.btn-success]="isFlagLocked(flagDefinition.name)===false" [class.btn-danger]="isFlagLocked(flagDefinition.name)===true" (click)="setFlag(flagDefinition.name, !isFlagLocked(flagDefinition.name))">
+          <span>{{isFlagLocked(flagDefinition.name)===true? 'Not Allowed':'Allowed'}}</span>
+        </button>
+      </div>
   </div>
 </div>

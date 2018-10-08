@@ -2,21 +2,41 @@
   min-height: 40px;
 }
 
+.lock-group {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  &:last-child{
+    padding-bottom: 0;
+  }
+
+  &:first-child{
+    padding-top: 0;
+  }
+
+  .lock-group-header {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #ffaf56;
+    border-bottom: 1px solid;
+    margin-bottom: 0.5rem;
+  }
+}
+
 .label {
-  text-transform: capitalize;
   color: #575757;
   font-size: 0.9rem;
 }
 
-.btn-sm{
+.btn-sm {
   font-size: 0.75rem;
   border: none;
 }
 
-.btn-danger{
+.btn-danger {
   background: #f86f6b;
 }
 
-.btn-success{
+.btn-success {
   background: #51ba86;
 }
