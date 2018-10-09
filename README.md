@@ -1,28 +1,27 @@
-# OmniTrack Official Backend Server + Research Platform
+# OmniTrack Official Backend Server + Research Web Platform
+<https://omnitrack.github.io>
 
-## Prerequisites
-1. Setup Google Firebase Auth and save certification file to json, rename it to **firebase-cert.json**.
+**This project is a part of _OmniTrack Research Kit_** (https://github.com/OmniTrack/omnitrack_research_kit)
 
-## Installation
-1. Install [Node.js](https://nodejs.org) and [MongoDB](https://www.mongodb.com)
-2. Install Angular CLI: `npm i -g @angular/cli`
-3. From project root folder install all the dependencies: `npm i`
+This project depends on the external config files injected by another system, and thus **won't build on its own.**
 
-## Run
-### Development mode
-`npm run dev`: [concurrently](https://github.com/kimmobrunfeldt/concurrently) execute MongoDB, Angular build, TypeScript compiler and Express server.
+For more information, Refer to the documentation of the OmniTrack Research Kit. (https://github.com/OmniTrack/omnitrack_research_kit/wiki)
 
-A window will automatically open at [localhost:4200](http://localhost:4200). Angular and Express files are being watched. Any change automatically creates a new bundle, restart Express server and reload your browser.
+---
 
-### Production mode
-`npm run prod`: run the project with a production bundle and AOT compilation listening at [localhost:3000](http://localhost:3000) 
+## Author
 
-### Author
-* [Young-Ho Kim](https://younghokim.net)
+#### Young-Ho Kim (yhkim@hcil.snu.ac.kr)
+http://younghokim.net
+Seoul National University
 
+----
+
+## License
+MIT License
 
 ## Project Structure
-1. **.angular-cli.json**: The project depends on [Angular-CLI](https://github.com/angular/angular-cli). If you add a library which requires you to add external dependencies to another CSS or Javascript files, add them in this file.
+1. **angular.json**: The project depends on [Angular-CLI](https://github.com/angular/angular-cli). If you add a library which requires you to add external dependencies to another CSS or Javascript files, add them in this file.
 1. **server**: contains source codes for backend server. The server is built with [Express.js](http://expressjs.com/) and manages backend database stored in MongoDB through REST API.
 
    * **models**: contains model schema for MongoDB entities.
