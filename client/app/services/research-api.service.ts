@@ -222,11 +222,11 @@ export class ResearchApiService extends ServiceBase {
   }
 
   makeAuthorizedRequestOptions(query: any, responseType?: string): { observe: "body" } {
-    const params = new HttpParams()
+    var params = new HttpParams()
     if (query != null) {
       for (const queryKey of Object.keys(query)) {
         if (query[queryKey] != null) {
-          params.set(queryKey, query[queryKey])
+          params = params.set(queryKey, query[queryKey])
         }
       }
     }
