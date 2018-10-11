@@ -1,14 +1,22 @@
-<app-tree-view-element *ngIf="trigger!=null" [cascadingLevel]="oppendCascadingLevel" [isSelectable]="true" [selectionData]="{'type':'trigger', 'obj': {'obj':trigger}}" (treeItemClick)="onElementClicked($event)">
-    <div main class="flex-container flex-align-items-center">
-      <span>{{makeShortenConditionString()}} {{getType()}}</span>
-      <button mat-icon-button matTooltip="Send a test ping" (click)="onSendTestPingClicked()"><span class="material-icons text-color-gray">send</span></button>
+<app-tree-view-element *ngIf="trigger!=null" [cascadingLevel]="oppendCascadingLevel" [isSelectable]="true"
+  [selectionData]="{'type':'trigger', 'obj': {'obj':trigger}}" (treeItemClick)="onElementClicked($event)">
+  <div main class="flex-container flex-align-items-center">
+    <div class="trigger-main-content">
+      <div [ngClass]="['badge', 'badge-sm', 'badge-trigger-type', 'badge-'+getType().toLowerCase()]">{{getType()}}</div>
+      <span>{{makeShortenConditionString()}}</span>
     </div>
-    <app-tree-view-element child [cascadingLevel]="oppendCascadingLevel + 1" [isLeaf]="true" [isSelectable]="true" [selectionData]="{'type':'triggerCondition', 'obj': {'obj':trigger.condition, 'parentId': trigger._id}}" (treeItemClick)="onElementClicked($event)">
-      <span main>Condition</span>
-    </app-tree-view-element>
+    <div class="flex-filler"></div>
+    <button mat-icon-button matTooltip="Send a test ping" (click)="onSendTestPingClicked()"><span class="material-icons text-color-gray">send</span></button>
+  </div>
 
-    <app-tree-view-element child [cascadingLevel]="oppendCascadingLevel + 1" [isLeaf]="true" [isSelectable]="true" [selectionData]="{'type':'triggerAction', 'obj': {'obj':trigger.action, 'parentId': trigger._id}}" (treeItemClick)="onElementClicked($event)">
-      <span main>Action</span>
-    </app-tree-view-element>
+  <app-tree-view-element child [cascadingLevel]="oppendCascadingLevel + 1" [isLeaf]="true" [isSelectable]="true"
+    [selectionData]="{'type':'triggerCondition', 'obj': {'obj':trigger.condition, 'parentId': trigger._id}}"
+    (treeItemClick)="onElementClicked($event)">
+    <span main>Condition</span>
   </app-tree-view-element>
-  
+
+  <app-tree-view-element child [cascadingLevel]="oppendCascadingLevel + 1" [isLeaf]="true" [isSelectable]="true"
+    [selectionData]="{'type':'triggerAction', 'obj': {'obj':trigger.action, 'parentId': trigger._id}}" (treeItemClick)="onElementClicked($event)">
+    <span main>Action</span>
+  </app-tree-view-element>
+</app-tree-view-element>

@@ -1,0 +1,15 @@
+.trigger-main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-left: 0.2rem;
+  .badge-trigger-type{
+    margin-bottom: 0.1rem;
+    &.badge-reminder{
+      background: #f99c78;;
+    }
+    &.badge-trigger{
+      background: #c8db95;
+    }
+  }
+}
