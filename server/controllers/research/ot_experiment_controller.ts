@@ -10,14 +10,20 @@ import { ExperimentPermissions } from '../../../omnitrack/core/research/experime
 import { Document, DocumentQuery, Query } from 'mongoose';
 import app from '../../app';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
-import { MessageData } from '../../modules/push.module';
+import { MessageData, ExperimentData } from '../../modules/push.module';
 import { deepclone, groupArrayByVariable } from '../../../shared_lib/utils';
 import { makeArrayLikeQueryCondition } from '../../server_utils';
 import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
 import { clientBuildCtrl } from './ot_client_build_controller';
+import C from '../../server_consts';
 
 
 export default class OTExperimentCtrl {
+
+  checkResearcherPermitted(researcherId: string, experimentId: string): Promise<boolean> {
+    return OTExperiment.findOne(experimentCtrl.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId), { _id: 1 })
+      .lean().then(exp => exp != null)
+  }
 
   makeExperimentAndCorrespondingResearcherQuery(experimentId: string, researcherId: string): any {
     return {
@@ -661,10 +667,10 @@ export default class OTExperimentCtrl {
     if (userId != null && userId != "null" && experimentId != null && experimentId != "null") {
 
       const models = [OTTracker, OTTrigger]
-      Promise.all(models.map(model=>{
-        model.updateMany({user: userId, "flags.experiment": null}, {"flags.experiment": experimentId}).then(result => {
+      Promise.all(models.map(model => {
+        model.updateMany({ user: userId, "flags.experiment": null }, { "flags.experiment": experimentId }).then(result => {
           console.log(result)
-          return {count: result.n}
+          return { count: result.n }
         })
       })).then(result => {
         res.status(200).send(result)
@@ -672,6 +678,40 @@ export default class OTExperimentCtrl {
     } else {
       res.status(500).send("You did not properly insert the user id and experiment id.")
     }
+  }
+
+  sendTriggerPingTest = (req, res) => {
+    const researcherId = req.researcher.uid
+    const experimentId = req.params.experimentId
+    const triggerId = req.body.triggerId
+
+    this.checkResearcherPermitted(researcherId, experimentId).then(permitted => {
+      if (permitted === true) {
+        OTTrigger.findOne({
+          _id: triggerId,
+          "flags.experiment": experimentId
+        }, { _id: 1, user: 1 }).lean().then(
+          trigger => {
+            if (trigger) {
+              app.pushModule().sendDataMessageToUser
+                (trigger["user"], new ExperimentData(C.PUSH_DATA_TYPE_TEST_TRIGGER_PING, experimentId, { "triggerId": triggerId })).then(
+                  pushResult => {
+                    console.log("A test ping was sent to the participant.")
+                    res.status(200).send(true)
+                  }
+                ).catch(ex => {
+                  console.error(ex)
+                  res.status(500).send(ex)
+                })
+            } else {
+              res.status(404).send("No trigger was found.")
+            }
+          }
+        )
+      } else {
+        res.status(401).send("Experiment is not permitted to the researcher.")
+      }
+    })
   }
 }
 

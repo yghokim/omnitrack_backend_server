@@ -21,6 +21,7 @@ import { RouterWrapper } from './server_utils';
 import { trackingPackageCtrl } from './controllers/ot_tracking_package_controller';
 import { clientBuildCtrl } from './controllers/research/ot_client_build_controller';
 import OTShortUrl from './models/ot_short_url';
+import { getFirebaseProjectId } from './app';
 const jwt = require('express-jwt');
 
 export class ResearchRouter extends RouterWrapper {
@@ -34,19 +35,27 @@ export class ResearchRouter extends RouterWrapper {
 
   constructor(private env: IEnvironment) {
     super()
-    const tokenApprovedAuth = this.makeTokenAuthMiddleware((researcher) => {
+
+    const firebaseProjectId = getFirebaseProjectId()
+
+    const firebaseProjectIdSetMiddleware = (req, res, next)=>{
+      res.setHeader("firebase-project-id", firebaseProjectId)
+      next();
+    }
+
+    const tokenApprovedAuth = [this.makeTokenAuthMiddleware((researcher) => {
       switch (researcher["account_approved"]) {
         case true: return null;
         case false: return "AccountDeclined";
         case undefined: return "AccountApprovalPending"
       }
-    })
+    }), firebaseProjectIdSetMiddleware]
 
-    const tokenAdminAuth = this.makeTokenAuthMiddleware((researcher) => {
+    const tokenAdminAuth = [this.makeTokenAuthMiddleware((researcher) => {
       const previlage = (env.super_users as Array<string> || []).indexOf(researcher.email) !== -1 ? ResearcherPrevilages.SUPERUSER : ResearcherPrevilages.NORMAL
 
       return previlage >= ResearcherPrevilages.ADMIN ? null : "NotAdmin"
-    })
+    }), firebaseProjectIdSetMiddleware]
 
     const tokenSignedInAuth = this.makeTokenAuthMiddleware()
 
@@ -190,6 +199,7 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.get('/experiments/:experimentId/entities/user/:userId', tokenApprovedAuth, trackingDataCtrl.getEntitiesOfUserInExperiment)
 
+    this.router.post('/experiments/:experimentId/test/trigger/ping', tokenApprovedAuth, experimentCtrl.sendTriggerPingTest)
     
     this.router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', tokenApprovedAuth, this.storageCtrl.downloadItemMedia)
 

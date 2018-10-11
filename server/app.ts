@@ -17,6 +17,10 @@ import { ShortUrlRouter } from "./router_shorturl";
 import { checkFileExistenceAndType } from "./server_utils";
 
 let firebaseApp = null;
+const CERT_PATH = path.join(
+  __dirname,
+  "../../../credentials/firebase-cert.json"
+)
 
 const app = express();
 const appWrapper = new AppWrapper(app);
@@ -42,14 +46,12 @@ app.get("/debug/logs/production", (req, res) => {
 app.get("/api/version", (req, res) => {
   fs.readJson('./package.json')
     .then(packageObj => {
-      console.log("project version:",packageObj.version) // => 0.1.3
       res.status(200).send(packageObj.version)
     })
     .catch(err => {
       console.error(err)
       res.status(500).send(err)
     })
-
 })
 
 initializeFirebase();
@@ -135,11 +137,11 @@ function installServer() {
   }
 }
 
+export function getFirebaseProjectId(): string{
+  return require(CERT_PATH).project_id
+}
+
 function initializeFirebase() {
-  const CERT_PATH = path.join(
-    __dirname,
-    "../../../credentials/firebase-cert.json"
-  )
   if (checkFileExistenceAndType(CERT_PATH) != null) {
     try {
       const firebaseServiceAccount = require(CERT_PATH);

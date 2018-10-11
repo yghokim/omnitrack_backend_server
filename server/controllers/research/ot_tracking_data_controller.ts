@@ -13,11 +13,6 @@ import { ITrackerDbEntity, ITriggerDbEntity } from '../../../omnitrack/core/db-e
 
 export default class TrackingDataCtrl {
 
-  private _checkResearcherPermitted(researcherId: string, experimentId: string): Promise<boolean>{
-    return OTExperiment.findOne(experimentCtrl.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId), {_id: 1})
-      .lean().then(exp => exp != null)
-  }
-
   private _getModelsOfExperiment(model: mongoose.Model<any>, experimentId: string, userId: string | Array<string> = null, options: {
     excludeRemoved?: boolean
     excludeExternals?: boolean
@@ -80,7 +75,7 @@ export default class TrackingDataCtrl {
   }
 
   private _getEntitiesOfUserInExperiment(experimentId: string, researcherId: string, userId: string): Promise<{trackers: Array<ITrackerDbEntity>, triggers: Array<ITriggerDbEntity>}>{
-    return this._checkResearcherPermitted(researcherId, experimentId).then(
+    return experimentCtrl.checkResearcherPermitted(researcherId, experimentId).then(
       permitted=>{
         if(permitted === true){          
           return Promise.all(
@@ -111,7 +106,7 @@ export default class TrackingDataCtrl {
     const researcherId = req.researcher.uid
     const experimentId = req.body.experimentId
     const triggerId = req.body.triggerId
-    this._checkResearcherPermitted(researcherId, experimentId).then(
+    experimentCtrl.checkResearcherPermitted(researcherId, experimentId).then(
       permitted=>{
         if(permitted===false){
           res.status(500).send({error:"NotPermitted"})
@@ -143,7 +138,7 @@ export default class TrackingDataCtrl {
     const experimentId = req.body.experimentId
     const trackerId = req.body.trackerId
 
-    this._checkResearcherPermitted(researcherId, experimentId).then(
+    experimentCtrl.checkResearcherPermitted(researcherId, experimentId).then(
       permitted=>{
         if(permitted===false){
           res.status(500).send({error:"NotPermitted"})
@@ -182,7 +177,7 @@ export default class TrackingDataCtrl {
       update["attributes.$." + key] = req.body.update[key]
     }
 
-    this._checkResearcherPermitted(researcherId, experimentId).then(
+    experimentCtrl.checkResearcherPermitted(researcherId, experimentId).then(
       permitted=>{
         if(permitted===false){
           res.status(500).send({error:"NotPermitted"})
