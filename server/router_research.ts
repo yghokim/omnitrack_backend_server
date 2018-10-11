@@ -199,7 +199,7 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.get('/experiments/:experimentId/entities/user/:userId', tokenApprovedAuth, trackingDataCtrl.getEntitiesOfUserInExperiment)
 
-    this.router.post('/experiments/:experimentId/test/trigger/ping', tokenApprovedAuth, experimentCtrl.sendTriggerPingTest)
+    this.router.post('/experiments/:experimentId/test/trigger_ping', tokenApprovedAuth, experimentCtrl.sendTriggerPingTest)
     
     this.router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', tokenApprovedAuth, this.storageCtrl.downloadItemMedia)
 
