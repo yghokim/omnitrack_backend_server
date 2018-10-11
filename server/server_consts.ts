@@ -21,6 +21,7 @@ export default class ServerConstants {
   static readonly PUSH_DATA_TYPE_CLIENT_UPDATED = "update_released"
   static readonly PUSH_DATA_TYPE_EXPERIMENT_DROPPED = "experiment_dropped"
   
+  static readonly PUSH_DATA_TYPE_TEST_TRIGGER_PING = "test_trigger_ping"
 
   static readonly PUSH_DATA_TYPE_TEXT_MESSAGE = "text_message"
 

@@ -544,4 +544,8 @@ export class ExperimentService {
       this.researchApi.authorizedOptions
     )
   }
+
+  sendTestPingOfTrigger(triggerId: string): Observable<boolean>{
+    return this.http.post<boolean>('/api/research/experiments/' + this.experimentId + '/test/trigger_ping', {triggerId: triggerId}, this.researchApi.authorizedOptions)
+  }
 }

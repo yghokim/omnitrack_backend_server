@@ -370,7 +370,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
                 this.dialog.open(YesNoDialogComponent, {
                   data: {
                     title: "Warning",
-                    message: "You have already been failed with the same configuration. Do you want to start build anyway?", positiveLabel: "Build Anyway", positiveColor: "primary", negativeColor: "accent", negativeLabel: "Cancel"
+                    message: "You have already been failed with the same configuration. Do you want to start build again?", positiveLabel: "Build Again", positiveColor: "primary", negativeColor: "accent", negativeLabel: "Cancel"
                   }
                 }).afterClosed().pipe(
                   tap(yes => {

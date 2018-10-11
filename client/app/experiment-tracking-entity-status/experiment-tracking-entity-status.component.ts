@@ -265,9 +265,12 @@ export class ExperimentTrackingEntityStatusComponent
     var update: any
     var queryId: string
     switch(this.selectedEntityType){
-      case 'triggerCondition':
       case 'triggerAction':
       update = {action: JSON.parse(this.selectedEntityCode)}
+      queryId = this.selectedEntityParentId
+      break;
+      case 'triggerCondition':
+      update = {condition: JSON.parse(this.selectedEntityCode)}
       queryId = this.selectedEntityParentId
       break;
       case 'attribute':
