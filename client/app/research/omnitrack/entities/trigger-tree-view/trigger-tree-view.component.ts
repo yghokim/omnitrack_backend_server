@@ -81,7 +81,7 @@ export class TriggerTreeViewComponent implements OnInit, OnDestroy {
         flatMap(expService => expService.sendTestPingOfTrigger(this.trigger._id))
       ).subscribe(
         pingSent => {
-          this.notificationService.pushSnackBarMessage({ message: "A test ping was sent to the participant's apps." })
+          this.notificationService.pushSnackBarMessage({ message: "A test ping will be sent to the participant's apps shortly." })
         },
         ex => {
           console.error(ex)
