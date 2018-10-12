@@ -237,6 +237,14 @@ export class ResearchApiService extends ServiceBase {
     return options
   }
 
+  makeRawResponseAuthorizedOptions(): { observe: "response"} {
+    return {
+      headers: this.tokenHeaders,
+      observe: "response",
+      responseType: 'json'
+    } as any
+  }
+
   updateExperiment(experimentId: string, update: any): Observable<boolean> {
     return this.http.post<boolean>("api/research/experiments/" + experimentId + "/update", update, this.authorizedOptions)
   }

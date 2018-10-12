@@ -19,13 +19,17 @@ export class ConfigVariableRowComponent implements OnInit {
   @Input() hintText: string = null
   @Input() inverseBoolean: boolean = false
 
-  @Input() validationFailedMessage: string = null
+  @Input() validationFailedMessage: string[] = null
 
   @Output() binaryFileChanged = new EventEmitter<File>()
 
   constructor() { }
 
   ngOnInit() {
+  }
+
+  isInvalid(): boolean{
+    return this.validationFailedMessage != null && this.validationFailedMessage.length > 0
   }
 
   getFallbackBooleanValue(): boolean{

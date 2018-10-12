@@ -57,6 +57,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
               this.isInitialized = true
               this.originalConfig = config
               this.changedConfig = deepclone(config)
+              this.validateConfig()
             } else {
               this.isInitialized = false
               this.originalConfig = null
@@ -284,19 +285,17 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
   }
 
   validateConfig(): boolean {
-    const errors = validateBuildConfig(this.originalConfig)
+    const errors = validateBuildConfig(this.originalConfig, this.clientBuildService.firebaseProjectId)
     this.validationErrors = errors
     this.changeDetector.markForCheck()
   
     return !errors || errors.length === 0
   }
 
-  getValidationError(key: string): string {
+  getValidationError(key: string): string[] {
     if (this.validationErrors) {
-      const match = this.validationErrors.find(v => v.key === key)
-      if (match) {
-        return match.message
-      } else return null
+      const messages = this.validationErrors.filter(v => v.key === key).map(v => v.message)
+      return messages.length > 0? messages : null
     } else {
       return null
     }
@@ -355,7 +354,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
             if (this.validateConfig() === true) {
               return this.clientBuildService.startBuild(this.originalConfig)
             } else {
-              throw { code: "ValidationFailed" }
+              throw { error: { code: "ValidationFailed"} }
             }
           })
         ).subscribe(
@@ -364,6 +363,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
             this.changeDetector.markForCheck()
           },
           (error) => {
+            console.log(error)
             const err = error.error
             if (err.code === EClientBuildStatus.FAILED) {
               this._internalSubscriptions.add(

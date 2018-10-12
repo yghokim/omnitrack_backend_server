@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { ServiceBase } from "./service-base";
 import { ResearchApiService } from "./research-api.service";
 import { IClientBuildConfigBase } from "../../../omnitrack/core/research/db-entity-types";
@@ -50,6 +50,11 @@ export class ClientBuildService extends ServiceBase {
     }
   }
 
+  private _firebaseProjectId: string
+  public get firebaseProjectId(): string {
+    return this._firebaseProjectId
+  }
+
   constructor(private api: ResearchApiService, private http: HttpClient, private socketService: SocketService) {
     super()
 
@@ -86,9 +91,10 @@ export class ClientBuildService extends ServiceBase {
 
   reloadBuildConfigs() {
     this._internalSubscriptions.add(
-      this.http.get<Array<IClientBuildConfigBase<any>>>("/api/research/build/configs/all" + (this.researcherMode === true ? "" : ("/" + this._currentExperimentId)), this.api.authorizedOptions).subscribe(
-        result => {
-          this._buildConfigBehaviorSubject.next(result)
+      this.http.get<Array<IClientBuildConfigBase<any>>>("/api/research/build/configs/all" + (this.researcherMode === true ? "" : ("/" + this._currentExperimentId)), this.api.makeRawResponseAuthorizedOptions()).subscribe(
+        response => {
+          this._firebaseProjectId = response.headers.get("firebase-project-id")
+          this._buildConfigBehaviorSubject.next(response.body)
         },
         err => {
           console.error("BuildConfig loading error:")
@@ -156,7 +162,7 @@ export class ClientBuildService extends ServiceBase {
       body = { config: config }
     }
 
-    return this.http.post<IClientBuildConfigBase<any>>("/api/research/build/configs/update" + (config.researcherMode===true? "" : "/" + config.experiment) , body, this.api.authorizedOptions).pipe(
+    return this.http.post<IClientBuildConfigBase<any>>("/api/research/build/configs/update" + (config.researcherMode === true ? "" : "/" + config.experiment), body, this.api.authorizedOptions).pipe(
       tap(uploadedConfig => {
         this.replaceNewConfigWithId(uploadedConfig)
       })

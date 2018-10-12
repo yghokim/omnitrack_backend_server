@@ -1,13 +1,13 @@
 import { IAndroidBuildConfig, ANDROID_PACKAGE_NAME_REGEX, IClientBuildConfigBase } from "./db-entity-types";
 
-export function validateBuildConfig(config: IClientBuildConfigBase<any>): Array<{ key: string, error?: any, message: string }> {
+export function validateBuildConfig(config: IClientBuildConfigBase<any>, firebaseProjectId: string): Array<{ key: string, error?: any, message: string }> {
   switch (config.platform) {
     case "Android":
-      return validateAndroidBuildConfig(config)
+      return validateAndroidBuildConfig(config, firebaseProjectId)
   }
 }
 
-export function validateAndroidBuildConfig(config: IAndroidBuildConfig): Array<{ key: string, error?: any, message: string }> {
+export function validateAndroidBuildConfig(config: IAndroidBuildConfig, firebaseProjectId: string): Array<{ key: string, error?: any, message: string }> {
 
   const errors = new Array<{ key: string, error?: any, message: string }>()
 
@@ -48,6 +48,12 @@ export function validateAndroidBuildConfig(config: IAndroidBuildConfig): Array<{
       var isMalformed = false
       const json = config.credentials.googleServices
       if (json.project_info) {
+        if(json.project_info.project_id !== firebaseProjectId){
+          errors.push({
+            key:"credentials.googleServices",
+            message: "The Firebase project ID does not match with the one registered in the research server. Make sure that you generated the google-services.json file from the same Firebase project."
+          })
+        }
       } else isMalformed = true
 
       if (json.client instanceof Array) {
@@ -65,7 +71,7 @@ export function validateAndroidBuildConfig(config: IAndroidBuildConfig): Array<{
         if (foundPackageName === false) {
           errors.push({
             key: "credentials.googleServices",
-            message: "The json does not contain an Android App info with the package name you entered. Check the Firebase Project dashboard whether you've added the Android App with the package name \"" + config.packageName + "\"."
+            message: "The JSON does not contain an Android App info with the package name you entered. Check the Firebase Project dashboard whether you've added the Android App with the package name \"" + config.packageName + "\"."
           })
         }
       } else {

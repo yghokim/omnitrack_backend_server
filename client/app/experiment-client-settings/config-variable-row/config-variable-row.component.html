@@ -1,4 +1,4 @@
-<div class="validation-container" [class.invalid]="validationFailedMessage">
+<div class="validation-container" [class.invalid]="isInvalid()===true">
 
   <div class="config-row flex-container flex-align-items-center" *ngIf="variableName && config">
     <div class="label">
@@ -6,9 +6,9 @@
       <sup class="changed-mark" [style.visibility]="compareValues(originalValue, config[variableName])? 'hidden' : null">Edited</sup>
     </div>
     <ng-container [ngSwitch]="type">
-      <input *ngSwitchCase="'text'" type="text" class="text-type form-control"  [class.is-invalid]="validationFailedMessage!=null" [placeholder]="hintText" [value]="config[variableName]==undefined? null : config[variableName]"
+      <input *ngSwitchCase="'text'" type="text" class="text-type form-control"  [class.is-invalid]="isInvalid()===true" [placeholder]="hintText" [value]="config[variableName]==undefined? null : config[variableName]"
         (input)="onTextChanged($event.target.value)">
-      <input *ngSwitchCase="'password'" type="password" class="text-type form-control"  [class.is-invalid]="validationFailedMessage!=null" [placeholder]="hintText" [value]="config[variableName]==undefined? null : config[variableName]"
+      <input *ngSwitchCase="'password'" type="password" class="text-type form-control"  [class.is-invalid]="isInvalid()===true" [placeholder]="hintText" [value]="config[variableName]==undefined? null : config[variableName]"
         (input)="onTextChanged($event.target.value)">
       
       <mat-slide-toggle *ngSwitchCase="'boolean'" [checked]="getFallbackBooleanValue()" (change)="config[variableName] = inverseBoolean===true? !$event.checked : $event.checked"></mat-slide-toggle>
@@ -26,7 +26,7 @@
           </div>
         </div>
 
-        <textarea class="form-control"  [class.is-invalid]="validationFailedMessage!=null" rows="5" *ngIf="config[variableName]" [disabled]="true">{{jsonObjToString(config[variableName])}}</textarea>
+        <textarea class="form-control"  [class.is-invalid]="isInvalid()===true" rows="5" *ngIf="config[variableName]" [disabled]="true">{{jsonObjToString(config[variableName])}}</textarea>
       </div>
 
       <div *ngSwitchCase="'jksFile'" class="jks-file-type flex-filler">
@@ -67,8 +67,10 @@
       </div>
     </ng-container>
   </div>
-  <div *ngIf="validationFailedMessage" class="invalid-message small text-color-danger">
-    {{validationFailedMessage}}
-  </div>
+  <ol class="invalid-message-list" *ngIf="isInvalid()===true">
+    <li *ngFor="let message of validationFailedMessage" class="invalid-message small text-color-danger">
+      {{message}}
+    </li>
+  </ol>
 
 </div>
