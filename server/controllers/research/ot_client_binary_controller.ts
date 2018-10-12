@@ -9,6 +9,7 @@ import { getExtensionFromPath, compareVersions } from "../../../shared_lib/utils
 import { ClientBinaryUtil } from '../../../omnitrack/core/client_binary_utils';
 import { Extract, OperatingSystem } from 'app-metadata';
 import { resolve } from "dns";
+import { checkFileExistenceAndType } from "../../server_utils";
 const randomstring = require('randomstring');
 const md5File = require('md5-file/promise');
 const fs = require("fs-extra");
@@ -59,8 +60,8 @@ export default class OTBinaryCtrl {
             if (entry.fileName.toUpperCase() === "META-INF/CERT.RSA") {
               // keystore file.
               zipfile.openReadStream(entry, (zipOpenError, readStream) => {
-	      	if (zipOpenError) { reject(zipOpenError) }
-		fs.ensureDirSync("storage/temp")
+                if (zipOpenError) { reject(zipOpenError) }
+                fs.ensureDirSync("storage/temp")
                 const keystoreTempFilePath = "storage/temp/temp_keystore_" + randomstring.generate({ length: 20 })
                   + "_" + Date.now() + ".rsa"
                 readStream.on("end", function () {
@@ -266,14 +267,31 @@ export default class OTBinaryCtrl {
 
   downloadClientBinary = (req, res) => {
 
-    OTClientBinary.findOneAndUpdate({ experiment: (req.query.experimentId === "null" || !req.query.experimentId) ? null : req.query.experimentId, platform: req.query.platform, version: req.query.version }, { $inc: { downloadCount: 1 } }, { sort: { "updatedAt": -1 } }).then(
+    OTClientBinary.findOne({ experiment: (req.query.experimentId === "null" || !req.query.experimentId) ? null : req.query.experimentId, platform: req.query.platform, version: req.query.version }, {}, { sort: { "updatedAt": -1 } }).lean().then(
       binary => {
         if (binary) {
-          res.download(this.makeClientFilePath(binary["platform"], binary["fileName"]), "omnitrack_release_" + binary["version"] + "." + getExtensionFromPath(binary["originalFileName"]), err => {
-            if (err) {
-              console.log(err)
-            }
-          })
+          const filePath = this.makeClientFilePath(binary["platform"], binary["fileName"])
+          if (checkFileExistenceAndType(filePath) != null) {
+            res.download(filePath, "omnitrack_release_" + binary["version"] + "." + getExtensionFromPath(binary["originalFileName"]), err => {
+
+              if (err) {
+                console.error(err)
+              } else {
+                //download complete
+                if(req.query.notIncrementCount !== "true"){
+                  OTClientBinary.updateOne({ _id: binary._id }, { $inc: { downloadCount: 1 } }).then(
+                    updateResult => {
+                    }
+                  )
+                }else{
+                  console.log("binary file download. But do not increase the download count")
+                }
+              }
+            })
+          } else {
+            //file does not exists.
+            res.status(404).send("The installation file does not exist.")
+          }
         } else {
           console.log("Binary not found.")
           res.status(404).send("Binary not found.")

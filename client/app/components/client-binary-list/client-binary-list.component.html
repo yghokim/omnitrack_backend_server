@@ -5,8 +5,8 @@
       <th>Minimum OS</th>
       <th>File Size</th>
       <th *ngIf="hideChangelogs!==true">Changelog</th>
-      <th>Uploaded</th>
-      <th>Downloads</th>
+      <th>Uploaded At</th>
+      <th matTooltip="The accumulated download count of the binary file">Downloads</th>
       <th *ngIf="useConfirmColumn === true && hasBinariesToPublish() === true"></th>
       <th></th>
     </tr>
@@ -34,7 +34,7 @@
             <mat-icon class="material-icons">link</mat-icon>
           </button>
 
-          <a [href]="makeBinaryDownloadUrl(binary)"
+          <a [href]="makeBinaryDownloadUrl(binary)" target="_blank" matTooltip="This does not increase the download count"
             mat-icon-button>
             <mat-icon class="material-icons">file_download</mat-icon>
           </a>

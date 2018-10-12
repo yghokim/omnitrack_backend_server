@@ -41,7 +41,7 @@ export class ClientBinaryListComponent implements OnInit, OnDestroy {
   }
 
   makeBinaryDownloadUrl(binary: any): string {
-    return '/api/clients/download?platform=' + binary.platform + '&version=' + binary.version + (this.experimentId ? ('&experimentId=' + this.experimentId) : '')
+    return '/api/clients/download?platform=' + binary.platform + '&version=' + binary.version + (this.experimentId ? ('&experimentId=' + this.experimentId) : '') + "&notIncrementCount=true"
   }
 
   onShortUrlClicked(binary: any) {
