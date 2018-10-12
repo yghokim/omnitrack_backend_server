@@ -1,0 +1,13 @@
+<div class="flex-container flex-align-items-center" *ngIf="latLng">
+  <div class="main-content">
+    <div class="coord">
+      <span class="coord-label">Lat</span>
+      <span class="coord-text">{{latLng.latitude}}</span>
+    </div>
+    <div class="coord">
+      <span class="coord-label">Lng</span>
+      <span class="coord-text">{{latLng.longitude}}</span>
+    </div>
+  </div>
+  <a [href]="makeMapExternalUrl()" target=_blank type="button" class="btn btn-sm btn-light" matTooltip="Show in map"><span class="material-icons">map</span></a>
+</div>

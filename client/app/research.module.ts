@@ -93,6 +93,7 @@ import { ExperimentTrackingEntityStatusComponent } from './experiment-tracking-e
 import { TrackerTreeViewComponent } from './research/omnitrack/entities/tracker-tree-view/tracker-tree-view.component';
 import { TriggerTreeViewComponent } from './research/omnitrack/entities/trigger-tree-view/trigger-tree-view.component';
 import { TreeViewElementComponent } from './components/tree-view-element/tree-view-element.component';
+import { LocationCellComponent } from './experiment-data/location-cell/location-cell.component';
 
 @NgModule({
   imports: [
@@ -178,7 +179,8 @@ import { TreeViewElementComponent } from './components/tree-view-element/tree-vi
     ExperimentTrackingEntityStatusComponent,
     TrackerTreeViewComponent,
     TriggerTreeViewComponent,
-    TreeViewElementComponent
+    TreeViewElementComponent,
+    LocationCellComponent
   ],
   exports: [
     NouisliderModule,

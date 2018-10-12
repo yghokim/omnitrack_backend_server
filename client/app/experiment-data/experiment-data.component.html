@@ -56,6 +56,7 @@
                 <ng-container *ngIf="getItemValue(item, attr, true)" [ngSwitch]="attr.type">
                   <app-image-cell *ngSwitchCase="getImageType()" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'attributeLocalId': attr.localId}"></app-image-cell>
                   <app-audio-cell *ngSwitchCase="getAudioType()" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'attributeLocalId': attr.localId}"></app-audio-cell>
+                  <app-location-cell *ngSwitchCase="getLocationType()" [value]="getItemValue(item, attr, false)"></app-location-cell>
                   <div *ngSwitchDefault class="cell-value-clickable" (click)="onCellValueClicked(selectedTracker, attr, item)">{{this.getItemValue(item,
                     attr, true)}}</div>
                 </ng-container>

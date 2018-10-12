@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import { ScaleLinear } from "d3";
 import PropertyHelperManager from "../../../../omnitrack/core/properties/property.helper.manager";
 import { EPropertyType } from "../../../../omnitrack/core/properties/property.types";
-import ChoiceAttributeHelper from "../../../../omnitrack/core/attributes/choice.attribute.helper";
+import { ChoiceAttributeHelper } from "../../../../omnitrack/core/attributes/choice.attribute.helper";
 import TypedStringSerializer from "../../../../omnitrack/core/typed_string_serializer";
 import { Moment } from "moment";
 import * as moment from 'moment-timezone';

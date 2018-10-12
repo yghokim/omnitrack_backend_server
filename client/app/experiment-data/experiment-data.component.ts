@@ -242,6 +242,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   getImageType(): number { return attributeTypes.ATTR_TYPE_IMAGE }
   getAudioType(): number { return attributeTypes.ATTR_TYPE_AUDIO }
+  getLocationType(): number { return attributeTypes.ATTR_TYPE_LOCATION }
 
   isAudioAttribute(attr: IAttributeDbEntity): boolean {
     return attr.type === attributeTypes.ATTR_TYPE_AUDIO

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BaseItemFieldInputComponent } from '../base-item-field-input.component';
 import AttributeManager from '../../../../../omnitrack/core/attributes/attribute.manager';
-import ChoiceAttributeHelper from '../../../../../omnitrack/core/attributes/choice.attribute.helper';
+import { ChoiceAttributeHelper } from '../../../../../omnitrack/core/attributes/choice.attribute.helper';
 import { UniqueStringEntryList } from '../../../../../omnitrack/core/datatypes/unique-string-entry-list';
 import { forEach } from '@angular/router/src/utils/collection';
 import { MatCheckboxChange } from '@angular/material';

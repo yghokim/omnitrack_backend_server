@@ -9,7 +9,7 @@ import { UniqueStringEntryList } from "../datatypes/unique-string-entry-list";
 import attributeTypes from "./attribute-types";
 import TypedStringSerializer from '../typed_string_serializer';
 
-export default class ChoiceAttributeHelper extends AttributeHelper {
+export class ChoiceAttributeHelper extends AttributeHelper {
   static readonly PROPERTY_MULTISELECTION = "multiSelection"
   static readonly PROPERTY_ENTRIES = "entries"
   

@@ -1,10 +1,11 @@
 import AttributeHelper from "./attribute.helper";
-import RatingAttributeHelper from "./rating.attribute.helper";
-import NumberAttributeHelper from "./number.attribute.helper";
+import { RatingAttributeHelper } from "./rating.attribute.helper";
+import { NumberAttributeHelper } from "./number.attribute.helper";
 import attributeTypes from "./attribute-types";
-import ChoiceAttributeHelper from './choice.attribute.helper';
-import TimeSpanAttributeHelper from "./time-span.attribute.helper";
-import TimePointAttributeHelper from "./time-point.attribute.helper";
+import { ChoiceAttributeHelper } from './choice.attribute.helper';
+import { TimeSpanAttributeHelper } from "./time-span.attribute.helper";
+import { TimePointAttributeHelper } from "./time-point.attribute.helper";
+import { LocationAttributeHelper } from './location.attribute.helper';
 
 export default class AttributeManager {
 
@@ -30,6 +31,9 @@ export default class AttributeManager {
         break;
         case attributeTypes.ATTR_TYPE_TIME:
           AttributeManager.dict[type.toString()] = new TimePointAttributeHelper()
+        break;
+        case attributeTypes.ATTR_TYPE_LOCATION:
+          AttributeManager.dict[type.toString()] = new LocationAttributeHelper()
         break;
       }
 

@@ -5,29 +5,26 @@ import { EPropertyType } from "../properties/property.types";
 import { IAttributeDbEntity } from '../db-entity-types';
 import attributeTypes from "./attribute-types";
 import TypedStringSerializer from '../typed_string_serializer';
+import { LatLng } from "../datatypes/field_datatypes";
 
-export class NumberAttributeHelper extends AttributeHelper {
-  get typeName(): string{return "Number"}
+export class LocationAttributeHelper extends AttributeHelper {
+  get typeName(): string{return "Location"}
 
-  get typeNameForSerialization(): string {return TypedStringSerializer.TYPENAME_BIGDECIMAL}
+  get typeNameForSerialization(): string {return TypedStringSerializer.TYPENAME_LATITUDE_LONGITUDE}
 
   formatAttributeValue(attr: IAttributeDbEntity, value: any): string {
-    return value.toString()
+    const latLng = value as LatLng
+    return latLng.latitude + ", " + latLng.longitude
   }
 
-  static readonly PROPERTY_KEY_NUMBER_STYLE = "style"
-
-  propertyKeys = [NumberAttributeHelper.PROPERTY_KEY_NUMBER_STYLE]
+  propertyKeys = []
 
   constructor() {
-    super(attributeTypes.ATTR_TYPE_NUMBER)
+    super(attributeTypes.ATTR_TYPE_LOCATION)
   }
 
   getPropertyHelper<T>(propertyKey: string): PropertyHelper<T> {
-    switch (propertyKey) {
-      case NumberAttributeHelper.PROPERTY_KEY_NUMBER_STYLE:
-        return PropertyHelperManager.getHelper(EPropertyType.NumberStyle)
-    }
+    return null
   }
 
 }

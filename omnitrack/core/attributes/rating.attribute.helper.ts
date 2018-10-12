@@ -8,7 +8,7 @@ import attributeTypes from "./attribute-types";
 import { RatingOptions } from "../datatypes/rating_options";
 import TypedStringSerializer from '../typed_string_serializer';
 
-export default class RatingAttributeHelper extends AttributeHelper {
+export class RatingAttributeHelper extends AttributeHelper {
   get typeName(): string { return "Rating" }
 
   get typeNameForSerialization(): string{ return TypedStringSerializer.TYPENAME_FRACTION}

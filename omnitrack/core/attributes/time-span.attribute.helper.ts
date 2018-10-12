@@ -8,7 +8,7 @@ import attributeTypes from "./attribute-types";
 import * as moment from 'moment-timezone';
 import TypedStringSerializer from '../typed_string_serializer';
 
-export default class TimeSpanAttributeHelper extends AttributeHelper {  
+export class TimeSpanAttributeHelper extends AttributeHelper {  
 
   static readonly PROPERTY_GRANULARITY = "granularity"
   static readonly PROPERTY_TYPE = "type"
