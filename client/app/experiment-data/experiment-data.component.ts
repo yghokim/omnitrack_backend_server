@@ -332,7 +332,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
           )
         )),
         map(result => {
-          const commonColumns = ["participant_alias"]
+          const commonColumns = ["item_id", "participant_alias"]
           const packageFiles = result.packages.map(
             pack => {
               const workbook = XLSX.utils.book_new()
@@ -354,7 +354,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                           })
 
                           itemRows.push(
-                            [participant.alias]
+                            [item._id, participant.alias]
                               .concat(values)
                               .concat([moment(item.timestamp).tz(item.timezone).format(), this.getItemSourceText(item.source)]
                                 .concat(this.metadataColumns.map(m => this.getMetadataValue(item, m)))
@@ -397,7 +397,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                         return this.getItemValue(item, attr, true)
                       })
                       itemRows.push(
-                        [participant.alias]
+                        [item._id, participant.alias]
                           .concat(values)
                           .concat([moment(item.timestamp).tz(item.timezone).format(), this.getItemSourceText(item.source)])
                           .concat(this.metadataColumns.map(m => this.getMetadataValue(item, m)))

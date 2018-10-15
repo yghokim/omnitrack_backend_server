@@ -38,6 +38,7 @@
       <div class="table-container">
         <table class="table table-data" *ngIf="printFriendlyMode===false && selectedTracker">
           <thead class="singleline">
+            <th>Item Id</th>
             <th *ngFor="let attr of selectedTracker.attributes; trackBy: trackAttributes">
               {{attr.name}}
             </th>
@@ -52,6 +53,7 @@
           </thead>
           <tbody>
             <tr class="hoverable singleline" *ngFor="let item of trackerItems; trackBy: trackDbObject">
+              <td>{{item._id}}</td>
               <td *ngFor="let attr of selectedTracker.attributes; trackBy: trackAttributes">
                 <ng-container *ngIf="getItemValue(item, attr, true)" [ngSwitch]="attr.type">
                   <app-image-cell *ngSwitchCase="getImageType()" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'attributeLocalId': attr.localId}"></app-image-cell>
@@ -93,6 +95,7 @@
 
 <table class="table table-data table-print" *ngIf="printFriendlyMode===true&&selectedTracker">
   <thead class="singleline">
+    <th>Item Id</th>
     <th *ngFor="let attr of selectedTracker.attributes; trackBy: trackAttributes">
       {{attr.name}}
     </th>
@@ -101,6 +104,7 @@
   </thead>
   <tbody>
     <tr class="hoverable singleline" *ngFor="let item of trackerItems; trackBy: trackDbObject">
+      <td>{{item._id}}</td>
       <td *ngFor="let attr of selectedTracker.attributes; trackBy: trackAttributes">
         <ng-container *ngIf="getItemValue(item, attr, true)">
           <span *ngIf="isImageAttribute(attr) !== true">{{this.getItemValue(item, attr, true)}}</span>
