@@ -67,7 +67,7 @@
           <td>
             <ng-container *ngIf="signature.experiments && signature.experiments.length > 0">
               <div *ngFor="let experiment of signature.experiments">
-                {{experiment}}
+                {{experiment.name}}
               </div>
             </ng-container>
             <span *ngIf="!signature.experiments || signature.experiments.length === 0" class="text-color-lightgray">Unspecified</span>
