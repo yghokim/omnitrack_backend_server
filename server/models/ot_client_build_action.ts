@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 
 const otClientBuildActionSchema = new mongoose.Schema({
   jobId: {type: String, index: true},
-  pid: {type: Number, default: null},
+  pids: {type: [Number], default: []},
   experiment: {type: String, ref: 'OTExperiment', default: null},
   researcherMode: {type: Boolean, default: false},
   config: {type: String, ref: 'OTExperimentClientBuildConfig'},

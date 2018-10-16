@@ -255,8 +255,6 @@ export default class OTBinaryCtrl {
               return -compareVersions(binary1.version, binary2.version)
             })
           })
-          console.log("bianries:")
-          console.log(platforms)
           res.status(200).send(platforms)
         }
       ).catch(err => {
@@ -318,7 +316,6 @@ export default class OTBinaryCtrl {
             url: overrideHostAddress + "/api/clients/download?platform=" + req.query.platform + "&version=" + latestBinary["version"] + ((req.query.experimentId === "null" || !req.query.experimentId) ? "" : ("&experimentId=" + req.query.experimentId)),
             releaseNotes: latestBinary["changeLog"] || []
           }
-          console.log(binaryInfo)
           res.status(200).send(binaryInfo)
         } else { res.status(200).send(null) }
       }

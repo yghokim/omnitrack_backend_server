@@ -30,10 +30,10 @@
             Recently saved at: {{originalConfig.updatedAt | date: 'short'}}
           </div>
           <div class="flex-filler"></div>
-          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false || isApplyingChanges === true" mat-button color="accent"
-            (click)="onDiscardChangedClicked()">Discard changes</button>
-          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false || isApplyingChanges === true" mat-raised-button color="accent"
-            (click)="onSaveClicked()">Save Changes</button>
+          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false || isApplyingChanges === true"
+            mat-button color="accent" (click)="onDiscardChangedClicked()">Discard changes</button>
+          <button [disabled]="isConfigChanged(originalConfig, changedConfig) === false || isApplyingChanges === true"
+            mat-raised-button color="accent" (click)="onSaveClicked()">Save Changes</button>
         </div>
         <table class="table settings-main-table">
           <tr>
@@ -63,16 +63,18 @@
                 [config]="changedConfig" [originalValue]="originalConfig.disableExternalEntities"></app-config-variable-row>-->
 
               <app-config-variable-row label="Enable tracker creation" type="boolean" variableName="disableTrackerCreation"
-                hintText="Disable participants to create their own trackers." [inverseBoolean]="true" [config]="changedConfig" [originalValue]="originalConfig.disableTrackerCreation"></app-config-variable-row>
+                hintText="Disable participants to create their own trackers." [inverseBoolean]="true" [config]="changedConfig"
+                [originalValue]="originalConfig.disableTrackerCreation"></app-config-variable-row>
 
               <app-config-variable-row label="Enable trigger creation" type="boolean" variableName="disableTriggerCreation"
-                hintText="Disable participants to create their own triggers." [inverseBoolean]="true" [config]="changedConfig" [originalValue]="originalConfig.disableTriggerCreation"></app-config-variable-row>
+                hintText="Disable participants to create their own triggers." [inverseBoolean]="true" [config]="changedConfig"
+                [originalValue]="originalConfig.disableTriggerCreation"></app-config-variable-row>
 
               <app-config-variable-row label="Show trigger list" type="boolean" variableName="hideTriggersTab" hintText="Disable an access to trigger list."
-              [inverseBoolean]="true" [config]="changedConfig" [originalValue]="originalConfig.hideTriggersTab"></app-config-variable-row>
+                [inverseBoolean]="true" [config]="changedConfig" [originalValue]="originalConfig.hideTriggersTab"></app-config-variable-row>
 
               <app-config-variable-row label="Show service list" type="boolean" variableName="hideServicesTab" hintText="Disable an access to service list."
-              [inverseBoolean]="true" [config]="changedConfig" [originalValue]="originalConfig.hideServicesTab"></app-config-variable-row>
+                [inverseBoolean]="true" [config]="changedConfig" [originalValue]="originalConfig.hideServicesTab"></app-config-variable-row>
 
               <app-config-variable-row label="Show tutorials" type="boolean" variableName="showTutorials" hintText=""
                 [config]="changedConfig" [originalValue]="originalConfig.showTutorials"></app-config-variable-row>
@@ -171,7 +173,11 @@
         </ng-container>
       </div>
       <div class="left-margin-1em">
-        <button mat-raised-button [color]="isBuilding === true? 'warn' : 'primary'" class="large" (click)="onStartBuildClicked()">{{isBuilding
+        <app-labeled-loading-indicator *ngIf="isWaitingBuildCommand===true" class="loading-indicator">
+          <span message>Processing...</span>
+        </app-labeled-loading-indicator>
+        
+        <button mat-raised-button *ngIf="isWaitingBuildCommand===false" [color]="isBuilding === true? 'warn' : 'primary'" class="large" (click)="onStartBuildClicked()">{{isBuilding
           === true? 'Cancel Build' : (isConfigChanged(originalConfig, changedConfig)===true? 'Apply Changes & Start New
           Build' : 'Start New Build')}}</button>
       </div>

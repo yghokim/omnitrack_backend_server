@@ -185,13 +185,7 @@ export class ClientBuildService extends ServiceBase {
     return this.http.post<boolean>("/api/research/build/start", {
       configId: config._id,
       force: force
-    }, this.api.authorizedOptions).pipe(
-      tap((buildSuccess) => {
-        if (buildSuccess === true) {
-          this.reloadBuildStatus()
-        }
-      })
-    )
+    }, this.api.authorizedOptions)
   }
 
   cancelBuild(config: IClientBuildConfigBase<any>): Observable<boolean> {

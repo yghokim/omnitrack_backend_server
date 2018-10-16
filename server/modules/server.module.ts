@@ -66,10 +66,10 @@ export default class ServerModule {
       })
 
       OTClientSignature.collection.dropIndex('key_1').then(l => {
-      }).catch(ex=>{
+      }).catch(ex => {
 
       })
-      
+
 
       OTParticipant.find({ experimentRange: { $exists: false }, approvedAt: { $exists: true } }).then(
         participants => {
@@ -141,14 +141,18 @@ export default class ServerModule {
     })
 
     this.agenda.on('fail:' + C.TASK_BUILD_CLIENT_APP, (err, job) => {
+      const isCanceled = err.message === "BuildCanceledExternally"
+
+      const status = isCanceled === true ? EClientBuildStatus.CANCELED : EClientBuildStatus.FAILED
+
       const statusBase: ClientBuildStatus = {
         experimentId: job.attrs.data.experimentId,
         researcherMode: job.attrs.data.researcherMode,
         jobId: job.attrs._id,
         platform: job.attrs.data.platform,
         configId: job.attrs.data.configId,
-        status: EClientBuildStatus.FAILED,
-        error: err
+        status: status,
+        error: isCanceled === true ? err : null
       }
       appWrapper.socketModule().sendDataToGlobalSubscribers(SocketConstants.SOCKET_MESSAGE_CLIENT_BUILD_STATUS, statusBase)
 
@@ -157,14 +161,12 @@ export default class ServerModule {
         { jobId: job.attrs._id },
         {
           finishedAt: new Date(),
-          result: EClientBuildStatus.FAILED,
-          lastError: err
+          result: status,
+          lastError: isCanceled === true ? err : null
         }
       ).then((saved) => {
         if (saved.nModified > 0) {
-          console.log("successfully updated a ClientBuildAction with error result.")
-        } else {
-          console.log("No ClientBuildActions were updated with error result.")
+          console.log("Aborted a client build action. -", status)
         }
       }).catch(e => {
         console.error(e)
@@ -172,6 +174,8 @@ export default class ServerModule {
     })
 
     this.agenda.on('error', (err) => {
+      console.error(err)
+      console.error("Error type: ", typeof err)
       if (err.startsWith("Error: Lost MongoDB connection") === true) {
         console.log("lost mongo connection. refresh aganda")
         this.agenda.start()
@@ -185,14 +189,24 @@ export default class ServerModule {
       const configId = job.attrs.data.configId
 
       console.log("start build app.")
-      if ((!experimentId && job.attrs.data.researcherMode===false) || !configId) {
+      if ((!experimentId && job.attrs.data.researcherMode === false) || !configId) {
         const err = new Error("did not provide proper arguments.")
         return done(err)
       }
 
-      this.cancelAllBuildJobsOfPlatform(job.attrs.data.experimentId, job.attrs.data.platform).then(numCanceled => {
+      this.cancelAllBuildJobsOfPlatform(job.attrs.data.experimentId, job.attrs.data.platform, job.attrs._id).then(numCanceled => {
         console.log("canceled", numCanceled, "pending build jobs. start mine.")
-        clientBuildCtrl._build(configId, experimentId).then(
+        clientBuildCtrl._build(configId, experimentId, (pid) => {
+          //new process was spawned
+          return OTClientBuildAction.updateOne({ jobId: job.attrs._id }, {
+            $addToSet: { pids: pid }
+          }).exec()
+        }, () => {
+          return OTClientBuildAction.findOne({
+            jobId: job.attrs._id,
+            finishedAt: { $ne: null }
+          }, { _id: 1 }).countDocuments().then(count => count > 0)
+        }).then(
           buildResult => {
             console.log("finished client build. job id:", job.attrs._id)
             console.log("built binary info:")
@@ -247,11 +261,11 @@ export default class ServerModule {
                 entry["isProcessed"] = true
                 entry.markModified("processedFileNames")
                 return entry.save()
-              }).then(doc=>{
+              }).then(doc => {
                 console.log("updated item media:")
                 console.log(doc)
                 done()
-              }).catch( err=>{
+              }).catch(err => {
                 done(err)
               }
               )
@@ -296,15 +310,100 @@ export default class ServerModule {
   }
 
   startClientBuildAsync(configId: string, experimentId: string, platform: string, configHash: string): Promise<Job> {
-    return this.agenda.now(C.TASK_BUILD_CLIENT_APP, { configId: configId, experimentId: experimentId, researcherMode: experimentId? false: true, platform: platform, configHash: configHash })
+    return this.agenda.now(C.TASK_BUILD_CLIENT_APP, { configId: configId, experimentId: experimentId, researcherMode: experimentId ? false : true, platform: platform, configHash: configHash })
   }
 
-  cancelAllBuildJobsOfPlatform(experimentId: string, platform: string): Promise<number> {
+  cancelAllBuildJobsOfPlatform(experimentId: string, platform: string, excludeJobId?: any): Promise<number> {
     const value = { name: C.TASK_BUILD_CLIENT_APP, "data.platform": platform }
-    if(experimentId != null){
+    if (experimentId != null) {
       value["data.experimentId"] = experimentId
-    }else value["data.researcherMode"] = true
+    } else value["data.researcherMode"] = true
 
-      return this.agenda.cancel(value)
+    if (excludeJobId != null) {
+      value["_id"] = { $ne: excludeJobId }
+    }
+
+    return this.agenda.jobs(value).then(jobs => {
+      if (jobs.length > 0) {
+        return Promise.all(jobs.map(job => job.remove())).then(() => {
+          return OTClientBuildAction.find({ jobId: { $in: jobs.map(job => job.attrs._id) } }, {
+            _id: 1,
+            pids: 1
+          }).lean().then(actions => {
+            console.log("actions:", actions)
+            if (actions.length > 0) {
+              const pids = []
+              for (const action of actions) {
+                if (action.pids) {
+                  for (const pid of action.pids) {
+                    if (pids.indexOf(pid) === -1) {
+                      pids.push(pid)
+                    }
+                  }
+                }
+              }
+              console.log("PIDs to kill: ", pids.join(", "))
+              if (pids.length > 0) {
+                const treeKill = require('tree-kill');
+                pids.forEach(pid => treeKill(pid))
+              }
+
+              return OTClientBuildAction.updateMany({
+                _id: { $in: actions.map(a => a._id) }
+              }, {
+                  finishedAt: new Date(),
+                  result: 'canceled'
+                }).then(r => {
+                  console.log("updated buildActions:", r)
+                  return r.n
+                })
+            } else return 0
+          })
+        })
+      } else return 0
+    })
+
+    /*
+    return this.agenda.cancel(value).then(numCanceled => {
+      console.log("jobs to cancel:", numCanceled)
+      const actionQuery = { platform: platform, finishedAt: null }
+      if (experimentId != null) {
+        actionQuery["experimentId"] = experimentId
+      } else actionQuery["researcherMode"] = true
+
+      console.log("actionQuery:", actionQuery)
+      return OTClientBuildAction.find(actionQuery, {
+        _id: 1,
+        pids: 1
+      }).lean().then(actions => {
+        console.log("actions:", actions)
+        if (actions.length > 0) {
+          const pids = []
+          for (const action of actions) {
+            if (action.pids) {
+              for (const pid of action.pids) {
+                if (pids.indexOf(pid) === -1) {
+                  pids.push(pid)
+                }
+              }
+            }
+          }
+          console.log("PIDs to kill: ", pids.join(", "))
+          if (pids.length > 0) {
+            const treeKill = require('tree-kill');
+            pids.forEach(pid => treeKill(pid))
+          }
+          return OTClientBuildAction.updateMany({
+            _id: { $in: actions.map(a => a._id) }
+          }, {
+              finishedAt: new Date(),
+              result: 'canceled'
+            }).then(r => {
+              console.log("updated buildActions:", r)
+              return r.n
+            })
+        } else return 0
+      })
+    })*/
   }
 }

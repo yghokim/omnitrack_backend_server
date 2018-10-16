@@ -14,6 +14,11 @@ import { NotificationService } from '../../services/notification.service';
 import { SignatureValidationCompleteDialogComponent } from './signature-validation-complete-dialog/signature-validation-complete-dialog.component';
 import { CreateNewJavaKeystoreDialogComponent } from './create-new-java-keystore-dialog/create-new-java-keystore-dialog.component';
 
+enum EBuildCommandWaitingStatus{
+  BUILD="build",
+  CANCEL="cancel"
+}
+
 @Component({
   selector: 'app-platform-config-panel',
   templateUrl: './platform-config-panel.component.html',
@@ -43,6 +48,8 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
 
   public isLoadingBinaries = true
   public binaries: Array<any>
+
+  public isWaitingBuildCommand = false
 
   public validationErrors: Array<{ key: string, message: string }>
 
@@ -370,7 +377,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
                 this.dialog.open(YesNoDialogComponent, {
                   data: {
                     title: "Warning",
-                    message: "You have already been failed with the same configuration. Do you want to start build again?", positiveLabel: "Build Again", positiveColor: "primary", negativeColor: "accent", negativeLabel: "Cancel"
+                    message: "You have already failed with the same configuration. Do you want to start build again?", positiveLabel: "Build Again", positiveColor: "primary", negativeColor: "accent", negativeLabel: "Cancel"
                   }
                 }).afterClosed().pipe(
                   tap(yes => {
@@ -411,7 +418,8 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
               return this.clientBuildService.cancelBuild(this.originalConfig)
             } else { return empty() }
           })
-        ).subscribe()
+        ).subscribe(()=>{}, err=>{}, ()=>{
+        })
       )
     }
   }

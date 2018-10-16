@@ -97,7 +97,7 @@ export default class OTClientBuildCtrl {
   _generateJavaKeystoreFile(value: any): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       const exec = require("child_process").exec;
-      const keystoreDirectoryPath =path.join(__dirname, "../../../../../",  "storage/temp/keystore/")
+      const keystoreDirectoryPath = path.join(__dirname, "../../../../../", "storage/temp/keystore/")
 
       fs.ensureDirSync(keystoreDirectoryPath)
 
@@ -114,11 +114,11 @@ export default class OTClientBuildCtrl {
         C: value.countryCode
       }
 
-      const command = 'keytool -genkeypair -keystore "' + keystorePath + '" -storetype jks -storePass ' + value.storePassword + ' -alias ' + value.alias + ' -keyPass ' + value.keyPassword + ' -keyalg RSA -keysize 4096 -sigalg SHA512withRSA' + ' -dname "' + Object.keys(dnames).map(key=>{
+      const command = 'keytool -genkeypair -keystore "' + keystorePath + '" -storetype jks -storePass ' + value.storePassword + ' -alias ' + value.alias + ' -keyPass ' + value.keyPassword + ' -keyalg RSA -keysize 4096 -sigalg SHA512withRSA' + ' -dname "' + Object.keys(dnames).map(key => {
         console.log(dnames[key])
-        return key + "=" + (dnames[key]!=null? dnames[key] : 'Unknown')
+        return key + "=" + (dnames[key] != null ? dnames[key] : 'Unknown')
       }).join(", ") + '"'
-      
+
       console.log("generate keytool")
       console.log(command)
       exec(command, (err, stdout, stderr) => {
@@ -445,7 +445,7 @@ export default class OTClientBuildCtrl {
       ]
 
       keys.forEach(key => {
-        if (buildConfig[key]!=null) {
+        if (buildConfig[key] != null) {
           sourceConfigJson[key] = buildConfig[key]
         }
       })
@@ -479,7 +479,7 @@ export default class OTClientBuildCtrl {
     })
   }
 
-  private _buildAndroidApk(sourceFolderPath: string): Promise<BuildResultInfo> {
+  private _buildAndroidApk(sourceFolderPath: string, onNewProcessSpawn: (number) => Promise<void>, checkCanceled: () => Promise<boolean>): Promise<BuildResultInfo> {
     return new Promise((resolve, reject) => {
       console.log("start building the android app")
       const os = require('os')
@@ -501,31 +501,41 @@ export default class OTClientBuildCtrl {
       }
 
       const command = spawn(arg0, arg1, { cwd: sourceFolderPath, env: process.env, stdio: ['ignore', process.stdout, 'pipe'] })
-
-      /*
-      command.stdout.on('data', (data) => {
-        console.log(data.toString())
-      })*/
-
-      let lastErrorString: string = null
-      command.stderr.on('data', (data) => {
-        lastErrorString = data.toString()
-        console.error(lastErrorString)
-      })
-      command.on('exit', (code) => {
-        if (code === 0) {
-          const appBinaryFolorPath = path.join(sourceFolderPath, "app/build/outputs/apk/minApi19/release/")
-          const outputInfo = fs.readJsonSync(path.join(appBinaryFolorPath, "output.json"))
-          const fileName = outputInfo.find(o => o.outputType.type === 'APK').path
-          const appBinaryPath = path.join(appBinaryFolorPath, fileName)
-          try {
-            const stat = fs.statSync(appBinaryPath)
-            resolve({ sourceFolderPath: sourceFolderPath, appBinaryPath: appBinaryPath, binaryFileName: fileName })
-          } catch (err) {
-            reject({ code: err.code, lastErrorMessage: lastErrorString })
-          }
+      console.log("started the Android build process. PID:", command.pid)
+      checkCanceled().then(canceled => {
+        if (canceled === true) {
+          const kill = require('tree-kill');
+          kill(command.pid)
+          reject(new Error("BuildCanceledExternally"))
         } else {
-          reject({ code: code, lastErrorMessage: lastErrorString })
+          onNewProcessSpawn(command.pid).then(
+            () => {
+              let lastErrorString: string = null
+              command.stderr.on('data', (data) => {
+                lastErrorString = data.toString()
+                console.error(lastErrorString)
+              })
+              command.on('exit', (code) => {
+                if (code === 0) {
+                  const appBinaryFolorPath = path.join(sourceFolderPath, "app/build/outputs/apk/minApi19/release/")
+                  const outputInfo = fs.readJsonSync(path.join(appBinaryFolorPath, "output.json"))
+                  const fileName = outputInfo.find(o => o.outputType.type === 'APK').path
+                  const appBinaryPath = path.join(appBinaryFolorPath, fileName)
+                  try {
+                    const stat = fs.statSync(appBinaryPath)
+                    resolve({ sourceFolderPath: sourceFolderPath, appBinaryPath: appBinaryPath, binaryFileName: fileName })
+                  } catch (err) {
+                    reject({ code: err.code, lastErrorMessage: lastErrorString })
+                  }
+                } else {
+                  reject({ code: code, lastErrorMessage: lastErrorString })
+                }
+              })
+            }
+          ).catch(pidUpdateErr => {
+            console.error(pidUpdateErr)
+            reject({ code: "PIDUpdateFailed", error: pidUpdateErr })
+          })
         }
       })
     })
@@ -573,49 +583,95 @@ export default class OTClientBuildCtrl {
     })
   }
 
-  _build(configId: string, experimentId?: string): Promise<BuildResultInfo> {
+  _build(configId: string, experimentId: string, onNewProcessSpawn: (number) => Promise<void>, checkCanceled: () => Promise<boolean>): Promise<BuildResultInfo> {
     return OTClientBuildConfigModel.findOne({
       _id: configId
-    }).lean().then(buildConfig =>
-      this.prepareSourceCodeInFolder(buildConfig)
-        .then(result => {
-          // Platform-dependent logics=======================================================
-          switch (buildConfig.platform) {
-            case "Android":
-              return this._setupAndroidSource(result.sourceFolderPath, result.skipSetup)
-                .then(sourcePath => this._injectAndroidBuildConfigToSource(buildConfig, sourcePath))
-                .then(sourcePath => this._buildAndroidApk(sourcePath))
-            default: throw new Error("Unsupported platform.")
+    }).lean()
+      .then(buildConfig => {
+        return checkCanceled().then(canceled => {
+          if (canceled === true) {
+            throw new Error("BuildCanceledExternally")
+          } else {
+            return buildConfig
           }
-          // =================================================================================
         })
-        .then(buildResult => {
-          console.log("successfully built app. register binary to publish list.")
-          // move client to temp folder
-          const newLocation = this._makeClientCollectedLocation(experimentId, buildConfig.platform)
-          return fs.ensureDir(newLocation).then(() => {
-            const ext = getExtensionFromPath(buildResult.binaryFileName)
-            const newName = path.basename(buildResult.appBinaryPath, "." + ext) + "_" + this._makeConfigHash(buildConfig) + "_" + randomstring.generate(5) + "." + ext
-            const newFullPath = path.join(newLocation, newName)
-            return fs.move(buildResult.appBinaryPath, newFullPath, { overwrite: true }).then(
-              () => {
-                buildResult.appBinaryPath = newFullPath
-                buildResult.binaryFileName = newName
-                return buildResult
+      })
+      .then(buildConfig =>
+        this.prepareSourceCodeInFolder(buildConfig)
+          .then(result => {
+            return checkCanceled().then(canceled => {
+              if (canceled === true) {
+                throw new Error("BuildCanceledExternally")
+              } else {
+                return result
               }
-            ).catch(err => {
-              console.error(err)
-              throw err
             })
           })
-        }).then(result => clientBinaryCtrl._registerNewClientBinary(result.appBinaryPath, [], null, null, buildConfig.experiment).then(() => {
-          console.log("Client build process was finished successfully.")
-          return result
-        })).catch(err => {
-          console.error(err)
-          throw err
-        })
-    )
+          .then(result => {
+            // Platform-dependent logics=======================================================
+            switch (buildConfig.platform) {
+              case "Android":
+                return this._setupAndroidSource(result.sourceFolderPath, result.skipSetup)
+                  .then(sourcePath => {
+                    return checkCanceled().then(canceled => {
+                      if (canceled === true) {
+                        throw new Error("BuildCanceledExternally")
+                      } else {
+                        return sourcePath
+                      }
+                    })
+                  })
+                  .then(sourcePath => this._injectAndroidBuildConfigToSource(buildConfig, sourcePath))
+                  .then(sourcePath => {
+                    return checkCanceled().then(canceled => {
+                      if (canceled === true) {
+                        throw new Error("BuildCanceledExternally")
+                      } else {
+                        return sourcePath
+                      }
+                    })
+                  })
+                  .then(sourcePath => this._buildAndroidApk(sourcePath, onNewProcessSpawn, checkCanceled))
+              default: throw new Error("Unsupported platform.")
+            }
+            // =================================================================================
+          })
+          .then(buildResult => {
+            return checkCanceled().then(canceled => {
+              if (canceled === true) {
+                throw new Error("BuildCanceledExternally")
+              } else {
+                return buildResult
+              }
+            })
+          })
+          .then(buildResult => {
+            console.log("successfully built app. register binary to publish list.")
+            // move client to temp folder
+            const newLocation = this._makeClientCollectedLocation(experimentId, buildConfig.platform)
+            return fs.ensureDir(newLocation).then(() => {
+              const ext = getExtensionFromPath(buildResult.binaryFileName)
+              const newName = path.basename(buildResult.appBinaryPath, "." + ext) + "_" + this._makeConfigHash(buildConfig) + "_" + randomstring.generate(5) + "." + ext
+              const newFullPath = path.join(newLocation, newName)
+              return fs.move(buildResult.appBinaryPath, newFullPath, { overwrite: true }).then(
+                () => {
+                  buildResult.appBinaryPath = newFullPath
+                  buildResult.binaryFileName = newName
+                  return buildResult
+                }
+              ).catch(err => {
+                console.error(err)
+                throw err
+              })
+            })
+          }).then(result => clientBinaryCtrl._registerNewClientBinary(result.appBinaryPath, [], null, null, buildConfig.experiment).then(() => {
+            console.log("Client build process was finished successfully.")
+            return result
+          })).catch(err => {
+            console.error(err)
+            throw err
+          })
+      )
   }
 
   _cancelBuild(configId: string): Promise<boolean> {
@@ -623,18 +679,7 @@ export default class OTClientBuildCtrl {
       old => {
         if (old != null) {
           return appWrapper.serverModule().cancelAllBuildJobsOfPlatform(old.experiment, old.platform).then(numCanceled => {
-            return OTClientBuildAction.update({
-              experiment: old.experiment,
-              researcherMode: old.researcherMode,
-              platform: old.platform,
-              finishedAt: null
-            }, {
-                finishedAt: new Date(),
-                result: 'canceled'
-              }).then(res => {
-                console.log(res)
-                return true
-              })
+            return numCanceled > 0
           })
         } else { return false }
       }
@@ -660,7 +705,7 @@ export default class OTClientBuildCtrl {
     return OTClientBuildAction.findOne({
       config: configId,
       configHash: configHash,
-      finishedAt: { $exists: true }
+      finishedAt: { $ne: null }
     }, {}, { sort: { 'finishedAt': -1 } }).then(doc => doc as any)
   }
 
@@ -708,9 +753,9 @@ export default class OTClientBuildCtrl {
         return
       }
 
-      if(req.body.config){
+      if (req.body.config) {
         const update = isString(req.body.config) === true ? JSON.parse(req.body.config) : deepclone(req.body.config)
-      
+
         const configId = update._id
         delete update._id
         delete update.createdAt
@@ -730,7 +775,7 @@ export default class OTClientBuildCtrl {
           console.error(updateError)
           res.status(500).send(updateError)
         })
-      }else{
+      } else {
         res.status(200).send
       }
     })
@@ -747,7 +792,7 @@ export default class OTClientBuildCtrl {
             .then(buildAction => {
               if (buildAction) {
                 if (buildAction.result === EClientBuildStatus.FAILED) {
-                  throw { code: EClientBuildStatus.FAILED, message: "You have already been failed with the same configuration." }
+                  throw { code: EClientBuildStatus.FAILED, message: "You have already failed with the same configuration." }
                 }
               }
               return { config: buildConfig, hash: hash }
@@ -807,10 +852,10 @@ export default class OTClientBuildCtrl {
     this._generateJavaKeystoreFile(req.body).then(
       filePath => {
         res.download(filePath, 'keystore.jks', (err) => {
-          if(err){
+          if (err) {
             console.error("keystore send error")
-            console.error(err)  
-          }else{
+            console.error(err)
+          } else {
             console.log("successfully sent a keystore file.")
           }
           fs.removeSync(filePath)
