@@ -1,7 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Subject, BehaviorSubject, Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { NotifierService } from 'angular-notifier';
 
+export enum ENotificationType {
+  DEFAULT = "default",
+  SUCCESS = "success",
+  ERROR = "error",
+  INFO = "info",
+  WARNING = "warning"
+}
 
 @Injectable()
 export class NotificationService {
@@ -17,7 +25,7 @@ export class NotificationService {
     return this._globalBusyQueue
   }
 
-  constructor() { }
+  constructor(private notifierService: NotifierService) { }
 
   pushSnackBarMessage(message: SnackBarMessageInfo) {
     this._snackBarMessageQueue.next(message)
@@ -40,6 +48,13 @@ export class NotificationService {
     }
   }
 
+  showNotification(type: ENotificationType, message: string, id?: string) {
+    this.notifierService.notify(type, message, id)
+  }
+
+  dismissNotification(id: string) {
+    this.notifierService.hide(id)
+  }
 
 }
 

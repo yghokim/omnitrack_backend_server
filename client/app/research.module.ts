@@ -94,6 +94,7 @@ import { TrackerTreeViewComponent } from './research/omnitrack/entities/tracker-
 import { TriggerTreeViewComponent } from './research/omnitrack/entities/trigger-tree-view/trigger-tree-view.component';
 import { TreeViewElementComponent } from './components/tree-view-element/tree-view-element.component';
 import { LocationCellComponent } from './experiment-data/location-cell/location-cell.component';
+import { NotifierModule } from 'angular-notifier';
 
 @NgModule({
   imports: [
@@ -103,7 +104,8 @@ import { LocationCellComponent } from './experiment-data/location-cell/location-
     NouisliderModule,
     MonacoEditorModule.forRoot(),
     ProductivityStatisticsModule,
-    NgxJsonViewerModule
+    NgxJsonViewerModule,
+    NotifierModule
   ],
   declarations: [
     ClientDownloadComponent,

@@ -1,7 +1,5 @@
-import OTTracker from '../models/ot_tracker';
-import OTItem from '../models/ot_item';
+
 import OTParticipant from '../models/ot_participant';
-import OTExperiment from '../models/ot_experiment';
 import OTItemMedia from '../models/ot_item_media';
 import OTClientBinary from '../models/ot_client_binary';
 import OTClientSignature from '../models/ot_client_signature';
@@ -18,6 +16,7 @@ import { clientBuildCtrl } from '../controllers/research/ot_client_build_control
 import { Job } from 'agenda';
 import appWrapper from '../app';
 import { SocketConstants, ClientBuildStatus, EClientBuildStatus } from '../../omnitrack/core/research/socket';
+import { experimentCtrl } from '../controllers/research/ot_experiment_controller';
 
 export default class ServerModule {
 
@@ -98,6 +97,20 @@ export default class ServerModule {
       this.agenda.start()
     })
 
+    const notifyBuildStatus = (status: ClientBuildStatus, experimentId?: string) => {
+      if (experimentId != null) {
+        experimentCtrl.getResearcherInfosOfExperiment(experimentId).then(
+          infos => {
+            infos.forEach(info => {
+              appWrapper.socketModule().sendDataToResearcherSubscribers(info.id, SocketConstants.SOCKET_MESSAGE_CLIENT_BUILD_STATUS, status)
+            })
+          }
+        )
+      } else {
+        appWrapper.socketModule().sendDataToGlobalSubscribers(SocketConstants.SOCKET_MESSAGE_CLIENT_BUILD_STATUS, status)
+      }
+    }
+
     this.agenda.on('start:' + C.TASK_BUILD_CLIENT_APP, (job) => {
       const statusBase: ClientBuildStatus = {
         experimentId: job.attrs.data.experimentId,
@@ -108,7 +121,7 @@ export default class ServerModule {
         status: EClientBuildStatus.BUILDING
       }
 
-      appWrapper.socketModule().sendDataToGlobalSubscribers(SocketConstants.SOCKET_MESSAGE_CLIENT_BUILD_STATUS, statusBase)
+      notifyBuildStatus(statusBase, job.attrs.data.experimentId)
 
       new OTClientBuildAction({
         experiment: job.attrs.data.experimentId,
@@ -136,12 +149,11 @@ export default class ServerModule {
         configId: job.attrs.data.configId,
         status: EClientBuildStatus.SUCCEEDED
       }
-
-      appWrapper.socketModule().sendDataToGlobalSubscribers(SocketConstants.SOCKET_MESSAGE_CLIENT_BUILD_STATUS, statusBase)
+      notifyBuildStatus(statusBase, job.attrs.data.experimentId)
     })
 
     this.agenda.on('fail:' + C.TASK_BUILD_CLIENT_APP, (err, job) => {
-      const isCanceled = err.message === "BuildCanceledExternally"
+      const isCanceled = err.message === "BuildCanceledExternally" || err.code === 143
 
       const status = isCanceled === true ? EClientBuildStatus.CANCELED : EClientBuildStatus.FAILED
 
@@ -154,8 +166,8 @@ export default class ServerModule {
         status: status,
         error: isCanceled === true ? err : null
       }
-      appWrapper.socketModule().sendDataToGlobalSubscribers(SocketConstants.SOCKET_MESSAGE_CLIENT_BUILD_STATUS, statusBase)
-
+      
+      notifyBuildStatus(statusBase, job.attrs.data.experimentId)
 
       OTClientBuildAction.updateOne(
         { jobId: job.attrs._id },

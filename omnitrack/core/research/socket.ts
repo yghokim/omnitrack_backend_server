@@ -15,7 +15,6 @@ export class SocketConstants{
 
   static readonly SERVER_EVENT_RESUBSCRIBE_PARTICIPANT_TRACKING_DATA = "reinitialize/participants" 
   static readonly SERVER_EVENT_UNSUBSCRIBE_PARTICIPANT_TRACKING_DATA = "reinitialize/participants" 
-  
 
   static readonly SOCKET_MESSAGE_UPDATED_EXPERIMENT = "updated/experiment"
   

@@ -34,6 +34,8 @@ export class ClientBuildService extends ServiceBase {
   }
 
   private readonly socketListener = (data: ClientBuildStatus) => {
+    console.log("new client build status event:")
+    console.log(data)
     if ((this.researcherMode === false && data.experimentId === this._currentExperimentId) || (this.researcherMode === true && data.researcherMode === true)) {
       if (this._buildStatusBehaviorSubject.value) {
         const arr = this._buildStatusBehaviorSubject.value.slice()

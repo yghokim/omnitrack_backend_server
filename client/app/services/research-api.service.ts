@@ -6,8 +6,8 @@ import { Observable, Subscription, BehaviorSubject } from 'rxjs';
 import { filter, combineLatest, flatMap, map, tap, distinctUntilChanged } from 'rxjs/operators';
 import { SocketService } from './socket.service';
 import { ExperimentService } from './experiment.service';
-import { SocketConstants } from '../../../omnitrack/core/research/socket';
-import { NotificationService } from './notification.service';
+import { SocketConstants, ClientBuildStatus, EClientBuildStatus } from '../../../omnitrack/core/research/socket';
+import { NotificationService, ENotificationType } from './notification.service';
 import { ExampleExperimentInfo } from '../../../omnitrack/core/research/experiment';
 import { IUsageLogDbEntity, IUserDbEntity } from '../../../omnitrack/core/db-entity-types';
 import { IClientSignatureDbEntity, IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
@@ -98,6 +98,67 @@ export class ResearchApiService extends ServiceBase {
                   }
                 })
               }
+            })
+
+            res.socket.on(SocketConstants.SOCKET_MESSAGE_CLIENT_BUILD_STATUS, (data: ClientBuildStatus) => {
+              console.log("received client build status change:")
+              console.log(data)
+              var message: string
+              var type: ENotificationType = ENotificationType.INFO
+              if (data.researcherMode === true) {
+                //master app
+                switch (data.status) {
+                  case EClientBuildStatus.BUILDING:
+                    message = "Building a master app..."
+                    type = ENotificationType.DEFAULT
+                    break;
+                  case EClientBuildStatus.CANCELED:
+                    message = "The master app build process was canceled."
+                    type = ENotificationType.WARNING
+                    break;
+                  case EClientBuildStatus.FAILED:
+                    message = "Failed to build the master app."
+                    type = ENotificationType.ERROR
+                    break;
+                  case EClientBuildStatus.SUCCEEDED:
+                    message = "Successfully built a new version of the master app"
+                    type = ENotificationType.SUCCESS
+                    break;
+                }
+                
+                notificationService.showNotification(type, message)
+
+              } else if (data.experimentId != null) {
+                //client app
+                this._internalSubscriptions.add(
+                  this.getExperimentInfos().subscribe(experiments => {
+                    const exp = experiments.find(exp => exp._id === data.experimentId)
+                    if (exp) {
+                      switch (data.status) {
+                        case EClientBuildStatus.BUILDING:
+                          message = "Building a client app for " + exp.name + "..."
+                          type = ENotificationType.DEFAULT
+                          break;
+                        case EClientBuildStatus.CANCELED:
+                          message = "The client app build process was canceled - " + exp.name
+                          type = ENotificationType.WARNING
+                          break;
+                        case EClientBuildStatus.FAILED:
+                          message = "Failed to build a client app for " + exp.name
+                          type = ENotificationType.ERROR
+                          break;
+                        case EClientBuildStatus.SUCCEEDED:
+                          message = "Successfully built a new version of the client app for " + exp.name
+                          type = ENotificationType.SUCCESS
+                          break;
+                      }
+
+                      notificationService.showNotification(type, message)
+                    }
+                  })
+                )
+              }
+
             })
           })
     )
@@ -237,7 +298,7 @@ export class ResearchApiService extends ServiceBase {
     return options
   }
 
-  makeRawResponseAuthorizedOptions(): { observe: "response"} {
+  makeRawResponseAuthorizedOptions(): { observe: "response" } {
     return {
       headers: this.tokenHeaders,
       observe: "response",

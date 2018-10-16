@@ -21,7 +21,7 @@ import C from '../../server_consts';
 export default class OTExperimentCtrl {
 
   checkResearcherPermitted(researcherId: string, experimentId: string): Promise<boolean> {
-    return OTExperiment.findOne(experimentCtrl.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId), { _id: 1 })
+    return OTExperiment.findOne(this.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId), { _id: 1 })
       .lean().then(exp => exp != null)
   }
 
@@ -30,6 +30,27 @@ export default class OTExperimentCtrl {
       _id: experimentId,
       $or: [{ manager: researcherId }, { "experimenters.researcher": researcherId }]
     }
+  }
+
+  makeExperimentsOfResearcherQuery(researcherId: string): any{
+    return { $or: [{ manager: researcherId }, { "experimenters.researcher": researcherId }] }
+  }
+
+  getResearcherInfosOfExperiment(experimentId: string): Promise<Array<{isManager: boolean, id: string}>>{
+    return OTExperiment.findById(experimentId, {_id: 1, experimenters: 1, manager: 1}).lean().then(
+      experiment => {
+        if(experiment){
+          const result = []
+          result.push({isManager: true, id: experiment.manager})
+          if(experiment.experimenters){
+            experiment.experimenters.forEach(e => result.push({isManager: false, id: e.researcher}))
+          }
+          return result
+        }else{
+          return []
+        }
+      }
+    )
   }
 
   private _populateExperimentDocumentForInfo(doc: any) {
@@ -235,7 +256,7 @@ export default class OTExperimentCtrl {
   getExperimentInformationsOfResearcher = (req, res) => {
     const researcherId = req.researcher.uid
     console.log("find experiments of the researcher: " + researcherId)
-    OTExperiment.find({ $or: [{ manager: researcherId }, { "experimenters.researcher": researcherId }] }, { _id: 1, name: 1, manager: 1, experimenters: 1 })
+    OTExperiment.find(this.makeExperimentsOfResearcherQuery(researcherId), { _id: 1, name: 1, manager: 1, experimenters: 1 })
       .populate({ path: "manager", select: "_id email alias" })
       .then(experiments => {
         res.status(200).json(experiments)
