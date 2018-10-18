@@ -166,7 +166,7 @@ export default class ServerModule {
         status: status,
         error: isCanceled === true ? err : null
       }
-      
+
       notifyBuildStatus(statusBase, job.attrs.data.experimentId)
 
       OTClientBuildAction.updateOne(
@@ -188,10 +188,9 @@ export default class ServerModule {
     this.agenda.on('error', (err) => {
       console.error(err)
       console.error("Error type: ", typeof err)
-      if (err.startsWith("Error: Lost MongoDB connection") === true) {
-        console.log("lost mongo connection. refresh aganda")
-        this.agenda.start()
-      }
+      console.log("error.message:", err.message)
+      console.log("lost mongo connection. refresh aganda")
+      this.agenda.start()
     })
   }
 
