@@ -105,7 +105,16 @@ import { NotifierModule } from 'angular-notifier';
     MonacoEditorModule.forRoot(),
     ProductivityStatisticsModule,
     NgxJsonViewerModule,
-    NotifierModule
+    NotifierModule.withConfig({
+      position:{
+        horizontal: {
+          position: 'right'
+        },
+        vertical: {
+          position: 'top'
+        }
+      }
+    })
   ],
   declarations: [
     ClientDownloadComponent,
