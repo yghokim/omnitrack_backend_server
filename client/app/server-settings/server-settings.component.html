@@ -122,8 +122,9 @@
             </span>
           </td>
           <td *ngIf="researcher._id !== myId" class="button-cell right-padding text-right">
-            <button class="btn btn-primary btn-sm" *ngIf="researcher.account_approved !== true" (click)="onSetResearcherApprovedStatus(researcher._id, true)">Approve</button>
-            <button class="btn btn-danger btn-sm" *ngIf="researcher.account_approved !== false" (click)="onSetResearcherApprovedStatus(researcher._id, false)">Decline</button>
+            <button class="button-approval-action btn btn-primary btn-sm" *ngIf="researcher.account_approved !== true" (click)="onSetResearcherApprovedStatus(researcher._id, true)">Approve</button>
+            <button class="button-approval-action btn btn-danger btn-sm" *ngIf="researcher.account_approved === true" (click)="onSetResearcherApprovedStatus(researcher._id, false)">Drop</button>
+            <button class="button-approval-action btn btn-danger btn-sm" *ngIf="researcher.account_approved == null" (click)="onSetResearcherApprovedStatus(researcher._id, false)">Decline</button>
 
           </td>
         </tr>

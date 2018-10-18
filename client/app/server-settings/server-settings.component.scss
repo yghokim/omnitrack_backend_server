@@ -12,3 +12,10 @@ ol.changelog-list{
 .header-left{
   padding-right: 1rem;
 }
+
+.button-approval-action{
+  margin-right: 0.5rem;
+  &:last-child{
+    margin-right: 0;
+  }
+}
