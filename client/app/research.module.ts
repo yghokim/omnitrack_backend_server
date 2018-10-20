@@ -9,7 +9,8 @@ import { NgxJsonViewerModule } from 'ngx-json-viewer';
   imports: [
     CommonModule, 
     SharedModule, 
-    NgxJsonViewerModule],
+    NgxJsonViewerModule,
+  ],
     
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   declarations: [

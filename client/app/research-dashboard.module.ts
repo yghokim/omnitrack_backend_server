@@ -1,5 +1,4 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { NotifierModule, NotifierService } from 'angular-notifier';
 import { Routes, RouterModule } from '@angular/router';
 import { ResearcherAuthGuardSecure } from './services/researcher.auth.guard.secure';
 import { ResearcherAuthGuardMain } from './services/researcher.auth.guard.main';
@@ -71,7 +70,6 @@ const routes: Routes = [
     ResearcherAuthGuardMain,
     SocketService,
     ResearchApiService,
-    NotifierService,
     NotificationService,
   ],
 

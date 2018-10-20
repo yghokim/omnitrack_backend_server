@@ -16,6 +16,7 @@ import { ResearchModule } from './research.module';
 import { TextInputDialogComponent } from './dialogs/text-input-dialog/text-input-dialog.component';
 import { ImageViewDialog } from './experiment-data/image-cell/image-view-dialog/image-view-dialog.component';
 import { PlatformVersionCheckService } from './services/platform-version-check.service';
+import { NotifierModule, NotifierService } from 'angular-notifier';
 
 @NgModule({
   declarations: [
@@ -33,9 +34,24 @@ import { PlatformVersionCheckService } from './services/platform-version-check.s
     BrowserAnimationsModule,
     MaterialDesignModule,
     ResearchModule,
+    
+    NotifierModule.withConfig({
+      position:{
+        horizontal: {
+          distance: 24,
+          position: 'right'
+        },
+        vertical: {
+          distance: 64,
+          position: 'top'
+        }
+      }
+    })
   ],
   providers: [
-    PlatformVersionCheckService],
+    PlatformVersionCheckService,
+    NotifierService
+  ],
   entryComponents: [
     YesNoDialogComponent,
     TextInputDialogComponent,
