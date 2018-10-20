@@ -3,7 +3,9 @@ import {
   CanActivate,
   ActivatedRouteSnapshot,
   RouterStateSnapshot,
-  Router
+  Router,
+  CanLoad,
+  Route
 } from "@angular/router";
 import { Observable, of } from "rxjs";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
@@ -12,13 +14,11 @@ import { map, catchError, tap } from "rxjs/operators";
 @Injectable({
   providedIn: "root"
 })
-export class CheckInstallationGuard implements CanActivate {
+export class CheckInstallationGuard implements CanLoad, CanActivate {
+  
   constructor(private http: HttpClient, private router: Router) { }
 
-  canActivate(
-    next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): Observable<boolean> | Promise<boolean> | boolean {
+  private can(): Observable<boolean>{
     return this.http.get<boolean>("/api/installation/status").pipe(
       catchError((err: HttpErrorResponse) => {
         if (err.error instanceof ErrorEvent) {
@@ -36,5 +36,17 @@ export class CheckInstallationGuard implements CanActivate {
         }
       })
     );
+  }
+
+  canActivate(
+    next: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<boolean> | Promise<boolean> | boolean {
+    return this.can()
+  }
+
+  
+  canLoad(route: Route): boolean | Observable<boolean> | Promise<boolean> {
+    return this.can()
   }
 }

@@ -12,8 +12,6 @@ import { NotFoundComponent } from './not-found/not-found.component';
 import { MaterialDesignModule } from './material-design.module';
 import { YesNoDialogComponent } from './dialogs/yes-no-dialog/yes-no-dialog.component';
 
-import { NotificationService } from './services/notification.service';
-
 import { ResearchModule } from './research.module';
 import { TextInputDialogComponent } from './dialogs/text-input-dialog/text-input-dialog.component';
 import { ImageViewDialog } from './experiment-data/image-cell/image-view-dialog/image-view-dialog.component';
@@ -37,9 +35,7 @@ import { PlatformVersionCheckService } from './services/platform-version-check.s
     ResearchModule,
   ],
   providers: [
-    NotificationService,
-    PlatformVersionCheckService
-  ],
+    PlatformVersionCheckService],
   entryComponents: [
     YesNoDialogComponent,
     TextInputDialogComponent,

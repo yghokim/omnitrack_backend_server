@@ -34,10 +34,13 @@ import { ChoiceFieldInputComponent } from '../components/field-inputs/choice-fie
 import { LabeledLoadingIndicatorComponent } from '../labeled-loading-indicator/labeled-loading-indicator.component';
 import { BusyOverlayComponent } from '../busy-overlay/busy-overlay.component';
 import { TextClipboardPastedBottomSheetComponent } from '../components/text-clipboard-pasted-bottom-sheet/text-clipboard-pasted-bottom-sheet.component';
+import { CommonModule } from '@angular/common';
+import { AnonymizeEmailPipe } from '../pipes/anonymize-email.pipe';
+import { TreeViewElementComponent } from '../components/tree-view-element/tree-view-element.component';
 
 @NgModule({
   imports: [
-    BrowserModule,
+    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
@@ -48,7 +51,6 @@ import { TextClipboardPastedBottomSheetComponent } from '../components/text-clip
   ],
   exports: [
     // Shared Modules
-    BrowserModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
@@ -72,7 +74,9 @@ import { TextClipboardPastedBottomSheetComponent } from '../components/text-clip
     TextFieldInputComponent,
     ChoiceFieldInputComponent,
     LabeledLoadingIndicatorComponent,
-    BusyOverlayComponent
+    BusyOverlayComponent,
+    AnonymizeEmailPipe,
+    TreeViewElementComponent
   ],
   declarations: [
     ToastComponent,
@@ -95,7 +99,9 @@ import { TextClipboardPastedBottomSheetComponent } from '../components/text-clip
     TextFieldInputComponent,
     ChoiceFieldInputComponent,
     LabeledLoadingIndicatorComponent,
-    TextClipboardPastedBottomSheetComponent
+    TextClipboardPastedBottomSheetComponent,
+    AnonymizeEmailPipe,
+    TreeViewElementComponent
   ],
   entryComponents: [
     TextClipboardPastedBottomSheetComponent
