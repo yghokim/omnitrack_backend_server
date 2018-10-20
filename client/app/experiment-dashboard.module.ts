@@ -48,6 +48,13 @@ import { TriggerViewComponent } from "./research/omnitrack/entities/trigger-view
 import { LockFlagButtonComponent } from "./research/omnitrack/entities/lock-flag-button/lock-flag-button.component";
 import { TrackerTreeViewComponent } from "./research/omnitrack/entities/tracker-tree-view/tracker-tree-view.component";
 import { TriggerTreeViewComponent } from "./research/omnitrack/entities/trigger-tree-view/trigger-tree-view.component";
+import { ItemFieldInputComponent } from "./components/item-field-input/item-field-input.component";
+import { GeneralItemFieldInputComponent } from "./components/field-inputs/general-item-field-input/general-item-field-input.component";
+import { TimePointFieldInputComponent } from "./components/field-inputs/time-point-field-input/time-point-field-input.component";
+import { TextFieldInputComponent } from "./components/field-inputs/text-field-input/text-field-input.component";
+import { ChoiceFieldInputComponent } from "./components/field-inputs/choice-field-input/choice-field-input.component";
+import { TableCellValueComponent } from "./components/table-cell-value/table-cell-value.component";
+import { TreeViewElementComponent } from "./components/tree-view-element/tree-view-element.component";
 
 const routes: Routes = [
   {
@@ -215,7 +222,17 @@ const routes: Routes = [
     LockFlagButtonComponent,
     TrackerTreeViewComponent,
     TriggerTreeViewComponent,
+
+    TreeViewElementComponent,
     
+    ItemFieldInputComponent,
+    GeneralItemFieldInputComponent,
+    TimePointFieldInputComponent,
+    TextFieldInputComponent,
+    ChoiceFieldInputComponent,
+      
+    TableCellValueComponent,
+  
     LocationCellComponent,
     MinuteSecondsPipe,
     AudioCellComponent,

@@ -31,6 +31,7 @@ import { ResearchFrameComponent } from './research-frame/research-frame.componen
 import { ResearchSharedModule } from './research-shared.module';
 import { StatAnalyticsComponent } from './server-status-overview/stat-analytics/stat-analytics.component';
 import { ClientCrashLogsComponent } from './server-status-overview/client-crash-logs/client-crash-logs.component';
+import { TextClipboardPastedBottomSheetComponent } from './components/text-clipboard-pasted-bottom-sheet/text-clipboard-pasted-bottom-sheet.component';
 
 const routes: Routes = [
   {
@@ -100,6 +101,8 @@ const routes: Routes = [
     CreateNewJavaKeystoreDialogComponent,
     UpdateClientSignatureDialogComponent,
     UploadClientBinaryDialogComponent,
+
+    TextClipboardPastedBottomSheetComponent,
   ],
 
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -110,6 +113,7 @@ const routes: Routes = [
     UpdateClientSignatureDialogComponent,
     SignatureValidationCompleteDialogComponent,
     CreateNewJavaKeystoreDialogComponent,
+    TextClipboardPastedBottomSheetComponent
   ]
 })
 

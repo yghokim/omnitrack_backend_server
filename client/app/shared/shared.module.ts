@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { ChartModule, HIGHCHARTS_MODULES } from 'angular-highcharts';
@@ -7,14 +6,8 @@ import * as more from 'highcharts/highcharts-more.src';
 import * as exporting from 'highcharts/modules/exporting.src';
 import * as heatmap from 'highcharts/modules/heatmap.src';
 import * as xrange from 'highcharts/modules/xrange.src';
-
-
-import { ClipboardModule } from 'ngx-clipboard';
-
 import { ToastComponent } from './toast/toast.component';
 import { LoadingComponent } from './loading/loading.component';
-import { TableCellValueComponent } from '../components/table-cell-value/table-cell-value.component';
-import { FileDropModule } from 'ngx-file-drop';
 import { ProductivityTimelineComponent } from '../shared-visualization/custom/productivity-timeline/productivity-timeline.component';
 import { D3ChartFrameComponent } from '../shared-visualization/d3-chart-frame/d3-chart-frame.component';
 import { ChartFrameComponent } from '../shared-visualization/chart-frame/chart-frame.component';
@@ -26,17 +19,10 @@ import { ProductivityDurationPerVariableComponent } from '../shared-visualizatio
 import { ProductivityTaskHeatmapComponent } from '../shared-visualization/custom/productivity-task-heatmap/productivity-task-heatmap.component';
 import { ProductivityTimelineDayDirective } from '../shared-visualization/custom/productivity-timeline/productivity-timeline-day.directive';
 import { FileSizePipe } from '../pipes/file-size.pipe';
-import { ItemFieldInputComponent } from '../components/item-field-input/item-field-input.component';
-import { GeneralItemFieldInputComponent } from '../components/field-inputs/general-item-field-input/general-item-field-input.component';
-import { TimePointFieldInputComponent } from '../components/field-inputs/time-point-field-input/time-point-field-input.component';
-import { TextFieldInputComponent } from '../components/field-inputs/text-field-input/text-field-input.component';
-import { ChoiceFieldInputComponent } from '../components/field-inputs/choice-field-input/choice-field-input.component';
 import { LabeledLoadingIndicatorComponent } from '../labeled-loading-indicator/labeled-loading-indicator.component';
 import { BusyOverlayComponent } from '../busy-overlay/busy-overlay.component';
-import { TextClipboardPastedBottomSheetComponent } from '../components/text-clipboard-pasted-bottom-sheet/text-clipboard-pasted-bottom-sheet.component';
 import { CommonModule } from '@angular/common';
 import { AnonymizeEmailPipe } from '../pipes/anonymize-email.pipe';
-import { TreeViewElementComponent } from '../components/tree-view-element/tree-view-element.component';
 
 @NgModule({
   imports: [
@@ -44,45 +30,33 @@ import { TreeViewElementComponent } from '../components/tree-view-element/tree-v
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    FileDropModule,
     MaterialDesignModule,
     ChartModule,
-    ClipboardModule
   ],
   exports: [
     // Shared Modules
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    FileDropModule,
     MaterialDesignModule,
     ChartModule,
-    ClipboardModule,
     // Shared Components
     ToastComponent,
     LoadingComponent,
-    TableCellValueComponent,
     ChartFrameComponent,
     D3ChartFrameComponent,
     ProductivityDashboardComponent,
     ProductivityTimelineComponent,
     ProductivityDurationPerVariableComponent,
     FileSizePipe,
-    ItemFieldInputComponent,
-    GeneralItemFieldInputComponent,
-    TimePointFieldInputComponent,
-    TextFieldInputComponent,
-    ChoiceFieldInputComponent,
     LabeledLoadingIndicatorComponent,
     BusyOverlayComponent,
     AnonymizeEmailPipe,
-    TreeViewElementComponent
   ],
   declarations: [
     ToastComponent,
     BusyOverlayComponent,
     LoadingComponent,
-    TableCellValueComponent,
     ChartFrameComponent,
     D3ChartFrameComponent,
     ProductivityTimelineComponent,
@@ -93,18 +67,10 @@ import { TreeViewElementComponent } from '../components/tree-view-element/tree-v
     ProductivityTaskHeatmapComponent,
     ProductivityTimelineDayDirective,
     FileSizePipe,
-    ItemFieldInputComponent,
-    GeneralItemFieldInputComponent,
-    TimePointFieldInputComponent,
-    TextFieldInputComponent,
-    ChoiceFieldInputComponent,
     LabeledLoadingIndicatorComponent,
-    TextClipboardPastedBottomSheetComponent,
     AnonymizeEmailPipe,
-    TreeViewElementComponent
   ],
   entryComponents: [
-    TextClipboardPastedBottomSheetComponent
   ],
   providers: [
     ToastComponent,
