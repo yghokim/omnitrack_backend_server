@@ -766,6 +766,35 @@ mat-dialog-container .dialog {
   justify-content: center;
 }
 
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .logo-spinner-progress-bar-container {
+    height: 4px;
+    overflow-x: hidden;
+    width: 100px;
+    position: relative;
+
+    .progress-bar-background {
+      height: 100%;
+      background: rgb(218, 218, 218);
+      border-radius: 100px;
+    }
+
+    .progress-bar-bar {
+      position: absolute;
+      height: 100%;
+      width: 40%;
+      background: #8d8d8d;
+      border-radius: 100px;
+      left: 0;
+      top: 0;
+    }
+  }
+}
+
 .card {
   border: hidden;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
