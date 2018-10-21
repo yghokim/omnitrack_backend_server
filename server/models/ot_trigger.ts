@@ -22,5 +22,6 @@ const otTriggerSchema = new mongoose.Schema({
 }, {timestamps: true});
 
 const OTTrigger = mongoose.model('OTTrigger', otTriggerSchema);
+OTTrigger.collection.createIndex({"flags.experiment": 1})
 
 export default OTTrigger;

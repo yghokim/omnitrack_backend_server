@@ -37,4 +37,6 @@ const otTrackerSchema = new mongoose.Schema({
 
 const OTTracker = mongoose.model('OTTracker', otTrackerSchema);
 
+OTTracker.collection.createIndex({"flags.experiment": 1})
+
 export default OTTracker;

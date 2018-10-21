@@ -149,10 +149,15 @@ html:not([dir="rtl"]) .noUi-horizontal .noUi-handle {
 }
 
 .tooltip {
-  .arrow {}
+
+  .arrow {
+  }
 
   .tooltip-inner {
     max-width: 300px;
+    text-align: left;
+    font-size: 0.8rem;
+    padding: 0.75rem 1rem;
 
     /* If max-width does not work, try using width instead */
     table.tooltip-content {
@@ -234,6 +239,10 @@ a.no-text-effect {
 .mat-icon-button.text-color-darkgray,
 .text-color-darkgray {
   color: #575757;
+}
+
+.no-pointer-events{
+  pointer-events: none !important;
 }
 
 .mat-icon-button.tiny {

@@ -1,0 +1,28 @@
+@import '../../../styles.scss';
+
+.help-widget-container {
+  display: inline-block;
+  padding: 0.2rem 0.25rem;
+  border-radius: 5px;
+
+  &:hover {
+    background: rgba(0,0,0,0.05);
+  }
+}
+
+.message {
+  font-size: 0.75rem;
+  margin-left: 0.25rem;
+  color: #d89623;
+  text-decoration: underline;
+  text-decoration-color: rgba(90, 67, 38, 0.3);
+}
+
+.help-icon {
+  font-size: 1.0rem;
+  color: #575757;
+}
+
+.tooltip-html-content-container{
+  display: none;
+}

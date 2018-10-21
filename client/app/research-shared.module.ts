@@ -8,6 +8,7 @@ import { PlatformConfigPanelComponent } from './experiment-client-settings/platf
 import { ConfigVariableRowComponent } from './experiment-client-settings/config-variable-row/config-variable-row.component';
 import { FileDropModule } from 'ngx-file-drop';
 import { ClipboardModule } from 'ngx-clipboard';
+import { HelpWidgetComponent } from './components/help-widget/help-widget.component';
 
 
 @NgModule({
@@ -22,16 +23,17 @@ import { ClipboardModule } from 'ngx-clipboard';
     ClientBinaryListComponent,
     PlatformConfigPanelComponent,
     ConfigVariableRowComponent,
+    HelpWidgetComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   exports: [
     FileDropModule,
     ClipboardModule,
-
     ResearchLayoutComponent,
     ClientBinaryListComponent,
     PlatformConfigPanelComponent,
     ConfigVariableRowComponent,
+    HelpWidgetComponent
   ],
   providers:[
     ResearcherAuthService]

@@ -1,0 +1,10 @@
+<div #elementBody class="help-widget-container" [matTooltip]="usePopup===true? null:tooltipContent" matTooltipPosition="above"
+  [attr.data-html]="usePopup===true? 'true':null" data-offset="5" data-placement="auto" [attr.data-title]="usePopup===true? getTooltipContent(): null">
+  <div class="no-pointer-events flex-container flex-align-items-center">
+    <span class="help-icon material-icons">help</span>
+    <span class="message" *ngIf="message!=null">{{message}}</span>
+  </div>
+  <div #tooltipContent class="tooltip-html-content-container">
+    <ng-content select="[tooltipHtmlContent]"></ng-content>
+  </div>
+</div>

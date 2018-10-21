@@ -1,6 +1,11 @@
 <app-chart-frame title="Engagement" [isBusy]="isBusy">
   <div header>
   </div>
+  <app-help-widget main message="What do the colored cells mean?" [usePopup]="true" >
+    <span tooltipHtmlContent>
+        Each <b>gray cell</b> indicates one experiment day, and each <b>colored cell</b> indicates the <i>number of items</i> captured within a time window with the length of 1/4 day.
+    </span>
+  </app-help-widget>
   <div main class="flex-container flex-align-items-center">
     <mat-form-field>
       <mat-select [(value)]="sortMethodIndex" (selectionChange)="onSortMethodChanged($event.value)">
@@ -11,7 +16,7 @@
     </mat-form-field>
     <div class="flex-filler"></div>
     <div class="flex-container flex-align-items-center">
-      <small class="right-margin-dot5em flex-align-self-start">Number of Logs: </small>
+      <small class="right-margin-dot5em flex-align-self-start">Number of Items: </small>
       <div *ngFor="let legendCell of colorLegends()" class="legend-cell">
         <div class="legend-color" [style.background]="legendCell.color"></div>
         <span class="legend-text">{{legendCell.value}}</span>
@@ -40,7 +45,7 @@
               </div>
               <div *ngFor="let block of getFilteredBlocks(tracker)" class="cell unit-cell" [style.width]="(getDayBlockWidthRatio()/NUM_BLOCKS_PER_DAY)*100 + '%'" 
               [style.left]="((getDayBlockWidthRatio() * (block.day - dayIndexRange[0]) + block.blockIndex/NUM_BLOCKS_PER_DAY * getDayBlockWidthRatio()) * 100) + '%'"
-              [matTooltip]="'Log count: ' + block.items.length" >
+              [matTooltip]="'Item count: ' + block.items.length" >
                 <div class="cell-filler" [style.background]="colorScale(block.items.length)"></div>
               </div>
             </td>
