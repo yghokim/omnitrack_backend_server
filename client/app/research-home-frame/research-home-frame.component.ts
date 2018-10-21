@@ -35,8 +35,6 @@ export class ResearchHomeFrameComponent implements OnInit, OnDestroy {
 
   public mainGnbs: Array<any>;
 
-  public isLoadingModule = false
-
   constructor(private auth: ResearcherAuthService, private router: Router) {}
 
   ngOnInit() {
@@ -54,20 +52,6 @@ export class ResearchHomeFrameComponent implements OnInit, OnDestroy {
         }
       })
     );
-
-    this.internalSubscriptions.add(
-      this.router.events.subscribe(
-        event => {
-          if(event instanceof RouteConfigLoadStart){
-            console.log("loading the module...")
-            this.isLoadingModule = true
-          } else if (event instanceof RouteConfigLoadEnd) {
-            console.log("module was loaded.")
-            this.isLoadingModule = false
-          }         
-        }
-      )
-      );
   }
 
   ngOnDestroy() {

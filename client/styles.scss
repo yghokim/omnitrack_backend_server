@@ -771,6 +771,27 @@ mat-dialog-container .dialog {
   flex-direction: column;
   align-items: center;
 
+  .logo-container {
+    height: 100px;
+
+    .spinner-logo {
+      animation-duration: 1s;
+      animation-name: logo-loop;
+      animation-iteration-count: infinite;
+      animation-direction: alternate;
+    }
+
+    @keyframes logo-loop {
+      from {
+        margin-top: 0px;
+      }
+
+      to {
+        margin-top: -10px;
+      }
+    }
+  }
+
   .logo-spinner-progress-bar-container {
     height: 4px;
     overflow-x: hidden;
@@ -791,6 +812,26 @@ mat-dialog-container .dialog {
       border-radius: 100px;
       left: 0;
       top: 0;
+      animation-duration: 1s;
+      animation-name: progress-bar-loop;
+      animation-iteration-count: infinite;
+    }
+
+    @keyframes progress-bar-loop {
+      0% {
+        width: 0%;
+        left: 0%;
+      }
+
+      50% {
+        width: 100%;
+        left: 0%;
+      }
+
+      100% {
+        left: 100%;
+        width: 0%;
+      }
     }
   }
 }
