@@ -1,4 +1,4 @@
-  <!--
+<!--
   <nav class="navbar navbar-dark bg-primary">
     <div class="nav navbar-nav">
       <a routerLink="/" class="nav-item nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
@@ -24,7 +24,8 @@
       </a>
     </div>
   </nav>-->
-  <router-outlet></router-outlet>
-  <div style="position: absolute; top:0;">
+<router-outlet></router-outlet>
+<div style="position: absolute; top:0;">
   <notifier-container></notifier-container>
 </div>
+<app-busy-overlay *ngIf="isLoadingModule===true"></app-busy-overlay>
