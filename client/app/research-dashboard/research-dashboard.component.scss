@@ -51,11 +51,15 @@
   #research-column-sidebar {
     width: $research_sidebar_width;
     background: #393939;
-    display: flex;
-    flex-direction: column;
 
     @media print {
       display: none;
+    }
+
+    #sidebar-content-wrapper{
+      height: inherit;
+      display: flex;
+      flex-direction: column;
     }
 
     #sidebar-nav-container {

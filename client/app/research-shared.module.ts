@@ -6,7 +6,6 @@ import { CommonModule } from '@angular/common';
 import { ClientBinaryListComponent } from './components/client-binary-list/client-binary-list.component';
 import { PlatformConfigPanelComponent } from './experiment-client-settings/platform-config-panel/platform-config-panel.component';
 import { ConfigVariableRowComponent } from './experiment-client-settings/config-variable-row/config-variable-row.component';
-import { FileDropModule } from 'ngx-file-drop';
 import { ClipboardModule } from 'ngx-clipboard';
 import { HelpWidgetComponent } from './components/help-widget/help-widget.component';
 
@@ -15,7 +14,6 @@ import { HelpWidgetComponent } from './components/help-widget/help-widget.compon
   imports: [
     CommonModule,
     SharedModule,
-    FileDropModule,
     ClipboardModule
   ],
   declarations: [
@@ -27,7 +25,6 @@ import { HelpWidgetComponent } from './components/help-widget/help-widget.compon
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   exports: [
-    FileDropModule,
     ClipboardModule,
     ResearchLayoutComponent,
     ClientBinaryListComponent,

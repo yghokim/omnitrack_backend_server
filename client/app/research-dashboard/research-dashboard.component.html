@@ -27,31 +27,40 @@
 
   <mat-sidenav-container main id="research-dashboard-wrapper" *ngIf="!isLoadingSelectedExperiment">
     <mat-sidenav mode="side" opened id="research-column-sidebar">
-      <div id="sidebar-nav-container">
-        <div class="nav nav-pills flex-column">
-          <div class="group" *ngFor="let group of dashboardNavigationGroups">
-            <div class="small nav-link nav-subtitle">{{group.name}}</div>
-            <a class="nav-link flex-container flex-align-items-center" [class.disabled]="menu.disabled===true" *ngFor="let menu of group.menus"
-              [routerLink]="['/research/dashboard', api.getSelectedExperimentId(), menu.key]" [routerLinkActive]="['active']">
-              <mat-icon *ngIf="menu.icon" class="gnb-icon material-icons">{{menu.icon}}</mat-icon>
-              <!--<img class="gnb-icon material-icons" *ngIf="menu.iconPath" [src]="menu.iconPath">
+      <div id="sidebar-content-wrapper">
+        <div id="sidebar-nav-container">
+          <div class="nav nav-pills flex-column">
+            <div class="group" *ngFor="let group of dashboardNavigationGroups">
+              <div class="small nav-link nav-subtitle">{{group.name}}</div>
+              <a class="nav-link flex-container flex-align-items-center" [class.disabled]="menu.disabled===true" *ngFor="let menu of group.menus"
+                [routerLink]="['/research/dashboard', api.getSelectedExperimentId(), menu.key]" [routerLinkActive]="['active']">
+                <mat-icon *ngIf="menu.icon" class="gnb-icon material-icons">{{menu.icon}}</mat-icon>
+                <!--<img class="gnb-icon material-icons" *ngIf="menu.iconPath" [src]="menu.iconPath">
                     <mat-icon *ngIf="menu.svgIcon" class="gnb-icon material-icons" [svgIcon]="menu.svgIcon"></mat-icon>-->
 
-              <span>{{menu.name}}</span>
-            </a>
+                <span>{{menu.name}}</span>
+              </a>
+            </div>
           </div>
         </div>
-      </div>
-      <div id="sidebar-footer">
-        <div class="flex-container flex-align-items-center">
+        <div id="sidebar-footer">
+          <div class="flex-container flex-align-items-center">
             <div class="version" *ngIf="loadingVersions!==true">
               <table>
-                <tr><th>Web</th><td [class.text-color-danger]="frontendVersion !== backendVersion">{{frontendVersion}}</td></tr>
-                <tr><th>Server</th><td [class.text-color-danger]="frontendVersion !== backendVersion">{{backendVersion}}</td></tr>
+                <tr>
+                  <th>Web</th>
+                  <td [class.text-color-danger]="frontendVersion !== backendVersion">{{frontendVersion}}</td>
+                </tr>
+                <tr>
+                  <th>Server</th>
+                  <td [class.text-color-danger]="frontendVersion !== backendVersion">{{backendVersion}}</td>
+                </tr>
               </table>
             </div>
             <div class="flex-filler"></div>
-            <a mat-button color="accent" href="https://github.com/OmniTrack/omnitrack_research_kit/wiki" target=_blank>Go to Doc</a>
+            <a mat-button color="accent" href="https://github.com/OmniTrack/omnitrack_research_kit/wiki" target=_blank>Go
+              to Doc</a>
+          </div>
         </div>
       </div>
     </mat-sidenav>

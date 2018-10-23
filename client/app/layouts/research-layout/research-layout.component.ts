@@ -1,13 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { trigger, state, style, transition, animate } from '@angular/animations';
-import { DomSanitizer } from '@angular/platform-browser';
+import { Component, OnInit } from '@angular/core';
 import { ResearcherAuthService } from '../../services/researcher.auth.service';
-import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
-import { ResearchApiService } from '../../services/research-api.service';
+import { Router } from '@angular/router';
 import { NotificationService, ENotificationType } from '../../services/notification.service';
-import { MatDialog, MatIconRegistry, MatSnackBar } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
 import { YesNoDialogComponent } from '../../dialogs/yes-no-dialog/yes-no-dialog.component';
-import { Subscription ,  Observable } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { PlatformVersionCheckService } from '../../services/platform-version-check.service';
 
 @Component({
@@ -22,10 +19,7 @@ export class ResearchLayoutComponent implements OnInit {
     private notificationService: NotificationService,
     private versionCheckService: PlatformVersionCheckService,
     private router: Router,
-    private activatedRoute: ActivatedRoute,
     private dialog: MatDialog,
-    private sanitizer: DomSanitizer,
-    private iconRegistry: MatIconRegistry,
     private snackBar: MatSnackBar) { }
 
   ngOnInit() {
@@ -64,7 +58,7 @@ export class ResearchLayoutComponent implements OnInit {
 
   signOut() {
     this._internalSubscriptions.add(
-      this.authService.signOut().subscribe((signedOut) => {
+      this.authService.signOut().subscribe(() => {
         console.log('successfully signed out.');
         this.goToSignIn();
       })
