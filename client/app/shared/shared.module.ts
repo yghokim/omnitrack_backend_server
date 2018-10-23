@@ -8,21 +8,23 @@ import * as heatmap from 'highcharts/modules/heatmap.src';
 import * as xrange from 'highcharts/modules/xrange.src';
 import { ToastComponent } from './toast/toast.component';
 import { LoadingComponent } from './loading/loading.component';
-import { ProductivityTimelineComponent } from '../shared-visualization/custom/productivity-timeline/productivity-timeline.component';
 import { D3ChartFrameComponent } from '../shared-visualization/d3-chart-frame/d3-chart-frame.component';
 import { ChartFrameComponent } from '../shared-visualization/chart-frame/chart-frame.component';
 import { MaterialDesignModule } from '../material-design.module';
-import { ProductivityDashboardComponent } from '../shared-visualization/custom/productivity-dashboard/productivity-dashboard.component';
-import { ProductivityEntryPerDayComponent } from '../shared-visualization/custom/productivity-entry-per-day/productivity-entry-per-day.component';
-import { ProductivityDurationStackedBarChartComponent } from '../shared-visualization/custom/productivity-duration-stacked-bar-chart/productivity-duration-stacked-bar-chart.component';
-import { ProductivityDurationPerVariableComponent } from '../shared-visualization/custom/productivity-duration-per-variable/productivity-duration-per-variable.component';
-import { ProductivityTaskHeatmapComponent } from '../shared-visualization/custom/productivity-task-heatmap/productivity-task-heatmap.component';
-import { ProductivityTimelineDayDirective } from '../shared-visualization/custom/productivity-timeline/productivity-timeline-day.directive';
 import { FileSizePipe } from '../pipes/file-size.pipe';
 import { LabeledLoadingIndicatorComponent } from '../labeled-loading-indicator/labeled-loading-indicator.component';
 import { BusyOverlayComponent } from '../busy-overlay/busy-overlay.component';
 import { CommonModule } from '@angular/common';
 import { AnonymizeEmailPipe } from '../pipes/anonymize-email.pipe';
+
+/*
+import { ProductivityTimelineComponent } from '../shared-visualization/custom/productivity-timeline/productivity-timeline.component';
+import { ProductivityDashboardComponent } from '../shared-visualization/custom/productivity-dashboard/productivity-dashboard.component';
+import { ProductivityEntryPerDayComponent } from '../shared-visualization/custom/productivity-entry-per-day/productivity-entry-per-day.component';
+import { ProductivityDurationStackedBarChartComponent } from '../shared-visualization/custom/productivity-duration-stacked-bar-chart/productivity-duration-stacked-bar-chart.component';
+import { ProductivityDurationPerVariableComponent } from '../shared-visualization/custom/productivity-duration-per-variable/productivity-duration-per-variable.component';
+import { ProductivityTaskHeatmapComponent } from '../shared-visualization/custom/productivity-task-heatmap/productivity-task-heatmap.component';
+import { ProductivityTimelineDayDirective } from '../shared-visualization/custom/productivity-timeline/productivity-timeline-day.directive';*/
 
 @NgModule({
   imports: [
@@ -45,9 +47,10 @@ import { AnonymizeEmailPipe } from '../pipes/anonymize-email.pipe';
     LoadingComponent,
     ChartFrameComponent,
     D3ChartFrameComponent,
+    /*
     ProductivityDashboardComponent,
     ProductivityTimelineComponent,
-    ProductivityDurationPerVariableComponent,
+    ProductivityDurationPerVariableComponent,*/
     FileSizePipe,
     LabeledLoadingIndicatorComponent,
     BusyOverlayComponent,
@@ -59,13 +62,14 @@ import { AnonymizeEmailPipe } from '../pipes/anonymize-email.pipe';
     LoadingComponent,
     ChartFrameComponent,
     D3ChartFrameComponent,
+    /*
     ProductivityTimelineComponent,
     ProductivityDashboardComponent,
     ProductivityEntryPerDayComponent,
     ProductivityDurationStackedBarChartComponent,
     ProductivityDurationPerVariableComponent,
     ProductivityTaskHeatmapComponent,
-    ProductivityTimelineDayDirective,
+    ProductivityTimelineDayDirective,*/
     FileSizePipe,
     LabeledLoadingIndicatorComponent,
     AnonymizeEmailPipe,

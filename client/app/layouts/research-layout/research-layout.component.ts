@@ -4,10 +4,11 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ResearcherAuthService } from '../../services/researcher.auth.service';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { ResearchApiService } from '../../services/research-api.service';
-import { NotificationService } from '../../services/notification.service';
+import { NotificationService, ENotificationType } from '../../services/notification.service';
 import { MatDialog, MatIconRegistry, MatSnackBar } from '@angular/material';
 import { YesNoDialogComponent } from '../../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { Subscription ,  Observable } from 'rxjs';
+import { PlatformVersionCheckService } from '../../services/platform-version-check.service';
 
 @Component({
   selector: 'app-research-layout',
@@ -19,6 +20,7 @@ export class ResearchLayoutComponent implements OnInit {
   private readonly _internalSubscriptions = new Subscription()
   constructor(public authService: ResearcherAuthService,
     private notificationService: NotificationService,
+    private versionCheckService: PlatformVersionCheckService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private dialog: MatDialog,
@@ -27,6 +29,18 @@ export class ResearchLayoutComponent implements OnInit {
     private snackBar: MatSnackBar) { }
 
   ngOnInit() {
+    this._internalSubscriptions.add(
+      this.versionCheckService.checkNewVersion().subscribe(
+        checkResult => {
+          if(checkResult.needUpdate === true){
+            if(localStorage.getItem("lastNotifiedNewVersion") !== checkResult.newVersion){
+              localStorage.setItem("lastNotifiedNewVersion", checkResult.newVersion)
+              this.notificationService.showNotification(ENotificationType.INFO, "New version of the OmniTrack Research Kit is available! - Ver " + checkResult.newVersion)
+            }
+          }
+        }
+      )
+    )
   }
 
   onAccountSettingsClicked(){
