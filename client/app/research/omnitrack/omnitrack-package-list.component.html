@@ -1,4 +1,11 @@
 <div class="container">
+
+  <app-help-widget message="What happens if I modify the packages after the study started?">
+    <span tooltipHtmlContent>
+      Tracking package is a <b>schema</b>, not the actual instance of the entities that reside in the participants' accounts. Modifying the packages will <b>NOT</b> affect the participants who already started the experiment. 
+    </span>
+  </app-help-widget>
+  
   <div class="flex-container flex-stretch container-vertical-padding">
     <small class="flex-element info-text">Packages: {{packages.length}}</small>
     <button mat-button color="primary" class="flex-element" (click)="onAddNewPackageClicked()">+ Add New Tracking
