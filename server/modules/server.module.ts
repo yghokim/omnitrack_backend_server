@@ -30,7 +30,7 @@ export default class ServerModule {
       mongoDbUri = env.mongodb_agenda_uri
     }
 
-    this.agenda = new Agenda({ db: { address: mongoDbUri } })
+    this.agenda = new Agenda({ db: { address: mongoDbUri, options: { useNewUrlParser: true } } })
   }
 
   bootstrap() {
@@ -52,37 +52,6 @@ export default class ServerModule {
       }).catch(err => {
         console.log(err)
       })
-
-      OTClientBinary.find({}).then(
-        binaries => {
-          binaries.forEach(binary => {
-            binary["version"] = binary["version"].replace(/ /g, "-")
-            binary.save().then()
-          })
-        }
-      ).catch(err => {
-        console.log(err)
-      })
-
-      OTClientSignature.collection.dropIndex('key_1').then(l => {
-      }).catch(ex => {
-
-      })
-
-
-      OTParticipant.find({ experimentRange: { $exists: false }, approvedAt: { $exists: true } }).then(
-        participants => {
-          if (participants) {
-            Promise.all(participants.map(participant => {
-              participant["experimentRange"] = { from: participant["approvedAt"], to: null }
-              participant.markModified("experimentRange")
-              return participant.save()
-            })).then(result => {
-              console.log(participants.length + " participants were updated regarding their experimentRange.")
-            })
-          }
-        }
-      )
 
     } catch (err) {
 

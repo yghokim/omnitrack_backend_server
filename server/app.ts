@@ -16,6 +16,8 @@ import { InstallationRouter } from "./router_installation";
 import { ShortUrlRouter } from "./router_shorturl";
 import { checkFileExistenceAndType } from "./server_utils";
 
+mongoose.set("useCreateIndex", true)
+
 let firebaseApp = null;
 const CERT_PATH = path.join(
   __dirname,
