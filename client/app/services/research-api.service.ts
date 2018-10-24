@@ -1,9 +1,9 @@
 import { ServiceBase } from './service-base';
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { ResearcherAuthService } from './researcher.auth.service';
-import { Observable, Subscription, BehaviorSubject } from 'rxjs';
-import { filter, combineLatest, flatMap, map, tap, distinctUntilChanged } from 'rxjs/operators';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { filter, combineLatest, map, tap } from 'rxjs/operators';
 import { SocketService } from './socket.service';
 import { ExperimentService } from './experiment.service';
 import { SocketConstants, ClientBuildStatus, EClientBuildStatus } from '../../../omnitrack/core/research/socket';
@@ -206,7 +206,7 @@ export class ResearchApiService extends ServiceBase {
   addExampleExperimentAndGetId(key: string): Observable<string> {
     console.log(this.authorizedOptions)
     return this.http.post<string>("/api/research/experiments/examples", { exampleKey: key }, this.authorizedOptions).pipe(
-      tap(res => { this.loadExperimentList() })
+      tap(() => { this.loadExperimentList(); })
     )
   }
 
@@ -231,9 +231,9 @@ export class ResearchApiService extends ServiceBase {
   deleteUserAccount(userId: string, removeData: boolean): Observable<boolean> {
     return this.http.delete('/api/research/users/' + userId, this.makeAuthorizedRequestOptions({ removeData: removeData }))
       .pipe(
-        map(res => {
-          return true
-        }),
+        map(() => {
+        return true;
+      }),
         tap(result => {
           if (result === true) {
           }
