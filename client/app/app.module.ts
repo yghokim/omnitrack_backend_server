@@ -1,7 +1,6 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import { OAuthModule } from 'angular-oauth2-oidc';
 
 import { RoutingModule } from './routing.module';
 import { SharedModule } from './shared/shared.module';
@@ -27,7 +26,6 @@ import { NotifierModule, NotifierService } from 'angular-notifier';
     ImageViewDialog
   ],
   imports: [
-    OAuthModule.forRoot(),
     RoutingModule,
     SharedModule,
     BrowserModule,
