@@ -31,6 +31,7 @@ import { ResearchSharedModule } from './research-shared.module';
 import { StatAnalyticsComponent } from './server-status-overview/stat-analytics/stat-analytics.component';
 import { ClientCrashLogsComponent } from './server-status-overview/client-crash-logs/client-crash-logs.component';
 import { TextClipboardPastedBottomSheetComponent } from './components/text-clipboard-pasted-bottom-sheet/text-clipboard-pasted-bottom-sheet.component';
+import { FileDropModule } from 'ngx-file-drop';
 
 const routes: Routes = [
   {
@@ -64,6 +65,7 @@ const routes: Routes = [
     SharedModule,
     ResearchSharedModule,
     RouterModule.forChild(routes),
+    FileDropModule
   ],
   providers:[
     ResearcherAuthGuardSecure,

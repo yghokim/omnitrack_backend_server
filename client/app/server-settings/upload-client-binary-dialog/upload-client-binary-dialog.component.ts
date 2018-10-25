@@ -1,11 +1,10 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef } from '@angular/material';
-//import { UploadEvent } from 'ngx-file-drop';
+import { UploadEvent } from 'ngx-file-drop';
 import { getExtensionFromPath } from '../../../../shared_lib/utils';
 import { ClientBinaryUtil } from '../../../../omnitrack/core/client_binary_utils';
-import * as AndroidVersionName from 'android-versions';
 import { IPackageMetadata, OperatingSystem } from 'app-metadata';
-//import { FileSystemFileEntry } from 'ngx-file-drop/src/lib/ngx-drop/dom.types';
+import { FileSystemFileEntry } from 'ngx-file-drop/src/lib/ngx-drop/dom.types';
 import { BinaryXmlParser } from './binary-xml-parser';
 const Unzip = require('isomorphic-unzip');
 var Buffer = require('buffer/').Buffer
@@ -41,7 +40,7 @@ export class UploadClientBinaryDialogComponent implements OnInit {
 
   }
 
-  dropped(event: any): void {
+  dropped(event: UploadEvent): void {
     this.isBusy = true
     this.parsedPackageInfo = null
     this.errorMessage = null
@@ -51,7 +50,7 @@ export class UploadClientBinaryDialogComponent implements OnInit {
     if (filteredList.length > 0) {
       const uploadFile = event.files[0]
 
-      const entry: any = uploadFile.fileEntry as any
+      const entry: FileSystemFileEntry = uploadFile.fileEntry as any
       entry.file(file => {
         this.loadedFile = file
         this.loadedFileName = file.name
