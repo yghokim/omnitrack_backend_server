@@ -6,9 +6,11 @@
     <div class="flex-container flex-align-items-center hide-on-print">
       <app-tracking-data-synchronizer-widget></app-tracking-data-synchronizer-widget>
       <div class="flex-filler"></div>
-      <div class="right-margin-1em">
-        <button mat-button style="color: #757575" (click)="onExportClicked()"><span class="material-icons right-margin-dot5em">archive</span>Export..</button></div>
-      <mat-slide-toggle [checked]="printFriendlyMode" (change)="printFriendlyMode=$event.checked; screenExpanded = $event.checked===true? true : screenExpanded">Print-friendly</mat-slide-toggle>
+      <ng-container *ngIf="participants != null &&  participants.length > 0">
+        <div class="right-margin-1em">
+          <button mat-button style="color: #757575" (click)="onExportClicked()"><span class="material-icons right-margin-dot5em">archive</span>Export..</button></div>
+        <mat-slide-toggle [checked]="printFriendlyMode" (change)="printFriendlyMode=$event.checked; screenExpanded = $event.checked===true? true : screenExpanded">Print-friendly</mat-slide-toggle>
+      </ng-container>
     </div>
     <div *ngIf="!participants || participants.length === 0" class="page-info-message">
       No participants in the experiment.
@@ -23,7 +25,8 @@
             </mat-select>
           </mat-form-field>
           <div class="flex-filler"></div>
-          <mat-slide-toggle class="right-margin-1em" *ngIf="metadataColumns && metadataColumns.length > 0" [checked]="showMetadata" (change)="showMetadata = $event.checked">Show Metadata</mat-slide-toggle>
+          <mat-slide-toggle class="right-margin-1em" *ngIf="metadataColumns && metadataColumns.length > 0" [checked]="showMetadata"
+            (change)="showMetadata = $event.checked">Show Metadata</mat-slide-toggle>
           <button mat-icon-button [matTooltip]="screenExpanded===true? 'contract' : 'expand'" (click)="screenExpanded = !screenExpanded">
             <mat-icon class="material-icons">{{screenExpanded===true? 'picture_in_picture' : 'aspect_ratio'}}</mat-icon>
           </button>
@@ -76,13 +79,13 @@
               <ng-container *ngIf="showMetadata===true">
                 <td class="cell-metadata" *ngFor="let metadataKey of metadataColumns">
                   <ng-container *ngIf="getMetadataValue(item, metadataKey)!=null" [ngSwitch]="getMetadataCellType(metadataKey)">
-                  <span *ngSwitchCase="'enum'" [class]="'badge badge-sm badge-enum ' + 'enum-'+getMetadataValue(item, metadataKey)">
-                    {{getMetadataValue(item, metadataKey)}}
-                  </span>
-                  <span *ngSwitchDefault>
-                    {{getMetadataValue(item, metadataKey)}}
-                  </span>
-                </ng-container>
+                    <span *ngSwitchCase="'enum'" [class]="'badge badge-sm badge-enum ' + 'enum-'+getMetadataValue(item, metadataKey)">
+                      {{getMetadataValue(item, metadataKey)}}
+                    </span>
+                    <span *ngSwitchDefault>
+                      {{getMetadataValue(item, metadataKey)}}
+                    </span>
+                  </ng-container>
                 </td>
               </ng-container>
             </tr>

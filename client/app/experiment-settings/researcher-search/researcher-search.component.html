@@ -1,7 +1,7 @@
 <div class="flex-container flex-align-items-center">
     <form class="right-margin-dot5em">
       <mat-form-field floatLabel="never" class="mat-form-no-vertical-padding">
-        <input matInput [formControl]="formControl" class="form-control form-control-sm form-control-round" type="text" placeholder="Search by alias or email" (input)="onInput($event.target.value)"  [matAutocomplete]="auto">
+        <input matInput [formControl]="formControl" type="text" placeholder="Search by alias or email" (input)="onInput($event.target.value)"  [matAutocomplete]="auto">
 
         <mat-autocomplete #auto="matAutocomplete">
           <mat-option *ngFor="let researcher of searchResults" class="search-autocomplete" [value]="researcher.email">

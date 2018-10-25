@@ -20,15 +20,15 @@ export class ExperimentMessagingComponent implements OnInit, OnDestroy {
   public messageDataSource: MatTableDataSource<IResearchMessage>
   public draftDataSource: MatTableDataSource<IResearchMessage>
   @ViewChild(MatSort) messageSort: MatSort;
-  @ViewChild('draftTable',{read: MatSort}) draftSort: MatSort;
+  @ViewChild('draftTable', { read: MatSort }) draftSort: MatSort;
 
   constructor(private api: ResearchApiService, private dialog: MatDialog, private router: Router, private activatedRoute: ActivatedRoute) {
   }
 
   ngOnInit() {
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.pipe(flatMap(service=> service.getMessageList())).subscribe(
-        messages=>{
+      this.api.selectedExperimentService.pipe(flatMap(service => service.getMessageList())).subscribe(
+        messages => {
           this.messageList = messages
           this.messageDataSource = new MatTableDataSource(this.getMessageList())
           this.draftDataSource = new MatTableDataSource(this.getDraftList())
@@ -40,27 +40,30 @@ export class ExperimentMessagingComponent implements OnInit, OnDestroy {
     )
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
   }
 
-  getDraftList(): Array<IResearchMessage>{
-    return this.messageList.filter(m => m.isDraft === true)
+  getDraftList(): Array<IResearchMessage> {
+    if (this.messageList)
+      return this.messageList.filter(m => m.isDraft === true)
+    else return []
   }
 
-  getMessageList(): Array<IResearchMessage>{
-    return this.messageList.filter(m => m.isDraft !== true)
+  getMessageList(): Array<IResearchMessage> {
+    if (this.messageList)
+      return this.messageList.filter(m => m.isDraft !== true)
+    else return []
   }
 
-  makeReceiversText(message: IResearchMessage):string{
-    if(!message.receivers || message.receivers.length == 0)
-    {
+  makeReceiversText(message: IResearchMessage): string {
+    if (!message.receivers || message.receivers.length == 0) {
       return "No receivers."
-    }else if(message.receivers.length > 5){
+    } else if (message.receivers.length > 5) {
       return message.receivers[0].alias + " and " + (message.receivers.length - 1)
     }
-    else{
-      return message.receivers.map(r=>r.alias).join(", ")
+    else {
+      return message.receivers.map(r => r.alias).join(", ")
     }
   }
 
@@ -72,16 +75,16 @@ export class ExperimentMessagingComponent implements OnInit, OnDestroy {
     this.router.navigate(['./new'], { relativeTo: this.activatedRoute })
   }
 
-  setSorts(): void{
+  setSorts(): void {
     this.messageDataSource.sortingDataAccessor = (data: IResearchMessage, sortHeaderId: string) => {
-      if(data){
-        if(sortHeaderId === "receivers"){
+      if (data) {
+        if (sortHeaderId === "receivers") {
           return this.makeReceiversText(data) || ''
         }
-        else if(sortHeaderId === "receiverRule"){
-          if(data.receiverRule) return data.receiverRule.type || ''
+        else if (sortHeaderId === "receiverRule") {
+          if (data.receiverRule) return data.receiverRule.type || ''
         }
-        else{
+        else {
           return data[sortHeaderId] || ''
         }
       }

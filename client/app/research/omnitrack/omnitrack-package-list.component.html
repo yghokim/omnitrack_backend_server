@@ -7,7 +7,8 @@
   </app-help-widget>
   
   <div class="flex-container flex-stretch container-vertical-padding">
-    <small class="flex-element info-text">Packages: {{packages.length}}</small>
+    <small *ngIf="packages && packages.length > 0" class="flex-element info-text">Packages: {{packages.length}}</small>
+    <small *ngIf="!packages || packages.length === 0" class="flex-element info-text">No tracking packages defined for the experiment.</small>
     <button mat-button color="primary" class="flex-element" (click)="onAddNewPackageClicked()">+ Add New Tracking
       Package</button>
   </div>

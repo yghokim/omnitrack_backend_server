@@ -7,11 +7,11 @@ import { FormControl } from '@angular/forms';
 import { ExperimentPermissions } from '../../../../omnitrack/core/research/experiment';
 
 @Component({
-  selector: 'app-researcher-search-component',
-  templateUrl: './researcher-search-component.component.html',
-  styleUrls: ['./researcher-search-component.component.scss']
+  selector: 'app-researcher-search',
+  templateUrl: './researcher-search.component.html',
+  styleUrls: ['./researcher-search.component.scss']
 })
-export class ResearcherSearchComponentComponent implements OnInit, OnDestroy {
+export class ResearcherSearchComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
   private readonly searchTerm = new Subject<string>()

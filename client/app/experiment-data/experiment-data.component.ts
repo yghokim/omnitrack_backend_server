@@ -219,9 +219,9 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
       const value = item.metadata[metadataKey]
       if (value != null) {
         switch (this.getMetadataCellType(metadataKey)) {
-          case CellValueType.DATE: return new TimePoint(value, item.timezone).toMoment().format("YYYY-MM-DD")
-          case CellValueType.DATETIME_MINUTES: return new TimePoint(value, item.timezone).toMoment().format("hh:mm MM-DD")
-          case CellValueType.DATETIME_SECONDS: return new TimePoint(value, item.timezone).toMoment().format("hh:mm:ss MM-DD")
+          case CellValueType.DATE: return new TimePoint(value, item.timezone).toMoment().format("YYYY-MM-DD") 
+          case CellValueType.DATETIME_MINUTES: return new TimePoint(value, item.timezone).toMoment().format("kk:mm (MMM DD YYYY)") + " " + moment().tz(item.timezone).format("z")
+          case CellValueType.DATETIME_SECONDS: return new TimePoint(value, item.timezone).toMoment().format("kk:mm:ss (MMM DD YYYY)") + " " + moment().tz(item.timezone).format("z")
           default: return value
         }
       } else return null
@@ -264,7 +264,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     } else { return null; }
   }
 
-  getTimestampValue(item: IItemDbEntity) {
+  getTimestampValue(item: IItemDbEntity): string {
     const stamp: TimePoint = new TimePoint(item.timestamp, item.timezone)
     return stamp.toMoment().format("kk:mm (MMM DD YYYY)") + " " + moment().tz(stamp.timezone).format("z")
   }

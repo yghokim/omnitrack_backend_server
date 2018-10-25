@@ -15,6 +15,12 @@
   th:first-of-type, td:first-of-type{
     border-top: hidden;
   }
+
+  .group-name{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .card-add-new{

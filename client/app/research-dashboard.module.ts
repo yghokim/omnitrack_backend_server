@@ -13,7 +13,6 @@ import { ExperimentListComponent } from './experiment-list/experiment-list.compo
 import { ResearcherAccountSettingsComponent } from './researcher-account-settings/researcher-account-settings.component';
 import { ClientDownloadComponent } from './client-download/client-download.component';
 import { ResearcherPermissionsConfigurationComponent } from './experiment-settings/researcher-permissions-configuration/researcher-permissions-configuration.component';
-import { ResearcherSearchComponentComponent } from './experiment-settings/researcher-search-component/researcher-search-component.component';
 import { NewExperimentDialogComponent } from './experiment-list/new-experiment-dialog/new-experiment-dialog.component';
 import { DeleteExperimentConfirmDialogComponent } from './dialogs/delete-experiment-confirm-dialog/delete-experiment-confirm-dialog.component';
 import { UploadClientBinaryDialogComponent } from './server-settings/upload-client-binary-dialog/upload-client-binary-dialog.component';
@@ -93,7 +92,6 @@ const routes: Routes = [
     ClientCrashLogsComponent,
         
     ResearcherPermissionsConfigurationComponent,
-    ResearcherSearchComponentComponent,
     
     NewExperimentDialogComponent,
     DeleteExperimentConfirmDialogComponent,

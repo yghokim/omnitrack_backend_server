@@ -42,7 +42,7 @@
     <div class="card-header">
       <div class="flex-container flex-align-items-center flex-stretch">
         <span>Collaborators</span>
-        <app-researcher-search-component *ngIf="permissions && permissions.access.manageCollaborators == true"></app-researcher-search-component>
+        <app-researcher-search *ngIf="permissions && permissions.access.manageCollaborators == true"></app-researcher-search>
       </div>
     </div>
     <table *ngIf="experiment.experimenters && experiment.experimenters.length > 0" class="table table-data">

@@ -7,6 +7,7 @@ import { ExperimentMessagingComponent } from "./experiment-messaging/experiment-
 import { ComposeMessageComponent } from "./experiment-messaging/compose-message/compose-message.component";
 import { ExperimentDataComponent } from "./experiment-data/experiment-data.component";
 import { ExperimentTrackingEntityStatusComponent } from "./experiment-tracking-entity-status/experiment-tracking-entity-status.component";
+
 import { ExperimentParticipantsComponent } from "./experiment-participants/experiment-participants.component";
 import { ExperimentGroupsComponent } from "./experiment-groups/experiment-groups.component";
 import { ExperimentInvitationsComponent } from "./experiment-invitations/experiment-invitations.component";
@@ -55,6 +56,7 @@ import { TextFieldInputComponent } from "./components/field-inputs/text-field-in
 import { ChoiceFieldInputComponent } from "./components/field-inputs/choice-field-input/choice-field-input.component";
 import { TableCellValueComponent } from "./components/table-cell-value/table-cell-value.component";
 import { TreeViewElementComponent } from "./components/tree-view-element/tree-view-element.component";
+import { ResearcherSearchComponent } from "./experiment-settings/researcher-search/researcher-search.component";
 
 const routes: Routes = [
   {
@@ -202,6 +204,8 @@ const routes: Routes = [
     DemographicEditorComponent,
     OmniTrackPackageCodeEditorComponent,
     LockConfigurationSheetComponent,
+
+    ResearcherSearchComponent,
     
     NewInvitationDialogComponent,
     ChooseInvitationDialogComponent,
