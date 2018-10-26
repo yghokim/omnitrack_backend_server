@@ -15,7 +15,7 @@ export class ExperimentMessagingComponent implements OnInit, OnDestroy {
 
   private _internalSubscriptions = new Subscription()
 
-  private messageList: Array<IResearchMessage>
+  public messageList: Array<IResearchMessage>
 
   public messageDataSource: MatTableDataSource<IResearchMessage>
   public draftDataSource: MatTableDataSource<IResearchMessage>
