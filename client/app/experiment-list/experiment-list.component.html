@@ -1,25 +1,33 @@
 <div class="container">
   <div class="flex-container flex-stretch">
     <small class="flex-element global-page-title">
-      Recent Experiments
+      My Experiments
     </small>
-    <button mat-raised-button color="primary" class="flex-element" (click)="onNewExperimentClicked()">Create new Experiment</button>
+    <button mat-raised-button color="primary" class="flex-element" (click)="onNewExperimentClicked()">Create new
+      Experiment</button>
   </div>
   <hr>
-  <div class="flex-container flex-container-wrap  flex-padded-content flex-container-responsive-columns">
-    <div *ngFor="let experiment of experiments">
-      <div class="card card-component card-experiment" (click)="onExperimentClicked(experiment)">
-        <div class="card-header">
-            <span header class="badge badge-primary badge-researcher-role"
-            [ngClass]="(getMyRole(experiment) | async)">
-            {{getMyRole(experiment) | async}}
-            </span>
-
-            <div class="card-title">
-              {{experiment.name}}
-            </div>
+  <app-labeled-loading-indicator *ngIf="experiments == null">
+    <span message>Loading your experiments...</span>
+  </app-labeled-loading-indicator>
+  <div *ngIf="experiments" class="flex-container flex-container-wrap  flex-padded-content flex-container-responsive-columns">
+    <div *ngFor="let experiment of experiments; trackBy: trackByExperimentId; let index=index">
+      <div [@experimentHover]="hoverExperimentIndex===index? 'hover':null" class="card card-component card-experiment" (click)="onExperimentClicked(experiment)" (mouseover)="hoverExperimentIndex=index" (mouseleave)="hoverExperimentIndex=-1">
+        <div class="card-header upper">
+          <div class="card-title">
+            {{experiment.name}}
+          </div>
+          <span class="small experiment-id">{{experiment._id}}</span>
         </div>
-        <div class="card-body bottom"></div>
+        <div class="card-header under">
+          <div class="flex-container flex-stretch flex-align-items-end">
+            <span class="experiment-range">{{getStartDate(experiment)}} ~ {{getFinishDate(experiment)}}</span>
+
+            <span class="badge badge-primary badge-researcher-role" [ngClass]="(getMyRole(experiment) | async)">
+              {{getMyRole(experiment) | async}}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -28,26 +36,26 @@
   <div class="spacer  bottom-margin-2em"></div>
 
   <small class="flex-element global-page-title">
-      Example Experiments
+    Generate from Examples
   </small>
 
   <hr>
-  
+
   <div class="flex-container flex-container-wrap  flex-padded-content flex-container-responsive-columns">
-      <div *ngFor="let experiment of examples">
-        <mat-card class="card-example">
-              <div class="card-title">
-                {{experiment.name}}
-              </div>
-              <mat-card-subtitle class="small">
-                {{experiment.description}}
-              </mat-card-subtitle>
-            <mat-card-actions>
-              <button mat-button color="primary" (click)="onAddExampleClicked(experiment.key)">Add Experiment</button>
-            </mat-card-actions>
-        </mat-card>
-      </div>
+    <div *ngFor="let experiment of examples">
+      <mat-card class="card-example">
+        <div class="card-title">
+          {{experiment.name}}
+        </div>
+        <mat-card-subtitle class="small">
+          {{experiment.description}}
+        </mat-card-subtitle>
+        <mat-card-actions>
+          <button mat-button color="primary" (click)="onAddExampleClicked(experiment.key)">Add Experiment</button>
+        </mat-card-actions>
+      </mat-card>
     </div>
+  </div>
 
 
 </div>

@@ -29,8 +29,8 @@ export class ResearchApiService extends ServiceBase {
     return this._selectedExperimentService.getValue()
   }
 
-  private readonly _experimentListSubject = new BehaviorSubject<Array<IExperimentDbEntity>>([])
-  private readonly _userPoolSubject = new BehaviorSubject<Array<IUserDbEntity>>([])
+  private readonly _experimentListSubject = new BehaviorSubject<Array<IExperimentDbEntity>>(null)
+  private readonly _userPoolSubject = new BehaviorSubject<Array<IUserDbEntity>>(null)
 
   constructor(private http: HttpClient, private authService: ResearcherAuthService, private socketService: SocketService, private notificationService: NotificationService) {
     super()

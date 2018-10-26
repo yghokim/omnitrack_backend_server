@@ -459,6 +459,10 @@ a.no-text-effect {
   align-items: center;
 }
 
+.flex-container.flex-align-items-end {
+  align-items: flex-end;
+}
+
 .flex-container.flex-align-items-baseline {
   align-items: baseline;
 }

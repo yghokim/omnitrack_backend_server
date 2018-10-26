@@ -256,7 +256,7 @@ export default class OTExperimentCtrl {
   getExperimentInformationsOfResearcher = (req, res) => {
     const researcherId = req.researcher.uid
     console.log("find experiments of the researcher: " + researcherId)
-    OTExperiment.find(this.makeExperimentsOfResearcherQuery(researcherId), { _id: 1, name: 1, manager: 1, experimenters: 1 })
+    OTExperiment.find(this.makeExperimentsOfResearcherQuery(researcherId), { _id: 1, name: 1, manager: 1, experimenters: 1, finishDate: 1, createdAt: 1 })
       .populate({ path: "manager", select: "_id email alias" })
       .then(experiments => {
         res.status(200).json(experiments)

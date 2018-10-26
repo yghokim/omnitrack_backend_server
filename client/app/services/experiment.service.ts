@@ -168,7 +168,9 @@ export class ExperimentService {
     this._internalSubscriptions.add(
       this.http.get<IExperimentDbEntity>('/api/research/experiments/' + this.experimentId, this.researchApi.authorizedOptions).subscribe(
           experimentInfo => {
-            this.experimentInfo.next(this.processExperimentInfo(experimentInfo))
+            if(experimentInfo){
+              this.experimentInfo.next(this.processExperimentInfo(experimentInfo))
+            }else this.experimentInfo.next(null)
           },
           err => {
             console.error(err)
