@@ -40,7 +40,7 @@ const routes: Routes = [
       {
         path: '', component: ResearchHomeFrameComponent,
         children: [
-          { path: '', redirectTo: 'status', pathMatch: 'full' },
+          { path: '', redirectTo: 'experiments', pathMatch: 'full' },
           { path: 'status', component: ServerStatusOverviewComponent, canActivate: [ResearcherAuthGuardSecure] },
           { path: 'settings', component: ServerSettingsComponent, canActivate: [ResearcherAuthGuardSecure] },
           { path: 'signup', component: ResearchSignupComponent },
