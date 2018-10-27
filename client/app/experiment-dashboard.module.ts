@@ -25,7 +25,6 @@ import { ResearchDashboardComponent } from "./research-dashboard/research-dashbo
 import { OmniTrackPackageEditComponent } from "./research/omnitrack/omnitrack-package-edit.component";
 import { NouisliderModule } from "ng2-nouislider";
 import { MonacoEditorModule } from "ngx-monaco-editor";
-import { ProductivityStatisticsModule } from "./research/custom/productivity-statistics/productivity-statistics.module";
 import { ResearchSharedModule } from './research-shared.module';
 import { NewInvitationDialogComponent } from "./experiment-invitations/new-invitation-dialog/new-invitation-dialog.component";
 import { ChooseInvitationDialogComponent } from "./dialogs/choose-invitation-dialog/choose-invitation-dialog.component";
@@ -40,10 +39,8 @@ import { ImageCellComponent } from "./experiment-data/image-cell/image-cell.comp
 import { EngagementComponent } from "./research/visualization/engagement/engagement.component";
 import { EngagementTimelineContainerDirective } from "./research/visualization/engagement/engagement-timeline-container.directive";
 import { EngagementParticipantGroupDirective } from "./research/visualization/engagement/engagement-participant-group.directive";
-import { PerParticipantVisualizationDashboardComponent } from "./research/visualization/per-participant-visualization-dashboard/per-participant-visualization-dashboard.component";
 import { TrackingDataSynchronizerWidgetComponent } from "./research/tracking-data-synchronizer-widget/tracking-data-synchronizer-widget.component";
 import { ExperimentDataSummaryComponent } from "./research/visualization/experiment-data-summary/experiment-data-summary.component";
-import { ExperimentCustomStatisticsComponent } from "./experiment-custom-statistics/experiment-custom-statistics.component";
 import { TrackerViewComponent } from "./research/omnitrack/entities/tracker-view/tracker-view.component";
 import { TriggerViewComponent } from "./research/omnitrack/entities/trigger-view/trigger-view.component";
 import { LockFlagButtonComponent } from "./research/omnitrack/entities/lock-flag-button/lock-flag-button.component";
@@ -179,7 +176,6 @@ const routes: Routes = [
     RouterModule.forChild(routes),
     NouisliderModule,
     MonacoEditorModule.forRoot(),
-    ProductivityStatisticsModule,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   declarations: [
@@ -217,10 +213,8 @@ const routes: Routes = [
     EngagementComponent,
     EngagementTimelineContainerDirective,
     EngagementParticipantGroupDirective,
-    PerParticipantVisualizationDashboardComponent,
     TrackingDataSynchronizerWidgetComponent,
     ExperimentDataSummaryComponent,
-    ExperimentCustomStatisticsComponent,
     TrackerViewComponent,
     TriggerViewComponent,
     LockFlagButtonComponent,

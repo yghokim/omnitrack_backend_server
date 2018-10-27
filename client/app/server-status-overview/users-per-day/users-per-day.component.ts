@@ -1,87 +1,119 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { EngagementDataService } from '../../experiment-overview/client-usage/engagement-data.service';
-import { HighChartsHelper } from '../../shared-visualization/highcharts-helper';
-import { Chart } from 'angular-highcharts';
-
 
 @Component({
   selector: 'app-users-per-day',
-  templateUrl: './users-per-day.component.html',
+  template: '<app-c3 main [options]="chartOptions" [data]="chartData" ></app-c3>',
   styleUrls: ['./users-per-day.component.scss']
 })
 export class UsersPerDayComponent implements OnInit {
-  chart
-  usersPerDay: Array<any> = [];
-  
-  @Input('dates')
-  private dates: Array<any>
 
-  @Output('usersPerDay')
-  private averageUsersPerDay = new EventEmitter<number>();
-
-  @Input('engageLog')
-  set _engageLog(engageLog: Array<any>){
-    console.log(engageLog)
-    if(this.dates && engageLog){
-      for(let date of engageLog){
-        var activeUsers = 0;
-        for(let element of date.dayElements){
-          if(element.engagements.length > 0){
-            activeUsers++;
-          }
+  public chartOptions = {
+    axis: {
+      x: {
+        type: 'timeseries',
+        tick: {
+          format: '%Y-%m-%d'
         }
-        this.usersPerDay.push([date.dayElements[0].date.valueOf(), activeUsers])
+      },
+      y: {
+        min: 0,
+        label: "Active Users per Day"
       }
-    }
-    this.makeChart()
-    var average = 0;
-    for(let user of this.usersPerDay){ average += user[1] }
-    if(this.usersPerDay.length !== 0){
-      average = average/this.usersPerDay.length
-      this.averageUsersPerDay.emit(average)
-      console.log(average)
     }
   }
 
-  constructor( private engagementService: EngagementDataService) { }
+  public chartData
+
+  private _dates: Array<any>
+  @Input() set dates(dates: Array<any>) {
+    if (this._dates !== dates) {
+      this._dates = dates
+      this.updateChartData(dates, this._logs)
+    }
+  }
+
+  private _logs: Array<any>
+  @Input('engageLogs')
+  set _engageLog(engageLogs: Array<any>) {
+    if (this._logs !== engageLogs) {
+      this._logs = engageLogs
+      this.updateChartData(this._dates, engageLogs)
+    }
+  }
+
+  constructor(private engagementService: EngagementDataService) { }
 
   ngOnInit() {
 
   }
 
-  makeChart(){
-    const chartOptions = HighChartsHelper.makeDefaultChartOptions('line')
+  private updateChartData(dates: Array<any>, userLogs: Array<any>) {
 
-    chartOptions.tooltip = {
-      shared: true,
-      valueDecimals: 2
-    }
-    chartOptions.xAxis = {
-      type: 'datetime',
-      crosshair: {
-        width: 2 
+    if (dates && dates.length > 0 && userLogs && userLogs.length > 0) {
+      const usersPerDay = []
+      for (let date of userLogs) {
+        var activeUsers = 0;
+        for (let element of date.dayElements) {
+          if (element.engagements.length > 0) {
+            activeUsers++;
+          }
+        }
+        usersPerDay.push({
+          x: date.dayElements[0].date.valueOf(), 
+          y: activeUsers
+        })
       }
-    }
-    chartOptions.series = [{
-      name: 'Active Users per Day',
-      data: this.usersPerDay,
-      zIndex: 1,
-      color: "#004d80",
-      marker: {
-        fillColor: 'none',
-        lineWidth: 0,
-        lineColor: 'black',
-        radius: 1
+      var average = 0;
+      for (let user of usersPerDay) { average += user.y }
+      if (usersPerDay.length !== 0) {
+        average = average / usersPerDay.length
       }
-    }]
-    chartOptions.yAxis = {
-      min: 0,
-      title: {
-        text: "Users",
-        margin: 5
-      },
+
+      this.chartData = {
+        columns: [
+          ["x"].concat(dates.map(d => d.toDateString())),
+          ["users"].concat(usersPerDay.map(d => d.y))
+        ]
+      }
+
+      console.log("users per day:")
+      console.log(this.chartData)
     }
-    this.chart = new Chart(chartOptions);
   }
+  /*
+    makeChart() {
+      
+      chartOptions.tooltip = {
+        shared: true,
+        valueDecimals: 2
+      }
+      chartOptions.xAxis = {
+        type: 'datetime',
+        crosshair: {
+          width: 2
+        }
+      }
+      chartOptions.series = [{
+        name: 'Active Users per Day',
+        data: this.usersPerDay,
+        zIndex: 1,
+        color: "#004d80",
+        marker: {
+          fillColor: 'none',
+          lineWidth: 0,
+          lineColor: 'black',
+          radius: 1
+        }
+      }]
+      chartOptions.yAxis = {
+        min: 0,
+        title: {
+          text: "Users",
+          margin: 5
+        },
+      }
+      this.chart = new Chart(chartOptions);
+    }*/
 
 }

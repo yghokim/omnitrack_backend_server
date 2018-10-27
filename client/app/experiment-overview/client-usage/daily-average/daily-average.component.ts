@@ -1,6 +1,4 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
-import { HighChartsHelper } from '../../../shared-visualization/highcharts-helper';
-import { Chart } from 'angular-highcharts';
 import { Engagement } from '../../../../../shared_lib/engagement';
 
 @Component({
@@ -10,12 +8,14 @@ import { Engagement } from '../../../../../shared_lib/engagement';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DailyAverageComponent implements OnInit {
-  
-  public chart
+
+  public data
+
+  public chartOptions
 
   @Input('height')
   private height: String = '60%'
-  
+
   @Input('dataType')
   private dataType: String
 
@@ -23,36 +23,49 @@ export class DailyAverageComponent implements OnInit {
   private dates: Array<any>
 
   @Input("engageLog")
-  set _engageLog(engageLog: Array<DayData>){   
-    if(engageLog.length > 0){
-      
-      const chartOptions = HighChartsHelper.makeDefaultChartOptions('line', this.height)
+  set _engageLog(engageLog: Array<DayData>) {
+    if (engageLog.length > 0) {
 
+      const chartOptions = {
+        axis: {
+          x: {
+            type: 'timeseries',
+            tick: {
+              format: '%Y-%m-%d'
+            }
+          }
+        }
+      } as any
+/*
       chartOptions.tooltip = {
         shared: true,
         valueDecimals: 2
-      }
-      var dateCountValue: any[] = engageLog.map( function(x, i){if(i < this.dates.length){
-        return [this.dates[i].valueOf() , x.avgCount]}
+      }*/
+
+      var dateCountValue: any[] = engageLog.map(function (x, i) {
+        if (i < this.dates.length) {
+          return [this.dates[i].valueOf(), x.avgCount]
+        }
       }, this)
-      var dateCountRange: any[] = engageLog.map( function(x, i){if(i < this.dates.length){
-        return [this.dates[i].valueOf() ,x.minCount,x.maxCount]}
+      var dateCountRange: any[] = engageLog.map(function (x, i) {
+        if (i < this.dates.length) {
+          return [this.dates[i].valueOf(), x.minCount, x.maxCount]
+        }
       }, this)
-      var dateDurValue: any[] = dateDurValue = engageLog.map( function(x, i){if(i < this.dates.length){
-        return [this.dates[i].valueOf() , x.avgDuration]}
+      var dateDurValue: any[] = dateDurValue = engageLog.map(function (x, i) {
+        if (i < this.dates.length) {
+          return [this.dates[i].valueOf(), x.avgDuration]
+        }
       }, this)
-      var dateDurRange: any[] = dateDurRange = engageLog.map( function(x, i){if(i < this.dates.length){
-        return [this.dates[i].valueOf() , x.minDuration, x.maxDuration]}
+      var dateDurRange: any[] = dateDurRange = engageLog.map(function (x, i) {
+        if (i < this.dates.length) {
+          return [this.dates[i].valueOf(), x.minDuration, x.maxDuration]
+        }
       }, this)
 
-      chartOptions.xAxis = {
-        type: 'datetime',
-        crosshair: {
-          width: 2 
-        }
-      }
+      /*
       //here a better method for checking whether date or number is needed!
-      if(this.dates[0].valueOf() < 1000 ){
+      if (this.dates[0].valueOf() < 1000) {
         engageLog = engageLog.slice(this.dates[0], this.dates[this.dates.length])
         chartOptions.tooltip = {
           shared: true,
@@ -62,12 +75,12 @@ export class DailyAverageComponent implements OnInit {
 
         chartOptions.xAxis = {
           crosshair: {
-            width: 2 
+            width: 2
           }
         }
-      }
-  
-      if(this.dataType === "launchCount"){
+      }*/
+
+      if (this.dataType === "launchCount") {
 
         chartOptions.series = [{
           name: 'App Launches',
@@ -80,8 +93,8 @@ export class DailyAverageComponent implements OnInit {
             lineColor: 'black',
             radius: 2
           }
-        },{
-          name: 'Range' ,
+        }, {
+          name: 'Range',
           data: dateCountRange,
           type: 'arearange',
           lineWidth: 0,
@@ -93,20 +106,17 @@ export class DailyAverageComponent implements OnInit {
             enabled: false
           }
         }
-        ]        
-        chartOptions.yAxis = {
+        ]
+        chartOptions.axis.y = {
           min: 0,
-          title: {
-            text: "Average number of launches",
-            margin: 5
-          },
+          label: "Average number of launches",
           minorTickInterval: 10,
           tickInterval: 20
         }
       }
-  
-      else if(this.dataType === "sessionEngagement"){   
-        
+
+      else if (this.dataType === "sessionEngagement") {
+
         chartOptions.series = [{
           name: 'Session Duration',
           data: dateDurValue,
@@ -117,8 +127,8 @@ export class DailyAverageComponent implements OnInit {
             lineColor: '#84315d',
             radius: 2
           }
-        },{
-          name: 'Range' ,
+        }, {
+          name: 'Range',
           data: dateDurRange,
           type: 'arearange',
           lineWidth: 0,
@@ -130,38 +140,36 @@ export class DailyAverageComponent implements OnInit {
           }
         }
         ];
-        chartOptions.yAxis = {
+        chartOptions.axis.y = {
           min: 0,
-          title: {
-            text: "Average session duration (min)",
-            margin: 5
-          },
+          label: "Average session duration (min)",
           minorTickInterval: 10,
           tickInterval: 20
         }
       }
-      else{ console.log("Not defined chartDataType")}
-      this.chart = new Chart(chartOptions);
-  
+      else { console.log("Not defined chartDataType") }
+      
+      this.chartOptions = chartOptions
+
     }
   }
 
   constructor() { }
 
   ngOnInit() {
-    
+
   }
 
 }
 
-export interface DayElement{
+export interface DayElement {
   date: Date,
   user: String,
   engagements?: Array<Engagement>,
   launchCount?: number,
   totalDuration?: number
 }
-export interface DayData{
+export interface DayData {
   dayElements: Array<DayElement>,
   avgCount?: number,
   avgDuration?: number,

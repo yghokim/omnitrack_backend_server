@@ -1,15 +1,8 @@
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { ChartModule, HIGHCHARTS_MODULES } from 'angular-highcharts';
-import * as more from 'highcharts/highcharts-more.src';
-import * as exporting from 'highcharts/modules/exporting.src';
-import * as heatmap from 'highcharts/modules/heatmap.src';
-import * as xrange from 'highcharts/modules/xrange.src';
 import { ToastComponent } from './toast/toast.component';
 import { LoadingComponent } from './loading/loading.component';
-import { D3ChartFrameComponent } from '../shared-visualization/d3-chart-frame/d3-chart-frame.component';
-import { ChartFrameComponent } from '../shared-visualization/chart-frame/chart-frame.component';
 import { MaterialDesignModule } from '../material-design.module';
 import { FileSizePipe } from '../pipes/file-size.pipe';
 import { LabeledLoadingIndicatorComponent } from '../labeled-loading-indicator/labeled-loading-indicator.component';
@@ -33,7 +26,6 @@ import { ProductivityTimelineDayDirective } from '../shared-visualization/custom
     ReactiveFormsModule,
     HttpClientModule,
     MaterialDesignModule,
-    ChartModule,
   ],
   exports: [
     // Shared Modules
@@ -41,12 +33,9 @@ import { ProductivityTimelineDayDirective } from '../shared-visualization/custom
     ReactiveFormsModule,
     HttpClientModule,
     MaterialDesignModule,
-    ChartModule,
     // Shared Components
     ToastComponent,
     LoadingComponent,
-    ChartFrameComponent,
-    D3ChartFrameComponent,
     /*
     ProductivityDashboardComponent,
     ProductivityTimelineComponent,
@@ -60,8 +49,6 @@ import { ProductivityTimelineDayDirective } from '../shared-visualization/custom
     ToastComponent,
     BusyOverlayComponent,
     LoadingComponent,
-    ChartFrameComponent,
-    D3ChartFrameComponent,
     /*
     ProductivityTimelineComponent,
     ProductivityDashboardComponent,
@@ -77,8 +64,7 @@ import { ProductivityTimelineDayDirective } from '../shared-visualization/custom
   entryComponents: [
   ],
   providers: [
-    ToastComponent,
-    {provide: HIGHCHARTS_MODULES, useFactory:()=>[heatmap, xrange, more, exporting]}
+    ToastComponent
   ]
 })
 export class SharedModule { }

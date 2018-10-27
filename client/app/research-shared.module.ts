@@ -8,6 +8,9 @@ import { PlatformConfigPanelComponent } from './experiment-client-settings/platf
 import { ConfigVariableRowComponent } from './experiment-client-settings/config-variable-row/config-variable-row.component';
 import { ClipboardModule } from 'ngx-clipboard';
 import { HelpWidgetComponent } from './components/help-widget/help-widget.component';
+import { C3ChartComponent } from './research/visualization/c3-chart.component';
+import { ChartFrameComponent } from './shared-visualization/chart-frame/chart-frame.component';
+import { D3ChartFrameComponent } from './shared-visualization/d3-chart-frame/d3-chart-frame.component';
 
 
 @NgModule({
@@ -21,7 +24,10 @@ import { HelpWidgetComponent } from './components/help-widget/help-widget.compon
     ClientBinaryListComponent,
     PlatformConfigPanelComponent,
     ConfigVariableRowComponent,
-    HelpWidgetComponent
+    HelpWidgetComponent,
+    C3ChartComponent,
+    ChartFrameComponent,
+    D3ChartFrameComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   exports: [
@@ -30,7 +36,10 @@ import { HelpWidgetComponent } from './components/help-widget/help-widget.compon
     ClientBinaryListComponent,
     PlatformConfigPanelComponent,
     ConfigVariableRowComponent,
-    HelpWidgetComponent
+    HelpWidgetComponent,
+    C3ChartComponent,
+    ChartFrameComponent,
+    D3ChartFrameComponent,
   ],
   providers:[
     ResearcherAuthService]

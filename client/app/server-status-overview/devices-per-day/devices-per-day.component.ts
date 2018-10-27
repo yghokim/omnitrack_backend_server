@@ -1,78 +1,92 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { HighChartsHelper } from '../../shared-visualization/highcharts-helper';
-import { Chart } from 'angular-highcharts';
 import { EngagementDataService } from '../../experiment-overview/client-usage/engagement-data.service';
 
 @Component({
   selector: 'app-devices-per-day',
-  templateUrl: './devices-per-day.component.html',
+  template: '<app-c3 main [options]="chartOptions" [data]="chartData" ></app-c3>',
   styleUrls: ['./devices-per-day.component.scss']
 })
 export class DevicesPerDayComponent implements OnInit {
-  chart
-  logs
+  public chartOptions = {
+    axis: {
+      x: {
+        type: 'timeseries',
+        tick: {
+          format: '%Y-%m-%d'
+        }
+      },
+      y: {
+        min: 0,
+        label: "Devices per Day"
+      }
+    }
+  }
+  public chartData
   devicesPerDay: Array<any> = [];
 
-  @Input() private dates: Array<any>
+  private _dates: Array<any>
+  @Input() set dates(dates: Array<any>) {
+    if (this._dates !== dates) {
+      this._dates = dates
+      this.updateChartData(dates, this._logs)
+    }
 
+  }
+
+  private _logs: Array<any>
   @Input('logs')
   set _userLogs(userLogs: Array<any>) {
-    if (this.dates && userLogs && userLogs.length > 0) {
-      this.logs = userLogs.map(x => x.logs).reduce(function (prev, curr) { return prev.concat(curr) });
-      this.devicesPerDay = [];
-      for (const date of this.dates) {
-        const devices = [];
-        for (const log of this.logs) {
-          if (new Date(log.timestamp).toDateString() === date.toDateString() && !devices.includes(log.deviceId)) {
-            devices.push(log.deviceId)
-          }
-        }
-        this.devicesPerDay.push([date.valueOf(), devices.length])
-      }
-      console.log(this.devicesPerDay)
+    if (this._logs !== userLogs) {
+      this._logs = userLogs
+      this.updateChartData(this._dates, userLogs)
     }
-    this.makeChart()
   }
 
   constructor(private engagementService: EngagementDataService) { }
 
-  ngOnInit() {
+  ngOnInit() { }
 
-  }
+  private updateChartData(dates: Array<any>, userLogs: Array<any>) {
 
-  makeChart() {
-    const chartOptions = HighChartsHelper.makeDefaultChartOptions('line')
+    if (dates && dates.length > 0 && userLogs && userLogs.length > 0) {
 
-    chartOptions.tooltip = {
-      shared: true,
-      valueDecimals: 2
-    }
-    chartOptions.xAxis = {
-      type: 'datetime',
-      crosshair: {
-        width: 2
+      const logs = userLogs.map(x => x.logs).reduce(function (prev, curr) { return prev.concat(curr) });
+      this.devicesPerDay = [];
+      for (const date of dates) {
+        const devices = [];
+        for (const log of logs) {
+          if (new Date(log.timestamp).toDateString() === date.toDateString() && !devices.includes(log.deviceId)) {
+            devices.push(log.deviceId)
+          }
+        }
+        this.devicesPerDay.push({x: date.valueOf(), y: devices.length})
       }
-    }
-    chartOptions.series = [{
-      name: 'Devices per Day',
-      data: this.devicesPerDay,
-      zIndex: 1,
-      color: "#004d80",
-      marker: {
-        fillColor: 'none',
-        lineWidth: 0,
-        lineColor: 'black',
-        radius: 1
-      }
-    }]
-    chartOptions.yAxis = {
-      min: 0,
-      title: {
-        text: "Devices",
-        margin: 5
-      },
-    }
-    this.chart = new Chart(chartOptions);
-  }
+      console.log(this.devicesPerDay)
 
+
+      this.chartData = {
+        columns: [
+          ["x"].concat(dates.map(d => d.toDateString())),
+          ["devices"].concat(this.devicesPerDay.map(d => d.y))
+        ]
+      }
+
+      console.log("devices per day:")
+      console.log(this.chartData)
+      
+      /*
+      [{
+        name: 'Devices per Day',
+        data: this.devicesPerDay,
+        zIndex: 1,
+        color: "#004d80",
+        marker: {
+          fillColor: 'none',
+          lineWidth: 0,
+          lineColor: 'black',
+          radius: 1
+        }
+      }]*/
+    }
+  }
 }

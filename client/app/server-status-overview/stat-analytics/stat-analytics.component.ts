@@ -25,12 +25,19 @@ export class StatAnalyticsComponent implements OnInit, OnDestroy {
   constructor(private api: ResearchApiService, public engagementService: EngagementDataService) { }
 
   ngOnInit() {
+
+    const startMoment = moment().subtract(8, 'month')
+    const endMoment = moment().subtract(6, 'month')
+
     this._internalSubscriptions.add(
-      this.api.queryUsageLogsAnonymized({ name: "session" }, moment().subtract(2, 'month').toISOString(), moment().toISOString()).subscribe(
+      this.api.queryUsageLogsAnonymized({ name: "session" }, startMoment.toISOString(), endMoment.toISOString()).subscribe(
         list => {
           console.log(list)
           this.engagements = logsToEngagements(list)
-          this.engagementService.setEngageLog(this.engagements, null, true, [])
+          this.engagementService.setEngageLog(this.engagements, null, true, [
+            startMoment.unix(),
+            endMoment.unix()
+          ])
           this.logs = list
           this.sessionsPerDay = this.engagementService.totalSessionsPerDay;
           this.medianSessionDur = this.engagementService.medianSessionDuration;

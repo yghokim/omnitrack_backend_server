@@ -28,7 +28,7 @@
 </div>
 <div class="columned-chart-group flex-container flex-container-wrap flex-container-responsive-columns_two">
   <div class="card-body">
-    <app-users-per-day [engageLog]="engagementService.engagementLogs" [dates]="engagementService.engagementDates" (usersPerDay)="onUsersPerDay($event)"></app-users-per-day>
+    <app-users-per-day [engageLogs]="engagementService.engagementLogs" [dates]="engagementService.engagementDates" (usersPerDay)="onUsersPerDay($event)"></app-users-per-day>
   </div>
   <div class="card-body">
     <app-devices-per-day [logs]="logs" [dates]="engagementService.engagementDates"></app-devices-per-day>
