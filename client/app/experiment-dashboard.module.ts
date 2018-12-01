@@ -37,8 +37,6 @@ import { LocationCellComponent } from "./experiment-data/location-cell/location-
 import { MinuteSecondsPipe, AudioCellComponent } from "./experiment-data/audio-cell/audio-cell.component";
 import { ImageCellComponent } from "./experiment-data/image-cell/image-cell.component";
 import { EngagementComponent } from "./research/visualization/engagement/engagement.component";
-import { EngagementTimelineContainerDirective } from "./research/visualization/engagement/engagement-timeline-container.directive";
-import { EngagementParticipantGroupDirective } from "./research/visualization/engagement/engagement-participant-group.directive";
 import { TrackingDataSynchronizerWidgetComponent } from "./research/tracking-data-synchronizer-widget/tracking-data-synchronizer-widget.component";
 import { ExperimentDataSummaryComponent } from "./research/visualization/experiment-data-summary/experiment-data-summary.component";
 import { TrackerViewComponent } from "./research/omnitrack/entities/tracker-view/tracker-view.component";
@@ -211,8 +209,6 @@ const routes: Routes = [
     UpdateItemCellValueDialogComponent,
 
     EngagementComponent,
-    EngagementTimelineContainerDirective,
-    EngagementParticipantGroupDirective,
     TrackingDataSynchronizerWidgetComponent,
     ExperimentDataSummaryComponent,
     TrackerViewComponent,
