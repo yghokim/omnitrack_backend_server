@@ -36,11 +36,20 @@ export default class SocketModule {
 
     keys.forEach(key => table.delete(key))
   }
-  private putValueToKey(table: Map<string, [string]>, key: string, value: string) {
-    if (table.has(key)) {
-      table.get(key).push(value)
+
+  /***
+   * returns whether the value was actually put or not
+   */
+  private putValueToKey(table: Map<string, [string]>, key: string, value: string): boolean {
+    if (table.has(key) === true) {
+      const list = table.get(key)
+      if(list.indexOf(value) === -1){
+        list.push(value)
+        return true
+      }else return false
     } else {
       table.set(key, [value])
+      return true
     }
   }
 
@@ -70,9 +79,10 @@ export default class SocketModule {
       )
 
       client.on(SocketConstants.SERVER_EVENT_SUBSCRIBE_RESEARCHER, (data) => {
-        console.log("a researcher subscribed via websocket.")
         if (data.uid) {
-          this.putValueToKey(this.researcherIdTable, data.uid, client.id)
+          if(this.putValueToKey(this.researcherIdTable, data.uid, client.id)){
+            console.log("a researcher subscribed via websocket.")
+          }
         }
       })
 
@@ -84,9 +94,10 @@ export default class SocketModule {
       })
 
       client.on(SocketConstants.SERVER_EVENT_SUBSCRIBE_EXPERIMENT, (data) => {
-        console.log("experiment subscribed via websocket.")
         if (data.experimentId) {
-          this.putValueToKey(this.experimentIdTable, data.experimentId, client.id)
+          if(this.putValueToKey(this.experimentIdTable, data.experimentId, client.id)){
+            console.log("experiment subscribed via websocket.")
+          }
         }
       })
 
