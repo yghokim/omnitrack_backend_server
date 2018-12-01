@@ -1,36 +1,39 @@
-<div class="card error-log" *ngFor="let log of logs">
-  <div class="card-header">
-    <table class="table table-data">
-      <tr>
-        <th>Message</th>
-        <th>Thread</th>
-        <th>Version Code</th>
-        <th>User</th>
-        <th>Occurred At</th>
-      </tr>
-      <tr>
-        <td>
-          {{getErrorMessage(log)}}
-        </td>
-        <td>
-          {{getErrorThread(log)}}
-        </td>
-        <td>
-          {{getErrorVersionCode(log)}}
-        </td>
-        <td>
-          {{log.user.email}}
-        </td>
-        <td>
-          {{log.timestamp | date:'long'}}
-        </td>
-      </tr>
-    </table>
+<div class="alert alert-success" *ngIf="!logs || logs.length === 0">No client error logs reported.</div>
+<ng-container *ngIf="logs && logs.length > 0">
+  <div class="card error-log" *ngFor="let log of logs">
+    <div class="card-header">
+      <table class="table table-data">
+        <tr>
+          <th>Message</th>
+          <th>Thread</th>
+          <th>Version Code</th>
+          <th>User</th>
+          <th>Occurred At</th>
+        </tr>
+        <tr>
+          <td>
+            {{getErrorMessage(log)}}
+          </td>
+          <td>
+            {{getErrorThread(log)}}
+          </td>
+          <td>
+            {{getErrorVersionCode(log)}}
+          </td>
+          <td>
+            {{log.user.email}}
+          </td>
+          <td>
+            {{log.timestamp | date:'long'}}
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="card-body small">
+      <h6>StackTrace</h6>
+      <span class="stacktrace">
+        {{getStackTrace(log)}}
+      </span>
+    </div>
   </div>
-  <div class="card-body small">
-    <h6>StackTrace</h6>
-    <span class="stacktrace">
-      {{getStackTrace(log)}}
-    </span>
-  </div>
-</div>
+</ng-container>
