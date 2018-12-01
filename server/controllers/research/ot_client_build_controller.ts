@@ -393,12 +393,13 @@ export default class OTClientBuildCtrl {
         const latestVersionInfo = result[1]
 
         const appVersionCode: number = versionProperties.versionCode
-        const appVersionName: string = versionProperties.versoinName
+        const appVersionName: string = versionProperties.versionName
 
         let newVersionCode: number = null
         let newVersionName: string = null
 
         if (latestVersionInfo) {
+          console.log("The last deployed version name:", latestVersionInfo.versionName," | current source code version name:", appVersionName)
           if (compareVersions(latestVersionInfo.versionName, appVersionName) >= 0) {
             // if latestVersion is higher or equal than this
             const v = extractVersion(latestVersionInfo.versionName)

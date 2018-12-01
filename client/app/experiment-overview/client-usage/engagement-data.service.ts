@@ -1,11 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { DayElement, DayData } from './daily-average/daily-average.component';
 import * as d3 from 'd3';
 import { getExperimentDateSequenceOfParticipant } from '../../../../omnitrack/experiment-utils';
 import { IParticipantDbEntity } from '../../../../omnitrack/core/db-entity-types';
+import * as moment from 'moment';
+import { Observable, of } from 'rxjs';
 
 @Injectable()
-export class EngagementDataService {
+export class EngagementDataService implements OnDestroy {
 
   private engageLog: Array<any>
   private dates: Array<any> = []
@@ -14,6 +16,13 @@ export class EngagementDataService {
   private includeWeekends = true
   private participants: Array<IParticipantDbEntity>
   private dayScope: Array<number> = []
+
+  initialize(start: moment.Moment, end: moment.Moment, participants: Array<IParticipantDbEntity>): Observable<void>{
+    return of()
+  }
+
+  ngOnDestroy(): void {
+  }
 
   setEngageLog(engageLog: Array<any>, participants: Array<IParticipantDbEntity>, includeWeekends: boolean, dayScope: Array<number>) {
     this.engageLog = engageLog;
