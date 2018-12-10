@@ -239,6 +239,7 @@ const routes: Routes = [
     NewTrackingPackageDialogComponent,
     ParticipantExcludedDaysConfigDialogComponent,
     UpdateItemCellValueDialogComponent,
+    LockConfigurationSheetComponent
   ]
 })
 export class ExperimentDashboardModule { }
