@@ -14,7 +14,7 @@ const otExperimentGroupSchema = new mongoose.Schema(
     _id: { type: String, default: uuid.v1, required: true },
     name: { type: String, required: true },
     trackingPackageKey: { type: String, default: null }
-  }, { timestamps: true }
+  }
 )
 
 const otExperimentInjectionPackageSchema = new mongoose.Schema(
