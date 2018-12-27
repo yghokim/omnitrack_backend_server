@@ -220,8 +220,8 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
       if (value != null) {
         switch (this.getMetadataCellType(metadataKey)) {
           case CellValueType.DATE: return new TimePoint(value, item.timezone).toMoment().format("YYYY-MM-DD") 
-          case CellValueType.DATETIME_MINUTES: return new TimePoint(value, item.timezone).toMoment().format("kk:mm (MMM DD YYYY)") + " " + moment().tz(item.timezone).format("z")
-          case CellValueType.DATETIME_SECONDS: return new TimePoint(value, item.timezone).toMoment().format("kk:mm:ss (MMM DD YYYY)") + " " + moment().tz(item.timezone).format("z")
+          case CellValueType.DATETIME_MINUTES: return new TimePoint(value, item.timezone).toMoment().format("kk:mm (MMM DD YYYY)") + " " + moment.tz(item.timezone).format("z")
+          case CellValueType.DATETIME_SECONDS: return new TimePoint(value, item.timezone).toMoment().format("kk:mm:ss (MMM DD YYYY)") + " " + moment.tz(item.timezone).format("z")
           default: return value
         }
       } else return null
@@ -266,7 +266,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   getTimestampValue(item: IItemDbEntity): string {
     const stamp: TimePoint = new TimePoint(item.timestamp, item.timezone)
-    return stamp.toMoment().format("kk:mm (MMM DD YYYY)") + " " + moment().tz(stamp.timezone).format("z")
+    return stamp.toMoment().format("kk:mm (MMM DD YYYY)") + " " + moment.tz(stamp.timezone).format("z")
   }
 
   getTrackerColumns(tracker: ITrackerDbEntity): any[] {
@@ -356,7 +356,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                           itemRows.push(
                             [item._id, participant.alias]
                               .concat(values)
-                              .concat([moment(item.timestamp).tz(item.timezone).format(), this.getItemSourceText(item.source)]
+                              .concat([new TimePoint(item.timestamp, item.timezone).toMoment().format(), this.getItemSourceText(item.source)]
                                 .concat(this.metadataColumns.map(m => this.getMetadataValue(item, m)))
                               )
                           )
@@ -399,7 +399,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                       itemRows.push(
                         [item._id, participant.alias]
                           .concat(values)
-                          .concat([moment(item.timestamp).tz(item.timezone).format(), this.getItemSourceText(item.source)])
+                          .concat([new TimePoint(item.timestamp, item.timezone).toMoment().format(), this.getItemSourceText(item.source)])
                           .concat(this.metadataColumns.map(m => this.getMetadataValue(item, m)))
                       )
                     }
