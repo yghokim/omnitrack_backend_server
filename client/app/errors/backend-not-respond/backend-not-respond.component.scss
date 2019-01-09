@@ -1,0 +1,46 @@
+.error-container {
+  display: flex;
+  flex-direction: row;
+
+  .error-left {
+    flex: 0;
+    text-align: center;
+    padding-top: 1rem;
+
+    .error-code {
+      font-size: 5em;
+      color: #f07b72;
+      margin-bottom: 0.2em;
+    }
+
+    img.logo {
+      width: 260px;
+    }
+  }
+
+  .error-right {
+    flex: 1;
+    padding: 2rem;
+
+    .error-title{
+      font-weight: 700;
+    }
+
+    .content {
+      padding-left: 15px;
+
+      p {
+        font-weight: 100;
+
+        &.message {
+          font-size: 0.9rem;
+          font-weight: 400;
+        }
+      }
+
+      ul {
+        padding-left: 0px;
+      }
+    }
+  }
+}

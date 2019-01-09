@@ -6,6 +6,7 @@ import { InstallationWizardComponent } from './installation/installation-wizard/
 import { PreventReinstallationGuard } from './services/prevent-reinstallation.guard';
 import { ResearchFrameComponent } from './research-frame/research-frame.component';
 import { CheckInstallationGuard } from './services/check-installation.guard';
+import { BackendNotRespondComponent } from './errors/backend-not-respond/backend-not-respond.component';
 
 
 const routes: Routes = [
@@ -42,6 +43,7 @@ const routes: Routes = [
   },
 
   { path: "notfound", component: NotFoundComponent },
+  { path: "backend_not_respond", component: BackendNotRespondComponent},
   { path: "**", redirectTo: "/notfound" }
 ];
 

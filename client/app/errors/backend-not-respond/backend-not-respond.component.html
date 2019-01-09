@@ -1,0 +1,40 @@
+<div class="container">
+
+  <div class="error-container">
+    <div class="error-left">
+      <div class="error-code">(✖╭╮✖)</div>
+      <img class="logo" src="assets/omnitrack_research_kit_logo.svg">
+    </div>
+    <div class="error-right">
+      <h4 class="warn error-title">The backend server does not respond.</h4>
+      <hr>
+      <div class="content">
+        <ul>
+          <li>
+            <b>If you are a researcher:</b>
+            <p>
+              Contact the administrator and notify that the server is down.
+            </p>
+          </li>
+          <li>
+            <b>If you are an administrator:</b>
+            <p>
+              Check the server machine that the OmniTrack backend is running.<br>Check <b>Step 4</b> in the <a href="https://github.com/OmniTrack/omnitrack_research_kit/wiki/Installation-Part-1%3A---Platform-Installation-and-Configuration#step-4---run-the-api-server"
+                target=_blank><b>document</b></a>.
+            </p>
+          </li>
+        </ul>
+
+        <p class="message">
+          Don't worry, tracking data in the deployed client apps are safely preserved in the devices. Once the backend
+          is
+          running again, the data will be automatically uploaded soon.
+        </p>
+        <button mat-raised-button color="primary" (click)="onRetryClicked()">Retry</button>
+      </div>
+
+
+    </div>
+  </div>
+
+</div>

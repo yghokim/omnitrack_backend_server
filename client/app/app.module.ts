@@ -16,6 +16,7 @@ import { TextInputDialogComponent } from './dialogs/text-input-dialog/text-input
 import { ImageViewDialog } from './experiment-data/image-cell/image-view-dialog/image-view-dialog.component';
 import { PlatformVersionCheckService } from './services/platform-version-check.service';
 import { NotifierModule, NotifierService } from 'angular-notifier';
+import { BackendNotRespondComponent } from './errors/backend-not-respond/backend-not-respond.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { NotifierModule, NotifierService } from 'angular-notifier';
     NotFoundComponent,
     YesNoDialogComponent,
     TextInputDialogComponent,
-    ImageViewDialog
+    ImageViewDialog,
+    BackendNotRespondComponent
   ],
   imports: [
     RoutingModule,
