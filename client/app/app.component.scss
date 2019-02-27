@@ -1,0 +1,20 @@
+.overlay_backend_unconnected {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 78, 78, 0.2);
+  z-index: 10000;
+  display: flex;
+
+  .message {
+    align-self: center;
+    margin: auto;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 100;
+    background: #474747;
+    padding: 0.2rem 0.75rem;
+  }
+}

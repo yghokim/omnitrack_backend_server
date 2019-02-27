@@ -3,6 +3,7 @@ import * as io from 'socket.io-client';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { filter } from "rxjs/operators";
 import { SocketConstants } from '../../../omnitrack/core/research/socket'
+import deepEqual from 'deep-equal';
 
 @Injectable()
 export class SocketService {
@@ -12,12 +13,18 @@ export class SocketService {
   private readonly _onConnected = new BehaviorSubject<SocketIOClient.Socket>(null)
   private readonly _onServerReset = new BehaviorSubject<SocketIOClient.Socket>(null)
 
+  private readonly _serverDiagnosticsEventSubject = new BehaviorSubject<any>(null)
+
   get onConnected(): Observable<SocketIOClient.Socket> {
     return this._onConnected.pipe(filter(socket => socket != null))
   }
 
   get onServerReset(): Observable<SocketIOClient.Socket> {
     return this._onServerReset.pipe(filter(socket => socket != null))
+  }
+
+  get serverDiagnosticsEvent(): Observable<any>{
+    return this._serverDiagnosticsEventSubject.pipe(filter(r => r != null))
   }
 
   constructor() {
@@ -34,6 +41,14 @@ export class SocketService {
       SocketConstants.SERVER_EVENT_RESET, () => {
         console.log("refresh sockets.")
         this._onServerReset.next(this.socket)
+      }
+    )
+
+    this.socket.on(
+      SocketConstants.SERVER_EVENT_BACKEND_DIAGNOSTICS, args => {
+        if(!deepEqual(this._serverDiagnosticsEventSubject.value, args)){
+          this._serverDiagnosticsEventSubject.next(args)
+        }
       }
     )
 

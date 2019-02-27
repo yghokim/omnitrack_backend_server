@@ -17,6 +17,7 @@ import { ImageViewDialog } from './experiment-data/image-cell/image-view-dialog/
 import { PlatformVersionCheckService } from './services/platform-version-check.service';
 import { NotifierModule, NotifierService } from 'angular-notifier';
 import { BackendNotRespondComponent } from './errors/backend-not-respond/backend-not-respond.component';
+import { SocketService } from './services/socket.service';
 
 @NgModule({
   declarations: [
@@ -50,7 +51,8 @@ import { BackendNotRespondComponent } from './errors/backend-not-respond/backend
   ],
   providers: [
     PlatformVersionCheckService,
-    NotifierService
+    NotifierService,
+    SocketService
   ],
   entryComponents: [
     YesNoDialogComponent,

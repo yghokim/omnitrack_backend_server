@@ -8,6 +8,8 @@ export class SocketConstants{
 
   static readonly SERVER_EVENT_UPDATED_GLOBAL = "update/server"
 
+  static readonly SERVER_EVENT_BACKEND_DIAGNOSTICS = "backend/diagnostics"
+
   static readonly SERVER_EVENT_SUBSCRIBE_RESEARCHER = "subscribe/researcher"
   static readonly SERVER_EVENT_UNSUBSCRIBE_RESEARCHER = "unsubscribe/researcher"
   static readonly SERVER_EVENT_SUBSCRIBE_EXPERIMENT = "subscribe/researcher"

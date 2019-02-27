@@ -2,7 +2,6 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { ResearcherAuthGuardSecure } from './services/researcher.auth.guard.secure';
 import { ResearcherAuthGuardMain } from './services/researcher.auth.guard.main';
-import { SocketService } from './services/socket.service';
 import { ResearchApiService } from './services/research-api.service';
 import { ResearchHomeFrameComponent } from './research-home-frame/research-home-frame.component';
 import { ServerStatusOverviewComponent } from './server-status-overview/server-status-overview.component';
@@ -70,7 +69,6 @@ const routes: Routes = [
   providers:[
     ResearcherAuthGuardSecure,
     ResearcherAuthGuardMain,
-    SocketService,
     ResearchApiService,
     NotificationService,
   ],

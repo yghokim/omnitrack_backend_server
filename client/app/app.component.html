@@ -29,3 +29,6 @@
   <notifier-container></notifier-container>
 </div>
 <app-busy-overlay *ngIf="isLoadingModule===true"></app-busy-overlay>
+<div *ngIf="serverError" class="overlay_backend_unconnected">
+  <div class="message">{{serverError.message}}</div>
+</div>

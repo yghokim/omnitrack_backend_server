@@ -15,6 +15,7 @@ import { installationWizardCtrl } from "./controllers/ot_installation_wizard_con
 import { InstallationRouter } from "./router_installation";
 import { ShortUrlRouter } from "./router_shorturl";
 import { checkFileExistenceAndType } from "./server_utils";
+import { SocketConstants } from "../omnitrack/core/research/socket";
 
 mongoose.set("useCreateIndex", true)
 
@@ -23,6 +24,8 @@ const CERT_PATH = path.join(
   __dirname,
   "../../../credentials/firebase-cert.json"
 )
+
+var isMongodbConnected = false
 
 const app = express();
 const appWrapper = new AppWrapper(app);
@@ -56,6 +59,12 @@ app.get("/api/version", (req, res) => {
     })
 })
 
+app.get("/api/server_status", (req, res) => {
+  res.status(200).send({
+    mongodb_connected: isMongodbConnected
+  })
+})
+
 initializeFirebase();
 
 const os = require("os");
@@ -87,8 +96,7 @@ if (!module.parent) {
   const server = app.listen(app.get("port"), () => {
     console.log("OmniTrack API Server listening on port " + app.get("port"));
   });
-  const io = require("socket.io")(server, { origins: "*:*" });
-
+  const io: SocketIO.Server = require("socket.io")(server, { origins: "*:*" });
   app.set("io", io);
 }
 
@@ -106,10 +114,21 @@ if (installationWizardCtrl.isInstallationComplete() === true) {
 
 function installServer() {
   const connectedHandler = err => {
+    const socket = app.get("io") as SocketIO.Server
     if (err) {
-      console.error.bind(console, "connection error:");
+      isMongodbConnected = false
+      if(err.name === "MongoNetworkError"){
+        console.log("Cannot connect to MongoDB server. Check whether the MongoDB service is running.")
+      }else{
+        console.log(err)
+      }
+      socket.emit(SocketConstants.SERVER_EVENT_BACKEND_DIAGNOSTICS, {mongodb_connected: false})
+      console.log( "Retry after 5 seconds...")
+      setTimeout(()=>{installServer()}, 5000)
     } else {
       console.log("Connected to MongoDB");
+      isMongodbConnected = true
+      socket.emit(SocketConstants.SERVER_EVENT_BACKEND_DIAGNOSTICS, {mongodb_connected: true})
 
       // Routers===================================
       app.use("/api/s", new ShortUrlRouter().router);
@@ -124,6 +143,7 @@ function installServer() {
   };
 
   (<any>mongoose).Promise = global.Promise;
+  console.log("Try connect to MongoDB..")
   if (env.node_env === "test") {
     mongoose.connect(
       env.mongodb_test_uri,
