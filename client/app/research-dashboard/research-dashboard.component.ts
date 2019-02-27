@@ -182,7 +182,7 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
           if (paramExpId) {
             console.log('mount an experiment : ' + paramExpId)
             localStorage.setItem('selectedExperiment', paramExpId)
-            this.onExperimentSelected(paramExpId)
+            this.api.setSelectedExperimentId(paramExpId)
           }
         }),
         flatMap(paramExpId => {
@@ -311,7 +311,7 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
   }
 
   onExperimentSelected(id) {
-    this.api.setSelectedExperimentId(id)
+    this.router.navigate(['research/dashboard', id])
   }
 
   getMyRole(): Observable<string> {
