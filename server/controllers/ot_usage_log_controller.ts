@@ -43,18 +43,20 @@ export class OTUsageLogCtrl {
     })
   }
 
-  analyzeSessionSummary(additionalFilter: any = null, userIds: Array<string> = null): Promise<Array<{ user: any, lastTimestamp: number, totalDuration: number }>> {
+  analyzeSessionSummary(additionalFilter: any = null, userIds: Array<string> = null, experimentId: string = null): Promise<any> {
 
     const filterCondition = additionalFilter || {}
-    filterCondition["$or"] = [{ name: "session" }, { name: "OTSynchronizationService", sub: "synchronization_finished" }]
+    filterCondition["$or"] = [{ name: "session" }, { name: "data_sync", sub: "synchronization_finished" }]
     if (userIds) {
       filterCondition["user"] = { $in: userIds }
+    }
+    if(experimentId){
+      filterCondition["experiment"] = experimentId
     }
 
     return OTUsageLog.aggregate([
       { $match: filterCondition },
-      { $sort: { timestamp: -1 } },
-      { $group: { _id: { user: "$user", name: "$name" }, lastTimestamp: { $first: "$timestamp" } } },
+      { $group: { _id: { user: "$user", name: "$name" }, lastTimestamp: { $max: "$timestamp" } } },
       { $group: { _id: "$_id.user", logs: { $push: "$$ROOT" } } }
     ]).allowDiskUse(true).exec()
   }

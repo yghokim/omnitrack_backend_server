@@ -433,6 +433,34 @@ export class ExperimentService {
     }))
   }
 
+  updateLatestTimestampsOfParticipants(selectUserIds?:Array<string>): Observable<void>{
+    return this.http.get<Array<{_id: string, logs: Array<{_id:{user:string, name: string}, lastTimestamp: string}>}>>("/api/research/experiments/" + this.experimentId + "/session/summary", this.researchApi.makeAuthorizedRequestOptions({
+      userIds: selectUserIds,
+    })).pipe(map(result => {
+      console.log("session summary:")
+      console.log(result)
+      result.forEach(row => {
+        console.log(this.participantList.value)
+        const participant = this.participantList.value.find(p=>p.user._id === row._id)
+        if(participant){
+          row.logs.forEach(
+            log => {
+                switch(log._id.name){
+                  case "session":
+                  participant.lastSessionTimestamp = moment(log.lastTimestamp).unix()
+                  break;
+                  case "data_sync":
+                  participant.lastSyncTimestamp = moment(log.lastTimestamp).unix()
+                  break;
+                }
+                participant.lastTimestampsUpdated = true
+            }
+          )
+        }
+      })
+    }))
+  }
+
   // commands====================
 
   addCollaborator(collaboratorId: string, permissions: ExperimentPermissions): Observable<boolean> {

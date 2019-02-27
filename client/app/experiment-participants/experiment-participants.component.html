@@ -10,7 +10,8 @@
 
       <ng-container matColumnDef="email">
         <mat-header-cell *matHeaderCellDef mat-sort-header> Email </mat-header-cell>
-        <mat-cell class="text-truncate" [matTooltip]="object.user.email" *matCellDef="let object"> {{object.user.email || ''}} </mat-cell>
+        <mat-cell class="text-truncate" [matTooltip]="object.user.email" *matCellDef="let object"> {{object.user.email
+          || ''}} </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="status">
@@ -37,7 +38,8 @@
               (dateChange)="onChangeExperimentRangeStartInput($event.value, object)">
             <mat-datepicker touchUi="true" #experimentRangeStartPicker></mat-datepicker>
           </mat-form-field>
-          <button mat-button class="table-cell-clickable-text" (click)="experimentRangeStartPicker.open()">{{object.experimentRange.from | date: 'MMM dd, yyyy (EE)'}}</button>
+          <button mat-button class="table-cell-clickable-text" (click)="experimentRangeStartPicker.open()">{{object.experimentRange.from
+            | date: 'MMM dd, yyyy (EE)'}}</button>
         </mat-cell>
       </ng-container>
 
@@ -50,18 +52,28 @@
       <ng-container matColumnDef="lastSync">
         <mat-header-cell *matHeaderCellDef mat-sort-header>Last Sync</mat-header-cell>
         <mat-cell *matCellDef="let object">
-          <span *ngIf="object.lastSyncTimestamp">{{object.lastSyncTimestamp | date: 'MMM dd, yyyy'}}
-            <br>{{object.lastSyncTimestamp | date: 'h:mm a'}}</span>
-          <span *ngIf="!object.lastSyncTimestamp" class="text-color-danger">None</span>
+          <span *ngIf="isLoadingSessionSummary === true" class="text-color-danger">
+            Loading...
+          </span>
+          <ng-container *ngIf="isLoadingSessionSummary !== true">
+            <span *ngIf="object.lastSyncTimestamp">{{object.lastSyncTimestamp | date: 'MMM dd, yyyy'}}
+              <br>{{object.lastSyncTimestamp | date: 'h:mm a'}}</span>
+            <span *ngIf="!object.lastSyncTimestamp" class="text-color-danger">None</span>
+          </ng-container>
         </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="lastSession">
         <mat-header-cell *matHeaderCellDef mat-sort-header>Last Session</mat-header-cell>
         <mat-cell *matCellDef="let object">
-          <span *ngIf="object.lastSessionTimestamp">{{object.lastSessionTimestamp | date: 'MMM dd, yyyy'}}
-            <br>{{object.lastSessionTimestamp | date: 'h:mm a'}}</span>
-          <span *ngIf="!object.lastSessionTimestamp" class="text-color-danger">None</span>
+          <span *ngIf="isLoadingSessionSummary === true" class="text-color-danger">
+            Loading...
+          </span>
+          <ng-container *ngIf="isLoadingSessionSummary !== true">
+            <span *ngIf="object.lastSessionTimestamp">{{object.lastSessionTimestamp | date: 'MMM dd, yyyy'}}
+              <br>{{object.lastSessionTimestamp | date: 'h:mm a'}}</span>
+            <span *ngIf="!object.lastSessionTimestamp" class="text-color-danger">None</span>
+          </ng-container>
         </mat-cell>
       </ng-container>
 
@@ -124,7 +136,8 @@
 
     <div class="tabbar-header-right-container-absolute">
       <button mat-icon-button [matTooltip]="screenExpanded===true? 'contract' : 'expand'" (click)="screenExpanded = !screenExpanded">
-        <mat-icon class="material-icons text-color-darkgray">{{screenExpanded===true? 'picture_in_picture' : 'aspect_ratio'}}</mat-icon>
+        <mat-icon class="material-icons text-color-darkgray">{{screenExpanded===true? 'picture_in_picture' :
+          'aspect_ratio'}}</mat-icon>
       </button>
     </div>
 

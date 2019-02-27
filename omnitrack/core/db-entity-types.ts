@@ -155,4 +155,5 @@ export interface IParticipantDbEntity extends IUserChildDbEntity {
   experimentRange?: { from?: Date, to?: Date }
   lastSyncTimestamp?: number
   lastSessionTimestamp?: number
+  lastTimestampsUpdated?: boolean
 }

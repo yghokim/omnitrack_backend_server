@@ -190,6 +190,7 @@ export default class OTExperimentCtrl {
     OTParticipant.find({ experiment: experimentId }).populate("user").lean()
       .then(
         participants => {
+          /*
           if (participants) {
             otUsageLogCtrl.analyzeSessionSummary(null, participants.map(p => p.user._id)).then(
               usageLogAnalysisResults => {
@@ -214,16 +215,52 @@ export default class OTExperimentCtrl {
 
                 res.status(200).send(participants)
               }
+
             ).catch(err => {
               console.log(err)
               res.status(200).send(participants)
             })
-          } else { res.status(200).send(participants) }
+          } else { res.status(200).send(participants) }*/
+          res.status(200).send(participants)
         }
       ).catch(err => {
         console.log(err)
         res.status(500).send(err)
       })
+  }
+
+  getSessionSummary = (req, res) => {
+    const experimentId = req.params.experimentId
+    const userIds = req.query.userIds
+    otUsageLogCtrl.analyzeSessionSummary(null, userIds, experimentId).then(
+      usageLogAnalysisResults => {
+        /*
+        participants.forEach(participant => {
+          const analysis = usageLogAnalysisResults.find(r =>
+            r["_id"] === participant.user._id)
+          if (analysis) {
+            analysis["logs"].forEach(log => {
+              switch (log._id.name) {
+                case "session":
+                  participant["lastSessionTimestamp"] = log["lastTimestamp"]
+                  break;
+                case "OTSynchronizationService":
+                  participant["lastSyncTimestamp"] = log["lastTimestamp"]
+                  break;
+              }
+            })
+          } else {
+            console.log("no usage log matches.")
+          }
+        })*/
+        
+        res.status(200).send(usageLogAnalysisResults)
+      }
+
+    ).catch(err => {
+      console.log(err)
+      res.status(500).send(err)
+    })
   }
 
   getManagerInfo = (req, res) => {

@@ -7,6 +7,7 @@ const otUsageLogSchema = new mongoose.Schema({
   content: Object,
   deviceId: {type: String, index: true},
   timestamp: {type: Date, index: true},
+  experiment: {type: String, ref: 'OTExperiment'},
   localId: Number
 }, {timestamps: true});
 

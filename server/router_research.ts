@@ -119,6 +119,8 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.get('/experiments/:experimentId/participants', tokenApprovedAuth, experimentCtrl.getParticipants)
 
+    this.router.get('/experiments/:experimentId/session/summary', tokenApprovedAuth, experimentCtrl.getSessionSummary)
+
     this.router.post('/experiments/:experimentId/invitations/new', tokenApprovedAuth, experimentCtrl.addNewIntivation)
 
     this.router.post('/experiments/:experimentId/invitations/send', tokenApprovedAuth, experimentCtrl.sendInvitation)

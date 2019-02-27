@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
-import { Subscription, zip, empty } from 'rxjs';
-import { flatMap } from 'rxjs/operators';
+import { Subscription, empty } from 'rxjs';
+import { flatMap, tap } from 'rxjs/operators';
 import { MatDialog, MatTableDataSource, MatSort } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
@@ -22,6 +22,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
   public participants: Array<any>
   public isLoadingParticipants = true
+  public isLoadingSessionSummary = true
 
   public hoveredRowIndex = -1
   public hoveredParticipantId = null
@@ -42,15 +43,23 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isLoadingParticipants = true
-    this._internalSubscriptions.add(this.api.selectedExperimentService.pipe(flatMap(expService => expService.getParticipants())).subscribe(
-      participants => {
-        this.participants = participants
-        this.isLoadingParticipants = false
-        this.participantDataSource = new MatTableDataSource(participants)
-        this.setSortParticipants();
-        this.detector.markForCheck()
-      }
-    ))
+    this._internalSubscriptions.add(this.api.selectedExperimentService.pipe(
+      flatMap(expService => expService.getParticipants()
+        .pipe(
+          tap(participants => {
+            this.participants = participants
+            this.isLoadingParticipants = false
+            this.participantDataSource = new MatTableDataSource(participants)
+            this.setSortParticipants();
+            this.detector.markForCheck()
+          }),
+          flatMap(participants => expService.updateLatestTimestampsOfParticipants()))
+      )).subscribe(
+        () => {
+          this.isLoadingSessionSummary = false
+          this.detector.markForCheck()
+        }
+      ))
   }
 
   ngOnDestroy() {
@@ -90,8 +99,8 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
           this.api.selectedExperimentService.pipe(flatMap(expService => expService.removeParticipant(participantId)))
             .subscribe(
               removed => {
-                if(removed===true){
-                  this.notificationService.pushSnackBarMessage({message: "Removed the participant entry."})
+                if (removed === true) {
+                  this.notificationService.pushSnackBarMessage({ message: "Removed the participant entry." })
                 }
               }
             )
@@ -115,8 +124,8 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
           this.api.selectedExperimentService.pipe(flatMap(expService => expService.dropParticipant(participantId)))
             .subscribe(
               removed => {
-                if (removed===true) {
-                  this.notificationService.pushSnackBarMessage({message: "Dropped the participant."})
+                if (removed === true) {
+                  this.notificationService.pushSnackBarMessage({ message: "Dropped the participant." })
                 }
               })
         }
