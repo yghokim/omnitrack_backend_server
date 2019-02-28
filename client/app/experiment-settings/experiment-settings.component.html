@@ -27,7 +27,7 @@
           <span *ngIf="isFinished()===false" class="badge badge-success">Ongoing</span>
           <span *ngIf="experiment.finishDate!=null && isFinished() === false" class="badge badge-warning">Finishes on {{experiment.finishDate | date: 'fullDate'}}</span>
           <span *ngIf="isFinished()===true" class="badge badge-secondary">Finished on {{experiment.finishDate | date: 'fullDate'}}</span>
-          <span class="left-margin-1em">
+          <span class="left-margin-1em" *ngIf="isManager===true">
             <input style="width: 0" matInput [matDatepicker]="picker" [value]="experiment.finishDate"
                (dateChange)="onFinishDatePicked($event.value)">
             <button type="button" mat-button color="accent" class="button small" (click)="picker.open()">{{experiment.finishDate==null? 'Reserve Expiration' : 'Change Finish Date'}}</button>
