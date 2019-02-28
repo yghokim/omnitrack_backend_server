@@ -1,5 +1,5 @@
 <div class="container">
-  <mat-slide-toggle [disabled]="isConsentFormContentAvailable() !== true" class="bottom-margin-1em" id="ask-consent-in-app-toggle"
+  <mat-slide-toggle *ngIf="isConsentFormContentAvailable() === true" class="bottom-margin-1em" id="ask-consent-in-app-toggle"
     [checked]="experiment.receiveConsentInApp === true" (change)="onAskConsentInAppToggled($event.checked)">Show the consent and questionnaires in App</mat-slide-toggle>
 
   <div class="card card-main">

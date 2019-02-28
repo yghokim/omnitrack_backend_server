@@ -52,20 +52,20 @@ export class UsersPerDayComponent implements OnInit {
 
     if (dates && dates.length > 0 && userLogs && userLogs.length > 0) {
       const usersPerDay = []
-      for (let date of userLogs) {
-        var activeUsers = 0;
-        for (let element of date.dayElements) {
+      for (const date of userLogs) {
+        let activeUsers = 0;
+        for (const element of date.dayElements) {
           if (element.engagements.length > 0) {
             activeUsers++;
           }
         }
         usersPerDay.push({
-          x: date.dayElements[0].date.valueOf(), 
+          x: date.dayElements[0].date.valueOf(),
           y: activeUsers
         })
       }
-      var average = 0;
-      for (let user of usersPerDay) { average += user.y }
+      let average = 0;
+      for (const user of usersPerDay) { average += user.y }
       if (usersPerDay.length !== 0) {
         average = average / usersPerDay.length
       }
@@ -83,7 +83,7 @@ export class UsersPerDayComponent implements OnInit {
   }
   /*
     makeChart() {
-      
+
       chartOptions.tooltip = {
         shared: true,
         valueDecimals: 2
