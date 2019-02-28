@@ -8,10 +8,10 @@
         <ng-content select="[header]"></ng-content>
       </div>
       <div class="profile_container">
-        <div class="sign_in" *ngIf="(authService.currentResearcher | async).signedIn != true">
+        <div class="sign_in" *ngIf="(authService.currentResearcher | async).signedIn !== true">
           <button mat-button color="primary" (click)="goToSignIn()">Sign In</button>
         </div>
-        <div class="signed_in_profile flex-container flex-align-items-center" *ngIf="(authService.currentResearcher | async).signedIn == true">
+        <div class="signed_in_profile flex-container flex-align-items-center" *ngIf="(authService.currentResearcher | async).signedIn === true">
           <div class="information">
             <div class="name font-weight-bold">
               {{(authService.currentResearcher | async).alias}}
