@@ -39,6 +39,8 @@ export function validateAndroidBuildConfig(config: IAndroidBuildConfig, firebase
       message: "Credential is not set."
     })
   } else {
+
+    /* googleServices.json is now not manually stored by participant.
     if (config.credentials.googleServices == null) {
       errors.push({
         key: "credentials.googleServices",
@@ -84,7 +86,7 @@ export function validateAndroidBuildConfig(config: IAndroidBuildConfig, firebase
           message: "Wrong formatted JSON file. Check you uploaded the right file."
         })
       }
-    }
+    }*/
 
     if (config.credentials.keystoreFileHash == null) {
       errors.push({
