@@ -42,7 +42,8 @@ export interface IClientBuildConfigBase<T> extends IMongooseDbEntity {
   hideServicesTab: boolean,
   credentials: T, // dictionary
   researcherMode: boolean,
-  apiKeys: Array<{ key: string, value: any }>
+  apiKeys: Array<{ key: string, value: any }>,
+  firebasePlatformAppId: string
 }
 
 export const APP_THIRD_PARTY_KEYSTORE_KEYS = [
@@ -55,7 +56,7 @@ export const APP_THIRD_PARTY_KEYSTORE_KEYS = [
 export const ANDROID_PACKAGE_NAME_REGEX = /^([A-Za-z]{1}[A-Za-z\d_]*\.)*[A-Za-z][A-Za-z\d_]*$/
 
 export interface AndroidBuildCredentials {
-  googleServices: any,
+  //googleServices: any,
   keystoreFileHash: string,
   keystorePassword: string
   keystoreAlias: string,

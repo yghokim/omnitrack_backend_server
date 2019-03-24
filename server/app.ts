@@ -29,7 +29,7 @@ var isMongodbConnected = false
 
 const app = express();
 const appWrapper = new AppWrapper(app);
-dotenv.load({ path: ".env" });
+dotenv.config({ path: ".env" });
 app.set("port", 3000);
 
 app.use("/", express.static(path.join(__dirname, "../public")));
@@ -116,6 +116,7 @@ function installServer() {
   const connectedHandler = err => {
     const socket = app.get("io") as SocketIO.Server
     if (err) {
+      //MongoDB ERROR=================================================================
       isMongodbConnected = false
       if(err.name === "MongoNetworkError"){
         console.log("Cannot connect to MongoDB server. Check whether the MongoDB service is running.")
@@ -126,7 +127,9 @@ function installServer() {
       console.log( "Retry after 5 seconds...")
       setTimeout(()=>{installServer()}, 5000)
     } else {
+      //MongoDB SUCCESS=================================================================
       console.log("Connected to MongoDB");
+
       isMongodbConnected = true
       socket.emit(SocketConstants.SERVER_EVENT_BACKEND_DIAGNOSTICS, {mongodb_connected: true})
 
@@ -182,6 +185,7 @@ function initializeFirebase() {
       } else {
         firebaseApp = firebaseAdmin.app(firebaseServiceAccount.project_id);
       }
+      
     } catch (ex) {
       console.log(ex);
       console.log("could not initialize the Firebase admin.");
