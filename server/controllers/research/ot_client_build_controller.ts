@@ -30,6 +30,24 @@ export interface SourceFolderInfo {
 
 export default class OTClientBuildCtrl {
 
+  private getFirebaseManagement(): firebaseAdmin.projectManagement.ProjectManagement {
+    return firebaseAdmin.projectManagement(firebaseApp)
+  }
+
+  private createNewFirebasePlatformApp(management: firebaseAdmin.projectManagement.ProjectManagement, platform: String, packageName: string, displayName: string): Promise<firebaseAdmin.projectManagement.AndroidApp | firebaseAdmin.projectManagement.IosApp> {
+    switch (platform) {
+      case "Android": return management.createAndroidApp(packageName, displayName)
+      case "iOS": return management.createIosApp(packageName, displayName)
+    }
+  }
+
+  private getFirebasePlatformAppList(management: firebaseAdmin.projectManagement.ProjectManagement, platform: String): Promise<Array<firebaseAdmin.projectManagement.AndroidApp> | Array<firebaseAdmin.projectManagement.IosApp>> {
+    switch (platform) {
+      case "Android": return management.listAndroidApps()
+      case "iOS": return management.listIosApps()
+    }
+  }
+
   private getExperimentIdFromConfig(buildConfig: any): string {
     return buildConfig.researcherMode !== true ? (isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id) : null
   }
@@ -141,92 +159,90 @@ export default class OTClientBuildCtrl {
     })
   }
 
-  _generateOrLoadFirebaseApp(buildConfig: IClientBuildConfigBase<any>): Promise<firebaseAdmin.projectManagement.AndroidApp> {
-    switch (buildConfig.platform) {
-      case "Android":
-        const fbManagement = firebaseAdmin.projectManagement(firebaseApp)
-        const createNewApp = () => {
-          return fbManagement.createAndroidApp(buildConfig.packageName,
-            buildConfig.researcherMode === true ? "OmniTrack Master" : ("exp:" + this.getExperimentIdFromConfig(buildConfig))
-          ).then(
-            createdApp => {
-              buildConfig.firebasePlatformAppId = createdApp.appId
-              console.log("created new FirebaseAndroidApp:")
-              console.log(createdApp)
-              return OTClientBuildConfigModel.findByIdAndUpdate(
-                buildConfig._id,
-                { firebasePlatformAppId: createdApp.appId }).then(doc => createdApp)
-            }
-          )
+  _findFirebaseAppWithPackageName(platform: string, packageName: string, payloadAppId: string): Promise<firebaseAdmin.projectManagement.AndroidApp | firebaseAdmin.projectManagement.IosApp> {
+    const management = this.getFirebaseManagement()
+    return deferPromise(() => {
+      if (payloadAppId != null) {
+        switch (platform) {
+          case "Android":
+            const androidApp = management.androidApp(payloadAppId)
+            if (androidApp != null) {
+              return androidApp.getMetadata().then(metadata => metadata.packageName === packageName ? androidApp : null)
+            } else return Promise.resolve(null)
+          case "iOS":
+            const iosApp = management.iosApp(payloadAppId)
+            if (iosApp != null) {
+              return iosApp.getMetadata().then(metadata => metadata.bundleId === packageName ? iosApp : null)
+            } else return Promise.resolve(null)
+          default: throw Error("Unsupported platform.")
         }
+      }
+      else return Promise.resolve(null)
+    }).then(payloadedApp => {
+      if (payloadedApp != null) {
+        return payloadedApp
+      } else {
+        return this.getFirebasePlatformAppList(management, platform).then(
+          list => {
+            if (list.length === 0) {
+              return null
+            } else {
+              const checkAppRoutine = (app: any, index: number) => {
+                return app.getMetadata().then(metadata => {
+                  console.log("check ", metadata.displayName)
+                  if (metadata.packageName === packageName || metadata.bundleId === packageName) {
+                    console.log("found matching app with package name.")
+                    return app
+                  } else if (index + 1 < list.length) {
+                    return checkAppRoutine(list[index + 1], index + 1)
+                  } else return null
+                })
+              }
 
-        return fbManagement.listAndroidApps().then(
-          androidApps => {
-            if (androidApps.length > 0) {
-              return deferPromise(() => {
-                if (buildConfig.firebasePlatformAppId != null) {
-                  //firebase app id exists in db.
-                  console.log("check app with id")
-                  const androidApp = androidApps.find(a => a.appId == buildConfig.firebasePlatformAppId)
-                  if (androidApp != null) {
-                    return androidApp.getMetadata().then(
-                      metadata => {
-                        if (metadata.packageName == buildConfig.packageName) {
-                          return androidApp
-                        } else return null
-                      }
-                    )
-                  } else return Promise.resolve(null)
-                } else return Promise.resolve(null)
-              }).then(
-                matchApp => {
-                  if (matchApp != null) {
-                    console.log("use existing firebase android app: ", matchApp.appId)
-                    return matchApp
-                  } else { // no match app
-                    console.log("search for firebase android apps that match the package name.")
-                    //find app with metadata
-                    var currentApp = androidApps[0]
-
-                    const checkAppRoutine = (app: firebaseAdmin.projectManagement.AndroidApp, index: number) => {
-                      return app.getMetadata().then(metadata => {
-                        console.log("check ", metadata.displayName)
-                        if (metadata.packageName == buildConfig.packageName) {
-                          console.log("found matching app with package name.")
-                          return app
-                        } else if (index + 1 < androidApps.length) {
-                          return checkAppRoutine(androidApps[index + 1], index + 1)
-                        } else return null
-                      })
-                    }
-
-                    return checkAppRoutine(currentApp, 0).then(app => {
-                      if (app != null) {
-                        return app
-                      } else {
-
-                        console.log("Not found an app with package name. create new one.")
-                        //if no apps match, create new one.
-                        return createNewApp()
-                      }
-                    })
-                  }
-                }
-              )
-            } else return createNewApp()
+              return checkAppRoutine(list[0], 0)
+            }
           }
         )
-        break;
-      default: throw Error("Non-Android platform is not supported.")
+      }
+    })
+  }
+
+  _generateOrLoadFirebaseApp(buildConfig: IClientBuildConfigBase<any>): Promise<firebaseAdmin.projectManagement.AndroidApp | firebaseAdmin.projectManagement.IosApp> {
+    const fbManagement = this.getFirebaseManagement()
+    const createNewApp = () => {
+      return this.createNewFirebasePlatformApp(fbManagement, buildConfig.platform, buildConfig.packageName,
+        buildConfig.researcherMode === true ? "OmniTrack Master" : ("exp:" + this.getExperimentIdFromConfig(buildConfig))
+      ).then(
+        createdApp => {
+          buildConfig.firebasePlatformAppId = createdApp.appId
+          console.log("created new FirebaseAndroidApp:")
+          console.log(createdApp)
+          return OTClientBuildConfigModel.findByIdAndUpdate(
+            buildConfig._id,
+            { firebasePlatformAppId: createdApp.appId }).then(doc => createdApp)
+        }
+      )
     }
+
+    return this._findFirebaseAppWithPackageName(buildConfig.platform, buildConfig.packageName, buildConfig.firebasePlatformAppId)
+      .then(platformApp => {
+        if (platformApp != null) {
+          if (platformApp.appId !== buildConfig.firebasePlatformAppId) {
+            buildConfig.firebasePlatformAppId = platformApp.appId
+            return OTClientBuildConfigModel.findByIdAndUpdate(
+              buildConfig._id,
+              { firebasePlatformAppId: platformApp.appId }).then(doc => platformApp)
+          } else return platformApp
+        } else return createNewApp()
+      })
   }
 
   _registerKeystoreFingerPrintToFirebase(firebaseAndroidApp: firebaseAdmin.projectManagement.AndroidApp, androidBuildConfig: IAndroidBuildConfig): Promise<firebaseAdmin.projectManagement.AndroidApp> {
-    if(firebaseAndroidApp==null){
+    if (firebaseAndroidApp == null) {
       throw Error("parameter firebaseAndroidApp must not be null.")
     }
 
-    if(androidBuildConfig==null){
+    if (androidBuildConfig == null) {
       throw Error("parameter androidBuildConfig must not be null.")
     }
 
@@ -235,16 +251,16 @@ export default class OTClientBuildCtrl {
         const fingerprintFormatted = fingerprint.replace(/:/g, "").toLowerCase()
         console.log("check fingerprint ", fingerprintFormatted)
         return firebaseAndroidApp.getShaCertificates().then(certificates => {
-          if(certificates.find(c => c.shaHash == fingerprintFormatted) != null){
+          if (certificates.find(c => c.shaHash == fingerprintFormatted) != null) {
             console.log("SHA fingerprint is already registered in Firebase.")
             return firebaseAndroidApp
-          }else{
+          } else {
             console.log("SHA fingerprint is not registered in Firebase. Add new.")
             return firebaseAndroidApp.addShaCertificate(
-              firebaseAdmin.projectManagement(firebaseApp).shaCertificate(fingerprintFormatted)
+              this.getFirebaseManagement().shaCertificate(fingerprintFormatted)
             ).then(() => {
               console.log("completed adding SHA fingerprint.")
-              return firebaseAdmin.projectManagement(firebaseApp).androidApp(firebaseAndroidApp.appId)
+              return this.getFirebaseManagement().androidApp(firebaseAndroidApp.appId)
             })
           }
         })
@@ -373,8 +389,26 @@ export default class OTClientBuildCtrl {
   }
 
   handleExperimentRemoval(experimentId: string): Promise<void> {
-    const value = this._makeExperimentConfigDirectoryPath(experimentId)
-    return fs.remove(value).then()
+    return Promise.all([
+      OTClientBuildConfigModel.aggregate([
+        {
+          $group: {
+            _id: { packageName: "$packageName", platform: "$platform" },
+            configs: { $push: "$$ROOT" }
+          }
+        },
+        {
+          $match: { "configs.experiment": experimentId, "configs": { $size: 1 } }
+        }
+      ]).then(list => {
+        if (list.length > 0) {
+          //TODO: remove Firebase platform apps if remove API is added in the future.
+          return null
+        } else {
+          return null
+        }
+      }),
+      fs.remove(this._makeExperimentConfigDirectoryPath(experimentId))]).then(res => null)
   }
 
   private findAndroidSourceRoot(extractedPath: string, buildConfig: IAndroidBuildConfig): string {
@@ -492,7 +526,7 @@ export default class OTClientBuildCtrl {
     }
   }
 
-  private _injectAndroidBuildConfigToSource(buildConfig: IClientBuildConfigBase<AndroidBuildCredentials>, firebaseAndroidApp: firebaseAdmin.projectManagement.AndroidApp, sourceFolderPath: string): Promise<string> {
+  private _injectAndroidBuildConfigToSource(buildConfig: IClientBuildConfigBase<AndroidBuildCredentials>, sourceFolderPath: string): Promise<string> {
     const versionPropPath = path.join(sourceFolderPath, "version.properties")
     return Promise.all([
       fs.readFile(versionPropPath, 'utf8').then(propString => parseProperties(propString)),
@@ -579,8 +613,15 @@ export default class OTClientBuildCtrl {
       console.log("write configuration files for Android build.")
       return Promise.all(
         [
-          fs.writeJson(path.join(sourceFolderPath, "omnitrackBuildConfig.json"), sourceConfigJson, { spaces: 2 }),
-          firebaseAndroidApp.getConfig().then(googleServicesString => fs.writeFile(path.join(sourceFolderPath, "google-services.json"), googleServicesString)),
+          fs.writeJson(path.join(sourceFolderPath, "omnitrackBuildConfig.json"), sourceConfigJson, {
+            spaces: 2
+          }),
+          this.getFirebaseManagement().androidApp(buildConfig.firebasePlatformAppId).getConfig()
+          .catch(ex => {
+            console.log("getConfig error.")
+            return this.getFirebaseManagement().androidApp(buildConfig.firebasePlatformAppId).getConfig()
+          })  
+          .then(googleServicesString => fs.writeFile(path.join(sourceFolderPath, "google-services.json"), googleServicesString)),
           fs.writeFile(path.join(sourceFolderPath, "keystore.properties"), keystorePropertiesString),
           // fs.writeFile(path.join(sourceFolderPath, "gradle.properties"), "android.enableAapt2=false")
         ]
@@ -733,9 +774,9 @@ export default class OTClientBuildCtrl {
                       }
                     })
                   }).then(sourcePath => this._generateOrLoadFirebaseApp(buildConfig)
-                    .then(firebaseAndroidApp => this._registerKeystoreFingerPrintToFirebase(firebaseAndroidApp, buildConfig)).then(firebaseAndroidApp => ({fbAndroidApp: firebaseAndroidApp, sourcePath: sourcePath}))
+                    .then(firebaseAndroidApp => this._registerKeystoreFingerPrintToFirebase(firebaseAndroidApp as firebaseAdmin.projectManagement.AndroidApp, buildConfig)).then(firebaseAndroidApp => sourcePath)
                   )
-                  .then(res => this._injectAndroidBuildConfigToSource(buildConfig, res.fbAndroidApp, res.sourcePath))
+                  .then(sourcePath => this._injectAndroidBuildConfigToSource(buildConfig, sourcePath))
                   .then(sourcePath => {
                     return checkCanceled().then(canceled => {
                       if (canceled === true) {

@@ -43,7 +43,7 @@ export interface IClientBuildConfigBase<T> extends IMongooseDbEntity {
   credentials: T, // dictionary
   researcherMode: boolean,
   apiKeys: Array<{ key: string, value: any }>,
-  firebasePlatformAppId: String
+  firebasePlatformAppId: string
 }
 
 export const APP_THIRD_PARTY_KEYSTORE_KEYS = [
