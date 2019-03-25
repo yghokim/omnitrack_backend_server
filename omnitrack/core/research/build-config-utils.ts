@@ -105,6 +105,19 @@ export function validateAndroidBuildConfig(config: IAndroidBuildConfig, firebase
         }
       }
     )
+
+    console.log("keystoreValidated: ", config.credentials.keystoreValidated)
+    if(config.credentials.keystoreValidated == null){
+      errors.push({
+        key:"credentials.keystoreValidated",
+        message: "Verify keystore configuration before build."
+      })
+    }else if(config.credentials.keystoreValidated === false){
+      errors.push({
+        key:"credentials.keystoreValidated",
+        message: "The keystore configuration must be verified."
+      })
+    }
   }
 
   return errors

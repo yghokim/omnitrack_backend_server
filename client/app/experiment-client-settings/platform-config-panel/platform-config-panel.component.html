@@ -1,11 +1,13 @@
 <mat-accordion displayMode="flat">
-  <mat-expansion-panel [class.opened]="panelStep === 0" [expanded]="panelStep === 0" (opened)="panelStep = 0" (closed)="onClosedPanel(0)">
+  <mat-expansion-panel [class.opened]="panelStep === 0" [expanded]="panelStep === 0" (opened)="panelStep = 0"
+    (closed)="onClosedPanel(0)">
     <mat-expansion-panel-header>
       <mat-panel-title [class.opened]="panelStep === 0">
         Client Build Settings
       </mat-panel-title>
       <mat-panel-description>
-        <div *ngIf="panelStep !== 0 && isBuilding === true" class="progress-indicator fill-width flex-container flex-align-items-center">
+        <div *ngIf="panelStep !== 0 && isBuilding === true"
+          class="progress-indicator fill-width flex-container flex-align-items-center">
           <div class="label">Build in progress...</div>
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         </div>
@@ -13,11 +15,13 @@
     </mat-expansion-panel-header>
 
     <div class="card-content">
-      <app-labeled-loading-indicator class="loading-indicator" *ngIf="isLoading===true" [fitParent]="originalConfig!=null">
+      <app-labeled-loading-indicator class="loading-indicator" *ngIf="isLoading===true"
+        [fitParent]="originalConfig!=null">
         <span *ngIf="originalConfig==null" message>Loading platform configuration..</span>
         <span *ngIf="originalConfig!=null" message>Please wait..</span>
       </app-labeled-loading-indicator>
-      <div class="alert alert-warning no-margin flex-container flex-align-items-center" role="alert" *ngIf="isLoading !== true && isInitialized === false">
+      <div class="alert alert-warning no-margin flex-container flex-align-items-center" role="alert"
+        *ngIf="isLoading !== true && isInitialized === false">
         <span>
           A build configuration of this platform is not initialized. Do you want to initialize?
         </span>
@@ -41,15 +45,20 @@
               Basic App Info
             </th>
             <td class="main-settings-container">
-              <app-config-variable-row *ngIf="researcherMode === false" label="App name" type="text" variableName="appName"
-                hintText="Set app name to override 'OmniTrack'" [config]="changedConfig" [originalValue]="originalConfig.appName"></app-config-variable-row>
+              <app-config-variable-row *ngIf="researcherMode === false" label="App name" type="text"
+                variableName="appName" hintText="Set app name to override 'OmniTrack'" [config]="changedConfig"
+                [originalValue]="originalConfig.appName"></app-config-variable-row>
 
-              <app-config-variable-row label="Package name" type="text" variableName="packageName" hintText="An experiment-wise unique package address"
-                [config]="changedConfig" [originalValue]="originalConfig.packageName" [validationFailedMessage]="getValidationError('packageName')"></app-config-variable-row>
+              <app-config-variable-row label="Package name" type="text" variableName="packageName"
+                hintText="An experiment-wise unique package address" [config]="changedConfig"
+                [originalValue]="originalConfig.packageName"
+                [validationFailedMessage]="getValidationError('packageName')"></app-config-variable-row>
 
 
-              <app-config-variable-row label="Source code" type="sourceCode" variableName="sourceCode" hintText="Source code for app compilation"
-                [config]="changedConfig" [originalValue]="originalConfig.sourceCode" (binaryFileChanged)="localFiles['sourceCodeZip_' + platform] = $event"
+              <app-config-variable-row label="Source code" type="sourceCode" variableName="sourceCode"
+                hintText="Source code for app compilation" [config]="changedConfig"
+                [originalValue]="originalConfig.sourceCode"
+                (binaryFileChanged)="localFiles['sourceCodeZip_' + platform] = $event"
                 [validationFailedMessage]="getValidationError('sourceCode')"></app-config-variable-row>
             </td>
           </tr>
@@ -62,19 +71,23 @@
               <app-config-variable-row label="Hide the external entities" type="boolean" variableName="disableExternalEntities" hintText="Disable using or adding trackers that are not assigned to this experiment."
                 [config]="changedConfig" [originalValue]="originalConfig.disableExternalEntities"></app-config-variable-row>-->
 
-              <app-config-variable-row label="Enable tracker creation" type="boolean" variableName="disableTrackerCreation"
-                hintText="Disable participants to create their own trackers." [inverseBoolean]="true" [config]="changedConfig"
+              <app-config-variable-row label="Enable tracker creation" type="boolean"
+                variableName="disableTrackerCreation" hintText="Disable participants to create their own trackers."
+                [inverseBoolean]="true" [config]="changedConfig"
                 [originalValue]="originalConfig.disableTrackerCreation"></app-config-variable-row>
 
-              <app-config-variable-row label="Enable trigger creation" type="boolean" variableName="disableTriggerCreation"
-                hintText="Disable participants to create their own triggers." [inverseBoolean]="true" [config]="changedConfig"
+              <app-config-variable-row label="Enable trigger creation" type="boolean"
+                variableName="disableTriggerCreation" hintText="Disable participants to create their own triggers."
+                [inverseBoolean]="true" [config]="changedConfig"
                 [originalValue]="originalConfig.disableTriggerCreation"></app-config-variable-row>
 
-              <app-config-variable-row label="Show trigger list" type="boolean" variableName="hideTriggersTab" hintText="Disable an access to trigger list."
-                [inverseBoolean]="true" [config]="changedConfig" [originalValue]="originalConfig.hideTriggersTab"></app-config-variable-row>
+              <app-config-variable-row label="Show trigger list" type="boolean" variableName="hideTriggersTab"
+                hintText="Disable an access to trigger list." [inverseBoolean]="true" [config]="changedConfig"
+                [originalValue]="originalConfig.hideTriggersTab"></app-config-variable-row>
 
-              <app-config-variable-row label="Show service list" type="boolean" variableName="hideServicesTab" hintText="Disable an access to service list."
-                [inverseBoolean]="true" [config]="changedConfig" [originalValue]="originalConfig.hideServicesTab"></app-config-variable-row>
+              <app-config-variable-row label="Show service list" type="boolean" variableName="hideServicesTab"
+                hintText="Disable an access to service list." [inverseBoolean]="true" [config]="changedConfig"
+                [originalValue]="originalConfig.hideServicesTab"></app-config-variable-row>
 
               <app-config-variable-row label="Show tutorials" type="boolean" variableName="showTutorials" hintText=""
                 [config]="changedConfig" [originalValue]="originalConfig.showTutorials"></app-config-variable-row>
@@ -98,27 +111,71 @@
                     </button>
                   </div>
                 </div>
-                <app-config-variable-row label="Keystore file (.jks)" [originalValue]="originalConfig.credentials.keystoreFileHash"
-                  [config]="changedConfig.credentials" (binaryFileChanged)="localFiles.androidKeystore = $event"
-                  variableName="keystoreFileHash" type="jksFile" [validationFailedMessage]="getValidationError('credentials.keystoreFileHash')"></app-config-variable-row>
+                <app-config-variable-row label="Keystore file (.jks)"
+                  [originalValue]="originalConfig.credentials.keystoreFileHash" [config]="changedConfig.credentials"
+                  (binaryFileChanged)="localFiles.androidKeystore = $event" variableName="keystoreFileHash"
+                  type="jksFile" [validationFailedMessage]="getValidationError('credentials.keystoreFileHash')"
+                  (inputChanged)="onKeystoreInformationChanged()"></app-config-variable-row>
 
-                <app-config-variable-row label="Keystore password" [originalValue]="originalConfig.credentials.keystorePassword"
-                  [config]="changedConfig.credentials" hintText="Password for the keystore" variableName="keystorePassword"
-                  type="password" [validationFailedMessage]="getValidationError('credentials.keystorePassword')"></app-config-variable-row>
+                <app-config-variable-row label="Keystore password"
+                  [originalValue]="originalConfig.credentials.keystorePassword" [config]="changedConfig.credentials"
+                  hintText="Password for the keystore" variableName="keystorePassword" type="password"
+                  [validationFailedMessage]="getValidationError('credentials.keystorePassword')"
+                  (inputChanged)="onKeystoreInformationChanged()"></app-config-variable-row>
 
-                <app-config-variable-row label="Keypair alias" [originalValue]="originalConfig.credentials.keystoreAlias"
-                  [config]="changedConfig.credentials" hintText="Alias of keypair to use" variableName="keystoreAlias"
-                  type="text" [validationFailedMessage]="getValidationError('credentials.kestoreAlias')"></app-config-variable-row>
+                <app-config-variable-row label="Keypair alias"
+                  [originalValue]="originalConfig.credentials.keystoreAlias" [config]="changedConfig.credentials"
+                  hintText="Alias of keypair to use" variableName="keystoreAlias" type="text"
+                  [validationFailedMessage]="getValidationError('credentials.kestoreAlias')"
+                  (inputChanged)="onKeystoreInformationChanged()"></app-config-variable-row>
 
-                <app-config-variable-row label="Keypair password" [originalValue]="originalConfig.credentials.keystoreKeyPassword"
-                  hintText="Password for the designated keypair" [config]="changedConfig.credentials" variableName="keystoreKeyPassword"
-                  type="password" [validationFailedMessage]="getValidationError('credentials.keystoreKeyPassword')"></app-config-variable-row>
+                <app-config-variable-row label="Keypair password"
+                  [originalValue]="originalConfig.credentials.keystoreKeyPassword"
+                  hintText="Password for the designated keypair" [config]="changedConfig.credentials"
+                  variableName="keystoreKeyPassword" type="password"
+                  [validationFailedMessage]="getValidationError('credentials.keystoreKeyPassword')"
+                  (inputChanged)="onKeystoreInformationChanged()"></app-config-variable-row>
 
-                <div class="config-row no-hover text-right">
-                  <button [disabled]="isApplyingChanges === true" mat-raised-button color="accent" (click)="onValidateSignatureClicked()">
-                    {{isConfigChanged(originalConfig, changedConfig)===true? 'Save Changes & Validate the Keystore' :
-                    'Validate the Keystore'}}
-                  </button>
+                <div class="config-row no-hover text-right flex-container flex-align-items-center" [class.flex-container]="getValidationError('credentials.keystoreValidated') != null"
+                [class.background-warn]="getValidationError('credentials.keystoreValidated') != null"
+                >
+
+                  <ng-container *ngIf="getValidationError('credentials.keystoreValidated') != null">
+                    <ol class="invalid-message-list"
+                      *ngIf="getValidationError('credentials.keystoreValidated').length > 1">
+                      <li *ngFor="let message of getValidationError('credentials.keystoreValidated')"
+                        class="invalid-message small text-color-danger">
+                        {{message}}
+                      </li>
+                    </ol>
+                    <span *ngIf="getValidationError('credentials.keystoreValidated').length === 1"
+                      class="invalid-message small text-color-danger">{{getValidationError('credentials.keystoreValidated')[0]}}</span>
+                  </ng-container>
+
+                  <app-labeled-loading-indicator [alignLeft]="false" *ngIf="isValidatingKeystore===true"
+                    class="loading-indicator">
+                    <span message>Verifying keystore configuration...</span>
+                  </app-labeled-loading-indicator>
+
+                  <ng-container *ngIf="isValidatingKeystore!==true">
+                    <div class="flex-container flex-align-items-center flex-justify-content-end text-color-green"
+                      *ngIf="changedConfig.credentials.keystoreValidated === true">
+                      <mat-icon class="material-icons right-margin-dot2em">check_circle</mat-icon>
+                      <span>Keystore configuration has been verified.</span>
+                    </div>
+                    <div class="flex-container flex-align-items-center flex-justify-content-end text-color-danger"
+                      *ngIf="changedConfig.credentials.keystoreValidated === false">
+                      <mat-icon class="material-icons right-margin-dot2em">warning</mat-icon>
+                      <span>Keystore configuration is not valid.</span>
+                    </div>
+                    <button *ngIf="changedConfig.credentials.keystoreValidated == null"
+                      [disabled]="isApplyingChanges === true" mat-raised-button color="accent"
+                      (click)="onValidateSignatureClicked()">
+                      {{isConfigChanged(originalConfig, changedConfig)===true? 'Save Changes & Validate the Keystore' :
+                        'Validate the Keystore'}}
+                    </button>
+                  </ng-container>
+
                 </div>
 
                 <!--
@@ -135,14 +192,16 @@
             </th>
             <td class="main-settings-container">
               <div class="api-keys-header flex-container flex-align-items-center">
-                <div *ngIf="changedConfig.apiKeys == null || changedConfig.apiKeys.length === 0" class="empty-message text-color-accented">No
+                <div *ngIf="changedConfig.apiKeys == null || changedConfig.apiKeys.length === 0"
+                  class="empty-message text-color-accented">No
                   api keys are set.</div>
                 <div class="flex-filler"></div>
                 <div class="fileopen">
                   <label for="propFileInput">
                     <small>Overwrite from .properties file...</small>
                   </label>
-                  <input id="propFileInput" type="file" accept=".properties" (change)="onApiKeyPropertiesFileChanged($event.target.files)">
+                  <input id="propFileInput" type="file" accept=".properties"
+                    (change)="onApiKeyPropertiesFileChanged($event.target.files)">
                 </div>
               </div>
 
@@ -155,7 +214,8 @@
                   placeholder="Choose an API key">
                   <mat-option *ngFor="let key of getSelectableApiKeyKeys()" [value]="key">{{key}}</mat-option>
                 </mat-select>
-                <input class="flex-filler form-control" placeholder="Insert an API key value" type="text" [(ngModel)]="newApiKeyValue">
+                <input class="flex-filler form-control" placeholder="Insert an API key value" type="text"
+                  [(ngModel)]="newApiKeyValue">
                 <button mat-button color="accent" (click)="onAddApiKeyClicked()">Add</button>
               </div>
 
@@ -165,8 +225,8 @@
       </ng-container>
     </div>
     <hr class="no-margin">
-    <div class="card-body build-footer flex-container flex-align-items-center" [style.visibility]="isLoading === true? 'hidden' : null"
-      *ngIf="isInitialized === true">
+    <div class="card-body build-footer flex-container flex-align-items-center"
+      [style.visibility]="isLoading === true? 'hidden' : null" *ngIf="isInitialized === true">
       <div class="build-status-progress flex-filler">
         <ng-container *ngIf="isBuilding === true">
           <div class="message small">Building {{platform}} App...</div>
@@ -177,8 +237,9 @@
         <app-labeled-loading-indicator *ngIf="isWaitingBuildCommand===true" class="loading-indicator">
           <span message>Processing...</span>
         </app-labeled-loading-indicator>
-        
-        <button mat-raised-button *ngIf="isWaitingBuildCommand===false" [color]="isBuilding === true? 'warn' : 'primary'" class="large" (click)="onStartBuildClicked()">{{isBuilding
+
+        <button mat-raised-button *ngIf="isWaitingBuildCommand===false"
+          [color]="isBuilding === true? 'warn' : 'primary'" class="large" (click)="onStartBuildClicked()">{{isBuilding
           === true? 'Cancel Build' : (isConfigChanged(originalConfig, changedConfig)===true? 'Apply Changes & Start New
           Build' : 'Start New Build')}}</button>
       </div>
@@ -186,7 +247,8 @@
 
   </mat-expansion-panel>
 
-  <mat-expansion-panel class="binary-list" [expanded]="panelStep === 1" (opened)="panelStep = 1" (closed)="onClosedPanel(1)">
+  <mat-expansion-panel class="binary-list" [expanded]="panelStep === 1" (opened)="panelStep = 1"
+    (closed)="onClosedPanel(1)">
     <mat-expansion-panel-header>
       <mat-panel-title [class.opened]="panelStep === 1">
         Client Binaries
@@ -195,8 +257,8 @@
     <app-labeled-loading-indicator *ngIf="isLoadingBinaries===true">
       <span message>Loading client information...</span>
     </app-labeled-loading-indicator>
-    <app-client-binary-list [binaries]="binaries" [useConfirmColumn]="true" [experimentId]="clientBuildService.currentExperimentId"
-      [hideChangelogs]="true"></app-client-binary-list>
+    <app-client-binary-list [binaries]="binaries" [useConfirmColumn]="true"
+      [experimentId]="clientBuildService.currentExperimentId" [hideChangelogs]="true"></app-client-binary-list>
     <div class="card-footer small" *ngIf="!binaries || binaries.length === 0">
       No app files are listed.
     </div>

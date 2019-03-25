@@ -171,12 +171,8 @@ export class ClientBuildService extends ServiceBase {
     )
   }
 
-  validateSignature(config: IClientBuildConfigBase<any>): Observable<string> {
-    return this.http.get<string>("/api/research/build/configs/" + config._id + "/validate_signature", this.api.makeAuthorizedRequestOptions(null, 'text')).pipe(
-      tap(res => {
-        console.log(res)
-      })
-    )
+  validateSignature(config: IClientBuildConfigBase<any>): Observable<boolean> {
+    return this.http.get<boolean>("/api/research/build/configs/" + config._id + "/validate_signature", this.api.authorizedOptions)
   }
 
   generateJavaKeystore(args: any): Observable<Blob> {

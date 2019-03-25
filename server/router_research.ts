@@ -152,15 +152,13 @@ export class ResearchRouter extends RouterWrapper {
     this.router.post('/build/configs/update/:experimentId?', tokenApprovedAuth,
       clientBuildCtrl.updateClientBuildConfigs)
       
-    this.router.get("/build/configs/:configId/validate_signature", tokenApprovedAuth, clientBuildCtrl.validateAndGetSignatureFromJavaKeystore)
+    this.router.get("/build/configs/:configId/validate_signature", tokenApprovedAuth, clientBuildCtrl.validateJavaKeystore)
 
 
     this.router.post('/build/start', tokenApprovedAuth, clientBuildCtrl.startBuild)
     this.router.post('/build/cancel', tokenApprovedAuth, clientBuildCtrl.cancelBuild)
     this.router.get('/build/status', tokenApprovedAuth,
       clientBuildCtrl.getBuildStatus)
-
-    this.router.get("/build/configs/:configId/validate_signature", tokenApprovedAuth, clientBuildCtrl.validateAndGetSignatureFromJavaKeystore)
 
     this.router.post('/build/generate_keystore', tokenApprovedAuth, clientBuildCtrl.generateJavaKeystore)
 

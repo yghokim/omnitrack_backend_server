@@ -14,9 +14,9 @@ import { NotificationService } from '../../services/notification.service';
 import { SignatureValidationCompleteDialogComponent } from './signature-validation-complete-dialog/signature-validation-complete-dialog.component';
 import { CreateNewJavaKeystoreDialogComponent } from './create-new-java-keystore-dialog/create-new-java-keystore-dialog.component';
 
-enum EBuildCommandWaitingStatus{
-  BUILD="build",
-  CANCEL="cancel"
+enum EBuildCommandWaitingStatus {
+  BUILD = "build",
+  CANCEL = "cancel"
 }
 
 @Component({
@@ -45,6 +45,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
   public newApiKeyValue: string = null
   public isBuilding = undefined
   public localFiles: any = {}
+  public isValidatingKeystore = false
 
   public isLoadingBinaries = true
   public binaries: Array<any>
@@ -98,10 +99,10 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(
       this.clientBuildService.isInitialized.subscribe(
         initialized => {
-          if(initialized === true){
-            if(this.clientBuildService.researcherMode === true){
+          if (initialized === true) {
+            if (this.clientBuildService.researcherMode === true) {
               this.researcherMode = true
-            }else this.researcherMode = false
+            } else this.researcherMode = false
           }
         }
       )
@@ -155,10 +156,10 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
         () => {
           this.validateConfig()
         },
-        (err)=>{
+        (err) => {
           console.error(err)
         },
-        ()=>{
+        () => {
           this.isLoading = false
         }
       )
@@ -201,9 +202,10 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
         }
       }
       this.localFiles = {}
+
       return this.clientBuildService.updateConfig(this.changedConfig, files)
     }).pipe(
-      tap(()=>{
+      tap(() => {
         this.isApplyingChanges = false
       })
     )
@@ -239,10 +241,12 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
     this.selectedNewApiKey = key
   }
 
-  onCreateNewKeystoreClicked(){
-    this.dialog.open(CreateNewJavaKeystoreDialogComponent, {data:{
-      clientBuildService: this.clientBuildService
-    }})
+  onCreateNewKeystoreClicked() {
+    this.dialog.open(CreateNewJavaKeystoreDialogComponent, {
+      data: {
+        clientBuildService: this.clientBuildService
+      }
+    })
   }
 
   onAddApiKeyClicked() {
@@ -291,57 +295,86 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
     fileReader.readAsText(files[0])
   }
 
+  onKeystoreInformationChanged() {
+    if (this.changedConfig.credentials.keystoreFileHash !== this.originalConfig.credentials.keystoreFileHash || this.changedConfig.credentials.keystorePassword !== this.originalConfig.credentials.keystorePassword || this.changedConfig.credentials.keystoreAlias !== this.originalConfig.credentials.keystoreAlias || this.changedConfig.credentials.keystoreKeyPassword !== this.originalConfig.credentials.keystoreKeyPassword) {
+      this.changedConfig.credentials.keystoreValidated = null
+    } else {
+      this.changedConfig.credentials.keystoreValidated = this.originalConfig.credentials.keystoreValidated
+    }
+  }
+
   validateConfig(): boolean {
     const errors = validateBuildConfig(this.originalConfig, this.clientBuildService.firebaseProjectId)
     this.validationErrors = errors
     this.changeDetector.markForCheck()
-  
+
     return !errors || errors.length === 0
   }
 
   getValidationError(key: string): string[] {
     if (this.validationErrors) {
       const messages = this.validationErrors.filter(v => v.key === key).map(v => v.message)
-      return messages.length > 0? messages : null
+      return messages.length > 0 ? messages : null
     } else {
       return null
     }
   }
 
-  onValidateSignatureClicked(){
+  onValidateSignatureClicked() {
+    this.isValidatingKeystore = true
     this._internalSubscriptions.add(
-      defer(()=>{
-        if(this.isConfigChanged(this.originalConfig, this.changedConfig) === true){
+      defer(() => {
+        if (this.isConfigChanged(this.originalConfig, this.changedConfig) === true) {
           return this.applyChanges()
-        }else return of(null)
+        } else return of(null)
       }).pipe(
-        flatMap(()=>{
+        flatMap(() => {
           return this.clientBuildService.validateSignature(this.originalConfig)
-        }),
-        tap(signature=>{
-          this.validateConfig()
         })
-      ).subscribe(signature => {
+      ).subscribe(valid => {
+        /*
         this.dialog.open(SignatureValidationCompleteDialogComponent, {data: {
           packageName: this.originalConfig.packageName,
           signature: signature
-        }})
+        }})*/
+        /*
+        this.notificationService.pushSnackBarMessage({
+          message: "Keystore configuration is valid."
+        })*/
+        
+        this.originalConfig.credentials.keystoreValidated = true
+        this.changedConfig.credentials.keystoreValidated = true
+
+        //clear validation errors
+        this.validationErrors.filter(err => err.key == "credentials.keystoreValidated").forEach(
+          err => {
+            this.validationErrors.splice(this.validationErrors.indexOf(err), 1)
+          }
+        )
+
       }, errObj => {
-        const err = JSON.parse(errObj.error)
-        if(err.code === "KeystoreError"){
+        const err = errObj.error
+        
+        this.originalConfig.credentials.keystoreValidated = false
+        this.changedConfig.credentials.keystoreValidated = false
+
+        if (err.code === "KeystoreError") {
           this.notificationService.pushSnackBarMessage({
             message: err.message
           })
-        }else if(err.code === "IncompleteKeystoreInformation"){
+        } else if (err.code === "IncompleteKeystoreInformation") {
           this.notificationService.pushSnackBarMessage({
             message: err.message
           })
-        }else{
+        } else {
           console.log(errObj)
           this.notificationService.pushSnackBarMessage({
             message: "Unknown error occurred."
           })
         }
+        this.isValidatingKeystore = false
+      }, ()=>{
+        this.isValidatingKeystore = false
       })
     )
   }
@@ -361,7 +394,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
             if (this.validateConfig() === true) {
               return this.clientBuildService.startBuild(this.originalConfig)
             } else {
-              throw { error: { code: "ValidationFailed"} }
+              throw { error: { code: "ValidationFailed" } }
             }
           })
         ).subscribe(
@@ -418,7 +451,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
               return this.clientBuildService.cancelBuild(this.originalConfig)
             } else { return empty() }
           })
-        ).subscribe(()=>{}, err=>{}, ()=>{
+        ).subscribe(() => { }, err => { }, () => {
         })
       )
     }

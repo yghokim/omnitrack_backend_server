@@ -23,6 +23,8 @@ export class ConfigVariableRowComponent implements OnInit {
 
   @Output() binaryFileChanged = new EventEmitter<File>()
 
+  @Output() inputChanged = new EventEmitter<{oldValue: any, newValue: any}>()
+
   constructor() { }
 
   ngOnInit() {
@@ -38,11 +40,15 @@ export class ConfigVariableRowComponent implements OnInit {
   }
   
   onTextChanged(value) {
+    const old = this.config[this.variableName]
     if (value.trim().length === 0) {
       this.config[this.variableName] = null
+      this.inputChanged.emit({oldValue: old, newValue: null})
     } else {
       this.config[this.variableName] = value
+      this.inputChanged.emit({oldValue: old, newValue: value})
     }
+
   }
 
   onJsonFileChanged(files) {
@@ -141,12 +147,17 @@ export class ConfigVariableRowComponent implements OnInit {
   }
 
   onSourceCodeRepositoryChanged(repository: String) {
+    var old: any = null
     if (this.config[this.variableName].data) {
+      old = this.config[this.variableName].data.repository
       this.config[this.variableName].data.repository = repository
     } else {
+      old = null
       this.config[this.variableName].data = {
         repository: repository
       }
     }
+
+    this.inputChanged.emit({oldValue: old, newValue: repository})
   }
 }

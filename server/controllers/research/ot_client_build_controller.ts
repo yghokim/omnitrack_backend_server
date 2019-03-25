@@ -19,7 +19,6 @@ import * as deepEqual from 'deep-equal';
 import * as randomstring from 'randomstring';
 import env from '../../env';
 import OTExperiment from '../../models/ot_experiment';
-import { when } from "q";
 
 export interface BuildResultInfo { sourceFolderPath: string, appBinaryPath: string, binaryFileName: string }
 
@@ -315,6 +314,22 @@ export default class OTClientBuildCtrl {
           });
         })
       }
+    }).catch(err => {
+      if(payloadBuildConfig!=null){
+        payloadBuildConfig.credentials.keystoreValidated = false
+      }
+      return OTClientBuildConfigModel.findByIdAndUpdate(configId, {
+        "credentials.keystoreValidated": false
+      }, {upsert: false}).lean().then(res => {
+        throw err
+      })
+    }).then(signature => {
+      if(payloadBuildConfig!=null){
+        payloadBuildConfig.credentials.keystoreValidated = true
+      }
+      return OTClientBuildConfigModel.findByIdAndUpdate(configId, {
+        "credentials.keystoreValidated": true
+      }, {upsert: false}).lean().then(res => signature)
     })
 
 
@@ -997,6 +1012,15 @@ export default class OTClientBuildCtrl {
   validateAndGetSignatureFromJavaKeystore = (req, res) => {
     this._validateAndGetSignatureFromJavaKeystore(req.params.configId).then(signature => {
       res.status(200).send(signature)
+    }).catch(e => {
+      console.error(e)
+      res.status(500).send(e)
+    })
+  }
+
+  validateJavaKeystore = (req, res) => {
+    this._validateAndGetSignatureFromJavaKeystore(req.params.configId).then(signature => {
+      res.status(200).send(true)
     }).catch(e => {
       console.error(e)
       res.status(500).send(e)

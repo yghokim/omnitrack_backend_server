@@ -459,6 +459,10 @@ a.no-text-effect {
   align-items: center;
 }
 
+.flex-container.flex-justify-content-end{
+  justify-content: end;
+}
+
 .flex-container.flex-align-items-end {
   align-items: flex-end;
 }
@@ -488,6 +492,10 @@ a.no-text-effect {
   }
 }
 
+.background-warn{
+  background: #ff00001a;
+}
+
 .btn.btn-link-medium {
   font-weight: bold;
   text-transform: uppercase;
@@ -499,6 +507,10 @@ a.no-text-effect {
     border-radius: 0.1rem;
     text-decoration: none;
   }
+}
+
+.text-color-green{
+  color: #75cc83;
 }
 
 .text-color-danger {
