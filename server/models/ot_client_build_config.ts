@@ -17,7 +17,7 @@ const otClientBuildConfigSchema = new mongoose.Schema({
   apiKeys: {type: [{key: String, value: String}], default: []},
   researcherMode: {type: Boolean, default: false},
   firebasePlatformAppId: {type: String, default: null} // Firebase app id for this platform.
-}, {timestamps: true});
+}, {timestamps: true, minimize: false});
 
 const OTClientBuildConfigModel = mongoose.model('OTClientBuildConfig', otClientBuildConfigSchema);
 

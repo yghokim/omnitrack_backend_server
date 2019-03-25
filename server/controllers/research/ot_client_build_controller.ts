@@ -369,6 +369,8 @@ export default class OTClientBuildCtrl {
           platform: platform
         })
 
+        console.log(newModel.toJSON())
+
         if (experimentId != null) {
           //experiment mode
           newModel["disableExternalEntities"] = true

@@ -126,7 +126,7 @@
                 <app-config-variable-row label="Keypair alias"
                   [originalValue]="originalConfig.credentials.keystoreAlias" [config]="changedConfig.credentials"
                   hintText="Alias of keypair to use" variableName="keystoreAlias" type="text"
-                  [validationFailedMessage]="getValidationError('credentials.kestoreAlias')"
+                  [validationFailedMessage]="getValidationError('credentials.keystoreAlias')"
                   (inputChanged)="onKeystoreInformationChanged()"></app-config-variable-row>
 
                 <app-config-variable-row label="Keypair password"
