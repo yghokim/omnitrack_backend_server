@@ -447,10 +447,10 @@ export class ExperimentService {
             log => {
                 switch(log._id.name){
                   case "session":
-                  participant.lastSessionTimestamp = moment(log.lastTimestamp).unix()
+                  participant.lastSessionTimestamp = moment(log.lastTimestamp).valueOf()
                   break;
                   case "data_sync":
-                  participant.lastSyncTimestamp = moment(log.lastTimestamp).unix()
+                  participant.lastSyncTimestamp = moment(log.lastTimestamp).valueOf()
                   break;
                 }
                 participant.lastTimestampsUpdated = true
