@@ -1,16 +1,25 @@
 .attribute-list {
   .list-group-item {
-    padding: 0.4rem 0.9rem;
+    padding: 0.4rem 0.5rem;
     padding-right: 0.25rem;
     color: gray;
     background: #f8f8f8;
   }
+
+  .attribute-type-icon {
+    padding: 6px;
+    & > img {
+      width: 16px;
+      height: 16px;
+      opacity: 0.75;
+    }
+  }
 }
 
-.small-button-with-icon-and-text{
+.small-button-with-icon-and-text {
   margin-right: 0.5rem;
   margin-left: 0.5rem;
-  .material-icons{
+  .material-icons {
     font-size: inherit;
   }
 }

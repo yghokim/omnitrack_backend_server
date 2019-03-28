@@ -7,6 +7,7 @@ import { Fraction } from "../datatypes/field_datatypes";
 import attributeTypes from "./attribute-types";
 import { RatingOptions } from "../datatypes/rating_options";
 import TypedStringSerializer from '../typed_string_serializer';
+import AttributeIconTypes from "./attribute-icon-types";
 
 export class RatingAttributeHelper extends AttributeHelper {
   get typeName(): string { return "Rating" }
@@ -40,5 +41,8 @@ export class RatingAttributeHelper extends AttributeHelper {
     }
   }
 
+  getSmallIconType(attribute: IAttributeDbEntity): string {
+    return AttributeIconTypes.ATTR_ICON_SMALL_STAR
+  }
   
 }

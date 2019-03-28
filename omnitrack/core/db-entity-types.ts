@@ -1,4 +1,3 @@
-import { VisualizationConfigs } from "./research/configs";
 import { isString } from "../../shared_lib/utils";
 
 export function getIdPopulateCompat(obj: any, variableName: string = "_id"): string {

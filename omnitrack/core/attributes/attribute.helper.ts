@@ -24,5 +24,7 @@ export default abstract class AttributeHelper {
     }
   }
 
+  abstract getSmallIconType(attribute: IAttributeDbEntity): string
+
   abstract formatAttributeValue(attr: IAttributeDbEntity, value: any): string
 }

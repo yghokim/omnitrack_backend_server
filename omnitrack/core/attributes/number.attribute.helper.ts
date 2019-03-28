@@ -5,6 +5,7 @@ import { EPropertyType } from "../properties/property.types";
 import { IAttributeDbEntity } from '../db-entity-types';
 import attributeTypes from "./attribute-types";
 import TypedStringSerializer from '../typed_string_serializer';
+import AttributeIconTypes from "./attribute-icon-types";
 
 export class NumberAttributeHelper extends AttributeHelper {
   get typeName(): string{return "Number"}
@@ -29,5 +30,8 @@ export class NumberAttributeHelper extends AttributeHelper {
         return PropertyHelperManager.getHelper(EPropertyType.NumberStyle)
     }
   }
-
+  
+  getSmallIconType(attribute: IAttributeDbEntity): string {
+    return AttributeIconTypes.ATTR_ICON_SMALL_NUMBER
+  }
 }

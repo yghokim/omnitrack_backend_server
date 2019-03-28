@@ -3,11 +3,12 @@ import PropertyHelperManager from "../properties/property.helper.manager";
 import { EPropertyType } from "../properties/property.types";
 import PropertyHelper from "../properties/property.helper.base";
 import { IAttributeDbEntity } from "../db-entity-types";
-import { Fraction, TimePoint } from "../datatypes/field_datatypes";
+import { TimePoint } from "../datatypes/field_datatypes";
 import attributeTypes from "./attribute-types";
 import * as moment from 'moment-timezone';
 import { TimeSpanAttributeHelper } from './time-span.attribute.helper';
 import TypedStringSerializer from '../typed_string_serializer';
+import AttributeIconTypes from "./attribute-icon-types";
 
 export class TimePointAttributeHelper extends AttributeHelper {
   get typeName(): string { return "Time Point" }
@@ -55,5 +56,8 @@ export class TimePointAttributeHelper extends AttributeHelper {
     }
   }
 
+  getSmallIconType(attribute: IAttributeDbEntity): string {
+    return AttributeIconTypes.ATTR_ICON_SMALL_TIME
+  }
   
 }

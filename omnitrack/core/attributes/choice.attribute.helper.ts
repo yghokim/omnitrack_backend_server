@@ -1,13 +1,12 @@
 import AttributeHelper from "./attribute.helper";
-import AttributeManager from "./attribute.manager";
 import PropertyHelper from "../properties/property.helper.base";
 import PropertyHelperManager from '../properties/property.helper.manager';
 import { EPropertyType } from '../properties/property.types';
 import { IAttributeDbEntity } from '../db-entity-types';
-import ChoiceEntryListPropertyHelper from "../properties/choice-entry-list.property.helper";
 import { UniqueStringEntryList } from "../datatypes/unique-string-entry-list";
 import attributeTypes from "./attribute-types";
 import TypedStringSerializer from '../typed_string_serializer';
+import AttributeIconTypes from "./attribute-icon-types";
 
 export class ChoiceAttributeHelper extends AttributeHelper {
   static readonly PROPERTY_MULTISELECTION = "multiSelection"
@@ -58,4 +57,10 @@ export class ChoiceAttributeHelper extends AttributeHelper {
     return this.getParsedPropertyValue<boolean>(attribute, ChoiceAttributeHelper.PROPERTY_MULTISELECTION)
   }
 
+
+  getSmallIconType(attribute: IAttributeDbEntity): string {
+    if(this.getAllowMultiSelection(attribute)==true){
+      return AttributeIconTypes.ATTR_ICON_SMALL_MULTIPLE_CHOICE
+    }else return AttributeIconTypes.ATTR_ICON_SMALL_SINGLE_CHOICE
+  }
 }

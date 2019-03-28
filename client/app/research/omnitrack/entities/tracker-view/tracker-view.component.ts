@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy, Output, EventEmitter, ChangeDetectionStrategy, Input } from '@angular/core';
-import { ITrackerDbEntity, ITriggerDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, ITriggerDbEntity, IAttributeDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
 import { getTrackerColorString } from '../../omnitrack-helper';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { TextInputDialogComponent } from '../../../../dialogs/text-input-dialog/text-input-dialog.component';
 import * as isUrl from 'is-url';
+import AttributeManager from '../../../../../../omnitrack/core/attributes/attribute.manager';
 
 @Component({
   selector: 'app-tracker-view',
@@ -70,6 +71,13 @@ export class TrackerViewComponent implements OnInit {
         console.log(ex)
         return null
       }
+    }else return null
+  }
+
+  getAttributeIconName(attr: IAttributeDbEntity): string{
+    const helper = AttributeManager.getHelper(attr.type)
+    if(helper!=null){
+      return helper.getSmallIconType(attr)
     }else return null
   }
 

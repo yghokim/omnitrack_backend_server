@@ -7,9 +7,9 @@ import { Fraction, TimeSpan } from "../datatypes/field_datatypes";
 import attributeTypes from "./attribute-types";
 import * as moment from 'moment-timezone';
 import TypedStringSerializer from '../typed_string_serializer';
+import AttributeIconTypes from "./attribute-icon-types";
 
-export class TimeSpanAttributeHelper extends AttributeHelper {  
-
+export class TimeSpanAttributeHelper extends AttributeHelper {
   static readonly PROPERTY_GRANULARITY = "granularity"
   static readonly PROPERTY_TYPE = "type"
 
@@ -66,4 +66,8 @@ export class TimeSpanAttributeHelper extends AttributeHelper {
   }
 
   
+  getSmallIconType(attribute: IAttributeDbEntity): string {
+    return AttributeIconTypes.ATTR_ICON_SMALL_TIMER
+  }  
+
 }
