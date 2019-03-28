@@ -57,7 +57,7 @@ export class ConfigVariableRowComponent implements OnInit {
       try {
         this.config[this.variableName] = JSON.parse((e as any).target.result)
       } catch (e) {
-        console.log(e)
+        console.error(e)
       }
     }
     fileReader.readAsText(files[0])
@@ -73,7 +73,7 @@ export class ConfigVariableRowComponent implements OnInit {
           this.binaryFileChanged.emit(files[0])
         }
       } catch (e) {
-        console.log(e)
+        console.error(e)
       }
     }
     fileReader.readAsBinaryString(files[0])
@@ -140,7 +140,7 @@ export class ConfigVariableRowComponent implements OnInit {
         }
 
       } catch (e) {
-        console.log(e)
+        console.error(e)
       }
     }
     fileReader.readAsBinaryString(files[0])

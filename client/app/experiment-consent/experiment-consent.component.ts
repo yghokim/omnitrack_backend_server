@@ -34,7 +34,6 @@ export class ExperimentConsentComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(flatMap(expService => expService.getExperiment())).subscribe(experiment => {
         this.experiment = experiment
-        console.log(experiment)
         if(experiment.demographicFormSchema && experiment.demographicFormSchema.schema){
           if(experiment.demographicFormSchema.form){
             this.demographicFields = experiment.demographicFormSchema.form.map(

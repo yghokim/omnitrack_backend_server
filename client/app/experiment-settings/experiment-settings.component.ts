@@ -35,7 +35,6 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(flatMap(expService => expService.getExperiment())).subscribe(experiment => {
         this.experiment = experiment
-        console.log(experiment)
       })
     )
 
@@ -68,7 +67,6 @@ export class ExperimentSettingsComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(flatMap(expService => expService.setFinishDate(moment(date).endOf('days').toDate()))).subscribe(
         experiment => {
-          console.log(experiment)
         },
         err => {
           console.log(err)
