@@ -212,6 +212,38 @@ export function convertHashToArray<T>(hash: any, convert: (key: string, value: a
   return arr
 }
 
+export function decomposeDuration(timeInSeconds: number): Array<{ unit: string, value: number }> {
+  let d = 0
+  let h = 0
+  let m = 0
+  let s = 0
+
+  let abs = Math.abs(timeInSeconds)
+  d = Math.floor(abs / (24 * 60 * 60))
+  abs -= d * 24 * 60 * 60
+  h = Math.floor((abs) / (60 * 60))
+  abs -= h * 60 * 60
+  m = Math.floor(abs / 60)
+  abs -= m * 60
+  s = abs
+
+  const result = new Array<{ unit: string, value: number }>()
+  if (d > 0) {
+    result.push({ unit: 'd', value: d })
+  }
+  if (h > 0) {
+    result.push({ unit: 'h', value: h })
+  }
+  if (m > 0) {
+    result.push({ unit: 'm', value: m })
+  }
+  if (s > 0) {
+    result.push({ unit: 's', value: s })
+  }
+
+  return result
+}
+
 export function toDurationString(timeInSeconds: number): string {
   if (timeInSeconds === 0) {
     return "0"
@@ -266,13 +298,13 @@ export function parseProperties(propertiesString: string): any {
   return result
 }
 
-export function deferPromise<T>(defer:()=>Promise<T>): Promise<T>{
+export function deferPromise<T>(defer: () => Promise<T>): Promise<T> {
   return defer()
 }
 
-export function selectKeys(obj: any, clone: boolean, ...keys: string[]): any{
-  const out = clone===true? deepclone(obj) : obj
-  for(const key of keys){
+export function selectKeys(obj: any, clone: boolean, ...keys: string[]): any {
+  const out = clone === true ? deepclone(obj) : obj
+  for (const key of keys) {
     delete out[key]
   }
   return out

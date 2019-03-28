@@ -2,6 +2,8 @@ import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy
 import { getTrackerColorString } from '../../omnitrack-helper';
 import { ITriggerDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
 import { TriggerConstants } from '../../../../../../omnitrack/core/trigger-constants';
+import * as moment from 'moment-timezone';
+import { decomposeDuration } from '../../../../../../shared_lib/utils';
 
 @Component({
   selector: 'app-trigger-view',
@@ -41,16 +43,44 @@ export class TriggerViewComponent implements OnInit {
     this.flagChange.emit()
   }
 
-  getTimeTriggerTypeString(timeConditionType: number): string{
-    switch(timeConditionType){
-      case TriggerConstants.TIME_CONDITION_ALARM:
-      return TriggerConstants.TIME_CONDITION_CODENAME_ALARM;
-      case TriggerConstants.TIME_CONDITION_INTERVAL:
-      return TriggerConstants.TIME_CONDITION_CODENAME_INTERVAL;
-      case TriggerConstants.TIME_CONDITION_SAMPLING:
-      return TriggerConstants.TIME_CONDITION_CODENAME_SAMPLING;
-      default: return "Unknown"
-    }
+  getTriggerTypeString(): string{
+    if(this.trigger!=null){
+      switch(this.trigger.conditionType){
+        case TriggerConstants.CONDITION_TYPE_TIME:
+        switch(this.trigger.condition.cType){
+          case TriggerConstants.TIME_CONDITION_ALARM:
+          return TriggerConstants.TIME_CONDITION_CODENAME_ALARM;
+          case TriggerConstants.TIME_CONDITION_INTERVAL:
+          return TriggerConstants.TIME_CONDITION_CODENAME_INTERVAL;
+          case TriggerConstants.TIME_CONDITION_SAMPLING:
+          return TriggerConstants.TIME_CONDITION_CODENAME_SAMPLING;
+          default: return "Unknown"
+        }
+
+        case TriggerConstants.CONDITION_TYPE_DATA:
+          return "Data-driven"
+      }
+    }else return null
   }
 
+  getAlarmTimeString(hour:number, minute: number): string{
+    return moment(new Date(0,0,0, hour, minute)).format("hh:mm")
+  }
+
+  getAmPm(hour:number, minute: number): string{
+    return moment(new Date(0,0,0, hour, minute)).format("a")
+  }
+
+  getDecomposedDuration(durationSeconds: number): Array<{ unit: string, value: number }>{
+    return decomposeDuration(durationSeconds)
+  }
+
+  getHourOfDayString(hour:number, minute:number): string{
+    if(hour === 24 && minute === 0){
+      return "midnight"
+    } else if(hour === 12 && minute === 0){
+      return "noon"
+    }
+    else return moment(new Date(0,0,0, hour, minute)).format("hh:mm a")
+  }
 }

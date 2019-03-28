@@ -1,10 +1,36 @@
 <div class="trigger-body flex-container">
-  <div class="condition-frame" [ngSwitch]="trigger.conditionType">
-    <div *ngSwitchCase="0">
-      <div class="badge badge-info trigger-type">{{getTimeTriggerTypeString(trigger.condition.cType)}}</div>
+  <div class="condition-frame">
+    <div class="badge badge-info trigger-type">{{getTriggerTypeString()}}</div>
+    <div class="condition-display" [ngSwitch]="trigger.conditionType">
+      <div *ngSwitchCase="0">
+        <ng-container [ngSwitch]="trigger.condition.cType">
+          <ng-container *ngSwitchCase="0">
+            <span class="digit-big">{{getAlarmTimeString(trigger.condition.aHr, trigger.condition.aMin)}}</span>
+            <span class="digit-small ampm">{{getAmPm(trigger.condition.aHr, trigger.condition.aMin)}}</span>
+          </ng-container>
+          <ng-container *ngSwitchCase="1">
+            <ng-container *ngFor="let elm of getDecomposedDuration(trigger.condition.iSec)">
+              <span class="digit-big">{{elm.value}}</span>
+              <span class="digit-small duration-unit">{{elm.unit}}</span>
+            </ng-container>
+            <div class="description" *ngIf="trigger.condition.iRanged === true">
+              {{getHourOfDayString(trigger.condition.iStartHr, 0)}} ~ {{getHourOfDayString(trigger.condition.iEndHr, 0)}}
+            </div>
+          </ng-container>
+          <ng-container *ngSwitchCase="2">
+            <span class="digit-big">{{trigger.condition.esmCount}}</span>
+            <span class="digit-small">times/day</span>
+            <div class="description" *ngIf="trigger.condition.esmRanged === true">
+                {{getHourOfDayString(trigger.condition.esmStartHr, 0)}} ~ {{getHourOfDayString(trigger.condition.esmEndHr, 0)}}
+            
+            </div>
+          </ng-container>
+        </ng-container>
+      </div>
     </div>
   </div>
-  <app-lock-flag-button [model]="trigger" [lockType]="isReminder() === true ? 'reminder':'trigger'" (flagChange)="onFlagChanged()"></app-lock-flag-button>
+  <app-lock-flag-button [model]="trigger" [lockType]="isReminder() === true ? 'reminder':'trigger'"
+    (flagChange)="onFlagChanged()"></app-lock-flag-button>
 </div>
 
 <div *ngIf="isReminder()===false" class="attached-trackers">
@@ -13,7 +39,8 @@
     <li class="list-group-item font-color-gray">
       <div class="badge badge-lg badge-light" *ngFor="let trackerId of trigger.trackers">
         <div class="badge-content flex-container flex-align-items-center">
-          <div class="circle-inline margin-right-small" [style.background]="getTrackerColorString(findTracker(trackingPackage, trackerId))"></div>
+          <div class="circle-inline margin-right-small"
+            [style.background]="getTrackerColorString(findTracker(trackingPackage, trackerId))"></div>
           <span class="text-color-dark">{{findTracker(trackingPackage, trackerId).name}}</span>
         </div>
       </div>

@@ -19,6 +19,37 @@
 
 .badge.trigger-type {
   font-size: 0.75rem;
-  text-transform: uppercase;
+  text-transform: capitalize;
   font-weight: 500;
+}
+
+.condition-display {
+  .digit-big {
+    font-size: 1.2rem;
+    font-weight: lighter;
+  }
+
+  .digit-small {
+    font-size: 0.8rem;
+    font-weight: normal;
+    margin-left: 0.2rem;
+    color: #575757;
+  }
+
+  .description {
+    color: #939393;
+    line-height: 0.8rem;
+  }
+
+  .ampm {
+    text-transform: uppercase;
+  }
+
+  .duration-unit {
+    margin-right: 0.4rem;
+    margin-left: 0.1rem;
+    &:last-child {
+      margin-right: 0rem;
+    }
+  }
 }

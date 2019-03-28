@@ -59,6 +59,9 @@ export class TriggerTreeViewComponent implements OnInit, OnDestroy {
             return "Sampling (" + this.trigger.condition.esmCount + " pings)"
         }
         break;
+      case TriggerConstants.CONDITION_TYPE_DATA:
+        return "Data-driven"
+        break;
     }
   }
 
@@ -77,7 +80,7 @@ export class TriggerTreeViewComponent implements OnInit, OnDestroy {
         }
       }).afterClosed().pipe(
         filter(confirmed => confirmed === true),
-        flatMap(confirmed => this.api.selectedExperimentService),
+        flatMap(() => this.api.selectedExperimentService),
         flatMap(expService => expService.sendTestPingOfTrigger(this.trigger._id))
       ).subscribe(
         pingSent => {
