@@ -23,11 +23,11 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
     {
       key: "push",
       text: "Push Notification"
-    },
+    }/*,
     {
       key: "email",
       text: "Email"
-    }
+    }*/
   ];
 
   public deliveryTypes = [
