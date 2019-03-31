@@ -620,6 +620,8 @@ export default class OTClientBuildCtrl {
         "releaseStorePassword": buildConfig.credentials.keystorePassword
       }
 
+      sourceConfigJson.enableDynamicApiKeyModification = buildConfig.researcherMode
+
       let keystorePropertiesString = ""
       if (buildConfig.apiKeys && buildConfig.apiKeys.length > 0) {
         keystorePropertiesString = buildConfig.apiKeys.map(k =>
