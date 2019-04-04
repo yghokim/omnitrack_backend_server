@@ -109,7 +109,7 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
           icon: 'mail'
         },
         {
-          name: 'Tracking Packages',
+          name: 'Tracking Plans',
           key: 'omnitrack',
           icon: 'tune'
         }

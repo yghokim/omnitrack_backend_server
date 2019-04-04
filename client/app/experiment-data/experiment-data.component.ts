@@ -322,7 +322,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     this.notificationService.pushSnackBarMessage({ message: "Start packing captured items.." })
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(
-        flatMap(service => service.getOmniTrackPackages().pipe(
+        flatMap(service => service.getTrackingPlans().pipe(
           flatMap(packages =>
             zip(
               service.trackingDataService.trackers,

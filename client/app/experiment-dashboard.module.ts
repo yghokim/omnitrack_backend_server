@@ -17,12 +17,11 @@ import { ExperimentConsentComponent } from "./experiment-consent/experiment-cons
 import { ExperimentConsentEditorComponent } from "./experiment-consent-editor/experiment-consent-editor.component";
 import { DemographicEditorComponent } from "./experiment-consent/demographic-editor/demographic-editor.component";
 import { ExperimentOmniTrackComponent } from "./experiment-omnitrack/experiment-omnitrack.component";
-import { OmniTrackPackageListComponent } from "./research/omnitrack/omnitrack-package-list.component";
-import { OmniTrackPackageCodeEditorComponent } from "./research/omnitrack/omni-track-package-code-editor/omni-track-package-code-editor.component";
+import { OmniTrackPlanListComponent } from "./research/omnitrack/omnitrack-plan-list.component";
+import { TrackingPlanCodeEditorComponent } from "./research/omnitrack/tracking-plan-code-editor/tracking-plan-code-editor.component";
 import { CommonModule } from "@angular/common";
 import { SharedModule } from "./shared/shared.module";
 import { ResearchDashboardComponent } from "./research-dashboard/research-dashboard.component";
-import { OmniTrackPackageEditComponent } from "./research/omnitrack/omnitrack-package-edit.component";
 import { NouisliderModule } from "ng2-nouislider";
 import { MonacoEditorModule } from "ngx-monaco-editor";
 import { ResearchSharedModule } from './research-shared.module';
@@ -30,7 +29,7 @@ import { NewInvitationDialogComponent } from "./experiment-invitations/new-invit
 import { ChooseInvitationDialogComponent } from "./dialogs/choose-invitation-dialog/choose-invitation-dialog.component";
 import { EditExperimentGroupDialogComponent } from "./experiment-groups/edit-experiment-group-dialog/edit-experiment-group-dialog.component";
 import { LockConfigurationSheetComponent } from "./research/omnitrack/entities/lock-flag-button/lock-configuration-sheet/lock-configuration-sheet.component";
-import { NewTrackingPackageDialogComponent } from "./research/omnitrack/new-tracking-package-dialog/new-tracking-package-dialog.component";
+import { NewTrackingPlanDialogComponent } from "./research/omnitrack/new-tracking-plan-dialog/new-tracking-plan-dialog.component";
 import { ParticipantExcludedDaysConfigDialogComponent } from "./dialogs/participant-excluded-days-config-dialog/participant-excluded-days-config-dialog.component";
 import { UpdateItemCellValueDialogComponent } from "./dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component";
 import { LocationCellComponent } from "./experiment-data/location-cell/location-cell.component";
@@ -145,19 +144,19 @@ const routes: Routes = [
         component: ExperimentOmniTrackComponent,
         data: { title: "OmniTrack" },
         children: [
-          { path: "", redirectTo: "packages", pathMatch: "full" },
+          { path: "", redirectTo: "plans", pathMatch: "full" },
           {
-            path: "packages",
-            component: OmniTrackPackageListComponent,
-            data: { title: "OmniTrack Packages" }
+            path: "plans",
+            component: OmniTrackPlanListComponent,
+            data: { title: "Tracking Plans" }
           },
           {
-            path: "packages/:packageKey",
-            component: OmniTrackPackageCodeEditorComponent,
+            path: "plans/:planKey",
+            component: TrackingPlanCodeEditorComponent,
             data: {
-              title: "Edit Tracking Package Code",
-              backTitle: "Package List",
-              backNavigationUrl: "./omnitrack/packages"
+              title: "Edit Tracking Plan Code",
+              backTitle: "Plan List",
+              backNavigationUrl: "./omnitrack/plans"
             }
           }
         ]
@@ -191,12 +190,11 @@ const routes: Routes = [
     ComposeMessageComponent,
     ExperimentTrackingEntityStatusComponent,
     ExperimentClientSettingsComponent,
-    OmniTrackPackageListComponent,
-    OmniTrackPackageEditComponent,
+    OmniTrackPlanListComponent,
     ExperimentConsentComponent,
     ExperimentConsentEditorComponent,
     DemographicEditorComponent,
-    OmniTrackPackageCodeEditorComponent,
+    TrackingPlanCodeEditorComponent,
     LockConfigurationSheetComponent,
 
     ResearcherSearchComponent,
@@ -204,7 +202,7 @@ const routes: Routes = [
     NewInvitationDialogComponent,
     ChooseInvitationDialogComponent,
     EditExperimentGroupDialogComponent,
-    NewTrackingPackageDialogComponent,
+    NewTrackingPlanDialogComponent,
     ParticipantExcludedDaysConfigDialogComponent,
     UpdateItemCellValueDialogComponent,
 
@@ -236,7 +234,7 @@ const routes: Routes = [
     NewInvitationDialogComponent,
     ChooseInvitationDialogComponent,
     EditExperimentGroupDialogComponent,
-    NewTrackingPackageDialogComponent,
+    NewTrackingPlanDialogComponent,
     ParticipantExcludedDaysConfigDialogComponent,
     UpdateItemCellValueDialogComponent,
     LockConfigurationSheetComponent

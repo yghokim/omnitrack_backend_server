@@ -63,7 +63,7 @@ export default class OTTrackingPackageCtrl {
         res.status(200).send(entry["accessKey"])
       }).catch(err => {
         if (err.code === 11000 && isFirst === true) {
-          console.log("tracking package access key duplicates. try another one...")
+          console.log("tracking plan access key duplicates. try another one...")
           OTTrackingPackage.find({}, { select: "accessKey" }).then(
             entries => {
               const keys = entries.map(k => k["accessKey"])

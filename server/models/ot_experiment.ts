@@ -5,7 +5,7 @@ import { ExperimentDashboardConfigs, TrackingItemListTableConfig, VisualizationC
 
 const randomstring = require('randomstring');
 
-export function generateNewExperimentId(): string {
+function generateNewExperimentId(): string {
   return "ot-exp-" + randomstring.generate({ length: 8, charset: 'numeric' })
 }
 

@@ -364,14 +364,14 @@ export class ExperimentService {
     )
   }
 
-  getOmniTrackPackages(): Observable<Array<IExperimentTrackingPackgeDbEntity>> {
+  getTrackingPlans(): Observable<Array<IExperimentTrackingPackgeDbEntity>> {
     return this.experimentInfo.pipe(map(exp => {
       return exp.trackingPackages
     }))
   }
 
-  getOmniTrackPackage(key: string): Observable<any> {
-    return this.getOmniTrackPackages().pipe(map(list => {
+  getTrackingPlan(key: string): Observable<any> {
+    return this.getTrackingPlans().pipe(map(list => {
       return list.find(l => l.key === key)
     }))
   }
@@ -487,9 +487,9 @@ export class ExperimentService {
     )
   }
 
-  addTrackingPackageJson(packageJson: any, name: string): Observable<boolean> {
+  addTrackingPlanJson(planJson: any, name: string): Observable<boolean> {
     return this.http.post<boolean>("api/research/experiments/" + this.experimentId + "/packages/update", {
-      packageJson: packageJson,
+      packageJson: planJson,
       name: name
     }, this.researchApi.authorizedOptions).pipe(
       tap(changed => {
@@ -500,7 +500,7 @@ export class ExperimentService {
     )
   }
 
-  updateTrackingPackageJson(packageKey: string, packageJson: any, name: string): Observable<boolean> {
+  updateTrackingPlanJson(packageKey: string, packageJson: any, name: string): Observable<boolean> {
     return this.http.post<boolean>("api/research/experiments/" + this.experimentId + "/packages/update", {
       packageJson: packageJson,
       name: name,
@@ -512,8 +512,8 @@ export class ExperimentService {
     }))
   }
 
-  removeTrackingPackage(packageKey: string): Observable<boolean> {
-    return this.http.delete<boolean>("api/research/experiments/" + this.experimentId + "/packages/" + packageKey, this.researchApi.authorizedOptions)
+  removeTrackingPlan(planKey: string): Observable<boolean> {
+    return this.http.delete<boolean>("api/research/experiments/" + this.experimentId + "/packages/" + planKey, this.researchApi.authorizedOptions)
   }
 
   upsertExperimentGroup(values: {

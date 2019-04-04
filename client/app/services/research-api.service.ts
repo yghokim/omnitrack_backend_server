@@ -378,7 +378,7 @@ export class ResearchApiService extends ServiceBase {
     return this.http.post<boolean>("/api/research/signatures/update", { _id: id, key: key, package: packageName, alias: alias }, this.authorizedOptions)
   }
 
-  loadInstantShareTrackingPackage(code: string): Observable<any> {
+  loadInstantShareTrackingPlan(code: string): Observable<any> {
     return this.http.get('/api/research/package/temporary/' + code, this.authorizedOptions)
   }
 

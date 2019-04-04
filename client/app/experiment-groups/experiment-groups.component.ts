@@ -38,8 +38,8 @@ export class ExperimentGroupsComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
-  getOmniTrackPackage(key: string): Observable<any> {
-    return this.api.selectedExperimentService.pipe(flatMap(service => service.getOmniTrackPackage(key)))
+  getTrackingPlan(key: string): Observable<any> {
+    return this.api.selectedExperimentService.pipe(flatMap(service => service.getTrackingPlan(key)))
   }
 
   getNumParticipantsOfGroup(groupId: string): Observable<number>{

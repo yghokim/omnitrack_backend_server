@@ -7,17 +7,17 @@ import { flatMap, filter } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { YesNoDialogComponent } from '../../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { NotificationService } from '../../services/notification.service';
-import { NewTrackingPackageDialogComponent } from './new-tracking-package-dialog/new-tracking-package-dialog.component';
+import { NewTrackingPlanDialogComponent } from './new-tracking-plan-dialog/new-tracking-plan-dialog.component';
 import { ITriggerDbEntity, ITrackerDbEntity } from '../../../../omnitrack/core/db-entity-types';
 import { TriggerConstants } from '../../../../omnitrack/core/trigger-constants';
 
 @Component({
-  selector: 'app-omnitrack-package-list',
-  templateUrl: './omnitrack-package-list.component.html',
-  styleUrls: ['./omnitrack-package-list.component.scss'],
+  selector: 'app-omnitrack-plan-list',
+  templateUrl: './omnitrack-plan-list.component.html',
+  styleUrls: ['./omnitrack-plan-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class OmniTrackPackageListComponent implements OnInit, OnDestroy {
+export class OmniTrackPlanListComponent implements OnInit, OnDestroy {
 
   private _internalSubscriptions = new Subscription()
 
@@ -28,7 +28,7 @@ export class OmniTrackPackageListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.pipe(flatMap(expService => expService.getOmniTrackPackages())).subscribe(packages => {
+      this.api.selectedExperimentService.pipe(flatMap(expService => expService.getTrackingPlans())).subscribe(packages => {
         this.packages = packages
         this.changeDetector.markForCheck()
       })
@@ -49,37 +49,37 @@ export class OmniTrackPackageListComponent implements OnInit, OnDestroy {
 
   onAddNewPackageClicked() {
     this._internalSubscriptions.add(
-      this.dialog.open(NewTrackingPackageDialogComponent, {data: {api: this.api}}).beforeClose().pipe(
+      this.dialog.open(NewTrackingPlanDialogComponent, {data: {api: this.api}}).beforeClose().pipe(
         flatMap(resultData => 
           resultData?
-          this.api.selectedExperimentService.pipe(flatMap(service => service.addTrackingPackageJson(resultData.data, resultData.name))): empty()
+          this.api.selectedExperimentService.pipe(flatMap(service => service.addTrackingPlanJson(resultData.data, resultData.name))): empty()
         )
       ).subscribe(
         changed=>{
           if(changed===true){
-            this.notification.pushSnackBarMessage({message: "Added new tracking package."})
+            this.notification.pushSnackBarMessage({message: "Added new tracking plan."})
           }
         }
       )
     )
   }
 
-  onEditPackageClicked(packageKey: string) {
+  onEditPlanClicked(packageKey: string) {
     this.router.navigate([packageKey], {relativeTo: this.activatedRoute})
   }
 
-  onRemovePackageClicked(packageKey: string) {
+  onRemovePlanClicked(planKey: string) {
     this._internalSubscriptions.add(
-      this.dialog.open(YesNoDialogComponent, { data: { title: "Remove Tracking Package", message: "Do you want to remove this package?<br>This process cannot be undone.", positiveLabel: "Delete", positiveColor: "warn", negativeColor: "primary" } }).beforeClose().pipe(
+      this.dialog.open(YesNoDialogComponent, { data: { title: "Remove Tracking Plan", message: "Do you want to remove this plan?<br>This process cannot be undone.", positiveLabel: "Delete", positiveColor: "warn", negativeColor: "primary" } }).beforeClose().pipe(
         filter(confirm => confirm === true),
         flatMap(() => this.api.selectedExperimentService),
-        flatMap(service => service.removeTrackingPackage(packageKey))
+        flatMap(service => service.removeTrackingPlan(planKey))
       ).subscribe(
         changed => {
           if(changed === true){
 
-        this.notification.pushSnackBarMessage({message: "Removed the tracking package."})
-            const index = this.packages.findIndex(pack => pack.key === packageKey)
+        this.notification.pushSnackBarMessage({message: "Removed the tracking plan."})
+            const index = this.packages.findIndex(plan => plan.key === planKey)
             if(index !== -1){
               this.packages.splice(index, 1)
             }
@@ -97,9 +97,9 @@ export class OmniTrackPackageListComponent implements OnInit, OnDestroy {
     return triggers.filter(t => t.actionType === TriggerConstants.ACTION_TYPE_REMIND && t.trackers.indexOf(tracker["objectId"]) !== -1)
   }
 
-  onPackageEdited(packageKey: string, pack: any){
+  onPlanEdited(packageKey: string, pack: any){
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.pipe(flatMap(service => service.updateTrackingPackageJson(packageKey, pack.data, null))).subscribe(
+      this.api.selectedExperimentService.pipe(flatMap(service => service.updateTrackingPlanJson(packageKey, pack.data, null))).subscribe(
         result=>{
           if(result === true){
             this.notification.pushSnackBarMessage({message: "Changes were saved."})

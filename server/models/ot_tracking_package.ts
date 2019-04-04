@@ -1,12 +1,12 @@
 import * as mongoose from 'mongoose';
 const randomstring = require('randomstring');
 
-export function generateNewExperimentId(): string {
+function generateNewId(): string {
   return "ot-tpkg-" + randomstring.generate({ length: 8, charset: 'numeric' })
 }
 
 const otTrackingPackageSchema = new mongoose.Schema({
-  _id: { type: String, default: generateNewExperimentId },
+  _id: { type: String, default: generateNewId },
   name: { String, required: true },
   user: { type: String, ref: 'OTUser', required: true },
   description: { type: String, default: "" },
