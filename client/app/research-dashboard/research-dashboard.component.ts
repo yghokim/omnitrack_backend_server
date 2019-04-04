@@ -119,8 +119,8 @@ export class ResearchDashboardComponent implements OnInit, OnDestroy {
       name: 'Settings',
       menus: [
         {
-          name: 'Client Apps',
-          key: 'client-apps',
+          name: 'Study Apps',
+          key: 'study-apps',
           icon: 'phone_iphone'
         },
         {

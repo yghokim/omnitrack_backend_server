@@ -108,9 +108,9 @@ const routes: Routes = [
         data: { title: "Invitations" }
       },
       {
-        path: "client-apps",
+        path: "study-apps",
         component: ExperimentClientSettingsComponent,
-        data: { title: "Client Apps" }
+        data: { title: "Study Apps" }
       },
       {
         path: "settings",

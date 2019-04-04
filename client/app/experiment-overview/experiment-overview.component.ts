@@ -146,8 +146,8 @@ export class ExperimentOverviewComponent implements OnInit {
     this.router.navigate(["invitations"], { relativeTo: this.activatedRoute.parent })
   }
 
-  goToClientAppPage() {
+  goToStudyAppsPage() {
 
-    this.router.navigate(["client-apps"], { relativeTo: this.activatedRoute.parent })
+    this.router.navigate(["study-apps"], { relativeTo: this.activatedRoute.parent })
   }
 }
