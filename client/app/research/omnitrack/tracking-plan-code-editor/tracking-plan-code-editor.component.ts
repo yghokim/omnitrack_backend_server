@@ -7,11 +7,11 @@ import deepEqual from 'deep-equal';
 import { DiffEditorModel } from 'ngx-monaco-editor';
 
 @Component({
-  selector: 'app-omni-track-package-code-editor',
-  templateUrl: './omni-track-package-code-editor.component.html',
+  selector: 'app-tracking-plan-code-editor',
+  templateUrl: './tracking-plan-code-editor.component.html',
   styleUrls: ['../../../code-editor.scss']
 })
-export class OmniTrackPackageCodeEditorComponent implements OnInit, OnDestroy {
+export class TrackingPlanCodeEditorComponent implements OnInit, OnDestroy {
 
   private readonly _internalSubscriptions = new Subscription()
 
@@ -67,11 +67,11 @@ export class OmniTrackPackageCodeEditorComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(
       this.activatedRoute.paramMap.pipe(
         flatMap(paramMap => {
-          const packageKey = paramMap.get('packageKey')
+          const packageKey = paramMap.get('planKey')
           this.packageKey = packageKey
           return this.api.selectedExperimentService.pipe(
             flatMap(expService => {
-              return expService.getOmniTrackPackage(packageKey)
+              return expService.getTrackingPlan(packageKey)
             }),
             combineLatest(this.editorRefSingle, (packageInfo, editorRef) => ({ packageJson: packageInfo.data, editor: editorRef }))
           )
@@ -107,7 +107,7 @@ export class OmniTrackPackageCodeEditorComponent implements OnInit, OnDestroy {
   onSaveClicked() {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(
-        flatMap(expService => expService.updateTrackingPackageJson(this.packageKey, JSON.parse(this.code), null))).subscribe(changed => {
+        flatMap(expService => expService.updateTrackingPlanJson(this.packageKey, JSON.parse(this.code), null))).subscribe(changed => {
           this.router.navigate([".."], { relativeTo: this.activatedRoute })
         })
     )

@@ -14,7 +14,7 @@ export class ExperimentConstants{
   static readonly PAGE_SETTINGS = "settings"
   static readonly PAGE_DETAILED_OVERVIEW = "detailed-overview"
   static readonly PAGE_CUSTOM_STATISTICS = "custom-statistics"
-  static readonly PAGE_CLIENT_SETTINGS = "client-apps"
+  static readonly PAGE_STUDY_APP_SETTINGS = "study-apps"
   
 }
 
@@ -56,7 +56,7 @@ export class ExperimentPermissions{
     this.allowedPages[ExperimentConstants.PAGE_INVITATIONS] = true
     this.allowedPages[ExperimentConstants.PAGE_DETAILED_OVERVIEW] = true
     this.allowedPages[ExperimentConstants.PAGE_CUSTOM_STATISTICS] = true
-    this.allowedPages[ExperimentConstants.PAGE_CLIENT_SETTINGS] = true
+    this.allowedPages[ExperimentConstants.PAGE_STUDY_APP_SETTINGS] = true
   }
 
   static fromJson(json: any): ExperimentPermissions{
