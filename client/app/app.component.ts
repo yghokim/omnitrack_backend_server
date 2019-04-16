@@ -59,7 +59,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private reflectServerStatus(statusArgs){
-    if (statusArgs.mongodb_connected === false) {
+    if (statusArgs.mongodb_connected === false && statusArgs.installation_complete === true) {
       this.serverError = {
         message: "MongoDB is not connected to the backend server. Check at the server console."
       }

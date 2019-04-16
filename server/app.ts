@@ -61,7 +61,8 @@ app.get("/api/version", (req, res) => {
 
 app.get("/api/server_status", (req, res) => {
   res.status(200).send({
-    mongodb_connected: isMongodbConnected
+    mongodb_connected: isMongodbConnected,
+    installation_complete: installationWizardCtrl.isInstallationComplete() === true 
   })
 })
 
@@ -166,7 +167,7 @@ export function getFirebaseProjectId(): string{
   return require(CERT_PATH).project_id
 }
 
-function initializeFirebase() {
+function initializeFirebase(): boolean {
   if (checkFileExistenceAndType(CERT_PATH) != null) {
     try {
       const firebaseServiceAccount = require(CERT_PATH);
@@ -185,14 +186,16 @@ function initializeFirebase() {
       } else {
         firebaseApp = firebaseAdmin.app(firebaseServiceAccount.project_id);
       }
-      
+      return true
     } catch (ex) {
       console.log(ex);
       console.log("could not initialize the Firebase admin.");
       firebaseApp = null;
+      return false
     }
   } else {
     console.log("Firebase Certificate file does not exist.")
+    return false
   }
 }
 
