@@ -22,6 +22,8 @@ import * as deepEqual from 'deep-equal';
 import { MatDialog } from "@angular/material";
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 
+import{ ClipboardService } from 'ngx-clipboard'
+
 @Component({
   selector: "app-experiment-tracking-entity-status",
   templateUrl: "./experiment-tracking-entity-status.component.html",
@@ -64,6 +66,7 @@ export class ExperimentTrackingEntityStatusComponent
   constructor(
     private api: ResearchApiService,
     private notificationService: NotificationService,
+    private clipboard: ClipboardService,
     private dialog: MatDialog,
     private detector: ChangeDetectorRef
   ) {}
@@ -152,6 +155,13 @@ export class ExperimentTrackingEntityStatusComponent
     this.selectedEntityOriginalObj = obj;
 
     this.onCodeResetClicked();
+  }
+
+  public onCopySelectedIdClicked(){
+    this.clipboard.copyFromContent(this.selectedEntityId)
+    this.notificationService.pushSnackBarMessage({
+      message: "Copied the entity id to the clipboard."
+    })
   }
 
   public getLoggingTriggerList(

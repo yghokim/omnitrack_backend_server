@@ -43,6 +43,22 @@
       display: flex;
       flex-direction: column;
 
+      .selected-entity-information-panel {
+        padding: 0.3rem 1rem;
+        background: #414141;
+        color: #fafafa;
+        font-size: 0.85rem;
+
+        .header {
+          text-transform: capitalize;
+        }
+
+        .entity-id {
+          color: #a0a0a0;
+          padding-left: 0.5rem;
+        }
+      }
+
       .code-editor-container {
         flex: 1;
         position: relative;
