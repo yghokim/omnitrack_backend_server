@@ -2,12 +2,12 @@ import * as moment from 'moment';
 import { Moment } from 'moment-timezone';
 
 export function merge(objA: any, objB: any, overwrite: boolean, recursive: boolean = true): any {
-  if (!objA) {
+  if (objA == null) {
     return JSON.parse(JSON.stringify(objB))
   }
 
   const newObj = JSON.parse(JSON.stringify(objA))
-  if (!objB) {
+  if (objB == null) {
     return newObj
   }
 
@@ -16,7 +16,7 @@ export function merge(objA: any, objB: any, overwrite: boolean, recursive: boole
       if (objA.hasOwnProperty(bField) && overwrite === false) {
         continue;
       } else {
-        if (recursive === true) {
+        if (recursive === true && typeof newObj[bField] === 'object' && typeof objB[bField] === 'object') {
           newObj[bField] = merge(newObj[bField], objB[bField], overwrite, true)
         } else {
           newObj[bField] = objB[bField]
