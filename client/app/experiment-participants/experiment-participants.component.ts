@@ -184,6 +184,24 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     )
   }
 
+  onExperimentAppSyncClicked(participant: any){
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.pipe(flatMap(expService => expService.sendClientFullSyncMessages(participant._id))).subscribe(
+        res => {
+          this.notificationService.pushSnackBarMessage({
+            message: "Request synchronization to " + participant.alias + "'s devices."
+          })
+        },
+        err => {
+          console.error(err)
+          this.notificationService.pushSnackBarMessage({
+            message: "Request failed due to an error."
+          })
+        }
+      )
+    )
+  }
+
 
 
   getParticipationStatus(participant: any): string {

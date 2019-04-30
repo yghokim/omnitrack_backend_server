@@ -102,34 +102,15 @@ export default class PushModule {
     return this.sendDataMessageToUser(userId, this.makeSyncMessageFromTypes(syncTypes), options)
   }
 
-  makeFullSyncMessageData(): MessageData {
-    return new SyncInfo([C.SYNC_TYPE_TRACKER, C.SYNC_TYPE_TRIGGER, C.SYNC_TYPE_ITEM].map(t => ({type: t})))
+  makeFullSyncMessageData(experimentId?: string): MessageData {
+    if(experimentId){
+      return new ExperimentData(C.PUSH_DATA_TYPE_FULL_SYNC, experimentId)
+    }
+    else return new MessageData(C.PUSH_DATA_TYPE_FULL_SYNC)
   }
 
   makeSyncMessageFromTypes(syncTypes: Array<string>): MessageData {
     return new SyncInfo(syncTypes.map(t => ({type: t})))
-  }
-
-  sendFullSyncDataMessageToUser(userId: string|string[], options: PushOptions= { excludeDeviceIds: [] }): Promise<Array<string>> {
-    return this.getInstanceIds(userId, options)
-    .then(instanceIds => {
-      if (instanceIds.length > 0) {
-        console.log("send notification to " + instanceIds)
-
-        // send notification to instanceIds
-        return firebaseApp.messaging().sendToDevice(instanceIds, { data: this.makeFullSyncMessageData().toMessagingPayloadJson() }).then(
-          response => {
-            console.log(response)
-            return response.results.map(device => device.messageId)
-          }
-        ).catch((err) => {
-          console.log(err)
-          return []
-        })
-      } else {
-        return []
-      }
-    })
   }
 }
 

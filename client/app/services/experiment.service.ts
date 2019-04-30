@@ -364,6 +364,12 @@ export class ExperimentService {
     )
   }
 
+  sendClientFullSyncMessages(participantId: string): Observable<any>{
+    return this.http.post("/api/research/participants/" + participantId + "/ping_full_sync", {
+      experimentId: this.experimentId
+    }, this.researchApi.authorizedOptions)
+  }
+
   getTrackingPlans(): Observable<Array<IExperimentTrackingPackgeDbEntity>> {
     return this.experimentInfo.pipe(map(exp => {
       return exp.trackingPackages

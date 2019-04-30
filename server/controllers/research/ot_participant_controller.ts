@@ -1,5 +1,6 @@
 import { IParticipantDbEntity } from "../../../omnitrack/core/db-entity-types";
 import OTParticipant from "../../models/ot_participant";
+import app from '../../app';
 
 export default class OTParticipantCtrl {
 
@@ -21,6 +22,21 @@ export default class OTParticipantCtrl {
     this.setExcludedDays(participantId, dates).then(result => {
       res.status(200).send(result)
     }).catch(err => {
+      res.status(500).send(err)
+    })
+  }
+
+  sendSyncMessageToClients = (req, res) => {
+
+    const participantId = req.params.participantId
+    const experimentId = req.body.experimentId
+    OTParticipant.findById(participantId, {user: 1, experiment: 1}).lean().then(participant => {
+      return app.pushModule().sendDataPayloadMessageToUser(participant.user, app.pushModule().makeFullSyncMessageData(experimentId).toMessagingPayloadJson())
+    }).then(
+      result => {
+        res.status(200).send(result)
+      }
+    ).catch(err=>{
       res.status(500).send(err)
     })
   }

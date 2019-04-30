@@ -185,6 +185,9 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.post('/participants/:participantId/excluded_days', tokenApprovedAuth, participantCtrl.postExcludedDays)
 
+    this.router.post('/participants/:participantId/ping_full_sync', tokenApprovedAuth, participantCtrl.sendSyncMessageToClients)
+
+
     // tracking data
 
     new Array(

@@ -113,6 +113,11 @@
               <button mat-menu-item *ngSwitchCase="'dropped' || 'denied'" (click)="onRemoveParticipantEntryClicked(object._id)">
                 <span>Remove Entry</span>
               </button>
+
+              <button mat-menu-item (click)="onExperimentAppSyncClicked(object)">
+                <span>Sync Experiment App Data Now</span>
+              </button>
+
             </mat-menu>
           </div>
         </mat-cell>
