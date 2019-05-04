@@ -5,6 +5,8 @@
 
 For more information, Refer to the documentation of OmniTrack For Research. (https://github.com/OmniTrack/omnitrack_for_research_kit)
 
+<img src="https://github.com/OmniTrack/omnitrack_for_research/blob/master/resources/omnitrack_for_research_logo.svg" width=400>
+
 ---
 
 ## Author
