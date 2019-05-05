@@ -1,9 +1,9 @@
 # OmniTrack Official Backend Server + Research Web Platform
 <https://omnitrack.github.io>
 
-**This project is a part of _OmniTrack Research Kit_** (https://github.com/OmniTrack/omnitrack_research_kit)
+**This project is a part of _OmniTrack For Research_** (https://github.com/OmniTrack/omnitrack_for_research)
 
-For more information, Refer to the documentation of the OmniTrack Research Kit. (https://github.com/OmniTrack/omnitrack_research_kit/wiki)
+For more information, Refer to the documentation of the OmniTrack For Research. (https://github.com/OmniTrack/omnitrack_for_research/wiki)
 
 ---
 

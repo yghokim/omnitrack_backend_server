@@ -29,7 +29,7 @@ export class ResearchLayoutComponent implements OnInit {
           if(checkResult.needUpdate === true){
             if(localStorage.getItem("lastNotifiedNewVersion") !== checkResult.newVersion){
               localStorage.setItem("lastNotifiedNewVersion", checkResult.newVersion)
-              this.notificationService.showNotification(ENotificationType.INFO, "New version of the OmniTrack Research Kit is available! - Ver " + checkResult.newVersion)
+              this.notificationService.showNotification(ENotificationType.INFO, "A new version of OmniTrack For Research is available! - Ver " + checkResult.newVersion)
             }
           }
         }
