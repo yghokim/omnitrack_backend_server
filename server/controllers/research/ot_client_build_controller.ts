@@ -315,21 +315,21 @@ export default class OTClientBuildCtrl {
         })
       }
     }).catch(err => {
-      if(payloadBuildConfig!=null){
+      if (payloadBuildConfig != null) {
         payloadBuildConfig.credentials.keystoreValidated = false
       }
       return OTClientBuildConfigModel.findByIdAndUpdate(configId, {
         "credentials.keystoreValidated": false
-      }, {upsert: false}).lean().then(res => {
+      }, { upsert: false }).lean().then(res => {
         throw err
       })
     }).then(signature => {
-      if(payloadBuildConfig!=null){
+      if (payloadBuildConfig != null) {
         payloadBuildConfig.credentials.keystoreValidated = true
       }
       return OTClientBuildConfigModel.findByIdAndUpdate(configId, {
         "credentials.keystoreValidated": true
-      }, {upsert: false}).lean().then(res => signature)
+      }, { upsert: false }).lean().then(res => signature)
     })
 
 
@@ -574,15 +574,14 @@ export default class OTClientBuildCtrl {
             newVersionCode = latestVersionInfo.versionCode + 1
             console.log("override to latest version code:", newVersionCode)
           } else { newVersionCode = appVersionCode }
-
-          if (newVersionCode !== appVersionCode || newVersionName !== appVersionName) {
-            const newVersionPropertiesString = "versionName=" + newVersionName + "\nversionCode=" + newVersionCode
-            return fs.writeFile(versionPropPath, newVersionPropertiesString)
-          }
+        } else {
+          newVersionCode = appVersionCode
+          newVersionName = appVersionName
         }
-        return Promise.resolve()
+
+        return { versionName: newVersionName, versionCode: newVersionCode }
       }
-    ).then(() => {
+    ).then(versionInfo => {
 
       const serverIP = env.force_private_ip === true ? app.get("privateIP") : app.get("publicIP")
       const port = 3000
@@ -591,7 +590,8 @@ export default class OTClientBuildCtrl {
         synchronizationServerUrl: "http://" + serverIP + ":" + port,
         mediaStorageUrl: "http://" + serverIP + ":" + port,
         defaultExperimentId: experimentId,
-        disableVersionAutoIncrement: true
+        overrideVersionName: versionInfo.versionName,
+        overrideVersionCode: versionInfo.versionCode
       } as any
 
       if (buildConfig.appName) { sourceConfigJson.overrideAppName = buildConfig.appName }
@@ -636,11 +636,11 @@ export default class OTClientBuildCtrl {
             spaces: 2
           }),
           this.getFirebaseManagement().androidApp(buildConfig.firebasePlatformAppId).getConfig()
-          .catch(ex => {
-            console.log("getConfig error.")
-            return this.getFirebaseManagement().androidApp(buildConfig.firebasePlatformAppId).getConfig()
-          })  
-          .then(googleServicesString => fs.writeFile(path.join(sourceFolderPath, "google-services.json"), googleServicesString)),
+            .catch(ex => {
+              console.log("getConfig error.")
+              return this.getFirebaseManagement().androidApp(buildConfig.firebasePlatformAppId).getConfig()
+            })
+            .then(googleServicesString => fs.writeFile(path.join(sourceFolderPath, "google-services.json"), googleServicesString)),
           fs.writeFile(path.join(sourceFolderPath, "keystore.properties"), keystorePropertiesString),
           // fs.writeFile(path.join(sourceFolderPath, "gradle.properties"), "android.enableAapt2=false")
         ]

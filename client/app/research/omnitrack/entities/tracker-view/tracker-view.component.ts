@@ -46,7 +46,7 @@ export class TrackerViewComponent implements OnInit {
       this.dialog.open(TextInputDialogComponent, {
         data: {
           title: "Change Redirect Url",
-          message: "Instert the redirect url which will forward the user after logging each tracker item. Mostly starts with http:// or https://",
+          message: "Insert the redirect url which will forward the user after logging each tracker item. Mostly starts with http:// or https://",
           placeholder: "Enter URL",
           validator: (text) => { return text == null ? true : (text.length > 0 ? isUrl(text) : true) },
           prefill: this.tracker.redirectUrl
