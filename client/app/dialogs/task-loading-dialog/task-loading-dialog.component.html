@@ -1,0 +1,12 @@
+<div class="dialog">
+  <div class="card-header" *ngIf="title">{{title}}</div>
+  <div class="card-body">
+      <app-labeled-loading-indicator class="loading-indicator" *ngIf="isProcessing===true">
+          <span message>{{message}}</span>
+        </app-labeled-loading-indicator>
+  </div>
+  <div class="card-body text-right">
+    <button type="button" mat-button color="warn" (click)="onCancelClick()">Cancel</button>
+    
+  </div>
+</div>

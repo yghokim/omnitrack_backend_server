@@ -162,16 +162,24 @@ export default class OTClientBuildCtrl {
     const management = this.getFirebaseManagement()
     return deferPromise(() => {
       if (payloadAppId != null) {
+        console.log("Find a Firebase app with id: " + payloadAppId)
         switch (platform) {
           case "Android":
             const androidApp = management.androidApp(payloadAppId)
             if (androidApp != null) {
-              return androidApp.getMetadata().then(metadata => metadata.packageName === packageName ? androidApp : null)
+              console.log("got an android app. get metadata")
+              return androidApp.getMetadata().then(metadata => metadata.packageName === packageName ? androidApp : null).catch(err => {
+                console.error("Getting metadata error. Return null.")
+                return null
+              })
             } else return Promise.resolve(null)
           case "iOS":
             const iosApp = management.iosApp(payloadAppId)
             if (iosApp != null) {
-              return iosApp.getMetadata().then(metadata => metadata.bundleId === packageName ? iosApp : null)
+              return iosApp.getMetadata().then(metadata => metadata.bundleId === packageName ? iosApp : null).catch(err => {
+                console.error("Getting metadata error. Return null.")
+                return null
+              })
             } else return Promise.resolve(null)
           default: throw Error("Unsupported platform.")
         }
@@ -179,8 +187,10 @@ export default class OTClientBuildCtrl {
       else return Promise.resolve(null)
     }).then(payloadedApp => {
       if (payloadedApp != null) {
+        console.log("Found a firebase app.")
         return payloadedApp
       } else {
+        console.log("Manually find a Firebase app.")
         return this.getFirebasePlatformAppList(management, platform).then(
           list => {
             if (list.length === 0) {
@@ -232,7 +242,10 @@ export default class OTClientBuildCtrl {
               buildConfig._id,
               { firebasePlatformAppId: platformApp.appId }).then(doc => platformApp)
           } else return platformApp
-        } else return createNewApp()
+        }else{
+          console.log("No Firebase app is registered with the package name \'" + buildConfig.packageName + "\'. Create new one.")
+          return createNewApp()
+        }
       })
   }
 
@@ -713,139 +726,87 @@ export default class OTClientBuildCtrl {
     })
   }
 
-  private _setupAndroidSource(sourceFolderPath: string, skip: boolean = false): Promise<string> {
-    if (skip === true) {
-      return Promise.resolve(sourceFolderPath)
-    }
-
-    return new Promise((resolve, reject) => {
-      console.log("start setup the android source")
-      const os = require('os')
-      let command
-      switch (os.type()) {
-        case 'Linux':
-        case 'Darwin':
-          command = spawn('sh', ['./setup_from_server.sh'], { cwd: sourceFolderPath, stdio: ['ignore', process.stdout, 'pipe'] })
-          break;
-        case 'Windows_NT':
-          command = spawn('cmd.exe', ['/c', 'setup_from_server.bat'], { cwd: sourceFolderPath, stdio: ['ignore', process.stdout, 'pipe'] })
-          break;
-      }
-
-      let lastErrorString: string = null
-
-      /*
-      command.stdout.on('data', (data) => {
-        console.log(data.toString())
-      })*/
-
-      command.stderr.on('data', (data) => {
-        lastErrorString = data.toString()
-        console.error("StdError:::", lastErrorString)
-      })
-      command.on('exit', (code, signal) => {
-        if (code === 0) {
-          console.log("Successfully finished preparing the source.")
-          resolve(sourceFolderPath)
-        } else {
-          console.error("Failed to setup the source.")
-          reject({ code: code, lastErrorMessage: lastErrorString })
-        }
-      })
-    })
+  //Prepare source code in local storage with proper config files being processed, ready to build.
+  _prepareSourceCode(configId: string): Promise<{ buildConfig: IClientBuildConfigBase<any>, sourceFolderPath: string }> {
+    return OTClientBuildConfigModel.findOne({
+      _id: configId
+    }).lean().then(buildConfig =>
+      this.prepareSourceCodeInFolder(buildConfig)
+        .then(result => {
+          // Platform-dependent logics=======================================================
+          switch (buildConfig.platform) {
+            case "Android":
+              return this._generateOrLoadFirebaseApp(buildConfig)
+                .then(firebaseAndroidApp => this._registerKeystoreFingerPrintToFirebase(firebaseAndroidApp as firebaseAdmin.projectManagement.AndroidApp, buildConfig))
+                .then(firebaseAndroidApp => this._injectAndroidBuildConfigToSource(buildConfig, result.sourceFolderPath))
+                .then(sourceFolderPath => ({ sourceFolderPath: sourceFolderPath, buildConfig: buildConfig }))
+          }
+        })
+    )
   }
 
   _build(configId: string, experimentId: string, onNewProcessSpawn: (number) => Promise<void>, checkCanceled: () => Promise<boolean>): Promise<BuildResultInfo> {
-    return OTClientBuildConfigModel.findOne({
-      _id: configId
-    }).lean()
-      .then(buildConfig => {
+
+    return this._prepareSourceCode(configId).then(
+      result => {
         return checkCanceled().then(canceled => {
           if (canceled === true) {
             throw new Error("BuildCanceledExternally")
           } else {
-            return buildConfig
+            return result
           }
         })
-      })
-      .then(buildConfig =>
-        this.prepareSourceCodeInFolder(buildConfig)
-          .then(result => {
-            return checkCanceled().then(canceled => {
-              if (canceled === true) {
-                throw new Error("BuildCanceledExternally")
-              } else {
-                return result
-              }
-            })
-          })
-          .then(result => {
-            // Platform-dependent logics=======================================================
-            switch (buildConfig.platform) {
-              case "Android":
-                return this._setupAndroidSource(result.sourceFolderPath, result.skipSetup)
-                  .then(sourcePath => {
-                    return checkCanceled().then(canceled => {
-                      if (canceled === true) {
-                        throw new Error("BuildCanceledExternally")
-                      } else {
-                        return sourcePath
-                      }
-                    })
-                  }).then(sourcePath => this._generateOrLoadFirebaseApp(buildConfig)
-                    .then(firebaseAndroidApp => this._registerKeystoreFingerPrintToFirebase(firebaseAndroidApp as firebaseAdmin.projectManagement.AndroidApp, buildConfig)).then(firebaseAndroidApp => sourcePath)
-                  )
-                  .then(sourcePath => this._injectAndroidBuildConfigToSource(buildConfig, sourcePath))
-                  .then(sourcePath => {
-                    return checkCanceled().then(canceled => {
-                      if (canceled === true) {
-                        throw new Error("BuildCanceledExternally")
-                      } else {
-                        return sourcePath
-                      }
-                    })
-                  })
-                  .then(sourcePath => this._buildAndroidApk(sourcePath, onNewProcessSpawn, checkCanceled))
-              default: throw new Error("Unsupported platform.")
+      }
+    ).then(sourceCodeProcessResult => {
+      const buildConfig = sourceCodeProcessResult.buildConfig
+      const sourceFolderPath = sourceCodeProcessResult.sourceFolderPath
+
+      //An OS-Dependent Build Logic========================================================
+      var buildCommand: Promise<BuildResultInfo>
+      switch (buildConfig.platform) {
+        case "Android":
+          buildCommand = this._buildAndroidApk(sourceFolderPath, onNewProcessSpawn, checkCanceled)
+          break;
+        default: throw new Error("Unsupported platform.")
+      }
+      //=========================================================
+
+      return buildCommand.then(buildResult => {
+        return checkCanceled().then(canceled => {
+          if (canceled === true) {
+            throw new Error("BuildCanceledExternally")
+          } else {
+            return buildResult
+          }
+        })
+      }).then(buildResult => {
+        console.log("successfully built app. register binary to publish list.")
+        // move client to temp folder
+        const newLocation = this._makeClientCollectedLocation(experimentId, buildConfig.platform)
+        return fs.ensureDir(newLocation).then(() => {
+          const ext = getExtensionFromPath(buildResult.binaryFileName)
+          const newName = path.basename(buildResult.appBinaryPath, "." + ext) + "_" + this._makeConfigHash(buildConfig) + "_" + randomstring.generate(5) + "." + ext
+          const newFullPath = path.join(newLocation, newName)
+          return fs.move(buildResult.appBinaryPath, newFullPath, { overwrite: true }).then(
+            () => {
+              buildResult.appBinaryPath = newFullPath
+              buildResult.binaryFileName = newName
+              return buildResult
             }
-            // =================================================================================
-          })
-          .then(buildResult => {
-            return checkCanceled().then(canceled => {
-              if (canceled === true) {
-                throw new Error("BuildCanceledExternally")
-              } else {
-                return buildResult
-              }
-            })
-          })
-          .then(buildResult => {
-            console.log("successfully built app. register binary to publish list.")
-            // move client to temp folder
-            const newLocation = this._makeClientCollectedLocation(experimentId, buildConfig.platform)
-            return fs.ensureDir(newLocation).then(() => {
-              const ext = getExtensionFromPath(buildResult.binaryFileName)
-              const newName = path.basename(buildResult.appBinaryPath, "." + ext) + "_" + this._makeConfigHash(buildConfig) + "_" + randomstring.generate(5) + "." + ext
-              const newFullPath = path.join(newLocation, newName)
-              return fs.move(buildResult.appBinaryPath, newFullPath, { overwrite: true }).then(
-                () => {
-                  buildResult.appBinaryPath = newFullPath
-                  buildResult.binaryFileName = newName
-                  return buildResult
-                }
-              ).catch(err => {
-                console.error(err)
-                throw err
-              })
-            })
-          }).then(result => clientBinaryCtrl._registerNewClientBinary(result.appBinaryPath, [], null, null, buildConfig.experiment).then(() => {
-            console.log("Client build process was finished successfully.")
-            return result
-          })).catch(err => {
+          ).catch(err => {
             console.error(err)
             throw err
           })
-      )
+        })
+      })
+        .then(result => clientBinaryCtrl._registerNewClientBinary(result.appBinaryPath, [], null, null, this.getExperimentIdFromConfig(buildConfig.experiment)).then(() => {
+          console.log("Client build process was finished successfully.")
+          return result
+        })).catch(err => {
+          console.error(err)
+          throw err
+        })
+    })
   }
 
   _cancelBuild(configId: string): Promise<boolean> {
@@ -990,6 +951,35 @@ export default class OTClientBuildCtrl {
       console.error(err)
       res.status(500).send(err)
     })
+  }
+
+  downloadBuildableSourceCode = (req, res) => {
+    return this._prepareSourceCode(req.body.configId).then(
+      result => {
+        const zipper = require('bestzip')
+
+        const zipFilePath = result.sourceFolderPath + ".zip"
+
+        zipper({
+          source: "./",
+          destination: "../" + path.basename(result.sourceFolderPath) + ".zip",
+          cwd: result.sourceFolderPath
+        }).then(() => {
+          console.log('all done!');
+          res.download(zipFilePath, 'omnitrack_build_source.zip', (err) => {
+            if (err) {
+              console.error("client build source file send error")
+              console.error(err)
+            } else {
+              console.log("successfully sent a client build source zip.")
+            }
+            fs.removeSync(zipFilePath)
+          })
+        }).catch(function(err) {
+          console.error(err.stack);
+        });
+      }
+    )
   }
 
   cancelBuild = (req, res) => {

@@ -198,6 +198,10 @@ export class ClientBuildService extends ServiceBase {
     )
   }
 
+  downloadSourceCode(configId: string): Observable<Blob>{
+    return this.http.post<Blob>("/api/research/build/download_source", {configId: configId}, this.api.makeAuthorizedRequestOptions(null, 'blob'))
+  }
+
   private replaceNewConfigWithId(newConfig: IClientBuildConfigBase<any>) {
     const newArray = this.clientBuildConfigs.slice()
     const matchIndex = newArray.findIndex(c => c._id === newConfig._id)

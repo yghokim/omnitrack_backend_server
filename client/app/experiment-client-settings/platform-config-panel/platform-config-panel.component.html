@@ -136,9 +136,9 @@
                   [validationFailedMessage]="getValidationError('credentials.keystoreKeyPassword')"
                   (inputChanged)="onKeystoreInformationChanged()"></app-config-variable-row>
 
-                <div class="config-row no-hover text-right flex-container flex-align-items-center" [class.flex-container]="getValidationError('credentials.keystoreValidated') != null"
-                [class.background-warn]="getValidationError('credentials.keystoreValidated') != null"
-                >
+                <div class="config-row no-hover text-right flex-container flex-align-items-center"
+                  [class.flex-container]="getValidationError('credentials.keystoreValidated') != null"
+                  [class.background-warn]="getValidationError('credentials.keystoreValidated') != null">
 
                   <ng-container *ngIf="getValidationError('credentials.keystoreValidated') != null">
                     <ol class="invalid-message-list"
@@ -225,23 +225,27 @@
       </ng-container>
     </div>
     <hr class="no-margin">
-    <div class="card-body build-footer flex-container flex-align-items-center"
-      [style.visibility]="isLoading === true? 'hidden' : null" *ngIf="isInitialized === true">
-      <div class="build-status-progress flex-filler">
-        <ng-container *ngIf="isBuilding === true">
-          <div class="message small">Building {{platform}} App...</div>
-          <mat-progress-bar color="accent" mode="indeterminate"></mat-progress-bar>
-        </ng-container>
-      </div>
-      <div class="left-margin-1em">
-        <app-labeled-loading-indicator *ngIf="isWaitingBuildCommand===true" class="loading-indicator">
-          <span message>Processing...</span>
-        </app-labeled-loading-indicator>
+    <div class="card-body no-padding-bottom" [style.visibility]="isLoading === true? 'hidden' : null" *ngIf="isInitialized === true">
+      <div class="flex-container flex-align-items-center">
+        <div class="build-status-progress flex-filler">
+          <ng-container *ngIf="isBuilding === true">
+            <div class="message small">Building {{platform}} App...</div>
+            <mat-progress-bar color="accent" mode="indeterminate"></mat-progress-bar>
+          </ng-container>
+        </div>
+        <div class="left-margin-1em">
+          <app-labeled-loading-indicator *ngIf="isWaitingBuildCommand===true" class="loading-indicator">
+            <span message>Processing...</span>
+          </app-labeled-loading-indicator>
 
-        <button mat-raised-button *ngIf="isWaitingBuildCommand===false"
-          [color]="isBuilding === true? 'warn' : 'primary'" class="large" (click)="onStartBuildClicked()">{{isBuilding
+          <button mat-raised-button *ngIf="isWaitingBuildCommand===false"
+            [color]="isBuilding === true? 'warn' : 'primary'" class="large" (click)="onStartBuildClicked()">{{isBuilding
           === true? 'Cancel Build' : (isConfigChanged(originalConfig, changedConfig)===true? 'Apply Changes & Start New
           Build' : 'Start New Build')}}</button>
+        </div>
+      </div>
+      <div class="text-right">
+        <button class="btn-download-source" mat-button color="accent" (click)="onDownloadSourceClicked()">Download Source To Build Myself</button>
       </div>
     </div>
 

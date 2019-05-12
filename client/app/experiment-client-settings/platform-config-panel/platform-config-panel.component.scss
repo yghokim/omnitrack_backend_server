@@ -84,10 +84,6 @@ mat-expansion-panel-header {
   }
 }
 
-.build-footer {
-  //background: #f0f0f0;
-}
-
 mat-panel-title {
   font-size: 0.8rem;
 }
@@ -120,4 +116,10 @@ mat-expansion-panel.binary-list {
       padding-left: 1.5rem;
     }
   }
+}
+
+button.btn-download-source{
+  padding: 0rem 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
 }

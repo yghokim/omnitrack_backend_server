@@ -8,8 +8,8 @@ import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
 })
 export class YesNoDialogComponent implements OnInit {
 
-  public title = ""
-  public message = ""
+  public title = null
+  public message = null
 
   public positiveButtonClass = this.data.positiveButtonClass || ""
   public negativeButtonClass = this.data.negativeButtonClass || ""

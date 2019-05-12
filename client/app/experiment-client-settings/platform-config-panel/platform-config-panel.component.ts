@@ -11,8 +11,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { YesNoDialogComponent } from '../../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { validateBuildConfig } from '../../../../omnitrack/core/research/build-config-utils';
 import { NotificationService } from '../../services/notification.service';
-import { SignatureValidationCompleteDialogComponent } from './signature-validation-complete-dialog/signature-validation-complete-dialog.component';
 import { CreateNewJavaKeystoreDialogComponent } from './create-new-java-keystore-dialog/create-new-java-keystore-dialog.component';
+import * as FileSaver from 'file-saver';
+import { TaskLoadingDialogComponent, TaskLoadingDialogData } from '../../dialogs/task-loading-dialog/task-loading-dialog.component';
+
 
 enum EBuildCommandWaitingStatus {
   BUILD = "build",
@@ -455,5 +457,23 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
         })
       )
     }
+  }
+
+  onDownloadSourceClicked(){
+    this._internalSubscriptions.add(
+      this.dialog.open(TaskLoadingDialogComponent, {
+        data: {
+          task: this.clientBuildService.downloadSourceCode(this.changedConfig._id),
+          message: "Preparing source code. It could take for seconds.."
+        } as TaskLoadingDialogData,
+        disableClose: true
+      }).afterClosed().subscribe(
+        res => {
+          if(res != null){
+            FileSaver.saveAs(res as Blob, 'source_archive.zip')
+          }
+        }
+      )
+    )
   }
 }

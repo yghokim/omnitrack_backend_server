@@ -18,12 +18,14 @@ import { PlatformVersionCheckService } from './services/platform-version-check.s
 import { NotifierModule, NotifierService } from 'angular-notifier';
 import { BackendNotRespondComponent } from './errors/backend-not-respond/backend-not-respond.component';
 import { SocketService } from './services/socket.service';
+import { TaskLoadingDialogComponent } from './dialogs/task-loading-dialog/task-loading-dialog.component'
 
 @NgModule({
   declarations: [
     AppComponent,
     NotFoundComponent,
     YesNoDialogComponent,
+    TaskLoadingDialogComponent,
     TextInputDialogComponent,
     ImageViewDialog,
     BackendNotRespondComponent
@@ -57,7 +59,8 @@ import { SocketService } from './services/socket.service';
   entryComponents: [
     YesNoDialogComponent,
     TextInputDialogComponent,
-    ImageViewDialog
+    ImageViewDialog,
+    TaskLoadingDialogComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent]

@@ -162,6 +162,8 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.post('/build/generate_keystore', tokenApprovedAuth, clientBuildCtrl.generateJavaKeystore)
 
+    this.router.post('/build/download_source', tokenApprovedAuth, clientBuildCtrl.downloadBuildableSourceCode)
+
     // ==============================================================================
 
     this.router.post('/users/notify/message', tokenApprovedAuth, this.researchCtrl.sendNotificationMessageToUser)

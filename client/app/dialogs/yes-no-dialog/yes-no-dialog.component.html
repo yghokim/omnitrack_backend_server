@@ -1,6 +1,6 @@
 <div class="dialog">
-<div class="card-header">{{title}}</div>
-<div class="card-body"><p [innerHTML] = "message"></p></div>
+<div class="card-header" *ngIf="title">{{title}}</div>
+<div class="card-body" *ngIf="message"><p [innerHTML] = "message"></p></div>
 <div class="card-body text-right">
     <button type="button" mat-button [color]="negativeColor" (click)="onNoClick()" [ngClass]="negativeButtonClass">{{negativeLabel}}</button>
     <button type="button" mat-raised-button [color]="positiveColor" (click)="onYesClick()" [ngClass]="positiveButtonClass">{{positiveLabel}}</button>

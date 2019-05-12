@@ -22,7 +22,7 @@ import { TrackingPlanCodeEditorComponent } from "./research/omnitrack/tracking-p
 import { CommonModule } from "@angular/common";
 import { SharedModule } from "./shared/shared.module";
 import { ResearchDashboardComponent } from "./research-dashboard/research-dashboard.component";
-import { NouisliderModule } from "ng2-nouislider";
+import { NouisliderModule } from 'ng2-nouislider';
 import { MonacoEditorModule } from "ngx-monaco-editor";
 import { ResearchSharedModule } from './research-shared.module';
 import { NewInvitationDialogComponent } from "./experiment-invitations/new-invitation-dialog/new-invitation-dialog.component";
