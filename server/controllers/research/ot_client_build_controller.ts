@@ -48,7 +48,10 @@ export default class OTClientBuildCtrl {
   }
 
   private getExperimentIdFromConfig(buildConfig: any): string {
-    return buildConfig.researcherMode !== true ? (isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id) : null
+    if(buildConfig != null)
+    {
+      return buildConfig.researcherMode !== true ? (isString(buildConfig.experiment) === true ? buildConfig.experiment : (buildConfig.experiment as any)._id) : null
+    } else return null
   }
 
   private _makeExperimentConfigDirectoryPath(experimentId: string, absolute: boolean = false): string {
@@ -799,7 +802,7 @@ export default class OTClientBuildCtrl {
           })
         })
       })
-        .then(result => clientBinaryCtrl._registerNewClientBinary(result.appBinaryPath, [], null, null, this.getExperimentIdFromConfig(buildConfig.experiment)).then(() => {
+        .then(result => clientBinaryCtrl._registerNewClientBinary(result.appBinaryPath, [], null, null, this.getExperimentIdFromConfig(buildConfig)).then(() => {
           console.log("Client build process was finished successfully.")
           return result
         })).catch(err => {
