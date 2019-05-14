@@ -2,6 +2,7 @@ import { Model, Document } from "mongoose";
 import * as jwt from "jsonwebtoken";
 import env from '../env';
 import { isNullOrBlank } from "../../shared_lib/utils";
+import { Request } from "express";
 
 export interface JwtTokenSchemaBase {
   uid: string,
@@ -58,10 +59,14 @@ export abstract class OTAuthCtrlBase {
 
   protected abstract modifyJWTSchema(user: any, tokenSchema: JwtTokenSchemaBase): void
 
-  protected makeUserIndexQueryObj(requestBody: any): any {
+  protected makeUserIndexQueryObj(request: Request): any {
     return {
-      email: requestBody.username
+      email: request.body.username
     }
+  }
+
+  protected onAuthenticate(user: any, request: Request): Promise<any>{
+    return Promise.resolve(user)
   }
 
   authenticate = (req, res) => {
@@ -70,7 +75,7 @@ export abstract class OTAuthCtrlBase {
       case "password":
         console.log("password grant type.");
         const password = req.body.password;
-        const modelIndexQuery = this.makeUserIndexQueryObj(req.body)
+        const modelIndexQuery = this.makeUserIndexQueryObj(req)
         console.log("index query: ", modelIndexQuery)
         this.model.findOne(modelIndexQuery, (err, user: any) => {
           if (err) {
@@ -87,9 +92,13 @@ export abstract class OTAuthCtrlBase {
               (compareError, match) => {
                 if (compareError == null) {
                   if (match === true) {
-                    res.status(200).json({
-                      token: this.generateJWTToken(user)
-                    });
+                    this.onAuthenticate(user, req).then(
+                      finalUser => {
+                        res.status(200).json({
+                          token: this.generateJWTToken(finalUser)
+                        });
+                      }
+                    )
                   } else {
                     res.status(401).json({
                       error: "CredentialWrong"
@@ -134,13 +143,15 @@ export abstract class OTAuthCtrlBase {
 
   protected abstract modifyNewAccountSchema(schema: any, requestBody: any)
 
+  protected beforeRegisterNewUserInstance(user: any, request: Request): void {}
+
   register = (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     if (email == null || password == null) {
       res.status(401).send({ error: "One or more entries are null." });
     } else {
-      this.model.findOne(this.makeUserIndexQueryObj(req.body))
+      this.model.findOne(this.makeUserIndexQueryObj(req))
         .lean()
         .then(user => {
           if (user != null) {
@@ -157,7 +168,9 @@ export abstract class OTAuthCtrlBase {
 
                 this.modifyNewAccountSchema(newAccountSchema, req.body)
 
-                return new this.model(newAccountSchema).save()
+                const newUser = new this.model(newAccountSchema)
+                this.beforeRegisterNewUserInstance(newUser, req)
+                return newUser.save()
                   .then(doc =>
                     doc.toJSON())
               }

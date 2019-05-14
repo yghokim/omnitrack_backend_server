@@ -6,24 +6,56 @@ import OTTracker from '../models/ot_tracker';
 import OTTrigger from '../models/ot_trigger';
 import OTUserReport from '../models/ot_user_report';
 import InformationUpdateResult from '../../omnitrack/core/information_update_result';
-import app, { firebaseApp } from '../app';
+import app from '../app';
 import { SocketConstants } from '../../omnitrack/core/research/socket';
 import { experimentCtrl } from './research/ot_experiment_controller';
 import { IUserDbEntity, IClientDevice } from '../../omnitrack/core/db-entity-types';
 import { deferPromise } from '../../shared_lib/utils';
 import OTParticipant from '../models/ot_participant';
 import * as moment from 'moment';
+import { OTAuthCtrlBase } from './ot_auth_controller';
+import { Request } from 'express';
 
-export default class OTUserCtrl extends BaseCtrl {
-  model = OTUser
+export default class OTUserCtrl extends OTAuthCtrlBase {
+
+  constructor(){
+    super(OTUser, "user", ["name", "picture"])
+  }
+
+  protected modifyJWTSchema(user: any, tokenSchema: import("./ot_auth_controller").JwtTokenSchemaBase): void {
+    const schema = tokenSchema as any
+    schema.picture = user.picture
+  }
+  protected modifyNewAccountSchema(schema: any, requestBody: any) {
+
+    /*
+    const googleUserId = res.locals.user.uid
+    const experimentId = res.locals.experimentId || req["OTExperiment"] || req.body.experimentId
+    const invitationCode = req.body.invitationCode
+    const deviceInfo = req.body.deviceInfo
+    const demographic = req.body.demographic
+*/
+    schema.name = requestBody.name
+  }
+
+  protected beforeRegisterNewUserInstance(user: any, request: Request){
+    
+  }
+  
+  protected makeUserIndexQueryObj(request: Request): any {
+    return {
+      email: request.body.username,
+      experiment: request.body.experimentId || request["OTExperiment"]
+    }
+  }
 
   _checkExperimentParticipationStatus(uid: string, experimentId: string): Promise<boolean> {
-    return OTParticipant.findOne({
-      user: uid,
+    return OTUser.findOne({
+      _id: uid,
       experiment: experimentId,
-      dropped: false
-    }, { _id: 1 }).lean().then(participant => {
-      return participant != null
+      "participationInfo.dropped": false
+    }, { _id: 1 }).lean().then(user => {
+      return user != null
     })
   }
 

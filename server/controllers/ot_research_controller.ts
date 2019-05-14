@@ -188,33 +188,6 @@ export default class OTResearchCtrl {
       )
   }
 
-  approveExperimentInvitation = (req, res) => {
-    let userId: string
-    if (req.researcher) {
-      // researcher mode
-      userId = req.body.userId
-    } else if (res.locals.user) {
-      // user mode
-      userId = res.locals.user.uid
-    } else {
-      res.status(500).send("UnAuthorized from either side.")
-    }
-
-    const invitationCode = req.query.invitationCode
-    if (!userId || !invitationCode) {
-      res.status(500).send("IllegalArgumentException")
-    } else {
-
-      app.researchModule().handleInvitationApproval(userId, invitationCode)
-        .then(result => {
-          res.status(200).send(result)
-        })
-        .catch(error => {
-          res.status(500).send(error)
-        })
-    }
-  }
-
   dropOutFromExperiment = (req, res) => {
     let userId: string
     let participantId: string

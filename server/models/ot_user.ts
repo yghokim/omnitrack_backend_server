@@ -6,7 +6,6 @@ function generateNewUserId(): string {
 }
 
 const otParticipationSchema = new mongoose.Schema({
-  experiment: { type: String, ref: "OTExperiment" },
   groupId: String,
   excludedDays: { type: [Date], default: [] },
   invitation: { type: mongoose.Schema.Types.ObjectId, ref: "OTInvitation" },
@@ -40,9 +39,12 @@ const otUserSchema = new mongoose.Schema({
   password_reset_token: { type: String },
   reset_token_expires: Date,
   
+  
   deviceLocalKeySeed: {type: Number, required: true, default: 0},
   devices: [otClientDeviceSchema],
   dataStore: {type: mongoose.Schema.Types.Mixed, default: {}},
+  
+  experiment: { type: String, ref: "OTExperiment" },
   participationInfo: {
     type: otParticipationSchema
   }

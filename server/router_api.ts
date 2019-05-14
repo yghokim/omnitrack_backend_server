@@ -190,24 +190,11 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.post("/item/update_column", firebaseMiddleware, itemCtrl.postItemValue)
     this.router.post("/item/update_timestamp", firebaseMiddleware, itemCtrl.postItemTimestamp)
 
-//    this.router.route('/debug/items/all').get(itemCtrl.getAll)
-//    this.router.route('/debug/users/all').get(userCtrl.getAll)
-//    this.router.route('/debug/trackers/all').get(trackerCtrl.getAll)
-//    this.router.route('/debug/triggers/all').get(triggerCtrl.getAll)
-
-    /*
-    this.router.route('/users/destroy').get(userCtrl.destroy)
-    this.router.route('/trackers/destroy').get(trackerCtrl.destroy)
-    this.router.route('/items/destroy').get(itemCtrl.destroy)
-    this.router.route('/triggers/destroy').get(triggerCtrl.destroy)*/
-
     this.router.route('/media/all').get(storageCtrl.getAll)
 
     // binary
     this.router.post('/upload/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier', assertSignedInMiddleware, storageCtrl.uploadItemMedia)
     this.router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', assertSignedInMiddleware, storageCtrl.downloadItemMedia)
-
-    this.router.post("/research/invitation/approve", assertSignedInMiddleware, researchCtrl.approveExperimentInvitation)
 
     // this.router.post("/research/invitation/reject", assertSignedInMiddleware, researchCtrl.rejectExperimentInvitation)
 
