@@ -162,9 +162,6 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.post("/user/auth/authenticate", firebaseMiddleware, userCtrl.authenticate)
     this.router.post('/user/auth/device', assertSignedInMiddleware, userCtrl.upsertDeviceInfo)
 
-
-    this.router.get('/user/roles', firebaseMiddleware, userCtrl.getRoles)
-    this.router.post('/user/role', assertSignedInMiddleware, userCtrl.postRole)
     this.router.post('/user/name', assertSignedInMiddleware, userCtrl.putUserName)
     this.router.post('/user/device', firebaseMiddleware, userCtrl.putDeviceInfoDeprecated)
     this.router.post('/user/report', assertSignedInMiddleware, userCtrl.postReport)

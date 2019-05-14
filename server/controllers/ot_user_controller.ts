@@ -151,57 +151,6 @@ export default class OTUserCtrl extends BaseCtrl {
     )
   }
 
-  getRoles = (req, res) => {
-    const userId = res.locals.user.uid
-    OTUser.findById(userId).then(
-      result => {
-        if (result == null) {
-          res.json([])
-        } else { res.json(result["activatedRoles"] || []) }
-      }
-    ).catch(
-      error => {
-        console.log(error)
-        res.status(500).send(error)
-      }
-    )
-  }
-
-
-  postRole = (req, res) => {
-    const userId = res.locals.user.uid
-    this.getUserOrInsert(userId).then(
-      userResult => {
-        const user = userResult.user
-        const newRole = req.body
-        if (newRole != null) {
-          let updated = false
-          user.activatedRoles.forEach(role => {
-            if (role.role === newRole.role) {
-              role.isConsentApproved = newRole.isConsentApproved
-              role.information = newRole.information
-              updated = true
-            }
-          })
-          if (updated === false) {
-            user.activatedRoles.push(newRole)
-          }
-          (user as any as mongoose.Document).save().then(
-            result => {
-              if (updated === false || userResult.inserted === true) {
-              } else { res.status(200).send(true) }
-            }
-          ).catch(err => {
-            console.log(err)
-            res.status(500).send({ error: err })
-          })
-        } else {
-          res.status(500).send("No role was passed.")
-        }
-      }
-    )
-  }
-
   postReport = (req, res) => {
     const reportData = req.body
     const newReport = new OTUserReport({ _id: mongoose.Types.ObjectId(), data: reportData })

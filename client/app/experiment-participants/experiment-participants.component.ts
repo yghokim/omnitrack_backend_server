@@ -226,7 +226,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
             } else { return '' }
           case "rangeStart": { if (data.experimentRange) { return data.experimentRange.from } break; }
           case "joined": { return data.approvedAt || '' }
-          case "created": { if (data.user) { return data.user.accountCreationTime || ''; } break; }
+          case "created": { if (data.user) { return data.user.createdAt || ''; } break; }
           case "lastSync": return data.lastSyncTimestamp || '';
           case "lastSession": return data.lastSessionTimestamp || '';
           case "userId": { if (data.user) { return data.user._id || ''; } break; }

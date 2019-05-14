@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-import { MAX_VALUE } from 'long';
 
 const otParticipantSchema = new mongoose.Schema({
   alias: String,

@@ -1,5 +1,19 @@
 import * as mongoose from 'mongoose';
 
+const otParticipationSchema = new mongoose.Schema({
+  experiment: { type: String, ref: "OTExperiment" },
+  groupId: String,
+  excludedDays: { type: [Date], default: [] },
+  invitation: { type: mongoose.Schema.Types.ObjectId, ref: "OTInvitation" },
+  approvedAt: Date,
+  dropped: { type: Boolean, index: true, default: false },
+  droppedReason: String,
+  droppedBy: { type: String, ref: "OTResearcher", defaut: null },
+  droppedAt: Date,
+  experimentRange: { from: Date, to: Date },
+  demographic: { type: mongoose.SchemaTypes.Mixed, default: {} }
+}, { timestamps: true });
+
 const otClientDeviceSchema = new mongoose.Schema({
   localKey: {type: String, required: true},
   deviceId: {type: String, required: true},
@@ -15,11 +29,14 @@ const otUserSchema = new mongoose.Schema({
   nameUpdatedAt: {type: Date, default: Date.now},
   picture: String,
   email: String,
-  accountCreationTime: Date,
-  accountLastSignInTime: Date,
+  
   deviceLocalKeySeed: {type: Number, required: true, default: 0},
   devices: [otClientDeviceSchema],
-  dataStore: {type: mongoose.Schema.Types.Mixed, default: {}}
+  dataStore: {type: mongoose.Schema.Types.Mixed, default: {}},
+  participationInfo: {
+    type: otParticipationSchema
+  }
+
 }, {timestamps: true, toJSON: {virtuals: true}});
 
 otUserSchema.virtual('trackers', {

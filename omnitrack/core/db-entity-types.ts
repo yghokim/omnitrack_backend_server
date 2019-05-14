@@ -25,9 +25,6 @@ export interface IUserDbEntity extends IMongooseDbEntity {
   nameUpdatedAt?: Date,
   picture?: string,
   email?: string,
-  accountCreationTime?: Date,
-  accountLastSignInTime?: Date,
-  activatedRoles?: Array<{ role: string, isConsentApproved: boolean, information: any }>,
   deviceLocalKeySeed?: number,
   devices?: Array<IClientDevice>,
   participantIdentities? : Array<IParticipantDbEntity>

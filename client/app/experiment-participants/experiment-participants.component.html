@@ -77,16 +77,6 @@
         </mat-cell>
       </ng-container>
 
-      <!--
-            <ng-container matColumnDef="created">
-              <mat-header-cell *matHeaderCellDef mat-sort-header> Created </mat-header-cell>
-              <mat-cell *matCellDef="let object"> {{object.user.accountCreationTime | date: 'MMM dd, yyyy'}} </mat-cell>
-            </ng-container>
-            <ng-container matColumnDef="signIn">
-              <mat-header-cell *matHeaderCellDef mat-sort-header> Signed In </mat-header-cell>
-              <mat-cell *matCellDef="let object"> {{object.user.accountLastSignInTime | date: 'MMM dd, yyyy'}} </mat-cell>
-            </ng-container>
-            -->
       <ng-container matColumnDef="userId">
         <mat-header-cell *matHeaderCellDef mat-sort-header> User UID </mat-header-cell>
         <mat-cell *matCellDef="let object"> {{object.user._id}} </mat-cell>

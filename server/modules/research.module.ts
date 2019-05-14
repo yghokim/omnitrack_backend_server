@@ -80,22 +80,6 @@ export default class ResearchModule {
     )
   }
 
-  private extractUserRoleInformation(userId: string, role: string): Promise<any> {
-    return OTUser.findById(userId).then(
-      user => {
-        if (user) {
-          if (user["activatedRoles"]) {
-            const selectedRole = user["activatedRoles"].find(r => r.role === role)
-            if (selectedRole != null) {
-              return selectedRole.information
-            }
-          }
-        }
-        return null
-      }
-    )
-  }
-
   sendInvitationToUser(invitationCode: string, userId: string, force: boolean): PromiseLike<{ invitationAlreadySent: boolean, participant: any }> {
     return this.getInvitationIdFromCode(invitationCode).then(
       invitationId => OTParticipant.findOne({ user: userId, "invitation.code": invitationCode }).then(participantDoc => {
@@ -264,17 +248,12 @@ export default class ResearchModule {
 
   putAliasToParticipantsIfNull(): Promise<number> {
     let count = 0
-    const makePromise = () => OTParticipant.findOne({ alias: { $exists: false } }, { select: "_id alias user experiment" }).populate({ path: "user", select: "_id activatedRoles" })
+    const makePromise = () => OTParticipant.findOne({ alias: { $exists: false } }, { select: "_id alias user experiment" }).populate({ path: "user", select: "_id" })
       .then(part => {
         console.log(part)
         const participant = part as any
         if (participant) {
-          let gender
-          const selectedRole = participant.user.activatedRoles.find(r => r.role === "ServiceUser")
-          if (selectedRole != null && selectedRole.information) {
-            gender = selectedRole.information.gender
-          }
-          return this.generateRandomUniqueAliasForParticipant(gender || "female", "", gender != null ? "" : "^", part["experiment"]).then(
+          return this.generateRandomUniqueAliasForParticipant("female", "", "^", part["experiment"]).then(
             alias => {
               part["alias"] = alias
               return part.save().then(onFulfilled => {
@@ -393,7 +372,7 @@ export default class ResearchModule {
             // already approved the invitation.
             return { success: false, error: "Already participating in this experiment.", injectionExists: null, experiment: null }
           } else {
-            return this.extractUserRoleInformation(userId, "ServiceUser").then(information => this.generateRandomUniqueAliasForParticipant(information.gender || "female", "", information.gender == null ? "^" : "", invitation["experiment"]._id)).then(
+            return this.generateRandomUniqueAliasForParticipant("female", "", "^", invitation["experiment"]._id).then(
               alias => {
                 console.log("this participant's alias: " + alias)
                 return OTParticipant.findOneAndUpdate({ "user": userId, "invitation": invitation._id }, {
