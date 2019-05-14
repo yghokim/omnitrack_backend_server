@@ -1,4 +1,9 @@
 import * as mongoose from 'mongoose';
+import * as uuid from 'uuid';
+
+function generateNewUserId(): string {
+  return "ot-usr-" + require('randomstring').generate({ length: 12, charset: 'numeric' })
+}
 
 const otParticipationSchema = new mongoose.Schema({
   experiment: { type: String, ref: "OTExperiment" },
@@ -24,11 +29,16 @@ const otClientDeviceSchema = new mongoose.Schema({
 })
 
 const otUserSchema = new mongoose.Schema({
-  _id: {type: String},
+  _id: {type: String, default: generateNewUserId},
   name: String,
   nameUpdatedAt: {type: Date, default: Date.now},
   picture: String,
   email: String,
+  
+  hashed_password: { type: String, required: true },
+  passwordSetAt: Date,
+  password_reset_token: { type: String },
+  reset_token_expires: Date,
   
   deviceLocalKeySeed: {type: Number, required: true, default: 0},
   devices: [otClientDeviceSchema],

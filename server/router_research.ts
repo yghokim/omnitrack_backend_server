@@ -1,5 +1,4 @@
 import { IEnvironment } from './env';
-import OTResearcher from './models/ot_researcher';
 import { OTResearchAuthCtrl } from './controllers/research/ot_research_auth_controller';
 import AdminCtrl from "./controllers/admin_controller";
 import OTResearchCtrl from './controllers/ot_research_controller';
@@ -22,7 +21,6 @@ import { trackingPackageCtrl } from './controllers/ot_tracking_package_controlle
 import { clientBuildCtrl } from './controllers/research/ot_client_build_controller';
 import OTShortUrl from './models/ot_short_url';
 import { getFirebaseProjectId } from './app';
-const jwt = require('express-jwt');
 
 export class ResearchRouter extends RouterWrapper {
 
@@ -43,7 +41,7 @@ export class ResearchRouter extends RouterWrapper {
       next();
     }
 
-    const tokenApprovedAuth = [this.makeTokenAuthMiddleware((researcher) => {
+    const tokenApprovedAuth = [this.researchAuthCtrl.makeTokenAuthMiddleware((researcher) => {
       switch (researcher["account_approved"]) {
         case true: return null;
         case false: return "AccountDeclined";
@@ -51,13 +49,13 @@ export class ResearchRouter extends RouterWrapper {
       }
     }), firebaseProjectIdSetMiddleware]
 
-    const tokenAdminAuth = [this.makeTokenAuthMiddleware((researcher) => {
+    const tokenAdminAuth = [this.researchAuthCtrl.makeTokenAuthMiddleware((researcher) => {
       const previlage = (env.super_users as Array<string> || []).indexOf(researcher.email) !== -1 ? ResearcherPrevilages.SUPERUSER : ResearcherPrevilages.NORMAL
 
       return previlage >= ResearcherPrevilages.ADMIN ? null : "NotAdmin"
     }), firebaseProjectIdSetMiddleware]
 
-    const tokenSignedInAuth = this.makeTokenAuthMiddleware()
+    const tokenSignedInAuth = this.researchAuthCtrl.makeTokenAuthMiddleware()
 
     /*
     router.post('/oauth/authorize', oauth.authorize())
@@ -65,7 +63,7 @@ export class ResearchRouter extends RouterWrapper {
     */
 
     this.router.post('/auth/authenticate', this.researchAuthCtrl.authenticate)
-    this.router.post('/auth/register', this.researchAuthCtrl.registerResearcher)
+    this.router.post('/auth/register', this.researchAuthCtrl.register)
     this.router.post('/auth/update', tokenApprovedAuth, this.researchAuthCtrl.update)
     this.router.post('/auth/verify', tokenSignedInAuth, this.researchAuthCtrl.verifyToken)
 
@@ -247,26 +245,5 @@ export class ResearchRouter extends RouterWrapper {
     this.router.put('/debug/test_http_method/put', methodTestHandler)
     this.router.delete('/debug/test_http_method/delete', methodTestHandler)
     this.router.options('/debug/test_http_method/options', methodTestHandler)
-  }
-
-
-  private makeTokenAuthMiddleware(pipe: (reseaercher, parsedToken?) => string = () => null): any {
-    return jwt({
-      secret: this.env.jwt_secret, userProperty: 'researcher', isRevoked: (req, payload, done) => {
-        OTResearcher.findById(payload.uid, (idFindErr, researcher) => {
-          if (idFindErr) {
-            done(idFindErr, true)
-            return
-          } else if (researcher) {
-            const pipeResult = pipe(researcher)
-            if (pipeResult) {
-              done(pipeResult, true)
-            } else if (payload.iat < (researcher["passwordSetAt"] || researcher["createdAt"]).getTime() / 1000) {
-              done("passwordChanged", true)
-            } else { done(null, false) }
-          } else { done(null, true) }
-        })
-      }
-    })
   }
 }

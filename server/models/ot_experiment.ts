@@ -1,12 +1,10 @@
 import * as mongoose from 'mongoose';
 import * as uuid from 'uuid';
 import { ExperimentPermissions } from '../../omnitrack/core/research/experiment'
-import { ExperimentDashboardConfigs, TrackingItemListTableConfig, VisualizationConfigs } from '../../omnitrack/core/research/configs';
-
-const randomstring = require('randomstring');
+import { VisualizationConfigs } from '../../omnitrack/core/research/configs';
 
 function generateNewExperimentId(): string {
-  return "ot-exp-" + randomstring.generate({ length: 8, charset: 'numeric' })
+  return "ot-exp-" + require('randomstring').generate({ length: 8, charset: 'numeric' })
 }
 
 const otExperimentGroupSchema = new mongoose.Schema(
