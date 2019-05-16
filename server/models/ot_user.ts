@@ -2,13 +2,14 @@ import * as mongoose from 'mongoose';
 import * as uuid from 'uuid';
 
 function generateNewUserId(): string {
-  return "ot-usr-" + require('randomstring').generate({ length: 12, charset: 'numeric' })
+  return "ot-usr-" + require('randomstring').generate({ length: 12, charset: 'hex' })
 }
 
 const otParticipationSchema = new mongoose.Schema({
-  groupId: String,
+  alias: {type: String, default: null},
+  groupId: {type: String, default: null},
   excludedDays: { type: [Date], default: [] },
-  invitation: { type: mongoose.Schema.Types.ObjectId, ref: "OTInvitation" },
+  invitation: { type: mongoose.Schema.Types.ObjectId, ref: "OTInvitation"},
   approvedAt: Date,
   dropped: { type: Boolean, index: true, default: false },
   droppedReason: String,
@@ -16,7 +17,7 @@ const otParticipationSchema = new mongoose.Schema({
   droppedAt: Date,
   experimentRange: { from: Date, to: Date },
   demographic: { type: mongoose.SchemaTypes.Mixed, default: {} }
-}, { timestamps: true });
+}, { timestamps: true, minimize: false });
 
 const otClientDeviceSchema = new mongoose.Schema({
   localKey: {type: String, required: true},
@@ -29,10 +30,10 @@ const otClientDeviceSchema = new mongoose.Schema({
 
 const otUserSchema = new mongoose.Schema({
   _id: {type: String, default: generateNewUserId},
-  name: String,
+  name: {type: String, required: false},
   nameUpdatedAt: {type: Date, default: Date.now},
   picture: String,
-  email: String,
+  email: {type: String, index: true, required: true},
   
   hashed_password: { type: String, required: true },
   passwordSetAt: Date,
@@ -41,15 +42,21 @@ const otUserSchema = new mongoose.Schema({
   
   
   deviceLocalKeySeed: {type: Number, required: true, default: 0},
-  devices: [otClientDeviceSchema],
+  devices: {type: [otClientDeviceSchema], default: []},
   dataStore: {type: mongoose.Schema.Types.Mixed, default: {}},
   
   experiment: { type: String, ref: "OTExperiment" },
   participationInfo: {
-    type: otParticipationSchema
+    type: otParticipationSchema,
+    default: ()=>({})
   }
 
-}, {timestamps: true, toJSON: {virtuals: true}});
+}, {
+  timestamps: true, 
+  minimize: false,
+  toJSON: {virtuals: true}});
+
+otUserSchema.index({ email: 1, experiment: 1 }, {unique: 1})
 
 otUserSchema.virtual('trackers', {
   ref: 'OTTracker',

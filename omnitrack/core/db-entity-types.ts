@@ -24,10 +24,10 @@ export interface IUserDbEntity extends IMongooseDbEntity {
   name: string,
   nameUpdatedAt?: Date,
   picture?: string,
-  email?: string,
+  email: string,
+  participationInfo: any,
   deviceLocalKeySeed?: number,
   devices?: Array<IClientDevice>,
-  participantIdentities? : Array<IParticipantDbEntity>
 }
 
 export interface IClientDevice {

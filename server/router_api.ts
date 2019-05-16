@@ -163,7 +163,6 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.post('/user/auth/device', assertSignedInMiddleware, userCtrl.upsertDeviceInfo)
 
     this.router.post('/user/name', assertSignedInMiddleware, userCtrl.putUserName)
-    this.router.post('/user/device', firebaseMiddleware, userCtrl.putDeviceInfoDeprecated)
     this.router.post('/user/report', assertSignedInMiddleware, userCtrl.postReport)
     this.router.delete('/user', assertSignedInMiddleware, userCtrl.deleteAccount)
     this.router.post('/user/delete', assertSignedInMiddleware, userCtrl.deleteAccount)

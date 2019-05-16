@@ -15,10 +15,15 @@ import OTParticipant from '../models/ot_participant';
 import * as moment from 'moment';
 import { OTAuthCtrlBase } from './ot_auth_controller';
 import { Request } from 'express';
+import OTResearcher from '../models/ot_researcher';
+import OTInvitation from '../models/ot_invitation';
+import { AInvitation } from '../../omnitrack/core/research/invitation';
+import { IJoinedExperimentInfo } from '../../omnitrack/core/research/experiment';
+import OTExperiment from '../models/ot_experiment';
 
 export default class OTUserCtrl extends OTAuthCtrlBase {
 
-  constructor(){
+  constructor() {
     super(OTUser, "user", ["name", "picture"])
   }
 
@@ -29,7 +34,7 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
   protected modifyNewAccountSchema(schema: any, requestBody: any) {
 
     /*
-    const googleUserId = res.locals.user.uid
+    const googleUserId = req.user.uid
     const experimentId = res.locals.experimentId || req["OTExperiment"] || req.body.experimentId
     const invitationCode = req.body.invitationCode
     const deviceInfo = req.body.deviceInfo
@@ -38,10 +43,121 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
     schema.name = requestBody.name
   }
 
-  protected beforeRegisterNewUserInstance(user: any, request: Request){
-    
+  protected onPreRegisterNewUserInstance(user: any, request: Request): Promise<any> {
+    const experimentId = request.body.experimentId || request["OTExperiment"]
+    const invitationCode = request.body.invitationCode
+    const deviceInfo = request.body.deviceInfo
+    const demographic = request.body.demographic
+
+    this.upsertDeviceInfoLocally(user, deviceInfo)
+    return deferPromise(() => {
+      if (experimentId != null) {
+        if (invitationCode != null) {
+          // check invitation code and experimentId
+          return experimentCtrl.matchInvitationWithExperiment(invitationCode, experimentId).then(match => {
+            if (match === true) {
+              return this._assignParticipantToExperiment(user, invitationCode, experimentId, demographic).then(joinedExperimentInfo => {
+                return user
+              })
+            } else { throw { code: "IllegalInvitationCode" } }
+          })
+        } else {
+          //inserted an experimentId, but not invidation code
+          throw { code: "IllegalInvitationCode" }
+        }
+      } else {
+        //no experimentId. check email account.
+        return OTResearcher.findOne({
+          email: user.email,
+          account_approved: true
+        }, { _id: 1, alias: 1 }).lean().then(researcher => {
+          if (researcher != null) {
+            //found matching researcher.
+            console.log("A researcher " + researcher.alias + " was signed in as a master app user.")
+            return user
+          } else throw {
+            code: "IllegalExperimentId"
+          }
+        })
+      }
+    })
   }
-  
+
+  protected onAfterRegisterNewUserInstance(user: any, request: Request): Promise<any> {
+    if (user.experiment != null) {
+      app.socketModule().sendUpdateNotificationToExperimentSubscribers(user.experiment, {
+        model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_APPROVED, payload: {
+          user: user._id
+        }
+      })
+    }
+    return super.onAfterRegisterNewUserInstance(user, request)
+  }
+
+  private _assignParticipantToExperiment(user: IUserDbEntity, invitationCode: string, experimentId: string, demographic: any): Promise<IJoinedExperimentInfo> {
+    return OTInvitation.findOne({
+      code: invitationCode,
+      experiment: experimentId,
+      $or: [
+        { "experiment.finishDate": { $gt: new Date() } },
+        { "experiment.finishDate": null }
+      ]
+    }, { _id: 1, experiment: 1, groupMechanism: 1 }).lean()
+      .then(doc => {
+        if (doc) {
+          const typedInvitation = AInvitation.fromJson((doc as any).groupMechanism)
+          const groupId = typedInvitation.pickGroup()
+          return { invitationId: doc._id, experimentId: doc["experiment"], groupId: groupId }
+        } else {
+          throw { error: "IllegalInvitationCodeOrClosedExperiment" }
+        }
+      })
+      .then(result => {
+        return OTExperiment.findOneAndUpdate({
+          _id: result.experimentId,
+          "groups._id": result.groupId,
+        }, { $inc: { participantNumberSeed: 1 } }, { new: true, select: { _id: 1, name: 1, participantNumberSeed: 1, groups: 1, trackingPackages: 1 } })
+          .lean()
+          .then(experiment => {
+            let trackingPackage
+            const group = experiment.groups.find(g => g._id === result.groupId)
+            if (group.trackingPackageKey) {
+              trackingPackage = (experiment.trackingPackages || []).find(p => p.key === group.trackingPackageKey)
+            }
+
+            user.name =
+              user.participationInfo.groupId = result.groupId
+            user.participationInfo.alias = "P" + experiment["participantNumberSeed"]
+            user.participationInfo.invitation = result.invitationId
+            user.participationInfo.dropped = false
+            user.participationInfo.droppedAt = null
+            user.participationInfo.droppedBy = null
+            user.participationInfo.demographic = demographic
+            const now = Date()
+            user.participationInfo.approvedAt = now
+            user.participationInfo.experimentRange.from = now
+
+            const joinedExperimentInfo = {
+              id: experiment._id,
+              name: experiment.name,
+              droppedAt: null,
+              joinedAt: user.participationInfo.approvedAt.getTime()
+            } as IJoinedExperimentInfo
+
+            if (trackingPackage) {
+              //inject tracking package
+              return app.omnitrackModule().injectPackage(user._id, trackingPackage.data,
+                { injected: true, experiment: experiment._id }).then(res => {
+                  return joinedExperimentInfo
+                })
+            } else {
+              //not inject tracking package
+              return joinedExperimentInfo
+            }
+          })
+      })
+  }
+
   protected makeUserIndexQueryObj(request: Request): any {
     return {
       email: request.body.username,
@@ -59,44 +175,17 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
     })
   }
 
-  _authenticate(uid: string, deviceInfo: IClientDevice, invitationCode?: string, experimentId?: string, demographic?: any): Promise<{ user: IUserDbEntity, deviceLocalKey: number, inserted: boolean }> {
-    return deferPromise(() => {
-      if (invitationCode != null && experimentId != null) {
-        // check invitation code and experimentId
-        return experimentCtrl.matchInvitationWithExperiment(invitationCode, experimentId).then(match => {
-          if (match === true) {
-            return this.getUserOrInsert(uid)
-          } else { throw { code: "IllegalInvitationCode" } }
-        })
-      } else {
-        return this.getUserOrInsert(uid)
+  getParticipationStatus = (req, res) => {
+    const userId = req.user.uid
+    const experimentId = req.params.experimentId
+    this._checkExperimentParticipationStatus(userId, experimentId).then(
+      isInParticipation => {
+        res.status(200).send(isInParticipation)
       }
-    }).then(result => {
-      // handle new user examples=======================
-      if (result.inserted === true && experimentId == null) {
-        // new user
-        return app.omnitrackModule().injectFirstUserExamples(uid).then(() => result)
-      } else { return result }
-    }).then(result => {
-      // handle updating deviceInfo===========================
-      const deviceUpdateResult = this.upsertDeviceInfoLocally(result.user, deviceInfo)
-      // ----------------------------------------
-      return (result.user as any as mongoose.Document).save().then(() => ({ user: result.user, deviceLocalKey: deviceUpdateResult.localKey, inserted: result.inserted }))
-    }).then(
-      result => {
-        if (experimentId != null) {
-          return this._checkExperimentParticipationStatus(uid, experimentId).then(
-            isInParticipation => {
-              if (isInParticipation) {
-                return result
-              } else { return app.researchModule().assignParticipantToExperiment(uid, invitationCode, experimentId, demographic).then(assignExperimentResult => {
-                return result
-              })
-              }
-            })
-        } else { return result }
-      }
-    )
+    ).catch(err => {
+      console.error(err)
+      res.status(500).send(err)
+    })
   }
 
   /**
@@ -139,50 +228,6 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
     return { inserted: !updated, localKey: localKey }
   }
 
-  private fetchUserDataToDb(uid: string): Promise<IUserDbEntity> {
-    const generate = require("adjective-adjective-animal");
-
-    return generate({ adjectives: 2, format: "title" }).then(
-      generatedName => {
-        return firebaseApp.auth().getUser(uid)
-          .then(
-            userRecord => {
-              console.log("fetched Firebase auth user account:")
-              console.log(userRecord)
-              return OTUser.findOneAndUpdate({ _id: uid }, {
-                $set: {
-                  name: generatedName,
-                  email: userRecord.email,
-                  picture: userRecord.photoURL,
-                  accountCreationTime: userRecord.metadata.creationTime,
-                  accountLastSignInTime: userRecord.metadata.lastSignInTime,
-                  nameUpdatedAt: Date.now()
-                }
-              }, { upsert: true, new: true }).then(
-                result => {
-                  return result
-                }
-              )
-            }
-          )
-      })
-  }
-
-  private getUserOrInsert(userId: string): Promise<{ user: IUserDbEntity, inserted: boolean }> {
-    return OTUser.findOne({ _id: userId }).then(
-      result => {
-        if (result == null) {
-          return this.fetchUserDataToDb(userId)
-            .then(user => ({ user: user, inserted: true }))
-            .catch(ex => {
-              console.log(ex)
-              return Promise.reject(ex)
-            })
-        } else { return Promise.resolve({ user: result as any, inserted: false }) }
-      }
-    )
-  }
-
   postReport = (req, res) => {
     const reportData = req.body
     const newReport = new OTUserReport({ _id: mongoose.Types.ObjectId(), data: reportData })
@@ -190,7 +235,7 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
       console.log("received the anonymized report")
     } else {
       console.log("received the de-anonymized report")
-      newReport["user"] = res.locals.user.uid
+      newReport["user"] = req.user.uid
     }
 
     newReport.save().then(
@@ -204,7 +249,7 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
   }
 
   putUserName = (req, res) => {
-    const userId = res.locals.user.uid
+    const userId = req.user.uid
     const name = req.body.value
     const timestamp = req.body.timestamp
     OTUser.findOneAndUpdate({
@@ -226,7 +271,7 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
   }
 
   getDevices = (req, res) => {
-    const userId = res.locals.user.uid
+    const userId = req.user.uid
     OTUser.findOne({ _id: userId }, { projection: { devices: true } }).lean().then(
       result => {
         if (result == null) {
@@ -242,7 +287,7 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
   }
 
   upsertDeviceInfo = (req, res) => {
-    const userId = res.locals.user.uid
+    const userId = req.user.uid
     const deviceInfo = req.body
     console.log('deviceInfo: ')
     console.log(deviceInfo)
@@ -262,42 +307,13 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
     )
   }
 
-  putDeviceInfoDeprecated = (req, res) => {
-    const userId = res.locals.user.uid
-    const deviceInfo = req.body
-    console.log('deviceInfo: ')
-    console.log(deviceInfo)
-    this.getUserOrInsert(userId).then(
-      userResult => {
-        const deviceInsertionResult = this.upsertDeviceInfoLocally(userResult.user, deviceInfo);
-
-        (userResult.user as any).save(err => {
-          console.log(err)
-          if (err == null) {
-            res.json({
-              result: deviceInsertionResult.inserted === true ? "updated" : "added",
-              deviceLocalKey: deviceInsertionResult.localKey.toString(16),
-              payloads: {
-                email: userResult.user.email,
-                name: userResult.user.name,
-                nameUpdatedAt: userResult.user.nameUpdatedAt.getTime(),
-                picture: userResult.user.picture,
-                updatedAt: userResult.user.updatedAt.getTime()
-              }
-            })
-          } else { res.status(500).send({ error: "deviceinfo db update failed." }) }
-        }, { upsert: true })
-      }
-    )
-  }
-
   deleteAccount = (req, res) => {
     let userId
     if (req.researcher) {
       // researcher mode
       userId = req.params.userId
-    } else if (res.locals.user) {
-      userId = res.locals.user.uid
+    } else if (req.user) {
+      userId = req.user.uid
     } else {
       res.status(500).send({ err: "You are neither a researcher nor a user." })
     }
@@ -332,41 +348,10 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
 
   }
 
-  authenticate = (req, res) => {
-    const googleUserId = res.locals.user.uid
-    const experimentId = res.locals.experimentId || req["OTExperiment"] || req.body.experimentId
-    const invitationCode = req.body.invitationCode
-    const deviceInfo = req.body.deviceInfo
-    const demographic = req.body.demographic
-    this._authenticate(googleUserId, deviceInfo, invitationCode, experimentId, demographic).then(
-      result => {
-        const userInfo = (result.user as any).toJSON()
-        userInfo.nameUpdatedAt = moment(userInfo.nameUpdatedAt).unix()
-        res.status(200).send(
-          {
-            inserted: result.inserted,
-            deviceLocalKey: result.deviceLocalKey,
-            userInfo: userInfo
-          }
-        )
-      }
-    ).catch(ex => {
-      console.error(ex)
-      res.status(500).send(ex)
-    })
-  }
-
-  getParticipationStatus = (req, res) => {
-    const googleUserId = res.locals.user.uid
-    const experimentId = req.params.experimentId
-    this._checkExperimentParticipationStatus(googleUserId, experimentId).then(
-      isInParticipation => {
-        res.status(200).send(isInParticipation)
-      }
-    ).catch(err => {
-      console.error(err)
-      res.status(500).send(err)
-    })
+  protected onAuthenticate(user: any, request: Request): Promise<any>{
+    const deviceInfo = request.body.deviceInfo
+    this.upsertDeviceInfoLocally(user, deviceInfo)
+    return user.save()
   }
 
   verifyInvitationCode = (req, res) => {
@@ -381,4 +366,5 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
       res.status(500).send(err)
     })
   }
+
 }

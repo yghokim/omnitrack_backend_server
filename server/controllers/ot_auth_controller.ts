@@ -143,7 +143,9 @@ export abstract class OTAuthCtrlBase {
 
   protected abstract modifyNewAccountSchema(schema: any, requestBody: any)
 
-  protected beforeRegisterNewUserInstance(user: any, request: Request): void {}
+  protected onPreRegisterNewUserInstance(user: any, request: Request): Promise<any> { return Promise.resolve(user) }
+
+  protected onAfterRegisterNewUserInstance(user: any, request: Request): Promise<any> { return Promise.resolve(user) }
 
   register = (req, res) => {
     const email = req.body.email;
@@ -169,10 +171,12 @@ export abstract class OTAuthCtrlBase {
                 this.modifyNewAccountSchema(newAccountSchema, req.body)
 
                 const newUser = new this.model(newAccountSchema)
-                this.beforeRegisterNewUserInstance(newUser, req)
-                return newUser.save()
-                  .then(doc =>
-                    doc.toJSON())
+                return this.onPreRegisterNewUserInstance(newUser, req)
+                  .then(user => {
+                    return user.save().then(
+                      doc => this.onAfterRegisterNewUserInstance(doc, req)
+                    ).then(doc => doc.toJSON())
+                  })
               }
             )
           }

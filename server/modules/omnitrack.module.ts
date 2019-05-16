@@ -52,6 +52,8 @@ export default class OmniTrackModule {
       const attributeLocalIdTable = {}
       const triggerIdTable = {}
 
+      const currentDate = new Date()
+
       pack.placeHolderDict.trackers.forEach(trackerPlaceHolder => {
         trackerIdTable[trackerPlaceHolder] = IdGenerator.generateObjectId()
       })
@@ -65,7 +67,7 @@ export default class OmniTrackModule {
 
       pack.trackers.forEach(tracker => {
         tracker.flags = merge(tracker.flags, creationFlags, true)
-        tracker.userCreatedAt = Date.now()
+        tracker.userCreatedAt = currentDate.getTime()
         tracker.user = userId
         tracker.objectId = trackerIdTable[tracker.objectId]
         tracker.attributes.forEach(attr => {
@@ -75,17 +77,17 @@ export default class OmniTrackModule {
           attr.trackerId = tracker.objectId
 
           // TODO deal with connection
-          attr.userCreatedAt = Date.now()
-          attr.userUpdatedAt = Date.now()
+          attr.userCreatedAt = currentDate.getTime()
+          attr.userUpdatedAt = currentDate.getTime()
         })
-        tracker.userUpdatedAt = Date.now()
-        tracker.createdAt = new Date()
+        tracker.userUpdatedAt = currentDate.getTime()
+        tracker.createdAt = currentDate
         tracker.updatedAt = tracker.createdAt
       })
 
       pack.triggers.forEach(trigger => {
         trigger.flags = merge(trigger.flags, creationFlags, true)
-        trigger.userCreatedAt = Date.now()
+        trigger.userCreatedAt = currentDate.getTime()
         trigger.user = userId
         trigger.objectId = triggerIdTable[trigger.objectId]
         for (let i = 0; i < trigger.trackers.length; i++) {
@@ -115,9 +117,9 @@ export default class OmniTrackModule {
           }
         }
 
-        trigger.userUpdatedAt = Date.now()
-        trigger.createdAt = new Date()
-        trigger.updatedAt = new Date()
+        trigger.userUpdatedAt = currentDate.getTime()
+        trigger.createdAt = currentDate
+        trigger.updatedAt = currentDate
       })
 
       // save them to database
