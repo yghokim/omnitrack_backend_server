@@ -31,67 +31,43 @@ export class ClientApiRouter extends RouterWrapper {
     const adminCtrl = new AdminCtrl()
     const researchCtrl = new OTResearchCtrl()
 
-    // revised https://github.com/antonybudianto/express-firebase-middleware/blob/master/src/auth.middleware.js
-    const firebaseMiddleware = function firebaseAuthMiddleware(req, res, next) {
-      const authorization = req.header('Authorization');
-      if (authorization) {
-        const token = authorization.split(' ');
-        firebaseApp.auth().verifyIdToken(token[1])
-          .then((decodedToken) => {
-            res.locals.user = decodedToken;
-            next();
-          })
-          .catch(err => {
-            console.log(err);
-            res.sendStatus(401);
-          });
-      } else {
-        console.log('Authorization header is not found');
-        res.sendStatus(401);
-      }
-    }
-
-    const omnitrackDeviceCheckMiddleware = (req: Request, res, next) => {
-      const deviceId = req.get("OTDeviceId")
+    const certifiedDeviceCheckMiddleware = (req: Request, res, next) => {
       const fingerPrint = req.get("OTFingerPrint")
       const packageName = req.get("OTPackageName")
       const experimentId = req.get('OTExperiment')
-      const role = req.get("OTRole")
-      console.log("role:" + role + ", device id : " + deviceId + ", fingerPrint: " + fingerPrint + ", packageName: " + packageName)
-
-      res.locals["roleName"] = role
-
-      clientSignatureCtrl.matchSignature(fingerPrint, packageName).then(
+      clientSignatureCtrl.matchSignature(fingerPrint, packageName, experimentId).then(
         match => {
-          if (match !== true) {
+          if (match === true) {
+            next()
+          }else{
             console.log("The client is not certificated in the server.")
-            res.status(404).send(new Error("The client is not certificated in the server."))
-          } else if (deviceId != null) {
-            if (res.locals.user) {
-              res.locals.experimentId = experimentId
-              OTUser.findOne({ _id: res.locals.user.uid, "devices.deviceId": deviceId }).lean().then(
-                user => {
-                  if (user != null) {
-                    console.log("received an authorized call from device: " + deviceId)
-                    res.locals["deviceId"] = deviceId
-                    next()
-                  } else {
-                    res.status(404).send(new Error("no such device."))
-                  }
-                }).catch((err) => {
-                  console.log(err)
-                  res.status(500).send(err)
-                })
-            } else {
-              next()
-            }
-          } else { next() }
+            res.status(401).send(new Error("The client is not certificated in the server."))
+          }
         }
       )
     }
 
-    const assertSignedInMiddleware = [firebaseMiddleware, omnitrackDeviceCheckMiddleware]
+    const userDeviceCheckMiddleware = (req: Request, res, next) => {
+      const deviceId = req.get("OTDeviceId")
+      const fingerPrint = req.get("OTFingerPrint")
+      const packageName = req.get("OTPackageName")
+      const experimentId = req.get('OTExperiment')
 
+      OTUser.findOne({ _id: req.user.uid, "devices.deviceId": deviceId }).lean().then(
+        user => {
+          if (user != null) {
+            console.log("received an authorized call from device: " + deviceId)
+            next()
+          } else {
+            res.status(401).send(new Error("no such device."))
+          }
+        }).catch(err => {
+          console.log(err)
+          res.status(500).send(err)
+        })
+    }
+
+    const assertSignedInMiddleware = [certifiedDeviceCheckMiddleware, userCtrl.makeTokenAuthMiddleware(), userDeviceCheckMiddleware]
 
     // admin
     this.router.route('/admin/package/extract').get(trackingPackageCtrl.getExtractedTrackingPackageJson)
@@ -117,9 +93,15 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.get('/items/changes', assertSignedInMiddleware, itemCtrl.getServerChanges)
     this.router.post('/items/changes', assertSignedInMiddleware, itemCtrl.postClientChanges)
 
+
+    // auth
+    this.router.post("/user/auth/register", userCtrl.register)
+    this.router.post("/user/auth/authenticate", userCtrl.authenticate)
+    this.router.post("/user/auth/refresh_token", assertSignedInMiddleware, userCtrl.refreshToken)
+    
     this.router.route('/user/data_store/:storeKey')
       .get(assertSignedInMiddleware, (req, res) => {
-        userDataStoreCtrl.getDataStoreValue(res.locals.user.uid, req.params.storeKey).then(
+        userDataStoreCtrl.getDataStoreValue(req.user.uid, req.params.storeKey).then(
           entry => {
             res.status(200).send(entry)
           }
@@ -129,7 +111,7 @@ export class ClientApiRouter extends RouterWrapper {
         })
       })
       .post(assertSignedInMiddleware, (req, res) => {
-        userDataStoreCtrl.setDataStoreValue(res.locals.user.uid, req.params.storeKey, req.body.value, req.body.updatedAt, req.body.force).then(result => {
+        userDataStoreCtrl.setDataStoreValue(req.user.uid, req.params.storeKey, req.body.value, req.body.updatedAt, req.body.force).then(result => {
           res.status(200).send(result)
         }).catch(err => {
           console.log(err);
@@ -139,7 +121,7 @@ export class ClientApiRouter extends RouterWrapper {
 
     this.router.route('/user/data_store/changes')
       .get(assertSignedInMiddleware, (req, res) => {
-        userDataStoreCtrl.getDataStoreChangedAfter(res.locals.user.uid, req.body.timestamp).then(
+        userDataStoreCtrl.getDataStoreChangedAfter(req.user.uid, req.body.timestamp).then(
           result => {
             res.status(200).send(result || [])
           }
@@ -149,7 +131,7 @@ export class ClientApiRouter extends RouterWrapper {
         })
       })
       .post(assertSignedInMiddleware, (req, res) => {
-        userDataStoreCtrl.setDataStore(res.locals.user.uid, req.body.list).then(
+        userDataStoreCtrl.setDataStore(req.user.uid, req.body.list).then(
           result => {
             res.status(200).send(result)
           }
@@ -158,8 +140,6 @@ export class ClientApiRouter extends RouterWrapper {
         })
       })
 
-    this.router.get("/user/auth/check_status/:experimentId", firebaseMiddleware, userCtrl.getParticipationStatus)
-    this.router.post("/user/auth/authenticate", firebaseMiddleware, userCtrl.authenticate)
     this.router.post('/user/auth/device', assertSignedInMiddleware, userCtrl.upsertDeviceInfo)
 
     this.router.post('/user/name', assertSignedInMiddleware, userCtrl.putUserName)

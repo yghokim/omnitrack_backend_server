@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import * as uuid from 'uuid';
+const validate = require('mongoose-validator')
 
 function generateNewUserId(): string {
   return "ot-usr-" + require('randomstring').generate({ length: 12, charset: 'hex' })
@@ -33,13 +33,25 @@ const otUserSchema = new mongoose.Schema({
   name: {type: String, required: false},
   nameUpdatedAt: {type: Date, default: Date.now},
   picture: String,
-  email: {type: String, index: true, required: true},
+  username: {type: String, index: true, required: true,
+    validate: [
+      validate({
+        validator: 'isLength',
+        arguments: [3, 50],
+        message: 'Username should be between {ARGS[0]} and {ARGS[1]} characters',
+      }),
+      validate({
+        validator: 'isAlphanumeric',
+        passIfEmpty: true,
+        message: 'Username should contain alpha-numeric characters only',
+      }),
+    ]
+  },
   
   hashed_password: { type: String, required: true },
   passwordSetAt: Date,
   password_reset_token: { type: String },
   reset_token_expires: Date,
-  
   
   deviceLocalKeySeed: {type: Number, required: true, default: 0},
   devices: {type: [otClientDeviceSchema], default: []},
@@ -56,7 +68,7 @@ const otUserSchema = new mongoose.Schema({
   minimize: false,
   toJSON: {virtuals: true}});
 
-otUserSchema.index({ email: 1, experiment: 1 }, {unique: 1})
+otUserSchema.index({ username: 1, experiment: 1 }, {unique: 1})
 
 otUserSchema.virtual('trackers', {
   ref: 'OTTracker',
@@ -74,13 +86,6 @@ otUserSchema.virtual('triggers', {
 
 otUserSchema.virtual('items', {
   ref: 'OTItem',
-  localField: '_id',
-  foreignField: 'user',
-  justOne: false
-})
-
-otUserSchema.virtual("participantIdentities", {
-  ref: 'OTParticipant',
   localField: '_id',
   foreignField: 'user',
   justOne: false

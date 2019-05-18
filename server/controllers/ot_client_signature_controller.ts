@@ -2,8 +2,12 @@ import OTClientSignature from '../models/ot_client_signature';
 
 export default class OTClientSignatureCtrl {
 
-  matchSignature(clientSignature: string, pkg: string): Promise<boolean> {
-    return OTClientSignature.findOne({ key: clientSignature, package: pkg }).lean().then(doc => doc != null).catch(err => false)
+  matchSignature(clientSignature: string, pkg: string, experimentId?: string): Promise<boolean> {
+    const query = { key: clientSignature, package: pkg }
+    if(experimentId != null){
+      query["experiments._id"] = experimentId
+    }
+    return OTClientSignature.count(query).lean().then(count => count > 0).catch(err => false)
   }
 
   /**

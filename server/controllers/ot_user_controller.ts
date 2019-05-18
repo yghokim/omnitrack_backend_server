@@ -24,7 +24,7 @@ import OTExperiment from '../models/ot_experiment';
 export default class OTUserCtrl extends OTAuthCtrlBase {
 
   constructor() {
-    super(OTUser, "user", ["name", "picture"])
+    super(OTUser, "user", 'username', ["name", "picture"])
   }
 
   protected modifyJWTSchema(user: any, tokenSchema: import("./ot_auth_controller").JwtTokenSchemaBase): void {

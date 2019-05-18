@@ -6,7 +6,7 @@ import { OTAuthCtrlBase, JwtTokenSchemaBase } from "../ot_auth_controller";
 export class OTResearchAuthCtrl extends OTAuthCtrlBase {
 
   constructor(){
-    super(OTResearcher, 'researcher', ["alias"])
+    super(OTResearcher, 'researcher', 'email', ["alias"])
   }
   
   protected modifyJWTSchema(user: any, tokenSchema: JwtTokenSchemaBase): void {

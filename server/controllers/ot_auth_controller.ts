@@ -6,7 +6,6 @@ import { Request } from "express";
 
 export interface JwtTokenSchemaBase {
   uid: string,
-  email: string,
   exp: number,
   iat: number
 }
@@ -14,7 +13,7 @@ export interface JwtTokenSchemaBase {
 export abstract class OTAuthCtrlBase {
   private bcrypt = require("bcryptjs");
 
-  constructor(private model: Model<any>, private decodedPropertyName: string, private userModifiableFields: Array<string> = []) { }
+  constructor(private model: Model<any>, private decodedPropertyName: string, private usernamePropertyName: string, private userModifiableFields: Array<string> = []) { }
 
   private hashPassword(password, cb) {
     this.bcrypt.genSalt(10, (err, salt) => {
@@ -44,10 +43,10 @@ export abstract class OTAuthCtrlBase {
 
     const token = {
       uid: user._id,
-      email: user.email,
       exp: Math.floor(expiry.getTime() / 1000),
       iat: (iat || user.passwordSetAt || new Date()).getTime() / 1000
     }
+    token[this.usernamePropertyName] = user[this.usernamePropertyName]
 
     this.modifyJWTSchema(user, token)
 
@@ -60,12 +59,13 @@ export abstract class OTAuthCtrlBase {
   protected abstract modifyJWTSchema(user: any, tokenSchema: JwtTokenSchemaBase): void
 
   protected makeUserIndexQueryObj(request: Request): any {
-    return {
-      email: request.body.username
-    }
+
+    const query: any = {}
+    query[this.usernamePropertyName] = request.body.username
+    return query
   }
 
-  protected onAuthenticate(user: any, request: Request): Promise<any>{
+  protected onAuthenticate(user: any, request: Request): Promise<any> {
     return Promise.resolve(user)
   }
 
@@ -131,7 +131,7 @@ export abstract class OTAuthCtrlBase {
             } else if (payload.iat < (user["passwordSetAt"] || user["createdAt"]).getTime() / 1000) {
               done("passwordChanged", true)
             } else { done(null, false) }
-          } else { done(null, true) }
+          } else { done(null, false) }
         })
       }
     })
@@ -141,6 +141,30 @@ export abstract class OTAuthCtrlBase {
     res.status(200).send(req[this.decodedPropertyName] != null);
   };
 
+  refreshToken = (req, res) => {
+    if (req[this.decodedPropertyName] != null) {
+      this.model.findById(req[this.decodedPropertyName].uid).lean().then(
+        user => {
+          if (user != null) {
+            res.status(200).send(this.generateJWTToken(user))
+          }else{
+            res.status(401).send({
+              error: "NoSuchAccount"
+            })
+          }
+        }
+      ).catch(err => {
+        res.status(500).send({
+          error: err
+        })
+      })
+    }else{
+      res.status(401).send({
+        error: "NoToken"
+      })
+    }
+  }
+
   protected abstract modifyNewAccountSchema(schema: any, requestBody: any)
 
   protected onPreRegisterNewUserInstance(user: any, request: Request): Promise<any> { return Promise.resolve(user) }
@@ -148,9 +172,9 @@ export abstract class OTAuthCtrlBase {
   protected onAfterRegisterNewUserInstance(user: any, request: Request): Promise<any> { return Promise.resolve(user) }
 
   register = (req, res) => {
-    const email = req.body.email;
+    const username = req.body[this.usernamePropertyName];
     const password = req.body.password;
-    if (email == null || password == null) {
+    if (username == null || password == null) {
       res.status(401).send({ error: "One or more entries are null." });
     } else {
       this.model.findOne(this.makeUserIndexQueryObj(req))
@@ -163,10 +187,11 @@ export abstract class OTAuthCtrlBase {
               hashedPassword => {
 
                 const newAccountSchema = {
-                  email: email,
                   hashed_password: hashedPassword,
                   passwordSetAt: new Date()
                 }
+
+                newAccountSchema[this.usernamePropertyName] = username
 
                 this.modifyNewAccountSchema(newAccountSchema, req.body)
 
