@@ -47,7 +47,7 @@ export class ClientApiRouter extends RouterWrapper {
       )
     }
 
-    const userDeviceCheckMiddleware = (req: Request, res, next) => {
+    const userDeviceCheckMiddleware = (req, res, next) => {
       const deviceId = req.get("OTDeviceId")
       const fingerPrint = req.get("OTFingerPrint")
       const packageName = req.get("OTPackageName")
@@ -67,7 +67,9 @@ export class ClientApiRouter extends RouterWrapper {
         })
     }
 
-    const assertSignedInMiddleware = [certifiedDeviceCheckMiddleware, userCtrl.makeTokenAuthMiddleware(), userDeviceCheckMiddleware]
+    const userSignedInMiddleware = userCtrl.makeTokenAuthMiddleware()
+
+    const assertSignedInMiddleware = [certifiedDeviceCheckMiddleware, userSignedInMiddleware, userDeviceCheckMiddleware]
 
     // admin
     this.router.route('/admin/package/extract').get(trackingPackageCtrl.getExtractedTrackingPackageJson)
@@ -84,7 +86,7 @@ export class ClientApiRouter extends RouterWrapper {
 
     this.router.route("/admin/tracker/attribute/property/set/:propertyKey").get(adminCtrl.setAttributePropertySerializedValue)
 
-    this.router.post('/usage_logs/batch/insert', omnitrackDeviceCheckMiddleware, otUsageLogCtrl.insertMany)
+    this.router.post('/usage_logs/batch/insert', certifiedDeviceCheckMiddleware, otUsageLogCtrl.insertMany)
 
     // batch
     this.router.get('/batch/changes', assertSignedInMiddleware, syncCtrl.batchGetServerChangesAfter)
@@ -157,17 +159,17 @@ export class ClientApiRouter extends RouterWrapper {
 
     restCtrlDict.forEach((ctrl, key) => {
       this.router.route('/' + key + "/:id")
-        .get(firebaseMiddleware, ctrl.get)
-        .put(firebaseMiddleware, ctrl.update)
-      this.router.route('/' + key).get(firebaseMiddleware, ctrl.getAllOfUser).post(firebaseMiddleware, ctrl.insert)
+        .get(userSignedInMiddleware, ctrl.get)
+        .put(userSignedInMiddleware, ctrl.update)
+      this.router.route('/' + key).get(userSignedInMiddleware, ctrl.getAllOfUser).post(userSignedInMiddleware, ctrl.insert)
     })
 
     // Items
-    this.router.route("/trackers/:trackerId/items").get(firebaseMiddleware, itemCtrl.getAllOfTracker)
+    this.router.route("/trackers/:trackerId/items").get(userSignedInMiddleware, itemCtrl.getAllOfTracker)
 
     // data manipulation
-    this.router.post("/item/update_column", firebaseMiddleware, itemCtrl.postItemValue)
-    this.router.post("/item/update_timestamp", firebaseMiddleware, itemCtrl.postItemTimestamp)
+    this.router.post("/item/update_column", userSignedInMiddleware, itemCtrl.postItemValue)
+    this.router.post("/item/update_timestamp", userSignedInMiddleware, itemCtrl.postItemTimestamp)
 
     this.router.route('/media/all').get(storageCtrl.getAll)
 
@@ -177,13 +179,13 @@ export class ClientApiRouter extends RouterWrapper {
 
     // this.router.post("/research/invitation/reject", assertSignedInMiddleware, researchCtrl.rejectExperimentInvitation)
 
-    this.router.get('/research/experiment/:experimentId/verify_invitation', firebaseMiddleware, userCtrl.verifyInvitationCode)
+    this.router.get('/research/experiment/:experimentId/verify_invitation', certifiedDeviceCheckMiddleware, userCtrl.verifyInvitationCode)
 
-    this.router.get('/research/experiment/:experimentId/consent', firebaseMiddleware, researchCtrl.getExperimentConsentInfo)
+    this.router.get('/research/experiment/:experimentId/consent', certifiedDeviceCheckMiddleware, researchCtrl.getExperimentConsentInfo)
 
     this.router.post("/research/experiment/:experimentId/dropout", assertSignedInMiddleware, researchCtrl.dropOutFromExperiment)
 
-    this.router.get('/research/experiments/history', firebaseMiddleware, researchCtrl.getExperimentHistoryOfUser)
+    this.router.get('/research/experiments/history', certifiedDeviceCheckMiddleware, researchCtrl.getExperimentHistoryOfUser)
 
     this.router.get('/research/invitations/public', assertSignedInMiddleware, experimentCtrl.getPublicInvitationList)
 
