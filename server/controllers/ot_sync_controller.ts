@@ -13,7 +13,7 @@ export default class OTSyncCtrl {
 
   batchGetServerChangesAfter = (req, res) => {
     try {
-      const userId = res.locals.user.uid
+      const userId = req.user.uid
       const typeCount = req.query.types.length
       const queryList = Array<{ type: string, timestamp: number }>()
 
@@ -61,7 +61,7 @@ export default class OTSyncCtrl {
 
   batchPostClientChanges = (req, res) => {
     try {
-      const userId = res.locals.user.uid
+      const userId = req.user.uid
       const clientChangeList: Array<{ type: string, rows: Array<any> }> = req.body
 
       console.log("received client changes:")

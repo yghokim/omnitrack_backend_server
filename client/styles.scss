@@ -463,6 +463,10 @@ a.no-text-effect {
   justify-content: flex-end;
 }
 
+.flex-container.flex-justify-content-start{
+  justify-content: flex-start;
+}
+
 .flex-container.flex-align-items-end {
   align-items: flex-end;
 }
@@ -473,6 +477,10 @@ a.no-text-effect {
 
 .flex-align-self-center {
   align-self: center;
+}
+
+.flex-container.flex-vertical{
+  flex-direction: column;
 }
 
 .flex-container.flex-stretch {

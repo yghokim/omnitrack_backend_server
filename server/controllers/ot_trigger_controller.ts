@@ -8,7 +8,7 @@ export default class OTTriggerCtrl extends UserBelongingCtrl {
   syncType = C.SYNC_TYPE_TRIGGER
 
   attachTracker = (req, res) => {
-    const userId = res.locals.user.uid
+    const userId = req.user.uid
     const triggerId = req.params.triggerId
     const trackerId = req.query.trackerId
     req.app["omnitrack"].commandModule.addTrackerToTrigger(triggerId, trackerId, userId)

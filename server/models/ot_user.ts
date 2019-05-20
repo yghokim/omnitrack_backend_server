@@ -34,6 +34,9 @@ const otUserSchema = new mongoose.Schema({
   nameUpdatedAt: {type: Date, default: Date.now},
   picture: String,
   username: {type: String, index: true, required: true,
+    min: 3, 
+    max: 50
+    /*
     validate: [
       validate({
         validator: 'isLength',
@@ -41,11 +44,12 @@ const otUserSchema = new mongoose.Schema({
         message: 'Username should be between {ARGS[0]} and {ARGS[1]} characters',
       }),
       validate({
-        validator: 'isAlphanumeric',
+        validator: 'matches',
         passIfEmpty: true,
-        message: 'Username should contain alpha-numeric characters only',
+        arguments: /^[a-z0-9.]+@?[a-z0-9.]+[a-z0-9]$/g,
+        message: 'Username should contain only the alpha-numeric characters or be an E-mail address.',
       }),
-    ]
+    ]*/
   },
   
   hashed_password: { type: String, required: true },

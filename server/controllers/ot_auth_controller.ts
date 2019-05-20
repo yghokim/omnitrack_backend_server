@@ -1,8 +1,9 @@
 import { Model, Document } from "mongoose";
 import * as jwt from "jsonwebtoken";
 import env from '../env';
-import { isNullOrBlank } from "../../shared_lib/utils";
+import { isNullOrBlank, merge } from "../../shared_lib/utils";
 import { Request } from "express";
+import C from '../server_consts';
 
 export interface JwtTokenSchemaBase {
   uid: string,
@@ -65,8 +66,12 @@ export abstract class OTAuthCtrlBase {
     return query
   }
 
-  protected onAuthenticate(user: any, request: Request): Promise<any> {
-    return Promise.resolve(user)
+  protected onAuthenticate(user: any, request: Request): Promise<{
+    user: any,
+    resulyPayload?: any
+  }> {
+    return Promise.resolve({
+      user: user })
   }
 
   authenticate = (req, res) => {
@@ -83,7 +88,7 @@ export abstract class OTAuthCtrlBase {
           } else if (user == null) {
             console.log("not such user: " + JSON.stringify(modelIndexQuery));
             res.status(401).json({
-              error: "CredentialWrong"
+              error: C.ERROR_CODE_WRONG_CREDENTIAL
             });
           } else {
             this.bcrypt.compare(
@@ -93,15 +98,25 @@ export abstract class OTAuthCtrlBase {
                 if (compareError == null) {
                   if (match === true) {
                     this.onAuthenticate(user, req).then(
-                      finalUser => {
-                        res.status(200).json({
-                          token: this.generateJWTToken(finalUser)
-                        });
+                      result => {
+                        var delivery = {
+                          token: this.generateJWTToken(result.user)
+                        }
+                        if(result.resulyPayload!=null){
+                          delivery = merge(delivery, result.resulyPayload, false, true)
+                        }
+
+                        res.status(200).json(delivery);
+                      }
+                    ).catch(
+                      err => {
+                        console.error(JSON.stringify(err))
+                        res.status(500).send(err)
                       }
                     )
                   } else {
                     res.status(401).json({
-                      error: "CredentialWrong"
+                      error: C.ERROR_CODE_WRONG_CREDENTIAL
                     });
                   }
                 } else {
@@ -171,17 +186,23 @@ export abstract class OTAuthCtrlBase {
 
   protected onAfterRegisterNewUserInstance(user: any, request: Request): Promise<any> { return Promise.resolve(user) }
 
+  protected processRegisterResult(user: any, request: Request): Promise<{user: any, resultPayload?: any}>{
+    return Promise.resolve({
+      user: user,
+    })
+  }
+
   register = (req, res) => {
     const username = req.body[this.usernamePropertyName];
     const password = req.body.password;
     if (username == null || password == null) {
-      res.status(401).send({ error: "One or more entries are null." });
+      res.status(401).send({ error: C.ERROR_CODE_WRONG_CREDENTIAL });
     } else {
       this.model.findOne(this.makeUserIndexQueryObj(req))
         .lean()
         .then(user => {
           if (user != null) {
-            throw new Error("UserAlreadyExists")
+            throw {error:C.ERROR_CODE_USER_ALREADY_EXISTS}
           } else {
             return this.hashPasswordPromise(password).then(
               hashedPassword => {
@@ -205,16 +226,22 @@ export abstract class OTAuthCtrlBase {
               }
             )
           }
-        }).then(
-          account => {
-            res.status(200).send({
-              token: this.generateJWTToken(account)
-            });
+        })
+        .then(account => this.processRegisterResult(account, req))
+        .then(
+          result => {
+            var delivery = {
+              token: this.generateJWTToken(result.user)
+            }
+
+            if(result.resultPayload != null){
+              delivery = merge(delivery, result.resultPayload, false, true)
+            }
+
+            res.status(200).send(delivery);
           }
         ).catch(err => {
-          res.status(500).send({
-            error: err
-          })
+          res.status(500).send(err)
         })
     }
   }
@@ -231,7 +258,9 @@ export abstract class OTAuthCtrlBase {
             console.log("updated user information. return updated token");
             return this.generateJWTToken(user);
           } else {
-            return Promise.reject<string>("No such user");
+            return Promise.reject<string>({
+              error: C.ERROR_CODE_ACCOUNT_NOT_EXISTS
+            });
           }
         }
         );

@@ -6,8 +6,8 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
 
   protected abstract syncType: string
 
-  protected preprocessSingleQuery(queryObject: any, req: Request, res: Response): any {
-    queryObject["user"] = res.locals.user.uid
+  protected preprocessSingleQuery(queryObject: any, req, res: Response): any {
+    queryObject["user"] = req.user.uid
     return queryObject
   }
 
@@ -60,8 +60,8 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
     } else { return Promise.resolve([]) }
   }
 
-  getServerChanges = (req: Request, res: Response) => {
-    const userId = res.locals.user.uid
+  getServerChanges = (req, res: Response) => {
+    const userId = req.user.uid
     if (userId != null) {
       const timestamp = (req.query.timestamp || 0) * 1
       console.log("query server changes since " + new Date(timestamp))
@@ -82,8 +82,8 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
     }
   }
 
-  postClientChanges = (req: Request, res: Response) => {
-    const userId = res.locals.user.uid
+  postClientChanges = (req, res: Response) => {
+    const userId = req.user.uid
     if (userId != null) {
       const list = req.body
       if (list != null) {
@@ -142,7 +142,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
   }
 
   getAllOfUser = (req, res) => {
-    this.getAllByUser(res.locals.user.uid).then(
+    this.getAllByUser(req.user.uid).then(
       documents => {
         if (documents != null) {
           res.status(200).send(documents)

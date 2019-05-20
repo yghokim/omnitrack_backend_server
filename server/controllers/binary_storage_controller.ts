@@ -39,8 +39,8 @@ export default class BinaryStorageCtrl {
     })
   }
 
-  uploadItemMedia = (req: Request, res: Response) => {
-    const userId = res.locals.user.uid
+  uploadItemMedia = (req, res: Response) => {
+    const userId = req.user.uid
     const trackerId = req.params.trackerId
     const attrLocalId = req.params.attrLocalId
     const itemId = req.params.itemId
@@ -125,7 +125,7 @@ export default class BinaryStorageCtrl {
   }
 
   downloadItemMedia = (req: any, res: Response) => {
-    if (res.locals.user || req.researcher) {
+    if (req.user || req.researcher) {
       const trackerId = req.params.trackerId
       const attrLocalId = req.params.attrLocalId
       const itemId = req.params.itemId

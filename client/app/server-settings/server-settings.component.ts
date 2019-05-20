@@ -10,6 +10,7 @@ import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.com
 import { IClientSignatureDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import { UpdateClientSignatureDialogComponent } from './update-client-signature-dialog/update-client-signature-dialog.component';
 import { ClientBuildService } from '../services/client-build.service';
+import { deepclone } from '../../../shared_lib/utils';
 
 @Component({
   selector: 'app-server-settings',
@@ -157,12 +158,18 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
   onEditSignatureClicked(signatureId: string) {
     var data = {}
     if (signatureId) {
-      data = this.clientSignatures.find(s => s._id === signatureId)
+      data = deepclone(this.clientSignatures.find(s => s._id === signatureId))
     }
+
     this.internalSubscriptions.add(
-      this.dialog.open(UpdateClientSignatureDialogComponent, {
-        data: data
-      }).beforeClose().pipe(
+
+      this.api.getExperimentInfos().pipe(
+        flatMap(experiments => {
+          data["experiments"] = experiments
+          return this.dialog.open(UpdateClientSignatureDialogComponent, {
+            data: data
+          }).beforeClose()
+        }),
         flatMap(result => {
           if (result) {
             return this.api.upsertClientSignature(signatureId, result.key, result.package, result.alias)
@@ -171,13 +178,14 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
             return of(false)
           }
         })
-      ).subscribe(
-        changed => {
-          if (changed === true) {
-            this.reloadSignatures()
-          }
-        }
       )
+        .subscribe(
+          changed => {
+            if (changed === true) {
+              this.reloadSignatures()
+            }
+          }
+        )
     )
   }
 

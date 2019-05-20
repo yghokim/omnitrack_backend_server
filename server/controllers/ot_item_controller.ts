@@ -11,8 +11,8 @@ export default class OTItemCtrl extends UserBelongingCtrl {
   model = OTItem;
   syncType = C.SYNC_TYPE_ITEM
 
-  getAllOfTracker = (req: Request, res: Response) => {
-    OTItem.find({ user: res.locals.user.uid, tracker: req.params.trackerId }).then(
+  getAllOfTracker = (req, res: Response) => {
+    OTItem.find({ user: req.user.uid, tracker: req.params.trackerId }).then(
       items => {
         if (items != null) {
           res.status(200).send(items)
@@ -52,9 +52,9 @@ export default class OTItemCtrl extends UserBelongingCtrl {
     }
 
     // check previlages
-    if (res.locals.user) {
+    if (req.user) {
       // on user mode, be sure that the item belongs to the user.
-      itemQuery["user"] = res.locals.user.uid
+      itemQuery["user"] = req.user.uid
     }
 
     this.setItemValue(itemQuery, attrLocalId, serializedValue).then(
@@ -97,9 +97,9 @@ export default class OTItemCtrl extends UserBelongingCtrl {
     }
 
     // check previlages
-    if (res.locals.user) {
+    if (req.user) {
       // on user mode, be sure that the item belongs to the user.
-      itemQuery["user"] = res.locals.user.uid
+      itemQuery["user"] = req.user.uid
     }
 
     this.setItemTimestamp(itemQuery, timestamp, timezone).then(

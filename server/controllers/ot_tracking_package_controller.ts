@@ -30,8 +30,8 @@ export default class OTTrackingPackageCtrl {
     const trackerIds: Array<string> = req.query["trackerIds"] || []
     const triggerIds: Array<string> = req.query["triggerIds"] || []
     let userId = null
-    if (res.locals.user) {
-      userId = res.locals.user.uid
+    if (req.user) {
+      userId = req.user.uid
     }
 
     if (trackerIds.length === 0 && triggerIds.length === 0) {
@@ -50,7 +50,7 @@ export default class OTTrackingPackageCtrl {
   }
 
   postTrackingPackageToGlobalList = (req, res) => {
-    const userId = res.locals.user.uid
+    const userId = req.user.uid
     const data = isString(req.body.data) === true ? JSON.parse(req.body.data) : req.body.data
     const logic = (isFirst: boolean) => {
       let accessKey = require('randomstring').generate({ length: 4, charset: 'numeric' })

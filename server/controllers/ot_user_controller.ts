@@ -11,15 +11,15 @@ import { SocketConstants } from '../../omnitrack/core/research/socket';
 import { experimentCtrl } from './research/ot_experiment_controller';
 import { IUserDbEntity, IClientDevice } from '../../omnitrack/core/db-entity-types';
 import { deferPromise } from '../../shared_lib/utils';
-import OTParticipant from '../models/ot_participant';
-import * as moment from 'moment';
 import { OTAuthCtrlBase } from './ot_auth_controller';
 import { Request } from 'express';
+import * as moment from 'moment';
 import OTResearcher from '../models/ot_researcher';
 import OTInvitation from '../models/ot_invitation';
 import { AInvitation } from '../../omnitrack/core/research/invitation';
 import { IJoinedExperimentInfo } from '../../omnitrack/core/research/experiment';
 import OTExperiment from '../models/ot_experiment';
+import C from '../server_consts';
 
 export default class OTUserCtrl extends OTAuthCtrlBase {
 
@@ -49,7 +49,6 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
     const deviceInfo = request.body.deviceInfo
     const demographic = request.body.demographic
 
-    this.upsertDeviceInfoLocally(user, deviceInfo)
     return deferPromise(() => {
       if (experimentId != null) {
         if (invitationCode != null) {
@@ -59,16 +58,16 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
               return this._assignParticipantToExperiment(user, invitationCode, experimentId, demographic).then(joinedExperimentInfo => {
                 return user
               })
-            } else { throw { code: "IllegalInvitationCode" } }
+            } else { throw { error: C.ERROR_CODE_ILLEGAL_INVITATION_CODE } }
           })
         } else {
           //inserted an experimentId, but not invidation code
-          throw { code: "IllegalInvitationCode" }
+          throw { error: C.ERROR_CODE_ILLEGAL_INVITATION_CODE }
         }
       } else {
         //no experimentId. check email account.
         return OTResearcher.findOne({
-          email: user.email,
+          email: user.username,
           account_approved: true
         }, { _id: 1, alias: 1 }).lean().then(researcher => {
           if (researcher != null) {
@@ -76,10 +75,15 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
             console.log("A researcher " + researcher.alias + " was signed in as a master app user.")
             return user
           } else throw {
-            code: "IllegalExperimentId"
+            error: "UsernameNotMatchResearcher"
           }
         })
       }
+    }).then(user => {
+      if (deviceInfo != null) {
+        this.upsertDeviceInfoLocally(user, deviceInfo)
+      }
+      return user
     })
   }
 
@@ -94,6 +98,11 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
     return super.onAfterRegisterNewUserInstance(user, request)
   }
 
+  protected processRegisterResult(user: any, request: Request): Promise<{user: any, resultPayload?: any}>{
+    return Promise.resolve({
+      user: user,
+    })
+  }
   private _assignParticipantToExperiment(user: IUserDbEntity, invitationCode: string, experimentId: string, demographic: any): Promise<IJoinedExperimentInfo> {
     return OTInvitation.findOne({
       code: invitationCode,
@@ -160,7 +169,7 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
 
   protected makeUserIndexQueryObj(request: Request): any {
     return {
-      email: request.body.username,
+      username: request.body.username,
       experiment: request.body.experimentId || request["OTExperiment"]
     }
   }
@@ -202,7 +211,6 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
     let localKey = null
     const matchedDevice = user.devices.find(device => device.deviceId === deviceInfo.deviceId)
     if (matchedDevice != null) {
-      console.log("found device with id matches: ")
       localKey = matchedDevice.localKey
       if (matchedDevice.localKey == null) {
         localKey = (user.deviceLocalKeySeed || 0) + 1
@@ -289,8 +297,6 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
   upsertDeviceInfo = (req, res) => {
     const userId = req.user.uid
     const deviceInfo = req.body
-    console.log('deviceInfo: ')
-    console.log(deviceInfo)
     OTUser.findById(userId).then(
       user => {
         const deviceInsertionResult = this.upsertDeviceInfoLocally(user as any, deviceInfo);
@@ -348,10 +354,18 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
 
   }
 
-  protected onAuthenticate(user: any, request: Request): Promise<any>{
+  protected onAuthenticate(user: any, request: Request): Promise<{
+    user: any,
+    resulyPayload?: any
+  }> {
     const deviceInfo = request.body.deviceInfo
-    this.upsertDeviceInfoLocally(user, deviceInfo)
-    return user.save()
+    const result = this.upsertDeviceInfoLocally(user, deviceInfo)
+    return user.save().then(user => ({
+      user: user,
+      resultPayload: {
+        deviceLocalKey: result.localKey
+      }
+    }))
   }
 
   verifyInvitationCode = (req, res) => {
@@ -365,6 +379,29 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
       console.error(err)
       res.status(500).send(err)
     })
+  }
+
+  signOut = (req, res) => {
+    const userId = req.user.uid
+    const deviceInfo = req.body.deviceInfo
+    if (userId != null && deviceInfo != null) {
+      OTUser.findByIdAndUpdate(userId, {
+        $pull: {
+          devices: {
+            deviceId: deviceInfo.deviceId
+          }
+        }
+      }).then(user => {
+        res.status(200).send(true)
+      }).catch(err => {
+        res.status(500).send(err)
+      })
+    } else {
+      console.log("illegal arguments.")
+      res.status(401).send({
+        error: C.ERROR_CODE_ILLEGAL_ARTUMENTS
+      })
+    }
   }
 
 }

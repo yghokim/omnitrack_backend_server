@@ -3,66 +3,22 @@ import OTClientSignature from '../models/ot_client_signature';
 export default class OTClientSignatureCtrl {
 
   matchSignature(clientSignature: string, pkg: string, experimentId?: string): Promise<boolean> {
-    const query = { key: clientSignature, package: pkg }
-    if(experimentId != null){
-      query["experiments._id"] = experimentId
-    }
-    return OTClientSignature.count(query).lean().then(count => count > 0).catch(err => false)
+    const query = { key: clientSignature, package: pkg, experiment: experimentId }
+    return OTClientSignature.countDocuments(query).lean().then(count => count > 0).catch(err => false)
   }
 
   /**
    * return: whether changed or not
    */
-  upsertSignature(_id: string = null, key: string, packageName: string, alias: string, experimentId?: string, notify: boolean = true): Promise<boolean> {
-    return OTClientSignature.findOne(_id ? { _id: _id } : { key: key, package: packageName }).then(
-      doc => {
-        if (doc) {
-          let changed = false
-          if (experimentId != null) {
-            if (doc["experiments"] == null) {
-              doc["experiments"] = [experimentId]
-            } else if (doc["experiments"].indexOf(experimentId) === -1) {
-              doc["experiments"].push(experimentId)
-            }
-            changed = true
-          }
-          if (doc["alias"] !== alias) {
-            doc["alias"] = alias
-            changed = true
-          }
-
-          if (doc["key"] !== key) {
-            doc["key"] = key
-            changed = true
-          }
-
-          if (doc["package"] !== packageName) {
-            doc["package"] = packageName
-            changed = true
-          }
-
-          if (changed === true) {
-            return doc.save().then(() => true)
-          } else { return false }
-        } else {
-          const val = {
-            key: key,
-            package: packageName,
-            alias: alias,
-            experiments: []
-          } as any
-          if (experimentId != null) {
-            val.experiments.push(experimentId)
-          }
-          return new OTClientSignature(val).save().then(() => true)
-        }
-      }
-    )
+  upsertSignature(_id: string = null, key: string, packageName: string, alias: string, experimentId: string = null, notify: boolean = true): Promise<boolean> {
+    return OTClientSignature.findOneAndUpdate(_id ? { _id: _id } : { key: key, package: packageName, experiment: experimentId }, {
+      key: key, package: packageName, experimentId: experimentId, alias: alias
+    }, {upsert: true}).lean().then(result => true)
   }
 
   // admin only apis
   getSignatures = (req, res) => {
-    OTClientSignature.find({}).populate("experiments", { name: 1 }).lean().then(
+    OTClientSignature.find({}).populate("experiment", { name: 1 }).lean().then(
       signatures => {
         res.status(200).send(signatures)
       }

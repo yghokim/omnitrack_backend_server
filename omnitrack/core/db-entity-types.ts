@@ -1,7 +1,9 @@
 import { isString } from "../../shared_lib/utils";
 
 export function getIdPopulateCompat(obj: any, variableName: string = "_id"): string {
-  if (isString(obj) === true) {
+  if(obj == null){
+    return null
+  } else if (isString(obj) === true) {
     return obj.toString()
   } else {
     return obj[variableName]

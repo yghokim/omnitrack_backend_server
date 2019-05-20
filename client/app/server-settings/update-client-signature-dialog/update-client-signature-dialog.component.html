@@ -7,24 +7,41 @@
     <div class="form-group">
       <label for="inputKey">
         <small>Fingerprint Key <span *ngIf="_id && original.key !== key">(edited)</span></small>
-        </label>
-        <input type="text" class="form-control" id="inputKey" placeholder="Insert a fingerprint key of signature" [(ngModel)]="key">
-        <small class="form-text text-muted">Android: use SHA1 fingerprint</small>
+      </label>
+      <input type="text" class="form-control" id="inputKey" placeholder="Insert a fingerprint key of signature"
+        [(ngModel)]="key">
+      <small class="form-text text-muted">Android: use SHA1 fingerprint</small>
     </div>
     <div class="form-group">
 
       <label for="inputPackage">
         <small>Package <span *ngIf="_id && original.package !== package">(edited)</span></small>
-        </label>
-        <input type="text" class="form-control" id="inputPackage" aria-describedby="emailHelp" placeholder="Insert package address" [(ngModel)]="package">
+      </label>
+      <input type="text" class="form-control" id="inputPackage" aria-describedby="emailHelp"
+        placeholder="Insert package address" [(ngModel)]="package">
     </div>
     <div class="form-group">
 
       <label for="inputAlias">
         <small>Alias <span *ngIf="_id && original.alias !== alias">(edited)</span></small>
-        </label>
-        <input type="text" class="form-control" id="inputAlias" aria-describedby="emailHelp" placeholder="Insert alias" [(ngModel)]="alias">
+      </label>
+      <input type="text" class="form-control" id="inputAlias" aria-describedby="emailHelp" placeholder="Insert alias"
+        [(ngModel)]="alias">
     </div>
+
+    <div class="form-group flex-container flex-vertical flex-justify-content-start">
+      <label for="inputExperiment" class="no-margin-bottom">
+      <small>Experiment <span *ngIf="_id && original.experimentId !== experimentId">(edited)</span></small></label>
+      <mat-form-field>
+        <mat-select [(value)]="experimentId">
+          <ng-container *ngIf="experiments">
+              <mat-option *ngFor="let experiment of experiments" [value]="experiment._id">{{experiment.name}}</mat-option>
+          </ng-container>
+          <mat-option value="none">None</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
     <hr>
     <div class="text-right">
       <button mat-button color="accent" (click)="onNoClick()">Cancel</button>

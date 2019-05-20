@@ -64,8 +64,8 @@ export default class OTResearchCtrl {
 
   getExperimentHistoryOfUser = (req, res) => {
     let userId
-    if (res.locals.user) {
-      userId = res.locals.user.uid
+    if (req.user) {
+      userId = req.user.uid
     } else if (req.researcher) {
       userId = req.query.userId
     }
@@ -197,9 +197,9 @@ export default class OTResearchCtrl {
       researcherId = req.researcher._id
       userId = req.body.userId
       participantId = req.params.participantId
-    } else if (res.locals.user) {
+    } else if (req.user) {
       // user mode
-      userId = res.locals.user.uid
+      userId = req.user.uid
     } else {
       res.status(500).send("UnAuthorized from either side.")
       return

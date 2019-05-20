@@ -454,7 +454,7 @@ export default class OTExperimentCtrl {
   }
 
   getPublicInvitationList = (req, res) => {
-    const userId = res.locals.user.uid
+    const userId = req.user.uid
     res.status(200).send([])
     // TODO disable getting public invitations.
     /*

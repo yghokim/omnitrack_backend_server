@@ -6,7 +6,6 @@ import { ClientBinaryUtil } from '../../../../omnitrack/core/client_binary_utils
 import { IPackageMetadata, OperatingSystem } from 'app-metadata';
 import { FileSystemFileEntry } from 'ngx-file-drop/src/lib/ngx-drop/dom.types';
 import { BinaryXmlParser } from './binary-xml-parser';
-const Unzip = require('isomorphic-unzip');
 var Buffer = require('buffer/').Buffer
 
 @Component({
@@ -54,6 +53,7 @@ export class UploadClientBinaryDialogComponent implements OnInit {
       entry.file(file => {
         this.loadedFile = file
         this.loadedFileName = file.name
+        const Unzip = require('isomorphic-unzip');
         const unzip = new Unzip(file)
         unzip.getEntries((err, entries) => {
           if (err) {

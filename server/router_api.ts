@@ -1,4 +1,3 @@
-import { firebaseApp } from './app';
 import OTSyncCtrl from './controllers/ot_sync_controller';
 import OTTrackerCtrl from './controllers/ot_tracker_controller';
 import OTTriggerCtrl from './controllers/ot_trigger_controller';
@@ -18,6 +17,7 @@ import { Error } from 'mongoose';
 import UserBelongingCtrl from './controllers/user_belongings_base';
 import { RouterWrapper } from './server_utils';
 import { userDataStoreCtrl } from './controllers/ot_user_datastore_controller';
+import C from './server_consts';
 
 export class ClientApiRouter extends RouterWrapper {
   constructor() {
@@ -41,7 +41,9 @@ export class ClientApiRouter extends RouterWrapper {
             next()
           }else{
             console.log("The client is not certificated in the server.")
-            res.status(401).send(new Error("The client is not certificated in the server."))
+            res.status(401).send({
+              error:C.ERROR_CODE_UNCERTIFIED_Client
+            })
           }
         }
       )
@@ -69,7 +71,12 @@ export class ClientApiRouter extends RouterWrapper {
 
     const userSignedInMiddleware = userCtrl.makeTokenAuthMiddleware()
 
-    const assertSignedInMiddleware = [certifiedDeviceCheckMiddleware, userSignedInMiddleware, userDeviceCheckMiddleware]
+    const appSignedInMiddleware = [certifiedDeviceCheckMiddleware, userSignedInMiddleware, userDeviceCheckMiddleware]
+
+    //client certification check
+    this.router.route('/user/validate_client').get(certifiedDeviceCheckMiddleware, (req, res)=>{
+      res.status(200).send(true)
+    })
 
     // admin
     this.router.route('/admin/package/extract').get(trackingPackageCtrl.getExtractedTrackingPackageJson)
@@ -89,20 +96,21 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.post('/usage_logs/batch/insert', certifiedDeviceCheckMiddleware, otUsageLogCtrl.insertMany)
 
     // batch
-    this.router.get('/batch/changes', assertSignedInMiddleware, syncCtrl.batchGetServerChangesAfter)
-    this.router.post('/batch/changes', assertSignedInMiddleware, syncCtrl.batchPostClientChanges)
+    this.router.get('/batch/changes', appSignedInMiddleware, syncCtrl.batchGetServerChangesAfter)
+    this.router.post('/batch/changes', appSignedInMiddleware, syncCtrl.batchPostClientChanges)
 
-    this.router.get('/items/changes', assertSignedInMiddleware, itemCtrl.getServerChanges)
-    this.router.post('/items/changes', assertSignedInMiddleware, itemCtrl.postClientChanges)
+    this.router.get('/items/changes', appSignedInMiddleware, itemCtrl.getServerChanges)
+    this.router.post('/items/changes', appSignedInMiddleware, itemCtrl.postClientChanges)
 
 
     // auth
     this.router.post("/user/auth/register", userCtrl.register)
     this.router.post("/user/auth/authenticate", userCtrl.authenticate)
-    this.router.post("/user/auth/refresh_token", assertSignedInMiddleware, userCtrl.refreshToken)
+    this.router.post("/user/auth/refresh_token", appSignedInMiddleware, userCtrl.refreshToken)
+    this.router.post("/user/auth/signout", appSignedInMiddleware, userCtrl.signOut)
     
     this.router.route('/user/data_store/:storeKey')
-      .get(assertSignedInMiddleware, (req, res) => {
+      .get(appSignedInMiddleware, (req, res) => {
         userDataStoreCtrl.getDataStoreValue(req.user.uid, req.params.storeKey).then(
           entry => {
             res.status(200).send(entry)
@@ -112,7 +120,7 @@ export class ClientApiRouter extends RouterWrapper {
           res.status(500).send(err)
         })
       })
-      .post(assertSignedInMiddleware, (req, res) => {
+      .post(appSignedInMiddleware, (req, res) => {
         userDataStoreCtrl.setDataStoreValue(req.user.uid, req.params.storeKey, req.body.value, req.body.updatedAt, req.body.force).then(result => {
           res.status(200).send(result)
         }).catch(err => {
@@ -122,7 +130,7 @@ export class ClientApiRouter extends RouterWrapper {
       })
 
     this.router.route('/user/data_store/changes')
-      .get(assertSignedInMiddleware, (req, res) => {
+      .get(appSignedInMiddleware, (req, res) => {
         userDataStoreCtrl.getDataStoreChangedAfter(req.user.uid, req.body.timestamp).then(
           result => {
             res.status(200).send(result || [])
@@ -132,7 +140,7 @@ export class ClientApiRouter extends RouterWrapper {
           res.status(500).send(err)
         })
       })
-      .post(assertSignedInMiddleware, (req, res) => {
+      .post(appSignedInMiddleware, (req, res) => {
         userDataStoreCtrl.setDataStore(req.user.uid, req.body.list).then(
           result => {
             res.status(200).send(result)
@@ -142,12 +150,12 @@ export class ClientApiRouter extends RouterWrapper {
         })
       })
 
-    this.router.post('/user/auth/device', assertSignedInMiddleware, userCtrl.upsertDeviceInfo)
+    this.router.post('/user/auth/device', appSignedInMiddleware, userCtrl.upsertDeviceInfo)
 
-    this.router.post('/user/name', assertSignedInMiddleware, userCtrl.putUserName)
-    this.router.post('/user/report', assertSignedInMiddleware, userCtrl.postReport)
-    this.router.delete('/user', assertSignedInMiddleware, userCtrl.deleteAccount)
-    this.router.post('/user/delete', assertSignedInMiddleware, userCtrl.deleteAccount)
+    this.router.post('/user/name', appSignedInMiddleware, userCtrl.putUserName)
+    this.router.post('/user/report', appSignedInMiddleware, userCtrl.postReport)
+    this.router.delete('/user', appSignedInMiddleware, userCtrl.deleteAccount)
+    this.router.post('/user/delete', appSignedInMiddleware, userCtrl.deleteAccount)
 
 
     // REST API
@@ -174,8 +182,8 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.route('/media/all').get(storageCtrl.getAll)
 
     // binary
-    this.router.post('/upload/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier', assertSignedInMiddleware, storageCtrl.uploadItemMedia)
-    this.router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', assertSignedInMiddleware, storageCtrl.downloadItemMedia)
+    this.router.post('/upload/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier', appSignedInMiddleware, storageCtrl.uploadItemMedia)
+    this.router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', appSignedInMiddleware, storageCtrl.downloadItemMedia)
 
     // this.router.post("/research/invitation/reject", assertSignedInMiddleware, researchCtrl.rejectExperimentInvitation)
 
@@ -183,11 +191,11 @@ export class ClientApiRouter extends RouterWrapper {
 
     this.router.get('/research/experiment/:experimentId/consent', certifiedDeviceCheckMiddleware, researchCtrl.getExperimentConsentInfo)
 
-    this.router.post("/research/experiment/:experimentId/dropout", assertSignedInMiddleware, researchCtrl.dropOutFromExperiment)
+    this.router.post("/research/experiment/:experimentId/dropout", appSignedInMiddleware, researchCtrl.dropOutFromExperiment)
 
     this.router.get('/research/experiments/history', certifiedDeviceCheckMiddleware, researchCtrl.getExperimentHistoryOfUser)
 
-    this.router.get('/research/invitations/public', assertSignedInMiddleware, experimentCtrl.getPublicInvitationList)
+    this.router.get('/research/invitations/public', appSignedInMiddleware, experimentCtrl.getPublicInvitationList)
 
     this.router.get('/clients/all', clientBinaryCtrl.getClientBinaries)
 
@@ -196,9 +204,9 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.get('/clients/latest', clientBinaryCtrl.getLatestVersionInfo)
 
     // package
-    this.router.get('/package/extract', assertSignedInMiddleware, trackingPackageCtrl.getExtractedTrackingPackageJson)
+    this.router.get('/package/extract', appSignedInMiddleware, trackingPackageCtrl.getExtractedTrackingPackageJson)
 
-    this.router.post('/package/temporary', assertSignedInMiddleware,
+    this.router.post('/package/temporary', appSignedInMiddleware,
     trackingPackageCtrl.postTrackingPackageToGlobalList)
   }
 }
