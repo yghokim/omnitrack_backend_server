@@ -69,7 +69,7 @@
           <td>{{signature.package}}</td>
           <td>
             <ng-container *ngIf="signature.experiment">
-              {{experiment.name}}
+              {{signature.experiment.name}}
             </ng-container>
             <span *ngIf="signature.experiment == null" class="text-color-lightgray">Unspecified</span>
           </td>

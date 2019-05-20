@@ -81,7 +81,8 @@ export interface IClientBuildAction extends IMongooseDbEntity {
 export interface IClientSignatureDbEntity extends IMongooseDbEntity {
   key: string,
   package: string,
-  alias: string
+  alias: string,
+  experiment?: string | IExperimentDbEntity
 }
 
 export interface IResearcherDbEntity extends IMongooseDbEntity {

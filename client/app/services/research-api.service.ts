@@ -374,8 +374,8 @@ export class ResearchApiService extends ServiceBase {
     return this.http.delete<boolean>("/api/research/signatures/" + id, this.authorizedOptions)
   }
 
-  upsertClientSignature(id: string = null, key: string, packageName: string, alias: string): Observable<boolean> {
-    return this.http.post<boolean>("/api/research/signatures/update", { _id: id, key: key, package: packageName, alias: alias }, this.authorizedOptions)
+  upsertClientSignature(id: string = null, key: string, packageName: string, alias: string, experimentId?: string): Observable<boolean> {
+    return this.http.post<boolean>("/api/research/signatures/update", { _id: id, key: key, package: packageName, alias: alias, experiment: experimentId }, this.authorizedOptions)
   }
 
   loadInstantShareTrackingPlan(code: string): Observable<any> {

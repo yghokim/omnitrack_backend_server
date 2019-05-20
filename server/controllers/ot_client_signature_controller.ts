@@ -28,7 +28,8 @@ export default class OTClientSignatureCtrl {
   }
 
   postSignature = (req, res) => {
-    this.upsertSignature(req.body._id, req.body.key, req.body.package, req.body.alias, req.body.experimentId, true).then(updated => {
+    console.log(JSON.stringify(req.body))
+    this.upsertSignature(req.body._id, req.body.key, req.body.package, req.body.alias, req.body.experiment, true).then(updated => {
       res.status(200).send(updated)
     }).catch(err => {
       res.status(500).send(err)

@@ -172,7 +172,7 @@ export class ServerSettingsComponent implements OnInit, OnDestroy {
         }),
         flatMap(result => {
           if (result) {
-            return this.api.upsertClientSignature(signatureId, result.key, result.package, result.alias)
+            return this.api.upsertClientSignature(signatureId, result.key, result.package, result.alias, result.experiment)
           }
           else {
             return of(false)

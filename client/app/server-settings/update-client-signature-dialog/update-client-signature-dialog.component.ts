@@ -51,6 +51,7 @@ export class UpdateClientSignatureDialogComponent implements OnInit {
   }
 
   onYesClick() {
+    console.log("experimentId: ", this.experimentId)
     this.dialogRef.close({
       key: this.key,
       package: this.package,
