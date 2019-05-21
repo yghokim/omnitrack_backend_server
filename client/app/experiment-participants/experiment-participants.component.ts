@@ -70,6 +70,16 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
       ))
   }
 
+  onReloadClicked(){
+    this.isLoadingParticipants = true
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.subscribe(expService =>{
+        expService.loadParticipantList()
+        this.isLoadingParticipants = false
+      })
+    )
+  }
+
   ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
   }
@@ -294,5 +304,9 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
       }
       return '';
     }
+  }
+
+  onCreateNewUserClicked(){
+
   }
 }
