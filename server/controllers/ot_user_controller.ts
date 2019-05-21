@@ -31,6 +31,7 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
     const schema = tokenSchema as any
     schema.picture = user.picture
   }
+
   protected modifyNewAccountSchema(schema: any, requestBody: any) {
 
     /*
@@ -39,8 +40,8 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
     const invitationCode = req.body.invitationCode
     const deviceInfo = req.body.deviceInfo
     const demographic = req.body.demographic
-*/
-    schema.name = requestBody.name
+     */
+    schema.experiment = requestBody.experimentId
   }
 
   protected onPreRegisterNewUserInstance(user: any, request: Request): Promise<any> {

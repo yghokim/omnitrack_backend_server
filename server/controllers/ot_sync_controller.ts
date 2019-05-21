@@ -64,8 +64,6 @@ export default class OTSyncCtrl {
       const userId = req.user.uid
       const clientChangeList: Array<{ type: string, rows: Array<any> }> = req.body
 
-      console.log("received client changes:")
-      console.log(clientChangeList)
       Promise.all(clientChangeList.map(
         entry => {
           let controller: UserBelongingCtrl

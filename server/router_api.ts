@@ -35,6 +35,11 @@ export class ClientApiRouter extends RouterWrapper {
       const fingerPrint = req.get("OTFingerPrint")
       const packageName = req.get("OTPackageName")
       const experimentId = req.get('OTExperiment')
+      console.log("check client certification===============================")
+      console.log("fingerPrint): " + fingerPrint)
+      console.log("package: " + packageName)
+      console.log("experiment id: " + experimentId)
+      console.log("=========================================================")
       clientSignatureCtrl.matchSignature(fingerPrint, packageName, experimentId).then(
         match => {
           if (match === true) {
