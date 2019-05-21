@@ -1,13 +1,14 @@
 import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
-import { Subscription, empty} from 'rxjs';
-import { flatMap, tap, catchError } from 'rxjs/operators';
+import { Subscription, empty, Observable, zip } from 'rxjs';
+import { flatMap, tap, catchError, map } from 'rxjs/operators';
 import { MatDialog, MatTableDataSource, MatSort } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
 import { NotificationService } from '../services/notification.service';
 import { IUserDbEntity } from '../../../omnitrack/core/db-entity-types';
 import { ParticipantExcludedDaysConfigDialogComponent } from '../dialogs/participant-excluded-days-config-dialog/participant-excluded-days-config-dialog.component';
+import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 
 
 @Component({
@@ -18,8 +19,9 @@ import { ParticipantExcludedDaysConfigDialogComponent } from '../dialogs/partici
 })
 export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
-  readonly PARTICIPANT_COLUMNS = ['alias', 'username', 'status', 'rangeStart', 'excludedDays', 'joined', 'lastSync', 'lastSession', 'userId', 'button']
+  public participantColumns: Array<string>
 
+  private experiment: IExperimentDbEntity
   public participants: Array<IUserDbEntity>
   public isLoadingParticipants = true
   public isLoadingSessionSummary = true
@@ -27,7 +29,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
   public hoveredRowIndex = -1
   public hoveredParticipantId = null
 
-  public screenExpanded = false
+  public screenExpanded = true
 
   public participantDataSource: MatTableDataSource<IUserDbEntity>;
   @ViewChild(MatSort) participantSort: MatSort;
@@ -44,17 +46,23 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.isLoadingParticipants = true
     this._internalSubscriptions.add(this.api.selectedExperimentService.pipe(
-      flatMap(expService => expService.getParticipants()
-        .pipe(
-          tap(participants => {
-            this.participants = participants
-            this.isLoadingParticipants = false
-            this.participantDataSource = new MatTableDataSource(participants)
-            this.setSortParticipants();
-            this.detector.markForCheck()
-          }),
-          flatMap(participants => expService.updateLatestTimestampsOfParticipants()))
-      )).subscribe(
+      flatMap(expService => zip(expService.getParticipants(), expService.getExperiment()).pipe(map(result => ({ participants: result[0], experiment: result[1], expService: expService })))),
+      tap(result => {
+        this.participants = result.participants
+        this.isLoadingParticipants = false
+        this.participantDataSource = new MatTableDataSource(result.participants)
+
+        this.experiment = result.experiment
+        this.participantColumns = ['alias', 'username', 'group'].concat(
+          this.getDemographicKeys()
+        ).concat(['status', 'rangeStart', 'excludedDays', 'joined', 'lastSync', 'lastSession', 'userId', 'button'])
+
+
+        this.setSortParticipants();
+        this.detector.markForCheck()
+      }),
+      flatMap(result => result.expService.updateLatestTimestampsOfParticipants()))
+      .subscribe(
         () => {
           this.isLoadingSessionSummary = false
           this.detector.markForCheck()
@@ -82,6 +90,45 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
       'Do you want to remove this participation entry?',
       'Delete'
     )
+  }
+
+  readGroupName(participant: IUserDbEntity): Observable<string> {
+    return this.api.selectedExperimentService.pipe(
+      flatMap(expService => expService.getExperiment()),
+      map(experiment => {
+        const group = experiment.groups.find(g => g._id === participant.participationInfo.groupId)
+        if (group) {
+          return group.name
+        } else {
+          return null
+        }
+      })
+    )
+  }
+
+  getDemographicKeys(): Array<string> {
+    if (this.experiment.demographicFormSchema) {
+      if (this.experiment.demographicFormSchema.form) {
+        return this.experiment.demographicFormSchema.form.map(f => f.key)
+      } else return []
+    } else return []
+  }
+
+  getDemographicSchemaTitle(key: string): string {
+    if (this.experiment.demographicFormSchema) {
+      if (this.experiment.demographicFormSchema.schema) {
+        const schemaUnit = this.experiment.demographicFormSchema.schema[key]
+        if (schemaUnit) {
+          return schemaUnit.title
+        } else return null
+      } else return null
+    } else return null
+  }
+
+  getParticipantDemographicAnswer(participant: IUserDbEntity, key: string): any {
+    if (participant.participationInfo.demographic) {
+      return participant.participationInfo.demographic[key]
+    }
   }
 
   private deleteParticipant(participantId: string, title: string, message: string, positiveLabel: string = title) {
@@ -145,8 +192,8 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
             return (text || "").length > 0 && text.trim() !== participant.participationInfo.alias
           },
           submit: (text) => this.api.selectedExperimentService.pipe(flatMap(service => service.changeParticipantAlias(participant._id, text.trim())), catchError(err => {
-            switch(err.error){
-              case "AliasAlreadyExists": throw {error: "The same alias already exists."}
+            switch (err.error) {
+              case "AliasAlreadyExists": throw { error: "The same alias already exists." }
               default: throw err.error
             }
           }))
@@ -189,7 +236,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     )
   }
 
-  onExperimentAppSyncClicked(participant: any){
+  onExperimentAppSyncClicked(participant: any) {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(flatMap(expService => expService.sendClientFullSyncMessages(participant._id))).subscribe(
         res => {
@@ -222,6 +269,11 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
         switch (sortHeaderId) {
           case "alias": { return data.participationInfo.alias || ''; }
           case "username": { if (data) { return data.username || ''; } break; }
+          case 'group': {
+            if (data.participationInfo) {
+              return data.participationInfo.groupId
+            } else return ''
+          }
           case "status": {
             if (data.participationInfo.dropped) { return 2; } else { return 1; }
           }
@@ -235,7 +287,9 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
           case "lastSync": return data["lastSyncTimestamp"] || '';
           case "lastSession": return data["lastSessionTimestamp"] || '';
           case "userId": { if (data) { return data._id || ''; } break; }
-          default: { return ''; }
+          default: { 
+            return this.getParticipantDemographicAnswer(data, sortHeaderId)
+           }
         }
       }
       return '';

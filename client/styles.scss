@@ -741,6 +741,10 @@ button.table-cell-clickable-text {
   text-align: center;
 }
 
+.text-align-left{
+  text-align: left !important;
+}
+
 mat-dialog-container .dialog {
   margin: -24px;
 }
@@ -981,6 +985,14 @@ thead.singleline {
   .badge {
     font-size: 1.0em;
     font-weight: 400;
+  }
+
+  .badge-metadata {
+    background: #a0a0a0;
+    color: white;
+    text-transform: uppercase;
+    font-size: 0.5rem;
+    font-weight: bold;
   }
 
   thead,
