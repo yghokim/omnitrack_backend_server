@@ -91,7 +91,7 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
   protected onAfterRegisterNewUserInstance(user: any, request: Request): Promise<any> {
     if (user.experiment != null) {
       app.socketModule().sendUpdateNotificationToExperimentSubscribers(user.experiment, {
-        model: SocketConstants.MODEL_PARTICIPANT, event: SocketConstants.EVENT_APPROVED, payload: {
+        model: SocketConstants.MODEL_USER, event: SocketConstants.EVENT_APPROVED, payload: {
           user: user._id
         }
       })
@@ -144,8 +144,8 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
             user.participationInfo.droppedBy = null
             user.participationInfo.demographic = demographic
             const now = Date()
-            user.participationInfo.approvedAt = now
-            user.participationInfo.experimentRange.from = now
+            user.participationInfo.approvedAt = now as any
+            user.participationInfo.experimentRange.from = now as any
 
             const joinedExperimentInfo = {
               id: experiment._id,

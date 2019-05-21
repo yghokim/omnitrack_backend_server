@@ -5,20 +5,20 @@
 
       <ng-container matColumnDef="alias">
         <mat-header-cell *matHeaderCellDef mat-sort-header> Alias </mat-header-cell>
-        <mat-cell *matCellDef="let object" [matTooltip]="object.alias"> {{object.alias || 'Not set'}} </mat-cell>
+        <mat-cell *matCellDef="let object" [matTooltip]="object.participationInfo.alias"> {{object.participationInfo.alias || 'Not set'}} </mat-cell>
       </ng-container>
 
-      <ng-container matColumnDef="email">
-        <mat-header-cell *matHeaderCellDef mat-sort-header> Email </mat-header-cell>
-        <mat-cell class="text-truncate" [matTooltip]="object.user.email" *matCellDef="let object"> {{object.user.email
+      <ng-container matColumnDef="username">
+        <mat-header-cell *matHeaderCellDef mat-sort-header> Username </mat-header-cell>
+        <mat-cell class="text-truncate" [matTooltip]="object.username" *matCellDef="let object"> {{object.username
           || ''}} </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="status">
         <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
         <mat-cell *matCellDef="let object">
-          <div class="badge badge-danger" *ngIf="object.dropped === true">Dropped</div>
-          <div class="badge badge-primary" *ngIf="object.dropped !== true">Active</div>
+          <div class="badge badge-danger" *ngIf="object.participationInfo.dropped === true">Dropped</div>
+          <div class="badge badge-primary" *ngIf="object.participationInfo.dropped !== true">Active</div>
         </mat-cell>
       </ng-container>
       <ng-container matColumnDef="excludedDays">
@@ -26,7 +26,7 @@
           Excluded Days
         </mat-header-cell>
         <mat-cell *matCellDef="let object">
-          <div *ngIf="object.excludedDays && object.excludedDays.length > 0">{{object.excludedDays.length}} days</div>
+          <div *ngIf="object.participationInfo.excludedDays && object.participationInfo.excludedDays.length > 0">{{object.excludedDays.length}} days</div>
           <button mat-button class="table-cell-clickable-text text-color-accented" (click)="onExcludedDaysEditClicked(object)">Edit..</button>
         </mat-cell>
       </ng-container>
@@ -34,18 +34,18 @@
         <mat-header-cell *matHeaderCellDef mat-sort-header>Count From</mat-header-cell>
         <mat-cell *matCellDef="let object">
           <mat-form-field style="display: none">
-            <input matInput [matDatepicker]="experimentRangeStartPicker" placeholder="Choose a date" [value]="object.experimentRange.from"
+            <input matInput [matDatepicker]="experimentRangeStartPicker" placeholder="Choose a date" [value]="object.participationInfo.experimentRange.from"
               (dateChange)="onChangeExperimentRangeStartInput($event.value, object)">
             <mat-datepicker touchUi="true" #experimentRangeStartPicker></mat-datepicker>
           </mat-form-field>
-          <button mat-button class="table-cell-clickable-text" (click)="experimentRangeStartPicker.open()">{{object.experimentRange.from
+          <button mat-button class="table-cell-clickable-text" (click)="experimentRangeStartPicker.open()">{{object.participationInfo.experimentRange.from
             | date: 'MMM dd, yyyy (EE)'}}</button>
         </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="joined">
         <mat-header-cell *matHeaderCellDef mat-sort-header>Joined Exp</mat-header-cell>
-        <mat-cell *matCellDef="let object">{{object.approvedAt | date: 'MMM dd, yyyy (EE)'}}</mat-cell>
+        <mat-cell *matCellDef="let object">{{object.participationInfo.approvedAt | date: 'MMM dd, yyyy (EE)'}}</mat-cell>
       </ng-container>
 
 
@@ -78,8 +78,8 @@
       </ng-container>
 
       <ng-container matColumnDef="userId">
-        <mat-header-cell *matHeaderCellDef mat-sort-header> User UID </mat-header-cell>
-        <mat-cell *matCellDef="let object"> {{object.user._id}} </mat-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header> UID </mat-header-cell>
+        <mat-cell *matCellDef="let object"> {{object._id}} </mat-cell>
       </ng-container>
       <ng-container matColumnDef="button">
         <mat-header-cell *matHeaderCellDef> </mat-header-cell>
@@ -105,7 +105,7 @@
               </button>
 
               <button mat-menu-item (click)="onExperimentAppSyncClicked(object)">
-                <span>Sync Experiment App Data Now</span>
+                <span>Sync Study App Data Now</span>
               </button>
 
             </mat-menu>

@@ -1,7 +1,7 @@
 import { IEnvironment } from './env';
 import { OTResearchAuthCtrl } from './controllers/research/ot_research_auth_controller';
 import AdminCtrl from "./controllers/admin_controller";
-import OTResearchCtrl from './controllers/ot_research_controller';
+import OTResearchCtrl from './controllers/research/ot_research_controller';
 import { experimentCtrl } from './controllers/research/ot_experiment_controller';
 import { messageCtrl } from './controllers/research/ot_message_controller';
 import { clientBinaryCtrl } from './controllers/research/ot_client_binary_controller';
@@ -85,8 +85,8 @@ export class ResearchRouter extends RouterWrapper {
       }
     })
 
-    this.router.get("/experiments/examples", experimentCtrl.getExampleExperimentList)
-    this.router.post("/experiments/examples", tokenApprovedAuth, experimentCtrl.addExampleExperiment)
+    this.router.get("/experiments/examples", this.researchCtrl.getExampleExperimentList)
+    this.router.post("/experiments/examples", tokenApprovedAuth, this.researchCtrl.addExampleExperiment)
 
     this.router.post('/experiments/new', tokenApprovedAuth, experimentCtrl.createExperiment)
     this.router.get('/experiments/all', tokenApprovedAuth, experimentCtrl.getExperimentInformationsOfResearcher)
@@ -120,8 +120,6 @@ export class ResearchRouter extends RouterWrapper {
     this.router.get('/experiments/:experimentId/session/summary', tokenApprovedAuth, experimentCtrl.getSessionSummary)
 
     this.router.post('/experiments/:experimentId/invitations/new', tokenApprovedAuth, experimentCtrl.addNewIntivation)
-
-    this.router.post('/experiments/:experimentId/invitations/send', tokenApprovedAuth, experimentCtrl.sendInvitation)
 
     this.router.delete('/experiments/:experimentId/invitations/:invitationId', tokenApprovedAuth, experimentCtrl.removeInvitation)
     this.router.post('/experiments/:experimentId/invitations/:invitationId/delete', tokenApprovedAuth, experimentCtrl.removeInvitation)
@@ -164,15 +162,13 @@ export class ResearchRouter extends RouterWrapper {
 
     // ==============================================================================
 
-    this.router.post('/users/notify/message', tokenApprovedAuth, this.researchCtrl.sendNotificationMessageToUser)
+    this.router.post('/users/notify/message', tokenApprovedAuth, experimentCtrl.sendNotificationMessageToUser)
 
-    this.router.delete('/participants/:participantId', tokenApprovedAuth, this.researchCtrl.removeParticipant)
-    this.router.post('/participants/:participantId/delete', tokenApprovedAuth, this.researchCtrl.removeParticipant)
+    this.router.delete('/participants/:participantId', tokenApprovedAuth, experimentCtrl.removeParticipant)
+    this.router.post('/participants/:participantId/delete', tokenApprovedAuth, experimentCtrl.removeParticipant)
 
 
-    this.router.post('/participants/:participantId/alias', tokenApprovedAuth, this.researchCtrl.changeParticipantAlias)
-
-    this.router.post('/participants/:participantId/update', tokenApprovedAuth, this.researchCtrl.updateParticipant)
+    this.router.post('/participants/:participantId/alias', tokenApprovedAuth, experimentCtrl.changeParticipantAlias)
 
     this.router.get("/researchers/search", tokenApprovedAuth, this.researchCtrl.searchResearchers)
 
@@ -180,7 +176,7 @@ export class ResearchRouter extends RouterWrapper {
     this.router.post("/users/:userId/delete", tokenApprovedAuth, this.userCtrl.deleteAccount)
 
 
-    this.router.post("/participants/:participantId/drop", tokenApprovedAuth, this.researchCtrl.dropOutFromExperiment)
+    this.router.post("/participants/:participantId/drop", tokenApprovedAuth, experimentCtrl.dropOutFromExperiment)
 
 
     this.router.post('/participants/:participantId/excluded_days', tokenApprovedAuth, participantCtrl.postExcludedDays)
@@ -214,7 +210,7 @@ export class ResearchRouter extends RouterWrapper {
     this.router.post('/tracking/update/attribute', tokenApprovedAuth, trackingDataCtrl.updateAttributeOfTrackerOfExperiment)
     
 
-    this.router.get("/users/all", tokenApprovedAuth, this.researchCtrl.getUsersWithPariticipantInformation)
+    this.router.get("/users/all", tokenApprovedAuth, experimentCtrl.getUsersWithPariticipantInformation)
 
     this.router.post('/clients/upload', tokenApprovedAuth, clientBinaryCtrl.postClientBinaryFile)
     this.router.delete("/clients/:binaryId", tokenApprovedAuth, clientBinaryCtrl.removeClientBinary)

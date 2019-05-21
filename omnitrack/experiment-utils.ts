@@ -1,13 +1,13 @@
-import { IParticipantDbEntity, IUsageLogDbEntity, ISessionUsageLog } from "./core/db-entity-types";
+import { IUserDbEntity, IUsageLogDbEntity, ISessionUsageLog } from "./core/db-entity-types";
 import * as d3 from 'd3';
 import * as moment from 'moment-timezone';
 import { deepclone } from "../shared_lib/utils";
 
-export function getExperimentDateSequenceOfParticipant(participant: IParticipantDbEntity, to: Date, includeWeekends: boolean): Array<Date> {
-  let sequence = d3.timeDays(moment(participant.experimentRange.from).tz("Asia/Seoul").startOf('day').toDate(), to, 1)
+export function getExperimentDateSequenceOfParticipant(participant: IUserDbEntity, to: Date, includeWeekends: boolean): Array<Date> {
+  let sequence = d3.timeDays(moment(participant.participationInfo.experimentRange.from).tz("Asia/Seoul").startOf('day').toDate(), to, 1)
 
-  if (participant.excludedDays) {
-    const excludedMoments = participant.excludedDays.map(d => moment(d))
+  if (participant.participationInfo.excludedDays) {
+    const excludedMoments = participant.participationInfo.excludedDays.map(d => moment(d))
     sequence = sequence.filter(sd => {
       return !excludedMoments.find(ed => {
         return ed.isSame(sd, 'day')

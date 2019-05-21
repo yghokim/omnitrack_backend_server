@@ -74,7 +74,7 @@
       </div>
       <ng-container *ngFor="let participant of participants">
         <mat-checkbox [checked]="(configuration.filteredParticipantIds | async).includes(participant._id)!==true" (change)="onFilteredParticipantToggle(participant._id, $event.checked)">
-          {{participant.alias}}
+          {{participant.participationInfo.alias}}
         </mat-checkbox>
         <mat-divider class="bottom-margin-dot5em"></mat-divider>
       </ng-container>

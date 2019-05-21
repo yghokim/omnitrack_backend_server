@@ -36,7 +36,7 @@ export class TrackingDataService implements OnInit, OnDestroy {
       this.socketService.onConnected.pipe(combineLatest(
         this.experimentService.getParticipants(), (socket, participants) => {
           if (participants.length > 0) {
-            socket.emit(SocketConstants.SERVER_EVENT_RESUBSCRIBE_PARTICIPANT_TRACKING_DATA, { experimentId: this.experimentService.experimentId, userIds: participants.map(p => p.user._id) })
+            socket.emit(SocketConstants.SERVER_EVENT_RESUBSCRIBE_PARTICIPANT_TRACKING_DATA, { experimentId: this.experimentService.experimentId, userIds: participants.map(p => p._id) })
           } else {
             socket.emit(SocketConstants.SERVER_EVENT_UNSUBSCRIBE_PARTICIPANT_TRACKING_DATA, { experiment: this.experimentService.experimentId })
           }

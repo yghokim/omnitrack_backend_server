@@ -9,9 +9,9 @@ const otInvitationSchema = new mongoose.Schema({
 
 
 otInvitationSchema.virtual('participants', {
-  ref: 'OTParticipant',
+  ref: 'OTUser',
   localField: '_id',
-  foreignField: 'invitation',
+  foreignField: 'participationInfo.invitation',
   justOne: false
 })
 

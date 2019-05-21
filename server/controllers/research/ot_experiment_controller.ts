@@ -1,21 +1,20 @@
 import OTUser from '../../models/ot_user'
 import OTTrigger from '../../models/ot_trigger'
 import OTTracker from '../../models/ot_tracker'
+import OTItem from '../../models/ot_item';
 import OTResearcher from '../../models/ot_researcher'
 import OTExperiment from '../../models/ot_experiment'
 import OTInvitation from '../../models/ot_invitation'
 import otUsageLogCtrl from '../ot_usage_log_controller';
-import OTParticipant from '../../models/ot_participant'
-import { ExperimentPermissions } from '../../../omnitrack/core/research/experiment'
-import { Document, DocumentQuery, Query } from 'mongoose';
+import { ExperimentPermissions, IJoinedExperimentInfo } from '../../../omnitrack/core/research/experiment'
+import { Document, DocumentQuery } from 'mongoose';
 import app from '../../app';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
 import { MessageData, ExperimentData } from '../../modules/push.module';
-import { deepclone, groupArrayByVariable } from '../../../shared_lib/utils';
-import { makeArrayLikeQueryCondition } from '../../server_utils';
-import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { deepclone } from '../../../shared_lib/utils';
 import { clientBuildCtrl } from './ot_client_build_controller';
 import C from '../../server_consts';
+import { IUserDbEntity } from '../../../omnitrack/core/db-entity-types';
 
 
 export default class OTExperimentCtrl {
@@ -128,19 +127,19 @@ export default class OTExperimentCtrl {
   private _removeExperiment(experimentId: string, managerId: string): Promise<boolean> {
     return OTExperiment.findOneAndRemove({ _id: experimentId, manager: managerId }).then(removed => {
       if (removed) {
-        return Promise.all([OTTracker, OTTrigger].map(model => {
-          return model.update({
-            "flags.injected": true,
-            "flags.experiment": experimentId
-          }, { removed: true }, { multi: true })
+        return Promise.all([OTTracker, OTTrigger, OTItem].map(model => {
+          return model.deleteMany({
+            "user.experiment": experimentId
+          })
         })).then(result => {
-          return OTParticipant.find({ experiment: experimentId }, { _id: 1, user: 1 }).then(participants => {
-            app.pushModule().sendDataMessageToUser(participants.map(r => r["user"]), app.pushModule().makeFullSyncMessageData()).then(
+          return OTUser.find({ experiment: experimentId }, { _id: 1}).then(participants => {
+            app.pushModule().sendDataMessageToUser(participants.map(r => r._id), 
+            new MessageData(C.PUSH_DATA_TYPE_SIGN_OUT)).then(
               messageResult => {
                 console.log(messageResult)
               })
 
-            return Promise.all([OTParticipant.remove({ experiment: experimentId }), OTInvitation.remove({ experiment: experimentId }), clientBuildCtrl.handleExperimentRemoval(experimentId)]).then(
+            return Promise.all([OTUser.remove({ experiment: experimentId }), OTInvitation.remove({ experiment: experimentId }), clientBuildCtrl.handleExperimentRemoval(experimentId)]).then(
               res => {
                 // socket
                 app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, { model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_REMOVED })
@@ -187,44 +186,13 @@ export default class OTExperimentCtrl {
 
   getParticipants = (req, res) => {
     const experimentId = req.params.experimentId
-    OTParticipant.find({ experiment: experimentId }).populate("user").lean()
+    OTUser.find({ experiment: experimentId }).lean()
       .then(
         participants => {
-          /*
-          if (participants) {
-            otUsageLogCtrl.analyzeSessionSummary(null, participants.map(p => p.user._id)).then(
-              usageLogAnalysisResults => {
-                participants.forEach(participant => {
-                  const analysis = usageLogAnalysisResults.find(r =>
-                    r["_id"] === participant.user._id)
-                  if (analysis) {
-                    analysis["logs"].forEach(log => {
-                      switch (log._id.name) {
-                        case "session":
-                          participant["lastSessionTimestamp"] = log["lastTimestamp"]
-                          break;
-                        case "OTSynchronizationService":
-                          participant["lastSyncTimestamp"] = log["lastTimestamp"]
-                          break;
-                      }
-                    })
-                  } else {
-                    console.log("no usage log matches.")
-                  }
-                })
-
-                res.status(200).send(participants)
-              }
-
-            ).catch(err => {
-              console.log(err)
-              res.status(200).send(participants)
-            })
-          } else { res.status(200).send(participants) }*/
           res.status(200).send(participants)
         }
       ).catch(err => {
-        console.log(err)
+        console.error(err)
         res.status(500).send(err)
       })
   }
@@ -433,26 +401,6 @@ export default class OTExperimentCtrl {
     })
   }
 
-  addExampleExperiment = (req, res) => {
-    const managerId = req.researcher.uid
-    const exampleKey = req.body.exampleKey
-    if (exampleKey) {
-      app.researchModule().generateExampleExperimentToResearcher(exampleKey, managerId, true).then(experimentId => {
-        res.status(200).send({ experimentId: experimentId })
-      })
-        .catch(err => {
-          console.log(err)
-          res.status(500).send(err)
-        })
-    } else {
-      res.status(404).send("No example key was passed.")
-    }
-  }
-
-  getExampleExperimentList = (req, res) => {
-    res.status(200).send(app.researchModule().exampleExperimentInformations)
-  }
-
   getPublicInvitationList = (req, res) => {
     const userId = req.user.uid
     res.status(200).send([])
@@ -531,20 +479,6 @@ export default class OTExperimentCtrl {
         console.log(err)
         res.status(500).send(err)
       })
-  }
-
-  sendInvitation = (req, res) => {
-    const invitationCode = req.body.invitationCode
-    const userIds = req.body.userIds
-    const force = req.body.force
-    Promise.all(userIds.map(userId => app.researchModule().sendInvitationToUser(invitationCode, userId, force))).then(
-      result => {
-        res.status(200).send(result)
-      }
-    ).catch(err => {
-      console.log(err)
-      res.status(500).send(err)
-    })
   }
 
   sendPushCommand = (req, res) => {
@@ -707,7 +641,7 @@ export default class OTExperimentCtrl {
     }).then(updatedExperiment => {
       if (updatedExperiment) {
         app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, { model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_EDITED })
-        app.researchModule().dropOutImpl({ groupId: groupId }, true, true, null, researcherId)
+        this.dropOutImpl({ groupId: groupId }, true, true, null, researcherId)
           .then(
             result => {
               res.status(200).send(true)
@@ -770,6 +704,229 @@ export default class OTExperimentCtrl {
         res.status(401).send("Experiment is not permitted to the researcher.")
       }
     })
+  }
+
+
+  removeParticipant = (req, res) => {
+    const participantId = req.params.participantId
+    OTUser.findOneAndRemove({ _id: participantId }).then(removedParticipant => {
+      const part = (removedParticipant as any)
+
+      app.socketModule().sendUpdateNotificationToExperimentSubscribers(part.experiment, { model: SocketConstants.MODEL_USER, event: SocketConstants.EVENT_REMOVED, payload: { participant: part } })
+
+      return part
+    }).then(
+      participant => {
+        res.status(200).send(participant)
+      }
+    ).catch(err => {
+      console.log(err)
+      res.status(500).send(err)
+    })
+  }
+
+  changeParticipantAlias = (req, res) => {
+    const participantId = req.params.participantId
+    const alias = req.body.alias
+    OTUser.findById(participantId, {experiment: 1}).lean().then(participant => {
+      if(participant!=null){
+      return OTUser.findOne({ _id: { $ne: participantId }, "participationInfo.alias": alias, experiment: participant.experiment }).then(doc => {
+        if (doc) {
+          return Promise.reject("AliasAlreadyExists");
+        } else {
+          return OTUser.findByIdAndUpdate(participantId, { "participationInfo.alias": alias }, { select: "_id participationInfo.alias experiment" }).then(old => {
+            const changed = old["participationInfo"]["alias"] !== alias
+            if (changed === true) {
+              app.socketModule().sendUpdateNotificationToExperimentSubscribers(old["experiment"], { model: SocketConstants.MODEL_USER, event: SocketConstants.EVENT_EDITED })
+            }
+  
+            return changed
+          })
+        }
+      })}
+      else return false
+    })
+    .then(
+      changed => {
+        res.status(200).send(changed)
+      }
+    ).catch(
+      err => {
+        console.log(err)
+        res.status(500).send({ error: err })
+      }
+    )
+  }
+
+  getUsersWithPariticipantInformation = (req, res) => {
+    OTUser.find({}).populate({
+      path: 'participantIdentities',
+      select: '_id invitation dropped',
+      populate: {
+        path: 'invitation',
+        select: '_id experiment code',
+        populate: {
+          path: 'experiment',
+          select: '_id name'
+        }
+      }
+    }).lean().then(list => {
+      res.status(200).send(list)
+    }).catch(err => {
+      console.log(err)
+      res.status(500).send(err)
+    })
+  }
+
+
+  getExperimentConsentInfo = (req, res) => {
+    const experimentId = req.params.experimentId || res.locals.experimentId
+    OTExperiment.findOne({
+      _id: experimentId
+    }, {
+        consent: 1,
+        receiveConsentInApp: 1,
+        demographicFormSchema: 1
+      }).lean().then(
+        exp => {
+          if (exp) {
+            res.status(200).send(exp)
+          } else {
+            res.status(404).send("No such experiment.")
+          }
+        }
+      )
+  }
+
+  sendNotificationMessageToUser = (req, res) => {
+    const researcher = req.researcher
+    const userId: string | string[] = req.body.userId
+    const title: string = req.body.title
+    const message: string = req.body.message
+    const payload: any = req.body.payload
+    payload.sent_by_name = researcher.email
+    app.pushModule().sendNotificationMessageToUser(userId, title, message, payload).then(
+      result => {
+        res.status(200).send(result)
+      }
+    ).catch(err => {
+      res.status(500).send(err)
+    })
+  }
+
+
+  dropOutFromExperiment = (req, res) => {
+    let userId: string
+    let researcherId: string = null
+    if (req.researcher) {
+      // researcher mode
+      researcherId = req.researcher._id
+      userId = req.body.userId
+    } else if (req.user) {
+      // user mode
+      userId = req.user.uid
+    } else {
+      res.status(500).send("UnAuthorized from either side.")
+      return
+    }
+
+    const experimentId = req.params.experimentId
+
+    const reason = req.body.reason
+
+    let promise: Promise<any>
+
+    if (researcherId) {
+      promise = this.dropOutImpl({ _id: userId }, false, false, reason, researcherId)
+    } else if (userId && experimentId) {
+      promise = this.dropOutImpl({ _id: userId, experiment: experimentId }, false, false, reason, researcherId)
+    }
+
+    promise.then(result => {
+      res.status(200).send(result)
+    })
+      .catch(err => {
+        console.log("Dropout err:")
+        console.log(err)
+        res.status(500).send(err)
+      })
+  }
+
+
+  private handleParticipantDropout(search: any, multiple: boolean, remove: boolean, reason?: string, researcherId?: string): Promise<Array<IUserDbEntity>> {
+    if (multiple === true) {
+      return OTUser.find(search).populate({ path: "experiment", select: "_id name" }).lean().then(docs => {
+        if (remove === true) {
+          return OTUser.deleteMany(search).then(removeRes => docs)
+        } else {
+          search["participationInfo.dropped"] = { $ne: true }
+          return OTUser.updateMany(search, {
+            "participationInfo.dropped": true,
+            "participationInfo.droppedBy": researcherId,
+            "participationInfo.droppedReason": reason,
+            "participationInfo.droppedAt": new Date()
+          }).then(res => docs)
+        }
+      }).then(res => res as any as Array<IUserDbEntity>)
+    } else {
+      if (remove === true) {
+        return OTUser.findOneAndRemove(search).populate({ path: "experiment", select: "_id name" }).then(removed => removed ? [removed as any as IUserDbEntity] : [])
+      } else {
+        search["participationInfo.dropped"] = { $ne: true }
+        return OTUser.findOneAndUpdate(search, {
+          "participationInfo.dropped": true,
+          "participationInfo.droppedBy": researcherId,
+          "participationInfo.droppedReason": reason,
+          "participationInfo.droppedAt": new Date()
+        }, { new: true }).populate({ path: "experiment", select: "_id name" }).then(participant => participant ? [participant as any as IUserDbEntity] : [])
+      }
+    }
+  }
+
+  private dropOutImpl(search: any, multiple: boolean, remove: boolean, reason?: string, researcherId?: string): Promise<{ success: boolean, injectionExists?: boolean, error?: string, experiment?: IJoinedExperimentInfo } | Array<{ success: boolean, injectionExists?: boolean, error?: string, experiment?: IJoinedExperimentInfo }>> {
+    const droppedDate = new Date()
+    return this.handleParticipantDropout(search, multiple, remove, reason, researcherId).then(
+      participants => {
+
+        if (participants.length === 0) {
+          return Promise.resolve({ success: false, injectionExists: false, error: "Not participating in the experiment.", experiment: null })
+        }
+
+        return Promise.all(participants.map(participant => {
+          const experiment = participant["experiment"]
+          // TODO remove trackers, triggers, items, and medias associated with the experiment
+          return Promise.all([OTTracker, OTTrigger].map(model => {
+            return model.update({
+              "user": participant["user"],
+              "flags.injected": true,
+              "flags.experiment": experiment._id
+            }, { removed: true }, { multi: true }).then(res => {
+              if (res.ok === 1) {
+                return { changed: res.n > 0, syncType: C.getSyncTypeFromModel(model), changeCount: res.n }
+              } else { return { changed: false, syncType: C.getSyncTypeFromModel(model) } }
+            })
+          })).then(objRemovalResult => {
+            console.log(objRemovalResult)
+            const changedResults = objRemovalResult.filter(r => r.changed === true)
+            if (changedResults.length > 0) {
+              app.serverModule().registerMessageDataPush(participant["user"], app.pushModule().makeSyncMessageFromTypes(
+                changedResults.map(r => r.syncType)
+              ))
+            }
+
+            app.socketModule().sendUpdateNotificationToExperimentSubscribers(experiment._id, { model: SocketConstants.MODEL_USER, event: SocketConstants.EVENT_DROPPED, payload: { participant: participant } })
+
+            app.serverModule().registerMessageDataPush(participant["user"], new ExperimentData(C.PUSH_DATA_TYPE_EXPERIMENT_DROPPED, experiment._id, { droppedBySelf: (participant["droppedBy"] == null).toString() }))
+
+            return { success: true, experiment: { id: experiment._id.toString(), name: experiment.name.toString(), injectionExists: changedResults.length > 0, joinedAt: participant["approvedAt"].getTime(), droppedAt: droppedDate.getTime() } }
+          })
+        })).then(results => {
+          if (multiple === true) {
+            return results
+          } else { return results[0] }
+        }) as any
+      }
+    )
   }
 }
 

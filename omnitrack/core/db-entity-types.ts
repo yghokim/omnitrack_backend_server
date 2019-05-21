@@ -1,7 +1,7 @@
 import { isString } from "../../shared_lib/utils";
 
 export function getIdPopulateCompat(obj: any, variableName: string = "_id"): string {
-  if(obj == null){
+  if (obj == null) {
     return null
   } else if (isString(obj) === true) {
     return obj.toString()
@@ -26,10 +26,26 @@ export interface IUserDbEntity extends IMongooseDbEntity {
   name: string,
   nameUpdatedAt?: Date,
   picture?: string,
-  email: string,
-  participationInfo: any,
+  username: string,
+  participationInfo: {
+    alias?: string,
+    groupId?: string,
+    excludedDays?: Array<number>,
+    invitation: string | any,
+    approvedAt?: Date,
+    dropped?: boolean,
+    droppedReason?: string,
+    droppedBy?: string | any,
+    droppedAt?: Date,
+    experimentRange?: {from: Date, to?: Date}
+    demographic?: any
+  },
   deviceLocalKeySeed?: number,
   devices?: Array<IClientDevice>,
+
+  lastSyncTimestamp?: number
+  lastSessionTimestamp?: number
+  lastTimestampsUpdated?: boolean
 }
 
 export interface IClientDevice {
@@ -110,7 +126,7 @@ export interface IItemDbEntity extends IUserChildDbEntity {
   userUpdatedAt: number
 }
 
-export interface IItemMetadata{
+export interface IItemMetadata {
   pingIndex?: number,
   pivotDate?: string,//YYYY-MM-DD
   conditionType?: string,
@@ -135,23 +151,4 @@ export interface ISessionUsageLog extends IUsageLogDbEntity {
   startedAt: number,
   endedAt: number,
   duration: number
-}
-
-export interface IParticipantDbEntity extends IUserChildDbEntity {
-  alias?: string
-  user: string | any
-  experiment?: any
-  groupId?: string
-  excludedDays?: Array<number>
-  invitation?: any
-  approvedAt?: Date
-  dropped?: boolean
-  droppedReason?: string
-  droppedBy?: string | any
-  droppedAt?: Date
-  demographic?: any
-  experimentRange?: { from?: Date, to?: Date }
-  lastSyncTimestamp?: number
-  lastSessionTimestamp?: number
-  lastTimestampsUpdated?: boolean
 }

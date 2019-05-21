@@ -4,7 +4,7 @@ import OTTriggerCtrl from './controllers/ot_trigger_controller';
 import OTUserCtrl from './controllers/ot_user_controller';
 import { itemCtrl } from './controllers/ot_item_controller';
 import otUsageLogCtrl from './controllers/ot_usage_log_controller';
-import OTResearchCtrl from './controllers/ot_research_controller';
+import OTResearchCtrl from './controllers/research/ot_research_controller';
 import OTUser from './models/ot_user';
 import AdminCtrl from './controllers/admin_controller';
 import BinaryStorageCtrl from './controllers/binary_storage_controller';
@@ -194,11 +194,9 @@ export class ClientApiRouter extends RouterWrapper {
 
     this.router.get('/research/experiment/:experimentId/verify_invitation', certifiedDeviceCheckMiddleware, userCtrl.verifyInvitationCode)
 
-    this.router.get('/research/experiment/:experimentId/consent', certifiedDeviceCheckMiddleware, researchCtrl.getExperimentConsentInfo)
+    this.router.get('/research/experiment/:experimentId/consent', certifiedDeviceCheckMiddleware, experimentCtrl.getExperimentConsentInfo)
 
-    this.router.post("/research/experiment/:experimentId/dropout", appSignedInMiddleware, researchCtrl.dropOutFromExperiment)
-
-    this.router.get('/research/experiments/history', certifiedDeviceCheckMiddleware, researchCtrl.getExperimentHistoryOfUser)
+    this.router.post("/research/experiment/:experimentId/dropout", appSignedInMiddleware, experimentCtrl.dropOutFromExperiment)
 
     this.router.get('/research/invitations/public', appSignedInMiddleware, experimentCtrl.getPublicInvitationList)
 

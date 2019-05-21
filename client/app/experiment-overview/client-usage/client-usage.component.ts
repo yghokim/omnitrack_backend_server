@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../../services/research-api.service';
 import { ResearchVisualizationQueryConfigurationService } from '../../services/research-visualization-query-configuration.service';
-import { IParticipantDbEntity } from '../../../../omnitrack/core/db-entity-types';
+import { IUserDbEntity } from '../../../../omnitrack/core/db-entity-types';
 import { EngagementDataService } from './engagement-data.service';
 import { logsToEngagements, EngageData } from '../../../../shared_lib/engagement';
 import { Subscription } from 'rxjs';
@@ -19,7 +19,7 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
   public usageLog: Array<any>;
   public MIN_SESSION_GAP: number = 1000;
   private engageLog: Array<EngageData> =[]
-  private participants: Array<IParticipantDbEntity>
+  private participants: Array<IUserDbEntity>
   private includeWeekends: boolean;
   private relativeDayScope: Array<number> = [];
 
@@ -32,7 +32,7 @@ export class ClientUsageComponent implements OnInit, OnDestroy {
       .pipe(
         combineLatest(this.api.selectedExperimentService, (result, expService)=> ({participantsAndScope: result, expService: expService})),
         flatMap(result =>{
-          return result.expService.queryUsageLogsPerParticipant(null, result.participantsAndScope.participants.map(p=>p.user._id)).pipe(map(x => ({logsPerUser: x , participants: result.participantsAndScope.participants, includeWeekends: result.participantsAndScope.scope.includeWeekends})))
+          return result.expService.queryUsageLogsPerParticipant(null, result.participantsAndScope.participants.map(p=>p._id)).pipe(map(x => ({logsPerUser: x , participants: result.participantsAndScope.participants, includeWeekends: result.participantsAndScope.scope.includeWeekends})))
         })
       ).subscribe(usageLogQueryResult=>{
 

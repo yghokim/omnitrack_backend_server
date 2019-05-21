@@ -10,7 +10,7 @@ import { BehaviorSubject, Subscription } from "rxjs";
 import { flatMap } from "rxjs/operators";
 import { Router, ActivatedRoute } from "@angular/router";
 import * as moment from "moment-timezone";
-import { IParticipantDbEntity } from "../../../../omnitrack/core/db-entity-types";
+import { IUserDbEntity } from "../../../../omnitrack/core/db-entity-types";
 declare var $: any;
 
 @Component({
@@ -58,7 +58,7 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
 
   public mountedMessage: IResearchMessage;
 
-  public participants: Array<IParticipantDbEntity>;
+  public participants: Array<IUserDbEntity>;
 
   deliveryDate: Date = new Date();
   deliveryTime = "12:00";

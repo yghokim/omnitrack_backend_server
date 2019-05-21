@@ -130,7 +130,7 @@ export class ExperimentInvitationsComponent implements OnInit, OnDestroy {
   getNumActiveParticipants(invitation): number {
     const participants = invitation.participants
     if (participants instanceof Array) {
-      return participants.filter(p => p.dropped !== true && p.isConsentApproved === true).length
+      return participants.filter(p => p.dropped !== true).length
     } else { return 0 }
   }
 

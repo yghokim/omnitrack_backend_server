@@ -1,7 +1,7 @@
 import OTTracker from '../../models/ot_tracker'
 import OTTrigger from '../../models/ot_trigger'
+import OTUser from '../../models/ot_user'
 import OTItem from '../../models/ot_item'
-import OTParticipant from '../../models/ot_participant'
 import * as mongoose from 'mongoose';
 import { merge, deepclone } from '../../../shared_lib/utils';
 import { makeArrayLikeQueryCondition } from '../../server_utils';
@@ -19,32 +19,21 @@ export default class TrackingDataCtrl {
   } = { excludeExternals: true, excludeRemoved: true }): Promise<Array<any>> {
 
     const participantQuery = {
-      experiment: experimentId, dropped: { $ne: true }
+      experiment: experimentId, "participationInfo.dropped": { $ne: true }
     }
 
     if (userId) {
-      participantQuery["user"] = makeArrayLikeQueryCondition(userId)
+      participantQuery["_id"] = makeArrayLikeQueryCondition(userId)
     }
 
-    return OTParticipant.find(participantQuery, { _id: 1, user: 1 }).lean().then(
+    return OTUser.find(participantQuery, { _id: 1 }).lean().then(
       participants => {
         if (participants.length > 0) {
-          const condition = { user: { $in: participants.map(p => p["user"]) } }
+          const condition = { "user": { $in: participants.map(p => p._id) } }
           if (options.excludeRemoved === true) {
             condition["removed"] = { $ne: true }
           }
-
-          if (model === OTItem) {
-            const trackerCondition = deepclone(condition)
-            trackerCondition["flags.experiment"] = experimentId
-            return OTTracker.find(trackerCondition, { _id: 1 }).lean().then(
-              trackers => {
-                condition["tracker"] = { $in: trackers.map(t => t._id) }
-                return OTItem.find(condition).lean()
-              })
-          } else {
-            condition["flags.experiment"] = experimentId
-          }
+          
           return (model as any).find(condition).lean()
         }else return []
       })

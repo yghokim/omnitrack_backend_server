@@ -6,7 +6,7 @@ import { Subscription, Subject } from 'rxjs';
 import { debounceTime, flatMap, combineLatest, tap } from 'rxjs/operators';
 import * as moment from "moment-timezone";
 import { diffDaysBetweenTwoMoments } from '../../../shared_lib/utils';
-import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { IUserDbEntity } from '../../../omnitrack/core/db-entity-types';
 import * as deepEqual from 'deep-equal';
 
 @Component({
@@ -62,7 +62,7 @@ export class ExperimentOverviewComponent implements OnInit {
 
   private readonly _dayRangeValueInject = new Subject<Array<number>>()
 
-  participants: Array<IParticipantDbEntity>
+  participants: Array<IUserDbEntity>
 
   constructor(
     private api: ResearchApiService,
@@ -99,8 +99,8 @@ export class ExperimentOverviewComponent implements OnInit {
               const end = Math.min((project.experiment.finishDate || today).getTime(), today.getTime())
 
               project.participants.forEach(participant => {
-                const momentStart = moment(participant.experimentRange.from).startOf('day')
-                const numDays = diffDaysBetweenTwoMoments(moment(end), momentStart, project.scope.includeWeekends, participant.excludedDays)
+                const momentStart = moment(participant.participationInfo.experimentRange.from).startOf('day')
+                const numDays = diffDaysBetweenTwoMoments(moment(end), momentStart, project.scope.includeWeekends, participant.participationInfo.excludedDays)
 
                 if (!longestNumDays) { longestNumDays = numDays } else {
                   longestNumDays = Math.max(longestNumDays, numDays)
