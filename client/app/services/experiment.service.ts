@@ -452,10 +452,7 @@ export class ExperimentService {
     return this.http.get<Array<{_id: string, logs: Array<{_id:{user:string, name: string}, lastTimestamp: string}>}>>("/api/research/experiments/" + this.experimentId + "/session/summary", this.researchApi.makeAuthorizedRequestOptions({
       userIds: selectUserIds,
     })).pipe(map(result => {
-      console.log("session summary:")
-      console.log(result)
       result.forEach(row => {
-        console.log(this.participantList.value)
         const participant = this.participantList.value.find(p=>p._id === row._id)
         if(participant){
           row.logs.forEach(

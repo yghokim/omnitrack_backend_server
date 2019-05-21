@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
-import { Subscription, empty } from 'rxjs';
-import { flatMap, tap } from 'rxjs/operators';
+import { Subscription, empty} from 'rxjs';
+import { flatMap, tap, catchError } from 'rxjs/operators';
 import { MatDialog, MatTableDataSource, MatSort } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
@@ -139,12 +139,17 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
         data: {
           title: "Change Alias",
           positiveLabel: "Change",
-          prefill: participant.alias,
+          prefill: participant.participationInfo.alias,
           placeholder: "Insert new alias",
           validator: (text) => {
             return (text || "").length > 0 && text.trim() !== participant.participationInfo.alias
           },
-          submit: (text) => this.api.selectedExperimentService.pipe(flatMap(service => service.changeParticipantAlias(participant._id, text.trim())))
+          submit: (text) => this.api.selectedExperimentService.pipe(flatMap(service => service.changeParticipantAlias(participant._id, text.trim())), catchError(err => {
+            switch(err.error){
+              case "AliasAlreadyExists": throw {error: "The same alias already exists."}
+              default: throw err.error
+            }
+          }))
         }
       }).afterClosed().subscribe(
         () => {
