@@ -1,11 +1,12 @@
 <div [ngClass]="screenExpanded===true? 'container-fluid' : 'container'">
   <div class="card">
     <app-busy-overlay *ngIf="isLoadingParticipants" [scale]="0.5" [overlayClass]="'main'"></app-busy-overlay>
-    <mat-table class="table-data" [dataSource]="participantDataSource" matSort>
+    <mat-table *ngIf="isLoadingParticipants!==true" class="table-data" [dataSource]="participantDataSource" matSort>
 
       <ng-container matColumnDef="alias">
         <mat-header-cell *matHeaderCellDef mat-sort-header> Alias </mat-header-cell>
-        <mat-cell *matCellDef="let object" [matTooltip]="object.participationInfo.alias"> {{object.participationInfo.alias || 'Not set'}} </mat-cell>
+        <mat-cell *matCellDef="let object" [matTooltip]="object.participationInfo.alias">
+          {{object.participationInfo.alias || 'Not set'}} </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="username">
@@ -26,20 +27,36 @@
           <div class="badge badge-primary" *ngIf="object.participationInfo.dropped !== true">Active</div>
         </mat-cell>
       </ng-container>
+
+      <ng-container *ngFor="let schemaKey of getDemographicKeys()" [matColumnDef]="schemaKey">
+        <mat-header-cell *matHeaderCellDef mat-sort-header [matTooltip]="getDemographicSchemaTitle(schemaKey)">
+          <div class="text-align-left">
+            <div class="badge badge-sm badge-metadata">Demogr.</div>
+            <span>{{schemaKey}}</span>
+          </div>
+        </mat-header-cell>
+        <mat-cell *matCellDef="let object">
+          {{getParticipantDemographicAnswer(object, schemaKey)}}
+        </mat-cell>
+      </ng-container>
+
       <ng-container matColumnDef="excludedDays">
         <mat-header-cell *matHeaderCellDef mat-sort-header>
           Excluded Days
         </mat-header-cell>
         <mat-cell *matCellDef="let object">
-          <div *ngIf="object.participationInfo.excludedDays && object.participationInfo.excludedDays.length > 0">{{object.excludedDays.length}} days</div>
-          <button mat-button class="table-cell-clickable-text text-color-accented" (click)="onExcludedDaysEditClicked(object)">Edit..</button>
+          <div *ngIf="object.participationInfo.excludedDays && object.participationInfo.excludedDays.length > 0">
+            {{object.excludedDays.length}} days</div>
+          <button mat-button class="table-cell-clickable-text text-color-accented"
+            (click)="onExcludedDaysEditClicked(object)">Edit..</button>
         </mat-cell>
       </ng-container>
       <ng-container matColumnDef="rangeStart">
         <mat-header-cell *matHeaderCellDef mat-sort-header>Count From</mat-header-cell>
         <mat-cell *matCellDef="let object">
           <mat-form-field style="display: none">
-            <input matInput [matDatepicker]="experimentRangeStartPicker" placeholder="Choose a date" [value]="object.participationInfo.experimentRange.from"
+            <input matInput [matDatepicker]="experimentRangeStartPicker" placeholder="Choose a date"
+              [value]="object.participationInfo.experimentRange.from"
               (dateChange)="onChangeExperimentRangeStartInput($event.value, object)">
             <mat-datepicker touchUi="true" #experimentRangeStartPicker></mat-datepicker>
           </mat-form-field>
@@ -50,7 +67,8 @@
 
       <ng-container matColumnDef="joined">
         <mat-header-cell *matHeaderCellDef mat-sort-header>Joined Exp</mat-header-cell>
-        <mat-cell *matCellDef="let object">{{object.participationInfo.approvedAt | date: 'MMM dd, yyyy (EE)'}}</mat-cell>
+        <mat-cell *matCellDef="let object">{{object.participationInfo.approvedAt | date: 'MMM dd, yyyy (EE)'}}
+        </mat-cell>
       </ng-container>
 
 
@@ -105,7 +123,8 @@
                 <span>Drop Participant</span>
               </button>
 
-              <button mat-menu-item *ngSwitchCase="'dropped' || 'denied'" (click)="onRemoveParticipantEntryClicked(object._id)">
+              <button mat-menu-item *ngSwitchCase="'dropped' || 'denied'"
+                (click)="onRemoveParticipantEntryClicked(object._id)">
                 <span>Remove Entry</span>
               </button>
 
@@ -118,15 +137,17 @@
         </mat-cell>
       </ng-container>
 
-      <mat-header-row class="no-right-padding" *matHeaderRowDef="PARTICIPANT_COLUMNS"></mat-header-row>
-      <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: PARTICIPANT_COLUMNS;"></mat-row>
+      <mat-header-row class="no-right-padding" *matHeaderRowDef="participantColumns"></mat-header-row>
+      <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: participantColumns;"></mat-row>
 
     </mat-table>
     <div class="card-body card-footer horizontal-padding-narrow">
 
       <small *ngIf="participants== null" class="text-color-gray">Participants not loaded.</small>
-      <small *ngIf="participants!= null && participants.length == 0" class="text-color-gray">No participants in server.</small>
-      <div *ngIf="participants!= null && participants.length > 0" class="text-color-gray flex-container flex-align-items-center">
+      <small *ngIf="participants!= null && participants.length == 0" class="text-color-gray">No participants in
+        server.</small>
+      <div *ngIf="participants!= null && participants.length > 0"
+        class="text-color-gray flex-container flex-align-items-center">
         <small class="right-margin-3em">Active: {{activeParticipantCount()}}</small>
         <small class="right-margin-3em">Dropped: {{droppedParticipantCount()}}</small>
 
@@ -135,7 +156,8 @@
     </div>
 
     <div class="tabbar-header-right-container-absolute">
-      <button mat-icon-button [matTooltip]="screenExpanded===true? 'contract' : 'expand'" (click)="screenExpanded = !screenExpanded">
+      <button mat-icon-button [matTooltip]="screenExpanded===true? 'contract' : 'expand'"
+        (click)="screenExpanded = !screenExpanded">
         <mat-icon class="material-icons text-color-darkgray">{{screenExpanded===true? 'picture_in_picture' :
           'aspect_ratio'}}</mat-icon>
       </button>
