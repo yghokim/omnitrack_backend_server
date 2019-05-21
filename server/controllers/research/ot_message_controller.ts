@@ -6,7 +6,7 @@ import { experimentCtrl } from './ot_experiment_controller';
 import app from '../../app';
 import env from '../../env';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
-import OTParticipant from '../../models/ot_participant';
+import OTUser from '../../models/ot_user';
 import { TextMessageData } from '../../modules/push.module';
 
 export default class OTResearchMessageCtrl {
@@ -89,16 +89,15 @@ export default class OTResearchMessageCtrl {
                 return app.pushModule().sendDataMessageToUser(receiverUserIds, new TextMessageData(casted.messageTitle, casted.messageBody)).then(
                   result => {
                     console.log(result)
-                    return OTParticipant.find(participantQuery, { _id: 1 }).then(participants => {
-                      savedMessage["receivers"] = participants.map(p => p._id)
-                      savedMessage["sentAt"] = new Date()
-                      return savedMessage.save().then(saved => {
-                        return onSuccess()
-                      })
+                    savedMessage["receivers"] = receiverUserIds
+                    savedMessage["sentAt"] = new Date()
+                    return savedMessage.save().then(saved => {
+                      return onSuccess()
                     })
                   }
                 )
 
+                /*
               case "email":
                 return OTParticipant.find(participantQuery, { _id: 1, user: 1 }).populate({ path: "user", select: "_id email" }).then(participants => {
                   if (participants && participants.length > 0) {
@@ -113,7 +112,7 @@ export default class OTResearchMessageCtrl {
                         })
                       })
                   } else { return null }
-                })
+                })*/
             }
           }
         } else { return onSuccess() }

@@ -20,8 +20,8 @@
         <div class="flex-container flex-align-items-center">
           <mat-form-field class="mat-form-no-vertical-padding">
             <mat-select [(value)]="selectedParticipantId" required="true" (selectionChange)="onParticipantSelectionChanged($event)">
-              <mat-option *ngFor="let participant of participants" [value]="participant._id">{{participant.alias}}
-                ({{participant.experimentRange.from | date: 'yyyy-MM-dd'}})</mat-option>
+              <mat-option *ngFor="let participant of participants" [value]="participant._id">{{participant.participationInfo.alias}}
+                ({{participant.participationInfo.experimentRange.from | date: 'yyyy-MM-dd'}})</mat-option>
             </mat-select>
           </mat-form-field>
           <div class="flex-filler"></div>

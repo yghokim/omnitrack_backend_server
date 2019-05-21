@@ -11,7 +11,7 @@ import { ExperimentPermissions } from '../../../omnitrack/core/research/experime
 import { VisualizationConfigs } from '../../../omnitrack/core/research/configs';
 import { TrackingDataService } from './tracking-data.service';
 import { IResearchMessage } from '../../../omnitrack/core/research/messaging';
-import { IParticipantDbEntity, IUsageLogDbEntity, getIdPopulateCompat, ITriggerDbEntity, ITrackerDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { IUserDbEntity, IUsageLogDbEntity, getIdPopulateCompat, ITriggerDbEntity, ITrackerDbEntity } from '../../../omnitrack/core/db-entity-types';
 import { IExperimentDbEntity, IResearcherDbEntity, IExperimentTrackingPackgeDbEntity, IExperimentGroupDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import * as moment from 'moment';
 
@@ -20,7 +20,7 @@ export class ExperimentService {
   private readonly experimentInfo = new BehaviorSubject<IExperimentDbEntity>(null)
   private readonly managerInfo = new BehaviorSubject<IResearcherDbEntity>(null)
   private readonly invitationList = new BehaviorSubject<Array<any>>(null)
-  private readonly participantList = new BehaviorSubject<Array<IParticipantDbEntity>>(null)
+  private readonly participantList = new BehaviorSubject<Array<IUserDbEntity>>(null)
   private readonly messageList = new BehaviorSubject<Array<IResearchMessage>>(null)
 
   private readonly _internalSubscriptions = new Subscription()
@@ -82,7 +82,7 @@ export class ExperimentService {
                           break;
                       }
                       break;
-                    case SocketConstants.MODEL_PARTICIPANT:
+                    case SocketConstants.MODEL_USER:
                       this.loadParticipantList()
                       this.loadInvitationList()
                       this.researchApi.loadUserPool()
@@ -223,7 +223,7 @@ export class ExperimentService {
   loadParticipantList() {
     this.notificationService.registerGlobalBusyTag("participantList")
     this._internalSubscriptions.add(
-      this.http.get<Array<IParticipantDbEntity>>("/api/research/experiments/" + this.experimentId + '/participants', this.researchApi.authorizedOptions).subscribe(
+      this.http.get<Array<IUserDbEntity>>("/api/research/experiments/" + this.experimentId + '/participants', this.researchApi.authorizedOptions).subscribe(
         list => {
           this.participantList.next(list)
         },
@@ -248,7 +248,7 @@ export class ExperimentService {
     return this.invitationList.pipe(filter(res => res != null))
   }
 
-  getParticipants(): Observable<Array<IParticipantDbEntity>> {
+  getParticipants(): Observable<Array<IUserDbEntity>> {
     return this.participantList.pipe(filter(res => res != null))
   }
 
@@ -347,6 +347,15 @@ export class ExperimentService {
 
   changeParticipantAlias(participantId, alias): Observable<boolean> {
     return this.http.post<boolean>("/api/research/participants/" + participantId + "/alias", { alias: alias }, this.researchApi.authorizedOptions)
+      .pipe(
+        tap(result => {
+          if(result === true){
+            const newList = this.participantList.getValue().splice(0)
+            newList.find(p => p._id === participantId).participationInfo.alias = alias
+            this.participantList.next(newList)
+          }
+        })
+      )
   }
 
   updateParticipant(participantId, update): Observable<any> {
@@ -397,7 +406,7 @@ export class ExperimentService {
     return this.participantList.pipe(
       filter(participants => participants != null),
       map(participants => {
-        return participants.filter(p => p.groupId === groupId).length
+        return participants.filter(p => p.participationInfo.groupId === groupId).length
       })
     )
   }
@@ -447,7 +456,7 @@ export class ExperimentService {
       console.log(result)
       result.forEach(row => {
         console.log(this.participantList.value)
-        const participant = this.participantList.value.find(p=>p.user._id === row._id)
+        const participant = this.participantList.value.find(p=>p._id === row._id)
         if(participant){
           row.logs.forEach(
             log => {

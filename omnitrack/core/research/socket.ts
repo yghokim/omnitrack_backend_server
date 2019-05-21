@@ -30,7 +30,6 @@ export class SocketConstants{
 
   
   static readonly MODEL_INVITATION = "OTInvitation"
-  static readonly MODEL_PARTICIPANT = "OTParticipant"
   static readonly MODEL_EXPERIMENT = "OTExperiment"
   static readonly MODEL_USER = "OTUser"
   static readonly MODEL_RESEARCHER = "OTResearcher"

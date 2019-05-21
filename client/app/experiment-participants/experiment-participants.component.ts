@@ -6,7 +6,7 @@ import { MatDialog, MatTableDataSource, MatSort } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
 import { NotificationService } from '../services/notification.service';
-import { IParticipantDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { IUserDbEntity } from '../../../omnitrack/core/db-entity-types';
 import { ParticipantExcludedDaysConfigDialogComponent } from '../dialogs/participant-excluded-days-config-dialog/participant-excluded-days-config-dialog.component';
 
 
@@ -18,9 +18,9 @@ import { ParticipantExcludedDaysConfigDialogComponent } from '../dialogs/partici
 })
 export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
-  readonly PARTICIPANT_COLUMNS = ['alias', 'email', 'status', 'rangeStart', 'excludedDays', 'joined', 'lastSync', 'lastSession', 'userId', 'button']
+  readonly PARTICIPANT_COLUMNS = ['alias', 'username', 'status', 'rangeStart', 'excludedDays', 'joined', 'lastSync', 'lastSession', 'userId', 'button']
 
-  public participants: Array<any>
+  public participants: Array<IUserDbEntity>
   public isLoadingParticipants = true
   public isLoadingSessionSummary = true
 
@@ -29,7 +29,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
   public screenExpanded = false
 
-  public participantDataSource: MatTableDataSource<any>;
+  public participantDataSource: MatTableDataSource<IUserDbEntity>;
   @ViewChild(MatSort) participantSort: MatSort;
 
   private readonly _internalSubscriptions = new Subscription()
@@ -68,12 +68,12 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
   activeParticipantCount() {
     if (!this.participants) { return 0 }
-    return this.participants.filter(participant => participant.dropped !== true && participant.isConsentApproved === true).length
+    return this.participants.filter(participant => participant.participationInfo.dropped !== true).length
   }
 
   droppedParticipantCount() {
     if (!this.participants) { return 0 }
-    return this.participants.filter(participant => participant.dropped === true).length
+    return this.participants.filter(participant => participant.participationInfo.dropped === true).length
   }
 
   onRemoveParticipantEntryClicked(participantId: string) {
@@ -142,7 +142,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
           prefill: participant.alias,
           placeholder: "Insert new alias",
           validator: (text) => {
-            return (text || "").length > 0 && text.trim() !== participant.alias
+            return (text || "").length > 0 && text.trim() !== participant.participationInfo.alias
           },
           submit: (text) => this.api.selectedExperimentService.pipe(flatMap(service => service.changeParticipantAlias(participant._id, text.trim())))
         }
@@ -165,11 +165,11 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
       ))
   }
 
-  onExcludedDaysEditClicked(participant: IParticipantDbEntity) {
+  onExcludedDaysEditClicked(participant: IUserDbEntity) {
     this._internalSubscriptions.add(
       this.dialog.open(ParticipantExcludedDaysConfigDialogComponent, {
         data: {
-          dates: participant.excludedDays || []
+          dates: participant.participationInfo.excludedDays || []
         }
       }).afterClosed().pipe(flatMap(
         (newDates: Array<Date>) => {
@@ -189,7 +189,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
       this.api.selectedExperimentService.pipe(flatMap(expService => expService.sendClientFullSyncMessages(participant._id))).subscribe(
         res => {
           this.notificationService.pushSnackBarMessage({
-            message: "Request synchronization to " + participant.alias + "'s devices."
+            message: "Request synchronization to " + participant.participationInfo.alias + "'s devices."
           })
         },
         err => {
@@ -212,24 +212,24 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
   setSortParticipants(): void {
     this.participantDataSource.sort = this.participantSort;
-    this.participantDataSource.sortingDataAccessor = (data: IParticipantDbEntity, sortHeaderId: string) => {
+    this.participantDataSource.sortingDataAccessor = (data: any, sortHeaderId: string) => {
       if (data) {
         switch (sortHeaderId) {
-          case "alias": { return data.alias || ''; }
-          case "email": { if (data.user) { return data.user.email || ''; } break; }
+          case "alias": { return data.participationInfo.alias || ''; }
+          case "username": { if (data) { return data.username || ''; } break; }
           case "status": {
-            if (data.dropped) { return 2; } else { return 1; }
+            if (data.participationInfo.dropped) { return 2; } else { return 1; }
           }
           case "excludedDays":
-            if (data.excludedDays) {
-              return data.excludedDays.length
+            if (data.participationInfo.excludedDays) {
+              return data.participationInfo.excludedDays.length
             } else { return '' }
-          case "rangeStart": { if (data.experimentRange) { return data.experimentRange.from } break; }
-          case "joined": { return data.approvedAt || '' }
-          case "created": { if (data.user) { return data.user.createdAt || ''; } break; }
-          case "lastSync": return data.lastSyncTimestamp || '';
-          case "lastSession": return data.lastSessionTimestamp || '';
-          case "userId": { if (data.user) { return data.user._id || ''; } break; }
+          case "rangeStart": { if (data.participationInfo.experimentRange) { return data.participationInfo.experimentRange.from } break; }
+          case "joined": { return data.participationInfo.approvedAt || '' }
+          case "created": { if (data) { return data.createdAt || ''; } break; }
+          case "lastSync": return data["lastSyncTimestamp"] || '';
+          case "lastSession": return data["lastSessionTimestamp"] || '';
+          case "userId": { if (data) { return data._id || ''; } break; }
           default: { return ''; }
         }
       }

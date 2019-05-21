@@ -11,7 +11,7 @@ import { tap, flatMap, combineLatest } from "rxjs/operators";
 import { NotificationService } from "../services/notification.service";
 import { aliasCompareFunc, deepclone } from "../../../shared_lib/utils";
 import {
-  IParticipantDbEntity,
+  IUserDbEntity,
   ITrackerDbEntity,
   ITriggerDbEntity,
   getIdPopulateCompat,
@@ -49,7 +49,7 @@ export class ExperimentTrackingEntityStatusComponent
   private trackers: Array<ITrackerDbEntity> = [];
   private triggers: Array<ITriggerDbEntity> = [];
 
-  public participants: Array<IParticipantDbEntity>;
+  public participants: Array<IUserDbEntity>;
   public selectedParticipantId: String;
 
   public participantTrackers: Array<ITrackerDbEntity> = [];
@@ -84,7 +84,7 @@ export class ExperimentTrackingEntityStatusComponent
           /*
           participants.sort((a,b)=>{return new Date(a.experimentRange.from).getTime() - new Date(b.experimentRange.from).getTime()})*/
           const sortFunc = aliasCompareFunc(false);
-          participants.sort((a, b) => sortFunc(a.alias, b.alias));
+          participants.sort((a, b) => sortFunc(a.participationInfo.alias, b.participationInfo.alias));
           this.participants = participants;
           if (this.participants.length > 0) {
             this.onSelectedParticipantIdChanged(this.participants[0]._id);
@@ -104,7 +104,7 @@ export class ExperimentTrackingEntityStatusComponent
       this._currentSelectionSubscription.unsubscribe();
   }
 
-  public onSelectedParticipantIdChanged(participantId: String) {
+  public onSelectedParticipantIdChanged(participantId: string) {
     if(this._currentSelectionSubscription)
       this._currentSelectionSubscription.unsubscribe();
 
@@ -113,23 +113,16 @@ export class ExperimentTrackingEntityStatusComponent
     this.selectedParticipantId = participantId;
     this.loadingParticipantInfo = true;
     this.detector.markForCheck();
-
-    const userId = getIdPopulateCompat(
-      this.participants.find(p => p._id === participantId).user,
-      "_id"
-    );
-    if (userId != null) {
-      this._currentSelectionSubscription = this.api.selectedExperimentService
-          .pipe(
-            flatMap(expService => expService.getEntitiesOfUserInExperiment(userId))
-          )
-          .subscribe(result => {
-            this.participantTrackers = result.trackers;
-            this.participantTriggers = result.triggers;
-            this.loadingParticipantInfo = false;
-            this.detector.markForCheck();
-          })
-    }
+    this._currentSelectionSubscription = this.api.selectedExperimentService
+    .pipe(
+      flatMap(expService => expService.getEntitiesOfUserInExperiment(participantId))
+    )
+    .subscribe(result => {
+      this.participantTrackers = result.trackers;
+      this.participantTriggers = result.triggers;
+      this.loadingParticipantInfo = false;
+      this.detector.markForCheck();
+    })
   }
 
   public onElementSelected(parent: any, ev: { type: string; obj: {obj: any, parentId?: string} }) {

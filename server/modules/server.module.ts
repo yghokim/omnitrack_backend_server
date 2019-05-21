@@ -1,8 +1,5 @@
 
-import OTParticipant from '../models/ot_participant';
 import OTItemMedia from '../models/ot_item_media';
-import OTClientBinary from '../models/ot_client_binary';
-import OTClientSignature from '../models/ot_client_signature';
 import OTClientBuildAction from '../models/ot_client_build_action';
 import * as path from 'path';
 import * as Agenda from 'agenda';
@@ -36,15 +33,6 @@ export default class ServerModule {
   bootstrap() {
     console.log("bootstrapping a server module...")
     try {
-      /*
-      OTParticipant.find({}, {select: "_id experiment invitation user"}).populate("user").populate("experiment").populate("invitation").then(
-        participants => {
-          const removeIds = participants.filter( p => !p["experiment"] || !p["invitation"] || !p["user"]).map(p => p._id)
-          OTParticipant.remove({_id: {$in: removeIds}}).then(result => {
-            console.log(result["n"] + " dangling participants were removed.")
-          })
-        }
-      )*/
 
       //handle super users
       OTResearcher.updateMany({ email: { $in: env.super_users }, account_approved: { $ne: true } }, { account_approved: true }).then((updated) => {

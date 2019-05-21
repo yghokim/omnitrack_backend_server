@@ -1,5 +1,5 @@
 import { IUsageLogDbEntity } from '../../omnitrack/core/db-entity-types';
-import OTParticipant from '../models/ot_participant';
+import OTUser from '../models/ot_user';
 import OTUsageLog from '../models/ot_usage_log';
 import { makeArrayLikeQueryCondition } from '../server_utils';
 import BaseCtrl from './base';
@@ -127,8 +127,8 @@ export class OTUsageLogCtrl {
     let userIdsPromise: Promise<string | Array<string>>
     if (req.query.experiment) {
       // filter with experiment
-      userIdsPromise = OTParticipant.find({ experiment: req.query.experiment }).select("user").lean().then(users => {
-        const userIds = users.map(u => u.user)
+      userIdsPromise = OTUser.find({ experiment: req.query.experiment }).select("_id").lean().then(users => {
+        const userIds = users.map(u => u._id)
         if (req.query.userIds) {
           if (req.query.userIds instanceof Array) {
             return req.query.userIds.filter(id => userIds.indexOf(id) !== -1)

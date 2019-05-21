@@ -36,7 +36,7 @@
       <tbody>
         <ng-container *ngFor="let participant of participantList; let participantIndex = index; trackBy: trackById">
           <tr class="tracker-row" *ngFor="let tracker of participant.trackingDataList; let trackerIndex = index; trackBy: trackById">
-            <th *ngIf="trackerIndex===0" class="participant-name-column" [attr.rowspan]="participant.trackingDataList.length" [matTooltip]="participant.email" [matTooltipPosition]="'above'" >{{participant.alias}}</th>
+            <th *ngIf="trackerIndex===0" class="participant-name-column" [attr.rowspan]="participant.trackingDataList.length">{{participant.alias}}</th>
             <td class="tracker-name-column">{{tracker.trackerName}}</td>
             <td class="tracker-timeline-column">
               <div *ngFor="let dayIndex of getDayIndicesOfTracker(tracker)" [style.width]="(getDayBlockWidthRatio() * 100) + '%'" [style.left]="getDayBlockWidthRatio() * (dayIndex - dayIndexRange[0]) * 100 + '%'"

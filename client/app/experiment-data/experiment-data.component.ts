@@ -6,7 +6,7 @@ import {
   ITrackerDbEntity,
   IItemDbEntity,
   IAttributeDbEntity,
-  IParticipantDbEntity
+  IUserDbEntity
 } from "../../../omnitrack/core/db-entity-types";
 import TypedStringSerializer from "../../../omnitrack/core/typed_string_serializer";
 import AttributeManager from "../../../omnitrack/core/attributes/attribute.manager";
@@ -60,7 +60,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   private userSubscriptions = new Subscription();
   private trackerSubscriptions = new Subscription();
 
-  public participants: Array<IParticipantDbEntity>;
+  public participants: Array<IUserDbEntity>;
 
   public selectedParticipantId: string;
   public selectedTracker: ITrackerDbEntity;
@@ -106,7 +106,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
           /*
           participants.sort((a,b)=>{return new Date(a.experimentRange.from).getTime() - new Date(b.experimentRange.from).getTime()})*/
           const sortFunc = aliasCompareFunc(false)
-          participants.sort((a, b) => sortFunc(a.alias, b.alias))
+          participants.sort((a, b) => sortFunc(a.participationInfo.alias, b.participationInfo.alias))
           this.participants = participants;
           if (this.participants.length > 0) {
             this.selectedParticipantId = this.participants[0]._id;
@@ -153,14 +153,12 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   }
 
   private onSelectedParticipantIdChanged(newParticipantId: string) {
-    const userId = this.participants.find(p => p._id === newParticipantId).user
-      ._id;
     this.userSubscriptions.unsubscribe();
     this.userSubscriptions = new Subscription();
     this.userSubscriptions.add(
       this.api.selectedExperimentService
         .pipe(flatMap(service =>
-          service.trackingDataService.getTrackersOfUser(userId)
+          service.trackingDataService.getTrackersOfUser(newParticipantId)
         ))
         .subscribe(trackers => {
           this.userTrackers = trackers;
@@ -342,10 +340,10 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                   const itemRows: Array<Array<any>> = [
                     commonColumns.concat(injectedAttrNames).concat(["logged at", "captured"]).concat(this.metadataColumns.map(c => this.styleMetadataKeyString(c)))
                   ]
-                  const trackers = result.trackers.filter(t => (t.flags || {}).injectionId === trackerScheme.flags.injectionId && this.participants.find(p => p.user._id === t.user))
+                  const trackers = result.trackers.filter(t => (t.flags || {}).injectionId === trackerScheme.flags.injectionId && this.participants.find(p => p._id === t.user))
                   trackers.forEach(
                     tracker => {
-                      const participant = this.participants.find(p => p.user._id === tracker.user)
+                      const participant = this.participants.find(p => p._id === tracker.user)
                       result.items.filter(i => i.tracker === tracker._id).forEach(
                         item => {
                           const values = trackerScheme.attributes.map(attrScheme => {
@@ -354,7 +352,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                           })
 
                           itemRows.push(
-                            [item._id, participant.alias]
+                            [item._id, participant.participationInfo.alias]
                               .concat(values)
                               .concat([new TimePoint(item.timestamp, item.timezone).toMoment().format(), this.getItemSourceText(item.source)]
                                 .concat(this.metadataColumns.map(m => this.getMetadataValue(item, m)))
@@ -383,7 +381,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
           const participantCustomTrackerFiles = []
           this.participants.forEach(
             participant => {
-              const trackers = result.trackers.filter(t => (t.flags || {}).experiment === this.api.getSelectedExperimentId() && participant.user._id === t.user)
+              const trackers = result.trackers.filter(t => (t.flags || {}).experiment === this.api.getSelectedExperimentId() && participant._id === t.user)
               if (trackers.length > 0) {
                 const workbook = XLSX.utils.book_new()
 
@@ -397,7 +395,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                         return this.getItemValue(item, attr, true)
                       })
                       itemRows.push(
-                        [item._id, participant.alias]
+                        [item._id, participant.participationInfo.alias]
                           .concat(values)
                           .concat([new TimePoint(item.timestamp, item.timezone).toMoment().format(), this.getItemSourceText(item.source)])
                           .concat(this.metadataColumns.map(m => this.getMetadataValue(item, m)))
@@ -415,7 +413,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                 participantCustomTrackerFiles.push(
                   {
                     blob: new Blob([workbookOut], { type: "application/octet-stream" }),
-                    name: this.api.getSelectedExperimentId() + "_experiment-tracking-data-custom_" + participant.alias + ".xlsx"
+                    name: this.api.getSelectedExperimentId() + "_experiment-tracking-data-custom_" + participant.participationInfo.alias + ".xlsx"
                   }
                 )
               }
