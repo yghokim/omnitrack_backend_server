@@ -14,6 +14,11 @@
           || ''}} </mat-cell>
       </ng-container>
 
+      <ng-container matColumnDef="group">
+        <mat-header-cell *matHeaderCellDef mat-sort-header> Group </mat-header-cell>
+        <mat-cell class="text-truncate" *matCellDef="let object"> {{readGroupName(object) | async}} </mat-cell>
+      </ng-container>
+
       <ng-container matColumnDef="status">
         <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
         <mat-cell *matCellDef="let object">

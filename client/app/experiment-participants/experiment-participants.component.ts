@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
-import { Subscription, empty} from 'rxjs';
-import { flatMap, tap, catchError } from 'rxjs/operators';
+import { Subscription, empty, Observable} from 'rxjs';
+import { flatMap, tap, catchError, map } from 'rxjs/operators';
 import { MatDialog, MatTableDataSource, MatSort } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
@@ -18,7 +18,7 @@ import { ParticipantExcludedDaysConfigDialogComponent } from '../dialogs/partici
 })
 export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
-  readonly PARTICIPANT_COLUMNS = ['alias', 'username', 'status', 'rangeStart', 'excludedDays', 'joined', 'lastSync', 'lastSession', 'userId', 'button']
+  readonly PARTICIPANT_COLUMNS = ['alias', 'username', 'group', 'status', 'rangeStart', 'excludedDays', 'joined', 'lastSync', 'lastSession', 'userId', 'button']
 
   public participants: Array<IUserDbEntity>
   public isLoadingParticipants = true
@@ -27,7 +27,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
   public hoveredRowIndex = -1
   public hoveredParticipantId = null
 
-  public screenExpanded = false
+  public screenExpanded = true
 
   public participantDataSource: MatTableDataSource<IUserDbEntity>;
   @ViewChild(MatSort) participantSort: MatSort;
@@ -81,6 +81,20 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
       'Delete Participation Entry',
       'Do you want to remove this participation entry?',
       'Delete'
+    )
+  }
+
+  readGroupName(participant: IUserDbEntity): Observable<string>{
+    return this.api.selectedExperimentService.pipe(
+      flatMap(expService => expService.getExperiment()),
+      map(experiment => {
+        const group = experiment.groups.find(g => g._id === participant.participationInfo.groupId)
+        if(group){
+          return group.name
+        }else{
+          return null
+        }
+      })
     )
   }
 
@@ -222,6 +236,9 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
         switch (sortHeaderId) {
           case "alias": { return data.participationInfo.alias || ''; }
           case "username": { if (data) { return data.username || ''; } break; }
+          case 'group': { if (data.participationInfo){
+            return data.participationInfo.groupId
+          } else return '' }
           case "status": {
             if (data.participationInfo.dropped) { return 2; } else { return 1; }
           }
