@@ -48,7 +48,7 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
 
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(flatMap(service => 
-        service.getParticipants().pipe(
+        service.getActiveParticipants().pipe(
           combineLatest(service.getExperiment(), (participants, experiment)=>({experiment: experiment, participants: participants}))
         ))).subscribe(
         project => {
@@ -207,7 +207,7 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
         service.registerConsumer("queryConfigService")
       }),
       combineLatest(this.scopeSubject, this.filteredParticipantIds,
-        this.api.selectedExperimentService.pipe(flatMap(service => service.getParticipants())), (service, scope, filteredParticipantIds, participants) => {
+        this.api.selectedExperimentService.pipe(flatMap(service => service.getActiveParticipants())), (service, scope, filteredParticipantIds, participants) => {
           return { trackingDataService: service, scope: scope, participants: participants.filter(p => filteredParticipantIds.includes(p._id) === false) }
         }
       ))

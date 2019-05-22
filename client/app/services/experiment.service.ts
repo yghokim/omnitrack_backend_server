@@ -166,18 +166,18 @@ export class ExperimentService {
     this.notificationService.registerGlobalBusyTag("experimentList")
     this._internalSubscriptions.add(
       this.http.get<IExperimentDbEntity>('/api/research/experiments/' + this.experimentId, this.researchApi.authorizedOptions).subscribe(
-          experimentInfo => {
-            if(experimentInfo){
-              this.experimentInfo.next(this.processExperimentInfo(experimentInfo))
-            }else this.experimentInfo.next(null)
-          },
-          err => {
-            console.error(err)
-          },
-          () => {
-            this.notificationService.unregisterGlobalBusyTag("experimentList")
-          }
-        )
+        experimentInfo => {
+          if (experimentInfo) {
+            this.experimentInfo.next(this.processExperimentInfo(experimentInfo))
+          } else this.experimentInfo.next(null)
+        },
+        err => {
+          console.error(err)
+        },
+        () => {
+          this.notificationService.unregisterGlobalBusyTag("experimentList")
+        }
+      )
     )
   }
 
@@ -249,6 +249,13 @@ export class ExperimentService {
 
   getParticipants(): Observable<Array<IUserDbEntity>> {
     return this.participantList.pipe(filter(res => res != null))
+  }
+
+  getActiveParticipants(): Observable<Array<IUserDbEntity>> {
+    return this.participantList.pipe(
+      filter(res => res != null),
+      map(participants => participants.filter(p => p.participationInfo.dropped === false))
+    )
   }
 
   getMessageList(): Observable<Array<IResearchMessage>> {
@@ -344,7 +351,7 @@ export class ExperimentService {
       .pipe(
         map(res => res.success),
         tap(success => {
-          if(success === true){
+          if (success === true) {
             const newList = this.participantList.getValue().splice(0)
             newList.find(p => p._id === participantId).participationInfo.dropped = true
             this.participantList.next(newList)
@@ -357,7 +364,7 @@ export class ExperimentService {
     return this.http.post<boolean>("/api/research/participants/" + participantId + "/alias", { alias: alias }, this.researchApi.authorizedOptions)
       .pipe(
         tap(result => {
-          if(result === true){
+          if (result === true) {
             const newList = this.participantList.getValue().splice(0)
             newList.find(p => p._id === participantId).participationInfo.alias = alias
             this.participantList.next(newList)
@@ -366,7 +373,7 @@ export class ExperimentService {
       )
   }
 
-  createParticipantAccount(username: string, password: string, groupId: string, alias?: string): Observable<string>{
+  createParticipantAccount(username: string, password: string, groupId: string, alias?: string): Observable<string> {
     return this.http.post<string>("/api/research/experiments/" + this.experimentId + "/participants/create", {
       username: username,
       password: password,
@@ -390,7 +397,7 @@ export class ExperimentService {
     )
   }
 
-  sendClientFullSyncMessages(participantId: string): Observable<any>{
+  sendClientFullSyncMessages(participantId: string): Observable<any> {
     return this.http.post("/api/research/participants/" + participantId + "/ping_full_sync", {
       experimentId: this.experimentId
     }, this.researchApi.authorizedOptions)
@@ -423,7 +430,8 @@ export class ExperimentService {
     return this.participantList.pipe(
       filter(participants => participants != null),
       map(participants => {
-        return participants.filter(p => p.participationInfo.groupId === groupId).length
+        return participants.filter(p =>
+          p.participationInfo.groupId === groupId && p.participationInfo.dropped === false).length
       })
     )
   }
@@ -465,24 +473,24 @@ export class ExperimentService {
     }))
   }
 
-  updateLatestTimestampsOfParticipants(selectUserIds?:Array<string>): Observable<void>{
-    return this.http.get<Array<{_id: string, logs: Array<{_id:{user:string, name: string}, lastTimestamp: string}>}>>("/api/research/experiments/" + this.experimentId + "/session/summary", this.researchApi.makeAuthorizedRequestOptions({
+  updateLatestTimestampsOfParticipants(selectUserIds?: Array<string>): Observable<void> {
+    return this.http.get<Array<{ _id: string, logs: Array<{ _id: { user: string, name: string }, lastTimestamp: string }> }>>("/api/research/experiments/" + this.experimentId + "/session/summary", this.researchApi.makeAuthorizedRequestOptions({
       userIds: selectUserIds,
     })).pipe(map(result => {
       result.forEach(row => {
-        const participant = this.participantList.value.find(p=>p._id === row._id)
-        if(participant){
+        const participant = this.participantList.value.find(p => p._id === row._id)
+        if (participant) {
           row.logs.forEach(
             log => {
-                switch(log._id.name){
-                  case "session":
+              switch (log._id.name) {
+                case "session":
                   participant.lastSessionTimestamp = moment(log.lastTimestamp).valueOf()
                   break;
-                  case "data_sync":
+                case "data_sync":
                   participant.lastSyncTimestamp = moment(log.lastTimestamp).valueOf()
                   break;
-                }
-                participant.lastTimestampsUpdated = true
+              }
+              participant.lastTimestampsUpdated = true
             }
           )
         }
@@ -557,17 +565,18 @@ export class ExperimentService {
     return this.http.delete("api/research/experiments/" + this.experimentId + "/groups/" + groupId, this.researchApi.authorizedOptions)
   }
 
-  getEntitiesOfUserInExperiment(userId: string): Observable<{trackers: Array<ITrackerDbEntity>, triggers: Array<ITriggerDbEntity>}>{
+  getEntitiesOfUserInExperiment(userId: string): Observable<{ trackers: Array<ITrackerDbEntity>, triggers: Array<ITriggerDbEntity> }> {
     return this.http.get<{
-      trackers: Array<ITrackerDbEntity>, 
-      triggers: Array<ITriggerDbEntity>}>(
+      trackers: Array<ITrackerDbEntity>,
+      triggers: Array<ITriggerDbEntity>
+    }>(
       "/api/research/experiments/" + this.experimentId + "/entities/user/" + userId,
       this.researchApi.authorizedOptions
     )
   }
-  
-  updateTrigger(triggerId: string, update: any): Observable<{updated: ITriggerDbEntity}>{
-    return this.http.post<{updated: ITriggerDbEntity}>(
+
+  updateTrigger(triggerId: string, update: any): Observable<{ updated: ITriggerDbEntity }> {
+    return this.http.post<{ updated: ITriggerDbEntity }>(
       '/api/research/tracking/update/trigger',
       {
         experimentId: this.experimentId,
@@ -578,8 +587,8 @@ export class ExperimentService {
     )
   }
 
-  updateTracker(trackerId: string, update: any): Observable<{updated: ITrackerDbEntity}>{
-    return this.http.post<{updated: ITrackerDbEntity}>(
+  updateTracker(trackerId: string, update: any): Observable<{ updated: ITrackerDbEntity }> {
+    return this.http.post<{ updated: ITrackerDbEntity }>(
       '/api/research/tracking/update/tracker',
       {
         experimentId: this.experimentId,
@@ -590,9 +599,9 @@ export class ExperimentService {
     )
   }
 
-  
-  updateAttributeOfTracker(trackerId: string, attributeLocalId: string, update: any): Observable<{updated: ITrackerDbEntity}>{
-    return this.http.post<{updated: ITrackerDbEntity}>(
+
+  updateAttributeOfTracker(trackerId: string, attributeLocalId: string, update: any): Observable<{ updated: ITrackerDbEntity }> {
+    return this.http.post<{ updated: ITrackerDbEntity }>(
       '/api/research/tracking/update/attribute',
       {
         experimentId: this.experimentId,
@@ -604,7 +613,7 @@ export class ExperimentService {
     )
   }
 
-  sendTestPingOfTrigger(triggerId: string): Observable<boolean>{
-    return this.http.post<boolean>('/api/research/experiments/' + this.experimentId + '/test/trigger_ping', {triggerId: triggerId}, this.researchApi.authorizedOptions)
+  sendTestPingOfTrigger(triggerId: string): Observable<boolean> {
+    return this.http.post<boolean>('/api/research/experiments/' + this.experimentId + '/test/trigger_ping', { triggerId: triggerId }, this.researchApi.authorizedOptions)
   }
 }

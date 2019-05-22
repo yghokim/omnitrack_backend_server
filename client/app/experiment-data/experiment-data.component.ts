@@ -100,7 +100,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
             "experimentDataComponent"
           );
         }),
-          flatMap(service => service.getParticipants())
+          flatMap(service => service.getActiveParticipants())
         )
         .subscribe(participants => {
           /*

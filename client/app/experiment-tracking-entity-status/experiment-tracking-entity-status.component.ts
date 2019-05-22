@@ -78,7 +78,7 @@ export class ExperimentTrackingEntityStatusComponent
     this._internalSubscriptions.add(
       this.api.selectedExperimentService
         .pipe(
-          flatMap(service => service.getParticipants())
+          flatMap(service => service.getActiveParticipants())
         )
         .subscribe(participants => {
           /*

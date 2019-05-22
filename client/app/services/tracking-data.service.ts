@@ -34,7 +34,7 @@ export class TrackingDataService implements OnInit, OnDestroy {
   ngOnInit(): void {
     this._internalSubscriptions.add(
       this.socketService.onConnected.pipe(combineLatest(
-        this.experimentService.getParticipants(), (socket, participants) => {
+        this.experimentService.getActiveParticipants(), (socket, participants) => {
           if (participants.length > 0) {
             socket.emit(SocketConstants.SERVER_EVENT_RESUBSCRIBE_PARTICIPANT_TRACKING_DATA, { experimentId: this.experimentService.experimentId, userIds: participants.map(p => p._id) })
           } else {

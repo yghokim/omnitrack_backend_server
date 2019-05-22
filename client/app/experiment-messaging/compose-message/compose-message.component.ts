@@ -88,7 +88,7 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
     private api: ResearchApiService,
     private router: Router,
     private activatedRoute: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit() {
     const m = moment()
@@ -103,9 +103,9 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
 
     this._internalSubscriptions.add(
       this.api.selectedExperimentService
-        .pipe(flatMap(service => service.getParticipants()))
+        .pipe(flatMap(service => service.getActiveParticipants()))
         .subscribe(participants => {
-          this.participants = participants;
+          this.participants = participants
         })
     );
   }
@@ -209,5 +209,5 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
     return str == null || str.trim().length === 0;
   }
 
-  onParticipantSelected(event) {}
+  onParticipantSelected(event) { }
 }

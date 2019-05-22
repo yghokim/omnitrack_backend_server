@@ -86,7 +86,7 @@ export class ExperimentOverviewComponent implements OnInit {
       this.configuration.scopeSubject.pipe(
         combineLatest(
           this.api.selectedExperimentService.pipe(
-            flatMap(service => service.getParticipants()),
+            flatMap(service => service.getActiveParticipants()),
             tap(participants => {
               this.isParticipantsExist = participants.length > 0
             })
