@@ -46,7 +46,7 @@ export class CreateUserAccountDialogComponent implements OnInit, OnDestroy {
 
   private _internalSubscriptions = new Subscription()
 
-  private hasSubmitted = false
+  public hasSubmitted = false
 
   public userAccountForm: FormGroup;
 
