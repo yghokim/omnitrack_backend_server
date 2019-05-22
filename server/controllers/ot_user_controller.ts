@@ -1,6 +1,6 @@
-import BaseCtrl from './base';
 import * as mongoose from 'mongoose';
-import OTUser from '../models/ot_user';
+import * as fs from 'fs-extra';
+import OTUser, { USER_PROJECTION_EXCLUDE_CREDENTIAL } from '../models/ot_user';
 import OTItem from '../models/ot_item';
 import OTTracker from '../models/ot_tracker';
 import OTTrigger from '../models/ot_trigger';
@@ -13,19 +13,15 @@ import { IUserDbEntity, IClientDevice } from '../../omnitrack/core/db-entity-typ
 import { deferPromise } from '../../shared_lib/utils';
 import { OTAuthCtrlBase } from './ot_auth_controller';
 import { Request } from 'express';
-import * as moment from 'moment';
 import OTResearcher from '../models/ot_researcher';
-import OTInvitation from '../models/ot_invitation';
-import { AInvitation } from '../../omnitrack/core/research/invitation';
-import { IJoinedExperimentInfo } from '../../omnitrack/core/research/experiment';
-import OTExperiment from '../models/ot_experiment';
 import C from '../server_consts';
 import './ot_experiment_participation_pipeline_helper';
 import { selfAssignParticipantToExperiment, researcherAssignParticipantToExperiment } from './ot_experiment_participation_pipeline_helper';
+import OTItemMedia from '../models/ot_item_media';
 
-export default class OTUserCtrl extends OTAuthCtrlBase {
+export class OTUserCtrl extends OTAuthCtrlBase {
 
-  private getExperimentIdCompat(request: any){
+  private getExperimentIdCompat(request: any) {
     return request.body.experimentId || request.params.experimentId || request["OTExperiment"]
   }
 
@@ -105,7 +101,7 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
   protected onAfterRegisterNewUserInstance(user: any, request: Request): Promise<any> {
     if (user.experiment != null) {
       app.socketModule().sendUpdateNotificationToExperimentSubscribers(user.experiment, {
-        model: SocketConstants.MODEL_USER, event: request["researcher"] == null? SocketConstants.EVENT_APPROVED : SocketConstants.EVENT_ADDED, payload: {
+        model: SocketConstants.MODEL_USER, event: request["researcher"] == null ? SocketConstants.EVENT_APPROVED : SocketConstants.EVENT_ADDED, payload: {
           user: user._id
         }
       })
@@ -113,9 +109,20 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
     return super.onAfterRegisterNewUserInstance(user, request)
   }
 
-  protected processRegisterResult(user: any, request: Request): Promise<{ user: any, resultPayload?: any }> {
+  protected processRegisterResult(user: IUserDbEntity, request: Request): Promise<{ user: any, resultPayload?: any }> {
+    let resultPayload = null
+    if (request.body.deviceInfo) {
+      const device = user.devices.find(device => device.deviceId === request.body.deviceInfo.deviceId)
+      if (device != null) {
+        resultPayload = {
+          deviceLocalKey: device.localKey
+        }
+      }
+    }
+
     return Promise.resolve({
       user: user,
+      resultPayload: resultPayload
     })
   }
 
@@ -123,7 +130,8 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
   protected makeUserIndexQueryObj(request: Request): any {
     return {
       username: request.body.username,
-      experiment: this.getExperimentIdCompat(request)
+      experiment: this.getExperimentIdCompat(request),
+      "participationInfo.dropped": { $ne: true }
     }
   }
 
@@ -266,40 +274,27 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
     )
   }
 
+  public deleteAllAssetsOfUser(userId: string): Promise<void>{
+    return Promise.all([OTItem, OTTracker, OTTrigger, OTItemMedia].map(model => model.deleteMany({user: userId}))).then(result => fs.remove(app.serverModule().makeUserMediaDirectoryPath(userId)))
+  }
+
   deleteAccount = (req, res) => {
     let userId
     if (req.researcher) {
       // researcher mode
-      userId = req.params.userId
+      userId = req.params.participantId
     } else if (req.user) {
       userId = req.user.uid
     } else {
       res.status(500).send({ err: "You are neither a researcher nor a user." })
     }
 
-    const removeData = JSON.parse(req.query.removeData || "false")
+    this.deleteAllAssetsOfUser(userId)
+      .then(results => OTUser.findOneAndDelete({_id: userId}, {projection: USER_PROJECTION_EXCLUDE_CREDENTIAL}))
+      .then(user => {
+        app.socketModule().sendUpdateNotificationToExperimentSubscribers(user["experiment"], { model: SocketConstants.MODEL_USER, event: SocketConstants.EVENT_REMOVED })
 
-    const promises: Array<PromiseLike<any>> = [
-      OTUser.collection.findOneAndDelete({ _id: userId }).then(result => {
-        return { name: OTUser.modelName, result: result.ok > 0, count: 1 }
-      })
-    ]
-
-    if (removeData) {
-      [OTItem, OTTracker, OTTrigger].forEach(model => {
-        promises.push(
-          model.remove({ user: userId }).then(removeRes => ({ name: model.modelName, result: removeRes["ok"] > 0, count: removeRes["n"] }))
-        )
-      })
-    }
-
-    Promise.all(promises)
-      .then(results => {
-        console.log(results)
-        app.socketModule().sendGlobalEvent(results.filter(r => r.count > 0).map(r => {
-          return { model: r.name, event: SocketConstants.EVENT_REMOVED }
-        }))
-        res.status(200).send(results)
+        res.status(200).send(user != null)
       }).catch(err => {
         console.log(err)
         res.status(500).send(err)
@@ -358,3 +353,5 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
   }
 
 }
+const userCtrl = new OTUserCtrl()
+export { userCtrl }

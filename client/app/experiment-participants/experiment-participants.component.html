@@ -131,9 +131,6 @@
                 <button mat-menu-item (click)="onChangeAliasClicked(object)">
                   Change Alias
                 </button>
-                <button mat-menu-item *ngSwitchCase="'pending'" (click)="onCancelInvitationClicked(object._id)">
-                  <span>Cancel Invitation</span>
-                </button>
 
                 <button mat-menu-item *ngSwitchCase="'participating'" (click)="onDropParticipantClicked(object._id)">
                   <span>Drop Participant</span>
@@ -144,7 +141,7 @@
                   <span>Remove Entry</span>
                 </button>
 
-                <button mat-menu-item (click)="onExperimentAppSyncClicked(object)">
+                <button mat-menu-item *ngSwitchCase="'participating'" (click)="onExperimentAppSyncClicked(object)">
                   <span>Sync Study App Data Now</span>
                 </button>
 

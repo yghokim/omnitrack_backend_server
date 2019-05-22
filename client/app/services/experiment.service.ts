@@ -341,7 +341,16 @@ export class ExperimentService {
 
   dropParticipant(participantId: string): Observable<any> {
     return this.http.post<any>("/api/research/participants/" + participantId + "/drop", {}, this.researchApi.authorizedOptions)
-      .pipe(map(res => res.success))
+      .pipe(
+        map(res => res.success),
+        tap(success => {
+          if(success === true){
+            const newList = this.participantList.getValue().splice(0)
+            newList.find(p => p._id === participantId).participationInfo.dropped = true
+            this.participantList.next(newList)
+          }
+        })
+      )
   }
 
   changeParticipantAlias(participantId, alias): Observable<boolean> {

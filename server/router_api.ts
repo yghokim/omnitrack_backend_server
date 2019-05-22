@@ -1,7 +1,7 @@
 import OTSyncCtrl from './controllers/ot_sync_controller';
 import OTTrackerCtrl from './controllers/ot_tracker_controller';
 import OTTriggerCtrl from './controllers/ot_trigger_controller';
-import OTUserCtrl from './controllers/ot_user_controller';
+import { userCtrl } from './controllers/ot_user_controller';
 import { itemCtrl } from './controllers/ot_item_controller';
 import otUsageLogCtrl from './controllers/ot_usage_log_controller';
 import OTResearchCtrl from './controllers/research/ot_research_controller';
@@ -25,7 +25,6 @@ export class ClientApiRouter extends RouterWrapper {
 
     const trackerCtrl = new OTTrackerCtrl();
     const triggerCtrl = new OTTriggerCtrl();
-    const userCtrl = new OTUserCtrl();
     const syncCtrl = new OTSyncCtrl(trackerCtrl, triggerCtrl, itemCtrl)
     const storageCtrl = new BinaryStorageCtrl()
     const adminCtrl = new AdminCtrl()
@@ -44,10 +43,10 @@ export class ClientApiRouter extends RouterWrapper {
         match => {
           if (match === true) {
             next()
-          }else{
+          } else {
             console.log("The client is not certificated in the server.")
             res.status(401).send({
-              error:C.ERROR_CODE_UNCERTIFIED_Client
+              error: C.ERROR_CODE_UNCERTIFIED_Client
             })
           }
         }
@@ -79,7 +78,7 @@ export class ClientApiRouter extends RouterWrapper {
     const appSignedInMiddleware = [certifiedDeviceCheckMiddleware, userSignedInMiddleware, userDeviceCheckMiddleware]
 
     //client certification check
-    this.router.route('/user/validate_client').get(certifiedDeviceCheckMiddleware, (req, res)=>{
+    this.router.route('/user/validate_client').get(certifiedDeviceCheckMiddleware, (req, res) => {
       res.status(200).send(true)
     })
 
@@ -113,7 +112,7 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.post("/user/auth/authenticate", userCtrl.authenticate)
     this.router.post("/user/auth/refresh_token", appSignedInMiddleware, userCtrl.refreshToken)
     this.router.post("/user/auth/signout", appSignedInMiddleware, userCtrl.signOut)
-    
+
     this.router.route('/user/data_store/:storeKey')
       .get(appSignedInMiddleware, (req, res) => {
         userDataStoreCtrl.getDataStoreValue(req.user.uid, req.params.storeKey).then(
@@ -210,6 +209,6 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.get('/package/extract', appSignedInMiddleware, trackingPackageCtrl.getExtractedTrackingPackageJson)
 
     this.router.post('/package/temporary', appSignedInMiddleware,
-    trackingPackageCtrl.postTrackingPackageToGlobalList)
+      trackingPackageCtrl.postTrackingPackageToGlobalList)
   }
 }

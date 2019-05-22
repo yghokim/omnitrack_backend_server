@@ -6,7 +6,7 @@ import { experimentCtrl } from './controllers/research/ot_experiment_controller'
 import { messageCtrl } from './controllers/research/ot_message_controller';
 import { clientBinaryCtrl } from './controllers/research/ot_client_binary_controller';
 import { OTUsageLogCtrl } from './controllers/ot_usage_log_controller';
-import OTUserCtrl from './controllers/ot_user_controller';
+import { userCtrl } from './controllers/ot_user_controller';
 import ot_tracker from './models/ot_tracker';
 import ot_trigger from './models/ot_trigger';
 import ot_item from './models/ot_item';
@@ -26,7 +26,6 @@ export class ResearchRouter extends RouterWrapper {
 
   private readonly researchCtrl = new OTResearchCtrl()
   private readonly adminCtrl = new AdminCtrl()
-  private readonly userCtrl = new OTUserCtrl()
   private readonly storageCtrl = new BinaryStorageCtrl()
   private readonly usageLogCtrl = new OTUsageLogCtrl()
   private readonly researchAuthCtrl = new OTResearchAuthCtrl()
@@ -117,7 +116,7 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.get('/experiments/:experimentId/participants', tokenApprovedAuth, experimentCtrl.getParticipants)
 
-    this.router.post('/experiments/:experimentId/participants/create', tokenApprovedAuth, this.userCtrl.register)
+    this.router.post('/experiments/:experimentId/participants/create', tokenApprovedAuth, userCtrl.register)
 
     this.router.get('/experiments/:experimentId/session/summary', tokenApprovedAuth, experimentCtrl.getSessionSummary)
 
@@ -166,16 +165,16 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.post('/users/notify/message', tokenApprovedAuth, experimentCtrl.sendNotificationMessageToUser)
 
-    this.router.delete('/participants/:participantId', tokenApprovedAuth, experimentCtrl.removeParticipant)
-    this.router.post('/participants/:participantId/delete', tokenApprovedAuth, experimentCtrl.removeParticipant)
+    this.router.delete('/participants/:participantId', tokenApprovedAuth, userCtrl.deleteAccount)
+    this.router.post('/participants/:participantId/delete', tokenApprovedAuth, userCtrl.deleteAccount)
 
 
     this.router.post('/participants/:participantId/alias', tokenApprovedAuth, experimentCtrl.changeParticipantAlias)
 
     this.router.get("/researchers/search", tokenApprovedAuth, this.researchCtrl.searchResearchers)
 
-    this.router.delete("/users/:userId", tokenApprovedAuth, this.userCtrl.deleteAccount)
-    this.router.post("/users/:userId/delete", tokenApprovedAuth, this.userCtrl.deleteAccount)
+    this.router.delete("/users/:userId", tokenApprovedAuth, userCtrl.deleteAccount)
+    this.router.post("/users/:userId/delete", tokenApprovedAuth, userCtrl.deleteAccount)
 
 
     this.router.post("/participants/:participantId/drop", tokenApprovedAuth, experimentCtrl.dropOutFromExperiment)

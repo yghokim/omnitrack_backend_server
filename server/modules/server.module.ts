@@ -248,7 +248,11 @@ export default class ServerModule {
   }
 
   makeItemMediaFileDirectoryPath(userId: string, trackerId: string, itemId: string): string {
-    return "storage/uploads/users/" + userId + "/" + trackerId + "/" + itemId
+    return this.makeUserMediaDirectoryPath(userId) + "/" + trackerId + "/" + itemId
+  }
+
+  makeUserMediaDirectoryPath(userId: string): string {
+    return "storage/uploads/users/" + userId
   }
 
   private defineDataMessagePushAgenda() {
@@ -269,7 +273,7 @@ export default class ServerModule {
   }
 
   registerMessageDataPush(userId: string | string[], messageData: MessageData, options: PushOptions = { excludeDeviceIds: [] }) {
-    console.log("send synchronization push - " + userId)
+    console.log("send data message push - " + userId)
     this.agenda.now(C.TASK_PUSH_DATA, { userId: userId, messagePayload: messageData.toMessagingPayloadJson(), options: options }).then(job => {
       console.log("sent push messages successfully.")
     }).catch(err => {

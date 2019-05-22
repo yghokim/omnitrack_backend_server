@@ -269,7 +269,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
 
   getParticipationStatus(participant: any): string {
-    if (participant.dropped === true) {
+    if (participant.participationInfo.dropped === true) {
       return 'dropped'
     } else { return 'participating' }
   }
