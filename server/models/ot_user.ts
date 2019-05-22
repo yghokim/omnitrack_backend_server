@@ -97,4 +97,11 @@ otUserSchema.virtual('items', {
 
 const OTUser = mongoose.model('OTUser', otUserSchema);
 
+export const USER_PROJECTION_EXCLUDE_CREDENTIAL = {
+  hashed_password: 0,
+  passwordSetAt: 0,
+  password_reset_token: 0,
+  deviceLocalKeySeed: 0
+}
+
 export default OTUser;

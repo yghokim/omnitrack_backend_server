@@ -180,7 +180,7 @@ export abstract class OTAuthCtrlBase {
     }
   }
 
-  protected abstract modifyNewAccountSchema(schema: any, requestBody: any)
+  protected abstract modifyNewAccountSchema(schema: any, request: any)
 
   protected onPreRegisterNewUserInstance(user: any, request: Request): Promise<any> { return Promise.resolve(user) }
 
@@ -214,7 +214,7 @@ export abstract class OTAuthCtrlBase {
 
                 newAccountSchema[this.usernamePropertyName] = username
 
-                this.modifyNewAccountSchema(newAccountSchema, req.body)
+                this.modifyNewAccountSchema(newAccountSchema, req)
 
                 const newUser = new this.model(newAccountSchema)
                 return this.onPreRegisterNewUserInstance(newUser, req)
@@ -241,6 +241,8 @@ export abstract class OTAuthCtrlBase {
             res.status(200).send(delivery);
           }
         ).catch(err => {
+          console.log(this.model + " register error:")
+          console.error(err)
           res.status(500).send(err)
         })
     }

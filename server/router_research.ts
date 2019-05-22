@@ -99,15 +99,15 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.post('/experiments/:experimentId/update', tokenApprovedAuth, experimentCtrl.updateExperiment)
 
-
     this.router.delete('/experiments/:experimentId', tokenApprovedAuth, experimentCtrl.removeExperiment)
     this.router.post('/experiments/:experimentId/delete', tokenApprovedAuth, experimentCtrl.removeExperiment)
 
 
     this.router.post("/experiments/:experimentId/collaborators/new", tokenApprovedAuth, experimentCtrl.addCollaborator)
-    this.router.post("/experiments/:experimentId/collaborators/:collaboratorId/delete", tokenApprovedAuth, experimentCtrl.removeCollaborator)
-    this.router.delete("/experiments/:experimentId/collaborators/:collaboratorId", tokenApprovedAuth, experimentCtrl.removeCollaborator)
 
+    this.router.post("/experiments/:experimentId/collaborators/:collaboratorId/delete", tokenApprovedAuth, experimentCtrl.removeCollaborator)
+
+    this.router.delete("/experiments/:experimentId/collaborators/:collaboratorId", tokenApprovedAuth, experimentCtrl.removeCollaborator)
 
     this.router.post("/experiments/:experimentId/collaborators/update", tokenApprovedAuth, experimentCtrl.updateCollaboratorPermissions)
 
@@ -116,6 +116,8 @@ export class ResearchRouter extends RouterWrapper {
     this.router.get('/experiments/:experimentId/invitations', tokenApprovedAuth, experimentCtrl.getInvitations)
 
     this.router.get('/experiments/:experimentId/participants', tokenApprovedAuth, experimentCtrl.getParticipants)
+
+    this.router.post('/experiments/:experimentId/participants/create', tokenApprovedAuth, this.userCtrl.register)
 
     this.router.get('/experiments/:experimentId/session/summary', tokenApprovedAuth, experimentCtrl.getSessionSummary)
 

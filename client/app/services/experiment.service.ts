@@ -88,7 +88,6 @@ export class ExperimentService {
                       this.researchApi.loadUserPool()
                       switch (datum.event) {
                         case SocketConstants.EVENT_APPROVED:
-                          console.log("new participant entered to the experiment.")
                           this.notificationService.pushSnackBarMessage({
                             message: "A user started participating in the experiment."
                           })
@@ -356,6 +355,15 @@ export class ExperimentService {
           }
         })
       )
+  }
+
+  createParticipantAccount(username: string, password: string, groupId: string, alias?: string): Observable<string>{
+    return this.http.post<string>("/api/research/experiments/" + this.experimentId + "/participants/create", {
+      username: username,
+      password: password,
+      groupId: groupId,
+      alias: alias
+    }, this.researchApi.authorizedOptions)
   }
 
   updateParticipant(participantId, update): Observable<any> {

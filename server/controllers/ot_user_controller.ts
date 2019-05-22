@@ -20,8 +20,14 @@ import { AInvitation } from '../../omnitrack/core/research/invitation';
 import { IJoinedExperimentInfo } from '../../omnitrack/core/research/experiment';
 import OTExperiment from '../models/ot_experiment';
 import C from '../server_consts';
+import './ot_experiment_participation_pipeline_helper';
+import { selfAssignParticipantToExperiment, researcherAssignParticipantToExperiment } from './ot_experiment_participation_pipeline_helper';
 
 export default class OTUserCtrl extends OTAuthCtrlBase {
+
+  private getExperimentIdCompat(request: any){
+    return request.body.experimentId || request.params.experimentId || request["OTExperiment"]
+  }
 
   constructor() {
     super(OTUser, "user", 'username', ["name", "picture"])
@@ -32,7 +38,7 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
     schema.picture = user.picture
   }
 
-  protected modifyNewAccountSchema(schema: any, requestBody: any) {
+  protected modifyNewAccountSchema(schema: any, request: any) {
 
     /*
     const googleUserId = req.user.uid
@@ -41,14 +47,15 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
     const deviceInfo = req.body.deviceInfo
     const demographic = req.body.demographic
      */
-    schema.experiment = requestBody.experimentId
+    schema.experiment = this.getExperimentIdCompat(request)
   }
 
   protected onPreRegisterNewUserInstance(user: any, request: Request): Promise<any> {
-    const experimentId = request.body.experimentId || request["OTExperiment"]
+    const experimentId = this.getExperimentIdCompat(request)
     const invitationCode = request.body.invitationCode
     const deviceInfo = request.body.deviceInfo
     const demographic = request.body.demographic
+    const overrideAlias = request.body.alias
 
     return deferPromise(() => {
       if (experimentId != null) {
@@ -56,14 +63,21 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
           // check invitation code and experimentId
           return experimentCtrl.matchInvitationWithExperiment(invitationCode, experimentId).then(match => {
             if (match === true) {
-              return this._assignParticipantToExperiment(user, invitationCode, experimentId, demographic).then(joinedExperimentInfo => {
+              return selfAssignParticipantToExperiment(user, invitationCode, experimentId, demographic).then(joinedExperimentInfo => {
                 return user
               })
             } else { throw { error: C.ERROR_CODE_ILLEGAL_INVITATION_CODE } }
           })
         } else {
           //inserted an experimentId, but not invidation code
-          throw { error: C.ERROR_CODE_ILLEGAL_INVITATION_CODE }
+          //two cases, where the researcher created the account / or the user inserted wrong invitation code.
+          if (request["researcher"]) {
+            return researcherAssignParticipantToExperiment(user, experimentId, request.body.groupId, overrideAlias, demographic).then(joinedExperimentInfo => {
+              return user
+            })
+          } else {
+            throw { error: C.ERROR_CODE_ILLEGAL_INVITATION_CODE }
+          }
         }
       } else {
         //no experimentId. check email account.
@@ -91,7 +105,7 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
   protected onAfterRegisterNewUserInstance(user: any, request: Request): Promise<any> {
     if (user.experiment != null) {
       app.socketModule().sendUpdateNotificationToExperimentSubscribers(user.experiment, {
-        model: SocketConstants.MODEL_USER, event: SocketConstants.EVENT_APPROVED, payload: {
+        model: SocketConstants.MODEL_USER, event: request["researcher"] == null? SocketConstants.EVENT_APPROVED : SocketConstants.EVENT_ADDED, payload: {
           user: user._id
         }
       })
@@ -99,79 +113,17 @@ export default class OTUserCtrl extends OTAuthCtrlBase {
     return super.onAfterRegisterNewUserInstance(user, request)
   }
 
-  protected processRegisterResult(user: any, request: Request): Promise<{user: any, resultPayload?: any}>{
+  protected processRegisterResult(user: any, request: Request): Promise<{ user: any, resultPayload?: any }> {
     return Promise.resolve({
       user: user,
     })
   }
-  private _assignParticipantToExperiment(user: IUserDbEntity, invitationCode: string, experimentId: string, demographic: any): Promise<IJoinedExperimentInfo> {
-    return OTInvitation.findOne({
-      code: invitationCode,
-      experiment: experimentId,
-      $or: [
-        { "experiment.finishDate": { $gt: new Date() } },
-        { "experiment.finishDate": null }
-      ]
-    }, { _id: 1, experiment: 1, groupMechanism: 1 }).lean()
-      .then(doc => {
-        if (doc) {
-          const typedInvitation = AInvitation.fromJson((doc as any).groupMechanism)
-          const groupId = typedInvitation.pickGroup()
-          return { invitationId: doc._id, experimentId: doc["experiment"], groupId: groupId }
-        } else {
-          throw { error: "IllegalInvitationCodeOrClosedExperiment" }
-        }
-      })
-      .then(result => {
-        return OTExperiment.findOneAndUpdate({
-          _id: result.experimentId,
-          "groups._id": result.groupId,
-        }, { $inc: { participantNumberSeed: 1 } }, { new: true, select: { _id: 1, name: 1, participantNumberSeed: 1, groups: 1, trackingPackages: 1 } })
-          .lean()
-          .then(experiment => {
-            let trackingPackage
-            const group = experiment.groups.find(g => g._id === result.groupId)
-            if (group.trackingPackageKey) {
-              trackingPackage = (experiment.trackingPackages || []).find(p => p.key === group.trackingPackageKey)
-            }
 
-            user.name =
-              user.participationInfo.groupId = result.groupId
-            user.participationInfo.alias = "P" + experiment["participantNumberSeed"]
-            user.participationInfo.invitation = result.invitationId
-            user.participationInfo.dropped = false
-            user.participationInfo.droppedAt = null
-            user.participationInfo.droppedBy = null
-            user.participationInfo.demographic = demographic
-            const now = Date()
-            user.participationInfo.approvedAt = now as any
-            user.participationInfo.experimentRange.from = now as any
-
-            const joinedExperimentInfo = {
-              id: experiment._id,
-              name: experiment.name,
-              droppedAt: null,
-              joinedAt: user.participationInfo.approvedAt.getTime()
-            } as IJoinedExperimentInfo
-
-            if (trackingPackage) {
-              //inject tracking package
-              return app.omnitrackModule().injectPackage(user._id, trackingPackage.data,
-                { injected: true, experiment: experiment._id }).then(res => {
-                  return joinedExperimentInfo
-                })
-            } else {
-              //not inject tracking package
-              return joinedExperimentInfo
-            }
-          })
-      })
-  }
 
   protected makeUserIndexQueryObj(request: Request): any {
     return {
       username: request.body.username,
-      experiment: request.body.experimentId || request["OTExperiment"]
+      experiment: this.getExperimentIdCompat(request)
     }
   }
 

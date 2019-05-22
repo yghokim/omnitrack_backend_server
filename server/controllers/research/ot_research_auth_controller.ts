@@ -16,8 +16,8 @@ export class OTResearchAuthCtrl extends OTAuthCtrlBase {
     schema.previlage = (env.super_users as Array<string> || []).indexOf(user.email) !== -1 ? ResearcherPrevilages.SUPERUSER : ResearcherPrevilages.NORMAL
   }
 
-  protected modifyNewAccountSchema(schema: any, requestBody: any){
-    schema.alias = requestBody.alias,
+  protected modifyNewAccountSchema(schema: any, request: any){
+    schema.alias = request.body.alias,
     schema.account_approved = env.super_users.indexOf(schema.email) !== -1 ? true : null
   }
 }
