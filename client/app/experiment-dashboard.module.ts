@@ -51,6 +51,7 @@ import { ChoiceFieldInputComponent } from "./components/field-inputs/choice-fiel
 import { TableCellValueComponent } from "./components/table-cell-value/table-cell-value.component";
 import { TreeViewElementComponent } from "./components/tree-view-element/tree-view-element.component";
 import { ResearcherSearchComponent } from "./experiment-settings/researcher-search/researcher-search.component";
+import { CreateUserAccountDialogComponent } from './experiment-participants/create-user-account-dialog/create-user-account-dialog.component';
 
 const routes: Routes = [
   {
@@ -229,6 +230,7 @@ const routes: Routes = [
     MinuteSecondsPipe,
     AudioCellComponent,
     ImageCellComponent,
+    CreateUserAccountDialogComponent,
   ],
   entryComponents: [
     NewInvitationDialogComponent,
@@ -237,7 +239,8 @@ const routes: Routes = [
     NewTrackingPlanDialogComponent,
     ParticipantExcludedDaysConfigDialogComponent,
     UpdateItemCellValueDialogComponent,
-    LockConfigurationSheetComponent
+    LockConfigurationSheetComponent,
+    CreateUserAccountDialogComponent
   ]
 })
 export class ExperimentDashboardModule { }

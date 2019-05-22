@@ -121,8 +121,8 @@
           <mat-cell *matCellDef="let object"> {{object._id}} </mat-cell>
         </ng-container>
         <ng-container matColumnDef="button">
-          <mat-header-cell *matHeaderCellDef> </mat-header-cell>
-          <mat-cell *matCellDef="let object">
+          <mat-header-cell class="no-padding-right last-cell-more" *matHeaderCellDef> </mat-header-cell>
+          <mat-cell class="no-padding-right last-cell-more" *matCellDef="let object">
             <div class="pull-right">
               <button mat-icon-button [matMenuTriggerFor]="menu">
                 <mat-icon class="material-icons">more_vert</mat-icon>

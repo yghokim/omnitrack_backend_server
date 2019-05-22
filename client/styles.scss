@@ -761,6 +761,13 @@ mat-dialog-container .dialog {
 
   &>.card-body {
     padding: 1.0rem;
+
+    .text-right > button{
+      margin-left: 0.5rem;
+      &:first-child{
+        margin-left: 0;
+      }
+    }
   }
 
   p {

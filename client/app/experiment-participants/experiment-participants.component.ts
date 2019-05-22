@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
-import { Subscription, empty, Observable, zip } from 'rxjs';
+import { Subscription, empty, Observable, zip, of } from 'rxjs';
 import { flatMap, tap, catchError, map } from 'rxjs/operators';
 import { MatDialog, MatTableDataSource, MatSort } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
@@ -9,6 +9,7 @@ import { NotificationService } from '../services/notification.service';
 import { IUserDbEntity } from '../../../omnitrack/core/db-entity-types';
 import { ParticipantExcludedDaysConfigDialogComponent } from '../dialogs/participant-excluded-days-config-dialog/participant-excluded-days-config-dialog.component';
 import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
+import { CreateUserAccountDialogComponent, CreateUserAccountDialogData } from './create-user-account-dialog/create-user-account-dialog.component';
 
 
 @Component({
@@ -45,35 +46,36 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isLoadingParticipants = true
-    this._internalSubscriptions.add(this.api.selectedExperimentService.pipe(
-      flatMap(expService => zip(expService.getParticipants(), expService.getExperiment()).pipe(map(result => ({ participants: result[0], experiment: result[1], expService: expService })))),
-      tap(result => {
-        this.participants = result.participants
-        this.isLoadingParticipants = false
-        this.participantDataSource = new MatTableDataSource(result.participants)
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.pipe(flatMap(expService => expService.getExperiment().pipe(
+        map(experiment => ({ expService: expService, experiment: experiment })),
+        tap(result => { this.experiment = result.experiment }),
+        flatMap(result => result.expService.getParticipants().pipe(map(participants => ({ expService: result.expService, participants: participants })))),
+        tap(result => {
+          this.participants = result.participants
+          this.isLoadingParticipants = false
+          this.participantDataSource = new MatTableDataSource(result.participants)
 
-        this.experiment = result.experiment
-        this.participantColumns = ['alias', 'username', 'group'].concat(
-          this.getDemographicKeys()
-        ).concat(['status', 'rangeStart', 'excludedDays', 'joined', 'lastSync', 'lastSession', 'userId', 'button'])
+          this.participantColumns = ['alias', 'username', 'group'].concat(
+            this.getDemographicKeys()
+          ).concat(['status', 'rangeStart', 'excludedDays', 'joined', 'lastSync', 'lastSession', 'userId', 'button'])
 
 
-        this.setSortParticipants();
-        this.detector.markForCheck()
-      }),
-      flatMap(result => result.expService.updateLatestTimestampsOfParticipants()))
-      .subscribe(
-        () => {
-          this.isLoadingSessionSummary = false
+          this.setSortParticipants();
           this.detector.markForCheck()
-        }
-      ))
+        }),
+        flatMap(result => result.expService.updateLatestTimestampsOfParticipants()))
+      )).subscribe(result => {
+        this.isLoadingSessionSummary = false
+          this.detector.markForCheck()
+      })
+    )
   }
 
-  onReloadClicked(){
+  onReloadClicked() {
     this.isLoadingParticipants = true
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.subscribe(expService =>{
+      this.api.selectedExperimentService.subscribe(expService => {
         expService.loadParticipantList()
         this.isLoadingParticipants = false
       })
@@ -297,16 +299,34 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
           case "lastSync": return data["lastSyncTimestamp"] || '';
           case "lastSession": return data["lastSessionTimestamp"] || '';
           case "userId": { if (data) { return data._id || ''; } break; }
-          default: { 
+          default: {
             return this.getParticipantDemographicAnswer(data, sortHeaderId)
-           }
+          }
         }
       }
       return '';
     }
   }
 
-  onCreateNewUserClicked(){
-
+  onCreateNewUserClicked() {
+    this._internalSubscriptions.add(
+      this.dialog.open(CreateUserAccountDialogComponent, {
+        data: {
+          experiment: this.experiment,
+          participants: this.participants,
+          api: this.api
+        } as CreateUserAccountDialogData
+      }).afterClosed().subscribe(
+        result => {
+          if (result != null) {
+            this.notificationService.pushSnackBarMessage({
+              message: "Created a new user account."
+            })
+          }
+        },
+        err => {
+          console.log(err)
+        }
+      ))
   }
 }

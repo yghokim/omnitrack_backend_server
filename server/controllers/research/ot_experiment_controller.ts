@@ -1,4 +1,4 @@
-import OTUser from '../../models/ot_user'
+import OTUser, { USER_PROJECTION_EXCLUDE_CREDENTIAL } from '../../models/ot_user'
 import OTTrigger from '../../models/ot_trigger'
 import OTTracker from '../../models/ot_tracker'
 import OTItem from '../../models/ot_item';
@@ -186,9 +186,11 @@ export default class OTExperimentCtrl {
 
   getParticipants = (req, res) => {
     const experimentId = req.params.experimentId
-    OTUser.find({ experiment: experimentId }).lean()
+    OTUser.find({ experiment: experimentId }, USER_PROJECTION_EXCLUDE_CREDENTIAL).lean()
       .then(
         participants => {
+          console.log("experiment participants:")
+          console.log(participants)
           res.status(200).send(participants)
         }
       ).catch(err => {
