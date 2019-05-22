@@ -46,7 +46,7 @@
 
         <ng-container *ngFor="let schemaKey of getDemographicKeys()" [matColumnDef]="schemaKey">
           <mat-header-cell *matHeaderCellDef mat-sort-header [matTooltip]="getDemographicSchemaTitle(schemaKey)">
-            <div class="text-align-left">
+            <div class="text-align-left flex-container flex-direction-column">
               <div class="badge badge-sm badge-metadata">Demogr.</div>
               <span>{{schemaKey}}</span>
             </div>

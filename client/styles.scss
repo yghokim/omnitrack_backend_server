@@ -396,6 +396,10 @@ a.no-text-effect {
   &>.flex-align-self-start {
     align-self: flex-start;
   }
+
+  &.flex-direction-column{
+    flex-direction: column;
+  }
 }
 
 .flex-filler {
