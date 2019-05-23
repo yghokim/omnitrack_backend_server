@@ -33,6 +33,9 @@ export default class ServerConstants {
   static readonly ERROR_CODE_USERNAME_NOT_MATCH_RESEARCHER = "UsernameNotMatchResearcher"
   static readonly ERROR_CODE_ACCOUNT_NOT_EXISTS = "AccountNotExists"
 
+  static readonly ERROR_CODE_INTERNAL_ERROR="InternalError"
+
+  static readonly ERROR_CODE_TOKEN_EXPIRED = "TokenExpired"
   
 
   static getSyncTypeFromModel(model: any) {

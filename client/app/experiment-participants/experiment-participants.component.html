@@ -136,6 +136,10 @@
                   <span>Drop Participant</span>
                 </button>
 
+                <button mat-menu-item *ngSwitchCase="'participating'" (click)="onGeneratePasswordResetLinkClicked(object._id)">
+                  <span>Generate Reset Password Link</span>
+                </button>
+
                 <button mat-menu-item *ngSwitchCase="'dropped' || 'denied'"
                   (click)="onRemoveParticipantEntryClicked(object._id)">
                   <span>Remove Entry</span>

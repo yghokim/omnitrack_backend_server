@@ -12,11 +12,11 @@ export interface JwtTokenSchemaBase {
 }
 
 export abstract class OTAuthCtrlBase {
-  private bcrypt = require("bcryptjs");
+  protected bcrypt = require("bcryptjs");
 
   constructor(private model: Model<any>, private decodedPropertyName: string, private usernamePropertyName: string, private userModifiableFields: Array<string> = []) { }
 
-  private hashPassword(password, cb) {
+  protected hashPassword(password, cb) {
     this.bcrypt.genSalt(10, (err, salt) => {
       if (err == null) {
         this.bcrypt.hash(password, salt, cb);
@@ -274,7 +274,7 @@ export abstract class OTAuthCtrlBase {
 
 
   update = (req, res) => {
-    const query: any = { _id: req.researcher.uid };
+    const query: any = { _id: req[this.decodedPropertyName].uid };
     const update: any = {};
 
     this.userModifiableFields.forEach(field => {

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, Chang
 import { ResearchApiService } from '../services/research-api.service';
 import { Subscription, empty, Observable, zip, of } from 'rxjs';
 import { flatMap, tap, catchError, map } from 'rxjs/operators';
-import { MatDialog, MatTableDataSource, MatSort } from '@angular/material';
+import { MatDialog, MatTableDataSource, MatSort, MatBottomSheet } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { TextInputDialogComponent } from '../dialogs/text-input-dialog/text-input-dialog.component';
 import { NotificationService } from '../services/notification.service';
@@ -10,6 +10,7 @@ import { IUserDbEntity } from '../../../omnitrack/core/db-entity-types';
 import { ParticipantExcludedDaysConfigDialogComponent } from '../dialogs/participant-excluded-days-config-dialog/participant-excluded-days-config-dialog.component';
 import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import { CreateUserAccountDialogComponent, CreateUserAccountDialogData } from './create-user-account-dialog/create-user-account-dialog.component';
+import { TextClipboardPastedBottomSheetComponent } from '../components/text-clipboard-pasted-bottom-sheet/text-clipboard-pasted-bottom-sheet.component';
 
 
 @Component({
@@ -41,7 +42,8 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     public api: ResearchApiService,
     private notificationService: NotificationService,
     private dialog: MatDialog,
-    private detector: ChangeDetectorRef
+    private detector: ChangeDetectorRef,
+    private bottomSheet: MatBottomSheet
   ) { }
 
   ngOnInit() {
@@ -266,7 +268,18 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     )
   }
 
-
+  onGeneratePasswordResetLinkClicked(participantId: string){
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.pipe(
+        flatMap(expService => expService.generateParticipantPasswordResetLink(participantId))
+      ).subscribe(link => {
+        this.bottomSheet.open(TextClipboardPastedBottomSheetComponent, {data: {
+          message: "Send this URL to the participant.",
+          content: link
+        }, panelClass: "bottom-sheet-mid-width"})
+      })
+    )
+  }
 
   getParticipationStatus(participant: any): string {
     if (participant.participationInfo.dropped === true) {

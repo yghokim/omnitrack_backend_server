@@ -28,7 +28,6 @@ export class ClientApiRouter extends RouterWrapper {
     const syncCtrl = new OTSyncCtrl(trackerCtrl, triggerCtrl, itemCtrl)
     const storageCtrl = new BinaryStorageCtrl()
     const adminCtrl = new AdminCtrl()
-    const researchCtrl = new OTResearchCtrl()
 
     const certifiedDeviceCheckMiddleware = (req: Request, res, next) => {
       const fingerPrint = req.get("OTFingerPrint")
@@ -210,5 +209,8 @@ export class ClientApiRouter extends RouterWrapper {
 
     this.router.post('/package/temporary', appSignedInMiddleware,
       trackingPackageCtrl.postTrackingPackageToGlobalList)
+
+    //password reset
+    this.router.post('/user/auth/reset_password', userCtrl.resetPasswordWithToken)
   }
 }

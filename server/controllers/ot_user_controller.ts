@@ -18,6 +18,7 @@ import C from '../server_consts';
 import './ot_experiment_participation_pipeline_helper';
 import { selfAssignParticipantToExperiment, researcherAssignParticipantToExperiment } from './ot_experiment_participation_pipeline_helper';
 import OTItemMedia from '../models/ot_item_media';
+import moment = require('moment');
 
 export class OTUserCtrl extends OTAuthCtrlBase {
 
@@ -274,8 +275,8 @@ export class OTUserCtrl extends OTAuthCtrlBase {
     )
   }
 
-  public deleteAllAssetsOfUser(userId: string): Promise<void>{
-    return Promise.all([OTItem, OTTracker, OTTrigger, OTItemMedia].map(model => model.deleteMany({user: userId}))).then(result => fs.remove(app.serverModule().makeUserMediaDirectoryPath(userId)))
+  public deleteAllAssetsOfUser(userId: string): Promise<void> {
+    return Promise.all([OTItem, OTTracker, OTTrigger, OTItemMedia].map(model => model.deleteMany({ user: userId }))).then(result => fs.remove(app.serverModule().makeUserMediaDirectoryPath(userId)))
   }
 
   deleteAccount = (req, res) => {
@@ -290,7 +291,7 @@ export class OTUserCtrl extends OTAuthCtrlBase {
     }
 
     this.deleteAllAssetsOfUser(userId)
-      .then(results => OTUser.findOneAndDelete({_id: userId}, {projection: USER_PROJECTION_EXCLUDE_CREDENTIAL}))
+      .then(results => OTUser.findOneAndDelete({ _id: userId }, { projection: USER_PROJECTION_EXCLUDE_CREDENTIAL }))
       .then(user => {
         app.socketModule().sendUpdateNotificationToExperimentSubscribers(user["experiment"], { model: SocketConstants.MODEL_USER, event: SocketConstants.EVENT_REMOVED })
 
@@ -299,7 +300,6 @@ export class OTUserCtrl extends OTAuthCtrlBase {
         console.log(err)
         res.status(500).send(err)
       })
-
   }
 
   protected onAuthenticate(user: any, request: Request): Promise<{
@@ -327,6 +327,79 @@ export class OTUserCtrl extends OTAuthCtrlBase {
       console.error(err)
       res.status(500).send(err)
     })
+  }
+
+  issuePasswordResetToken = (req, res) => {
+    const userId = req.params.participantId || req.body.userId
+
+    console.log(userId)
+
+    const token = require('randomstring').generate(128)
+
+    OTUser.updateOne({ _id: userId }, {
+      password_reset_token: token,
+      reset_token_expires: moment().add(12, 'hour').toDate()
+    }).then(result => {
+      if (result.nModified > 0) {
+        console.log("generated password reset token of user " + userId)
+        res.status(200).send({
+          reset_token: token
+        })
+      } else {
+        res.status(404).send({
+          error: C.ERROR_CODE_ACCOUNT_NOT_EXISTS
+        })
+      }
+    }).catch(err => {
+      console.error(err)
+      res.status(500).send({
+        error: C.ERROR_CODE_INTERNAL_ERROR
+      })
+    })
+  }
+
+  resetPasswordWithToken = (req, res) => {
+    const token = req.body.token
+    console.log("reset password with token: ", token)
+
+    OTUser.findOne({password_reset_token: token}).then(
+      user => {
+        if (user) {
+          if ((user["reset_token_expires"] as Date).getTime() > Date.now()) {
+            this.hashPassword(req.body.password,
+              (newPasswordErr, hashedNewPassword) => {
+                if (newPasswordErr) {
+                  console.error(newPasswordErr)
+                  res.status(500).send({
+                    error: newPasswordErr
+                  })
+                } else {
+                  user["hashed_password"] = hashedNewPassword
+                  user["passwordSetAt"] = new Date()
+                  user["reset_token_expires"] = null
+                  user["password_reset_token"] = null
+                  user.save().then(() => {
+                    res.status(200).send(true)
+                  })
+                }
+              })
+          } else {
+            //token expired.
+            user["reset_token_expires"] = null
+            user["password_reset_token"] = null
+            user.save().then(() => {
+              res.status(401).send({
+                error: C.ERROR_CODE_TOKEN_EXPIRED
+              })
+            })
+          }
+        } else {
+          res.status(404).send({
+            error: C.ERROR_CODE_ACCOUNT_NOT_EXISTS
+          })
+        }
+      }
+    )
   }
 
   signOut = (req, res) => {
