@@ -191,16 +191,29 @@ html {
   /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fcf7ea', endColorstr='#cedbd4', GradientType=1);
   /* IE6-9 fallback on horizontal gradient */
+  background-attachment: fixed;
 }
 
 body {
   font-family: Roboto, "Open Sans", "Segoe UI", "Helvetica Neue", Arial, "Noto Sans KR", "Malgun Gothic", sans-serif;
   background: initial;
+  background-repeat: no-repeat;
 }
 
 a.no-text-effect {
   text-decoration: initial;
   color: inherit;
+}
+
+.bottom-sheet-mid-width {
+  min-width: 520px !important;
+}
+
+.error-message {
+  font-size: 80%;
+  color: #ea5656;
+  ;
+  margin-top: 0.5rem;
 }
 
 .badge-lg {
@@ -397,7 +410,7 @@ a.no-text-effect {
     align-self: flex-start;
   }
 
-  &.flex-direction-column{
+  &.flex-direction-column {
     flex-direction: column;
   }
 }
@@ -463,11 +476,11 @@ a.no-text-effect {
   align-items: center;
 }
 
-.flex-container.flex-justify-content-end{
+.flex-container.flex-justify-content-end {
   justify-content: flex-end;
 }
 
-.flex-container.flex-justify-content-start{
+.flex-container.flex-justify-content-start {
   justify-content: flex-start;
 }
 
@@ -483,7 +496,7 @@ a.no-text-effect {
   align-self: center;
 }
 
-.flex-container.flex-vertical{
+.flex-container.flex-vertical {
   flex-direction: column;
 }
 
@@ -504,7 +517,7 @@ a.no-text-effect {
   }
 }
 
-.background-warn{
+.background-warn {
   background: #ff00001a;
 }
 
@@ -521,7 +534,7 @@ a.no-text-effect {
   }
 }
 
-.text-color-green{
+.text-color-green {
   color: #75cc83;
 }
 
@@ -612,6 +625,10 @@ label.small.horizontal {
 
 .top-margin-1dot5em {
   margin-top: 1.5em;
+}
+
+.top-padding-1em {
+  padding-top: 1em;
 }
 
 .mat-button-small {
@@ -745,7 +762,7 @@ button.table-cell-clickable-text {
   text-align: center;
 }
 
-.text-align-left{
+.text-align-left {
   text-align: left !important;
 }
 
@@ -766,9 +783,10 @@ mat-dialog-container .dialog {
   &>.card-body {
     padding: 1.0rem;
 
-    .text-right > button{
+    .text-right>button {
       margin-left: 0.5rem;
-      &:first-child{
+
+      &:first-child {
         margin-left: 0;
       }
     }

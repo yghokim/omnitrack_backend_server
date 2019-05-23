@@ -382,6 +382,14 @@ export class ExperimentService {
     }, this.researchApi.authorizedOptions)
   }
 
+  generateParticipantPasswordResetLink(userId: string): Observable<string> {
+    return this.http.post<any>("/api/research/participants/" + userId + "/issue_reset_password", { userId: userId }, this.researchApi.authorizedOptions).pipe(
+      map(passwordResetToken => {
+        return window.location.protocol + "//" + window.location.host + "/user/reset_password?token=" + passwordResetToken.reset_token
+      })
+    )
+  }
+
   updateParticipant(participantId, update): Observable<any> {
     return this.http.post("/api/research/participants/" + participantId + "/update", { update: update },
       this.researchApi.authorizedOptions)

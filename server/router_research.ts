@@ -168,8 +168,9 @@ export class ResearchRouter extends RouterWrapper {
     this.router.delete('/participants/:participantId', tokenApprovedAuth, userCtrl.deleteAccount)
     this.router.post('/participants/:participantId/delete', tokenApprovedAuth, userCtrl.deleteAccount)
 
-
     this.router.post('/participants/:participantId/alias', tokenApprovedAuth, experimentCtrl.changeParticipantAlias)
+    
+    this.router.post('/participants/:participantId/issue_reset_password', tokenApprovedAuth, userCtrl.issuePasswordResetToken)
 
     this.router.get("/researchers/search", tokenApprovedAuth, this.researchCtrl.searchResearchers)
 
