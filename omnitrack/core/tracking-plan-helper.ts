@@ -1,0 +1,81 @@
+import { ITrackerDbEntity, ITriggerDbEntity, IAttributeDbEntity } from "./db-entity-types";
+import { TriggerConstants } from "./trigger-constants";
+import { DependencyLevel, OmniTrackFlagGraph } from "./functionality-locks/omnitrack-dependency-graph";
+import { merge, deepclone } from "../../shared_lib/utils";
+
+export interface TrackingPlanData {
+  appLevelFlags: any,
+  trackers: Array<ITrackerDbEntity>,
+  triggers: Array<ITriggerDbEntity>
+}
+
+export class TrackingPlanManagerImpl {
+
+  constructor(
+    public currentPlan: TrackingPlanData
+  ) { }
+
+  generateFlagGraph(level: DependencyLevel, model: any): OmniTrackFlagGraph {
+
+    const defaultFlag = OmniTrackFlagGraph.generateFlagWithDefault(level)
+
+    const originalFlags = merge(defaultFlag, model.lockedProperties ? deepclone(model.lockedProperties) : {}, true, true)
+
+    switch (level) {
+      case DependencyLevel.App:
+        return OmniTrackFlagGraph.wrapAppFlags(originalFlags)
+
+      case DependencyLevel.Tracker:
+        return OmniTrackFlagGraph.wrapTrackerFlags(
+          originalFlags,
+          this.currentPlan.appLevelFlags
+        )
+
+      case DependencyLevel.Field:
+        return OmniTrackFlagGraph.wrapFieldFlags(
+          originalFlags,
+          this.getTrackerOfField(model).lockedProperties,
+          this.currentPlan.appLevelFlags
+        )
+
+      case DependencyLevel.Trigger:
+        return OmniTrackFlagGraph.wrapTriggerFlags(
+          originalFlags,
+          this.currentPlan.appLevelFlags
+        )
+
+      case DependencyLevel.Reminder:
+        return OmniTrackFlagGraph.wrapReminderFlags(
+          originalFlags,
+          this.getTrackerOfReminder(model).lockedProperties,
+          this.currentPlan.appLevelFlags
+        )
+    }
+  }
+
+  filterLoggingTriggers(): Array<ITriggerDbEntity> {
+    if (this.currentPlan != null) {
+      return this.currentPlan.triggers.filter(t => t.actionType === TriggerConstants.ACTION_TYPE_LOG)
+    } else return null
+  }
+
+  getRemindersOf(tracker: ITrackerDbEntity): Array<ITriggerDbEntity> {
+    console.log(this.currentPlan.triggers)
+    return this.currentPlan.triggers.filter(t => t.actionType === TriggerConstants.ACTION_TYPE_REMIND && t.trackers.indexOf(tracker._id) !== -1)
+  }
+
+  getTrackerOfReminder(trigger: ITriggerDbEntity): ITrackerDbEntity {
+    const trackerId = trigger.trackers[0]
+    return this.getTracker(trackerId)
+  }
+
+  getTrackerOfField(field: IAttributeDbEntity): ITrackerDbEntity {
+    return this.getTracker(field.trackerId)
+  }
+
+  getTracker(id: string): ITrackerDbEntity {
+    if (this.currentPlan != null) {
+      return this.currentPlan.trackers.find(t => t._id === id)
+    } else return null
+  }
+}

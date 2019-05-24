@@ -22,7 +22,7 @@
           <sup class="text-color-accented font-weight-bold" *ngIf="attribute.isRequired">*</sup>
         </div>
         <div class="flex-filler"></div>
-        <app-lock-flag-button [model]="attribute" lockType="attribute" (flagChange)="onFlagChanged()"></app-lock-flag-button>
+        <app-lock-flag-button [model]="attribute" lockType="field" (flagChange)="onFlagChanged()"></app-lock-flag-button>
       </div>
     </li>
   </ul>

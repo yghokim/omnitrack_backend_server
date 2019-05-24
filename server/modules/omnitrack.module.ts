@@ -11,6 +11,9 @@ import IdGenerator from '../../omnitrack/core/id_generator'
 import C from '../server_consts';
 import { merge } from '../../shared_lib/utils';
 import SocketModule from './socket.module';
+import { TrackingPlanManagerImpl } from '../../omnitrack/core/tracking-plan-helper';
+import { DependencyLevel } from '../../omnitrack/core/functionality-locks/omnitrack-dependency-graph';
+import { TriggerConstants } from '../../omnitrack/core/trigger-constants';
 
 export default class OmniTrackModule {
 
@@ -19,7 +22,7 @@ export default class OmniTrackModule {
   public readonly pushModule: PushModule
   public readonly socketModule: SocketModule
 
-  constructor(private app: any) {
+  constructor(app: any) {
     this.serverModule = new ServerModule()
     this.commandModule = new CommandModule()
     this.pushModule = new PushModule()
@@ -31,10 +34,10 @@ export default class OmniTrackModule {
     this.socketModule.bootstrap()
   }
 
-  injectFirstUserExamples(userId: string): Promise<void>{
+  injectFirstUserExamples(userId: string): Promise<void> {
     return fs.readJson(path.resolve(__dirname, "../../../../omnitrack/examples/example_trackers.json")).then(
       pack => {
-        return this.injectPackage(userId, pack, {tag: "example"})
+        return this.injectPackage(userId, pack, { tag: "example" })
       }
     )
   }
@@ -42,6 +45,29 @@ export default class OmniTrackModule {
   injectPackage(userId: string, predefinedPackage: PredefinedPackage, creationFlags?: any): Promise<void> {
     return new Promise((resolve, reject) => {
       const pack: PredefinedPackage = JSON.parse(JSON.stringify(predefinedPackage))
+
+      const planManager = new TrackingPlanManagerImpl(pack)
+
+      pack.trackers.forEach(tracker => {
+        tracker.attributes.forEach(attr => {
+          attr.lockedProperties = planManager.generateFlagGraph(DependencyLevel.Field, attr).getCascadedFlagObject(DependencyLevel.Field)
+        })
+
+        //bake locked properties
+        tracker.lockedProperties = planManager.generateFlagGraph(DependencyLevel.Tracker, tracker).getCascadedFlagObject(DependencyLevel.Tracker)
+      })
+
+      pack.triggers.forEach(trigger => {
+        if (trigger.actionType === TriggerConstants.ACTION_TYPE_REMIND) {
+          //reminder
+          trigger.lockedProperties = planManager.generateFlagGraph(DependencyLevel.Reminder, trigger).getCascadedFlagObject(DependencyLevel.Reminder)
+        } else {
+          //logging
+          trigger.lockedProperties = planManager.generateFlagGraph(DependencyLevel.Trigger, trigger).getCascadedFlagObject(DependencyLevel.Trigger)
+        }
+      })
+
+
       const deviceLocalId = -1
       let currentNanoStamp = 0
       const trackerIdTable = {}
@@ -68,7 +94,7 @@ export default class OmniTrackModule {
         tracker.user = userId
         tracker._id = trackerIdTable[tracker._id]
         tracker.attributes.forEach(attr => {
-          attr.flags = merge(attr.flags,  creationFlags, true)
+          attr.flags = merge(attr.flags, creationFlags, true)
           attr._id = attributeIdTable[attr._id]
           attr.localId = attributeLocalIdTable[attr.localId]
           attr.trackerId = tracker._id

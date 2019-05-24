@@ -1,17 +1,22 @@
 <div class="card-header flex-container flex-align-items-center">
   <span>Click to toggle the restriction status of the features</span>
-<div class="flex-filler"></div>
-<button mat-button color="primary" [disabled]="!isChanged()" (click)="onApplyClicked()">Apply</button>
+  <div class="flex-filler"></div>
+  <button mat-button color="primary" [disabled]="!isChanged()" (click)="onApplyClicked()">Apply</button>
 </div>
-<div class="card-body" *ngIf="lockDefinition!=null">
-  <div class="lock-group" *ngFor="let lockGroup of lockDefinition.groups">
-    <div class="lock-group-header">{{lockGroup.name}}</div>
-    <div *ngFor="let flagDefinition of lockDefinition.getFlagDefinitionsOfGroup(lockGroup.key)" class="key-row flex-container flex-align-items-center">
-        <div class="label">{{flagDefinition.display}} <span *ngIf="isFlagChanged(flagDefinition.name)===true" class="changed small text-color-lightgray">(changed)</span></div>
-        <div class="flex-filler"></div>
-        <button type="button" class="btn btn-sm" [class.btn-success]="isFlagLocked(flagDefinition.name)===false" [class.btn-danger]="isFlagLocked(flagDefinition.name)===true" (click)="setFlag(flagDefinition.name, !isFlagLocked(flagDefinition.name))">
-          <span>{{isFlagLocked(flagDefinition.name)===true? 'Not Allowed':'Allowed'}}</span>
-        </button>
-      </div>
+<ng-container *ngIf="flagTypes!=null">
+  <div *ngFor="let flag of visibleFlags()" class="key-row flex-container flex-align-items-center" [style.background]="'rgba(0,0,0,' + (getHierarchyLevel(flag)*0.05) + ')'">
+    <span [style.margin-left]="(getHierarchyLevel(flag)*1.0)+'rem'" class="child-indicator" *ngIf="getHierarchyLevel(flag) > 0">∟</span>
+    <div class="label">{{getFlagName(flag)}} <span *ngIf="isFlagChanged(flag)===true"
+        class="changed small text-color-lightgray">(changed)</span>
+    </div>
+    <div class="flex-filler"></div>
+    <button type="button" class="btn btn-sm" [class.btn-success]="getFlag(flag)===true"
+      [class.btn-danger]="getFlag(flag)===false" (click)="setFlag(flag, !getFlag(flag))">
+      <span>{{getFlag(flag)===true? 'Allowed':'Not Allowed'}}</span>
+    </button>
   </div>
-</div>
+</ng-container>
+
+<div class="card-body" *ngIf="visibleFlags().length === 0">
+    Participants cannot modify this entity.
+  </div>

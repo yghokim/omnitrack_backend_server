@@ -89,17 +89,9 @@ export class OmniTrackPlanListComponent implements OnInit, OnDestroy {
     )
   }
 
-  filterLoggingTriggers(triggers: Array<ITriggerDbEntity>): Array<ITriggerDbEntity>{
-    return triggers.filter(t => t.actionType === TriggerConstants.ACTION_TYPE_LOG)
-  }
-
-  getRemindersOf(tracker: ITrackerDbEntity, triggers: Array<ITriggerDbEntity>): Array<ITriggerDbEntity>{
-    return triggers.filter(t => t.actionType === TriggerConstants.ACTION_TYPE_REMIND && t.trackers.indexOf(tracker["_id"]) !== -1)
-  }
-
   onPlanEdited(packageKey: string, pack: any){
     this._internalSubscriptions.add(
-      this.api.selectedExperimentService.pipe(flatMap(service => service.updateTrackingPlanJson(packageKey, pack.data, null))).subscribe(
+      this.api.selectedExperimentService.pipe(flatMap(service => service.updateTrackingPlanJson(packageKey, pack, null))).subscribe(
         result=>{
           if(result === true){
             this.notification.pushSnackBarMessage({message: "Changes were saved."})

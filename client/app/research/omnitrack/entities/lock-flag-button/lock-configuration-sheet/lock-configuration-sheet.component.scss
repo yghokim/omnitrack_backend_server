@@ -1,15 +1,23 @@
 .key-row {
   min-height: 40px;
+  padding: 0.5rem 1rem;
+}
+
+.child-indicator {
+  transform: translate(-0.2rem, -25%);
+  font-weight: bold;
+  color: #757575;
 }
 
 .lock-group {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
-  &:last-child{
+
+  &:last-child {
     padding-bottom: 0;
   }
 
-  &:first-child{
+  &:first-child {
     padding-top: 0;
   }
 

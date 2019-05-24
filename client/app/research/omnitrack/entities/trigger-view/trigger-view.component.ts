@@ -4,6 +4,7 @@ import { ITriggerDbEntity } from '../../../../../../omnitrack/core/db-entity-typ
 import { TriggerConstants } from '../../../../../../omnitrack/core/trigger-constants';
 import * as moment from 'moment-timezone';
 import { decomposeDuration } from '../../../../../../shared_lib/utils';
+import { TrackingPlanService } from '../../tracking-plan.service';
 
 @Component({
   selector: 'app-trigger-view',
@@ -16,21 +17,15 @@ export class TriggerViewComponent implements OnInit {
 
   @Input() trigger: ITriggerDbEntity
 
-  @Input() trackingPackage: any
-
   @Output() flagChange: EventEmitter<void> = new EventEmitter()
 
-  constructor() { }
+  constructor(public trackingPlanManager: TrackingPlanService) { }
 
   ngOnInit() {
   }
 
   getTrackerColorString(tracker: any): string {
     return getTrackerColorString(tracker)
-  }
-
-  findTracker(pack, trackerId) {
-    return pack.data.trackers.find(tracker => tracker._id === trackerId)
   }
 
   isReminder(): boolean {
