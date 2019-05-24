@@ -90,7 +90,7 @@ export interface ITrackerDbEntity extends IUserChildDbEntity {
   flags?: any,
   redirectUrl?: string,
   userCreatedAt?: Number,
-  userUpdateAt?: Number,
+  userUpdatedAt?: Number,
   removed?: boolean
 }
 
