@@ -34,7 +34,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
 
           return {
             updateOne: {
-              filter: { _id: element.objectId },
+              filter: { _id: element._id },
               update: { $set: dataInDbSchema },
               upsert: true
             }
@@ -51,7 +51,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
             })
             console.log("ok: " + result.ok + ", nIn: " + result.nInserted + ", nUp: " + result.nUpserted + ", nMatched: " + result.nMatched)
             if (result.ok === 1) {
-              return this.model.find({ _id: { $in: clientChangeList.map(element => element.objectId) } }, { updatedAt: 1 })
+              return this.model.find({ _id: { $in: clientChangeList.map(element => element._id) } }, { updatedAt: 1 })
             } else { throw Error("Server error while upserting.") }
           }
         ).then(
@@ -121,7 +121,7 @@ export default abstract class UserBelongingCtrl extends BaseCtrl {
               result => {
                 console.log(result)
                 if (result.ok === 1) {
-                  return this.model.find({ _id: { $in: list.map(element => element.objectId) } }, { updatedAt: 1 })
+                  return this.model.find({ _id: { $in: list.map(element => element._id) } }, { updatedAt: 1 })
                 } else { res.status(500).send({ error: "Server error while upserting." }) }
               }
             ).then(

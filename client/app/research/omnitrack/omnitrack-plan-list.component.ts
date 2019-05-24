@@ -44,7 +44,7 @@ export class OmniTrackPlanListComponent implements OnInit, OnDestroy {
   }
 
   trackByEntity(index, entity){
-    return entity.objectId
+    return entity._id
   }
 
   onAddNewPackageClicked() {
@@ -94,7 +94,7 @@ export class OmniTrackPlanListComponent implements OnInit, OnDestroy {
   }
 
   getRemindersOf(tracker: ITrackerDbEntity, triggers: Array<ITriggerDbEntity>): Array<ITriggerDbEntity>{
-    return triggers.filter(t => t.actionType === TriggerConstants.ACTION_TYPE_REMIND && t.trackers.indexOf(tracker["objectId"]) !== -1)
+    return triggers.filter(t => t.actionType === TriggerConstants.ACTION_TYPE_REMIND && t.trackers.indexOf(tracker["_id"]) !== -1)
   }
 
   onPlanEdited(packageKey: string, pack: any){

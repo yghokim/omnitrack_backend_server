@@ -4,7 +4,7 @@ import { ModelConverter } from '../../omnitrack/core/model_converter'
 import ServerModule from './server.module';
 import CommandModule from './command.module';
 import PushModule from './push.module';
-import PredefinedPackage from '../../omnitrack/core/predefined_package'
+import PredefinedPackage from '../../omnitrack/core/tracking-plan'
 import OTTracker from '../models/ot_tracker'
 import OTTrigger from '../models/ot_trigger'
 import IdGenerator from '../../omnitrack/core/id_generator'
@@ -66,12 +66,12 @@ export default class OmniTrackModule {
         tracker.flags = merge(tracker.flags, creationFlags, true)
         tracker.userCreatedAt = currentDate.getTime()
         tracker.user = userId
-        tracker.objectId = trackerIdTable[tracker.objectId]
+        tracker._id = trackerIdTable[tracker._id]
         tracker.attributes.forEach(attr => {
           attr.flags = merge(attr.flags,  creationFlags, true)
-          attr.objectId = attributeIdTable[attr.objectId]
+          attr._id = attributeIdTable[attr._id]
           attr.localId = attributeLocalIdTable[attr.localId]
-          attr.trackerId = tracker.objectId
+          attr.trackerId = tracker._id
 
           // TODO deal with connection
           attr.userCreatedAt = currentDate.getTime()
@@ -86,7 +86,7 @@ export default class OmniTrackModule {
         trigger.flags = merge(trigger.flags, creationFlags, true)
         trigger.userCreatedAt = currentDate.getTime()
         trigger.user = userId
-        trigger.objectId = triggerIdTable[trigger.objectId]
+        trigger._id = triggerIdTable[trigger._id]
         for (let i = 0; i < trigger.trackers.length; i++) {
           trigger.trackers[i] = trackerIdTable[trigger.trackers[i]]
         }
