@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ITrackerDbEntity, ITriggerDbEntity, IAttributeDbEntity } from '../../../../omnitrack/core/db-entity-types';
-import { TriggerConstants } from '../../../../omnitrack/core/trigger-constants';
+import { TrackingPlanManagerImpl } from '../../../../omnitrack/core/tracking-plan-helper';
+import { DependencyLevel, OmniTrackFlagGraph } from '../../../../omnitrack/core/functionality-locks/omnitrack-dependency-graph';
 
 export interface TrackingPlanData {
   appLevelFlags: any,
@@ -11,34 +12,36 @@ export interface TrackingPlanData {
 @Injectable()
 export class TrackingPlanService {
 
-  currentPlan: TrackingPlanData
+  public set currentPlan(plan: TrackingPlanData) {
+    this.currentImpl = new TrackingPlanManagerImpl(plan)
+  }
 
-  constructor() { }
+  private currentImpl: TrackingPlanManagerImpl
 
+  constructor() {
+  }
+
+  generateFlagGraph(level: DependencyLevel, model: any): OmniTrackFlagGraph {
+    return this.currentImpl.generateFlagGraph(level, model)
+  }
 
   filterLoggingTriggers(): Array<ITriggerDbEntity> {
-    if (this.currentPlan != null) {
-      return this.currentPlan.triggers.filter(t => t.actionType === TriggerConstants.ACTION_TYPE_LOG)
-    } else return null
+    return this.currentImpl.filterLoggingTriggers()
   }
 
   getRemindersOf(tracker: ITrackerDbEntity): Array<ITriggerDbEntity> {
-    console.log(this.currentPlan.triggers)
-    return this.currentPlan.triggers.filter(t => t.actionType === TriggerConstants.ACTION_TYPE_REMIND && t.trackers.indexOf(tracker._id) !== -1)
+    return this.currentImpl.getRemindersOf(tracker)
   }
 
-  getTrackerOfReminder(trigger: ITriggerDbEntity): ITrackerDbEntity{
-    const trackerId = trigger.trackers[0]
-    return this.getTracker(trackerId)
+  getTrackerOfReminder(trigger: ITriggerDbEntity): ITrackerDbEntity {
+    return this.currentImpl.getTrackerOfReminder(trigger)
   }
 
-  getTrackerOfField(field: IAttributeDbEntity): ITrackerDbEntity{
-    return this.getTracker(field.trackerId)
+  getTrackerOfField(field: IAttributeDbEntity): ITrackerDbEntity {
+    return this.currentImpl.getTrackerOfField(field)
   }
 
   getTracker(id: string): ITrackerDbEntity {
-    if (this.currentPlan != null) {
-      return this.currentPlan.trackers.find(t => t._id === id)
-    } else return null
+    return this.currentImpl.getTracker(id)
   }
 }

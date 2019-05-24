@@ -52,7 +52,7 @@ export enum FunctionFlag {
 
 export interface DependencyGraphKeyType {
   level: DependencyLevel,
-  flag: string
+  flag: FunctionFlag
 }
 
 export function convertKeyTypeToString(keyType: DependencyGraphKeyType): string {
@@ -62,7 +62,7 @@ export function convertStringToKeyType(stringKey: string): DependencyGraphKeyTyp
   const splitResult = stringKey.split(":")
   return {
     level: splitResult[0] as DependencyLevel,
-    flag: splitResult[1]
+    flag: splitResult[1] as FunctionFlag
   }
 }
 
@@ -371,7 +371,7 @@ export class OmniTrackFlagGraph extends OmniTrackDependencyGraphBase {
     } else return false
   }
 
-  getFlags(level: DependencyLevel): any {
+  getFlagObject(level: DependencyLevel): any {
     switch (level) {
       case DependencyLevel.App: return this.appFlags
       case DependencyLevel.Field: return this.fieldFlags
@@ -380,27 +380,32 @@ export class OmniTrackFlagGraph extends OmniTrackDependencyGraphBase {
       case DependencyLevel.Trigger: return this.triggerFlags;
     }
   }
+
+  getCascadedFlagObject(level: DependencyLevel): any {
+    const defaultFlags = OmniTrackFlagGraph.generateFlagWithDefault(level)
+    for (const flag of Object.keys(defaultFlags)) {
+      defaultFlags[flag] = this.getCascadedFlag({ level: level, flag: flag as FunctionFlag })
+    }
+    console.log("level: ", level, "flags: ", defaultFlags)
+    return defaultFlags
+  }
+
+
+  public hierarchyInSameLevel(level: DependencyLevel, flag: FunctionFlag, last: number = 0): number {
+    const key = this.convertKeyTypeToString({ level: level, flag: flag })
+    if (this.dependencyMap.has(key) === true) {
+      const dependencyKeys = this.dependencyMap.get(key).filter(d => d.level === level)
+      if (dependencyKeys.length == 0) return last
+      else {
+        let currentMax = 0
+        for (const dependencyKey of dependencyKeys) {
+          const recurred = this.hierarchyInSameLevel(level, dependencyKey.flag, last + 1)
+          if (currentMax < recurred) {
+            currentMax = recurred
+          }
+        }
+        return currentMax
+      }
+    } else return last
+  }
 }
-
-
-//test
-/*
-const appFlags = {}
-appFlags[FunctionFlag.ModifyExistingTrackersTriggers] = false
-appFlags[FunctionFlag.AddNewTracker] = false
-
-const trackerFlags = {}
-trackerFlags[FunctionFlag.Modify] = true
-
-const fieldFlags = {}
-fieldFlags[FunctionFlag.Modify] = true
-
-
-const flagGraph = OmniTrackFlagGraph.wrapFieldFlags(fieldFlags, trackerFlags, appFlags)
-
-console.log(flagGraph.dependencyMap)
-console.log(flagGraph.defaultFlags)
-console.log("tracker modify: ", flagGraph.getCascadedFlag({level: DependencyLevel.Tracker, flag: FunctionFlag.Modify}))
-
-console.log("field modify: ", flagGraph.getCascadedFlag({level: DependencyLevel.Field, flag: FunctionFlag.Modify}))
-*/
