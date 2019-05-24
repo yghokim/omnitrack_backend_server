@@ -1,5 +1,3 @@
-import IdGenerator from "./id_generator";
-import * as fs from "fs-extra";
 import { OmniTrackFlagGraph, DependencyLevel } from "./functionality-locks/omnitrack-dependency-graph";
 import { ITrackerDbEntity, ITriggerDbEntity } from "./db-entity-types";
 import { TriggerConstants } from "./trigger-constants";
@@ -63,18 +61,6 @@ export default class PredefinedPackage {
     })
 
     this.refresh()
-  }
-
-  /**
-   * Writes the package into Json file.
-   * @param path JSON file path to write
-   */
-  write(path: string): Promise<void> {
-    return fs.outputJson(path, {
-      trackers: this.trackers,
-      triggers: this.triggers,
-      serviceCodes: this.serviceCodes
-    }, { spaces: 2 })
   }
 
   /**

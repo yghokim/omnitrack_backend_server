@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { TextInputDialogComponent } from '../../../../dialogs/text-input-dialog/text-input-dialog.component';
 import * as isUrl from 'is-url';
 import AttributeManager from '../../../../../../omnitrack/core/attributes/attribute.manager';
+import { TrackingPlanService } from '../../tracking-plan.service';
 
 @Component({
   selector: 'app-tracker-view',
@@ -18,15 +19,20 @@ export class TrackerViewComponent implements OnInit {
 
   private readonly _internalSubscriptions = new Subscription()
 
-  @Input() tracker: ITrackerDbEntity
-
-  @Input() reminders: Array<ITriggerDbEntity>
+  private tracker: ITrackerDbEntity
+  @Input("tracker") set _tracker(tracker: ITrackerDbEntity){
+    this.tracker = tracker
+    this.reminders = this.trackingPlanManager.getRemindersOf(tracker)
+  }
 
   @Output() trackerChange: EventEmitter<void> = new EventEmitter()
 
-  constructor(private dialog: MatDialog) { }
+  reminders: Array<ITriggerDbEntity>
+
+  constructor(private dialog: MatDialog, public trackingPlanManager: TrackingPlanService) { }
 
   ngOnInit() {
+
   }
 
   ngOnDestroy() {

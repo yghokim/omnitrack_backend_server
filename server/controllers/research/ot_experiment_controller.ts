@@ -494,7 +494,9 @@ export default class OTExperimentCtrl {
 
   updateTrackingPackageToExperiment = (req, res) => {
     if (!req.body.packageJson) {
+      console.error("Did not send the package.")
       res.status(500).send("Did not send the package.")
+      return
     }
 
     const packageJson = req.body.packageJson

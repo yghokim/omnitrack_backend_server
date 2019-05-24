@@ -1,8 +1,9 @@
 import { Component, OnInit, Input, Output, ViewChild, ElementRef, ChangeDetectorRef, EventEmitter } from '@angular/core';
 import {MatBottomSheet} from '@angular/material';
-import {LockConfigurationSheetComponent} from './lock-configuration-sheet/lock-configuration-sheet.component';
+import {LockConfigurationSheetComponent, ConfigurationSheetData} from './lock-configuration-sheet/lock-configuration-sheet.component';
 import { Subscription } from 'rxjs';
-import { ResearchApiService } from '../../../../services/research-api.service';
+import { DependencyLevel } from '../../../../../../omnitrack/core/functionality-locks/omnitrack-dependency-graph';
+import { TrackingPlanService } from '../../tracking-plan.service';
 
 @Component({
   selector: 'app-lock-flag-button',
@@ -15,13 +16,13 @@ export class LockFlagButtonComponent implements OnInit {
 
   @Input() model: any
 
-  @Input() lockType: string
+  @Input() lockType: DependencyLevel
 
   @Output() flagChange: EventEmitter<void> = new EventEmitter()
 
   @ViewChild("tooltipParent") buttonElm: ElementRef
 
-  constructor(private bottomSheet: MatBottomSheet, private changeDetection: ChangeDetectorRef) { }
+  constructor(private bottomSheet: MatBottomSheet, private changeDetection: ChangeDetectorRef, private trackingPlanManager: TrackingPlanService) { }
 
   ngOnInit() {
     ($(this.buttonElm.nativeElement) as any).tooltip({boundary: 'window'});
@@ -49,7 +50,7 @@ export class LockFlagButtonComponent implements OnInit {
 
   onClicked(){
     this._internalSubscriptions.add(
-      this.bottomSheet.open(LockConfigurationSheetComponent, {data: {type: this.lockType, lockedProperties: this.model.lockedProperties}, panelClass: "bottom-sheet"}).afterDismissed().subscribe(
+      this.bottomSheet.open(LockConfigurationSheetComponent, {data: {level: this.lockType, model: this.model, trackingPlanManager: this.trackingPlanManager} as ConfigurationSheetData, panelClass: "bottom-sheet"}).afterDismissed().subscribe(
         flags=>{
           if(flags){
             this.model.lockedProperties = flags

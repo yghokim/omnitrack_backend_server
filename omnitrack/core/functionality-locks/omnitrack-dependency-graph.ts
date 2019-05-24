@@ -55,18 +55,25 @@ export interface DependencyGraphKeyType {
   flag: string
 }
 
+export function convertKeyTypeToString(keyType: DependencyGraphKeyType): string {
+  return keyType.level.toString() + ":" + keyType.flag
+}
+export function convertStringToKeyType(stringKey: string): DependencyGraphKeyType {
+  const splitResult = stringKey.split(":")
+  return {
+    level: splitResult[0] as DependencyLevel,
+    flag: splitResult[1]
+  }
+}
+
 //this class is only used to generate a static dependency graph.
 class OmniTrackDependencyGraphBase extends AHierarchicalDependencyGraph<DependencyGraphKeyType>{
 
   convertKeyTypeToString(keyType: DependencyGraphKeyType): string {
-    return keyType.level.toString() + ":" + keyType.flag
+    return convertKeyTypeToString(keyType)
   }
   convertStringToKeyType(stringKey: string): DependencyGraphKeyType {
-    const splitResult = stringKey.split(":")
-    return {
-      level: splitResult[0] as DependencyLevel,
-      flag: splitResult[1]
-    }
+    return convertStringToKeyType(stringKey)
   }
 
   addSameLevelDependency(level: DependencyLevel, flagA: FunctionFlag, dependsOn: FunctionFlag) {
@@ -374,3 +381,26 @@ export class OmniTrackFlagGraph extends OmniTrackDependencyGraphBase {
     }
   }
 }
+
+
+//test
+/*
+const appFlags = {}
+appFlags[FunctionFlag.ModifyExistingTrackersTriggers] = false
+appFlags[FunctionFlag.AddNewTracker] = false
+
+const trackerFlags = {}
+trackerFlags[FunctionFlag.Modify] = true
+
+const fieldFlags = {}
+fieldFlags[FunctionFlag.Modify] = true
+
+
+const flagGraph = OmniTrackFlagGraph.wrapFieldFlags(fieldFlags, trackerFlags, appFlags)
+
+console.log(flagGraph.dependencyMap)
+console.log(flagGraph.defaultFlags)
+console.log("tracker modify: ", flagGraph.getCascadedFlag({level: DependencyLevel.Tracker, flag: FunctionFlag.Modify}))
+
+console.log("field modify: ", flagGraph.getCascadedFlag({level: DependencyLevel.Field, flag: FunctionFlag.Modify}))
+*/

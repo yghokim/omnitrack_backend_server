@@ -52,6 +52,7 @@ import { TableCellValueComponent } from "./components/table-cell-value/table-cel
 import { TreeViewElementComponent } from "./components/tree-view-element/tree-view-element.component";
 import { ResearcherSearchComponent } from "./experiment-settings/researcher-search/researcher-search.component";
 import { CreateUserAccountDialogComponent } from './experiment-participants/create-user-account-dialog/create-user-account-dialog.component';
+import { TrackingPlanListElementComponent } from './research/omnitrack/tracking-plan-list-element/tracking-plan-list-element.component';
 
 const routes: Routes = [
   {
@@ -231,6 +232,7 @@ const routes: Routes = [
     AudioCellComponent,
     ImageCellComponent,
     CreateUserAccountDialogComponent,
+    TrackingPlanListElementComponent,
   ],
   entryComponents: [
     NewInvitationDialogComponent,

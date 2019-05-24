@@ -37,11 +37,11 @@
   <label>Trackers</label>
   <ul class="list-group list-group-flush">
     <li class="list-group-item font-color-gray">
-      <div class="badge badge-lg badge-light" *ngFor="let trackerId of trigger.trackers">
+      <div class="badge badge-lg badge-light" *ngFor="let trackerId of trigger.trackers" [hidden]="!trackingPlanManager.getTracker(trackerId)">
         <div class="badge-content flex-container flex-align-items-center">
           <div class="circle-inline margin-right-small"
-            [style.background]="getTrackerColorString(findTracker(trackingPackage, trackerId))"></div>
-          <span class="text-color-dark">{{findTracker(trackingPackage, trackerId).name}}</span>
+            [style.background]="getTrackerColorString(trackingPlanManager.getTracker(trackerId))"></div>
+          <span class="text-color-dark">{{trackingPlanManager.getTracker(trackerId).name}}</span>
         </div>
       </div>
     </li>

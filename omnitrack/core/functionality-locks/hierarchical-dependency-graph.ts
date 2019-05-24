@@ -31,10 +31,14 @@ export abstract class AHierarchicalDependencyGraph<KeyType>{
       if (this.dependencyMap.get(stringA).find(d => this.convertKeyTypeToString(d) === stringDependsOn) == null)
         this.dependencyMap.get(stringA).push(dependsOn)
     } else {
-      this.dependencyMap.set(stringA, [])
+      this.dependencyMap.set(stringA, [dependsOn])
     }
   }
 
+  public isIndependent(key: KeyType): boolean { 
+    const stringKey = this.convertKeyTypeToString(key)
+    return this.dependencyMap.has(stringKey) === false || this.dependencyMap.get(stringKey).length === 0
+  }
 
   public abstract getRawFlag(key: KeyType): boolean
 
@@ -65,5 +69,21 @@ export abstract class AHierarchicalDependencyGraph<KeyType>{
         }
       }
     } else return this.getRawFlagFallback(keyType)
+  }
+
+  public areParentsFalse(keyType: KeyType): boolean{
+    const key = this.convertKeyTypeToString(keyType)
+    if (this.dependencyMap.has(key) === true) {
+      const dependencyKeys = this.dependencyMap.get(key)
+      if (dependencyKeys.length == 0) return false
+      else {
+        for (const dependencyKey of dependencyKeys) {
+          if (this.getCascadedFlag(dependencyKey) === false) {
+            return true
+          }
+        }
+        return false
+      }
+    }else return false
   }
 }
