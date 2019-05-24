@@ -19,7 +19,7 @@ export class TrackerViewComponent implements OnInit {
 
   private readonly _internalSubscriptions = new Subscription()
 
-  private tracker: ITrackerDbEntity
+  public tracker: ITrackerDbEntity
   @Input("tracker") set _tracker(tracker: ITrackerDbEntity){
     this.tracker = tracker
     this.reminders = this.trackingPlanManager.getRemindersOf(tracker)

@@ -386,7 +386,6 @@ export class OmniTrackFlagGraph extends OmniTrackDependencyGraphBase {
     for (const flag of Object.keys(defaultFlags)) {
       defaultFlags[flag] = this.getCascadedFlag({ level: level, flag: flag as FunctionFlag })
     }
-    console.log("level: ", level, "flags: ", defaultFlags)
     return defaultFlags
   }
 
