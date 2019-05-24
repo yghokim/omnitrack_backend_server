@@ -30,7 +30,7 @@ export class TriggerViewComponent implements OnInit {
   }
 
   findTracker(pack, trackerId) {
-    return pack.data.trackers.find(tracker => tracker.objectId === trackerId)
+    return pack.data.trackers.find(tracker => tracker._id === trackerId)
   }
 
   isReminder(): boolean {

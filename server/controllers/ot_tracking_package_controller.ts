@@ -1,4 +1,4 @@
-import PredefinedPackage from '../../omnitrack/core/predefined_package';
+import PredefinedPackage from '../../omnitrack/core/tracking-plan';
 import OTTracker from '../models/ot_tracker';
 import OTTrigger from '../models/ot_trigger';
 import OTTrackingPackage from '../models/ot_temporary_tracking_package';
@@ -12,6 +12,7 @@ export default class OTTrackingPackageCtrl {
       return base.where("user", ownerId).lean()
     } else { return base.lean() }
   }
+  
   extractTrackingPackage(trackerIds: Array<string>, triggerIds: Array<string>, ownerId: string = null): Promise<PredefinedPackage> {
 
     return Promise.all(

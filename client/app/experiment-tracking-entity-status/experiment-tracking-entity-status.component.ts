@@ -195,7 +195,7 @@ export class ExperimentTrackingEntityStatusComponent
   private cleanAttributeObj(obj: IAttributeDbEntity) {
     this.cleanObjBase(obj);
     delete obj.localId;
-    delete obj.objectId;
+    delete obj._id;
     delete obj.trackerId;
   }
 

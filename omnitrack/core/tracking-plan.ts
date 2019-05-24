@@ -1,5 +1,8 @@
 import IdGenerator from "./id_generator";
 import * as fs from "fs-extra";
+import { OmniTrackFlagGraph, DependencyLevel } from "./functionality-locks/omnitrack-dependency-graph";
+import { ITrackerDbEntity, ITriggerDbEntity } from "./db-entity-types";
+import { TriggerConstants } from "./trigger-constants";
 
 const randomstring  = require('randomstring');
 /**
@@ -18,8 +21,12 @@ export default class PredefinedPackage {
     return newId
   }
 
-  trackers: Array<any> = []
-  triggers: Array<any> = []
+
+
+  appLevelFlags: any = {}
+
+  trackers: Array<ITrackerDbEntity> = []
+  triggers: Array<ITriggerDbEntity> = []
   serviceCodes: Array<string> = []
 
   placeHolderDict: {
@@ -34,9 +41,27 @@ export default class PredefinedPackage {
    * @param trackers trackers in a client format
    * @param triggers triggers in a client format
    */
-  constructor(trackers: Array<any>, triggers: Array<any>) {
+  constructor(trackers: Array<ITrackerDbEntity>, triggers: Array<ITriggerDbEntity>) {
+
+    this.appLevelFlags = OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.App)
     this.trackers = trackers
     this.triggers = triggers
+
+    this.trackers.forEach(tracker => {
+      tracker.lockedProperties = OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Tracker)
+      tracker.attributes.forEach(attribute => {
+        attribute.lockedProperties = OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Field)
+      })
+    })
+
+    this.triggers.forEach(trigger => {
+      if(trigger.actionType === TriggerConstants.ACTION_TYPE_REMIND){
+        trigger.lockedProperties = OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Reminder)
+      }else{
+        trigger.lockedProperties = OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Trigger)
+      }
+    })
+
     this.refresh()
   }
 
@@ -103,8 +128,8 @@ export default class PredefinedPackage {
       trackerCount++
 
       this.placeHolderDict.trackers.push(trackerPlaceHolder)
-      trackerIdTable[tracker.objectId] = trackerPlaceHolder
-      tracker.objectId = trackerPlaceHolder
+      trackerIdTable[tracker._id] = trackerPlaceHolder
+      tracker._id = trackerPlaceHolder
       tracker.attributes.forEach(attribute => {
         if(!attribute.flags)
       {
@@ -115,11 +140,11 @@ export default class PredefinedPackage {
         const attrPlaceHolder = this.generatePlaceholder("attribute", attributeCount)
         const attrLocalIdPlaceHolder = this.generatePlaceholder("attribute_local", attributeCount)
         this.placeHolderDict.attributes.push({ id: attrPlaceHolder, localId: attrLocalIdPlaceHolder })
-        attributeIdTable[attribute.objectId] = attrPlaceHolder
+        attributeIdTable[attribute._id] = attrPlaceHolder
         attributeLocalIdTable[attribute.localId] = attrLocalIdPlaceHolder
         attributeCount++
 
-        attribute.objectId = attrPlaceHolder
+        attribute._id = attrPlaceHolder
         attribute.localId = attrLocalIdPlaceHolder
         attribute.trackerId = trackerIdTable[attribute.trackerId]
       })
@@ -136,8 +161,8 @@ export default class PredefinedPackage {
       const triggerPlaceHolder = this.generatePlaceholder("trigger", triggerCount)
       triggerCount++
       this.placeHolderDict.triggers.push(triggerPlaceHolder)
-      triggerIdTable[trigger.objectId] = triggerPlaceHolder
-      trigger.objectId = triggerPlaceHolder
+      triggerIdTable[trigger._id] = triggerPlaceHolder
+      trigger._id = triggerPlaceHolder
 
       trigger.user = this.placeHolderDict.user
       if (trigger.trackers != null) {
@@ -173,7 +198,6 @@ export default class PredefinedPackage {
   }
 
   private generatePlaceholder(text: string, index: number = null) {
-
     return PredefinedPackage.PLACEHOLDER_PREFIX + text.toUpperCase() + "_" + (index || 0) + PredefinedPackage.PLACEHOLDER_SUFFIX
   }
 

@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 
 const otAttributeSchema = new mongoose.Schema({
-  objectId: String, // this object id is not used as an index in server. it is only used in client.
+  _id: String, // this object id is not used as an index in server. it is only used in client.
   name: String,
   localId: String,
   trackerId: String,

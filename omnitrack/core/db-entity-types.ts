@@ -63,7 +63,7 @@ export interface IUserChildDbEntity extends IMongooseDbEntity {
 
 export interface IAttributeDbEntity {
   name?: string,
-  objectId?: string,
+  _id?: string,
   localId?: string,
   trackerId?: string,
   connection?: any,
@@ -90,7 +90,7 @@ export interface ITrackerDbEntity extends IUserChildDbEntity {
   flags?: any,
   redirectUrl?: string,
   userCreatedAt?: Number,
-  userUpdateAt?: Number,
+  userUpdatedAt?: Number,
   removed?: boolean
 }
 

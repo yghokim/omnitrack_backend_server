@@ -12,7 +12,7 @@ export default class OTClientSignatureCtrl {
    */
   upsertSignature(_id: string = null, key: string, packageName: string, alias: string, experimentId: string = null, notify: boolean = true): Promise<boolean> {
     return OTClientSignature.findOneAndUpdate(_id ? { _id: _id } : { key: key, package: packageName, experiment: experimentId }, {
-      key: key, package: packageName, experimentId: experimentId, alias: alias
+      key: key, package: packageName, experiment: experimentId, alias: alias
     }, {upsert: true}).lean().then(result => true)
   }
 

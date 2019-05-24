@@ -4,10 +4,8 @@ import OTTracker from '../models/ot_tracker';
 import OTTrigger from '../models/ot_trigger';
 import OTResearcher from '../models/ot_researcher';
 import OTExperiment from '../models/ot_researcher';
-import { ModelConverter } from '../../omnitrack/core/model_converter';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import PredefinedPackage from '../../omnitrack/core/predefined_package';
 import app from '../app';
 
 export default class AdminCtrl {

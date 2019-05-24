@@ -30,7 +30,7 @@ export default class OTResearchCtrl {
         case "productivity_diary":
           const trackingPackage = {
             name: "Diaries and Reminders",
-            data: require(path.join(__dirname, "../../../../omnitrack/examples/diary_study_template.json"))
+            data: require(path.join(__dirname, "../../../../../omnitrack/examples/diary_study_template.json"))
           }
           experiment["trackingPackages"].push(trackingPackage)
           experiment["groups"][0].trackingPackageKey = experiment["trackingPackages"][0].key
