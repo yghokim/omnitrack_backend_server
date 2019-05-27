@@ -367,10 +367,12 @@ export class OTUserCtrl extends OTAuthCtrlBase {
 
   protected onAuthenticate(user: any, request: Request): Promise<{
     user: any,
-    resulyPayload?: any
+    resultPayload?: any
   }> {
     const deviceInfo = request.body.deviceInfo
     const result = this.upsertDeviceInfoLocally(user, deviceInfo)
+    console.log("user authenticated. device info: ", JSON.stringify(deviceInfo))
+    console.log("device upsert result: ", JSON.stringify(result))
     return user.save().then(user => ({
       user: user,
       resultPayload: {

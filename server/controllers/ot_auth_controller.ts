@@ -68,7 +68,7 @@ export abstract class OTAuthCtrlBase {
 
   protected onAuthenticate(user: any, request: Request): Promise<{
     user: any,
-    resulyPayload?: any
+    resultPayload?: any
   }> {
     return Promise.resolve({
       user: user })
@@ -102,8 +102,8 @@ export abstract class OTAuthCtrlBase {
                         var delivery = {
                           token: this.generateJWTToken(result.user)
                         }
-                        if(result.resulyPayload!=null){
-                          delivery = merge(delivery, result.resulyPayload, false, true)
+                        if(result.resultPayload!=null){
+                          delivery = merge(delivery, result.resultPayload, false, true)
                         }
 
                         res.status(200).json(delivery);
