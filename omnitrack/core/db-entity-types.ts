@@ -37,11 +37,13 @@ export interface IUserDbEntity extends IMongooseDbEntity {
     droppedReason?: string,
     droppedBy?: string | any,
     droppedAt?: Date,
-    experimentRange?: {from: Date, to?: Date}
+    experimentRange?: { from: Date, to?: Date }
     demographic?: any
   },
   deviceLocalKeySeed?: number,
   devices?: Array<IClientDevice>,
+
+  appFlags: any,
 
   lastSyncTimestamp?: number
   lastSessionTimestamp?: number

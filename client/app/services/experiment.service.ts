@@ -12,7 +12,7 @@ import { VisualizationConfigs } from '../../../omnitrack/core/research/configs';
 import { TrackingDataService } from './tracking-data.service';
 import { IResearchMessage } from '../../../omnitrack/core/research/messaging';
 import { IUserDbEntity, IUsageLogDbEntity, getIdPopulateCompat, ITriggerDbEntity, ITrackerDbEntity } from '../../../omnitrack/core/db-entity-types';
-import { IExperimentDbEntity, IResearcherDbEntity, IExperimentTrackingPackgeDbEntity, IExperimentGroupDbEntity } from '../../../omnitrack/core/research/db-entity-types';
+import { IExperimentDbEntity, IResearcherDbEntity, IExperimentTrackingPlanDbEntity, IExperimentGroupDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import * as moment from 'moment';
 
 export class ExperimentService {
@@ -411,9 +411,9 @@ export class ExperimentService {
     }, this.researchApi.authorizedOptions)
   }
 
-  getTrackingPlans(): Observable<Array<IExperimentTrackingPackgeDbEntity>> {
+  getTrackingPlans(): Observable<Array<IExperimentTrackingPlanDbEntity>> {
     return this.experimentInfo.pipe(map(exp => {
-      return exp.trackingPackages
+      return exp.trackingPlans
     }))
   }
 
@@ -564,7 +564,7 @@ export class ExperimentService {
   upsertExperimentGroup(values: {
     _id?: string,
     name?: string,
-    trackingPackageKey?: string
+    trackingPlanKey?: string
   }): Observable<IExperimentGroupDbEntity> {
     return this.http.post<IExperimentGroupDbEntity>("api/research/experiments/" + this.experimentId + "/groups/upsert", values, this.researchApi.authorizedOptions)
   }

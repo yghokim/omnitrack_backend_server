@@ -11,7 +11,7 @@ export function selfAssignParticipantToExperiment(user: IUserDbEntity, invitatio
     .then(result => processExperimentAndUser(user, experimentId, result.groupId, result.invitationId, demographic))
 }
 
-export function researcherAssignParticipantToExperiment(user: IUserDbEntity, experimentId: string, groupId: string, alias?: string, demographic?: any): Promise<IJoinedExperimentInfo>{
+export function researcherAssignParticipantToExperiment(user: IUserDbEntity, experimentId: string, groupId: string, alias?: string, demographic?: any): Promise<IJoinedExperimentInfo> {
   return processExperimentAndUser(user, experimentId, groupId, null, alias, demographic)
 }
 
@@ -42,13 +42,13 @@ function processExperimentAndUser(user: IUserDbEntity, experimentId: string, gro
   return OTExperiment.findOneAndUpdate({
     _id: experimentId,
     "groups._id": groupId,
-  }, { $inc: { participantNumberSeed: alias ? 0 : 1 } }, { new: true, select: { _id: 1, name: 1, participantNumberSeed: 1, groups: 1, trackingPackages: 1 } })
+  }, { $inc: { participantNumberSeed: alias ? 0 : 1 } }, { new: true, select: { _id: 1, name: 1, participantNumberSeed: 1, groups: 1, trackingPlans: 1 } })
     .lean()
     .then(experiment => {
       let trackingPackage
       const group = experiment.groups.find(g => g._id === groupId)
-      if (group.trackingPackageKey) {
-        trackingPackage = (experiment.trackingPackages || []).find(p => p.key === group.trackingPackageKey)
+      if (group.trackingPlanKey) {
+        trackingPackage = (experiment.trackingPlans || []).find(p => p.key === group.trackingPlanKey)
       }
 
       user.name =
@@ -71,6 +71,10 @@ function processExperimentAndUser(user: IUserDbEntity, experimentId: string, gro
       } as IJoinedExperimentInfo
 
       if (trackingPackage) {
+        if (trackingPackage.data.app && trackingPackage.data.app.lockedProperties) {
+          user.appFlags = trackingPackage.data.app.lockedProperties
+        }
+
         //inject tracking package
         return app.omnitrackModule().injectPackage(user._id, trackingPackage.data,
           { injected: true, experiment: experiment._id }).then(res => {

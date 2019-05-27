@@ -32,8 +32,8 @@ export default class OTResearchCtrl {
             name: "Diaries and Reminders",
             data: require(path.join(__dirname, "../../../../../omnitrack/examples/diary_study_template.json"))
           }
-          experiment["trackingPackages"].push(trackingPackage)
-          experiment["groups"][0].trackingPackageKey = experiment["trackingPackages"][0].key
+          experiment["trackingPlans"].push(trackingPackage)
+          experiment["groups"][0].trackingPlanKey = experiment["trackingPlans"][0].key
           break;
       }
 

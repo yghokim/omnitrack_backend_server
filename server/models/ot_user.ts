@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { OmniTrackFlagGraph, DependencyLevel } from '../../omnitrack/core/functionality-locks/omnitrack-dependency-graph';
 const validate = require('mongoose-validator')
 
 function generateNewUserId(): string {
@@ -60,6 +61,8 @@ const otUserSchema = new mongoose.Schema({
   deviceLocalKeySeed: {type: Number, required: true, default: 0},
   devices: {type: [otClientDeviceSchema], default: []},
   dataStore: {type: mongoose.Schema.Types.Mixed, default: {}},
+
+  appFlags: { type:  mongoose.Schema.Types.Mixed, default: () => OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.App, true)},
   
   experiment: { type: String, ref: "OTExperiment" },
   participationInfo: {

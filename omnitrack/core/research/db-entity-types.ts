@@ -3,10 +3,10 @@ import { VisualizationConfigs } from "./configs";
 
 export interface IExperimentGroupDbEntity extends IMongooseDbEntity {
   name: string,
-  trackingPackageKey?: string
+  trackingPlanKey?: string
 }
 
-export interface IExperimentTrackingPackgeDbEntity {
+export interface IExperimentTrackingPlanDbEntity {
   key: string,
   name: string,
   data: any
@@ -22,7 +22,7 @@ export interface IExperimentDbEntity extends IMongooseDbEntity {
   consent: string,
   demographicFormSchema: any,
   receiveConsentInApp: boolean,
-  trackingPackages: Array<IExperimentTrackingPackgeDbEntity>,
+  trackingPlans: Array<IExperimentTrackingPlanDbEntity>,
   experimenters: Array<{ researcher: string | IResearcherDbEntity, permissions: any }>,
   clientBuildConfigs?: Array<any>
 }

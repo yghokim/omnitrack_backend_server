@@ -232,7 +232,7 @@ const routes: Routes = [
     AudioCellComponent,
     ImageCellComponent,
     CreateUserAccountDialogComponent,
-    TrackingPlanListElementComponent,
+    TrackingPlanListElementComponent
   ],
   entryComponents: [
     NewInvitationDialogComponent,

@@ -2,7 +2,7 @@ import { OmniTrackFlagGraph, DependencyLevel } from "./functionality-locks/omnit
 import { ITrackerDbEntity, ITriggerDbEntity } from "./db-entity-types";
 import { TriggerConstants } from "./trigger-constants";
 
-const randomstring  = require('randomstring');
+const randomstring = require('randomstring');
 /**
  * Contains the anonymised tracker and trigger package that are portable and injectable to any users.
  */
@@ -10,18 +10,18 @@ export default class PredefinedPackage {
   static readonly PLACEHOLDER_PREFIX = "%{"
   static readonly PLACEHOLDER_SUFFIX = "}%"
 
-  static generateNewInjectionId(currentPool: Array<string>):string{
+  static generateNewInjectionId(currentPool: Array<string>): string {
     let newId: string
-    do{
-      newId = randomstring.generate(8); 
-    }while(currentPool.indexOf(newId) >= 0)
+    do {
+      newId = randomstring.generate(8);
+    } while (currentPool.indexOf(newId) >= 0)
     currentPool.push(newId)
     return newId
   }
 
 
 
-  appLevelFlags: any = {}
+  app: { lockedProperties: any } = { lockedProperties: null }
 
   trackers: Array<ITrackerDbEntity> = []
   triggers: Array<ITriggerDbEntity> = []
@@ -41,7 +41,7 @@ export default class PredefinedPackage {
    */
   constructor(trackers: Array<ITrackerDbEntity>, triggers: Array<ITriggerDbEntity>) {
 
-    this.appLevelFlags = OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.App)
+    this.app = { lockedProperties: OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.App) }
     this.trackers = trackers
     this.triggers = triggers
 
@@ -53,9 +53,9 @@ export default class PredefinedPackage {
     })
 
     this.triggers.forEach(trigger => {
-      if(trigger.actionType === TriggerConstants.ACTION_TYPE_REMIND){
+      if (trigger.actionType === TriggerConstants.ACTION_TYPE_REMIND) {
         trigger.lockedProperties = OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Reminder)
-      }else{
+      } else {
         trigger.lockedProperties = OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Trigger)
       }
     })
@@ -103,9 +103,8 @@ export default class PredefinedPackage {
 
     // anonymise trackers and attributes
     this.trackers.forEach(tracker => {
-      if(!tracker.flags)
-      {
-        tracker.flags = {injected: true}
+      if (!tracker.flags) {
+        tracker.flags = { injected: true }
       }
       tracker.flags.injectionId = PredefinedPackage.generateNewInjectionId(generatedInjectionIds)
 
@@ -117,11 +116,10 @@ export default class PredefinedPackage {
       trackerIdTable[tracker._id] = trackerPlaceHolder
       tracker._id = trackerPlaceHolder
       tracker.attributes.forEach(attribute => {
-        if(!attribute.flags)
-      {
-        attribute.flags = {injected: true}
-      }
-      attribute.flags.injectionId = PredefinedPackage.generateNewInjectionId(generatedInjectionIds)
+        if (!attribute.flags) {
+          attribute.flags = { injected: true }
+        }
+        attribute.flags.injectionId = PredefinedPackage.generateNewInjectionId(generatedInjectionIds)
 
         const attrPlaceHolder = this.generatePlaceholder("attribute", attributeCount)
         const attrLocalIdPlaceHolder = this.generatePlaceholder("attribute_local", attributeCount)
@@ -138,9 +136,8 @@ export default class PredefinedPackage {
 
     // anonymise triggers and associated trackers and attributes
     this.triggers.forEach(trigger => {
-      if(!trigger.flags)
-      {
-        trigger.flags = {injected: true}
+      if (!trigger.flags) {
+        trigger.flags = { injected: true }
       }
       trigger.flags.injectionId = PredefinedPackage.generateNewInjectionId(generatedInjectionIds)
 

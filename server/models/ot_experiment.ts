@@ -11,11 +11,11 @@ const otExperimentGroupSchema = new mongoose.Schema(
   {
     _id: { type: String, default: uuid.v1, required: true },
     name: { type: String, required: true },
-    trackingPackageKey: { type: String, default: null }
+    trackingPlanKey: { type: String, default: null }
   }
 )
 
-const otExperimentInjectionPackageSchema = new mongoose.Schema(
+const otExperimentTrackingPlanSchema = new mongoose.Schema(
   {
     key: { type: String, required: true, default: () => mongoose.Types.ObjectId().toString() },
     name: { type: String, required: true },
@@ -34,7 +34,7 @@ const otExperimentSchema = new mongoose.Schema({
   groups: { type: [otExperimentGroupSchema], default: [{ _id: uuid.v1(), name: "Default", participants: [] }] },
   manager: { type: String, ref: 'OTResearcher', required: true },
   visualizationConfigs: { type: mongoose.Schema.Types.Mixed, default: () => new VisualizationConfigs() },
-  trackingPackages: { type: [otExperimentInjectionPackageSchema], default: [] },
+  trackingPlans: { type: [otExperimentTrackingPlanSchema], default: [] },
   consent: { type: String, default: null },
   receiveConsentInApp: { type: Boolean, default: true },
   demographicFormSchema: {type: mongoose.Schema.Types.Mixed, default: null},
