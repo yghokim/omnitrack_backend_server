@@ -18,7 +18,7 @@ export class LockFlagButtonComponent implements OnInit {
 
   @Input() lockType: DependencyLevel
 
-  @Output() flagChange: EventEmitter<void> = new EventEmitter()
+  @Output() flagChange: EventEmitter<any> = new EventEmitter()
 
   @ViewChild("tooltipParent") buttonElm: ElementRef
 
@@ -53,9 +53,11 @@ export class LockFlagButtonComponent implements OnInit {
       this.bottomSheet.open(LockConfigurationSheetComponent, {data: {level: this.lockType, model: this.model, trackingPlanManager: this.trackingPlanManager} as ConfigurationSheetData, panelClass: "bottom-sheet"}).afterDismissed().subscribe(
         flags=>{
           if(flags){
-            this.model.lockedProperties = flags
+            if(this.model != null){
+              this.model.lockedProperties = flags
+            }
             this.changeDetection.markForCheck()
-            this.flagChange.emit()
+            this.flagChange.emit(flags)
           }
         }
       )

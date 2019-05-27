@@ -112,6 +112,8 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.post("/user/auth/refresh_token", appSignedInMiddleware, userCtrl.refreshToken)
     this.router.post("/user/auth/signout", appSignedInMiddleware, userCtrl.signOut)
 
+    this.router.get("/user/auth/app_flag", appSignedInMiddleware, userCtrl.getAppFlags)
+
     this.router.route('/user/data_store/:storeKey')
       .get(appSignedInMiddleware, (req, res) => {
         userDataStoreCtrl.getDataStoreValue(req.user.uid, req.params.storeKey).then(

@@ -286,7 +286,7 @@ graphBase.setDefaultValueSimple(DependencyLevel.Trigger, FunctionFlag.EditProper
 
 export class OmniTrackFlagGraph extends OmniTrackDependencyGraphBase {
 
-  static generateFlagWithDefault(level: DependencyLevel): any {
+  static generateFlagWithDefault(level: DependencyLevel, fillWithTrue: boolean = false): any {
     const result = {}
 
     graphBase.defaultFlags.forEach((value, key) => {
@@ -295,6 +295,12 @@ export class OmniTrackFlagGraph extends OmniTrackDependencyGraphBase {
         result[keyType.flag] = value
       }
     })
+
+    if (fillWithTrue === true) {
+      for (const key of Object.keys(result)) {
+        result[key] = true // set all flags true
+      }
+    }
 
     return result
   }

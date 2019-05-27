@@ -9,8 +9,8 @@
     <div class="form-group">
       <label class="small horizontal">Assigned Tracking Plan</label>
       <mat-form-field>
-        <mat-select [(value)]="model.trackingPackageKey" [disabled]="experimentInfo.trackingPackages.length === 0">
-          <mat-option *ngFor="let trackingPackage of experimentInfo.trackingPackages" [value]="trackingPackage.key">{{trackingPackage.name}}</mat-option>
+        <mat-select [(value)]="model.trackingPlanKey" [disabled]="experimentInfo.trackingPlans.length === 0">
+          <mat-option *ngFor="let trackingPackage of experimentInfo.trackingPlans" [value]="trackingPackage.key">{{trackingPackage.name}}</mat-option>
           <mat-option [value]="null">None</mat-option>
         </mat-select>
       </mat-form-field>
