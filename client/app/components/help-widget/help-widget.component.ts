@@ -1,52 +1,57 @@
-import { Component, Input, OnInit, ViewChild, ChangeDetectionStrategy, ElementRef, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  ViewChild,
+  ChangeDetectionStrategy,
+  ElementRef,
+  AfterViewInit
+} from "@angular/core";
 
 @Component({
-  selector: 'app-help-widget',
-  templateUrl: './help-widget.component.html',
-  styleUrls: ['./help-widget.component.scss'],
+  selector: "app-help-widget",
+  templateUrl: "./help-widget.component.html",
+  styleUrls: ["./help-widget.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HelpWidgetComponent implements OnInit, AfterViewInit {
+  @ViewChild("elementBody", { static: true }) elementBody: ElementRef;
 
-  @ViewChild("elementBody") elementBody: ElementRef
+  @ViewChild("tooltipContent", { static: true }) tooltipHtmlContent: ElementRef;
 
-  @ViewChild("tooltipContent") tooltipHtmlContent: ElementRef
+  @Input() message: string;
 
-  @Input() message: string
+  @Input() isLightMode: boolean = false;
 
-  @Input() isLightMode: boolean = false
-
-  @Input("usePopup") _usePopup: boolean = true
-  set usePopup(value: boolean){
-    this._usePopup = value
-    if(value===true){
-      ($(this.elementBody.nativeElement) as any).tooltip()
+  private _usePopup: boolean = true;
+  @Input("usePopup") set usePopup(value: boolean) {
+    this._usePopup = value;
+    if (value === true) {
+      ($(this.elementBody.nativeElement) as any).tooltip();
     }
   }
 
-  get usePopup(): boolean{
-    return this._usePopup
+  get usePopup(): boolean {
+    return this._usePopup;
   }
 
-  @Input() tooltipContent: string = null
+  @Input() tooltipContent: string = null;
 
-  constructor() { }
+  constructor() {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   ngAfterViewInit(): void {
-    if(this.usePopup === true){
-      ($(this.elementBody.nativeElement) as any).tooltip()
+    if (this.usePopup === true) {
+      ($(this.elementBody.nativeElement) as any).tooltip();
     }
   }
 
-  getTooltipContent(): string{
-    if(this.tooltipHtmlContent != null){
-      return this.tooltipHtmlContent.nativeElement.innerHTML
-    }else{
-      return this.tooltipContent
+  getTooltipContent(): string {
+    if (this.tooltipHtmlContent != null) {
+      return this.tooltipHtmlContent.nativeElement.innerHTML;
+    } else {
+      return this.tooltipContent;
     }
   }
-
 }

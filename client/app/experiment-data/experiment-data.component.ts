@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from "@angular/core";
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from "@angular/core";
 import { Subscription, Observable } from "rxjs";
 import { ResearchApiService } from "../services/research-api.service";
 import { NotificationService } from "../services/notification.service";

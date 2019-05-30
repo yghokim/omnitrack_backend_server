@@ -1,92 +1,101 @@
-import { Component, OnInit, Input, Inject, ViewChild, ElementRef } from '@angular/core';
-import { ITrackerDbEntity, IAttributeDbEntity } from '../../../../omnitrack/core/db-entity-types';
-import { ResearchApiService } from '../../services/research-api.service';
-import { SingletonAudioPlayerServiceService } from '../../services/singleton-audio-player-service.service';
-import { Subscription ,  BehaviorSubject} from 'rxjs';
-import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
-import { MatIconRegistry } from '@angular/material';
-import { Observable, timer } from 'rxjs';
-import { Pipe, PipeTransform } from '@angular/core';
-
+import { Component, OnInit, Input, ViewChild } from "@angular/core";
+import { ResearchApiService } from "../../services/research-api.service";
+import { SingletonAudioPlayerServiceService } from "../../services/singleton-audio-player-service.service";
+import { Subscription, BehaviorSubject } from "rxjs";
+import { DomSanitizer } from "@angular/platform-browser";
+import { Observable, timer } from "rxjs";
+import { Pipe, PipeTransform } from "@angular/core";
 
 @Component({
-  selector: 'app-audio-cell',
-  templateUrl: './audio-cell.component.html',
-  styleUrls: ['./audio-cell.component.scss']
+  selector: "app-audio-cell",
+  templateUrl: "./audio-cell.component.html",
+  styleUrls: ["./audio-cell.component.scss"]
 })
 export class AudioCellComponent implements OnInit {
-
   private _internalSubscriptions = new Subscription();
   private timeSubscription: Subscription;
   public audioSource: any;
-  @ViewChild('audio1')
-  public audioElement: any;
-  public audioDuration: number = 0;
+  @ViewChild("audio1", { static: true }) public audioElement: any;
+  public audioDuration = 0;
   public currentTime = new BehaviorSubject<number>(0);
   private timer: Observable<number>;
-  public isPlaying: boolean = false;
+  public isPlaying = false;
 
-  constructor(private api: ResearchApiService, private sanitizer: DomSanitizer, private singletonService: SingletonAudioPlayerServiceService) {  }
+  constructor(
+    private api: ResearchApiService,
+    private sanitizer: DomSanitizer,
+    private singletonService: SingletonAudioPlayerServiceService
+  ) {}
 
   ngOnInit() {
-    this.audioElement = this.audioElement.nativeElement;  
+    this.audioElement = this.audioElement.nativeElement;
   }
 
-  startTimer(){
-    this.timer = timer(0,1000);
+  startTimer() {
+    this.timer = timer(0, 1000);
     this.timeSubscription = new Subscription();
-    this.timeSubscription = this.timer.subscribe(t=> {
-      this.currentTime.next(this.audioElement.currentTime); 
-      if(this.audioElement.currentTime === this.audioElement.duration){
+    this.timeSubscription = this.timer.subscribe(t => {
+      this.currentTime.next(this.audioElement.currentTime);
+      if (this.audioElement.currentTime === this.audioElement.duration) {
         this.stop();
-      } 
+      }
     });
     this._internalSubscriptions.add(this.timeSubscription);
   }
 
   @Input("mediaInfo")
-  set _mediaInfo(info: {trackerId: string, attributeLocalId: string, itemId: string }){
-    console.log("load audio data")
+  set _mediaInfo(info: {
+    trackerId: string;
+    attributeLocalId: string;
+    itemId: string;
+  }) {
+    console.log("load audio data");
     this._internalSubscriptions.add(
-      this.api.getMedia(info.trackerId, info.attributeLocalId, info.itemId, "").subscribe(response => {
-        this.createAudio(response);
-      }, err => {
-      })
-    )
+      this.api
+        .getMedia(info.trackerId, info.attributeLocalId, info.itemId, "")
+        .subscribe(
+          response => {
+            this.createAudio(response);
+          },
+          err => {}
+        )
+    );
   }
 
   createAudio(audio: Blob): void {
-    let reader = new FileReader();
-    reader.addEventListener("load", () => {
-       this.audioSource = reader.result;
-    }, false);
+    const reader = new FileReader();
+    reader.addEventListener(
+      "load",
+      () => {
+        this.audioSource = reader.result;
+      },
+      false
+    );
 
     if (audio) {
-       reader.readAsDataURL(audio);
+      reader.readAsDataURL(audio);
     }
   }
 
-  playAudio(){
-   
-    this.audioDuration = this.audioElement.duration; 
-    let play = this.singletonService.playAudio( this.audioElement, this);
-    if(play === false){
+  playAudio() {
+    this.audioDuration = this.audioElement.duration;
+    const play = this.singletonService.playAudio(this.audioElement, this);
+    if (play === false) {
       this.stop();
-    }
-    else{
+    } else {
       this.play();
     }
   }
 
-  stop(){
+  stop() {
     this.audioElement.pause();
     this.audioElement.currentTime = 0;
     this.currentTime.next(0);
     this.isPlaying = false;
     this.timeSubscription.unsubscribe();
   }
-  
-  play(){
+
+  play() {
     this.audioElement.load();
     this.audioElement.play();
     this.startTimer();
@@ -96,22 +105,17 @@ export class AudioCellComponent implements OnInit {
   ngOnDestroy(): void {
     this._internalSubscriptions.unsubscribe();
   }
-
 }
 
 @Pipe({
-  name: 'minuteSeconds'
+  name: "minuteSeconds"
 })
 export class MinuteSecondsPipe implements PipeTransform {
-
-    transform(value: number): string {
-       const minutes: number = Math.floor(value / 60);
-       const seconds: number =  Math.round(value - minutes * 60);
-       if(seconds < 10){
-        return minutes + ':0' + seconds;
-       }
-       else return minutes + ':' + seconds;
-        
-    }
-
+  transform(value: number): string {
+    const minutes: number = Math.floor(value / 60);
+    const seconds: number = Math.round(value - minutes * 60);
+    if (seconds < 10) {
+      return minutes + ":0" + seconds;
+    } else { return minutes + ":" + seconds; }
+  }
 }
