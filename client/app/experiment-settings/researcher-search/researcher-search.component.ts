@@ -1,8 +1,7 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../../services/research-api.service';
-import { Subject, Observable, Subscription, of } from "rxjs";
+import { Subject, Subscription, of } from "rxjs";
 import { debounceTime, distinctUntilChanged, flatMap } from 'rxjs/operators';
-import { MatMenuTrigger } from '@angular/material';
 import { FormControl } from '@angular/forms';
 import { ExperimentPermissions } from '../../../../omnitrack/core/research/experiment';
 

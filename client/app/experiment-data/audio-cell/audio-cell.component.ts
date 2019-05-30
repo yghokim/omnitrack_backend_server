@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild } from "@angular/core";
+import { Component, Input, ViewChild, AfterViewInit } from '@angular/core';
 import { ResearchApiService } from "../../services/research-api.service";
 import { SingletonAudioPlayerServiceService } from "../../services/singleton-audio-player-service.service";
 import { Subscription, BehaviorSubject } from "rxjs";
@@ -11,11 +11,11 @@ import { Pipe, PipeTransform } from "@angular/core";
   templateUrl: "./audio-cell.component.html",
   styleUrls: ["./audio-cell.component.scss"]
 })
-export class AudioCellComponent implements OnInit {
+export class AudioCellComponent implements AfterViewInit {
   private _internalSubscriptions = new Subscription();
   private timeSubscription: Subscription;
   public audioSource: any;
-  @ViewChild("audio1", { static: true }) public audioElement: any;
+  @ViewChild("audio1", { static: false }) public audioElement: any;
   public audioDuration = 0;
   public currentTime = new BehaviorSubject<number>(0);
   private timer: Observable<number>;
@@ -27,7 +27,7 @@ export class AudioCellComponent implements OnInit {
     private singletonService: SingletonAudioPlayerServiceService
   ) {}
 
-  ngOnInit() {
+  ngAfterViewInit(){
     this.audioElement = this.audioElement.nativeElement;
   }
 

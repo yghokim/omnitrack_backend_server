@@ -1,6 +1,6 @@
-import { Component, ViewChild, ElementRef, Input, OnInit, OnDestroy } from "@angular/core";
+import { Component, ViewChild, ElementRef, OnDestroy, AfterViewInit } from "@angular/core";
 import { ResearchVisualizationQueryConfigurationService, FilteredExperimentDataset } from "../../../services/research-visualization-query-configuration.service";
-import { Subscription, Observable, Subject } from "rxjs";
+import { Subscription, Observable } from "rxjs";
 import { tap, combineLatest, map } from 'rxjs/operators';
 import { ResearchApiService } from "../../../services/research-api.service";
 import * as d3 from 'd3';
@@ -16,7 +16,25 @@ import { aliasCompareFunc, unique } from "../../../../../shared_lib/utils";
   templateUrl: "./engagement.component.html",
   styleUrls: ["./engagement.component.scss"]
 })
-export class EngagementComponent implements OnInit, OnDestroy{
+export class EngagementComponent implements AfterViewInit, OnDestroy{
+
+  constructor(
+    private queryConfigService: ResearchVisualizationQueryConfigurationService,
+    private api: ResearchApiService
+  ) {
+
+    this.dayAxisScale = d3.scaleLinear()
+    this.dayAxis = d3.axisTop(this.dayAxisScale)
+      .tickSize(0).tickPadding(5)
+      .tickFormat((d: number) => d === 0 || (d - Math.floor(d) > 0.01) || (d > this.dayAxisScale.domain()[1] || d <= this.dayAxisScale.domain()[0]) ? null : d.toString())
+
+    this.countAxisScale = d3.scaleLinear().domain([0, 10]).range([0, this.COUNT_CHART_WIDTH])
+    this.countAxis = d3.axisTop(this.countAxisScale)
+      .tickSize(0).tickPadding(5)
+
+    this.colorScale = d3.scaleLinear<d3.RGBColor, number>().domain([1, this.itemCountRangeMax]).interpolate(d3.interpolateHcl).range([d3.rgb("rgb(243, 220, 117)"), d3.rgb("#2387a0")])
+
+  }
 
   isBusy = true;
 
@@ -40,10 +58,12 @@ export class EngagementComponent implements OnInit, OnDestroy{
   readonly trackerColorScale = d3.scaleOrdinal(d3chromatic.schemeCategory10)
 
   readonly NORMAL_ALIAS_COMPARE = aliasCompareFunc()
+
   readonly LOG_COUNT_COMPARE = (a: ParticipantRow, b: ParticipantRow) => {
     return d3.sum(b.trackingDataList.map(t => t.itemCountInRange)) - d3.sum(a.trackingDataList.map(t => t.itemCountInRange))
   }
 
+  // tslint:disable-next-line:member-ordering
   readonly SORT_METHODS = [
     {
       label: "Experiment Start",
@@ -87,10 +107,10 @@ export class EngagementComponent implements OnInit, OnDestroy{
 
   public dayIndexRange: Array<number>
 
-  @ViewChild("countAxisGroup") countAxisGroup: ElementRef
-  @ViewChild("xAxisGroup") xAxisGroup: ElementRef
-  @ViewChild("yAxisGroup") yAxisGroup: ElementRef
-  @ViewChild("chartMainGroup") chartMainGroup: ElementRef
+  @ViewChild("countAxisGroup", {static: false}) countAxisGroup: ElementRef
+  @ViewChild("xAxisGroup", {static: false}) xAxisGroup: ElementRef
+  @ViewChild("yAxisGroup", {static: false}) yAxisGroup: ElementRef
+  @ViewChild("chartMainGroup", {static: false}) chartMainGroup: ElementRef
 
   public readonly dayAxisScale: ScaleLinear<number, number>
   public readonly dayAxis: Axis<number | { valueOf(): number }>
@@ -102,27 +122,8 @@ export class EngagementComponent implements OnInit, OnDestroy{
 
   public participantList: Array<ParticipantRow>
 
-  constructor(
-    private queryConfigService: ResearchVisualizationQueryConfigurationService,
-    private api: ResearchApiService
-  ) {
+  ngAfterViewInit(){
 
-    this.dayAxisScale = d3.scaleLinear()
-    this.dayAxis = d3.axisTop(this.dayAxisScale)
-      .tickSize(0).tickPadding(5)
-      .tickFormat((d: number) => d === 0 || (d - Math.floor(d) > 0.01) || (d > this.dayAxisScale.domain()[1] || d <= this.dayAxisScale.domain()[0]) ? null : d.toString())
-
-    this.countAxisScale = d3.scaleLinear().domain([0, 10]).range([0, this.COUNT_CHART_WIDTH])
-    this.countAxis = d3.axisTop(this.countAxisScale)
-      .tickSize(0).tickPadding(5)
-
-    this.colorScale = d3.scaleLinear<d3.RGBColor, number>().domain([1, this.itemCountRangeMax]).interpolate(d3.interpolateHcl).range([d3.rgb("rgb(243, 220, 117)"), d3.rgb("#2387a0")])
-
-  }
-
-  ngOnInit() {
-
-    // init visualization
 
     this._internalSubscriptions.add(
       this.makeDataObservable().pipe(
@@ -165,7 +166,6 @@ export class EngagementComponent implements OnInit, OnDestroy{
         this.onSortMethodChanged(this.sortMethodIndex)
       })
     );
-
   }
 
   public trackById(index, obj){

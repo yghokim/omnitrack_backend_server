@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ResearchVisualizationQueryConfigurationService } from '../services/research-visualization-query-configuration.service';
 import { ResearchApiService } from '../services/research-api.service';
@@ -33,8 +33,6 @@ export class ExperimentOverviewComponent implements OnInit {
 
   public sidePanelWidth = 250
   public isSidePanelExpanded = true
-
-  @ViewChild('sidePanel') sidePanelRef: ElementRef
 
   private readonly _internalSubscriptions = new Subscription()
 

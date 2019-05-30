@@ -1,73 +1,75 @@
-
-import { Component, OnInit, Input, ChangeDetectionStrategy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import * as c3 from 'c3';
+import {
+  Component,
+  OnInit,
+  Input,
+  ChangeDetectionStrategy,
+  AfterViewInit,
+  ViewChild,
+  ElementRef
+} from "@angular/core";
+import * as c3 from "c3";
 
 @Component({
-  selector: 'app-c3',
+  selector: "app-c3",
   template: '<div class="c3-chart-body" #c3ChartBody></div>',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class C3ChartComponent implements OnInit, AfterViewInit {
+  private chartApi: c3.ChartAPI = null;
 
-  private chartApi: c3.ChartAPI = null
+  @ViewChild("c3ChartBody", { static: false }) chartContainer: ElementRef;
 
-  @ViewChild('c3ChartBody') chartContainer: ElementRef
+  private _data: any = null;
+  private _options: any = null;
 
-  private _data: any = null
-  private _options: any = null
-
-  @Input('options') set options(options: any){
-    if(this._options !== options){
-      this._options = options
-      this.refreshChartApi()
+  @Input("options") set options(options: any) {
+    if (this._options !== options) {
+      this._options = options;
+      this.refreshChartApi();
     }
   }
 
   get options(): any {
-    return this._options
+    return this._options;
   }
 
-  @Input('data') set data(newData: any){
-    if(this._data !== newData){
-      this._data = newData
-      if(this.chartApi && this._data){
-        this.reload()
+  @Input("data") set data(newData: any) {
+    if (this._data !== newData) {
+      this._data = newData;
+      if (this.chartApi && this._data) {
+        this.reload();
       }
     }
   }
 
-  get data(): any{ return this._data }
-
-  constructor(){
-
+  get data(): any {
+    return this._data;
   }
 
-  ngOnInit(): void {
+  constructor() {}
 
-  }
-  
+  ngOnInit(): void {}
+
   ngAfterViewInit(): void {
-    this.refreshChartApi()
+    this.refreshChartApi();
   }
 
-  private refreshChartApi(){
-
-    var options = {
+  private refreshChartApi() {
+    const options = {
       bindto: this.chartContainer.nativeElement,
-      data: this.data != null ? this.data : {columns: []}
-    }
+      data: this.data != null ? this.data : { columns: [] }
+    };
 
-    if(this.options!=null){
-      for(const optionKey of Object.keys(this.options)){
-        options[optionKey] = this.options[optionKey]
+    if (this.options != null) {
+      for (const optionKey of Object.keys(this.options)) {
+        options[optionKey] = this.options[optionKey];
       }
     }
 
-    this.chartApi = c3.generate(options)
-  }
-  
-  private reload(){
-    this.chartApi.load(this.data)
+    this.chartApi = c3.generate(options);
   }
 
+  private reload() {
+    this.chartApi.load(this.data);
+  }
 }

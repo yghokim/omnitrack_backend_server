@@ -15,9 +15,9 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HelpWidgetComponent implements OnInit, AfterViewInit {
-  @ViewChild("elementBody", { static: true }) elementBody: ElementRef;
+  @ViewChild("elementBody", { static: false }) elementBody: ElementRef;
 
-  @ViewChild("tooltipContent", { static: true }) tooltipHtmlContent: ElementRef;
+  @ViewChild("tooltipContent", { static: false }) tooltipHtmlContent: ElementRef;
 
   @Input() message: string;
 
