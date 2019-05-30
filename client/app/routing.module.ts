@@ -39,13 +39,13 @@ const routes: Routes = [
   {
     path: "research",
     canLoad: [CheckInstallationGuard],
-    loadChildren: "./research-dashboard.module#ResearchDashboardModule"
+    loadChildren: () => import('./research-dashboard.module').then(m => m.ResearchDashboardModule)
   },
 
   {
     path: "user",
     canLoad: [CheckInstallationGuard],
-    loadChildren: "./user-client.module#UserClientModule"
+    loadChildren: () => import('./user-client.module').then(m => m.UserClientModule)
   },
 
   { path: "notfound", component: NotFoundComponent },

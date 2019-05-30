@@ -50,7 +50,7 @@ const routes: Routes = [
       {
         path: 'dashboard/:experimentId', 
         canLoad: [ResearcherAuthGuardSecure],
-        loadChildren: './experiment-dashboard.module#ExperimentDashboardModule'
+        loadChildren: () => import('./experiment-dashboard.module').then(m => m.ExperimentDashboardModule)
       }
     ]
   }
