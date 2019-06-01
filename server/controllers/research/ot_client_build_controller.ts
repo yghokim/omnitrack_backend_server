@@ -387,15 +387,6 @@ export default class OTClientBuildCtrl {
 
         console.log(newModel.toJSON())
 
-        if (experimentId != null) {
-          //experiment mode
-          newModel["disableExternalEntities"] = true
-        }
-        else {
-          //researcher mode
-          newModel["disableExternalEntities"] = false
-        }
-
         switch (platform.toLowerCase()) {
           case "android":
             newModel["credentials"] = {} as AndroidBuildCredentials
@@ -612,21 +603,6 @@ export default class OTClientBuildCtrl {
 
       if (buildConfig.appName) { sourceConfigJson.overrideAppName = buildConfig.appName }
       if (buildConfig.packageName) { sourceConfigJson.overridePackageName = buildConfig.packageName }
-
-      const keys = [
-        'disableExternalEntities',
-        'disableTrackerCreation',
-        'disableTriggerCreation',
-        'showTutorials',
-        'hideServicesTab',
-        'hideTriggersTab'
-      ]
-
-      keys.forEach(key => {
-        if (buildConfig[key] != null) {
-          sourceConfigJson[key] = buildConfig[key]
-        }
-      })
 
       sourceConfigJson.signing = {
         // releaseKeystoreLocation: "$rootDir/" + path.join(path.relative(sourceFolderPath, this._makeExperimentConfigDirectoryPath(experimentId, true)), "androidKeystore.jks") + "\"",

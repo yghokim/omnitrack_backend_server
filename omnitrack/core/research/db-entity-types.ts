@@ -34,12 +34,6 @@ export interface IClientBuildConfigBase<T> extends IMongooseDbEntity {
   packageName: string,
   appName: string,
   iconPath: string,
-  disableExternalEntities: boolean,
-  showTutorials: boolean,
-  disableTrackerCreation: boolean,
-  disableTriggerCreation: boolean,
-  hideTriggersTab: boolean,
-  hideServicesTab: boolean,
   credentials: T, // dictionary
   researcherMode: boolean,
   apiKeys: Array<{ key: string, value: any }>,

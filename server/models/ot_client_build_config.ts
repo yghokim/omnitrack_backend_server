@@ -7,12 +7,6 @@ const otClientBuildConfigSchema = new mongoose.Schema({
   appName: {type: String, default: null},
   sourceCode: {type: {sourceType: String, data: mongoose.Schema.Types.Mixed}, default: {sourceType: 'github', data: {useOfficial: true}}},
   iconPath: {type: String, default: null},
-  disableExternalEntities: {type: Boolean, default: true},
-  showTutorials: {type: Boolean, default: true},
-  disableTrackerCreation: {type: Boolean, default: false},
-  disableTriggerCreation: {type: Boolean, default: false},
-  hideTriggersTab: {type: Boolean, default: false},
-  hideServicesTab: {type: Boolean, default: false},
   credentials: {type: mongoose.Schema.Types.Mixed, default: {}}, // dictionary
   apiKeys: {type: [{key: String, value: String}], default: []},
   researcherMode: {type: Boolean, default: false},

@@ -62,38 +62,6 @@
                 [validationFailedMessage]="getValidationError('sourceCode')"></app-config-variable-row>
             </td>
           </tr>
-          <tr *ngIf="researcherMode === false">
-            <th class="main-settings-header">
-              Functionality Locks
-            </th>
-            <td class="main-settings-container">
-              <!--
-              <app-config-variable-row label="Hide the external entities" type="boolean" variableName="disableExternalEntities" hintText="Disable using or adding trackers that are not assigned to this experiment."
-                [config]="changedConfig" [originalValue]="originalConfig.disableExternalEntities"></app-config-variable-row>-->
-
-              <app-config-variable-row label="Enable tracker creation" type="boolean"
-                variableName="disableTrackerCreation" hintText="Disable participants to create their own trackers."
-                [inverseBoolean]="true" [config]="changedConfig"
-                [originalValue]="originalConfig.disableTrackerCreation"></app-config-variable-row>
-
-              <app-config-variable-row label="Enable trigger creation" type="boolean"
-                variableName="disableTriggerCreation" hintText="Disable participants to create their own triggers."
-                [inverseBoolean]="true" [config]="changedConfig"
-                [originalValue]="originalConfig.disableTriggerCreation"></app-config-variable-row>
-
-              <app-config-variable-row label="Show trigger list" type="boolean" variableName="hideTriggersTab"
-                hintText="Disable an access to trigger list." [inverseBoolean]="true" [config]="changedConfig"
-                [originalValue]="originalConfig.hideTriggersTab"></app-config-variable-row>
-
-              <app-config-variable-row label="Show service list" type="boolean" variableName="hideServicesTab"
-                hintText="Disable an access to service list." [inverseBoolean]="true" [config]="changedConfig"
-                [originalValue]="originalConfig.hideServicesTab"></app-config-variable-row>
-
-              <app-config-variable-row label="Show tutorials" type="boolean" variableName="showTutorials" hintText=""
-                [config]="changedConfig" [originalValue]="originalConfig.showTutorials"></app-config-variable-row>
-            </td>
-          </tr>
-
           <ng-container [ngSwitch]="platform">
             <tr *ngSwitchCase="'Android'">
               <th class="main-settings-header">
