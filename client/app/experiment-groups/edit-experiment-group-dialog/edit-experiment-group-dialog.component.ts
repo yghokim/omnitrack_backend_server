@@ -27,7 +27,7 @@ export class EditExperimentGroupDialogComponent implements OnInit {
     } else this.model = {
       _id: null,
       name: null,
-      trackingPackageKey: null
+      trackingPlanKey: null
     }
     this.experimentInfo = data.experimentInfo
   }
@@ -37,7 +37,7 @@ export class EditExperimentGroupDialogComponent implements OnInit {
 
   isChangeValid(): boolean {
     if (this.model != null) {
-      return (this.isEditMode() === true && (this.originalModel.name !== this.model.name || this.originalModel.trackingPackageKey !== this.model.trackingPackageKey)) || this.isEditMode() === false && this.model.name != null && this.model.name.length > 0
+      return (this.isEditMode() === true && (this.originalModel.name !== this.model.name || this.originalModel.trackingPlanKey !== this.model.trackingPlanKey)) || this.isEditMode() === false && this.model.name != null && this.model.name.length > 0
     } else return false
   }
 

@@ -19,6 +19,8 @@ import './ot_experiment_participation_pipeline_helper';
 import { selfAssignParticipantToExperiment, researcherAssignParticipantToExperiment } from './ot_experiment_participation_pipeline_helper';
 import OTItemMedia from '../models/ot_item_media';
 import moment = require('moment');
+import { OmniTrackFlagGraph, DependencyLevel } from '../../omnitrack/core/functionality-locks/omnitrack-dependency-graph';
+import OTExperiment from '../models/ot_experiment';
 
 export class OTUserCtrl extends OTAuthCtrlBase {
 
@@ -116,7 +118,8 @@ export class OTUserCtrl extends OTAuthCtrlBase {
       const device = user.devices.find(device => device.deviceId === request.body.deviceInfo.deviceId)
       if (device != null) {
         resultPayload = {
-          deviceLocalKey: device.localKey
+          deviceLocalKey: device.localKey,
+          appFlags: user.appFlags
         }
       }
     }
@@ -158,6 +161,66 @@ export class OTUserCtrl extends OTAuthCtrlBase {
       res.status(500).send(err)
     })
   }
+
+  getAppFlags = (req, res) => {
+    const userId = req.user.uid
+    //check researcher
+    OTUser.findById(userId, { appFlags: 1 }).lean().then(user => {
+      if (user) {
+        res.status(200).send(user.appFlags)
+      } else {
+        res.status(404).send({
+          error: C.ERROR_CODE_ACCOUNT_NOT_EXISTS
+        })
+      }
+    })
+  }
+
+  /*
+  getAppFlags = (req, res) => {
+    const userId = req.user.uid
+    //check researcher
+    OTUser.findById(userId, { username: 1, "participationInfo.groupId": 1, experiment: 1 }).lean().then(user => {
+      if (user) {
+        if (user.experiment) {
+          OTExperiment.findOne({ _id: user.experiment, "groups._id": user.participationInfo.groupId }, { trackingPlans: 1, groups: 1 }).lean().then(
+            experiment => {
+              if (experiment) {
+                if (experiment.trackingPlans && experiment.trackingPlans.length > 0) {
+                  const plan = experiment.trackingPlans.find(p =>p.key === experiment.groups[0].trackingPlanKey)
+                  if(plan && plan.app && plan.app.lockedProperties){
+                    res.status(200).send(plan.app.lockedProperties)
+                  }else{
+                    res.status(200).send(OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.App, true))
+                  }
+                } else { // no tracking plans are assigned.
+                  res.status(200).send(OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.App, true))
+                }
+              } else {
+                res.status(500).send({
+                  error: C.ERROR_CODE_ILLEGAL_ARTUMENTS
+                })
+              }
+            }
+          )
+        } else {
+          OTResearcher.findOne({ email: user.username }, "_id").countDocuments().then(count => {
+            if (count > 0) {
+              res.status(200).send(OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.App, true))
+            } else {
+              res.status(401).send({
+                error: C.ERROR_CODE_USERNAME_NOT_MATCH_RESEARCHER
+              })
+            }
+          })
+        }
+      } else {
+        res.status(404).send({
+          error: C.ERROR_CODE_ACCOUNT_NOT_EXISTS
+        })
+      }
+    })
+  }*/
 
   /**
    *
@@ -304,14 +367,17 @@ export class OTUserCtrl extends OTAuthCtrlBase {
 
   protected onAuthenticate(user: any, request: Request): Promise<{
     user: any,
-    resulyPayload?: any
+    resultPayload?: any
   }> {
     const deviceInfo = request.body.deviceInfo
     const result = this.upsertDeviceInfoLocally(user, deviceInfo)
+    console.log("user authenticated. device info: ", JSON.stringify(deviceInfo))
+    console.log("device upsert result: ", JSON.stringify(result))
     return user.save().then(user => ({
       user: user,
       resultPayload: {
-        deviceLocalKey: result.localKey
+        deviceLocalKey: result.localKey,
+        appFlags: user.appFlags
       }
     }))
   }
@@ -362,7 +428,7 @@ export class OTUserCtrl extends OTAuthCtrlBase {
     const token = req.body.token
     console.log("reset password with token: ", token)
 
-    OTUser.findOne({password_reset_token: token}).then(
+    OTUser.findOne({ password_reset_token: token }).then(
       user => {
         if (user) {
           if ((user["reset_token_expires"] as Date).getTime() > Date.now()) {

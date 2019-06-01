@@ -21,8 +21,8 @@
           <tr>
             <th>Tracking Plan</th>
             <td>
-              <span *ngIf="group.trackingPackageKey">{{(getTrackingPlan(group.trackingPackageKey) | async).name}}</span>
-              <span *ngIf="!group.trackingPackageKey">Not assigned</span>
+              <span *ngIf="group.trackingPlanKey">{{(getTrackingPlan(group.trackingPlanKey) | async).name}}</span>
+              <span *ngIf="!group.trackingPlanKey">Not assigned</span>
             </td>
           </tr>
 

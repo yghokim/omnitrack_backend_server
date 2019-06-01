@@ -4,7 +4,7 @@ import { DependencyLevel, OmniTrackFlagGraph } from "./functionality-locks/omnit
 import { merge, deepclone } from "../../shared_lib/utils";
 
 export interface TrackingPlanData {
-  appLevelFlags: any,
+  app: {lockedProperties: any},
   trackers: Array<ITrackerDbEntity>,
   triggers: Array<ITriggerDbEntity>
 }
@@ -19,7 +19,9 @@ export class TrackingPlanManagerImpl {
 
     const defaultFlag = OmniTrackFlagGraph.generateFlagWithDefault(level)
 
-    const originalFlags = merge(defaultFlag, model.lockedProperties ? deepclone(model.lockedProperties) : {}, true, true)
+    const modelLockedProperties = model? model.lockedProperties : {}
+
+    const originalFlags = merge(defaultFlag, modelLockedProperties ? deepclone(modelLockedProperties) : {}, true, true)
 
     switch (level) {
       case DependencyLevel.App:
@@ -28,27 +30,27 @@ export class TrackingPlanManagerImpl {
       case DependencyLevel.Tracker:
         return OmniTrackFlagGraph.wrapTrackerFlags(
           originalFlags,
-          this.currentPlan.appLevelFlags
+          this.currentPlan.app? this.currentPlan.app.lockedProperties : null
         )
 
       case DependencyLevel.Field:
         return OmniTrackFlagGraph.wrapFieldFlags(
           originalFlags,
           this.getTrackerOfField(model).lockedProperties,
-          this.currentPlan.appLevelFlags
+          this.currentPlan.app? this.currentPlan.app.lockedProperties : null
         )
 
       case DependencyLevel.Trigger:
         return OmniTrackFlagGraph.wrapTriggerFlags(
           originalFlags,
-          this.currentPlan.appLevelFlags
+          this.currentPlan.app? this.currentPlan.app.lockedProperties : null
         )
 
       case DependencyLevel.Reminder:
         return OmniTrackFlagGraph.wrapReminderFlags(
           originalFlags,
           this.getTrackerOfReminder(model).lockedProperties,
-          this.currentPlan.appLevelFlags
+          this.currentPlan.app? this.currentPlan.app.lockedProperties : null
         )
     }
   }

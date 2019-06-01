@@ -509,20 +509,20 @@ export default class OTExperimentCtrl {
     let update
     if (packageKey != null) {
       // update
-      query["trackingPackages.key"] = packageKey
+      query["trackingPlans.key"] = packageKey
       update = {}
       if (name) {
-        update["trackingPackages.$.name"] = name
+        update["trackingPlans.$.name"] = name
       }
 
       if (packageJson) {
-        update["trackingPackages.$.data"] = packageJson
+        update["trackingPlans.$.data"] = packageJson
       }
     } else {
       // insert
       update = {
         $push: {
-          trackingPackages: {
+          trackingPlans: {
             name: name,
             data: packageJson
           }
@@ -549,16 +549,16 @@ export default class OTExperimentCtrl {
     const researcherId = req.researcher.uid
     OTExperiment.findOneAndUpdate(this.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId), {
       $pull: {
-        trackingPackages: {
+        trackingPlans: {
           key: packageKey
         }
       }
     }, { new: true }).then(updated => {
       if (updated != null && updated["groups"] instanceof Array) {
         let groupModified: boolean = null
-        updated["groups"].filter(g => g.trackingPackageKey === packageKey).forEach(
+        updated["groups"].filter(g => g.trackingPlanKey === packageKey).forEach(
           group => {
-            group["trackingPackageKey"] = null
+            group["trackingPlanKey"] = null
             groupModified = true
           }
         )

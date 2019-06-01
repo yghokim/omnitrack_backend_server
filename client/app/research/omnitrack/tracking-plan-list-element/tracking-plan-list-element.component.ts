@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { TriggerConstants } from '../../../../../omnitrack/core/trigger-constants';
-import { TrackingPlanService, TrackingPlanData } from '../tracking-plan.service';
+import { TrackingPlanService } from '../tracking-plan.service';
+import { TrackingPlanData } from '../../../../../omnitrack/core/tracking-plan-helper';
 
 
 
@@ -28,7 +28,18 @@ export class TrackingPlanListElementComponent implements OnInit {
   ngOnInit() {
   }
 
-  emitChange(){
+  onAppLevelFlagChanged(flags) {
+    console.log(flags)
+    if (this.plan.app) {
+      this.plan.app.lockedProperties = flags
+    }
+    else {
+      this.plan.app = { lockedProperties: flags }
+    }
+    this.emitChange()
+  }
+
+  emitChange() {
     this.change.emit()
   }
 }
