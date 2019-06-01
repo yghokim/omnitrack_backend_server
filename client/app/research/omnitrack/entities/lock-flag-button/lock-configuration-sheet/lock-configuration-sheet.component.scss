@@ -1,6 +1,9 @@
-.key-row {
-  min-height: 40px;
-  padding: 0.5rem 1rem;
+.key-row-container {
+  overflow: hidden;
+  .key-row {
+    min-height: 40px;
+    padding: 0.5rem 1rem;
+  }
 }
 
 .child-indicator {

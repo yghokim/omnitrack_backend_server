@@ -5,6 +5,7 @@ import * as deepEqual from 'deep-equal';
 import { FunctionFlag, DependencyLevel, OmniTrackFlagGraph } from '../../../../../../../omnitrack/core/functionality-locks/omnitrack-dependency-graph';
 import { TrackingPlanService } from '../../../tracking-plan.service';
 import { FUNCTION_FLAG_LABEL_HELPER, FLAG_VISIBILITY_DICT } from '../../../function-flag-label-helper';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 export interface ConfigurationSheetData {
   level: DependencyLevel,
@@ -15,7 +16,18 @@ export interface ConfigurationSheetData {
 @Component({
   selector: 'app-lock-configuration-sheet',
   templateUrl: './lock-configuration-sheet.component.html',
-  styleUrls: ['./lock-configuration-sheet.component.scss']
+  styleUrls: ['./lock-configuration-sheet.component.scss'],
+  animations: [
+    trigger('showHideTrigger', [
+      transition(':enter', [
+        style({ opacity: 0, height: 0 }),
+        animate('0.25s ease-out', style({ opacity: 1, height: "*" })),
+      ]),
+      transition(':leave', [
+        animate('0.2s ease-out', style({ opacity: 0, height: 0 }))
+      ])
+    ]),
+  ]
 })
 export class LockConfigurationSheetComponent implements OnInit {
 
@@ -43,6 +55,10 @@ export class LockConfigurationSheetComponent implements OnInit {
 
   visibleFlags(): Array<FunctionFlag> {
     return this.flagTypes.filter(f => this.wasOverwritten(f) === false && FLAG_VISIBILITY_DICT.get(this.level, f) !== false)
+  }
+
+  isFlagVisible(flag: FunctionFlag): boolean{
+    return this.wasOverwritten(flag) === false && FLAG_VISIBILITY_DICT.get(this.level, flag) !== false
   }
 
   getHierarchyLevel(flag: FunctionFlag): number{
