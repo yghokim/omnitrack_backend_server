@@ -1,6 +1,10 @@
 <div class="container">
-  <div class="flex-container flex-container-responsive-columns">
-    <div class="card participant-group-card card-sm" *ngFor="let group of experimentInfo.groups">
+  <div class="text-right">
+    <button mat-raised-button color="primary"  (click)="onUpsertGroupClicked(null)">Add New Group</button>
+  </div>
+  <hr>
+  <div class="flex-container flex-container-responsive-columns participant-group-card-container">
+    <div class="card participant-group-card card-sm" *ngFor="let group of experimentInfo.groups; trackBy: trackByGroup" @rowShowHideTrigger>
       <div class="card-header no-padding-top no-padding-bottom no-padding-right flex-container flex-align-items-center">
         <span [matTooltip]="group.name" matTooltipPosition="above" class="flex-filler group-name">{{group.name}}</span>
           <button mat-icon-button class="text-color-darkgray" (click)="onUpsertGroupClicked(group)">
@@ -29,13 +33,5 @@
         </table>
       </div>
     </div>
-    <div class="card participant-group-card card-sm card-add-new" (click)="onUpsertGroupClicked(null)">
-      <div class="card-body center">
-        <div class="content">
-          + Add New Group
-        </div>
-      </div>
-    </div>
-
   </div>
 </div>

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
-import { Subscription, empty, Observable, zip, of } from 'rxjs';
+import { Subscription, empty, Observable } from 'rxjs';
 import { flatMap, tap, catchError, map } from 'rxjs/operators';
 import { MatDialog, MatTableDataSource, MatSort, MatBottomSheet } from '@angular/material';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
@@ -11,7 +11,7 @@ import { ParticipantExcludedDaysConfigDialogComponent } from '../dialogs/partici
 import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import { CreateUserAccountDialogComponent, CreateUserAccountDialogData } from './create-user-account-dialog/create-user-account-dialog.component';
 import { TextClipboardPastedBottomSheetComponent } from '../components/text-clipboard-pasted-bottom-sheet/text-clipboard-pasted-bottom-sheet.component';
-import { generateRowTriggerAnimation } from '../research/omnitrack/omnitrack-helper';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 
 @Component({
@@ -19,7 +19,16 @@ import { generateRowTriggerAnimation } from '../research/omnitrack/omnitrack-hel
   templateUrl: './experiment-participants.component.html',
   styleUrls: ['./experiment-participants.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  animations: [generateRowTriggerAnimation()]
+  animations: [
+    trigger('rowShowHideTrigger', [
+      transition(':enter', [
+        style({ opacity: 0, transform: "translate(50%, 0)" }),
+        animate('0.5s ease-out', style({ opacity: 1, transform: "translate(0,0)" })),
+      ]),
+      transition(':leave', [
+        animate('0.3s ease-out', style({ opacity: 0, height: 0 }))
+      ])
+    ])]
 })
 export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
@@ -71,7 +80,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
         flatMap(result => result.expService.updateLatestTimestampsOfParticipants()))
       )).subscribe(result => {
         this.isLoadingSessionSummary = false
-          this.detector.markForCheck()
+        this.detector.markForCheck()
       })
     )
   }
@@ -84,6 +93,10 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
         this.isLoadingParticipants = false
       })
     )
+  }
+
+  trackByParticipant(object: IUserDbEntity){
+    return object._id
   }
 
   ngOnDestroy() {
@@ -270,15 +283,17 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     )
   }
 
-  onGeneratePasswordResetLinkClicked(participantId: string){
+  onGeneratePasswordResetLinkClicked(participantId: string) {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(
         flatMap(expService => expService.generateParticipantPasswordResetLink(participantId))
       ).subscribe(link => {
-        this.bottomSheet.open(TextClipboardPastedBottomSheetComponent, {data: {
-          message: "Send this URL to the participant.",
-          content: link
-        }, panelClass: "bottom-sheet-mid-width"})
+        this.bottomSheet.open(TextClipboardPastedBottomSheetComponent, {
+          data: {
+            message: "Send this URL to the participant.",
+            content: link
+          }, panelClass: "bottom-sheet-mid-width"
+        })
       })
     )
   }

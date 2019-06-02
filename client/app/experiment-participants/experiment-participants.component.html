@@ -17,7 +17,7 @@
     <app-busy-overlay *ngIf="isLoadingParticipants" [scale]="0.5" [overlayClass]="'main'"></app-busy-overlay>
 
     <ng-container *ngIf="isLoadingParticipants !== true">
-      <mat-table class="table-data" [dataSource]="participantDataSource" matSort>
+      <mat-table class="table-data" [dataSource]="participantDataSource" [trackBy]="trackByParticipant" matSort>
 
         <ng-container matColumnDef="alias">
           <mat-header-cell *matHeaderCellDef mat-sort-header> Alias </mat-header-cell>
@@ -136,7 +136,8 @@
                   <span>Drop Participant</span>
                 </button>
 
-                <button mat-menu-item *ngSwitchCase="'participating'" (click)="onGeneratePasswordResetLinkClicked(object._id)">
+                <button mat-menu-item *ngSwitchCase="'participating'"
+                  (click)="onGeneratePasswordResetLinkClicked(object._id)">
                   <span>Generate Reset Password Link</span>
                 </button>
 
@@ -155,7 +156,8 @@
         </ng-container>
 
         <mat-header-row class="no-right-padding" *matHeaderRowDef="participantColumns"></mat-header-row>
-        <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: participantColumns;" [@rowShowHideTrigger]=""></mat-row>
+        <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: participantColumns;"
+          @rowShowHideTrigger></mat-row>
 
       </mat-table>
       <div class="card-body card-footer horizontal-padding-narrow">

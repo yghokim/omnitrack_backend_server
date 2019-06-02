@@ -1,17 +1,28 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ResearchApiService } from '../services/research-api.service';
-import { ExperimentService } from '../services/experiment.service';
 import { Subscription, Observable, empty } from 'rxjs';
 import { flatMap, filter } from 'rxjs/operators';
 import { IExperimentGroupDbEntity, IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import { MatDialog } from '@angular/material/dialog';
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { EditExperimentGroupDialogComponent } from './edit-experiment-group-dialog/edit-experiment-group-dialog.component';
+import { trigger, transition, style, stagger, animate, query } from '@angular/animations';
 
 @Component({
   selector: 'app-experiment-groups',
   templateUrl: './experiment-groups.component.html',
-  styleUrls: ['./experiment-groups.component.scss']
+  styleUrls: ['./experiment-groups.component.scss'],
+  animations: [
+    trigger('rowShowHideTrigger', [
+      transition(':enter', [
+        style({ opacity: 0, width: 0, height: 0, 'margin-right': 0}),
+        animate('0.5s ease-in-out', style({ opacity: 1, width: "*", height: "*", 'margin-right': "*"})),
+      ]),
+      transition(':leave', [
+        animate('0.3s ease-in-out', style({ opacity: 0, width: 0, height: 0, 'margin-right': 0}))
+      ])
+    ])
+  ]
 })
 export class ExperimentGroupsComponent implements OnInit, OnDestroy {
 
@@ -38,11 +49,15 @@ export class ExperimentGroupsComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
+  trackByGroup(index, group: IExperimentGroupDbEntity): string{
+    return group._id
+  } 
+
   getTrackingPlan(key: string): Observable<any> {
     return this.api.selectedExperimentService.pipe(flatMap(service => service.getTrackingPlan(key)))
   }
 
-  getNumParticipantsOfGroup(groupId: string): Observable<number>{
+  getNumParticipantsOfGroup(groupId: string): Observable<number> {
     return this.api.selectedExperimentService.pipe(flatMap(service => service.getNumParticipantsInGroup(groupId)))
   }
 

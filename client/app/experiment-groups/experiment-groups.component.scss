@@ -1,28 +1,33 @@
 @import "../../styles.scss";
 
-.participant-group-card{
+.participant-group-card-container {
   
-  margin-right: 1em;
-  margin-bottom: 1em;
 
-  th:first-child, td:first-child{
-    padding-left: 0;
-  }
-  th:last-child, td:last-child{
-    padding-right: 0;
+  .participant-group-card {
+    margin: 0.5rem;
+
+    th:first-child,
+    td:first-child {
+      padding-left: 0;
+    }
+    th:last-child,
+    td:last-child {
+      padding-right: 0;
+    }
+
+    th:first-of-type,
+    td:first-of-type {
+      border-top: hidden;
+    }
+
+    .group-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
-  th:first-of-type, td:first-of-type{
-    border-top: hidden;
+  .card-add-new {
+    font-size: 1.2em;
   }
-
-  .group-name{
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-.card-add-new{
-  font-size: 1.2em;
 }
