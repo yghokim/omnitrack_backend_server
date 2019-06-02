@@ -10,7 +10,7 @@
   <app-labeled-loading-indicator *ngIf="experiments == null">
     <span message>Loading your experiments...</span>
   </app-labeled-loading-indicator>
-  <div *ngIf="experiments" class="flex-container flex-container-wrap  flex-padded-content flex-container-responsive-columns">
+  <div *ngIf="experiments" class="flex-container flex-container-wrap  flex-padded-content flex-container-responsive-columns" [@enterLeaveTrigger]="experiments.length">
     <div *ngFor="let experiment of experiments; trackBy: trackByExperimentId; let index=index">
       <div [@experimentHover]="hoverExperimentIndex===index? 'hover':null" class="card card-component card-experiment" (click)="onExperimentClicked(experiment)" (mouseover)="hoverExperimentIndex=index" (mouseleave)="hoverExperimentIndex=-1">
         <div class="card-header upper">

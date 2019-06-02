@@ -155,7 +155,7 @@
         </ng-container>
 
         <mat-header-row class="no-right-padding" *matHeaderRowDef="participantColumns"></mat-header-row>
-        <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: participantColumns;"></mat-row>
+        <mat-row class="hoverable no-right-padding" *matRowDef="let row; columns: participantColumns;" [@rowShowHideTrigger]=""></mat-row>
 
       </mat-table>
       <div class="card-body card-footer horizontal-padding-narrow">

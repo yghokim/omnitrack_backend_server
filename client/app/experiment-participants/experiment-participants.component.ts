@@ -11,13 +11,15 @@ import { ParticipantExcludedDaysConfigDialogComponent } from '../dialogs/partici
 import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import { CreateUserAccountDialogComponent, CreateUserAccountDialogData } from './create-user-account-dialog/create-user-account-dialog.component';
 import { TextClipboardPastedBottomSheetComponent } from '../components/text-clipboard-pasted-bottom-sheet/text-clipboard-pasted-bottom-sheet.component';
+import { generateRowTriggerAnimation } from '../research/omnitrack/omnitrack-helper';
 
 
 @Component({
   selector: 'app-experiment-participants',
   templateUrl: './experiment-participants.component.html',
   styleUrls: ['./experiment-participants.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [generateRowTriggerAnimation()]
 })
 export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
 
