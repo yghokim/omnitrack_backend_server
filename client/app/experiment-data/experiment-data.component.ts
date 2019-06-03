@@ -53,11 +53,11 @@ const METADATA_VALUE_TYPE_TABLE = {
   animations: [
     trigger('rowShowHideTrigger', [
       transition(':enter', [
-        style({ opacity: 0, width: 0, height: 0, 'margin-right': 0}),
-        animate('0.5s ease-in-out', style({ opacity: 1, width: "*", height: "*", 'margin-right': "*"})),
+        style({ opacity: 0, transform: 'translateX(50%)'}),
+        animate('0.5s ease-in-out', style({ opacity: 1, transform: "*"})),
       ]),
       transition(':leave', [
-        animate('0.3s ease-in-out', style({ opacity: 0, width: 0, height: 0, 'margin-right': 0}))
+        animate('0.3s ease-in-out', style({ opacity: 0, transform: 'translateX(50%)'}))
       ])
     ])
   ]
@@ -87,12 +87,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   public screenExpanded = true
 
-  private tableSchema: Array<{
-    localId: string;
-    name: string;
-    type: number;
-    hide: boolean;
-  }> = [];
+  public animateEnterLeaveAnimation = false
 
   constructor(
     private api: ResearchApiService,
@@ -128,6 +123,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
             "participantsInDataComponent"
           );
 
+          this.animateEnterLeaveAnimation = true
           this.detector.markForCheck()
         })
     );
@@ -209,6 +205,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                 }
               }
 
+              this.animateEnterLeaveAnimation = false
               this.detector.markForCheck()
             })
         );

@@ -39,7 +39,7 @@
       </mat-tab-group>
 
       <div class="table-container">
-        <table class="table table-data" *ngIf="printFriendlyMode===false && selectedTracker">
+        <table class="table table-data" *ngIf="printFriendlyMode===false && selectedTracker" [@.disabled] = "animateEnterLeaveAnimation === false">
           <thead class="singleline">
             <th>Item Id</th>
             <th *ngFor="let attr of selectedTracker.attributes; trackBy: trackAttributes">
