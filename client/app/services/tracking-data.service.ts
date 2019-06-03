@@ -36,12 +36,15 @@ export class TrackingDataService implements OnInit, OnDestroy {
       this.socketService.onConnected.subscribe(socket => {
         socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_ITEMS, (data) => {
           console.log("Experiment items were updated.")
+          this.reloadItems()
         }),
         socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_TRACKERS, (data) => {
           console.log("Experiment trackers were updated")
+          this.reloadTrackers()
         }),
         socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_TRIGGERS, (data) => {
           console.log("Experiment triggers were updated.")
+          this.reloadTriggers()
         })
       })
       /*

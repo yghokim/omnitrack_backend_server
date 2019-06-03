@@ -23,6 +23,7 @@ import { UpdateItemCellValueDialogComponent } from "../dialogs/update-item-cell-
 import { TimePoint } from "../../../omnitrack/core/datatypes/field_datatypes";
 import { zip } from 'rxjs';
 import { tap, flatMap, map } from 'rxjs/operators';
+import { trigger, transition, style, animate } from "@angular/animations";
 const snakeCase = require('snake-case');
 
 enum CellValueType {
@@ -48,7 +49,18 @@ const METADATA_VALUE_TYPE_TABLE = {
   templateUrl: "./experiment-data.component.html",
   styleUrls: ["./experiment-data.component.scss"],
   providers: [SingletonAudioPlayerServiceService],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('rowShowHideTrigger', [
+      transition(':enter', [
+        style({ opacity: 0, width: 0, height: 0, 'margin-right': 0}),
+        animate('0.5s ease-in-out', style({ opacity: 1, width: "*", height: "*", 'margin-right': "*"})),
+      ]),
+      transition(':leave', [
+        animate('0.3s ease-in-out', style({ opacity: 0, width: 0, height: 0, 'margin-right': 0}))
+      ])
+    ])
+  ]
 })
 export class ExperimentDataComponent implements OnInit, OnDestroy {
   private readonly _internalSubscriptions = new Subscription();
