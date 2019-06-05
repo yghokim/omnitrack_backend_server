@@ -31,6 +31,13 @@
           || ''}} </mat-cell>
         </ng-container>
 
+
+        <ng-container matColumnDef="email">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> E-mail </mat-header-cell>
+            <mat-cell class="text-truncate" [matTooltip]="object.email" *matCellDef="let object"> {{object.email
+            || ''}} </mat-cell>
+          </ng-container>
+
         <ng-container matColumnDef="group">
           <mat-header-cell *matHeaderCellDef mat-sort-header> Group </mat-header-cell>
           <mat-cell class="text-truncate" *matCellDef="let object"> {{readGroupName(object) | async}} </mat-cell>

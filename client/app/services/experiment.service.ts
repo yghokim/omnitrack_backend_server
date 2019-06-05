@@ -373,10 +373,11 @@ export class ExperimentService {
       )
   }
 
-  createParticipantAccount(username: string, password: string, groupId: string, alias?: string): Observable<string> {
+  createParticipantAccount(username: string, email: string, password: string, groupId: string, alias?: string): Observable<string> {
     return this.http.post<string>("/api/research/experiments/" + this.experimentId + "/participants/create", {
       username: username,
       password: password,
+      email: email,
       groupId: groupId,
       alias: alias
     }, this.researchApi.authorizedOptions)

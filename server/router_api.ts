@@ -157,6 +157,8 @@ export class ClientApiRouter extends RouterWrapper {
 
     this.router.post('/user/auth/device', appSignedInMiddleware, userCtrl.upsertDeviceInfo)
 
+    this.router.post('/user/auth/update', appSignedInMiddleware, userCtrl.update)
+
     this.router.post('/user/name', appSignedInMiddleware, userCtrl.putUserName)
     this.router.post('/user/report', appSignedInMiddleware, userCtrl.postReport)
     this.router.delete('/user', appSignedInMiddleware, userCtrl.deleteAccount)

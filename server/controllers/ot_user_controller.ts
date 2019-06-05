@@ -19,8 +19,6 @@ import './ot_experiment_participation_pipeline_helper';
 import { selfAssignParticipantToExperiment, researcherAssignParticipantToExperiment } from './ot_experiment_participation_pipeline_helper';
 import OTItemMedia from '../models/ot_item_media';
 import moment = require('moment');
-import { OmniTrackFlagGraph, DependencyLevel } from '../../omnitrack/core/functionality-locks/omnitrack-dependency-graph';
-import OTExperiment from '../models/ot_experiment';
 
 export class OTUserCtrl extends OTAuthCtrlBase {
 
@@ -29,12 +27,13 @@ export class OTUserCtrl extends OTAuthCtrlBase {
   }
 
   constructor() {
-    super(OTUser, "user", 'username', ["name", "picture"])
+    super(OTUser, "user", 'username', ["name", "picture", "email"])
   }
 
   protected modifyJWTSchema(user: any, tokenSchema: import("./ot_auth_controller").JwtTokenSchemaBase): void {
     const schema = tokenSchema as any
     schema.picture = user.picture
+    schema.email = user.email
   }
 
   protected modifyNewAccountSchema(schema: any, request: any) {
@@ -55,6 +54,9 @@ export class OTUserCtrl extends OTAuthCtrlBase {
     const deviceInfo = request.body.deviceInfo
     const demographic = request.body.demographic
     const overrideAlias = request.body.alias
+    const email = request.body.email
+
+    user.email = email
 
     return deferPromise(() => {
       if (experimentId != null) {
@@ -81,7 +83,7 @@ export class OTUserCtrl extends OTAuthCtrlBase {
       } else {
         //no experimentId. check email account.
         return OTResearcher.findOne({
-          email: user.username,
+          email: user.email,
           account_approved: true
         }, { _id: 1, alias: 1 }).lean().then(researcher => {
           if (researcher != null) {
@@ -89,7 +91,7 @@ export class OTUserCtrl extends OTAuthCtrlBase {
             console.log("A researcher " + researcher.alias + " was signed in as a master app user.")
             return user
           } else throw {
-            error: "UsernameNotMatchResearcher"
+            error: C.ERROR_CODE_USERNAME_NOT_MATCH_RESEARCHER
           }
         })
       }
@@ -484,10 +486,7 @@ export class OTUserCtrl extends OTAuthCtrlBase {
         res.status(500).send(err)
       })
     } else {
-      console.log("illegal arguments.")
-      res.status(401).send({
-        error: C.ERROR_CODE_ILLEGAL_ARTUMENTS
-      })
+      res.status(200).send(false)
     }
   }
 
