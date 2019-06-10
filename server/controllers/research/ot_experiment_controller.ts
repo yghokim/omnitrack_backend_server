@@ -815,16 +815,14 @@ export default class OTExperimentCtrl {
       return
     }
 
-    const experimentId = req.params.experimentId
-
     const reason = req.body.reason
 
     let promise: Promise<any>
 
     if (researcherId) {
       promise = this.dropOutImpl({ _id: userId }, false, false, reason, researcherId)
-    } else if (userId && experimentId) {
-      promise = this.dropOutImpl({ _id: userId, experiment: experimentId }, false, false, reason, researcherId)
+    } else if (userId) {
+      promise = this.dropOutImpl({ _id: userId }, false, false, reason, researcherId)
     }
 
     promise.then(result => {
@@ -882,7 +880,6 @@ export default class OTExperimentCtrl {
 
         return Promise.all(participants.map(participant => {
           const experiment = participant["experiment"]
-          // TODO remove trackers, triggers, items, and medias associated with the experiment
           return userCtrl.deleteAllAssetsOfUser(participant._id).then(objRemovalResult => {
             console.log(objRemovalResult)
             app.pushModule().sendDataMessageToUser(participants.map(r => r._id),
