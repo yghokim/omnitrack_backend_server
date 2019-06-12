@@ -33,6 +33,21 @@ export class TrackingDataService implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this._internalSubscriptions.add(
+      this.socketService.onConnected.subscribe(socket => {
+        socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_ITEMS, (data) => {
+          console.log("Experiment items were updated.")
+          this.reloadItems()
+        }),
+        socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_TRACKERS, (data) => {
+          console.log("Experiment trackers were updated")
+          this.reloadTrackers()
+        }),
+        socket.on(SocketConstants.SOCKET_MESSAGE_UPDATED_TRIGGERS, (data) => {
+          console.log("Experiment triggers were updated.")
+          this.reloadTriggers()
+        })
+      })
+      /*
       this.socketService.onConnected.pipe(combineLatest(
         this.experimentService.getActiveParticipants(), (socket, participants) => {
           if (participants.length > 0) {
@@ -44,13 +59,14 @@ export class TrackingDataService implements OnInit, OnDestroy {
           result => {
             console.log("websocket subscription updated with participants.")
           }
-        )
+        )*/
     )
   }
 
   ngOnDestroy(): void {
+    /*
     this.socketService.socket.emit(SocketConstants.SERVER_EVENT_UNSUBSCRIBE_PARTICIPANT_TRACKING_DATA, { experimentId: this.experimentService.experimentId })
-
+*/
     this._internalSubscriptions.unsubscribe()
   }
 

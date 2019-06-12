@@ -4,6 +4,7 @@ import OTItemCtrl from './ot_item_controller';
 import UserBelongingCtrl from './user_belongings_base';
 import C from "../server_consts";
 import app from '../app';
+import { SocketConstants } from '../../omnitrack/core/research/socket';
 
 export default class OTSyncCtrl {
 
@@ -88,8 +89,27 @@ export default class OTSyncCtrl {
         console.log("bulk result: ")
         console.log(results)
         const changedTypes = results.filter(r => r.rows.length > 0).map(r => r.type)
-        app.pushModule().sendSyncDataMessageToUser(userId, changedTypes, { excludeDeviceIds: [res.locals.deviceId] })
+
+        //send sync notification to devices
+        app.pushModule().sendSyncDataMessageToUser(userId, changedTypes, { excludeDeviceIds: [req.get("OTDeviceId")] })
           .then().catch()
+
+        const experimentId = req.get("OTExperiment")
+        if (experimentId != null) {
+          changedTypes.forEach(changedType => {
+            let eventName: string
+            switch (changedType) {
+              case C.SYNC_TYPE_ITEM: eventName = SocketConstants.SOCKET_MESSAGE_UPDATED_ITEMS
+                break;
+              case C.SYNC_TYPE_TRACKER: eventName = SocketConstants.SOCKET_MESSAGE_UPDATED_TRACKERS
+                break;
+              case C.SYNC_TYPE_TRIGGER: eventName = SocketConstants.SOCKET_MESSAGE_UPDATED_TRIGGERS
+                break;
+            }
+
+            app.socketModule().sendDataToExperimentSubscribers(experimentId, eventName, null)
+          })
+        }
 
         return results.reduce(function (map, obj) {
           map[obj.type] = obj.rows
