@@ -8,7 +8,8 @@ export class InstallationRouter extends RouterWrapper {
       flags: {
         firebase_cert: installationWizardCtrl.isFirebaseSet(),
         super_users: installationWizardCtrl.isSuperUserSet(),
-        jwt_secret: installationWizardCtrl.isJwtSecretSet()
+        jwt_secret: installationWizardCtrl.isJwtSecretSet(),
+        mailer: installationWizardCtrl.isMailerSet()
       },
       completable: installationWizardCtrl.isCriticalConditionMet()
     };
@@ -88,38 +89,36 @@ export class InstallationRouter extends RouterWrapper {
       }
     );
 
-    this.router.post(
-      "/set/super_users",
-      assertInstallableStatusMiddleware,
-      (req, res) => {
-        try {
-          installationWizardCtrl
-            .setValue(req.body.value, "super_users")
-            .then(changed => {
-              res.status(200).send({
-                success: true,
-                changed: changed,
-                completable: installationWizardCtrl.isCriticalConditionMet()
+    
+    ["super_users", "jwt_secret"].forEach(url => {
+      this.router.post(
+        "/set/" + url, assertInstallableStatusMiddleware, (req, res) => {
+          try {
+            installationWizardCtrl
+              .setValue(req.body.value, url)
+              .then(changed => {
+                res.status(200).send({
+                  success: true,
+                  changed: changed,
+                  completable: installationWizardCtrl.isCriticalConditionMet()
+                });
+              })
+              .catch(ex => {
+                console.error(ex);
+                res.status(500).send(ex);
               });
-            })
-            .catch(ex => {
-              console.error(ex);
-              res.status(500).send(ex);
-            });
-        } catch (ex) {
-          console.error(ex);
-          res.status(500).send(ex);
-        }
-      }
-    );
+          } catch (ex) {
+            console.error(ex);
+            res.status(500).send(ex);
+          }
+        });
+    })
 
     this.router.post(
-      "/set/jwt_secret",
-      assertInstallableStatusMiddleware,
-      (req, res) => {
+      "/set/mailer", assertInstallableStatusMiddleware, (req, res) => {
         try {
           installationWizardCtrl
-            .setValue(req.body.value, "jwt_secret")
+            .setAndInstallMailer(req.body.value)
             .then(changed => {
               res.status(200).send({
                 success: true,
@@ -135,8 +134,7 @@ export class InstallationRouter extends RouterWrapper {
           console.error(ex);
           res.status(500).send(ex);
         }
-      }
-    );
+      });
 
     this.router.post(
       "/set/complete_installation",

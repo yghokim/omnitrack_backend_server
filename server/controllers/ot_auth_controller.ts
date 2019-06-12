@@ -265,7 +265,10 @@ export abstract class OTAuthCtrlBase {
             });
           }
         }
-        );
+        ).catch(err => {
+          console.log(err)
+          throw err
+        })
     } else {
       return Promise.reject<string>("Empty query or update.");
     }
@@ -298,6 +301,7 @@ export abstract class OTAuthCtrlBase {
                   req.body.newPassword,
                   (newPasswordErr, hashedNewPassword) => {
                     if (newPasswordErr) {
+                      console.error(newPasswordErr)
                       res.status(500).send(newPasswordErr);
                       return;
                     } else {
@@ -313,13 +317,22 @@ export abstract class OTAuthCtrlBase {
                           .send({
                             token: this.generateJWTToken(newAccount)
                           });
+                      }).catch(err => {
+                        console.log(err)
+                        res.status(500).send(err)
                       });
                     }
                   }
                 );
+              }else{
+                //original password is wrong
+                res.status(401).send({error: C.ERROR_CODE_WRONG_CREDENTIAL})
               }
             }
           );
+        }else{
+          console.log("User account not exists.")
+          res.status(404).send({error: C.ERROR_CODE_ACCOUNT_NOT_EXISTS})
         }
       });
     } else {
@@ -332,6 +345,7 @@ export abstract class OTAuthCtrlBase {
           }
         })
         .catch(err => {
+          console.error(err)
           res.status(500).send(err);
         });
     }

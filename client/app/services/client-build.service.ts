@@ -52,11 +52,6 @@ export class ClientBuildService extends ServiceBase {
     }
   }
 
-  private _firebaseProjectId: string
-  public get firebaseProjectId(): string {
-    return this._firebaseProjectId
-  }
-
   constructor(private api: ResearchApiService, private http: HttpClient, private socketService: SocketService) {
     super()
 
@@ -95,7 +90,6 @@ export class ClientBuildService extends ServiceBase {
     this._internalSubscriptions.add(
       this.http.get<Array<IClientBuildConfigBase<any>>>("/api/research/build/configs/all" + (this.researcherMode === true ? "" : ("/" + this._currentExperimentId)), this.api.makeRawResponseAuthorizedOptions()).subscribe(
         response => {
-          this._firebaseProjectId = response.headers.get("firebase-project-id")
           this._buildConfigBehaviorSubject.next(response.body)
         },
         err => {

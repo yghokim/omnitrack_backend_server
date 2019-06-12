@@ -114,6 +114,8 @@ export class ClientApiRouter extends RouterWrapper {
 
     this.router.get("/user/auth/app_flag", appSignedInMiddleware, userCtrl.getAppFlags)
 
+    this.router.get('/user/auth/request_password_link', userCtrl.requestPasswordResetLinkToEmail)
+
     this.router.route('/user/data_store/:storeKey')
       .get(appSignedInMiddleware, (req, res) => {
         userDataStoreCtrl.getDataStoreValue(req.user.uid, req.params.storeKey).then(
@@ -157,6 +159,10 @@ export class ClientApiRouter extends RouterWrapper {
 
     this.router.post('/user/auth/device', appSignedInMiddleware, userCtrl.upsertDeviceInfo)
 
+    this.router.post('/user/auth/update', appSignedInMiddleware, userCtrl.update)
+
+    this.router.post("/user/auth/drop", appSignedInMiddleware, experimentCtrl.dropOutFromExperiment)
+
     this.router.post('/user/name', appSignedInMiddleware, userCtrl.putUserName)
     this.router.post('/user/report', appSignedInMiddleware, userCtrl.postReport)
     this.router.delete('/user', appSignedInMiddleware, userCtrl.deleteAccount)
@@ -195,8 +201,6 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.get('/research/experiment/:experimentId/verify_invitation', certifiedDeviceCheckMiddleware, userCtrl.verifyInvitationCode)
 
     this.router.get('/research/experiment/:experimentId/consent', certifiedDeviceCheckMiddleware, experimentCtrl.getExperimentConsentInfo)
-
-    this.router.post("/research/experiment/:experimentId/dropout", appSignedInMiddleware, experimentCtrl.dropOutFromExperiment)
 
     this.router.get('/research/invitations/public', appSignedInMiddleware, experimentCtrl.getPublicInvitationList)
 

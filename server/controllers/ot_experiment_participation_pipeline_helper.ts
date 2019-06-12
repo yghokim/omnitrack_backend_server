@@ -8,7 +8,7 @@ import { AInvitation } from "../../omnitrack/core/research/invitation";
 export function selfAssignParticipantToExperiment(user: IUserDbEntity, invitationCode: string, experimentId: string, demographic: any): Promise<IJoinedExperimentInfo> {
   return findInvitation(invitationCode, experimentId)
     .then(invitation => getGroupFromInvitation(invitation))
-    .then(result => processExperimentAndUser(user, experimentId, result.groupId, result.invitationId, demographic))
+    .then(result => processExperimentAndUser(user, experimentId, result.groupId, result.invitationId, null, demographic))
 }
 
 export function researcherAssignParticipantToExperiment(user: IUserDbEntity, experimentId: string, groupId: string, alias?: string, demographic?: any): Promise<IJoinedExperimentInfo> {

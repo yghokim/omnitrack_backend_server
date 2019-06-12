@@ -69,7 +69,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
           this.isLoadingParticipants = false
           this.participantDataSource = new MatTableDataSource(result.participants)
 
-          this.participantColumns = ['alias', 'username', 'group'].concat(
+          this.participantColumns = ['alias', 'username', 'email', 'group'].concat(
             this.getDemographicKeys()
           ).concat(['status', 'rangeStart', 'excludedDays', 'joined', 'lastSync', 'lastSession', 'userId', 'button'])
 
@@ -95,7 +95,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
     )
   }
 
-  trackByParticipant(object: IUserDbEntity){
+  trackByParticipant(object: IUserDbEntity) {
     return object._id
   }
 
@@ -311,6 +311,7 @@ export class ExperimentParticipantsComponent implements OnInit, OnDestroy {
         switch (sortHeaderId) {
           case "alias": { return data.participationInfo.alias || ''; }
           case "username": { if (data) { return data.username || ''; } break; }
+          case "email": { return data.email || '' }
           case 'group': {
             if (data.participationInfo) {
               return data.participationInfo.groupId

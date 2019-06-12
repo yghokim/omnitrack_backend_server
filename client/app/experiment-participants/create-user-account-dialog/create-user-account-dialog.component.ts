@@ -56,6 +56,8 @@ export class CreateUserAccountDialogComponent implements OnInit, OnDestroy {
 
   username = new FormControl("", [Validators.required, Validators.minLength(3), Validators.maxLength(50), noDuplicateValidator(this.data.participants.map(p => p.username))])
 
+  email = new FormControl("changeme@email.com", [Validators.required, Validators.email])
+
   alias = new FormControl("", [
     noDuplicateValidator(this.data.participants.map(p => p.participationInfo.alias).filter(a => a != null))
   ])
@@ -72,6 +74,7 @@ export class CreateUserAccountDialogComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.userAccountForm = this.formBuilder.group({
       username: this.username,
+      email: this.email,
       password: this.password,
       alias: this.alias,
       groupId: this.groupId
@@ -99,14 +102,15 @@ export class CreateUserAccountDialogComponent implements OnInit, OnDestroy {
         this.data.api.selectedExperimentService.pipe(
           flatMap(expService => expService.createParticipantAccount(
             this.userAccountForm.value.username,
-          this.userAccountForm.value.password,
-          this.userAccountForm.value.groupId,
-          this.userAccountForm.value.alias))).subscribe(result => {
-          this.dialogRef.close(this.userAccountForm.value)
-        }, err => {
-          console.error(err)
-          this.isProcessing = false
-        })
+            this.userAccountForm.value.email,
+            this.userAccountForm.value.password,
+            this.userAccountForm.value.groupId,
+            this.userAccountForm.value.alias))).subscribe(result => {
+              this.dialogRef.close(this.userAccountForm.value)
+            }, err => {
+              console.error(err)
+              this.isProcessing = false
+            })
       )
     }
   }

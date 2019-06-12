@@ -27,6 +27,7 @@ export interface IUserDbEntity extends IMongooseDbEntity {
   nameUpdatedAt?: Date,
   picture?: string,
   username: string,
+  email: string,
   participationInfo: {
     alias?: string,
     groupId?: string,

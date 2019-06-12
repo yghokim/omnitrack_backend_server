@@ -10,13 +10,15 @@
     </div>
     <div class="card-body">
       <mat-vertical-stepper linear="false" [selectedIndex]="currentStepIndex" #installationStepper>
-        <mat-step label="Register admin researchers" [completed]="superUsersComplete===true" [editable]="superUsersComplete!==true">
+        <mat-step label="Register admin researchers" [completed]="superUsersComplete===true"
+          [editable]="superUsersComplete!==true">
           <p>
             Enter the E-mails of users who will be permitted the administrator previlage.
           </p>
 
           <div class="super-user-container">
-            <div class="alert alert-secondary alert-sm" *ngIf="!superUsers || superUsers.length === 0">No admin emails are
+            <div class="alert alert-secondary alert-sm" *ngIf="!superUsers || superUsers.length === 0">No admin emails
+              are
               set.</div>
             <ul *ngIf="superUsers && superUsers.length > 0" class="list list-inline">
               <li *ngFor="let user of superUsers">
@@ -31,8 +33,8 @@
               </li>
             </ul>
             <div class="flex-container flex-align-items-center">
-              <input type="email" class="form-control form-control-sm" id="inputEmail" placeholder="Enter email" [(ngModel)]="newInputSuperUser"
-                (keyup)="onKeyDownInNewSuperUser($event)" />
+              <input type="email" class="form-control form-control-sm" id="inputEmail" placeholder="Enter email"
+                [(ngModel)]="newInputSuperUser" (keyup)="onKeyDownInNewSuperUser($event)" />
               <button mat-button color="primary" (click)="onAddNewSuperUserClicked()">Add</button>
             </div>
             <div class="small text-danger" *ngIf="isNewInputSuperUserValid===false">Please enter a valid E-mail address.
@@ -40,7 +42,8 @@
           </div>
 
           <div class="top-margin-1em">
-            <button [disabled]="!superUsers || superUsers.length === 0" mat-raised-button color="accent" (click)="submitSuperUsers()">Submit</button>
+            <button [disabled]="!superUsers || superUsers.length === 0" mat-raised-button color="accent"
+              (click)="submitSuperUsers()">Submit</button>
           </div>
         </mat-step>
         <mat-step label="Set JWT secret" [completed]="jwtTokenComplete === true" [editable]="jwtTokenComplete !== true">
@@ -55,10 +58,12 @@
             <input matInput placeholder="Insert any arbitrary string" [(value)]="jwtTokenSecret">
           </mat-form-field>
           <div class="top-margin-1em">
-            <button [disabled]="!jwtTokenSecret || jwtTokenSecret.length === 0" mat-raised-button color="accent" (click)="submitJwtTokenSecret()">Submit</button>
+            <button [disabled]="!jwtTokenSecret || jwtTokenSecret.length === 0" mat-raised-button color="accent"
+              (click)="submitJwtTokenSecret()">Submit</button>
           </div>
         </mat-step>
-        <mat-step label="Register Firebase admin certificate" [completed]="firebaseCertComplete === true" [editable]="firebaseCertComplete !== true">
+        <mat-step label="Register Firebase admin certificate" [completed]="firebaseCertComplete === true"
+          [editable]="firebaseCertComplete !== true">
           <p>
             Upload the Firebase Admin SDK private key file you downloaded from the Firebase project settings.
           </p>
@@ -74,26 +79,74 @@
             <label for="packageFileInput">
               <small>Load Certificate (.json)...</small>
             </label>
-            <input id="packageFileInput" type="file" accept="application/json" [(ngModel)]="adminCertFile" (change)="onAdminCertFileChanged($event.target.files)">
+            <input id="packageFileInput" type="file" accept="application/json" [(ngModel)]="adminCertFile"
+              (change)="onAdminCertFileChanged($event.target.files)">
           </div>
 
           <div *ngIf="adminCertJson" class="json-viewer-wrapper">
             <ngx-json-viewer [json]="adminCertJson"></ngx-json-viewer>
           </div>
 
-          <button *ngIf="adminCertJson" mat-button color="accent" (click)="onTryAnotherCertFileClicked()">Try another file</button>
+          <button *ngIf="adminCertJson" mat-button color="accent" (click)="onTryAnotherCertFileClicked()">Try another
+            file</button>
 
           <div *ngIf="wrongCertFileUploaded===true" class="alert alert-danger">
             Wrong file format. Try another file.
           </div>
 
           <div class="top-margin-1em">
-            <button mat-raised-button color="accent" [disabled]="adminCertJson==null" (click)="submitFirebaseCert()">Submit</button>
+            <button mat-raised-button color="accent" [disabled]="adminCertJson==null"
+              (click)="submitFirebaseCert()">Submit</button>
           </div>
         </mat-step>
+
+        <mat-step label="Register Mailer Information" [completed]="mailerComplete === true"
+          [editable]="mailerComplete !== true">
+          <p>Setup a mailer to be used throughout the research platform. For technical reasons, OmniTrack for Research
+            makes use of <b>SendGrid</b>, an E-mail transaction service that provides a free pricing plan (100
+            mails/day). </p>
+
+          <p>Mailer will be used for the following functionalities:
+          </p>
+          <ol>
+            <li>Sending password reset links to participants who forgot the password.</li>
+            <li>Sending E-mail messages in the experiment dashboard.</li>
+          </ol>
+
+          <p class="text-color-warn">Note that the mailer account is shared among the experiments.</p>
+
+          <div class="form-group example-full-width" style="width: 70%;
+              min-width: 300px;">
+            <label class="small" for="mailerApiKey">SendGrid API Key</label>
+            <input id="mailerApiKey" type="text" class="form-control" placeholder="Paste SendGrid API Key here"
+              [(ngModel)]="mailerApiKey">
+          </div>
+
+          <div class="form-group" style="width: 70%;
+              min-width: 300px;">
+
+            <label class="small" for="mailerSenderEmail">Sender E-mail</label>
+            <input type="text" class="form-control" id="mailerSenderEmail" placeholder="Insert a sender E-mail"
+              [(ngModel)]="mailerSenderEmail" [ngClass]="isMailerSenderEmailValid === false? 'is-invalid':':valid'">
+          </div>
+          <div class="error-message" *ngIf="isMailerSenderEmailValid === false">
+            Please enter a valid email address
+          </div>
+
+          <div class="top-margin-1em">
+              <app-labeled-loading-indicator class="loading-indicator" *ngIf="isSubmittingMailer===true">
+                  <span message>Installing Mailer...</span>
+                </app-labeled-loading-indicator>
+            <button mat-raised-button color="accent" [disabled]="isMailerValid() == false" *ngIf="isSubmittingMailer!==true"
+              (click)="submitMailer()">Submit</button>
+          </div>
+        </mat-step>
+
+
         <mat-step label="Complete the installation process" [enabled]="isInstallationCompletable === true">
           <div class="flex-container flex-align-items-center">
-            <button mat-raised-button color="primary" class="large" [disabled]="isInstallationCompletable === false" (click)="completeInstallation()">
+            <button mat-raised-button color="primary" class="large" [disabled]="isInstallationCompletable === false"
+              (click)="completeInstallation()">
               Complete & Lock Installation
             </button>
             <button mat-button color="accent" (click)="startOver()">
