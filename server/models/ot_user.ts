@@ -52,6 +52,13 @@ const otUserSchema = new mongoose.Schema({
       }),
     ]*/
   },
+  /* Note that the user email address is not guaranteed to be unique. */
+  email: {type: String, index: true, required: true, validate: [
+    validate({
+      validator: 'isEmail',
+      message: 'Use a valid e-mail address.'
+    })
+  ]},
   
   hashed_password: { type: String, required: true },
   passwordSetAt: Date,
@@ -71,6 +78,7 @@ const otUserSchema = new mongoose.Schema({
   }
 
 }, {
+  validateBeforeSave: false,
   timestamps: true, 
   minimize: false,
   toJSON: {virtuals: true}});

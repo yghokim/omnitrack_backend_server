@@ -243,6 +243,10 @@ a.no-text-effect {
   color: #b5b5b5;
 }
 
+.text-color-warn{
+  color: #ea5656 !important;
+}
+
 .mat-slide-toggle-content {
   font-weight: initial;
   font-size: 0.9rem;
@@ -630,6 +634,18 @@ label.small.horizontal {
 .top-padding-1em {
   padding-top: 1em;
 }
+
+.top-padding-dot5em {
+  padding-top: 0.5em;
+}
+
+.left-padding-dot5em {
+  padding-left: 0.5em;
+}
+.right-padding-dot5em {
+  padding-right: 0.5em;
+}
+
 
 .mat-button-small {
   font-size: 0.75rem;
@@ -1251,8 +1267,7 @@ $duration: 1.4s;
 }
 
 .mat-vertical-content {
-  p {
-    font-size: 10pt;
+  p, ol {
     color: #575757;
   }
 }

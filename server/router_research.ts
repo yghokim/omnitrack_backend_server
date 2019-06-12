@@ -21,6 +21,7 @@ import { trackingPackageCtrl } from './controllers/ot_tracking_package_controlle
 import { clientBuildCtrl } from './controllers/research/ot_client_build_controller';
 import OTShortUrl from './models/ot_short_url';
 import { getFirebaseProjectId } from './app';
+import { Request } from 'express';
 
 export class ResearchRouter extends RouterWrapper {
 
@@ -33,26 +34,19 @@ export class ResearchRouter extends RouterWrapper {
   constructor(private env: IEnvironment) {
     super()
 
-    const firebaseProjectId = getFirebaseProjectId()
-
-    const firebaseProjectIdSetMiddleware = (req, res, next)=>{
-      res.setHeader("firebase-project-id", firebaseProjectId)
-      next();
-    }
-
-    const tokenApprovedAuth = [this.researchAuthCtrl.makeTokenAuthMiddleware((researcher) => {
+    const tokenApprovedAuth = this.researchAuthCtrl.makeTokenAuthMiddleware((researcher) => {
       switch (researcher["account_approved"]) {
         case true: return null;
         case false: return "AccountDeclined";
         case undefined: return "AccountApprovalPending"
       }
-    }), firebaseProjectIdSetMiddleware]
+    })
 
-    const tokenAdminAuth = [this.researchAuthCtrl.makeTokenAuthMiddleware((researcher) => {
+    const tokenAdminAuth = this.researchAuthCtrl.makeTokenAuthMiddleware((researcher) => {
       const previlage = (env.super_users as Array<string> || []).indexOf(researcher.email) !== -1 ? ResearcherPrevilages.SUPERUSER : ResearcherPrevilages.NORMAL
 
       return previlage >= ResearcherPrevilages.ADMIN ? null : "NotAdmin"
-    }), firebaseProjectIdSetMiddleware]
+    })
 
     const tokenSignedInAuth = this.researchAuthCtrl.makeTokenAuthMiddleware()
 

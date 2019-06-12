@@ -306,7 +306,7 @@ export class PlatformConfigPanelComponent implements OnInit, OnDestroy {
   }
 
   validateConfig(): boolean {
-    const errors = validateBuildConfig(this.originalConfig, this.clientBuildService.firebaseProjectId)
+    const errors = validateBuildConfig(this.originalConfig)
     this.validationErrors = errors
     this.changeDetector.markForCheck()
 
