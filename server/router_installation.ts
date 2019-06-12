@@ -89,7 +89,7 @@ export class InstallationRouter extends RouterWrapper {
       }
     );
 
-    
+
     ["super_users", "jwt_secret"].forEach(url => {
       this.router.post(
         "/set/" + url, assertInstallableStatusMiddleware, (req, res) => {
@@ -146,10 +146,16 @@ export class InstallationRouter extends RouterWrapper {
             .then(success => {
               if (success === true) {
                 if (req.body.value === true) {
-                  // installation mode on.
-                  installServer();
+                  // installation mode off.
+                  installationWizardCtrl.setFrontendHost(req.body.host).then(
+                    () => {
+                      installServer();
+                      res.status(200).send(true);
+                    }
+                  )
+                } else {
+                  res.status(200).send(true);
                 }
-                res.status(200).send(true);
               } else {
                 res.status(500).send("failed");
               }

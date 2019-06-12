@@ -8,6 +8,7 @@ import OTUserReport from '../models/ot_user_report';
 import { messageCtrl } from './research/ot_message_controller';
 import InformationUpdateResult from '../../omnitrack/core/information_update_result';
 import app from '../app';
+import env from '../env';
 import { SocketConstants } from '../../omnitrack/core/research/socket';
 import { experimentCtrl } from './research/ot_experiment_controller';
 import { IUserDbEntity, IClientDevice } from '../../omnitrack/core/db-entity-types';
@@ -25,7 +26,7 @@ import OTExperiment from 'models/ot_experiment';
 export class OTUserCtrl extends OTAuthCtrlBase {
 
   private getExperimentIdCompat(request: any) {
-    return request.body.experimentId || request.params.experimentId || request["OTExperiment"]
+    return request.body.experimentId || request.params.experimentId || request.get("OTExperiment")
   }
 
   constructor() {
@@ -405,7 +406,7 @@ export class OTUserCtrl extends OTAuthCtrlBase {
         const token = require('randomstring').generate(128)
         user["password_reset_token"] = token
         user["reset_token_expires"] = moment().add(12, 'hour').toDate()
-        return user.save().then(()=>token)
+        return user.save().then(() => token)
       } else {
         throw { error: C.ERROR_CODE_ACCOUNT_NOT_EXISTS }
       }
@@ -416,38 +417,47 @@ export class OTUserCtrl extends OTAuthCtrlBase {
     const username = req.body.username
     const experimentId = this.getExperimentIdCompat(req)
     const appName = req.body.appName
-    const userQuery = {username: username, experiment: experimentId}
-    console.log("host:", req.headers.host, "username:", username)
+    const userQuery = { username: username, experiment: experimentId }
 
     this.issuePasswordResetTokenOfUser(userQuery)
       .then(
-      token => {
-        const resetUrl = (req.headers.host + "/user/reset_password?token=" + token)
-        
-        const format = require('string-format')
-        const mailFormat = "<h3>Reset your Password?</h3> <p>If you requested a password reset for <b>{username}</b> in <b>{appName}</b>, visit the link below. If you didn't make this request, ignore this email.</p> http://{resetUrl}"
+        token => {
+          const resetUrl = (env.frontend_host + "/user/reset_password?token=" + token)
 
-        return OTUser.findOne(userQuery, {email: 1}).lean().then(user=>{
-          return messageCtrl.sendEmailTo("Password Reset Request", format(mailFormat, {
-            appName: appName,
-            username: username,
-            resetUrl: resetUrl
-          }), [user.email])
+          const format = require('string-format')
+          const mailFormat = "<h3>Reset your Password?</h3> <p>If you requested a password reset for <b>{username}</b> in <b>{appName}</b>, visit the link below. If you didn't make this request, ignore this email.</p> {resetUrl}"
+
+          return OTUser.findOne(userQuery, { email: 1 }).lean().then(user => {
+            console.log("send a password reset mail to user : ", user)
+            return messageCtrl.sendEmailTo("Password Reset Request", format(mailFormat, {
+              appName: appName,
+              username: username,
+              resetUrl: resetUrl
+            }), [user.email])
+          })
+        }
+      ).then(([emailResult]) => {
+        console.log(emailResult)
+        res.status(200).send({
+          success: true,
+          email: emailResult.email.substr(0, 2)
         })
-      }
-    ).catch(err => {
-      console.error(err)
-      res.status(500).send(err)
-    }).then(emailResult => {
-      console.log(emailResult)
-      res.status(200).send(true)
-    })
+      }).catch(err => {
+        console.error(err)
+        if(err.error === C.ERROR_CODE_ACCOUNT_NOT_EXISTS){
+          res.status(200).send({
+            success: false,
+            email: null,
+            error: err.error
+          })
+        }else res.status(500).send(err)
+      })
   }
 
   issuePasswordResetToken = (req, res) => {
     const userId = req.params.participantId || req.body.userId
 
-    this.issuePasswordResetTokenOfUser({_id: userId}).then(
+    this.issuePasswordResetTokenOfUser({ _id: userId }).then(
       token => {
         res.status(200).send({
           reset_token: token

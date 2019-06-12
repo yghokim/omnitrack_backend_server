@@ -284,7 +284,7 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
     this.isLoadingServerStatus = true;
     this.internalSubscriptions.add(
       this.http
-        .post("/api/installation/set/complete_installation", { value: true })
+        .post("/api/installation/set/complete_installation", { value: true, host: window.location.protocol + "//" + window.location.host })
         .subscribe(
           success => {
             if (success === true) {

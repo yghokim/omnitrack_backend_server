@@ -105,6 +105,14 @@ export default class OTInstallationWizardCtrl {
     })
   }
 
+  setFrontendHost(address: string): Promise<boolean>{
+    env.frontend_host = address
+    return saveEnv().then(() => true).catch(err => {
+      console.error(err)
+      return false
+    })
+  }
+
   setInstallationMode(modeOn: boolean): Promise<boolean> {
     if (modeOn === false) {
       if (this.isCriticalConditionMet() === true) {
