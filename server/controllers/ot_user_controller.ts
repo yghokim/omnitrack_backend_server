@@ -5,6 +5,7 @@ import OTItem from '../models/ot_item';
 import OTTracker from '../models/ot_tracker';
 import OTTrigger from '../models/ot_trigger';
 import OTUserReport from '../models/ot_user_report';
+import { messageCtrl } from './research/ot_message_controller';
 import InformationUpdateResult from '../../omnitrack/core/information_update_result';
 import app from '../app';
 import { SocketConstants } from '../../omnitrack/core/research/socket';
@@ -19,6 +20,7 @@ import './ot_experiment_participation_pipeline_helper';
 import { selfAssignParticipantToExperiment, researcherAssignParticipantToExperiment } from './ot_experiment_participation_pipeline_helper';
 import OTItemMedia from '../models/ot_item_media';
 import moment = require('moment');
+import OTExperiment from 'models/ot_experiment';
 
 export class OTUserCtrl extends OTAuthCtrlBase {
 
@@ -397,32 +399,63 @@ export class OTUserCtrl extends OTAuthCtrlBase {
     })
   }
 
+  issuePasswordResetTokenOfUser(query: any): Promise<String> {
+    return OTUser.findOne(query).then(user => {
+      if (user) {
+        const token = require('randomstring').generate(128)
+        user["password_reset_token"] = token
+        user["reset_token_expires"] = moment().add(12, 'hour').toDate()
+        return user.save().then(()=>token)
+      } else {
+        throw { error: C.ERROR_CODE_ACCOUNT_NOT_EXISTS }
+      }
+    })
+  }
+
+  requestPasswordResetLinkToEmail = (req: Request, res) => {
+    const username = req.body.username
+    const experimentId = this.getExperimentIdCompat(req)
+    const appName = req.body.appName
+    const userQuery = {username: username, experiment: experimentId}
+    console.log("host:", req.headers.host, "username:", username)
+
+    this.issuePasswordResetTokenOfUser(userQuery)
+      .then(
+      token => {
+        const resetUrl = (req.headers.host + "/user/reset_password?token=" + token)
+        
+        const format = require('string-format')
+        const mailFormat = "<h3>Reset your Password?</h3> <p>If you requested a password reset for <b>{username}</b> in <b>{appName}</b>, visit the link below. If you didn't make this request, ignore this email.</p> http://{resetUrl}"
+
+        return OTUser.findOne(userQuery, {email: 1}).lean().then(user=>{
+          return messageCtrl.sendEmailTo("Password Reset Request", format(mailFormat, {
+            appName: appName,
+            username: username,
+            resetUrl: resetUrl
+          }), [user.email])
+        })
+      }
+    ).catch(err => {
+      console.error(err)
+      res.status(500).send(err)
+    }).then(emailResult => {
+      console.log(emailResult)
+      res.status(200).send(true)
+    })
+  }
+
   issuePasswordResetToken = (req, res) => {
     const userId = req.params.participantId || req.body.userId
 
-    console.log(userId)
-
-    const token = require('randomstring').generate(128)
-
-    OTUser.updateOne({ _id: userId }, {
-      password_reset_token: token,
-      reset_token_expires: moment().add(12, 'hour').toDate()
-    }).then(result => {
-      if (result.nModified > 0) {
-        console.log("generated password reset token of user " + userId)
+    this.issuePasswordResetTokenOfUser({_id: userId}).then(
+      token => {
         res.status(200).send({
           reset_token: token
         })
-      } else {
-        res.status(404).send({
-          error: C.ERROR_CODE_ACCOUNT_NOT_EXISTS
-        })
       }
-    }).catch(err => {
+    ).catch(err => {
       console.error(err)
-      res.status(500).send({
-        error: C.ERROR_CODE_INTERNAL_ERROR
-      })
+      res.status(500).send(err)
     })
   }
 

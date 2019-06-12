@@ -78,6 +78,7 @@ const otUserSchema = new mongoose.Schema({
   }
 
 }, {
+  validateBeforeSave: false,
   timestamps: true, 
   minimize: false,
   toJSON: {virtuals: true}});
