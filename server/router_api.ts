@@ -114,7 +114,7 @@ export class ClientApiRouter extends RouterWrapper {
 
     this.router.get("/user/auth/app_flag", appSignedInMiddleware, userCtrl.getAppFlags)
 
-    this.router.get('/user/auth/request_password_link', userCtrl.requestPasswordResetLinkToEmail)
+    this.router.post('/user/auth/request_password_link', userCtrl.requestPasswordResetLinkToEmail)
 
     this.router.route('/user/data_store/:storeKey')
       .get(appSignedInMiddleware, (req, res) => {
