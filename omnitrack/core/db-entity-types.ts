@@ -85,15 +85,15 @@ export interface IAttributeDbEntity {
 
 export interface ITrackerDbEntity extends IUserChildDbEntity {
   name?: string,
-  color?: Number,
-  isBookmarked?: Boolean,
-  position?: Number,
+  color?: number,
+  isBookmarked?: boolean,
+  position?: number,
   attributes?: [IAttributeDbEntity],
   lockedProperties?: any,
   flags?: any,
   redirectUrl?: string,
-  userCreatedAt?: Number,
-  userUpdatedAt?: Number,
+  userCreatedAt?: number,
+  userUpdatedAt?: number,
   removed?: boolean
 }
 

@@ -1,6 +1,8 @@
 import { trigger, transition, style, animate } from "@angular/animations";
+import { IAttributeDbEntity, ITrackerDbEntity } from '../../../../omnitrack/core/db-entity-types';
+import AttributeManager from "../../../../omnitrack/core/attributes/attribute.manager";
 
-export function getTrackerColorString(tracker: any): string {
+export function getTrackerColorString(tracker: ITrackerDbEntity): string {
   const colorInt = tracker.color
   if (colorInt) {
     const alpha = (colorInt >> 24) & 0xFF
@@ -11,7 +13,16 @@ export function getTrackerColorString(tracker: any): string {
   } else { return "transparent" }
 }
 
-export function generateRowTriggerAnimation(name: string = "rowShowHideTrigger"): any{
+
+export function getAttributeIconName(attr: IAttributeDbEntity): string {
+  const helper = AttributeManager.getHelper(attr.type)
+  if (helper != null) {
+    return helper.getSmallIconType(attr)
+  } else { return null }
+}
+
+
+export function generateRowTriggerAnimation(name: string = "rowShowHideTrigger"): any {
   trigger(name || 'rowShowHideTrigger', [
     transition(':enter', [
       style({ opacity: 0, transform: "translate(0,100%)" }),
@@ -23,7 +34,7 @@ export function generateRowTriggerAnimation(name: string = "rowShowHideTrigger")
   ])
 }
 
-export function generateAlphaEnterLeaveTriggerAnim(name: string = "enterLeaveTrigger"): any{
+export function generateAlphaEnterLeaveTriggerAnim(name: string = "enterLeaveTrigger"): any {
   trigger(name || 'enterLeaveTrigger', [
     transition(':enter', [
       style({ opacity: 0 }),

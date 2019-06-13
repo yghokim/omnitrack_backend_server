@@ -10,14 +10,14 @@
           <div class="subheader">Trackers</div>
             
           <ng-container *ngIf="currentPlanData.data && currentPlanData.data.trackers && currentPlanData.data.trackers.length > 0">
-              <app-selectable-menu-item *ngFor="let tracker of currentPlanData.data.trackers" [title]="tracker.name" [color]="getTrackerColorString(tracker)"></app-selectable-menu-item>
+              <app-selectable-menu-item *ngFor="let tracker of currentPlanData.data.trackers" [title]="tracker.name" [color]="getTrackerColorString(tracker)" [selected]="selectedEntity === tracker" (onClick)="onTrackerClicked(tracker)"></app-selectable-menu-item>
             </ng-container>
           <div class="subheader">Triggers</div>
         </div>
       </mat-sidenav>
       <mat-sidenav-content>
         <div class="main-panel-container">
-          <app-tracker-detail-panel></app-tracker-detail-panel>
+          <app-tracker-detail-panel *ngIf="selectedType === 'tracker'" [tracker] = "selectedEntity"></app-tracker-detail-panel>
           <div class="menu-panel preview-panel">
             Preview panel
           </div>

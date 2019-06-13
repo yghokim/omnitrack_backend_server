@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 import { flatMap } from 'rxjs/operators';
 import { IExperimentTrackingPlanDbEntity } from '../../../../../omnitrack/core/research/db-entity-types';
 import { deepclone } from '../../../../../shared_lib/utils';
-import { ITrackerDbEntity } from '../../../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, ITriggerDbEntity } from '../../../../../omnitrack/core/db-entity-types';
 
 import { getTrackerColorString } from '../omnitrack-helper';
 
@@ -20,7 +20,7 @@ import { getTrackerColorString } from '../omnitrack-helper';
 export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
 
   private _internalSubscriptions = new Subscription()
-  originalPlanData : IExperimentTrackingPlanDbEntity = null
+  originalPlanData: IExperimentTrackingPlanDbEntity = null
   currentPlanData: IExperimentTrackingPlanDbEntity = null
 
   public selectedType: string = null
@@ -35,11 +35,11 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const planKey = this.activatedRoute.snapshot.params["planKey"]
-    if(planKey!=null){
+    if (planKey != null) {
       this._internalSubscriptions.add(
         this.api.selectedExperimentService.pipe(
           flatMap(service => service.getTrackingPlan(planKey))
-        ).subscribe(plan=>{
+        ).subscribe(plan => {
           console.log(plan)
           this.originalPlanData = deepclone(plan)
           this.currentPlanData = deepclone(plan)
@@ -52,12 +52,17 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  getTrackerColorString(tracker: any): string{
+  getTrackerColorString(tracker: any): string {
     return getTrackerColorString(tracker)
   }
 
   ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
+  }
+
+  onTrackerClicked(tracker: ITrackerDbEntity) {
+    this.selectedEntity = tracker
+    this.selectedType = 'tracker'
   }
 
 }

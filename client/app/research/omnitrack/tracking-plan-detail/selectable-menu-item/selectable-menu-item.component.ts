@@ -17,7 +17,10 @@ export class SelectableMenuItemComponent implements OnInit {
   color: string
 
   @Input()
-  selected: boolean = true
+  selected = false
+
+  @Input()
+  iconPath: string = null
 
   constructor() { }
 

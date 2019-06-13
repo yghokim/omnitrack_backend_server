@@ -1,3 +1,5 @@
 <div class="menu-body flex-container flex-align-items-center" [class.selected]="selected===true" (click)="onClicked()">
+  <span class="icon" *ngIf="iconPath"><img [src]="iconPath"></span>
+
   <div class="color" [style.background]="color" *ngIf="color"></div><span class="title" *ngIf="title">{{title}}</span>
 </div>

@@ -1,6 +1,23 @@
-<div class="" style="background:red">
+<div class="menu-panel child">
+    <div class="form-group">
+      <label class="small" for="trackerName">Tracker Name</label>
+      <input type="text" class="form-control" id="trackerName" [(ngModel)]="tracker.name">
+    </div>
 
-    <p>
-        tracker-detail-panel works!
-      </p>
+    <div class="form-group">
+        <label class="small">Color</label>
+        <div class="color-palette-picker">
+          <div class="color-button" *ngFor="let color of getTrackerColorPalette()" (click)="onColorButtonClicked(color)">
+            <div class="color-element" [style.background]="color" [class.selected]="getCurrentColorIndex() === color">
+              <mat-icon *ngIf="getCurrentColorIndex() === color" class="material-icons">done</mat-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <div class="subheader">Fields</div>
+    <ng-container *ngIf="tracker.attributes && tracker.attributes.length > 0">
+        <app-selectable-menu-item *ngFor="let field of tracker.attributes" [title]="field.name" [iconPath]="'/assets/omnitrack/field_icons_small/icon_small_' + getAttributeIconName(field) + '.svg'" [selected]="selectedField === field" (onClick)="onFieldClicked(field)"></app-selectable-menu-item>
+    </ng-container>
 </div>
+<app-field-detail-panel *ngIf="selectedField" [field] = "selectedField"></app-field-detail-panel>
