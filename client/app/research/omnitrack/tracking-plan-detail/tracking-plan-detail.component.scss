@@ -1,0 +1,43 @@
+.panel-container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+
+
+  .main-panel-container {
+    display: flex;
+    flex-direction: row;
+    justify-items: stretch;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+  }
+
+  .menu-panel {
+    &>div {
+      padding: 0.75rem 1rem;
+    }
+
+    .subheader {
+      background: #e3e3e3;
+      padding: 0.25rem 1rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: #575757;
+    }
+  }
+
+  .sidepanel-container {
+    background: green;
+  }
+
+  .preview-panel {
+    background: red;
+    flex: 1;
+  }
+}

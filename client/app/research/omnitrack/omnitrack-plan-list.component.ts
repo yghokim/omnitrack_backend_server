@@ -67,6 +67,10 @@ export class OmniTrackPlanListComponent implements OnInit, OnDestroy {
   onEditPlanClicked(packageKey: string) {
     this.router.navigate([packageKey], {relativeTo: this.activatedRoute})
   }
+  
+  onEditCodeClicked(packageKey: string) {
+    this.router.navigate(["code", packageKey], {relativeTo: this.activatedRoute})
+  }
 
   onRemovePlanClicked(planKey: string) {
     this._internalSubscriptions.add(

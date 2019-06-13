@@ -1,0 +1,31 @@
+<ng-container *ngIf="currentPlanData!=null">
+  <div class="code-editor-container">
+    <mat-sidenav-container class="panel-container">
+      <mat-sidenav #global mode="side" opened>
+        <div class="menu-panel">
+          <div class="form-group">
+            <label for="planNameInput" class="small">Plan Name{{currentPlanData.name !== originalPlanData.name? '*' : ''}}</label>
+            <input id="planNameInput" type="text" class="form-control" [(ngModel)]="currentPlanData.name">
+          </div>
+          <div class="subheader">Trackers</div>
+            
+          <ng-container *ngIf="currentPlanData.data && currentPlanData.data.trackers && currentPlanData.data.trackers.length > 0">
+              <app-selectable-menu-item *ngFor="let tracker of currentPlanData.data.trackers" [title]="tracker.name" [color]="getTrackerColorString(tracker)"></app-selectable-menu-item>
+            </ng-container>
+          <div class="subheader">Triggers</div>
+        </div>
+      </mat-sidenav>
+      <mat-sidenav-content>
+        <div class="main-panel-container">
+          <app-tracker-detail-panel></app-tracker-detail-panel>
+          <div class="menu-panel preview-panel">
+            Preview panel
+          </div>
+        </div>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
+  </div>
+  <div class="code-editor-footer">
+    Footer
+  </div>
+</ng-container>

@@ -7,7 +7,6 @@ import { ClientBinaryListComponent } from './components/client-binary-list/clien
 import { PlatformConfigPanelComponent } from './experiment-client-settings/platform-config-panel/platform-config-panel.component';
 import { ConfigVariableRowComponent } from './experiment-client-settings/config-variable-row/config-variable-row.component';
 import { ClipboardModule } from 'ngx-clipboard';
-import { HelpWidgetComponent } from './components/help-widget/help-widget.component';
 import { C3ChartComponent } from './research/visualization/c3-chart.component';
 import { ChartFrameComponent } from './shared-visualization/chart-frame/chart-frame.component';
 import { D3ChartFrameComponent } from './shared-visualization/d3-chart-frame/d3-chart-frame.component';
@@ -24,7 +23,6 @@ import { D3ChartFrameComponent } from './shared-visualization/d3-chart-frame/d3-
     ClientBinaryListComponent,
     PlatformConfigPanelComponent,
     ConfigVariableRowComponent,
-    HelpWidgetComponent,
     C3ChartComponent,
     ChartFrameComponent,
     D3ChartFrameComponent,
@@ -36,7 +34,6 @@ import { D3ChartFrameComponent } from './shared-visualization/d3-chart-frame/d3-
     ClientBinaryListComponent,
     PlatformConfigPanelComponent,
     ConfigVariableRowComponent,
-    HelpWidgetComponent,
     C3ChartComponent,
     ChartFrameComponent,
     D3ChartFrameComponent,

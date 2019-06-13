@@ -10,6 +10,8 @@ import { BusyOverlayComponent } from '../busy-overlay/busy-overlay.component';
 import { CommonModule } from '@angular/common';
 import { AnonymizeEmailPipe } from '../pipes/anonymize-email.pipe';
 
+import { HelpWidgetComponent } from '../components/help-widget/help-widget.component';
+
 /*
 import { ProductivityTimelineComponent } from '../shared-visualization/custom/productivity-timeline/productivity-timeline.component';
 import { ProductivityDashboardComponent } from '../shared-visualization/custom/productivity-dashboard/productivity-dashboard.component';
@@ -44,6 +46,7 @@ import { ProductivityTimelineDayDirective } from '../shared-visualization/custom
     LabeledLoadingIndicatorComponent,
     BusyOverlayComponent,
     AnonymizeEmailPipe,
+    HelpWidgetComponent,
   ],
   declarations: [
     ToastComponent,
@@ -60,6 +63,7 @@ import { ProductivityTimelineDayDirective } from '../shared-visualization/custom
     FileSizePipe,
     LabeledLoadingIndicatorComponent,
     AnonymizeEmailPipe,
+    HelpWidgetComponent,
   ],
   entryComponents: [
   ],
