@@ -4,6 +4,13 @@
     <label class="small" for="fieldName">Field Name</label>
     <input type="text" class="form-control" id="fieldName" [(ngModel)]="field.name">
   </div>
+
+  <div class="form-group no-padding-top flex-container flex-align-items-center flex-stretch">
+    <label class="small no-margin">Permissions</label>
+    <app-lock-flag-button [model]="field" lockType="field"></app-lock-flag-button>
+  </div>
+
+
   <div class="form-group">
     <app-selection-property-view title="Field Type" [(propertyValue)]="field.type" [list]="getTypeInfos()">
     </app-selection-property-view>

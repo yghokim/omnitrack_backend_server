@@ -9,6 +9,8 @@ import { deepclone } from '../../../../../shared_lib/utils';
 import { ITrackerDbEntity, ITriggerDbEntity } from '../../../../../omnitrack/core/db-entity-types';
 
 import { getTrackerColorString } from '../omnitrack-helper';
+import { NotificationService } from '../../../services/notification.service';
+import * as deepEqual from 'deep-equal';
 
 @Component({
   selector: 'app-tracking-plan-detail',
@@ -30,7 +32,9 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
     private api: ResearchApiService,
     private planService: TrackingPlanService,
     private activatedRoute: ActivatedRoute,
-    private changeDetector: ChangeDetectorRef) {
+    private changeDetector: ChangeDetectorRef,
+    private notificationService: NotificationService
+  ) {
   }
 
   ngOnInit() {
@@ -65,4 +69,44 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
     this.selectedType = 'tracker'
   }
 
+  isChanged(): boolean {
+    return deepEqual(this.originalPlanData, this.currentPlanData) === false
+  }
+
+  onAppFlagsChanged(flags: any) {
+    if (this.currentPlanData.data.app) {
+      this.currentPlanData.data.app.lockedProperties = flags
+    } else {
+      this.currentPlanData.data.app = {
+        lockedProperties: flags
+      }
+    }
+  }
+
+  onDiscardChangesClicked() {
+    this.currentPlanData = deepclone(this.originalPlanData)
+    if (this.selectedEntity) {
+      switch (this.selectedType) {
+        case 'tracker':
+          this.selectedEntity = this.currentPlanData.data.trackers.find(t => t._id === this.selectedEntity._id)
+          break;
+        case 'trigger':
+          this.selectedEntity = this.currentPlanData.data.triggers.find(t => t._id === this.selectedEntity._id)
+          break;
+      }
+    }
+    this.planService.currentPlan = this.currentPlanData.data
+    this.changeDetector.markForCheck()
+  }
+
+  onSaveClicked() {
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.pipe(
+        flatMap(expService => expService.updateTrackingPlanJson(this.originalPlanData.key, this.currentPlanData.data, this.currentPlanData.name))).subscribe(changed => {
+          this.notificationService.pushSnackBarMessage({
+            message: "Saved changes in the plan."
+          })
+        })
+    )
+  }
 }
