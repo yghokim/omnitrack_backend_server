@@ -15,6 +15,10 @@ export class ShortTextAttributeHelper extends AttributeHelper {
         super(attributeTypes.ATTR_TYPE_SHORT_TEXT)
     }
 
+    getPropertyName(propertyKey: string): string{
+      return "property"
+    }
+
     getPropertyHelper<T>(propertyKey: string): PropertyHelper<T> {
         return null
     }

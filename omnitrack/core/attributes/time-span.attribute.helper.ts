@@ -58,6 +58,12 @@ export class TimeSpanAttributeHelper extends AttributeHelper {
 
   propertyKeys: string[] = [TimeSpanAttributeHelper.PROPERTY_GRANULARITY];
 
+  getPropertyName(propertyKey: string): string{
+    switch(propertyKey){
+      case TimeSpanAttributeHelper.PROPERTY_GRANULARITY: return "Granularity"
+    }
+  }
+
   getPropertyHelper<T>(propertyKey: string): PropertyHelper<T> {
     switch (propertyKey) {
       case TimeSpanAttributeHelper.PROPERTY_GRANULARITY:
@@ -65,6 +71,24 @@ export class TimeSpanAttributeHelper extends AttributeHelper {
     }
   }
 
+  getPropertyConfig(propertyKey: string): any {
+    switch (propertyKey) {
+      case TimeSpanAttributeHelper.PROPERTY_GRANULARITY:
+        return {
+          list: [
+            { id: TimeSpanAttributeHelper.GRANULARITY_MINUTE, name: "Minute" },
+            { id: TimeSpanAttributeHelper.GRANULARITY_DAY, name: "Day" }]
+        }
+    }
+  }
+
+  getPropertyDefaultValue(propertyKey: string): any{
+    switch (propertyKey) {
+      case TimeSpanAttributeHelper.PROPERTY_GRANULARITY:
+        return TimeSpanAttributeHelper.GRANULARITY_DAY
+    }
+  }
+  
   
   getSmallIconType(attribute: IAttributeDbEntity): string {
     return AttributeIconTypes.ATTR_ICON_SMALL_TIMER

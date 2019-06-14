@@ -15,6 +15,42 @@ export default class AttributeManager {
 
   private static readonly dict = {}
 
+  static getTypeInfos(): Array<{ id: number, name: string }> {
+    return [
+      {
+        id: attributeTypes.ATTR_TYPE_SHORT_TEXT,
+        name: "Short Text"
+      },{
+        id: attributeTypes.ATTR_TYPE_LONG_TEXT,
+        name: "Long Text"
+      },{
+        id: attributeTypes.ATTR_TYPE_RATING,
+        name: "Rating"
+      },{
+        id: attributeTypes.ATTR_TYPE_NUMBER,
+        name: "Number"
+      },{
+        id: attributeTypes.ATTR_TYPE_CHOICE,
+        name: "Choice"
+      },{
+        id: attributeTypes.ATTR_TYPE_TIMESPAN,
+        name: "Time Span"
+      },{
+        id: attributeTypes.ATTR_TYPE_TIME,
+        name: "Time Point"
+      },{
+        id: attributeTypes.ATTR_TYPE_LOCATION,
+        name: "Short Text"
+      },{
+        id: attributeTypes.ATTR_TYPE_AUDIO,
+        name: "Audio"
+      },{
+        id: attributeTypes.ATTR_TYPE_IMAGE,
+        name: "Image"
+      },
+    ]
+  }
+
   static getHelper(type: number): AttributeHelper {
     const helper = AttributeManager.dict[type.toString()]
     if (helper instanceof AttributeHelper) {

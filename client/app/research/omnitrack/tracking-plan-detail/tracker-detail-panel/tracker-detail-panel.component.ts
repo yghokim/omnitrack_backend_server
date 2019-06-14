@@ -14,8 +14,17 @@ import * as deepEqual from 'deep-equal';
 })
 export class TrackerDetailPanelComponent implements OnInit {
 
+  private _tracker: ITrackerDbEntity
+
   @Input()
-  tracker: ITrackerDbEntity
+  set tracker(tracker: ITrackerDbEntity){
+    this._tracker = tracker
+    this.selectedField = null
+  }
+
+  get tracker(): ITrackerDbEntity{
+    return this._tracker
+  }
 
   selectedField: IAttributeDbEntity = null
 

@@ -23,6 +23,13 @@ import { SelectableMenuItemComponent } from './research/omnitrack/tracking-plan-
 import { TrackerDetailPanelComponent } from './research/omnitrack/tracking-plan-detail/tracker-detail-panel/tracker-detail-panel.component';
 import { FieldDetailPanelComponent } from './research/omnitrack/tracking-plan-detail/field-detail-panel/field-detail-panel.component';
 import { TriggerDetailPanelComponent } from './research/omnitrack/tracking-plan-detail/trigger-detail-panel/trigger-detail-panel.component';
+import { BooleanPropertyViewComponent } from './research/omnitrack/tracking-plan-detail/properties/boolean-property-view/boolean-property-view.component';
+import { SelectionPropertyViewComponent } from './research/omnitrack/tracking-plan-detail/properties/selection-property-view/selection-property-view.component';
+import { NumberPropertyViewComponent } from './research/omnitrack/tracking-plan-detail/properties/number-property-view/number-property-view.component';
+import { TextPropertyViewComponent } from './research/omnitrack/tracking-plan-detail/properties/text-property-view/text-property-view.component';
+import { RatingOptionsPropertyViewComponent } from './research/omnitrack/tracking-plan-detail/properties/rating-options-property-view/rating-options-property-view.component';
+import { EntryListPropertyViewComponent } from './research/omnitrack/tracking-plan-detail/properties/entry-list-property-view/entry-list-property-view.component';
+import { NumberStylePropertyViewComponent } from './research/omnitrack/tracking-plan-detail/properties/number-style-property-view/number-style-property-view.component';
 
 const routes: Routes = [
   {
@@ -82,6 +89,13 @@ const routes: Routes = [
     TrackerDetailPanelComponent,
     FieldDetailPanelComponent,
     TriggerDetailPanelComponent,
+    BooleanPropertyViewComponent,
+    SelectionPropertyViewComponent,
+    NumberPropertyViewComponent,
+    TextPropertyViewComponent,
+    RatingOptionsPropertyViewComponent,
+    EntryListPropertyViewComponent,
+    NumberStylePropertyViewComponent,
   ],
   entryComponents: [
     LockConfigurationSheetComponent,

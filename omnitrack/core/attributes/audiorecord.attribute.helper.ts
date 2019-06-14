@@ -27,5 +27,9 @@ export class AudioRecordAttributeHelper extends AttributeHelper{
         return imageFile.mimeType
     }
 
+    getPropertyName(propertyKey: string): string{
+      return "property"
+    }
+
 
 }

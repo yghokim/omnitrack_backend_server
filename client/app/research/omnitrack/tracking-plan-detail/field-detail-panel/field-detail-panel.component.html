@@ -1,6 +1,34 @@
 <div class="menu-panel child">
-    <div class="form-group">
-        <label class="small" for="fieldName">Field Name</label>
-        <input type="text" class="form-control" id="fieldName" [(ngModel)]="field.name">
-      </div>
+
+  <div class="form-group">
+    <label class="small" for="fieldName">Field Name</label>
+    <input type="text" class="form-control" id="fieldName" [(ngModel)]="field.name">
+  </div>
+  <div class="form-group">
+    <app-selection-property-view title="Field Type" [(propertyValue)]="field.type" [list]="getTypeInfos()">
+    </app-selection-property-view>
+  </div>
+  <div class="form-group">
+    <app-boolean-property-view title="Required" [(propertyValue)]="field.isRequired"></app-boolean-property-view>
+  </div>
+  <hr class="no-margin">
+  <div class="form-group" *ngFor="let propertyKey of getPropertyKeys()"
+    [ngSwitch]="getPropertyHelper(propertyKey).type">
+    <app-boolean-property-view *ngSwitchCase="'Boolean'" [title]="getPropertyName(propertyKey)"
+      [propertyValue]="attributeHelper.getParsedPropertyValue(field, propertyKey)"
+      (propertyValueChange)="attributeHelper.setPropertyValue(field, propertyKey, $event)"></app-boolean-property-view>
+
+    <app-selection-property-view *ngSwitchCase="'Selection'" [title]="getPropertyName(propertyKey)"
+      [propertyValue]="attributeHelper.getParsedPropertyValue(field, propertyKey)"
+      (propertyValueChange)="attributeHelper.setPropertyValue(field, propertyKey, $event)"
+      [configuration]="attributeHelper.getPropertyConfig(propertyKey)"></app-selection-property-view>
+
+    <app-rating-options-property-view *ngSwitchCase="'RatingOptions'" [title]="getPropertyName(propertyKey)"
+      [propertyValue]="attributeHelper.getParsedPropertyValue(field, propertyKey)"
+      (propertyValueChange)="attributeHelper.setPropertyValue(field, propertyKey, $event)">
+    </app-rating-options-property-view>
+
+
+
+  </div>
 </div>

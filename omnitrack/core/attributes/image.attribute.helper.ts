@@ -15,6 +15,10 @@ export class ImageAttributeHelper extends AttributeHelper{
         super(attributeTypes.ATTR_TYPE_IMAGE)
     }
 
+    getPropertyName(propertyKey: string): string{
+      return "property"
+    }
+
     getPropertyHelper<T>(propertyKey: string): PropertyHelper<T> {
         return null
     }

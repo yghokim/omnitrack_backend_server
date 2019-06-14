@@ -34,6 +34,20 @@ export class RatingAttributeHelper extends AttributeHelper {
 
   propertyKeys: string[] = [RatingAttributeHelper.PROPERTY_KEY_OPTIONS];
 
+  getPropertyName(propertyKey: string): string{
+    switch (propertyKey) {
+      case RatingAttributeHelper.PROPERTY_KEY_OPTIONS:
+          return "Rating Options"
+    }
+  }
+
+  getPropertyDefaultValue(propertyKey: string): any{
+    switch (propertyKey) {
+      case RatingAttributeHelper.PROPERTY_KEY_OPTIONS:
+          return new RatingOptions()
+    }
+  }
+  
   getPropertyHelper<T>(propertyKey: string): PropertyHelper<T> {
     switch (propertyKey) {
       case RatingAttributeHelper.PROPERTY_KEY_OPTIONS:

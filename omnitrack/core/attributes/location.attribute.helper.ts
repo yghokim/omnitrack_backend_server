@@ -22,6 +22,10 @@ export class LocationAttributeHelper extends AttributeHelper {
     super(attributeTypes.ATTR_TYPE_LOCATION)
   }
 
+  getPropertyName(propertyKey: string): string{
+    return "property"
+  }
+
   getPropertyHelper<T>(propertyKey: string): PropertyHelper<T> {
     return null
   }
