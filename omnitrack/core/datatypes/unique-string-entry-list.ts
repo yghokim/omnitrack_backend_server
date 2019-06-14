@@ -1,4 +1,4 @@
 export class UniqueStringEntryList{
-  seed: number
-  entries: Array<{id: number, val: string}>
+  seed = 0
+  entries: Array<{id: number, val: string}> = []
 }

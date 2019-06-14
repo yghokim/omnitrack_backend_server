@@ -651,6 +651,9 @@ label.small.horizontal {
   font-size: 0.75rem;
   padding: 0.2rem 0.3rem !important;
   line-height: initial !important;
+  .material-icons{
+    font-size: 18px !important;
+  }
 }
 
 small.info-text {

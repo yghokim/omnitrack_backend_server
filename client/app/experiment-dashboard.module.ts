@@ -133,7 +133,7 @@ const routes: Routes = [
         }
       },
       {
-        path: 'omnitrack', 
+        path: 'omnitrack',
         loadChildren: './tracking-plan.module#TrackingPlanModule'
       }
     ]
@@ -142,7 +142,7 @@ const routes: Routes = [
 
 @NgModule({
   imports: [
-    CommonModule, 
+    CommonModule,
     SharedModule,
     ResearchSharedModule,
     RouterModule.forChild(routes),
@@ -169,7 +169,7 @@ const routes: Routes = [
     DemographicEditorComponent,
 
     ResearcherSearchComponent,
-    
+
     NewInvitationDialogComponent,
     ChooseInvitationDialogComponent,
     EditExperimentGroupDialogComponent,
@@ -183,15 +183,15 @@ const routes: Routes = [
     TriggerTreeViewComponent,
 
     TreeViewElementComponent,
-    
+
     ItemFieldInputComponent,
     GeneralItemFieldInputComponent,
     TimePointFieldInputComponent,
     TextFieldInputComponent,
     ChoiceFieldInputComponent,
-      
+
     TableCellValueComponent,
-  
+
     LocationCellComponent,
     MinuteSecondsPipe,
     AudioCellComponent,

@@ -1,31 +1,36 @@
 import { Input, Output, EventEmitter } from "@angular/core";
 
-export class PropertyViewBase<T>{
+export class PropertyViewBase<T> {
 
   @Input()
   title: string
 
-  protected ngModelValue: number
+  protected ngModelValue: T
 
-  get propertyValue(): number{
+  get propertyValue(): T {
     return this.ngModelValue
   }
 
   @Input()
-  set propertyValue(value: number){
+  set propertyValue(value: T) {
     this.ngModelValue = value
     this.propertyValueChange.emit(value)
+    this.onSetPropertyValue(value)
   }
 
   @Output()
-  propertyValueChange = new EventEmitter<number>()
+  propertyValueChange = new EventEmitter<T>()
 
   @Input()
-  set configuration(config: any){
+  set configuration(config: any) {
     this.onSetConfiguration(config)
   }
 
-  protected onSetConfiguration(config: any){
+  protected onSetPropertyValue(value: T) {
+
+  }
+
+  protected onSetConfiguration(config: any) {
 
   }
 

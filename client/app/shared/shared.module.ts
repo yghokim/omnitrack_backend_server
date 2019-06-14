@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { AnonymizeEmailPipe } from '../pipes/anonymize-email.pipe';
 
 import { HelpWidgetComponent } from '../components/help-widget/help-widget.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 /*
 import { ProductivityTimelineComponent } from '../shared-visualization/custom/productivity-timeline/productivity-timeline.component';
@@ -35,6 +36,7 @@ import { ProductivityTimelineDayDirective } from '../shared-visualization/custom
     ReactiveFormsModule,
     HttpClientModule,
     MaterialDesignModule,
+    DragDropModule,
     // Shared Components
     ToastComponent,
     LoadingComponent,

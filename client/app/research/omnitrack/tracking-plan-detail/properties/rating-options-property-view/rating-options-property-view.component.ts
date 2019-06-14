@@ -8,8 +8,4 @@ import { RatingOptions } from '../../../../../../../omnitrack/core/datatypes/rat
   styleUrls: ['./rating-options-property-view.component.scss', '../property-views.scss']
 })
 export class RatingOptionsPropertyViewComponent extends PropertyViewBase<RatingOptions> {
-
-  onSetConfiguration(config: any){
-
-  }
 }

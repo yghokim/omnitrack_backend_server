@@ -1,28 +1,71 @@
 <div class="property-view-container-vertical">
   <div class="form-group">
-    <app-selection-property-view class="form-group" title="Input Type"></app-selection-property-view>
+    <app-selection-property-view
+      class="form-group"
+      title="Input Type"
+      [(propertyValue)]="propertyValue.type"
+      [stringList]="['Stars', 'Likert Scale']"
+      (propertyValueChange)="propertyValueChange.emit(propertyValue)"
+    ></app-selection-property-view>
   </div>
-  <div class="form-group">
-    <app-selection-property-view title="# of Stars"></app-selection-property-view>
+  <div class="form-group" *ngIf="propertyValue.type === 0">
+    <app-selection-property-view
+      title="# of Stars"
+      [(propertyValue)]="propertyValue.stars"
+      [list]="[
+        { id: 5, name: '5 stars' },
+        { id: 7, name: '7 stars' },
+        { id: 10, name: '10 stars' }
+      ]"
+      (propertyValueChange)="propertyValueChange.emit(propertyValue)"
+    ></app-selection-property-view>
   </div>
-  <ng-container>
+  <ng-container *ngIf="propertyValue.type === 1">
     <div class="form-group">
-      <app-number-property-view title="Leftmost Value"></app-number-property-view>
-    </div>
-    
-    <div class="form-group">
-      <app-number-property-view title="Rightmost Value"></app-number-property-view>
+      <app-number-property-view
+        title="Leftmost Value"
+        [(propertyValue)]="propertyValue.left"
+        (propertyValueChange)="propertyValueChange.emit(propertyValue)"
+      ></app-number-property-view>
     </div>
 
     <div class="form-group">
-      <app-text-property-view title="Leftmost Label"></app-text-property-view>
+      <app-number-property-view
+        title="Rightmost Value"
+        [(propertyValue)]="propertyValue.right"
+        (propertyValueChange)="propertyValueChange.emit(propertyValue)"
+      ></app-number-property-view>
     </div>
 
     <div class="form-group">
-      <app-text-property-view title="Rightmost Label"></app-text-property-view>
+      <app-text-property-view
+        title="Leftmost Label"
+        [(propertyValue)]="propertyValue.leftLabel"
+        (propertyValueChange)="propertyValueChange.emit(propertyValue)"
+      ></app-text-property-view>
+    </div>
+
+    <div class="form-group">
+      <app-text-property-view
+        title="Mid Label"
+        [(propertyValue)]="propertyValue.midLabel"
+        (propertyValueChange)="propertyValueChange.emit(propertyValue)"
+      ></app-text-property-view>
+    </div>
+
+    <div class="form-group">
+      <app-text-property-view
+        title="Rightmost Label"
+        [(propertyValue)]="propertyValue.rightLabel"
+        (propertyValueChange)="propertyValueChange.emit(propertyValue)"
+      ></app-text-property-view>
     </div>
   </ng-container>
   <div class="form-group">
-    <app-boolean-property-view title="Allow Fractional Score"></app-boolean-property-view>
+    <app-boolean-property-view
+      title="Allow Fractional Score"
+      [(propertyValue)]="propertyValue.fractional"
+      (propertyValueChange)="propertyValueChange.emit(propertyValue)"
+    ></app-boolean-property-view>
   </div>
 </div>

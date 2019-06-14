@@ -28,6 +28,16 @@
       (propertyValueChange)="attributeHelper.setPropertyValue(field, propertyKey, $event)">
     </app-rating-options-property-view>
 
+    <app-number-style-property-view *ngSwitchCase="'NumberStyle'" [title]="getPropertyName(propertyKey)"
+      [propertyValue]="attributeHelper.getParsedPropertyValue(field, propertyKey)"
+      (propertyValueChange)="attributeHelper.setPropertyValue(field, propertyKey, $event)">
+    </app-number-style-property-view>
+
+    
+    <app-entry-list-property-view *ngSwitchCase="'ChoiceEntryList'" [title]="getPropertyName(propertyKey)"
+      [propertyValue]="attributeHelper.getParsedPropertyValue(field, propertyKey)"
+      (propertyValueChange)="attributeHelper.setPropertyValue(field, propertyKey, $event)"
+      [configuration]="attributeHelper.getPropertyConfig(propertyKey)"></app-entry-list-property-view>
 
 
   </div>

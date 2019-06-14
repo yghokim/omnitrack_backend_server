@@ -1,3 +1,56 @@
-<p>
-  number-style-property-view works!
-</p>
+<div class="property-view-container-vertical">
+  <div class="form-group">
+    <app-selection-property-view
+      title="Unit Position"
+      [stringList]="['None', 'Front', 'Rear']"
+      [(propertyValue)]="propertyValue.unitPosition"
+      (propertyValueChange)="propertyValueChange.emit(propertyValue)"
+    >
+    </app-selection-property-view>
+  </div>
+  <ng-container *ngIf="propertyValue.unitPosition !== 0">
+    <div class="form-group">
+      <app-text-property-view
+        title="Unit Text"
+        [(propertyValue)]="propertyValue.unit"
+        (propertyValueChange)="propertyValueChange.emit(propertyValue)"
+      >
+      </app-text-property-view>
+    </div>
+
+    <div class="form-group">
+      <app-boolean-property-view
+        title="Pluralize Unit"
+        [(propertyValue)]="propertyValue.pluralize"
+        (propertyValueChange)="propertyValueChange.emit(propertyValue)"
+      >
+      </app-boolean-property-view>
+    </div>
+  </ng-container>
+
+  <div class="form-group">
+    <app-boolean-property-view
+      title="Show Commas"
+      [propertyValue]="propertyValue.comma !== 0"
+      (propertyValueChange)="onShowCommaChanged($event)"
+    >
+    </app-boolean-property-view>
+  </div>
+
+  <div class="form-group">
+    <app-boolean-property-view
+      title="Show Fractional Part"
+      [propertyValue]="propertyValue.fraction !== 0"
+      (propertyValueChange)="onShowFractionPartChanged($event)"
+    >
+    </app-boolean-property-view>
+  </div>
+  <div class="form-group" *ngIf="propertyValue.fraction !== 0">
+    <app-number-property-view
+      title="Digits of Fraction"
+      [(propertyValue)]="propertyValue.fraction"
+      (propertyValueChange)="propertyValueChange.emit(propertyValue)"
+    >
+    </app-number-property-view>
+  </div>
+</div>
