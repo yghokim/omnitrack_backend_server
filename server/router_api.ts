@@ -18,6 +18,7 @@ import { Error } from 'mongoose';
 import UserBelongingCtrl from './controllers/user_belongings_base';
 import { RouterWrapper } from './server_utils';
 import { userDataStoreCtrl } from './controllers/ot_user_datastore_controller';
+import OTParticipant from './models/ot_participant';
 
 export class ClientApiRouter extends RouterWrapper {
   constructor() {
@@ -193,10 +194,10 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.post("/item/update_column", firebaseMiddleware, itemCtrl.postItemValue)
     this.router.post("/item/update_timestamp", firebaseMiddleware, itemCtrl.postItemTimestamp)
 
-//    this.router.route('/debug/items/all').get(itemCtrl.getAll)
-//    this.router.route('/debug/users/all').get(userCtrl.getAll)
-//    this.router.route('/debug/trackers/all').get(trackerCtrl.getAll)
-//    this.router.route('/debug/triggers/all').get(triggerCtrl.getAll)
+    //    this.router.route('/debug/items/all').get(itemCtrl.getAll)
+    //    this.router.route('/debug/users/all').get(userCtrl.getAll)
+    //    this.router.route('/debug/trackers/all').get(trackerCtrl.getAll)
+    //    this.router.route('/debug/triggers/all').get(triggerCtrl.getAll)
 
     /*
     this.router.route('/users/destroy').get(userCtrl.destroy)
@@ -218,6 +219,25 @@ export class ClientApiRouter extends RouterWrapper {
 
     this.router.get('/research/experiment/:experimentId/consent', firebaseMiddleware, researchCtrl.getExperimentConsentInfo)
 
+    this.router.get('/research/experiment/:experimentId/demographic_list', (req, res) => {
+      const experimentId = req.params.experimentId
+      OTParticipant.find({ experiment: experimentId }).populate("user").lean().then(
+        participants => {
+          res.status(200).send(participants.map(participant => {
+            const row = {
+              user_email: participant.user.email
+            }
+            if (participant.demographic) {
+              for (let col of Object.keys(participant.demographic)) {
+                row[col] = participant.demographic[col]
+              }
+            }
+            return row
+          }))
+        }
+      )
+    })
+
     this.router.post("/research/experiment/:experimentId/dropout", assertSignedInMiddleware, researchCtrl.dropOutFromExperiment)
 
     this.router.get('/research/experiments/history', firebaseMiddleware, researchCtrl.getExperimentHistoryOfUser)
@@ -234,6 +254,6 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.get('/package/extract', assertSignedInMiddleware, trackingPackageCtrl.getExtractedTrackingPackageJson)
 
     this.router.post('/package/temporary', assertSignedInMiddleware,
-    trackingPackageCtrl.postTrackingPackageToGlobalList)
+      trackingPackageCtrl.postTrackingPackageToGlobalList)
   }
 }
