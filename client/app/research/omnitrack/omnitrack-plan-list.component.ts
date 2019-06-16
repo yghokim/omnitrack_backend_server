@@ -8,8 +8,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { YesNoDialogComponent } from '../../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { NotificationService } from '../../services/notification.service';
 import { NewTrackingPlanDialogComponent } from './new-tracking-plan-dialog/new-tracking-plan-dialog.component';
-import { ITriggerDbEntity, ITrackerDbEntity } from '../../../../omnitrack/core/db-entity-types';
-import { TriggerConstants } from '../../../../omnitrack/core/trigger-constants';
 
 @Component({
   selector: 'app-omnitrack-plan-list',

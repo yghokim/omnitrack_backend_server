@@ -1,5 +1,5 @@
 import { ITrackerDbEntity, ITriggerDbEntity, IAttributeDbEntity } from "./db-entity-types";
-import { TriggerConstants } from "./trigger-constants";
+import { TriggerConstants } from "./trigger/trigger-constants";
 import { DependencyLevel, OmniTrackFlagGraph } from "./functionality-locks/omnitrack-dependency-graph";
 import { merge, deepclone } from "../../shared_lib/utils";
 
@@ -62,7 +62,6 @@ export class TrackingPlanManagerImpl {
   }
 
   getRemindersOf(tracker: ITrackerDbEntity): Array<ITriggerDbEntity> {
-    console.log(this.currentPlan.triggers)
     return this.currentPlan.triggers.filter(t => t.actionType === TriggerConstants.ACTION_TYPE_REMIND && t.trackers.indexOf(tracker._id) !== -1)
   }
 

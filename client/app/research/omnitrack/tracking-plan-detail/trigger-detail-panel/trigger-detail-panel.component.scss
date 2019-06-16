@@ -1,0 +1,20 @@
+@import '../../../../../styles.scss';
+
+ngb-timepicker {
+  width: 100%;
+}
+
+.child-pane{
+  background: $color_light_pane;
+  .form-group{
+    padding-top: 0.75rem;
+    &:first-child{
+      padding-top: 0;
+    }
+  }
+}
+
+mat-checkbox{
+  font-size: 0.8rem;
+  margin-bottom: -0.5rem;
+}

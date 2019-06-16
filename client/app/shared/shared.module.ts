@@ -12,6 +12,7 @@ import { AnonymizeEmailPipe } from '../pipes/anonymize-email.pipe';
 
 import { HelpWidgetComponent } from '../components/help-widget/help-widget.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 /*
 import { ProductivityTimelineComponent } from '../shared-visualization/custom/productivity-timeline/productivity-timeline.component';
@@ -37,6 +38,7 @@ import { ProductivityTimelineDayDirective } from '../shared-visualization/custom
     HttpClientModule,
     MaterialDesignModule,
     DragDropModule,
+    NgbModule,
     // Shared Components
     ToastComponent,
     LoadingComponent,
@@ -49,6 +51,7 @@ import { ProductivityTimelineDayDirective } from '../shared-visualization/custom
     BusyOverlayComponent,
     AnonymizeEmailPipe,
     HelpWidgetComponent,
+    
   ],
   declarations: [
     ToastComponent,

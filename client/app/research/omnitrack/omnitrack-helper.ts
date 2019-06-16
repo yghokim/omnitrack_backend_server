@@ -1,6 +1,8 @@
 import { trigger, transition, style, animate } from "@angular/animations";
-import { IAttributeDbEntity, ITrackerDbEntity } from '../../../../omnitrack/core/db-entity-types';
+import { IAttributeDbEntity, ITrackerDbEntity, ITriggerDbEntity } from '../../../../omnitrack/core/db-entity-types';
 import AttributeManager from "../../../../omnitrack/core/attributes/attribute.manager";
+import { TriggerConstants } from "../../../../omnitrack/core/trigger/trigger-constants";
+import * as moment from "moment";
 
 export function getTrackerColorString(tracker: ITrackerDbEntity): string {
   const colorInt = tracker.color
@@ -19,6 +21,27 @@ export function getAttributeIconName(attr: IAttributeDbEntity): string {
   if (helper != null) {
     return helper.getSmallIconType(attr)
   } else { return null }
+}
+
+export function makeShortenConditionString(trigger: ITriggerDbEntity): string {
+  switch (trigger.conditionType) {
+    case TriggerConstants.CONDITION_TYPE_TIME:
+      switch (trigger.condition.cType) {
+        case TriggerConstants.TIME_CONDITION_ALARM:
+          return "Alarm (" + makeAlarmTimeString(trigger.condition.aHr, trigger.condition.aMin) + ")"
+        case TriggerConstants.TIME_CONDITION_INTERVAL:
+          return "Interval (every " + trigger.condition.iSec + " secs)"
+        case TriggerConstants.TIME_CONDITION_SAMPLING:
+          return "Sampling (" + trigger.condition.esmCount + " pings)"
+      }
+      break;
+    case TriggerConstants.CONDITION_TYPE_DATA:
+      return "Data-driven"
+  }
+}
+
+function makeAlarmTimeString(hr: number, min: number): string {
+  return moment().hour(hr).minute(min).format("hh:mm a")
 }
 
 

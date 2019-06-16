@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { ITriggerDbEntity, ITrackerDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
-import { TriggerConstants } from '../../../../../../omnitrack/core/trigger-constants';
+import { TriggerConstants } from '../../../../../../omnitrack/core/trigger/trigger-constants';
 import * as moment from 'moment-timezone';
 import { MatDialog } from '@angular/material';
 import { ResearchApiService } from '../../../../services/research-api.service';
@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs';
 import { filter, flatMap } from 'rxjs/operators';
 import { YesNoDialogComponent } from '../../../../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { NotificationService } from '../../../../services/notification.service';
+import { makeShortenConditionString } from '../../omnitrack-helper';
 
 @Component({
   selector: 'app-trigger-tree-view',
@@ -48,25 +49,7 @@ export class TriggerTreeViewComponent implements OnInit, OnDestroy {
   }
 
   public makeShortenConditionString(): string {
-    switch (this.trigger.conditionType) {
-      case TriggerConstants.CONDITION_TYPE_TIME:
-        switch (this.trigger.condition.cType) {
-          case TriggerConstants.TIME_CONDITION_ALARM:
-            return "Alarm (" + this.makeAlarmTimeString(this.trigger.condition.aHr, this.trigger.condition.aMin) + ")"
-          case TriggerConstants.TIME_CONDITION_INTERVAL:
-            return "Interval (every " + this.trigger.condition.iSec + " secs)"
-          case TriggerConstants.TIME_CONDITION_SAMPLING:
-            return "Sampling (" + this.trigger.condition.esmCount + " pings)"
-        }
-        break;
-      case TriggerConstants.CONDITION_TYPE_DATA:
-        return "Data-driven"
-        break;
-    }
-  }
-
-  private makeAlarmTimeString(hr: number, min: number): string {
-    return moment().hour(hr).minute(min).format("hh:mm a")
+    return makeShortenConditionString(this.trigger)
   }
 
   public onSendTestPingClicked() {

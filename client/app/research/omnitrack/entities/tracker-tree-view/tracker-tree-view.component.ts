@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, ChangeDetectionStrategy, EventEmitter } from '@angular/core';
 import { ITrackerDbEntity, ITriggerDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
 import { getTrackerColorString } from '../../omnitrack-helper';
-import { TriggerConstants } from '../../../../../../omnitrack/core/trigger-constants';
+import { TriggerConstants } from '../../../../../../omnitrack/core/trigger/trigger-constants';
 
 @Component({
   selector: 'app-tracker-tree-view',

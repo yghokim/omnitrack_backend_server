@@ -27,7 +27,14 @@
   <ng-container *ngIf="tracker.attributes && tracker.attributes.length > 0">
     <app-selectable-menu-item *ngFor="let field of tracker.attributes" [title]="field.name"
       [iconPath]="'/assets/omnitrack/field_icons_small/icon_small_' + getAttributeIconName(field) + '.svg'"
-      [selected]="selectedField === field" (onClick)="onFieldClicked(field)"></app-selectable-menu-item>
+      [selected]="selectedEntity === field" (onClick)="onFieldClicked(field)"></app-selectable-menu-item>
   </ng-container>
+
+  <div class="subheader">Reminders</div>
+  <app-selectable-menu-item *ngFor="let reminder of getReminders()" [title]="getReminderTitle(reminder)" (onClick)="onReminderClicked(reminder)"
+    [selected]="selectedEntity === reminder"
+  ></app-selectable-menu-item>
 </div>
-<app-field-detail-panel *ngIf="selectedField" [field]="selectedField"></app-field-detail-panel>
+<app-field-detail-panel *ngIf="selectedEntity && selectedType==='field'" [field]="selectedEntity"></app-field-detail-panel>
+
+<app-trigger-detail-panel *ngIf="selectedEntity && selectedType==='reminder'" [trigger]="selectedEntity"></app-trigger-detail-panel>

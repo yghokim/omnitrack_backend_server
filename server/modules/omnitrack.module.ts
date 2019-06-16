@@ -13,7 +13,7 @@ import { merge } from '../../shared_lib/utils';
 import SocketModule from './socket.module';
 import { TrackingPlanManagerImpl } from '../../omnitrack/core/tracking-plan-helper';
 import { DependencyLevel } from '../../omnitrack/core/functionality-locks/omnitrack-dependency-graph';
-import { TriggerConstants } from '../../omnitrack/core/trigger-constants';
+import { TriggerConstants } from '../../omnitrack/core/trigger/trigger-constants';
 
 export default class OmniTrackModule {
 

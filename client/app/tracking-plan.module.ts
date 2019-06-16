@@ -30,6 +30,7 @@ import { TextPropertyViewComponent } from './research/omnitrack/tracking-plan-de
 import { RatingOptionsPropertyViewComponent } from './research/omnitrack/tracking-plan-detail/properties/rating-options-property-view/rating-options-property-view.component';
 import { EntryListPropertyViewComponent } from './research/omnitrack/tracking-plan-detail/properties/entry-list-property-view/entry-list-property-view.component';
 import { NumberStylePropertyViewComponent } from './research/omnitrack/tracking-plan-detail/properties/number-style-property-view/number-style-property-view.component';
+import { DayOfWeekCheckerComponent } from "./research/omnitrack/tracking-plan-detail/trigger-detail-panel/day-of-week-checker/day-of-week-checker.component";
 
 const routes: Routes = [
   {
@@ -96,6 +97,7 @@ const routes: Routes = [
     RatingOptionsPropertyViewComponent,
     EntryListPropertyViewComponent,
     NumberStylePropertyViewComponent,
+    DayOfWeekCheckerComponent
   ],
   entryComponents: [
     LockConfigurationSheetComponent,

@@ -9,6 +9,9 @@ import { PropertyViewBase } from '../property-view-base';
 export class SelectionPropertyViewComponent extends PropertyViewBase<number> implements OnInit {
 
   @Input()
+  direction = 'horizontal'
+
+  @Input()
   list: Array<{id: number, name: string}>
 
   @Input()

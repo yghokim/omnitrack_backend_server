@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { PropertyViewBase } from '../property-view-base';
 
 @Component({
@@ -7,4 +7,7 @@ import { PropertyViewBase } from '../property-view-base';
   styleUrls: ['./text-property-view.component.scss', '../property-views.scss']
 })
 export class TextPropertyViewComponent extends PropertyViewBase<string> {
+
+  @Input()
+  placeholder: string
 }

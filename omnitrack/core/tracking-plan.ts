@@ -1,6 +1,6 @@
 import { OmniTrackFlagGraph, DependencyLevel } from "./functionality-locks/omnitrack-dependency-graph";
 import { ITrackerDbEntity, ITriggerDbEntity } from "./db-entity-types";
-import { TriggerConstants } from "./trigger-constants";
+import { TriggerConstants } from "./trigger/trigger-constants";
 
 const randomstring = require('randomstring');
 /**

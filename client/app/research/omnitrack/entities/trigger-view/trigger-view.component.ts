@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { getTrackerColorString } from '../../omnitrack-helper';
 import { ITriggerDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
-import { TriggerConstants } from '../../../../../../omnitrack/core/trigger-constants';
+import { TriggerConstants } from '../../../../../../omnitrack/core/trigger/trigger-constants';
 import * as moment from 'moment-timezone';
 import { decomposeDuration } from '../../../../../../shared_lib/utils';
 import { TrackingPlanService } from '../../tracking-plan.service';

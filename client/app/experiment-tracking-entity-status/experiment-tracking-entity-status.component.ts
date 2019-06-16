@@ -17,7 +17,7 @@ import {
   getIdPopulateCompat,
   IAttributeDbEntity
 } from "../../../omnitrack/core/db-entity-types";
-import { TriggerConstants } from "../../../omnitrack/core/trigger-constants";
+import { TriggerConstants } from "../../../omnitrack/core/trigger/trigger-constants";
 import * as deepEqual from 'deep-equal';
 import { MatDialog } from "@angular/material";
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';

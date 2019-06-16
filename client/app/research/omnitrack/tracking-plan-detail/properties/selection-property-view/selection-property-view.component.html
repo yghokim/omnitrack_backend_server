@@ -1,4 +1,4 @@
-<div class="property-view-container-horizontal">
+<div [ngClass]="direction === 'horizontal'?'property-view-container-horizontal' : 'property-view-container'">
   <label class="small">{{title}}</label>
   <select class="form-control" [(ngModel)]="propertyValue">
     <option *ngFor="let elm of list" [ngValue]="elm.id">

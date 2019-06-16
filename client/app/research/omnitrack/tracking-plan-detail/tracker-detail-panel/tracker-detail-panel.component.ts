@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ITrackerDbEntity, IAttributeDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, IAttributeDbEntity, ITriggerDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
 import { TrackingPlanService } from '../../tracking-plan.service';
-import { getAttributeIconName } from '../../omnitrack-helper';
+import { getAttributeIconName, makeShortenConditionString } from '../../omnitrack-helper';
 import { TRACKER_COLOR_PALETTE } from '../../../../../../omnitrack/core/design/palette';
 import * as color from 'color';
 import * as deepEqual from 'deep-equal';
@@ -19,25 +19,39 @@ export class TrackerDetailPanelComponent implements OnInit {
   @Input()
   set tracker(tracker: ITrackerDbEntity){
     this._tracker = tracker
-    this.selectedField = null
+    this.selectedEntity = null
   }
 
   get tracker(): ITrackerDbEntity{
     return this._tracker
   }
 
-  selectedField: IAttributeDbEntity = null
+  selectedType: string
+  selectedEntity: ITriggerDbEntity | IAttributeDbEntity = null
 
   constructor(private planService: TrackingPlanService) {
-
   }
 
   ngOnInit() {
   }
 
   onFieldClicked(field: IAttributeDbEntity) {
-    this.selectedField = field
+    this.selectedEntity = field
+    this.selectedType = 'field'
   }
+
+  onReminderClicked(reminder: ITriggerDbEntity){
+    this.selectedEntity = reminder
+    this.selectedType = 'reminder'
+  }
+
+ getReminders(): Array<ITriggerDbEntity>{
+  return this.planService.getRemindersOf(this.tracker)
+ }
+
+ getReminderTitle(reminder: ITriggerDbEntity): string{
+   return makeShortenConditionString(reminder)
+ }
 
   getAttributeIconName(attr: IAttributeDbEntity): string {
     return getAttributeIconName(attr)
