@@ -18,3 +18,16 @@ mat-checkbox{
   font-size: 0.8rem;
   margin-bottom: -0.5rem;
 }
+
+.interval-duration-picker{
+  display: flex;
+  flex-direction: row;
+  .digit-picker{
+    flex: 1;
+    label{
+      font-size: 0.75rem;
+      color: #757575;
+      margin: 0;
+    }
+  }
+}

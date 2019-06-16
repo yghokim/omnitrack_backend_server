@@ -34,34 +34,77 @@
         </ng-container>
         <ng-container *ngSwitchCase="1">
           <!--Interval-->
+          <div class="form-group">
+            <label class="small">Interval Duration</label>
+            <div class="interval-duration-picker">
+              <div class="digit-picker">
+                <label>Hr</label>
+                <input type=number class="form-control" placeholder="hr" [(ngModel)]="intervalDurationHour">
+              </div>
+              <div class="digit-picker">
+                <label>Min</label>
+                <input type=number class="form-control" placeholder="min" [(ngModel)]="intervalDurationMinute">
+              </div>
+              <div class="digit-picker">
+                <label>Sec</label>
+                <input type=number class="form-control" placeholder="sec" [(ngModel)]="intervalDurationSecond">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <mat-checkbox [(ngModel)]="trigger.condition.iRanged">Use Time Range</mat-checkbox>
+            <app-hour-range-picker *ngIf="trigger.condition.iRanged === true" [(from)]="trigger.condition.iStartHr"
+              [(to)]="trigger.condition.iEndHr"></app-hour-range-picker>
+          </div>
 
         </ng-container>
         <ng-container *ngSwitchCase="2">
           <!--Sampling-->
-
+          <div class="form-group">
+            <app-number-property-view title="Count per Day" [(propertyValue)]="trigger.condition.esmCount" min=1
+              max="145"></app-number-property-view>
+          </div>
+          <div class="form-group">
+            <label class="small">Minimum Interval Guaranteed</label>
+            <div class="flex-container flex-align-items-center">
+              <input class="form-control" style="margin-right: 0.5rem; width: 50%" type="number"
+                [(ngModel)]="esmIntervalDigit">
+              <select class="form-control flex-filler" [(ngModel)]="esmIntervalUnit">
+                <option value="second">Second</option>
+                <option value="minute">Minute</option>
+                <option value="hour">Hour</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <mat-checkbox [(ngModel)]="trigger.condition.esmRanged">Sample within a Specific Period
+              Date</mat-checkbox>
+            <app-hour-range-picker *ngIf="trigger.condition.esmRanged === true" [(from)]="trigger.condition.esmStartHr"
+              [(to)]="trigger.condition.esmEndHr"></app-hour-range-picker>
+          </div>
         </ng-container>
 
       </ng-container>
 
       <div class="child-pane">
-        <div class="form-group">
+        <div class="form-group" *ngIf="trigger.condition.cType !== 2">
           <app-boolean-property-view title="Repeat" [(propertyValue)]="trigger.condition.repeat">
           </app-boolean-property-view>
         </div>
-        <div class="form-group" *ngIf="trigger.condition.repeat===true">
+        <div class="form-group" *ngIf="trigger.condition.repeat===true || trigger.condition.cType ===2">
           <app-day-of-week-checker [(checkedDaysInteger)]="trigger.condition.dow"></app-day-of-week-checker>
         </div>
         <div class="top-padding-1em flex-container flex-align-items-center flex-stretch">
-            <mat-checkbox [checked]="trigger.condition.endAt != null" (change)="trigger.condition.endAt = ($event.checked === true)? getNextDay().getTime() : null">Set Finish Date</mat-checkbox>
-            <button type="button" *ngIf="trigger.condition.endAt != null" class="btn btn-sm btn-outline-dark" (click)="conditionEndDatePicker.open()">{{trigger.condition.endAt  | date: 'yyyy-MM-dd'}}</button>
-            <mat-form-field style="display: none">
-                <input matInput [matDatepicker]="conditionEndDatePicker" placeholder="Choose a date"
-                  [min]="getNextDay()"
-                  [value]="getEndDate()"
-                  (dateChange)="trigger.condition.endAt = $event.value.getTime()"
-                  >
-                <mat-datepicker touchUi="true" #conditionEndDatePicker></mat-datepicker>
-              </mat-form-field>
+          <mat-checkbox [checked]="trigger.condition.endAt != null"
+            (change)="trigger.condition.endAt = ($event.checked === true)? getNextDay().getTime() : null">Set Finish
+            Date</mat-checkbox>
+          <button type="button" *ngIf="trigger.condition.endAt != null" class="btn btn-sm btn-outline-dark"
+            (click)="conditionEndDatePicker.open()">{{trigger.condition.endAt  | date: 'yyyy-MM-dd'}}</button>
+          <mat-form-field style="display: none">
+            <input matInput [matDatepicker]="conditionEndDatePicker" placeholder="Choose a date" [min]="getNextDay()"
+              [value]="getEndDate()" (dateChange)="trigger.condition.endAt = $event.value.getTime()">
+            <mat-datepicker touchUi="true" #conditionEndDatePicker></mat-datepicker>
+          </mat-form-field>
         </div>
       </div>
 

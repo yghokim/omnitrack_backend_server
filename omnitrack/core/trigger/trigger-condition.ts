@@ -13,6 +13,7 @@ export class TimeCondition {
   iSec = 60
   iStartHr = 9
   iEndHr = 24
+  iRanged = false
 
   esmStartHr = 9
   esmEndHr = 23
