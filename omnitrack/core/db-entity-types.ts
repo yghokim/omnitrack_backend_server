@@ -88,7 +88,7 @@ export interface ITrackerDbEntity extends IUserChildDbEntity {
   color?: number,
   isBookmarked?: boolean,
   position?: number,
-  attributes?: [IAttributeDbEntity],
+  attributes?: Array<IAttributeDbEntity>,
   lockedProperties?: any,
   flags?: any,
   redirectUrl?: string,

@@ -11,6 +11,9 @@ import { ITrackerDbEntity, ITriggerDbEntity } from '../../../../../omnitrack/cor
 import { getTrackerColorString } from '../omnitrack-helper';
 import { NotificationService } from '../../../services/notification.service';
 import * as deepEqual from 'deep-equal';
+import { TrackingPlan } from '../../../../../omnitrack/core/tracking-plan';
+import { MatDialog } from '@angular/material';
+import { YesNoDialogComponent } from '../../../dialogs/yes-no-dialog/yes-no-dialog.component';
 
 @Component({
   selector: 'app-tracking-plan-detail',
@@ -33,7 +36,8 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
     private planService: TrackingPlanService,
     private activatedRoute: ActivatedRoute,
     private changeDetector: ChangeDetectorRef,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private matDialog: MatDialog
   ) {
   }
 
@@ -44,9 +48,10 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
         this.api.selectedExperimentService.pipe(
           flatMap(service => service.getTrackingPlan(planKey))
         ).subscribe(plan => {
-          console.log(plan)
           this.originalPlanData = deepclone(plan)
+          this.originalPlanData.data = TrackingPlan.fromJson(this.originalPlanData.data)
           this.currentPlanData = deepclone(plan)
+          this.currentPlanData.data = TrackingPlan.fromJson(this.currentPlanData.data)
           this.planService.currentPlan = this.currentPlanData.data
           this.changeDetector.markForCheck()
         }, err => {
@@ -62,6 +67,15 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
+  }
+
+  trackByObj(index, obj){
+    return obj._id
+  }
+
+  unselect() {
+    this.selectedEntity = null
+    this.selectedType = null
   }
 
   onTrackerClicked(tracker: ITrackerDbEntity) {
@@ -106,6 +120,32 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
           this.notificationService.pushSnackBarMessage({
             message: "Saved changes in the plan."
           })
+        })
+    )
+  }
+
+  onAddTrackerClicked() {
+    this.selectedEntity = this.currentPlanData.data.appendNewTracker();
+    this.selectedType = 'tracker'
+    this.changeDetector.markForCheck()
+  }
+
+  onRemoveTrackerClicked(tracker: ITrackerDbEntity) {
+    this._internalSubscriptions.add(
+      this.matDialog.open(YesNoDialogComponent,
+        {
+          data: {
+            title: "Remove tracker",
+            message: "Do you want to remove the tracker?"
+          }
+        }).afterClosed().subscribe((result) => {
+          if (result === true) {
+            this.currentPlanData.data.removeTracker(tracker)
+            if (this.selectedEntity === tracker) {
+              this.unselect()
+            }
+            this.changeDetector.markForCheck()
+          }
         })
     )
   }

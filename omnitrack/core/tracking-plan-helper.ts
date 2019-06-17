@@ -2,17 +2,13 @@ import { ITrackerDbEntity, ITriggerDbEntity, IAttributeDbEntity } from "./db-ent
 import { TriggerConstants } from "./trigger/trigger-constants";
 import { DependencyLevel, OmniTrackFlagGraph } from "./functionality-locks/omnitrack-dependency-graph";
 import { merge, deepclone } from "../../shared_lib/utils";
+import { TrackingPlan } from "./tracking-plan";
 
-export interface TrackingPlanData {
-  app: {lockedProperties: any},
-  trackers: Array<ITrackerDbEntity>,
-  triggers: Array<ITriggerDbEntity>
-}
 
 export class TrackingPlanManagerImpl {
 
   constructor(
-    public currentPlan: TrackingPlanData
+    public currentPlan: TrackingPlan
   ) { }
 
   generateFlagGraph(level: DependencyLevel, model: any): OmniTrackFlagGraph {

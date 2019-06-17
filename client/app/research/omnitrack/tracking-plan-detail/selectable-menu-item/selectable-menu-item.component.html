@@ -2,4 +2,7 @@
   <span class="icon" *ngIf="iconPath"><img [src]="iconPath"></span>
 
   <div class="color" [style.background]="color" *ngIf="color"></div><span class="title" *ngIf="title">{{title}}</span>
+  <div class="flex-filler"></div>
+  <button mat-icon-button class="text-color-gray mat-button-small" (click)="onRemoveClicked($event)"><mat-icon class="material-icons">delete</mat-icon></button>
+
 </div>

@@ -4,7 +4,7 @@ import { ModelConverter } from '../../omnitrack/core/model_converter'
 import ServerModule from './server.module';
 import CommandModule from './command.module';
 import PushModule from './push.module';
-import PredefinedPackage from '../../omnitrack/core/tracking-plan'
+import { TrackingPlan } from '../../omnitrack/core/tracking-plan'
 import OTTracker from '../models/ot_tracker'
 import OTTrigger from '../models/ot_trigger'
 import IdGenerator from '../../omnitrack/core/id_generator'
@@ -42,9 +42,9 @@ export default class OmniTrackModule {
     )
   }
 
-  injectPackage(userId: string, predefinedPackage: PredefinedPackage, creationFlags?: any): Promise<void> {
+  injectPackage(userId: string, TrackingPlan: TrackingPlan, creationFlags?: any): Promise<void> {
     return new Promise((resolve, reject) => {
-      const pack: PredefinedPackage = JSON.parse(JSON.stringify(predefinedPackage))
+      const pack: TrackingPlan = JSON.parse(JSON.stringify(TrackingPlan))
 
       const planManager = new TrackingPlanManagerImpl(pack)
 

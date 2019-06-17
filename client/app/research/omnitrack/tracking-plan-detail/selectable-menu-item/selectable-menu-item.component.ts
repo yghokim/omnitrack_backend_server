@@ -10,6 +10,12 @@ export class SelectableMenuItemComponent implements OnInit {
   @Output()
   onClick = new EventEmitter<void>()
 
+  @Output()
+  onRemoveClick = new EventEmitter<void>()
+
+  @Input()
+  showRemoveButton = false
+
   @Input()
   title: string
 
@@ -29,6 +35,11 @@ export class SelectableMenuItemComponent implements OnInit {
 
   onClicked(){
     this.onClick.emit()
+  }
+
+  onRemoveClicked(event: MouseEvent){
+    event.stopPropagation()
+    this.onRemoveClick.emit()
   }
 
 }

@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { ITrackerDbEntity, ITriggerDbEntity, IAttributeDbEntity } from '../../../../omnitrack/core/db-entity-types';
-import { TrackingPlanManagerImpl, TrackingPlanData } from '../../../../omnitrack/core/tracking-plan-helper';
+import { TrackingPlanManagerImpl } from '../../../../omnitrack/core/tracking-plan-helper';
+import { TrackingPlan } from '../../../../omnitrack/core/tracking-plan';
 import { DependencyLevel, OmniTrackFlagGraph } from '../../../../omnitrack/core/functionality-locks/omnitrack-dependency-graph';
 
 @Injectable()
 export class TrackingPlanService {
 
-  public set currentPlan(plan: TrackingPlanData) {
+  public set currentPlan(plan: TrackingPlan) {
     this.currentImpl = new TrackingPlanManagerImpl(plan)
   }
 
