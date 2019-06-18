@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { ITrackerDbEntity, IAttributeDbEntity, ITriggerDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
 import { TrackingPlanService } from '../../tracking-plan.service';
 import { getAttributeIconName, makeShortenConditionString } from '../../omnitrack-helper';
@@ -26,7 +26,7 @@ import { TriggerConstants } from '../../../../../../omnitrack/core/trigger/trigg
   host: { class: 'sidepanel-container' },
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TrackerDetailPanelComponent implements OnInit {
+export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
 
   static FIELD_PRESETS: Array<PresetFormat> = [
     new PresetFormat(attributeTypes.ATTR_TYPE_SHORT_TEXT, "field_icon_shorttext", "Short Text", "A single-line text input"),
@@ -90,6 +90,10 @@ export class TrackerDetailPanelComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  ngOnDestroy() {
+    this._internalSubscriptions.unsubscribe()
   }
 
   onFieldClicked(field: IAttributeDbEntity) {

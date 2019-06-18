@@ -1,0 +1,12 @@
+<div class="card-header">
+  Select a Tracker
+</div>
+<div class="card-body">
+  <app-selectable-menu-item
+    *ngFor="let tracker of trackers"
+    [showRemoveButton]="false"
+    [color]="getTrackerColorString(tracker)"
+    [title]="tracker.name"
+    (onClick)="onTrackerClicked(tracker)"
+  ></app-selectable-menu-item>
+</div>

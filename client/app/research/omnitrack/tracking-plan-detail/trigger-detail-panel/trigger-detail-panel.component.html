@@ -147,7 +147,31 @@
     </ng-container>
     <ng-container *ngSwitchCase="1">
       <!--Logging Trigger-->
-
+      <div class="form-group">
+        <app-boolean-property-view title="Send notification on logging" [(propertyValue)]="trigger.action.notify"></app-boolean-property-view>
+      </div>
+      <div class="form-group">
+        <div class="flex-container flex-align-items-center flex-stretch">
+          <label class="small no-margin">Assigned Trackers</label>
+          <button mat-stroked-button class="mat-button-small" color="accent" (click)="onAssignNewTrackerClicked()">Add</button>
+        </div>
+        <div class="assigned-trackers">
+          <div class="small text-color-warn" *ngIf="trigger.trackers==null || trigger.trackers.length === 0">No trackers assigned.</div>
+          <div class="tracker-list" *ngIf="trigger.trackers && trigger.trackers.length > 0">
+            <div class="tracker-element-wrapper" *ngFor="let trackerId of trigger.trackers">
+                <div class="tracker-element" (click)="onTrackerRemoveClicked(trackerId)">
+                    <div class="name">
+                      {{getTrackerById(trackerId).name}}
+                    </div>
+                    <div class="flex-filler"></div>
+                    <button mat-icon-button class="tiny text-color-darkgray">
+                      <mat-icon class="material-icons">clear</mat-icon>
+                    </button>
+                  </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </ng-container>
   </ng-container>
 </div>
