@@ -30,6 +30,14 @@
       [selected]="selectedEntity === field" (onClick)="onFieldClicked(field)"></app-selectable-menu-item>
   </ng-container>
 
+  <div class="form-group">
+      <button mat-button class="add-button mat-button-small" color="accent"
+        (click)="onAddFieldClicked()">
+        <span class="material-icons">add</span>
+        <span>Add New Field</span>
+      </button>
+    </div>
+
   <div class="subheader">Reminders</div>
   <app-selectable-menu-item *ngFor="let reminder of getReminders()" [title]="getReminderTitle(reminder)" (onClick)="onReminderClicked(reminder)"
     [selected]="selectedEntity === reminder"
