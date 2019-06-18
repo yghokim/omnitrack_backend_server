@@ -1,8 +1,8 @@
-class LoggingTriggerAction{
+export class LoggingTriggerAction{
   notify = false
 }
 
-class ReminderTriggerAction{
+export class ReminderTriggerAction{
   message: string = null
   durationSeconds: number = null
   level = 0

@@ -8,12 +8,13 @@ import { IExperimentTrackingPlanDbEntity } from '../../../../../omnitrack/core/r
 import { deepclone } from '../../../../../shared_lib/utils';
 import { ITrackerDbEntity, ITriggerDbEntity } from '../../../../../omnitrack/core/db-entity-types';
 
-import { getTrackerColorString } from '../omnitrack-helper';
+import { getTrackerColorString, makeShortenConditionString } from '../omnitrack-helper';
 import { NotificationService } from '../../../services/notification.service';
 import * as deepEqual from 'deep-equal';
 import { TrackingPlan } from '../../../../../omnitrack/core/tracking-plan';
 import { MatDialog } from '@angular/material';
 import { YesNoDialogComponent } from '../../../dialogs/yes-no-dialog/yes-no-dialog.component';
+import { TriggerConstants } from '../../../../../omnitrack/core/trigger/trigger-constants';
 
 @Component({
   selector: 'app-tracking-plan-detail',
@@ -33,7 +34,7 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
 
   constructor(
     private api: ResearchApiService,
-    private planService: TrackingPlanService,
+    public planService: TrackingPlanService,
     private activatedRoute: ActivatedRoute,
     private changeDetector: ChangeDetectorRef,
     private notificationService: NotificationService,
@@ -69,7 +70,7 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
-  trackByObj(index, obj){
+  trackByObj(index, obj) {
     return obj._id
   }
 
@@ -78,13 +79,26 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
     this.selectedType = null
   }
 
+  getTriggerTitle(trigger: ITriggerDbEntity): string {
+    return makeShortenConditionString(trigger)
+  }
+
   onTrackerClicked(tracker: ITrackerDbEntity) {
     this.selectedEntity = tracker
     this.selectedType = 'tracker'
   }
 
+  onTriggerClicked(trigger: ITriggerDbEntity) {
+    this.selectedEntity = trigger
+    this.selectedType = 'trigger'
+  }
+
   isChanged(): boolean {
-    return deepEqual(this.originalPlanData, this.currentPlanData) === false
+    if (this.originalPlanData.name !== this.currentPlanData.name) {
+      return true
+    } else {
+      return TrackingPlan.isEqual(this.originalPlanData.data, this.currentPlanData.data) === false
+    }
   }
 
   onAppFlagsChanged(flags: any) {
@@ -140,11 +154,39 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
           }
         }).afterClosed().subscribe((result) => {
           if (result === true) {
-            this.currentPlanData.data.removeTracker(tracker)
-            if (this.selectedEntity === tracker) {
-              this.unselect()
+            if (this.currentPlanData.data.removeTracker(tracker)) {
+              if (this.selectedEntity === tracker) {
+                this.unselect()
+              }
+              this.changeDetector.markForCheck()
             }
-            this.changeDetector.markForCheck()
+          }
+        })
+    )
+  }
+
+  onAddTriggerClicked() {
+    this.selectedEntity = this.currentPlanData.data.appendNewTrigger(TriggerConstants.ACTION_TYPE_LOG, TriggerConstants.CONDITION_TYPE_TIME)
+    this.selectedType = 'trigger'
+    this.changeDetector.markForCheck()
+  }
+
+  onRemoveTriggerClicked(trigger: ITriggerDbEntity) {
+    this._internalSubscriptions.add(
+      this.matDialog.open(YesNoDialogComponent,
+        {
+          data: {
+            title: "Remove Trigger",
+            message: "Do you want to remove the trigger?"
+          }
+        }).afterClosed().subscribe((result) => {
+          if (result === true) {
+            if (this.currentPlanData.data.removeTrigger(trigger)) {
+              if (this.selectedEntity._id === trigger._id) {
+                this.unselect()
+              }
+              this.changeDetector.markForCheck()
+            }
           }
         })
     )

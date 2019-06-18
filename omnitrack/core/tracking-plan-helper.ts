@@ -54,7 +54,7 @@ export class TrackingPlanManagerImpl {
   filterLoggingTriggers(): Array<ITriggerDbEntity> {
     if (this.currentPlan != null) {
       return this.currentPlan.triggers.filter(t => t.actionType === TriggerConstants.ACTION_TYPE_LOG)
-    } else return null
+    } else return []
   }
 
   getRemindersOf(tracker: ITrackerDbEntity): Array<ITriggerDbEntity> {

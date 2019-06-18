@@ -36,9 +36,32 @@
         </div>
 
         <div class="subheader">Triggers</div>
+
+        <ng-container
+          *ngIf="currentPlanData.data && planService.filterLoggingTriggers().length > 0">
+          <app-selectable-menu-item *ngFor="let trigger of planService.filterLoggingTriggers(); trackBy: trackByObj" [title]="getTriggerTitle(trigger)"
+            [showRemoveButton]="true"
+            [selected]="selectedEntity === trigger"
+            (onClick)="onTriggerClicked(trigger)"
+            (onRemoveClick)="onRemoveTriggerClicked(trigger)"></app-selectable-menu-item>
+        </ng-container>
+
+        <div class="form-group">
+            <button mat-button class="add-button mat-button-small" color="accent"
+              (click)="onAddTriggerClicked()">
+              <span class="material-icons">add</span>
+              <span>Add New Trigger</span>
+            </button>
+          </div>
+
       </div>
       <app-tracker-detail-panel *ngIf="selectedType === 'tracker'" [tracker]="selectedEntity">
       </app-tracker-detail-panel>
+      <app-trigger-detail-panel *ngIf="selectedType === 'trigger'" [trigger]="selectedEntity">
+      </app-trigger-detail-panel>
+
+
+
       <div class="preview-panel">
 
       </div>

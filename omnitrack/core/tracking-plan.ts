@@ -1,50 +1,32 @@
-import { OmniTrackFlagGraph, DependencyLevel } from "./functionality-locks/omnitrack-dependency-graph";
+import { OmniTrackFlagGraph, DependencyLevel } from './functionality-locks/omnitrack-dependency-graph';
 import { ITrackerDbEntity, ITriggerDbEntity, IAttributeDbEntity } from './db-entity-types';
 import { TriggerConstants } from "./trigger/trigger-constants";
 import { TRACKER_COLOR_PALETTE } from "./design/palette";
 import * as color from 'color';
 import AttributeManager from "./attributes/attribute.manager";
+import { TimeCondition, DataDrivenCondition } from './trigger/trigger-condition';
+import { LoggingTriggerAction, ReminderTriggerAction } from './trigger/trigger-action';
+import * as deepEqual from 'deep-equal';
 
 const randomstring = require('random-string');
 /**
  * Contains the anonymised tracker and trigger package that are portable and injectable to any users.
  */
 export class TrackingPlan {
-  static readonly PLACEHOLDER_PREFIX = "%{"
-  static readonly PLACEHOLDER_SUFFIX = "}%"
 
-  static fromJson(json: any): TrackingPlan {
-    const plan = new TrackingPlan([], [])
-    plan.trackers = json.trackers || []
-    plan.triggers = json.triggers || []
-    plan.serviceCodes = json.serviceCodes || []
-    plan.placeHolderDict = json.placeHolderDict || {}
-    return plan
+  static isEqual(a: TrackingPlan, b: TrackingPlan): boolean{
+    return deepEqual({
+      app: a.app,
+      trackers: a.trackers,
+      triggers: a.triggers,
+      serviceCodes: a.serviceCodes,
+    }, {
+      app: b.app,
+      trackers: b.trackers,
+      triggers: b.triggers,
+      serviceCodes: b.serviceCodes
+    })
   }
-
-  static generateNewInjectionId(currentPool: Array<string>): string {
-    let newId: string
-    do {
-      newId = randomstring({ length: 8 });
-    } while (currentPool.indexOf(newId) >= 0)
-    currentPool.push(newId)
-    return newId
-  }
-
-
-
-  app: { lockedProperties: any } = { lockedProperties: null }
-
-  trackers: Array<ITrackerDbEntity> = []
-  triggers: Array<ITriggerDbEntity> = []
-  serviceCodes: Array<string> = []
-
-  placeHolderDict: {
-    user: string,
-    trackers: Array<string>,
-    triggers: Array<string>,
-    attributes: Array<{ id: string, localId: string }>
-  } = { user: null, trackers: [], triggers: [], attributes: [] }
 
   /**
    *
@@ -74,6 +56,67 @@ export class TrackingPlan {
 
     this.refresh()
   }
+  static readonly PLACEHOLDER_PREFIX = "%{"
+  static readonly PLACEHOLDER_SUFFIX = "}%"
+
+
+  private injectedIdsCache: Array<string> = null
+  private get injectedIds(): Array<string> {
+    if (this.injectedIdsCache == null) {
+      this.injectedIdsCache = []
+      this.trackers.forEach(tracker => {
+        if (tracker.flags) {
+          this.injectedIdsCache.push(tracker.flags.injectedId)
+        }
+        if (tracker.attributes) {
+          tracker.attributes.forEach(attr => {
+            if (attr.flags) {
+              this.injectedIdsCache.push(attr.flags.injectedId)
+            }
+          })
+        }
+      })
+
+      this.triggers.forEach(trigger => {
+        if (trigger.flags) {
+          this.injectedIdsCache.push(trigger.flags.injectedId)
+        }
+      })
+    }
+
+    return this.injectedIdsCache
+  }
+
+  app: { lockedProperties: any } = { lockedProperties: null }
+
+  trackers: Array<ITrackerDbEntity> = []
+  triggers: Array<ITriggerDbEntity> = []
+  serviceCodes: Array<string> = []
+
+  placeHolderDict: {
+    user: string,
+    trackers: Array<string>,
+    triggers: Array<string>,
+    attributes: Array<{ id: string, localId: string }>
+  } = { user: null, trackers: [], triggers: [], attributes: [] }
+
+  static fromJson(json: any): TrackingPlan {
+    const plan = new TrackingPlan([], [])
+    plan.trackers = json.trackers || []
+    plan.triggers = json.triggers || []
+    plan.serviceCodes = json.serviceCodes || []
+    plan.placeHolderDict = json.placeHolderDict || {}
+    return plan
+  }
+
+  static generateNewInjectionId(currentPool: Array<string>): string {
+    let newId: string
+    do {
+      newId = randomstring({ length: 8 });
+    } while (currentPool.indexOf(newId) >= 0)
+    currentPool.push(newId)
+    return newId
+  }
 
   /**
    * Anonymise current data again.
@@ -99,7 +142,7 @@ export class TrackingPlan {
       }
     }
 
-    //Injection ids to avoid duplicate id.
+    // Injection ids to avoid duplicate id.
     const generatedInjectionIds = []
 
     const trackerIdTable = {}
@@ -205,10 +248,10 @@ export class TrackingPlan {
       flags: {
         injected: true,
         injectionId: TrackingPlan.generateNewInjectionId(
-          this.trackers.map(t => t.flags.injectionId)
+          this.injectedIds
         )
       },
-      lockedProperties: {}
+      lockedProperties: OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Tracker)
     } as ITrackerDbEntity
 
     console.log(tracker)
@@ -241,9 +284,10 @@ export class TrackingPlan {
         }
       })
 
+      this.injectedIdsCache = null
+
       return true
-    }
-    else return false
+    } else { return false }
   }
 
   public appendNewField(tracker: ITrackerDbEntity, type: number, name: string = "New Field"): IAttributeDbEntity {
@@ -259,11 +303,87 @@ export class TrackingPlan {
       required: false,
       trackerId: tracker._id,
       type: type,
+      flags: {
+        injected: true,
+        injectionId: TrackingPlan.generateNewInjectionId(this.injectedIds)
+      },
+      lockedProperties: OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Field)
     } as IAttributeDbEntity
 
     AttributeManager.getHelper(type).initialize(attribute)
     tracker.attributes.push(attribute)
     return attribute
+  }
+
+  public removeField(field: IAttributeDbEntity): boolean {
+    const tracker = this.trackers.find(t => t._id === field.trackerId)
+    if (tracker != null) {
+      const fieldIndex = tracker.attributes.findIndex(f => f._id === field._id)
+      if (fieldIndex !== -1) {
+        tracker.attributes.splice(fieldIndex, 1)
+
+        const placeHolderIndex = this.placeHolderDict.attributes.findIndex(p => p.id === field._id)
+        if (placeHolderIndex !== -1) {
+          this.placeHolderDict.attributes.splice(placeHolderIndex, 1)
+        }
+
+        this.injectedIdsCache = null
+
+        return true
+      } else { return false }
+    } else { return false }
+  }
+
+  public appendNewTrigger(actionType: number, conditionType: number): ITriggerDbEntity {
+    const id = this.generatePlaceholder("trigger", this.triggers.length)
+    this.placeHolderDict.triggers.push(id)
+    const trigger = {
+      _id: id,
+      conditionType: conditionType,
+      actionType: actionType,
+      flags: {
+        injected: true,
+        injectionId: TrackingPlan.generateNewInjectionId(this.injectedIds)
+      },
+      trackers: [],
+    } as ITriggerDbEntity
+
+    switch (actionType) {
+      case TriggerConstants.ACTION_TYPE_LOG:
+        trigger.action = new LoggingTriggerAction()
+        trigger.lockedProperties = OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Trigger)
+        break;
+      case TriggerConstants.ACTION_TYPE_REMIND:
+        trigger.action = new ReminderTriggerAction()
+        trigger.lockedProperties = OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Reminder)
+        break;
+    }
+
+    switch (conditionType) {
+      case TriggerConstants.CONDITION_TYPE_TIME:
+        trigger.condition = new TimeCondition()
+        break;
+      case TriggerConstants.CONDITION_TYPE_DATA:
+        trigger.condition = new DataDrivenCondition()
+        break;
+    }
+
+    this.triggers.push(trigger)
+
+    return trigger
+  }
+
+  public removeTrigger(trigger: ITriggerDbEntity): boolean {
+    const triggerIndex = this.triggers.findIndex(t => t._id === trigger._id)
+    if (triggerIndex !== -1) {
+      this.triggers.splice(triggerIndex, 1)
+      const placeHolderIndex = this.placeHolderDict.triggers.indexOf(trigger._id)
+      if (placeHolderIndex !== -1) {
+        this.placeHolderDict.triggers.splice(placeHolderIndex, 1)
+      }
+      this.injectedIdsCache = null
+      return true
+    } else { return false }
   }
 
   private generatePlaceholder(text: string, index: number = null) {

@@ -16,6 +16,8 @@ import { RatingOptions } from '../../../../../../omnitrack/core/datatypes/rating
 import { TimePointAttributeHelper } from '../../../../../../omnitrack/core/attributes/time-point.attribute.helper';
 import { TimeSpanAttributeHelper } from '../../../../../../omnitrack/core/attributes/time-span.attribute.helper';
 import { ChoiceAttributeHelper } from '../../../../../../omnitrack/core/attributes/choice.attribute.helper';
+import { YesNoDialogComponent } from '../../../../dialogs/yes-no-dialog/yes-no-dialog.component';
+import { TriggerConstants } from '../../../../../../omnitrack/core/trigger/trigger-constants';
 
 @Component({
   selector: 'app-tracker-detail-panel',
@@ -84,7 +86,7 @@ export class TrackerDetailPanelComponent implements OnInit {
   selectedType: string
   selectedEntity: ITriggerDbEntity | IAttributeDbEntity = null
 
-  constructor(private planService: TrackingPlanService, private matBottomSheet: MatBottomSheet, private detector: ChangeDetectorRef) {
+  constructor(private planService: TrackingPlanService, private matDialog: MatDialog, private matBottomSheet: MatBottomSheet, private detector: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -152,4 +154,54 @@ export class TrackerDetailPanelComponent implements OnInit {
     )
   }
 
+  onRemoveFieldClicked(field: IAttributeDbEntity) {
+    this._internalSubscriptions.add(
+      this.matDialog.open(YesNoDialogComponent, {
+        data: {
+          title: "Remove Field",
+          message: "Do you want to remove this field?"
+        }
+      }).afterClosed().subscribe(ok => {
+        if (ok === true) {
+          if (this.planService.currentPlan.removeField(field) === true) {
+            if (this.selectedEntity._id === field._id) {
+              this.selectedEntity = null
+              this.selectedType = null
+            }
+            this.detector.markForCheck()
+          }
+        }
+      })
+    )
+  }
+
+  onAddReminderClicked() {
+    const newReminder = this.planService.currentPlan.appendNewTrigger(TriggerConstants.ACTION_TYPE_REMIND, TriggerConstants.CONDITION_TYPE_TIME)
+    newReminder.trackers = [this.tracker._id]
+    this.selectedEntity = newReminder
+    this.selectedType = "reminder"
+    this.detector.markForCheck()
+  }
+
+  onRemoveReminderClicked(reminder: ITriggerDbEntity) {
+    this._internalSubscriptions.add(
+      this.matDialog.open(YesNoDialogComponent,
+        {
+          data: {
+            title: "Remove Reminder",
+            message: "Do you want to remove the reminder?"
+          }
+        }).afterClosed().subscribe((result) => {
+          if (result === true) {
+            if (this.planService.currentPlan.removeTrigger(reminder)) {
+              if (this.selectedEntity._id === reminder._id) {
+                this.selectedEntity = null
+                this.selectedType = null
+              }
+              this.detector.markForCheck()
+            }
+          }
+        })
+    )
+  }
 }
