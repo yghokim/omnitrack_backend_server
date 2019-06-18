@@ -1,8 +1,9 @@
 import { OmniTrackFlagGraph, DependencyLevel } from "./functionality-locks/omnitrack-dependency-graph";
-import { ITrackerDbEntity, ITriggerDbEntity } from "./db-entity-types";
+import { ITrackerDbEntity, ITriggerDbEntity, IAttributeDbEntity } from './db-entity-types';
 import { TriggerConstants } from "./trigger/trigger-constants";
 import { TRACKER_COLOR_PALETTE } from "./design/palette";
 import * as color from 'color';
+import AttributeManager from "./attributes/attribute.manager";
 
 const randomstring = require('random-string');
 /**
@@ -217,25 +218,25 @@ export class TrackingPlan {
     return tracker
   }
 
-  public removeTracker(tracker: ITrackerDbEntity): boolean{
+  public removeTracker(tracker: ITrackerDbEntity): boolean {
     const trackerIndex = this.trackers.findIndex(t => t._id === tracker._id)
-    if(trackerIndex !== -1){
+    if (trackerIndex !== -1) {
       this.trackers.splice(trackerIndex, 1)
       const placeHolderIndex = this.placeHolderDict.trackers.indexOf(tracker._id)
-      if(placeHolderIndex !== -1){
+      if (placeHolderIndex !== -1) {
         this.placeHolderDict.trackers.splice(placeHolderIndex, 1)
       }
 
       this.triggers.forEach(trigger => {
         const trackerIndexInTrigger = trigger.trackers.indexOf(tracker._id)
-        if(trackerIndexInTrigger !== -1){
+        if (trackerIndexInTrigger !== -1) {
           trigger.trackers.splice(trackerIndexInTrigger, 1)
         }
       })
 
       tracker.attributes.forEach(attr => {
         const attrPlaceHolderIndex = this.placeHolderDict.attributes.findIndex(a => a.id === attr._id)
-        if(attrPlaceHolderIndex !== -1){
+        if (attrPlaceHolderIndex !== -1) {
           this.placeHolderDict.attributes.splice(attrPlaceHolderIndex, 1)
         }
       })
@@ -245,11 +246,24 @@ export class TrackingPlan {
     else return false
   }
 
-  public appendNewField(tracker: ITrackerDbEntity, name: string = "New Field") {
+  public appendNewField(tracker: ITrackerDbEntity, type: number, name: string = "New Field"): IAttributeDbEntity {
     const currentAttributeCount = tracker.attributes ? tracker.attributes.length : 0
     const attrPlaceHolder = this.generatePlaceholder("attribute", currentAttributeCount)
     const attrLocalIdPlaceHolder = this.generatePlaceholder("attribute_local", currentAttributeCount)
     this.placeHolderDict.attributes.push({ id: attrPlaceHolder, localId: attrLocalIdPlaceHolder })
+
+    const attribute = {
+      _id: attrPlaceHolder,
+      localId: attrLocalIdPlaceHolder,
+      name: name,
+      required: false,
+      trackerId: tracker._id,
+      type: type,
+    } as IAttributeDbEntity
+
+    AttributeManager.getHelper(type).initialize(attribute)
+    tracker.attributes.push(attribute)
+    return attribute
   }
 
   private generatePlaceholder(text: string, index: number = null) {
