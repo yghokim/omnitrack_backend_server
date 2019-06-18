@@ -77,15 +77,16 @@ export default class OmniTrackModule {
 
       const currentDate = new Date()
 
-      pack.placeHolderDict.trackers.forEach(trackerPlaceHolder => {
-        trackerIdTable[trackerPlaceHolder] = IdGenerator.generateObjectId()
+      pack.trackers.forEach(tracker => {
+        trackerIdTable[tracker._id] = IdGenerator.generateObjectId()
+        tracker.attributes.forEach(attribute => {
+          attributeIdTable[attribute._id] = IdGenerator.generateObjectId()
+        attributeLocalIdTable[attribute.localId] = IdGenerator.generateAttributeLocalId(deviceLocalId, Date.now(), (++currentNanoStamp) % 1000)
+        })
       })
-      pack.placeHolderDict.triggers.forEach(triggerPlaceHolder => {
-        triggerIdTable[triggerPlaceHolder] = IdGenerator.generateObjectId()
-      })
-      pack.placeHolderDict.attributes.forEach(attrPlaceHolder => {
-        attributeIdTable[attrPlaceHolder.id] = IdGenerator.generateObjectId()
-        attributeLocalIdTable[attrPlaceHolder.localId] = IdGenerator.generateAttributeLocalId(deviceLocalId, Date.now(), (++currentNanoStamp) % 1000)
+
+      pack.triggers.forEach(trigger => {
+        triggerIdTable[trigger._id] = IdGenerator.generateObjectId()
       })
 
       pack.trackers.forEach(tracker => {

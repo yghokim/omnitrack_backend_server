@@ -141,34 +141,5 @@
     }
   ],
   "triggers": [],
-  "serviceCodes": [],
-  "placeHolderDict": {
-    "user": "%{OWNER_0}%",
-    "trackers": [
-      "%{TRACKER_0}%",
-      "%{TRACKER_1}%"
-    ],
-    "triggers": [],
-    "attributes": [{
-        "id": "%{ATTRIBUTE_0}%",
-        "localId": "%{ATTRIBUTE_LOCAL_0}%"
-      },
-      {
-        "id": "%{ATTRIBUTE_1}%",
-        "localId": "%{ATTRIBUTE_LOCAL_1}%"
-      },
-      {
-        "id": "%{ATTRIBUTE_2}%",
-        "localId": "%{ATTRIBUTE_LOCAL_2}%"
-      },
-      {
-        "id": "%{ATTRIBUTE_3}%",
-        "localId": "%{ATTRIBUTE_LOCAL_3}%"
-      },
-      {
-        "id": "%{ATTRIBUTE_4}%",
-        "localId": "%{ATTRIBUTE_LOCAL_4}%"
-      }
-    ]
-  }
+  "serviceCodes": []
 }

@@ -130,7 +130,7 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
   onSaveClicked() {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(
-        flatMap(expService => expService.updateTrackingPlanJson(this.originalPlanData.key, this.currentPlanData.data, this.currentPlanData.name))).subscribe(changed => {
+        flatMap(expService => expService.updateTrackingPlanJson(this.originalPlanData.key, this.currentPlanData.data.toJson(), this.currentPlanData.name))).subscribe(changed => {
           this.notificationService.pushSnackBarMessage({
             message: "Saved changes in the plan."
           })

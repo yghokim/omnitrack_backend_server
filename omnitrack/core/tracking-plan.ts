@@ -93,19 +93,11 @@ export class TrackingPlan {
   triggers: Array<ITriggerDbEntity> = []
   serviceCodes: Array<string> = []
 
-  placeHolderDict: {
-    user: string,
-    trackers: Array<string>,
-    triggers: Array<string>,
-    attributes: Array<{ id: string, localId: string }>
-  } = { user: null, trackers: [], triggers: [], attributes: [] }
-
   static fromJson(json: any): TrackingPlan {
     const plan = new TrackingPlan([], [])
     plan.trackers = json.trackers || []
     plan.triggers = json.triggers || []
     plan.serviceCodes = json.serviceCodes || []
-    plan.placeHolderDict = json.placeHolderDict || {}
     return plan
   }
 
@@ -153,9 +145,6 @@ export class TrackingPlan {
     let attributeCount = 0
     const attributeLocalIdTable = {}
 
-    this.placeHolderDict = { user: null, trackers: [], triggers: [], attributes: [] }
-    this.placeHolderDict.user = this.generatePlaceholder("owner")
-
     // anonymise trackers and attributes
     this.trackers.forEach(tracker => {
       if (!tracker.flags) {
@@ -163,11 +152,10 @@ export class TrackingPlan {
       }
       tracker.flags.injectionId = TrackingPlan.generateNewInjectionId(generatedInjectionIds)
 
-      tracker.user = this.placeHolderDict.user
+      tracker.user = null
       const trackerPlaceHolder = this.generatePlaceholder("tracker", trackerCount)
       trackerCount++
 
-      this.placeHolderDict.trackers.push(trackerPlaceHolder)
       trackerIdTable[tracker._id] = trackerPlaceHolder
       tracker._id = trackerPlaceHolder
       tracker.attributes.forEach(attribute => {
@@ -178,7 +166,6 @@ export class TrackingPlan {
 
         const attrPlaceHolder = this.generatePlaceholder("attribute", attributeCount)
         const attrLocalIdPlaceHolder = this.generatePlaceholder("attribute_local", attributeCount)
-        this.placeHolderDict.attributes.push({ id: attrPlaceHolder, localId: attrLocalIdPlaceHolder })
         attributeIdTable[attribute._id] = attrPlaceHolder
         attributeLocalIdTable[attribute.localId] = attrLocalIdPlaceHolder
         attributeCount++
@@ -198,11 +185,10 @@ export class TrackingPlan {
 
       const triggerPlaceHolder = this.generatePlaceholder("trigger", triggerCount)
       triggerCount++
-      this.placeHolderDict.triggers.push(triggerPlaceHolder)
       triggerIdTable[trigger._id] = triggerPlaceHolder
       trigger._id = triggerPlaceHolder
 
-      trigger.user = this.placeHolderDict.user
+      trigger.user = null
       if (trigger.trackers != null) {
         for (let i = 0; i < trigger.trackers.length; i++) {
           trigger.trackers[i] = trackerIdTable[trigger.trackers[i]]
@@ -237,12 +223,11 @@ export class TrackingPlan {
 
   public appendNewTracker(name: string = "New tracker"): ITrackerDbEntity {
     const id = this.generatePlaceholder("tracker", this.trackers.length)
-    this.placeHolderDict.trackers.push(id)
     const tracker = {
       _id: id,
       name: name,
       attributes: new Array(),
-      user: this.placeHolderDict.user,
+      user: null,
       color: color(TRACKER_COLOR_PALETTE[this.trackers.length % TRACKER_COLOR_PALETTE.length]).rgbNumber() + 0xff000000,
       remove: false,
       flags: {
@@ -265,22 +250,15 @@ export class TrackingPlan {
     const trackerIndex = this.trackers.findIndex(t => t._id === tracker._id)
     if (trackerIndex !== -1) {
       this.trackers.splice(trackerIndex, 1)
-      const placeHolderIndex = this.placeHolderDict.trackers.indexOf(tracker._id)
-      if (placeHolderIndex !== -1) {
-        this.placeHolderDict.trackers.splice(placeHolderIndex, 1)
-      }
-
-      this.triggers.forEach(trigger => {
+      const triggers = this.triggers.splice(0)
+      triggers.forEach(trigger => {
         const trackerIndexInTrigger = trigger.trackers.indexOf(tracker._id)
         if (trackerIndexInTrigger !== -1) {
-          trigger.trackers.splice(trackerIndexInTrigger, 1)
-        }
-      })
-
-      tracker.attributes.forEach(attr => {
-        const attrPlaceHolderIndex = this.placeHolderDict.attributes.findIndex(a => a.id === attr._id)
-        if (attrPlaceHolderIndex !== -1) {
-          this.placeHolderDict.attributes.splice(attrPlaceHolderIndex, 1)
+          if(trigger.actionType === TriggerConstants.ACTION_TYPE_REMIND){
+            //reminder
+            this.removeTrigger(trigger)
+          }
+          else trigger.trackers.splice(trackerIndexInTrigger, 1)
         }
       })
 
@@ -294,8 +272,7 @@ export class TrackingPlan {
     const currentAttributeCount = tracker.attributes ? tracker.attributes.length : 0
     const attrPlaceHolder = this.generatePlaceholder("attribute", currentAttributeCount)
     const attrLocalIdPlaceHolder = this.generatePlaceholder("attribute_local", currentAttributeCount)
-    this.placeHolderDict.attributes.push({ id: attrPlaceHolder, localId: attrLocalIdPlaceHolder })
-
+    
     const attribute = {
       _id: attrPlaceHolder,
       localId: attrLocalIdPlaceHolder,
@@ -321,12 +298,6 @@ export class TrackingPlan {
       const fieldIndex = tracker.attributes.findIndex(f => f._id === field._id)
       if (fieldIndex !== -1) {
         tracker.attributes.splice(fieldIndex, 1)
-
-        const placeHolderIndex = this.placeHolderDict.attributes.findIndex(p => p.id === field._id)
-        if (placeHolderIndex !== -1) {
-          this.placeHolderDict.attributes.splice(placeHolderIndex, 1)
-        }
-
         this.injectedIdsCache = null
 
         return true
@@ -336,7 +307,6 @@ export class TrackingPlan {
 
   public appendNewTrigger(actionType: number, conditionType: number): ITriggerDbEntity {
     const id = this.generatePlaceholder("trigger", this.triggers.length)
-    this.placeHolderDict.triggers.push(id)
     const trigger = {
       _id: id,
       conditionType: conditionType,
@@ -377,10 +347,6 @@ export class TrackingPlan {
     const triggerIndex = this.triggers.findIndex(t => t._id === trigger._id)
     if (triggerIndex !== -1) {
       this.triggers.splice(triggerIndex, 1)
-      const placeHolderIndex = this.placeHolderDict.triggers.indexOf(trigger._id)
-      if (placeHolderIndex !== -1) {
-        this.placeHolderDict.triggers.splice(placeHolderIndex, 1)
-      }
       this.injectedIdsCache = null
       return true
     } else { return false }
@@ -390,4 +356,11 @@ export class TrackingPlan {
     return TrackingPlan.PLACEHOLDER_PREFIX + text.toUpperCase() + "_" + (index || 0) + TrackingPlan.PLACEHOLDER_SUFFIX
   }
 
+  public toJson(): any{
+    return {
+      triggers: this.triggers,
+      tracker: this.trackers,
+      serviceCodes: this.serviceCodes
+    }
+  }
 }

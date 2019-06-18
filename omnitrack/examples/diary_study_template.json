@@ -324,24 +324,5 @@
       "flags": { "injected": true, "injectionId": "dITer8IU" }
     }
   ],
-  "serviceCodes": [],
-  "placeHolderDict": {
-    "user": "%{OWNER_0}%",
-    "trackers": ["%{TRACKER_0}%", "%{TRACKER_1}%"],
-    "triggers": ["%{TRIGGER_0}%"],
-    "attributes": [
-      { "id": "%{ATTRIBUTE_0}%", "localId": "%{ATTRIBUTE_LOCAL_0}%" },
-      { "id": "%{ATTRIBUTE_1}%", "localId": "%{ATTRIBUTE_LOCAL_1}%" },
-      { "id": "%{ATTRIBUTE_2}%", "localId": "%{ATTRIBUTE_LOCAL_2}%" },
-      { "id": "%{ATTRIBUTE_3}%", "localId": "%{ATTRIBUTE_LOCAL_3}%" },
-      { "id": "%{ATTRIBUTE_4}%", "localId": "%{ATTRIBUTE_LOCAL_4}%" },
-      { "id": "%{ATTRIBUTE_5}%", "localId": "%{ATTRIBUTE_LOCAL_5}%" },
-      { "id": "%{ATTRIBUTE_6}%", "localId": "%{ATTRIBUTE_LOCAL_6}%" },
-      { "id": "%{ATTRIBUTE_7}%", "localId": "%{ATTRIBUTE_LOCAL_7}%" },
-      { "id": "%{ATTRIBUTE_8}%", "localId": "%{ATTRIBUTE_LOCAL_8}%" },
-      { "id": "%{ATTRIBUTE_9}%", "localId": "%{ATTRIBUTE_LOCAL_9}%" },
-      { "id": "%{ATTRIBUTE_10}%", "localId": "%{ATTRIBUTE_LOCAL_10}%" },
-      { "id": "%{ATTRIBUTE_11}%", "localId": "%{ATTRIBUTE_LOCAL_11}%" }
-    ]
-  }
+  "serviceCodes": []
 }
