@@ -1,0 +1,24 @@
+<div class="bottomsheet-container">
+  <div class="card-header">Select New Field Type</div>
+  <mat-grid-list cols="6" rowHeight="1:1">
+    <mat-grid-tile *ngFor="let preset of formats; let index = index">
+      <div
+        [@tileBackgroundHover]="hoverIndex === index ? 'hover' : null"
+        class="tile-element"
+        matRipple
+        matRippleCentered="true"
+        matRippleColor="rgba(255,255,255,0.2)"
+        [matTooltip]="preset.description"
+        (click)="onPresetClicked(preset)"
+        (mouseover)="hoverIndex = index"
+        (mouseleave)="hoverIndex = -1"
+      >
+        <img
+          class="icon"
+          [src]="'/assets/omnitrack/field_icons_big/' + preset.iconName + '.png'"
+        />
+        <div class="label">{{ preset.label }}</div>
+      </div>
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>

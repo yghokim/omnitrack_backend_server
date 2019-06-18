@@ -32,6 +32,7 @@ import { EntryListPropertyViewComponent } from './research/omnitrack/tracking-pl
 import { NumberStylePropertyViewComponent } from './research/omnitrack/tracking-plan-detail/properties/number-style-property-view/number-style-property-view.component';
 import { DayOfWeekCheckerComponent } from "./research/omnitrack/tracking-plan-detail/trigger-detail-panel/day-of-week-checker/day-of-week-checker.component";
 import { HourRangePickerComponent } from "./research/omnitrack/tracking-plan-detail/trigger-detail-panel/hour-range-picker/hour-range-picker.component";
+import { FieldPresetPickerComponent } from "./research/omnitrack/tracking-plan-detail/field-preset-picker/field-preset-picker.component";
 
 const routes: Routes = [
   {
@@ -99,11 +100,13 @@ const routes: Routes = [
     EntryListPropertyViewComponent,
     NumberStylePropertyViewComponent,
     DayOfWeekCheckerComponent,
-    HourRangePickerComponent
+    HourRangePickerComponent,
+    FieldPresetPickerComponent
   ],
   entryComponents: [
     LockConfigurationSheetComponent,
     NewTrackingPlanDialogComponent,
+    FieldPresetPickerComponent
   ]
 })
 export class TrackingPlanModule {}

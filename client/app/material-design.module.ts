@@ -28,7 +28,7 @@ import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatStepperModule} from '@angular/material/stepper';
 import { MatNativeDateModule } from '@angular/material';
 import {MatBottomSheetModule} from '@angular/material/bottom-sheet';
-
+import {MatRippleModule} from '@angular/material/core'; 
 
 @NgModule({
   imports: [
@@ -89,7 +89,8 @@ import {MatBottomSheetModule} from '@angular/material/bottom-sheet';
     MatExpansionModule,
     MatListModule,
     MatStepperModule,
-    MatBottomSheetModule
+    MatBottomSheetModule,
+    MatRippleModule
   ],
   providers: [
     MatIconRegistry]

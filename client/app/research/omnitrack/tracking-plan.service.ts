@@ -11,6 +11,10 @@ export class TrackingPlanService {
     this.currentImpl = new TrackingPlanManagerImpl(plan)
   }
 
+  public get currentPlan(): TrackingPlan{
+    return this.currentImpl.currentPlan
+  }
+
   private currentImpl: TrackingPlanManagerImpl
 
   constructor() {

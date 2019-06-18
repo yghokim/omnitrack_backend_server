@@ -58,6 +58,12 @@ export default abstract class AttributeHelper {
     }
   }
 
+  initialize(attribute: IAttributeDbEntity){
+    this.propertyKeys.forEach(key => {
+      this.setPropertyValue(attribute, key, this.getPropertyDefaultValue(key))
+    })
+  }
+
   abstract getPropertyName(propertyKey: string): string
 
   abstract getSmallIconType(attribute: IAttributeDbEntity): string
