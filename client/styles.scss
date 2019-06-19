@@ -841,6 +841,14 @@ mat-dialog-container .dialog {
       min-width: initial;
     }
   }
+
+  &.dialog-mid-min{
+    min-width: 500px;
+
+    @media screen and (max-width: 575px) {
+      min-width: initial;
+    }
+  }
 }
 
 .overlay {
@@ -1268,6 +1276,10 @@ $duration: 1.4s;
 
 .font-size-original {
   font-size: 100% !important;
+}
+
+.font-size-dot85{
+  font-size: 0.85rem;
 }
 
 .mat-step-icon {
