@@ -10,7 +10,7 @@
     <span class="info">{{getRedirectUrlHostName()? ('Redirect to ' + getRedirectUrlHostName()) : 'Configure Redirection'}}</span>
   </button>
 
-  <app-lock-flag-button [model]="tracker" lockType="tracker" (flagChange)="onFlagChanged()"></app-lock-flag-button>
+  <!--<app-lock-flag-button [model]="tracker" lockType="tracker" (flagChange)="onFlagChanged()"></app-lock-flag-button>-->
 </div>
 <label>Fields</label>
 <div class="card-body">
@@ -22,7 +22,8 @@
           <sup class="text-color-accented font-weight-bold" *ngIf="attribute.isRequired">*</sup>
         </div>
         <div class="flex-filler"></div>
-        <app-lock-flag-button [model]="attribute" lockType="field" (flagChange)="onFlagChanged()"></app-lock-flag-button>
+        <!--
+        <app-lock-flag-button [model]="attribute" lockType="field" (flagChange)="onFlagChanged()"></app-lock-flag-button>-->
       </div>
     </li>
   </ul>

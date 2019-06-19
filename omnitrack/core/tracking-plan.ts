@@ -359,7 +359,7 @@ export class TrackingPlan {
   public toJson(): any{
     return {
       triggers: this.triggers,
-      tracker: this.trackers,
+      trackers: this.trackers,
       serviceCodes: this.serviceCodes
     }
   }
