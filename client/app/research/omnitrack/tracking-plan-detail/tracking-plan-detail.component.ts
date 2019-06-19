@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { TrackingPlanService } from '../tracking-plan.service';
 import { ResearchApiService } from '../../../services/research-api.service';
 import { Subscription } from 'rxjs';
-import { flatMap } from 'rxjs/operators';
+import { flatMap, filter } from 'rxjs/operators';
 import { IExperimentTrackingPlanDbEntity } from '../../../../../omnitrack/core/research/db-entity-types';
 import { deepclone } from '../../../../../shared_lib/utils';
 import { ITrackerDbEntity, ITriggerDbEntity } from '../../../../../omnitrack/core/db-entity-types';
@@ -47,7 +47,8 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
     if (planKey != null) {
       this._internalSubscriptions.add(
         this.api.selectedExperimentService.pipe(
-          flatMap(service => service.getTrackingPlan(planKey))
+          flatMap(service => service.getTrackingPlan(planKey)),
+          filter(plan => plan != null)
         ).subscribe(plan => {
           this.originalPlanData = deepclone(plan)
           this.originalPlanData.data = TrackingPlan.fromJson(this.originalPlanData.data)
@@ -155,7 +156,7 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
         }).afterClosed().subscribe((result) => {
           if (result === true) {
             if (this.currentPlanData.data.removeTracker(tracker)) {
-              if (this.selectedEntity === tracker) {
+              if (this.selectedEntity && this.selectedEntity._id === tracker._id) {
                 this.unselect()
               }
               this.changeDetector.markForCheck()
@@ -182,7 +183,7 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
         }).afterClosed().subscribe((result) => {
           if (result === true) {
             if (this.currentPlanData.data.removeTrigger(trigger)) {
-              if (this.selectedEntity._id === trigger._id) {
+              if (this.selectedEntity && this.selectedEntity._id === trigger._id) {
                 this.unselect()
               }
               this.changeDetector.markForCheck()

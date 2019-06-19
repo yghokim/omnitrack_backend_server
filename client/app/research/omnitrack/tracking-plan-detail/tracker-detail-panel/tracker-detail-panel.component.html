@@ -25,7 +25,9 @@
 
   <div class="subheader">Fields</div>
   <ng-container *ngIf="tracker.attributes && tracker.attributes.length > 0">
-    <app-selectable-menu-item *ngFor="let field of tracker.attributes" [title]="field.name"
+    <app-selectable-menu-item *ngFor="let field of tracker.attributes" 
+      [title]="field.name"
+      [showRemoveButton]="true"
       [iconPath]="'/assets/omnitrack/field_icons_small/icon_small_' + getAttributeIconName(field) + '.svg'"
       [selected]="selectedEntity === field" (onClick)="onFieldClicked(field)"
       (onRemoveClick)="onRemoveFieldClicked(field)"></app-selectable-menu-item>

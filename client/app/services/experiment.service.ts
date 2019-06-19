@@ -533,13 +533,13 @@ export class ExperimentService {
     )
   }
 
-  addTrackingPlanJson(planJson: any, name: string): Observable<boolean> {
-    return this.http.post<boolean>("api/research/experiments/" + this.experimentId + "/packages/update", {
+  addTrackingPlanJson(planJson: any, name: string): Observable<{success: boolean, packageKey: string}> {
+    return this.http.post<{success: boolean, packageKey: string}>("api/research/experiments/" + this.experimentId + "/packages/update", {
       packageJson: planJson,
       name: name
     }, this.researchApi.authorizedOptions).pipe(
-      tap(changed => {
-        if (changed === true) {
+      tap(result => {
+        if (result.success === true) {
           this.loadExperimentInfo()
         }
       })
@@ -547,11 +547,13 @@ export class ExperimentService {
   }
 
   updateTrackingPlanJson(packageKey: string, packageJson: any, name: string): Observable<boolean> {
-    return this.http.post<boolean>("api/research/experiments/" + this.experimentId + "/packages/update", {
+    return this.http.post<{success: boolean, packageKey: string}>("api/research/experiments/" + this.experimentId + "/packages/update", {
       packageJson: packageJson,
       name: name,
       packageKey: packageKey
-    }, this.researchApi.authorizedOptions).pipe(tap(changed => {
+    }, this.researchApi.authorizedOptions).pipe(
+      map(result => result.success),
+      tap(changed => {
       if (changed === true) {
         this.loadExperimentInfo()
       }
