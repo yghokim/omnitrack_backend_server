@@ -32,7 +32,7 @@ export class EntryListPropertyViewComponent extends PropertyViewBase<UniqueStrin
   }
 
   drop(event: CdkDragDrop<any[]>) {
-    const newIdList = this.idList.splice(0)
+    const newIdList = this.idList.slice(0)
     moveItemInArray(newIdList, event.previousIndex, event.currentIndex);
     this.propertyValue.entries = newIdList.map(id => this.propertyValue.entries.find(e => e.id === id))
     this.propertyValueChange.emit(this.propertyValue)

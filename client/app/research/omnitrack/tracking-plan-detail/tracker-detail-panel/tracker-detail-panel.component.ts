@@ -6,7 +6,6 @@ import { TRACKER_COLOR_PALETTE } from '../../../../../../omnitrack/core/design/p
 import * as color from 'color';
 import * as deepEqual from 'deep-equal';
 import { PresetFormat, FieldPresetPickerComponent, FieldPresetDialogData } from '../field-preset-picker/field-preset-picker.component';
-import AttributeHelper from '../../../../../../omnitrack/core/attributes/attribute.helper';
 import AttributeManager from '../../../../../../omnitrack/core/attributes/attribute.manager';
 import attributeTypes from '../../../../../../omnitrack/core/attributes/attribute-types';
 import { Subscription } from 'rxjs';
@@ -18,6 +17,9 @@ import { TimeSpanAttributeHelper } from '../../../../../../omnitrack/core/attrib
 import { ChoiceAttributeHelper } from '../../../../../../omnitrack/core/attributes/choice.attribute.helper';
 import { YesNoDialogComponent } from '../../../../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { TriggerConstants } from '../../../../../../omnitrack/core/trigger/trigger-constants';
+import { TextInputDialogComponent } from '../../../../dialogs/text-input-dialog/text-input-dialog.component';
+import * as isUrl from 'is-url';
+import { moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-tracker-detail-panel',
@@ -79,6 +81,28 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
     this.selectedEntity = null
   }
 
+  get fieldIds(): Array<string> {
+    if (this._tracker && this._tracker.attributes) {
+      return this._tracker.attributes.map(a => a._id)
+    } else { return [] }
+  }
+
+  set fieldIds(newSet: Array<string>) {
+    this._tracker.attributes.sort((a, b) => {
+      const aIndex = newSet.indexOf(a._id)
+      const bIndex = newSet.indexOf(b._id)
+      if (aIndex < bIndex) {
+        return -1
+      } else if (aIndex > bIndex) {
+        return 1
+      } else { return 0 }
+    })
+  }
+
+  getFieldById(fieldId: string): IAttributeDbEntity{
+    return this._tracker.attributes.find(a => a._id === fieldId)
+  }
+
   get tracker(): ITrackerDbEntity {
     return this._tracker
   }
@@ -94,6 +118,13 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
+  }
+
+  onFieldDragDrop(event: any){
+    const fieldIds = this.fieldIds
+    moveItemInArray(fieldIds, event.previousIndex, event.currentIndex);
+    this.fieldIds = fieldIds
+    this.detector.markForCheck()
   }
 
   onFieldClicked(field: IAttributeDbEntity) {
@@ -168,7 +199,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
       }).afterClosed().subscribe(ok => {
         if (ok === true) {
           if (this.planService.currentPlan.removeField(field) === true) {
-            if (this.selectedEntity._id === field._id) {
+            if (this.selectedEntity && this.selectedEntity._id === field._id) {
               this.selectedEntity = null
               this.selectedType = null
             }
@@ -207,5 +238,39 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
           }
         })
     )
+  }
+
+
+  onRedirectUrlButtonClicked() {
+    this._internalSubscriptions.add(
+      this.matDialog.open(TextInputDialogComponent, {
+        data: {
+          title: "Change Redirect Url",
+          message: "Insert the redirect url which will forward the user after logging each tracker item. Mostly starts with http:// or https://",
+          placeholder: "Enter URL",
+          validator: (text) => text == null ? true : (text.length > 0 ? isUrl(text) : true),
+          prefill: this.tracker.redirectUrl
+        }
+      }).afterClosed().subscribe(text => {
+        if (text != null) {
+          const newChange = text.length > 0 ? text : null
+          if (this.tracker.redirectUrl !== newChange) {
+            this.tracker.redirectUrl = newChange
+            this.detector.markForCheck()
+          }
+        }
+      })
+    )
+  }
+
+  getRedirectUrlHostName() {
+    if (this.tracker && this.tracker.redirectUrl && this.tracker.redirectUrl.length > 0) {
+      try {
+        return new URL(this.tracker.redirectUrl).hostname
+      } catch (ex) {
+        console.log(ex)
+        return null
+      }
+    } else { return null }
   }
 }

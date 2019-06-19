@@ -11,6 +11,20 @@
     &:hover {
       background: #e3aa08;
     }
+
+    .drag-handle{
+      color: white;
+    }
+  }
+
+  &.has-button{
+    padding-right: 0.25rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  &.has-drag-handle{
+    padding-left: 0;
   }
 
   &.has-button{
@@ -19,6 +33,15 @@
 
   &:hover {
     background: #f2f2f2;
+    .drag-handle{
+      visibility: visible;
+    }
+  }
+
+  .drag-handle{
+    font-size: 14px;
+    color: #b4b4b4;
+    visibility: hidden;
   }
 
   .color {

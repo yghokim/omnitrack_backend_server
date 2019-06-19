@@ -1,55 +1,67 @@
-<div class="dialog">
+<div class="dialog dialog-mid-min">
   <div class="card-header">Add New Tracking Plan</div>
   <div class="card-body">
     <div class="form-group">
       <label for="trackingPlanNameInput">
         <small>Name of Plan</small>
       </label>
-      <input id="trackingPlanNameInput" class="form-control" type="text" name="text" placeholder="Enter Name" [(ngModel)]="trackingPlanName"
-        autofocus>
+      <input id="trackingPlanNameInput" class="form-control" type="text" name="text" placeholder="Enter Name"
+        [(ngModel)]="trackingPlanName" autofocus>
     </div>
 
     <div class="form-group" [class.has-danger]="trackingPlanJsonString && !trackingPlan">
       <label for="trackingPlanContentInput">
-        <small>Plan Content</small>
+        <small>Content</small>
       </label>
 
-      <mat-tab-group class="tab-group" (selectedTabChange)="onSelectedTabChanged($event)">
-        <mat-tab label="From Local File">
-          <div class="vertical-padding-normal">
-            <div class="fileopen">
-              <label for="packageFileInput">
-                <small>Open JSON File...</small>
-              </label>
-              <input id="packageFileInput" type="file" accept="application/json" (change)="onPlanJsonFileChanged($event.target.files)">
+      <mat-radio-group class="flex-container flex-direction-column" [(ngModel)]="selectedCreationType">
+        <mat-radio-button value="empty" class="font-size-dot85">Create an Empty Plan</mat-radio-button>
+        <mat-radio-button value="source" class="font-size-dot85">Create from Existing Sources...</mat-radio-button>
+      </mat-radio-group>
+
+      <ng-container *ngIf="selectedCreationType === 'source'">
+        <mat-tab-group class="tab-group" (selectedTabChange)="onSelectedTabChanged($event)">
+          <mat-tab label="From Local File">
+            <div class="vertical-padding-normal">
+              <div class="fileopen">
+                <label for="packageFileInput">
+                  <small>Open JSON File...</small>
+                </label>
+                <input id="packageFileInput" type="file" accept="application/json"
+                  (change)="onPlanJsonFileChanged($event.target.files)">
+              </div>
             </div>
-          </div>
-        </mat-tab>
-        <mat-tab label="From Instant Share">
-          <div class="vertical-padding-normal ">
-            <div *ngIf="loadingSharedTrackingPlan === false" class="flex-container flex-align-items-center">
-              <input type="text" class="form-control left-margin-dot5em" placeholder="Insert code on the app screen." [(ngModel)]="shareCode">
-              <button [disabled]="shareCode==null || shareCode.length === 0" mat-button color="accent" (click)="onGetFromInstantShareClicked()">Load</button>
+          </mat-tab>
+          <mat-tab label="From Instant Share">
+            <div class="vertical-padding-normal ">
+              <div *ngIf="loadingSharedTrackingPlan === false" class="flex-container flex-align-items-center">
+                <input type="text" class="form-control left-margin-dot5em" placeholder="Insert code on the app screen."
+                  [(ngModel)]="shareCode">
+                <button [disabled]="shareCode==null || shareCode.length === 0" mat-button color="accent"
+                  (click)="onGetFromInstantShareClicked()">Load</button>
+              </div>
+              <app-labeled-loading-indicator *ngIf="loadingSharedTrackingPlan === true">
+                <span message>Loading shared tracking plan...</span>
+              </app-labeled-loading-indicator>
             </div>
-            <app-labeled-loading-indicator *ngIf="loadingSharedTrackingPlan === true">
-              <span message>Loading shared tracking plan...</span>
-            </app-labeled-loading-indicator>
-          </div>
-        </mat-tab>
-        <mat-tab label="Insert manually">
+          </mat-tab>
+          <mat-tab label="Insert manually">
 
-        </mat-tab>
+          </mat-tab>
 
-      </mat-tab-group>
+        </mat-tab-group>
 
-      <textarea [disabled]="selectedLoadType !== 'manual'" id="trackingPlanContentInput" class="form-control" [class.form-control-danger]="trackingPlanJsonString && !trackingPlan"
-        placeholder="Tracking plan in JSON format" [(ngModel)]="trackingPlanJsonString"></textarea>
+        <textarea [disabled]="selectedLoadType !== 'manual'" id="trackingPlanContentInput" class="form-control"
+          [class.form-control-danger]="trackingPlanJsonString && !trackingPlan"
+          placeholder="Tracking plan in JSON format" [(ngModel)]="trackingPlanJsonString"></textarea>
 
-      <small *ngIf="trackingPlanJsonString && !trackingPlan" class="text-danger">Provide JSON string</small>
+        <small *ngIf="trackingPlanJsonString && !trackingPlan" class="text-danger">Provide JSON string</small>
+      </ng-container>
     </div>
   </div>
   <div class="card-body text-right">
     <button type="button" mat-button (click)="onNoClick()">Cancel</button>
-    <button type="button" mat-raised-button color="primary" [disabled]="isValid()!==true" (click)="onYesClick()">Add Tracking Plan</button>
+    <button type="button" mat-raised-button color="primary" [disabled]="isValid()!==true" (click)="onYesClick()">Add
+      Tracking Plan</button>
   </div>
 </div>

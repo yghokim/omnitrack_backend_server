@@ -108,7 +108,7 @@ export class TrackingPlanCodeEditorComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(
         flatMap(expService => expService.updateTrackingPlanJson(this.packageKey, JSON.parse(this.code), null))).subscribe(changed => {
-          this.router.navigate([".."], { relativeTo: this.activatedRoute })
+          this.router.navigate(["../.."], { relativeTo: this.activatedRoute })
         })
     )
   }

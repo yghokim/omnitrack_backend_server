@@ -14,6 +14,9 @@ export class SelectableMenuItemComponent implements OnInit {
   onRemoveClick = new EventEmitter<void>()
 
   @Input()
+  showDragHandle = false
+
+  @Input()
   showRemoveButton = false
 
   @Input()

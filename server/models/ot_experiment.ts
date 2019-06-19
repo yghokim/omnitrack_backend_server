@@ -7,6 +7,10 @@ function generateNewExperimentId(): string {
   return "ot-exp-" + require('randomstring').generate({ length: 8, charset: 'numeric' })
 }
 
+export function generateNewPackageKey(): string{
+  return 'ot-package-' + require('randomstring').generate({ length: 8, charset: 'numeric' })
+}
+
 const otExperimentGroupSchema = new mongoose.Schema(
   {
     _id: { type: String, default: uuid.v1, required: true },
@@ -17,7 +21,7 @@ const otExperimentGroupSchema = new mongoose.Schema(
 
 const otExperimentTrackingPlanSchema = new mongoose.Schema(
   {
-    key: { type: String, required: true, default: () => mongoose.Types.ObjectId().toString() },
+    key: { type: String, required: true, default: () => generateNewPackageKey() },
     name: { type: String, required: true },
     data: { type: mongoose.Schema.Types.Mixed, required: true, default: {} },
     updatedAt: Date

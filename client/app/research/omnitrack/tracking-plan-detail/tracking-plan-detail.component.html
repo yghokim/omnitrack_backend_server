@@ -18,14 +18,25 @@
           Trackers
         </div>
 
-        <ng-container
-          *ngIf="currentPlanData.data && currentPlanData.data.trackers && currentPlanData.data.trackers.length > 0">
-          <app-selectable-menu-item *ngFor="let tracker of currentPlanData.data.trackers; trackBy: trackByObj" [title]="tracker.name"
-            [showRemoveButton]="true"
-            [color]="getTrackerColorString(tracker)" [selected]="selectedEntity === tracker"
-            (onClick)="onTrackerClicked(tracker)"
-            (onRemoveClick)="onRemoveTrackerClicked(tracker)"></app-selectable-menu-item>
-        </ng-container>
+        <div *ngIf="currentPlanData.data && currentPlanData.data.trackers && currentPlanData.data.trackers.length > 0"
+          cdkDropList
+          cdkDropListLockAxis="y"
+          (cdkDropListDropped)="onTrackerDragDrop($event)"
+          class="no-padding"
+          >
+          <div cdkDrag class="draggable-element" *ngFor="let trackerId of sortedTrackerIds"
+            style="background: white">
+              <app-selectable-menu-item
+              [title]="trackerById(trackerId).name"
+              [showRemoveButton]="true"
+              [showDragHandle]="true"
+              [color]="getTrackerColorString(trackerById(trackerId))" 
+              [selected]="selectedEntity && selectedEntity._id === trackerId"
+              (onClick)="onTrackerClicked(trackerById(trackerId))"
+              (onRemoveClick)="onRemoveTrackerClicked(trackerById(trackerId))"
+              ></app-selectable-menu-item>
+          </div>
+        </div>
 
         <div class="form-group">
           <button mat-button class="add-button mat-button-small" color="accent"

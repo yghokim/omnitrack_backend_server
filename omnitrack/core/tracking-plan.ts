@@ -153,7 +153,7 @@ export class TrackingPlan {
       tracker.flags.injectionId = TrackingPlan.generateNewInjectionId(generatedInjectionIds)
 
       tracker.user = null
-      const trackerPlaceHolder = this.generatePlaceholder("tracker", trackerCount)
+      const trackerPlaceHolder = this.generatePlaceholder("tracker", tracker.flags.injectionId)
       trackerCount++
 
       trackerIdTable[tracker._id] = trackerPlaceHolder
@@ -164,8 +164,8 @@ export class TrackingPlan {
         }
         attribute.flags.injectionId = TrackingPlan.generateNewInjectionId(generatedInjectionIds)
 
-        const attrPlaceHolder = this.generatePlaceholder("attribute", attributeCount)
-        const attrLocalIdPlaceHolder = this.generatePlaceholder("attribute_local", attributeCount)
+        const attrPlaceHolder = this.generatePlaceholder("attribute", attribute.flags.injectionId)
+        const attrLocalIdPlaceHolder = this.generatePlaceholder("attribute_local", attribute.flags.injectionId)
         attributeIdTable[attribute._id] = attrPlaceHolder
         attributeLocalIdTable[attribute.localId] = attrLocalIdPlaceHolder
         attributeCount++
@@ -183,7 +183,7 @@ export class TrackingPlan {
       }
       trigger.flags.injectionId = TrackingPlan.generateNewInjectionId(generatedInjectionIds)
 
-      const triggerPlaceHolder = this.generatePlaceholder("trigger", triggerCount)
+      const triggerPlaceHolder = this.generatePlaceholder("trigger", trigger.flags.injectionId)
       triggerCount++
       triggerIdTable[trigger._id] = triggerPlaceHolder
       trigger._id = triggerPlaceHolder
@@ -222,19 +222,19 @@ export class TrackingPlan {
   }
 
   public appendNewTracker(name: string = "New tracker"): ITrackerDbEntity {
-    const id = this.generatePlaceholder("tracker", this.trackers.length)
+    const injectionId = TrackingPlan.generateNewInjectionId(this.injectedIds)
+    const id = this.generatePlaceholder("tracker", injectionId)
     const tracker = {
       _id: id,
       name: name,
+      position: this.trackers.length,
       attributes: new Array(),
       user: null,
       color: color(TRACKER_COLOR_PALETTE[this.trackers.length % TRACKER_COLOR_PALETTE.length]).rgbNumber() + 0xff000000,
       remove: false,
       flags: {
         injected: true,
-        injectionId: TrackingPlan.generateNewInjectionId(
-          this.injectedIds
-        )
+        injectionId: injectionId
       },
       lockedProperties: OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Tracker)
     } as ITrackerDbEntity
@@ -250,7 +250,7 @@ export class TrackingPlan {
     const trackerIndex = this.trackers.findIndex(t => t._id === tracker._id)
     if (trackerIndex !== -1) {
       this.trackers.splice(trackerIndex, 1)
-      const triggers = this.triggers.splice(0)
+      const triggers = this.triggers.slice(0)
       triggers.forEach(trigger => {
         const trackerIndexInTrigger = trigger.trackers.indexOf(tracker._id)
         if (trackerIndexInTrigger !== -1) {
@@ -269,9 +269,9 @@ export class TrackingPlan {
   }
 
   public appendNewField(tracker: ITrackerDbEntity, type: number, name: string = "New Field"): IAttributeDbEntity {
-    const currentAttributeCount = tracker.attributes ? tracker.attributes.length : 0
-    const attrPlaceHolder = this.generatePlaceholder("attribute", currentAttributeCount)
-    const attrLocalIdPlaceHolder = this.generatePlaceholder("attribute_local", currentAttributeCount)
+    const injectionId = TrackingPlan.generateNewInjectionId(this.injectedIds)
+    const attrPlaceHolder = this.generatePlaceholder("attribute", injectionId)
+    const attrLocalIdPlaceHolder = this.generatePlaceholder("attribute_local", injectionId)
     
     const attribute = {
       _id: attrPlaceHolder,
@@ -282,7 +282,7 @@ export class TrackingPlan {
       type: type,
       flags: {
         injected: true,
-        injectionId: TrackingPlan.generateNewInjectionId(this.injectedIds)
+        injectionId: injectionId
       },
       lockedProperties: OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Field)
     } as IAttributeDbEntity
@@ -306,14 +306,15 @@ export class TrackingPlan {
   }
 
   public appendNewTrigger(actionType: number, conditionType: number): ITriggerDbEntity {
-    const id = this.generatePlaceholder("trigger", this.triggers.length)
+    const injectionId = TrackingPlan.generateNewInjectionId(this.injectedIds)
+    const id = this.generatePlaceholder("trigger", TrackingPlan.generateNewInjectionId(this.injectedIds))
     const trigger = {
       _id: id,
       conditionType: conditionType,
       actionType: actionType,
       flags: {
         injected: true,
-        injectionId: TrackingPlan.generateNewInjectionId(this.injectedIds)
+        injectionId: injectionId
       },
       trackers: [],
     } as ITriggerDbEntity
@@ -352,8 +353,8 @@ export class TrackingPlan {
     } else { return false }
   }
 
-  private generatePlaceholder(text: string, index: number = null) {
-    return TrackingPlan.PLACEHOLDER_PREFIX + text.toUpperCase() + "_" + (index || 0) + TrackingPlan.PLACEHOLDER_SUFFIX
+  private generatePlaceholder(text: string, injectedId: string) {
+    return TrackingPlan.PLACEHOLDER_PREFIX + text.toUpperCase() + "_" + injectedId + TrackingPlan.PLACEHOLDER_SUFFIX
   }
 
   public toJson(): any{

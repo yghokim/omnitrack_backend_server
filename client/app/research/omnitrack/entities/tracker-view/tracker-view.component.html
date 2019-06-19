@@ -1,32 +1,22 @@
 <div class="card-strip" [style.background]="getTrackerColorString(tracker)"></div>
-<div class="card-header flex-container flex-align-items-center">
+<div class="card-header">
   <span>
     {{tracker.name}}
   </span>
-  <div class="flex-filler"></div>
-  <button class="small-button-with-icon-and-text btn btn-sm btn-light flex-container flex-align-items-center"
-    matTooltipPosition="above" (click)="onRedirectUrlButtonClicked()">
-    <span class="material-icons text-color-gray">public</span>
-    <span class="info">{{getRedirectUrlHostName()? ('Redirect to ' + getRedirectUrlHostName()) : 'Configure Redirection'}}</span>
-  </button>
-
-  <!--<app-lock-flag-button [model]="tracker" lockType="tracker" (flagChange)="onFlagChanged()"></app-lock-flag-button>-->
 </div>
 <label>Fields</label>
 <div class="card-body">
-  <ul class="list-group list-group-flush attribute-list">
-    <li class="list-group-item font-color-gray" *ngFor="let attribute of tracker.attributes">
+  <div class="attribute-list">
+    <div class="attribute-item font-color-gray" *ngFor="let attribute of tracker.attributes">
       <div class="flex-container flex-align-items-center">
         <span class="attribute-type-icon"><img [src]="'/assets/omnitrack/field_icons_small/icon_small_' + getAttributeIconName(attribute) + '.svg'"></span>
         <div class="attribute-name">{{attribute.name}}
           <sup class="text-color-accented font-weight-bold" *ngIf="attribute.isRequired">*</sup>
         </div>
         <div class="flex-filler"></div>
-        <!--
-        <app-lock-flag-button [model]="attribute" lockType="field" (flagChange)="onFlagChanged()"></app-lock-flag-button>-->
       </div>
-    </li>
-  </ul>
+    </div>
+  </div>
 </div>
 <ng-container *ngIf="reminders && reminders.length > 0">
   <label>Reminders</label>

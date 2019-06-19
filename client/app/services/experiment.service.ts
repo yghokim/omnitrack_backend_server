@@ -335,7 +335,7 @@ export class ExperimentService {
       .pipe(
         tap(removed => {
           if (removed === true && this.participantList.getValue() != null) {
-            const newList = this.participantList.getValue().splice(0)
+            const newList = this.participantList.getValue().slice(0)
             const index = newList.findIndex(p => p._id === participantId)
             if (index !== -1) {
               newList.splice(index, 1)
@@ -352,7 +352,7 @@ export class ExperimentService {
         map(res => res.success),
         tap(success => {
           if (success === true) {
-            const newList = this.participantList.getValue().splice(0)
+            const newList = this.participantList.getValue().slice(0)
             newList.find(p => p._id === participantId).participationInfo.dropped = true
             this.participantList.next(newList)
           }
@@ -365,7 +365,7 @@ export class ExperimentService {
       .pipe(
         tap(result => {
           if (result === true) {
-            const newList = this.participantList.getValue().splice(0)
+            const newList = this.participantList.getValue().slice(0)
             newList.find(p => p._id === participantId).participationInfo.alias = alias
             this.participantList.next(newList)
           }
@@ -533,13 +533,13 @@ export class ExperimentService {
     )
   }
 
-  addTrackingPlanJson(planJson: any, name: string): Observable<boolean> {
-    return this.http.post<boolean>("api/research/experiments/" + this.experimentId + "/packages/update", {
+  addTrackingPlanJson(planJson: any, name: string): Observable<{success: boolean, packageKey: string}> {
+    return this.http.post<{success: boolean, packageKey: string}>("api/research/experiments/" + this.experimentId + "/packages/update", {
       packageJson: planJson,
       name: name
     }, this.researchApi.authorizedOptions).pipe(
-      tap(changed => {
-        if (changed === true) {
+      tap(result => {
+        if (result.success === true) {
           this.loadExperimentInfo()
         }
       })
@@ -547,11 +547,13 @@ export class ExperimentService {
   }
 
   updateTrackingPlanJson(packageKey: string, packageJson: any, name: string): Observable<boolean> {
-    return this.http.post<boolean>("api/research/experiments/" + this.experimentId + "/packages/update", {
+    return this.http.post<{success: boolean, packageKey: string}>("api/research/experiments/" + this.experimentId + "/packages/update", {
       packageJson: packageJson,
       name: name,
       packageKey: packageKey
-    }, this.researchApi.authorizedOptions).pipe(tap(changed => {
+    }, this.researchApi.authorizedOptions).pipe(
+      map(result => result.success),
+      tap(changed => {
       if (changed === true) {
         this.loadExperimentInfo()
       }

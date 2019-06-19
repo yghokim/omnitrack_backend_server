@@ -6,7 +6,7 @@
     cdkDropListLockAxis="y"
     (cdkDropListDropped)="drop($event)"
   >
-    <div class="entry-row" *ngFor="let entryId of idList" cdkDrag>
+    <div class="draggable-element entry-row" *ngFor="let entryId of idList" cdkDrag>
       <mat-icon class="material-icons draghandle">drag_indicator</mat-icon>
       <div class="flex-filler"></div>
       <span>{{ getEntryName(entryId) }}</span>

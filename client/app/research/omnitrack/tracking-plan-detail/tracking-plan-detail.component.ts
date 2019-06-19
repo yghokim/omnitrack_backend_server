@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { TrackingPlanService } from '../tracking-plan.service';
 import { ResearchApiService } from '../../../services/research-api.service';
 import { Subscription } from 'rxjs';
-import { flatMap } from 'rxjs/operators';
+import { flatMap, filter } from 'rxjs/operators';
 import { IExperimentTrackingPlanDbEntity } from '../../../../../omnitrack/core/research/db-entity-types';
 import { deepclone } from '../../../../../shared_lib/utils';
 import { ITrackerDbEntity, ITriggerDbEntity } from '../../../../../omnitrack/core/db-entity-types';
@@ -15,6 +15,7 @@ import { TrackingPlan } from '../../../../../omnitrack/core/tracking-plan';
 import { MatDialog } from '@angular/material';
 import { YesNoDialogComponent } from '../../../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { TriggerConstants } from '../../../../../omnitrack/core/trigger/trigger-constants';
+import { moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-tracking-plan-detail',
@@ -47,7 +48,8 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
     if (planKey != null) {
       this._internalSubscriptions.add(
         this.api.selectedExperimentService.pipe(
-          flatMap(service => service.getTrackingPlan(planKey))
+          flatMap(service => service.getTrackingPlan(planKey)),
+          filter(plan => plan != null)
         ).subscribe(plan => {
           this.originalPlanData = deepclone(plan)
           this.originalPlanData.data = TrackingPlan.fromJson(this.originalPlanData.data)
@@ -62,16 +64,41 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  get sortedTrackerIds(): Array<string> {
+    const list = this.currentPlanData.data.trackers.slice(0)
+    list.sort((a, b) => {
+      if (a.position < b.position) {
+        return 1
+      } else if (a.position > b.position) {
+        return -1
+      } else { return 0 }
+    })
+    return list.map(t => t._id)
+  }
+
+  trackerById(id: string): ITrackerDbEntity {
+    return this.currentPlanData.data.trackers.find(t => {
+      return t._id === id
+    })
+  }
+
+  onTrackerDragDrop(event: any) {
+    const newList = this.sortedTrackerIds.slice(0)
+    moveItemInArray(newList, event.previousIndex, event.currentIndex);
+    this.currentPlanData.data.trackers.forEach(
+      t => {
+        t.position = Math.max(newList.length - 1 - newList.indexOf(t._id), 0)
+      }
+    )
+    this.changeDetector.markForCheck()
+  }
+
   getTrackerColorString(tracker: any): string {
     return getTrackerColorString(tracker)
   }
 
   ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
-  }
-
-  trackByObj(index, obj) {
-    return obj._id
   }
 
   unselect() {
@@ -155,7 +182,7 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
         }).afterClosed().subscribe((result) => {
           if (result === true) {
             if (this.currentPlanData.data.removeTracker(tracker)) {
-              if (this.selectedEntity === tracker) {
+              if (this.selectedEntity && this.selectedEntity._id === tracker._id) {
                 this.unselect()
               }
               this.changeDetector.markForCheck()
@@ -182,7 +209,7 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
         }).afterClosed().subscribe((result) => {
           if (result === true) {
             if (this.currentPlanData.data.removeTrigger(trigger)) {
-              if (this.selectedEntity._id === trigger._id) {
+              if (this.selectedEntity && this.selectedEntity._id === trigger._id) {
                 this.unselect()
               }
               this.changeDetector.markForCheck()
