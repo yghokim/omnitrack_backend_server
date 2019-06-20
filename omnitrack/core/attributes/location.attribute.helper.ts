@@ -5,6 +5,7 @@ import attributeTypes from "./attribute-types";
 import TypedStringSerializer from '../typed_string_serializer';
 import { LatLng } from "../datatypes/field_datatypes";
 import AttributeIconTypes from "./attribute-icon-types";
+import { DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE, FallbackPolicyResolver } from "./fallback-policies";
 
 export class LocationAttributeHelper extends AttributeHelper {
   get typeName(): string{return "Location"}
@@ -32,5 +33,11 @@ export class LocationAttributeHelper extends AttributeHelper {
 
   getSmallIconType(attribute: IAttributeDbEntity): string {
     return AttributeIconTypes.ATTR_ICON_SMALL_LOCATION
+  }
+
+  makeSupportedFallbackPolicies(){
+    const s = super.makeSupportedFallbackPolicies()
+    s.push([DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE, new FallbackPolicyResolver("Current location")])
+    return s
   }
 }

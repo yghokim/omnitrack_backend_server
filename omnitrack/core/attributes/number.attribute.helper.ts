@@ -7,6 +7,7 @@ import attributeTypes from "./attribute-types";
 import TypedStringSerializer from '../typed_string_serializer';
 import AttributeIconTypes from "./attribute-icon-types";
 import { NumberStyle } from "../datatypes/number_style";
+import { DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE, FallbackPolicyResolver } from "./fallback-policies";
 
 export class NumberAttributeHelper extends AttributeHelper {
   get typeName(): string { return "Number" }
@@ -46,5 +47,11 @@ export class NumberAttributeHelper extends AttributeHelper {
 
   getSmallIconType(attribute: IAttributeDbEntity): string {
     return AttributeIconTypes.ATTR_ICON_SMALL_NUMBER
+  }
+
+  makeSupportedFallbackPolicies(){
+    const s = super.makeSupportedFallbackPolicies()
+    s.push([DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE, new FallbackPolicyResolver("Insert zero")])
+    return s
   }
 }

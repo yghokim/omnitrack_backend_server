@@ -6,7 +6,7 @@ const otAttributeSchema = new mongoose.Schema({
   localId: String,
   trackerId: String,
   connection: mongoose.Schema.Types.Mixed,
-  fallbackPolicy: Number,
+  fallbackPolicy: String,
   fallbackPreset: String,
   type: Number,
   isRequired: Boolean,

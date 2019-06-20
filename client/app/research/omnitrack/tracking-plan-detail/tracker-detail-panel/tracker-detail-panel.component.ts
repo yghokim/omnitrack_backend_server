@@ -77,8 +77,35 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
 
   @Input()
   set tracker(tracker: ITrackerDbEntity) {
+    if (this._tracker && this._tracker._id === tracker._id) {
+      if (this.selectedEntity != null) {
+        switch (this.selectedType) {
+          case "field":
+            const newInstance = tracker.attributes.find(a => a._id === this.selectedEntity._id)
+            if (newInstance != null) {
+              this.selectedEntity = newInstance
+            } else {
+              this.selectedEntity = null
+              this.selectedType = null
+            }
+            break;
+          case "reminder":
+            const newReminderInstance = this.getReminders().find(r => r._id === this.selectedEntity._id)
+            if (newReminderInstance != null) {
+              this.selectedEntity = newReminderInstance
+            } else {
+              this.selectedEntity = null
+              this.selectedType = null
+            }
+            break;
+        }
+      }
+    } else {
+      this.selectedEntity = null
+      this.selectedType = null
+    }
+
     this._tracker = tracker
-    this.selectedEntity = null
   }
 
   get fieldIds(): Array<string> {
@@ -99,7 +126,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
     })
   }
 
-  getFieldById(fieldId: string): IAttributeDbEntity{
+  getFieldById(fieldId: string): IAttributeDbEntity {
     return this._tracker.attributes.find(a => a._id === fieldId)
   }
 
@@ -120,7 +147,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
-  onFieldDragDrop(event: any){
+  onFieldDragDrop(event: any) {
     const fieldIds = this.fieldIds
     moveItemInArray(fieldIds, event.previousIndex, event.currentIndex);
     this.fieldIds = fieldIds

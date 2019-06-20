@@ -45,7 +45,9 @@
       [propertyValue]="attributeHelper.getParsedPropertyValue(field, propertyKey)"
       (propertyValueChange)="attributeHelper.setPropertyValue(field, propertyKey, $event)"
       [configuration]="attributeHelper.getPropertyConfig(propertyKey)"></app-entry-list-property-view>
-
-
+  </div>
+  <hr class="no-margin">
+  <div class="form-group">
+    <app-selection-property-view title="Default value" [list]="getFallbackPolicyEntries()" [(propertyValue)]="field.fallbackPolicy"></app-selection-property-view>
   </div>
 </div>

@@ -8,8 +8,17 @@ import attributeTypes from "./attribute-types";
 import { RatingOptions } from "../datatypes/rating_options";
 import TypedStringSerializer from '../typed_string_serializer';
 import AttributeIconTypes from "./attribute-icon-types";
+import { FallbackPolicyResolver, DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE } from "./fallback-policies";
+
+
+class MiddleValueFallbackPolicyResolver extends FallbackPolicyResolver{
+  constructor(){
+    super("The midpoint score")
+  }
+}
 
 export class RatingAttributeHelper extends AttributeHelper {
+
   get typeName(): string { return "Rating" }
 
   get typeNameForSerialization(): string{ return TypedStringSerializer.TYPENAME_FRACTION}
@@ -57,6 +66,12 @@ export class RatingAttributeHelper extends AttributeHelper {
 
   getSmallIconType(attribute: IAttributeDbEntity): string {
     return AttributeIconTypes.ATTR_ICON_SMALL_STAR
+  }
+
+  makeSupportedFallbackPolicies(){
+    const s = super.makeSupportedFallbackPolicies()
+    s.push([DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE, new MiddleValueFallbackPolicyResolver()])
+    return s
   }
   
 }

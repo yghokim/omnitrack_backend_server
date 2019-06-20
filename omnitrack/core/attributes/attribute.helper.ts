@@ -1,5 +1,6 @@
 import PropertyHelper from "../properties/property.helper.base";
 import { IAttributeDbEntity } from '../db-entity-types';
+import { FallbackPolicyResolver, DEFAULT_VALUE_POLICY_NULL, NullValueResolver, DEFAULT_VALUE_POLICY_FILL_WITH_LAST_ITEM, PreviousValueResolver } from "./fallback-policies";
 
 export default abstract class AttributeHelper {
 
@@ -12,6 +13,8 @@ export default abstract class AttributeHelper {
   abstract get typeNameForSerialization(): string
 
   abstract propertyKeys: Array<string>
+
+  supportedFallbackPolicyKeys = new Map<string, FallbackPolicyResolver>(this.makeSupportedFallbackPolicies())
 
   abstract getPropertyHelper<T>(propertyKey: string): PropertyHelper<T>
 
@@ -69,4 +72,11 @@ export default abstract class AttributeHelper {
   abstract getSmallIconType(attribute: IAttributeDbEntity): string
 
   abstract formatAttributeValue(attr: IAttributeDbEntity, value: any): string
+
+  makeSupportedFallbackPolicies(): Array<[string, FallbackPolicyResolver]>{
+    return [
+      [DEFAULT_VALUE_POLICY_NULL, new NullValueResolver()],
+      [DEFAULT_VALUE_POLICY_FILL_WITH_LAST_ITEM, new PreviousValueResolver()]
+    ]
+  }
 }

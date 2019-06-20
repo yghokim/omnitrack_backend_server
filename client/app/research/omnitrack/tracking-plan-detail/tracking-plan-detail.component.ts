@@ -56,6 +56,26 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
           this.currentPlanData = deepclone(plan)
           this.currentPlanData.data = TrackingPlan.fromJson(this.currentPlanData.data)
           this.planService.currentPlan = this.currentPlanData.data
+
+          if (this.selectedEntity != null) {
+            const selectedId = this.selectedEntity._id
+            let newInstance
+            switch (this.selectedType) {
+              case "tracker":
+                newInstance = this.currentPlanData.data.trackers.find(t => t._id === selectedId)
+                break;
+              case "trigger":
+                newInstance = this.currentPlanData.data.triggers.find(t => t._id === selectedId)
+                break;
+            }
+
+            if(newInstance != null){
+              this.selectedEntity = newInstance
+            }else{
+              this.unselect()
+            }
+          }
+
           this.changeDetector.markForCheck()
         }, err => {
           console.error(err)
@@ -138,6 +158,7 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  /*
   onDiscardChangesClicked() {
     this.currentPlanData = deepclone(this.originalPlanData)
     if (this.selectedEntity) {
@@ -152,15 +173,17 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
     }
     this.planService.currentPlan = this.currentPlanData.data
     this.changeDetector.markForCheck()
-  }
+  }*/
 
   onSaveClicked() {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(
-        flatMap(expService => expService.updateTrackingPlanJson(this.originalPlanData.key, this.currentPlanData.data.toJson(), this.currentPlanData.name))).subscribe(changed => {
-          this.notificationService.pushSnackBarMessage({
-            message: "Saved changes in the plan."
-          })
+        flatMap(expService => expService.updateTrackingPlanJson(this.originalPlanData.key, this.currentPlanData.data.toJson(), this.currentPlanData.name))).subscribe(change => {
+          if (change === true) {
+            this.notificationService.pushSnackBarMessage({
+              message: "Saved changes in the plan."
+            })
+          }
         })
     )
   }

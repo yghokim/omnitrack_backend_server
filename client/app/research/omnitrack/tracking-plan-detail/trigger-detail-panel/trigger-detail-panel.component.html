@@ -10,6 +10,14 @@
       [stringList]="['Time-based', 'Data-driven']" [direction]="vertical"></app-selection-property-view>
   </div>
 
+  <div class="form-group">
+    <app-text-property-view title="Alias" [(propertyValue)]="trigger.alias" placeholder="Not shown to participants"></app-text-property-view>
+  </div>
+
+  <div class="form-group">
+      <app-boolean-property-view title="Switch" [(propertyValue)]="trigger.isOn"></app-boolean-property-view>
+    </div>
+
   <hr class="no-margin">
 
   <ng-container [ngSwitch]="trigger.conditionType">

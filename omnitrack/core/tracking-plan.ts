@@ -7,6 +7,8 @@ import AttributeManager from "./attributes/attribute.manager";
 import { TimeCondition, DataDrivenCondition } from './trigger/trigger-condition';
 import { LoggingTriggerAction, ReminderTriggerAction } from './trigger/trigger-action';
 import * as deepEqual from 'deep-equal';
+import { deepclone } from '../../shared_lib/utils';
+import { DEFAULT_VALUE_POLICY_NULL } from './attributes/fallback-policies';
 
 const randomstring = require('random-string');
 /**
@@ -15,17 +17,7 @@ const randomstring = require('random-string');
 export class TrackingPlan {
 
   static isEqual(a: TrackingPlan, b: TrackingPlan): boolean{
-    return deepEqual({
-      app: a.app,
-      trackers: a.trackers,
-      triggers: a.triggers,
-      serviceCodes: a.serviceCodes,
-    }, {
-      app: b.app,
-      trackers: b.trackers,
-      triggers: b.triggers,
-      serviceCodes: b.serviceCodes
-    })
+    return deepEqual(a.toJson(), b.toJson())
   }
 
   /**
@@ -280,6 +272,7 @@ export class TrackingPlan {
       required: false,
       trackerId: tracker._id,
       type: type,
+      fallbackPolicy: DEFAULT_VALUE_POLICY_NULL,
       flags: {
         injected: true,
         injectionId: injectionId
@@ -312,6 +305,7 @@ export class TrackingPlan {
       _id: id,
       conditionType: conditionType,
       actionType: actionType,
+      isOn: true,
       flags: {
         injected: true,
         injectionId: injectionId
@@ -359,8 +353,8 @@ export class TrackingPlan {
 
   public toJson(): any{
     return {
-      triggers: this.triggers,
-      trackers: this.trackers,
+      triggers: deepclone(this.triggers),
+      trackers: deepclone(this.trackers),
       serviceCodes: this.serviceCodes
     }
   }

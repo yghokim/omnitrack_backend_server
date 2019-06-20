@@ -54,4 +54,12 @@ export class FieldDetailPanelComponent implements OnInit {
     return this.attributeHelper.getPropertyName(propertyKey)
   }
 
+  getFallbackPolicyEntries(): Array<{id: string, name: string}>{
+    const array = []
+    this.attributeHelper.supportedFallbackPolicyKeys.forEach(
+      (value, key) => {
+          array.push({id: key, name: value.label})
+      })
+    return array
+  }
 }

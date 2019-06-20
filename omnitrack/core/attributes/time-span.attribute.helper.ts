@@ -8,6 +8,7 @@ import attributeTypes from "./attribute-types";
 import * as moment from 'moment-timezone';
 import TypedStringSerializer from '../typed_string_serializer';
 import AttributeIconTypes from "./attribute-icon-types";
+import { DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE, FallbackPolicyResolver } from "./fallback-policies";
 
 export class TimeSpanAttributeHelper extends AttributeHelper {
   static readonly PROPERTY_GRANULARITY = "granularity"
@@ -19,7 +20,8 @@ export class TimeSpanAttributeHelper extends AttributeHelper {
   static readonly TIMEFORMAT_TIME = "kk:mm"
   static readonly TIMEFORMAT_DATE = "MMM DD YYYY"
   static readonly TIMEFORMAT_YEARDATE = "YYYY-MM-DD"
-  
+ 
+  static readonly FALLBACK_POLICY_CONNECT_PREVIOUS = "connect"
 
   get typeName(): string { return "Time Range" }
   get typeNameForSerialization(): string { return TypedStringSerializer.TYPENAME_TIMESPAN }
@@ -93,5 +95,14 @@ export class TimeSpanAttributeHelper extends AttributeHelper {
   getSmallIconType(attribute: IAttributeDbEntity): string {
     return AttributeIconTypes.ATTR_ICON_SMALL_TIMER
   }  
+
+  makeSupportedFallbackPolicies(){
+    const s = super.makeSupportedFallbackPolicies()
+    s.push([DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE, new FallbackPolicyResolver("Present")])
+
+    s.push([TimeSpanAttributeHelper.FALLBACK_POLICY_CONNECT_PREVIOUS, new FallbackPolicyResolver("Start from the end of the previous item")])
+
+    return s
+  }
 
 }

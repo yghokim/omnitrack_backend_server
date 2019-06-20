@@ -9,6 +9,7 @@ import * as moment from 'moment-timezone';
 import { TimeSpanAttributeHelper } from './time-span.attribute.helper';
 import TypedStringSerializer from '../typed_string_serializer';
 import AttributeIconTypes from "./attribute-icon-types";
+import { DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE, FallbackPolicyResolver } from "./fallback-policies";
 
 export class TimePointAttributeHelper extends AttributeHelper {
   get typeName(): string { return "Time Point" }
@@ -81,6 +82,12 @@ export class TimePointAttributeHelper extends AttributeHelper {
 
   getSmallIconType(attribute: IAttributeDbEntity): string {
     return AttributeIconTypes.ATTR_ICON_SMALL_TIME
+  }
+
+  makeSupportedFallbackPolicies(){
+    const s = super.makeSupportedFallbackPolicies()
+    s.push([DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE, new FallbackPolicyResolver("Present")])
+    return s
   }
 
 }

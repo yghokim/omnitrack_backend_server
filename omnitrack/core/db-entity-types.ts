@@ -70,7 +70,7 @@ export interface IAttributeDbEntity {
   localId?: string,
   trackerId?: string,
   connection?: any,
-  fallbackPolicy?: number,
+  fallbackPolicy?: string,
   fallbackPreset?: string,
   type?: number,
   isRequired?: boolean,
