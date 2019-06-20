@@ -44,6 +44,7 @@
     "@ng-bootstrap/ng-bootstrap": "^4.2.1",
     "@sendgrid/mail": "^6.4.0",
     "@types/d3-scale": "^2.1.1",
+    "a-color-picker": "^1.1.7",
     "agenda": "^2.0.2",
     "ajv": "^6.10.0",
     "android-versions": "^1.4.0",

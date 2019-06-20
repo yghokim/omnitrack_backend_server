@@ -34,6 +34,7 @@ import { DayOfWeekCheckerComponent } from "./research/omnitrack/tracking-plan-de
 import { HourRangePickerComponent } from "./research/omnitrack/tracking-plan-detail/trigger-detail-panel/hour-range-picker/hour-range-picker.component";
 import { FieldPresetPickerComponent } from "./research/omnitrack/tracking-plan-detail/field-preset-picker/field-preset-picker.component";
 import { TrackerPickerComponent } from "./research/omnitrack/tracking-plan-detail/tracker-picker/tracker-picker.component";
+import { TrackerColorPickerComponent } from "./research/omnitrack/tracking-plan-detail/tracker-detail-panel/tracker-color-picker/tracker-color-picker.component";
 
 const routes: Routes = [
   {
@@ -103,13 +104,15 @@ const routes: Routes = [
     DayOfWeekCheckerComponent,
     HourRangePickerComponent,
     FieldPresetPickerComponent,
-    TrackerPickerComponent
+    TrackerPickerComponent,
+    TrackerColorPickerComponent
   ],
   entryComponents: [
     LockConfigurationSheetComponent,
     NewTrackingPlanDialogComponent,
     FieldPresetPickerComponent,
-    TrackerPickerComponent
+    TrackerPickerComponent,
+    TrackerColorPickerComponent
   ]
 })
 export class TrackingPlanModule {}

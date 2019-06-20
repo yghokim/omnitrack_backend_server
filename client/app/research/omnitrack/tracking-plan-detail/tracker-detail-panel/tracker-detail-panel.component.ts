@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { ITrackerDbEntity, IAttributeDbEntity, ITriggerDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
 import { TrackingPlanService } from '../../tracking-plan.service';
-import { getAttributeIconName, makeShortenConditionString } from '../../omnitrack-helper';
+import { getAttributeIconName, makeShortenConditionString, getTrackerColorString } from '../../omnitrack-helper';
 import { TRACKER_COLOR_PALETTE } from '../../../../../../omnitrack/core/design/palette';
 import * as color from 'color';
 import * as deepEqual from 'deep-equal';
@@ -20,6 +20,7 @@ import { TriggerConstants } from '../../../../../../omnitrack/core/trigger/trigg
 import { TextInputDialogComponent } from '../../../../dialogs/text-input-dialog/text-input-dialog.component';
 import * as isUrl from 'is-url';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
+import { TrackerColorPickerComponent } from './tracker-color-picker/tracker-color-picker.component';
 
 @Component({
   selector: 'app-tracker-detail-panel',
@@ -147,6 +148,19 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
+  onColorClicked() {
+    this._internalSubscriptions.add(
+      this.matDialog
+        .open(TrackerColorPickerComponent, { data: this.tracker.color })
+        .afterClosed().subscribe(pickedColor => {
+          if(pickedColor){
+            this.tracker.color = color(pickedColor).rgbNumber() + 0xff000000
+            this.detector.markForCheck()
+          }
+        })
+    )
+  }
+
   onFieldDragDrop(event: any) {
     const fieldIds = this.fieldIds
     moveItemInArray(fieldIds, event.previousIndex, event.currentIndex);
@@ -193,6 +207,10 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
   onColorButtonClicked(colorString: string) {
     console.log(color(colorString).rgbNumber())
     this.tracker.color = color(colorString).rgbNumber() + 0xff000000
+  }
+
+  getTrackerColorString(): string{
+    return getTrackerColorString(this.tracker)
   }
 
   onAddFieldClicked() {

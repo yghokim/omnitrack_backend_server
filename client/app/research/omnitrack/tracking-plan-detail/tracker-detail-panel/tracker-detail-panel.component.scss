@@ -1,3 +1,10 @@
+.color-button {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: block;
+  border-radius: 0.4rem;
+}
+
 .color-palette-picker {
   display: flex;
   align-items: center;
@@ -33,7 +40,8 @@
     &:hover {
       .color-element {
         border: 2px solid gray;
-        &.selected{
+
+        &.selected {
           border: none;
         }
       }
@@ -41,7 +49,7 @@
   }
 }
 
-.button-redirection{
+.button-redirection {
   overflow: hidden;
   margin-left: 1rem;
 }
