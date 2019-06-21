@@ -161,7 +161,7 @@
       <div class="form-group">
         <div class="flex-container flex-align-items-center flex-stretch">
           <label class="small no-margin">Assigned Trackers</label>
-          <button mat-stroked-button class="mat-button-small" color="accent" (click)="onAssignNewTrackerClicked()">Add</button>
+          <button mat-stroked-button class="mat-button-small" color="accent" (click)="onAssignNewTrackerClicked()" *ngIf="getAssignableTrackers().length > 0">Add</button>
         </div>
         <div class="assigned-trackers">
           <div class="small text-color-warn" *ngIf="trigger.trackers==null || trigger.trackers.length === 0">No trackers assigned.</div>

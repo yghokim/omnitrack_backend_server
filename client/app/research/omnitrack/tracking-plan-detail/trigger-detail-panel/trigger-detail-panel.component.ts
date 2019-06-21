@@ -140,12 +140,16 @@ export class TriggerDetailPanelComponent implements OnInit, OnDestroy {
     return this.planService.getTracker(id)
   }
 
+  getAssignableTrackers(): Array<ITrackerDbEntity>{
+    return this.planService.currentPlan.trackers.filter(t =>
+      this.trigger.trackers != null ? (this.trigger.trackers.indexOf(t._id) === -1) : true)
+  }
+
   onAssignNewTrackerClicked() {
     this._internalSubscriptions.add(
       this.matBottomSheet.open(TrackerPickerComponent, {
         data: {
-          trackers: this.planService.currentPlan.trackers.filter(t =>
-            this.trigger.trackers != null ? (this.trigger.trackers.indexOf(t._id) === -1) : true)
+          trackers: this.getAssignableTrackers()
         },
         panelClass: "no-padding"
       }).afterDismissed().subscribe(
