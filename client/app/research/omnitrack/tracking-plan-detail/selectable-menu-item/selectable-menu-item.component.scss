@@ -3,42 +3,54 @@
   font-size: 0.85rem;
   cursor: pointer;
 
+  .text {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+
+    .subtitle {
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+  }
+
   &.selected {
     background: #e7b60a;
     color: white;
     font-weight: bold;
     text-shadow: 0px -1px rgba(0, 0, 0, 0.1);
+
     &:hover {
       background: #e3aa08;
     }
 
-    .drag-handle{
+    .drag-handle {
       color: white;
     }
   }
 
-  &.has-button{
+  &.has-button {
     padding-right: 0.25rem;
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
   }
 
-  &.has-drag-handle{
+  &.has-drag-handle {
     padding-left: 0;
   }
 
-  &.has-button{
+  &.has-button {
     padding-right: 0.25rem;
   }
 
   &:hover {
     background: #f2f2f2;
-    .drag-handle{
+
+    .drag-handle {
       visibility: visible;
     }
   }
 
-  .drag-handle{
+  .drag-handle {
     font-size: 14px;
     color: #b4b4b4;
     visibility: hidden;
@@ -55,7 +67,8 @@
 
   .icon {
     margin-right: 0.5rem;
-    & > img {
+
+    &>img {
       width: 16px;
       height: 16px;
       opacity: 0.5;

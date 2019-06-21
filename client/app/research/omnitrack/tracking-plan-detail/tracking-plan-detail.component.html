@@ -50,7 +50,9 @@
 
         <ng-container
           *ngIf="currentPlanData.data && planService.filterLoggingTriggers().length > 0">
-          <app-selectable-menu-item *ngFor="let trigger of planService.filterLoggingTriggers(); trackBy: trackByObj" [title]="getTriggerTitle(trigger)"
+          <app-selectable-menu-item *ngFor="let trigger of planService.filterLoggingTriggers(); trackBy: trackByObj" 
+            [title]="trigger.alias? trigger.alias : getTriggerTitle(trigger)"
+            [subtitle]="trigger.alias? getTriggerTitle(trigger) : null"
             [showRemoveButton]="true"
             [selected]="selectedEntity === trigger"
             (onClick)="onTriggerClicked(trigger)"

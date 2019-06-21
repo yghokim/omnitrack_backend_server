@@ -23,6 +23,9 @@ export class SelectableMenuItemComponent implements OnInit {
   title: string
 
   @Input()
+  subtitle: string
+
+  @Input()
   color: string
 
   @Input()
