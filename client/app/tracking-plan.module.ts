@@ -35,6 +35,7 @@ import { HourRangePickerComponent } from "./research/omnitrack/tracking-plan-det
 import { FieldPresetPickerComponent } from "./research/omnitrack/tracking-plan-detail/field-preset-picker/field-preset-picker.component";
 import { TrackerPickerComponent } from "./research/omnitrack/tracking-plan-detail/tracker-picker/tracker-picker.component";
 import { TrackerColorPickerComponent } from "./research/omnitrack/tracking-plan-detail/tracker-detail-panel/tracker-color-picker/tracker-color-picker.component";
+import { ChangeCheckGuard } from "./services/change-check.guard";
 
 const routes: Routes = [
   {
@@ -51,6 +52,7 @@ const routes: Routes = [
       {
         path: "plans/:planKey",
         component: TrackingPlanDetailComponent,
+        canDeactivate: [ChangeCheckGuard],
         data: {
           title: "Tracking Plan Detail",
           backTitle: "Plan List",

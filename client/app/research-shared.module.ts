@@ -10,6 +10,7 @@ import { ClipboardModule } from 'ngx-clipboard';
 import { C3ChartComponent } from './research/visualization/c3-chart.component';
 import { ChartFrameComponent } from './shared-visualization/chart-frame/chart-frame.component';
 import { D3ChartFrameComponent } from './shared-visualization/d3-chart-frame/d3-chart-frame.component';
+import { ChangeCheckGuard } from './services/change-check.guard';
 
 
 @NgModule({
@@ -39,6 +40,6 @@ import { D3ChartFrameComponent } from './shared-visualization/d3-chart-frame/d3-
     D3ChartFrameComponent,
   ],
   providers:[
-    ResearcherAuthService]
+    ResearcherAuthService, ChangeCheckGuard]
 })
 export class ResearchSharedModule { }

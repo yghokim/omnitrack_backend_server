@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingPlanService } from '../tracking-plan.service';
 import { ResearchApiService } from '../../../services/research-api.service';
@@ -10,12 +10,12 @@ import { ITrackerDbEntity, ITriggerDbEntity } from '../../../../../omnitrack/cor
 
 import { getTrackerColorString, makeShortenConditionString } from '../omnitrack-helper';
 import { NotificationService } from '../../../services/notification.service';
-import * as deepEqual from 'deep-equal';
 import { TrackingPlan } from '../../../../../omnitrack/core/tracking-plan';
 import { MatDialog } from '@angular/material';
 import { YesNoDialogComponent } from '../../../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { TriggerConstants } from '../../../../../omnitrack/core/trigger/trigger-constants';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
+import { ChangeCheckComponent } from '../../../components/change-check.component';
 
 @Component({
   selector: 'app-tracking-plan-detail',
@@ -24,8 +24,8 @@ import { moveItemInArray } from '@angular/cdk/drag-drop';
   providers: [TrackingPlanService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
-
+export class TrackingPlanDetailComponent extends ChangeCheckComponent implements OnInit, OnDestroy {
+  
   private _internalSubscriptions = new Subscription()
   originalPlanData: IExperimentTrackingPlanDbEntity = null
   currentPlanData: IExperimentTrackingPlanDbEntity = null
@@ -41,6 +41,7 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService,
     private matDialog: MatDialog
   ) {
+    super()
   }
 
   ngOnInit() {
@@ -174,6 +175,14 @@ export class TrackingPlanDetailComponent implements OnInit, OnDestroy {
     this.planService.currentPlan = this.currentPlanData.data
     this.changeDetector.markForCheck()
   }*/
+
+
+  canDeactivate(): boolean {
+    return this.isChanged() === false
+  }
+
+  deactivationCheckMessage: string = "You have unsaved changes in the plan. Do you want to discard the changes and leave the page?"
+
 
   onSaveClicked() {
     this._internalSubscriptions.add(
