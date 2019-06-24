@@ -1,18 +1,18 @@
-import AttributeHelper from "./attribute.helper";
+import FieldHelper from "./field.helper";
 import PropertyHelper from "../properties/property.helper.base";
-import { IAttributeDbEntity } from '../db-entity-types';
-import attributeTypes from "./attribute-types";
+import { IFieldDbEntity } from '../db-entity-types';
+import fieldTypes from "./field-types";
 import TypedStringSerializer from '../typed_string_serializer';
 import { LatLng } from "../datatypes/field_datatypes";
-import AttributeIconTypes from "./attribute-icon-types";
+import FieldIconTypes from "./field-icon-types";
 import { DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE, FallbackPolicyResolver } from "./fallback-policies";
 
-export class LocationAttributeHelper extends AttributeHelper {
+export class LocationFieldHelper extends FieldHelper {
   get typeName(): string{return "Location"}
 
   get typeNameForSerialization(): string {return TypedStringSerializer.TYPENAME_LATITUDE_LONGITUDE}
 
-  formatAttributeValue(attr: IAttributeDbEntity, value: any): string {
+  formatFieldValue(attr: IFieldDbEntity, value: any): string {
     const latLng = value as LatLng
     return latLng.latitude + ", " + latLng.longitude
   }
@@ -20,7 +20,7 @@ export class LocationAttributeHelper extends AttributeHelper {
   propertyKeys = []
 
   constructor() {
-    super(attributeTypes.ATTR_TYPE_LOCATION)
+    super(fieldTypes.ATTR_TYPE_LOCATION)
   }
 
   getPropertyName(propertyKey: string): string{
@@ -31,8 +31,8 @@ export class LocationAttributeHelper extends AttributeHelper {
     return null
   }
 
-  getSmallIconType(attribute: IAttributeDbEntity): string {
-    return AttributeIconTypes.ATTR_ICON_SMALL_LOCATION
+  getSmallIconType(field: IFieldDbEntity): string {
+    return FieldIconTypes.ATTR_ICON_SMALL_LOCATION
   }
 
   makeSupportedFallbackPolicies(){

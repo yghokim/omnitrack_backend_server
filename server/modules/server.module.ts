@@ -14,6 +14,8 @@ import { Job } from 'agenda';
 import appWrapper from '../app';
 import { SocketConstants, ClientBuildStatus, EClientBuildStatus } from '../../omnitrack/core/research/socket';
 import { experimentCtrl } from '../controllers/research/ot_experiment_controller';
+import OTTracker from '../models/ot_tracker';
+import OTItem from '../models/ot_item';
 
 export default class ServerModule {
 
@@ -39,6 +41,23 @@ export default class ServerModule {
         console.log(updated.nModified + " researchers became new superuser.")
       }).catch(err => {
         console.log(err)
+      })
+
+      OTTracker.collection.updateMany({}, {'$rename': {"attributes": "fields"}}).then(updated => {
+        console.log("renamed tracker attributes to fields.")
+      })
+      
+      OTItem.find({}).then(items => {
+        return Promise.all(items.map(item => {
+          (item as any).dataTable.forEach( entry => {
+            entry.fieldLocalId = entry.attrLocalId
+            delete entry.attrLocalId
+          })
+          item.markModified("dataTable")
+          return item.save()
+        }))
+      }).then(updated => {
+        console.log("renamed item entry attrLocalId to fieldLocalId.")
       })
 
     } catch (err) {

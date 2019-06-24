@@ -1,4 +1,4 @@
-import { ITrackerDbEntity, ITriggerDbEntity, IAttributeDbEntity } from "./db-entity-types";
+import { ITrackerDbEntity, ITriggerDbEntity, IFieldDbEntity } from "./db-entity-types";
 import { TriggerConstants } from "./trigger/trigger-constants";
 import { DependencyLevel, OmniTrackFlagGraph } from "./functionality-locks/omnitrack-dependency-graph";
 import { merge, deepclone } from "../../shared_lib/utils";
@@ -66,7 +66,7 @@ export class TrackingPlanManagerImpl {
     return this.getTracker(trackerId)
   }
 
-  getTrackerOfField(field: IAttributeDbEntity): ITrackerDbEntity {
+  getTrackerOfField(field: IFieldDbEntity): ITrackerDbEntity {
     return this.getTracker(field.trackerId)
   }
 

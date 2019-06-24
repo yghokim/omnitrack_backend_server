@@ -11,11 +11,11 @@ export class ModelConverter {
         delete obj.userUpdatedAt
         delete obj.synchronizedAt
 
-        if (obj.attributes != null) {
-          if (obj.attributes.constructor === Array) {
-            obj.attributes.forEach(attribute => {
-                delete attribute.userCreatedAt
-                delete attribute.userUpdatedAt
+        if (obj.fields != null) {
+          if (obj.fields.constructor === Array) {
+            obj.fields.forEach(field => {
+                delete field.userCreatedAt
+                delete field.userUpdatedAt
               }
             )
           }

@@ -23,5 +23,7 @@ const otTriggerSchema = new mongoose.Schema({
 
 const OTTrigger = mongoose.model('OTTrigger', otTriggerSchema);
 OTTrigger.collection.createIndex({"flags.experiment": 1})
+OTTrigger.collection.createIndex({"flags.injectedId": 1})
+
 
 export default OTTrigger;

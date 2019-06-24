@@ -1,5 +1,4 @@
 import { AHierarchicalDependencyGraph } from "./hierarchical-dependency-graph";
-import { ITriggerDbEntity, ITrackerDbEntity, IAttributeDbEntity } from "../db-entity-types";
 
 export enum DependencyLevel {
   Field = "field",

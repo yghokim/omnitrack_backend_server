@@ -11,7 +11,7 @@
       "_id": "%{TRACKER_1}%",
       "lockedProperties": { "delete": true },
       "flags": { "injected": true, "injectionId": "Ab0ksQyh" },
-      "attributes": [
+      "fields": [
         {
           "isHidden": false,
           "isInTrashcan": false,
@@ -238,7 +238,7 @@
 
     {
       "isBookmarked": true,
-      "attributes": [
+      "fields": [
         {
           "isHidden": false,
           "isInTrashcan": false,

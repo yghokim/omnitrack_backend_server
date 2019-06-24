@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Inject, ViewChild, ElementRef } from '@angular/core';
-import { ITrackerDbEntity, IAttributeDbEntity } from '../../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, IFieldDbEntity } from '../../../../omnitrack/core/db-entity-types';
 import { ResearchApiService } from '../../services/research-api.service';
 import { SingletonAudioPlayerServiceService } from '../../services/singleton-audio-player-service.service';
 import { Subscription ,  BehaviorSubject} from 'rxjs';
@@ -45,10 +45,10 @@ export class AudioCellComponent implements OnInit {
   }
 
   @Input("mediaInfo")
-  set _mediaInfo(info: {trackerId: string, attributeLocalId: string, itemId: string }){
+  set _mediaInfo(info: {trackerId: string, fieldLocalId: string, itemId: string }){
     console.log("load audio data")
     this._internalSubscriptions.add(
-      this.api.getMedia(info.trackerId, info.attributeLocalId, info.itemId, "").subscribe(response => {
+      this.api.getMedia(info.trackerId, info.fieldLocalId, info.itemId, "").subscribe(response => {
         this.createAudio(response);
       }, err => {
       })

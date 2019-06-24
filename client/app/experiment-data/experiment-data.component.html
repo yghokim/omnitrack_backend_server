@@ -42,7 +42,7 @@
         <table class="table table-data" *ngIf="printFriendlyMode===false && selectedTracker" [@.disabled] = "animateEnterLeaveAnimation === false">
           <thead class="singleline">
             <th>Item Id</th>
-            <th *ngFor="let attr of selectedTracker.attributes; trackBy: trackAttributes">
+            <th *ngFor="let attr of selectedTracker.fields; trackBy: trackFields">
               {{attr.name}}
             </th>
             <th class="header-timestamp">Logged At</th>
@@ -57,10 +57,10 @@
           <tbody>
             <tr class="hoverable singleline" *ngFor="let item of trackerItems; trackBy: trackDbObject" @rowShowHideTrigger>
               <td>{{item._id}}</td>
-              <td *ngFor="let attr of selectedTracker.attributes; trackBy: trackAttributes">
+              <td *ngFor="let attr of selectedTracker.fields; trackBy: trackFields">
                 <ng-container *ngIf="getItemValue(item, attr, true)" [ngSwitch]="attr.type">
-                  <app-image-cell *ngSwitchCase="getImageType()" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'attributeLocalId': attr.localId}"></app-image-cell>
-                  <app-audio-cell *ngSwitchCase="getAudioType()" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'attributeLocalId': attr.localId}"></app-audio-cell>
+                  <app-image-cell *ngSwitchCase="getImageType()" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'fieldLocalId': attr.localId}"></app-image-cell>
+                  <app-audio-cell *ngSwitchCase="getAudioType()" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'fieldLocalId': attr.localId}"></app-audio-cell>
                   <app-location-cell *ngSwitchCase="getLocationType()" [value]="getItemValue(item, attr, false)"></app-location-cell>
                   <div *ngSwitchDefault class="cell-value-clickable" (click)="onCellValueClicked(selectedTracker, attr, item)">{{this.getItemValue(item,
                     attr, true)}}</div>
@@ -99,7 +99,7 @@
 <table class="table table-data table-print" *ngIf="printFriendlyMode===true&&selectedTracker">
   <thead class="singleline">
     <th>Item Id</th>
-    <th *ngFor="let attr of selectedTracker.attributes; trackBy: trackAttributes">
+    <th *ngFor="let attr of selectedTracker.fields; trackBy: trackFields">
       {{attr.name}}
     </th>
     <th class="header-timestamp">Logged At</th>
@@ -108,11 +108,11 @@
   <tbody>
     <tr class="hoverable singleline" *ngFor="let item of trackerItems; trackBy: trackDbObject">
       <td>{{item._id}}</td>
-      <td *ngFor="let attr of selectedTracker.attributes; trackBy: trackAttributes">
+      <td *ngFor="let attr of selectedTracker.fields; trackBy: trackFields">
         <ng-container *ngIf="getItemValue(item, attr, true)">
-          <span *ngIf="isImageAttribute(attr) !== true">{{this.getItemValue(item, attr, true)}}</span>
-          <span *ngIf="isImageAttribute(attr) === true">
-            <app-image-cell *ngIf="this.getItemValue(item,attr)" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'attributeLocalId': attr.localId}"></app-image-cell>
+          <span *ngIf="isImageField(attr) !== true">{{this.getItemValue(item, attr, true)}}</span>
+          <span *ngIf="isImageField(attr) === true">
+            <app-image-cell *ngIf="this.getItemValue(item,attr)" [mediaInfo]="{'trackerId': selectedTracker._id, 'itemId': item._id, 'fieldLocalId': attr.localId}"></app-image-cell>
           </span>
         </ng-container>
       </td>

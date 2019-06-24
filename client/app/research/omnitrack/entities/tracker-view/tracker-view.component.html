@@ -6,12 +6,12 @@
 </div>
 <label>Fields</label>
 <div class="card-body">
-  <div class="attribute-list">
-    <div class="attribute-item font-color-gray" *ngFor="let attribute of tracker.attributes">
+  <div class="field-list">
+    <div class="field-item font-color-gray" *ngFor="let field of tracker.fields">
       <div class="flex-container flex-align-items-center">
-        <span class="attribute-type-icon"><img [src]="'/assets/omnitrack/field_icons_small/icon_small_' + getAttributeIconName(attribute) + '.svg'"></span>
-        <div class="attribute-name">{{attribute.name}}
-          <sup class="text-color-accented font-weight-bold" *ngIf="attribute.isRequired">*</sup>
+        <span class="field-type-icon"><img [src]="'/assets/omnitrack/field_icons_small/icon_small_' + getFieldIconName(field) + '.svg'"></span>
+        <div class="field-name">{{field.name}}
+          <sup class="text-color-accented font-weight-bold" *ngIf="field.isRequired">*</sup>
         </div>
         <div class="flex-filler"></div>
       </div>

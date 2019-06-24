@@ -148,11 +148,11 @@ export default class AdminCtrl {
     )
   }
 
-  getAttributePropertyValue = (req, res) => {
+  getFieldPropertyValue = (req, res) => {
     const trackerId = req.params.trackerId
-    const attributeLocalId = req.params.attributeLocalId
+    const fieldLocalId = req.params.fieldLocalId
     const propertyKey = req.params.propertyKey
-    app.commandModule().getAttributePropertyValue(trackerId, attributeLocalId, propertyKey).then(
+    app.commandModule().getFieldPropertyValue(trackerId, fieldLocalId, propertyKey).then(
       result =>
       res.status(200).send(result)
     )
@@ -162,33 +162,33 @@ export default class AdminCtrl {
     })
   }
 
-  setAttributePropertySerializedValue = (req, res) => {
+  setFieldPropertySerializedValue = (req, res) => {
     const trackerId = req.query.trackerId
-    const attributeLocalId = req.query.attributeLocalId
-    const attributeType = req.query.attributeType
+    const fieldLocalId = req.query.fieldLocalId
+    const fieldType = req.query.fieldType
     const propertyKey = req.params.propertyKey
     const serializedValue = req.query.serializedValue
-    const attributeName = req.query.attributeName
+    const fieldName = req.query.fieldName
 
     const trackerFilter = {}
-    const attributeFilter = {}
+    const fieldFilter = {}
     if (trackerId) {
       trackerFilter["_id"] = trackerId
     }
 
-    if (attributeLocalId) {
-      attributeFilter["attributes.localId"] = attributeLocalId
+    if (fieldLocalId) {
+      fieldFilter["fields.localId"] = fieldLocalId
     }
 
-    if (attributeType) {
-      attributeFilter["attributes.type"] = Number(attributeType)
+    if (fieldType) {
+      fieldFilter["fields.type"] = Number(fieldType)
     }
 
-    if (attributeName) {
-      attributeFilter["attributes.name"] = attributeName
+    if (fieldName) {
+      fieldFilter["fields.name"] = fieldName
     }
 
-    app.commandModule().setAttributePropertySerializedValue(trackerFilter, attributeFilter, propertyKey, serializedValue).then(
+    app.commandModule().setFieldPropertySerializedValue(trackerFilter, fieldFilter, propertyKey, serializedValue).then(
       result => {
         res.status(200).send(result)
       }

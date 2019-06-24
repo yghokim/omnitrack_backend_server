@@ -3,9 +3,9 @@
     {{tracker.name}}
   </div>
   <app-tree-view-element child [cascadingLevel]="1">
-    <span main>Fields ({{tracker.attributes.length}})</span>
-    <app-tree-view-element child *ngFor="let attribute of tracker.attributes; trackBy: trackByLocalId" [isLeaf]="true" [isSelectable]="true" [selectionData]="{'type':'attribute', 'obj': {'obj':attribute, 'parentId': tracker._id}}" [cascadingLevel]="2" (treeItemClick)="onElementClicked($event)">
-      <span main>{{attribute.name}}</span>
+    <span main>Fields ({{tracker.fields.length}})</span>
+    <app-tree-view-element child *ngFor="let field of tracker.fields; trackBy: trackByLocalId" [isLeaf]="true" [isSelectable]="true" [selectionData]="{'type':'field', 'obj': {'obj':field, 'parentId': tracker._id}}" [cascadingLevel]="2" (treeItemClick)="onElementClicked($event)">
+      <span main>{{field.name}}</span>
     </app-tree-view-element>
   </app-tree-view-element>
   <app-tree-view-element *ngIf="getReminders().length > 0" child [cascadingLevel]="1">

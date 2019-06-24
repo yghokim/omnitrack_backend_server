@@ -5,7 +5,7 @@
       "position": 0,
       "name": "Coffee",
       "color": -567979,
-      "attributes": [{
+      "fields": [{
           "_id": "%{ATTRIBUTE_0}%",
           "localId": "%{ATTRIBUTE_LOCAL_0}%",
           "type": 1,
@@ -63,7 +63,7 @@
       "position": 1,
       "name": "Daily Diary",
       "color": -21735,
-      "attributes": [{
+      "fields": [{
           "_id": "%{ATTRIBUTE_2}%",
           "localId": "%{ATTRIBUTE_LOCAL_2}%",
           "type": 1,

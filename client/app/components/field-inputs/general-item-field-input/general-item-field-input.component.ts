@@ -10,7 +10,7 @@ export class GeneralItemFieldInputComponent extends BaseItemFieldInputComponent 
 
   public serializedText: string
 
-  protected onNewValue(attributeType: number, serializedValue?: string, deserializedValue?: any) {
+  protected onNewValue(fieldType: number, serializedValue?: string, deserializedValue?: any) {
     this.serializedText = serializedValue
   }
 

@@ -5,14 +5,14 @@ import { NotificationService } from "../services/notification.service";
 import {
   ITrackerDbEntity,
   IItemDbEntity,
-  IAttributeDbEntity,
+  IFieldDbEntity,
   IUserDbEntity
 } from "../../../omnitrack/core/db-entity-types";
 import TypedStringSerializer from "../../../omnitrack/core/typed_string_serializer";
-import AttributeManager from "../../../omnitrack/core/attributes/attribute.manager";
+import FieldManager from "../../../omnitrack/core/fields/field.manager";
 import { MatDialog } from '@angular/material';
 
-import attributeTypes from "../../../omnitrack/core/attributes/attribute-types";
+import fieldTypes from "../../../omnitrack/core/fields/field-types";
 import { SingletonAudioPlayerServiceService } from "../services/singleton-audio-player-service.service";
 import { aliasCompareFunc } from "../../../shared_lib/utils";
 import * as moment from 'moment-timezone';
@@ -143,8 +143,8 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     return obj._id
   }
 
-  trackAttributes(index, attribute: IAttributeDbEntity){
-    return attribute.localId
+  trackFields(index, field: IFieldDbEntity){
+    return field.localId
   }
 
   onExpandButtonClicked() {
@@ -243,29 +243,29 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     )
   }
 
-  isImageAttribute(attr: IAttributeDbEntity): boolean {
-    return attr.type === attributeTypes.ATTR_TYPE_IMAGE
+  isImageField(attr: IFieldDbEntity): boolean {
+    return attr.type === fieldTypes.ATTR_TYPE_IMAGE
   }
 
-  getImageType(): number { return attributeTypes.ATTR_TYPE_IMAGE }
-  getAudioType(): number { return attributeTypes.ATTR_TYPE_AUDIO }
-  getLocationType(): number { return attributeTypes.ATTR_TYPE_LOCATION }
+  getImageType(): number { return fieldTypes.ATTR_TYPE_IMAGE }
+  getAudioType(): number { return fieldTypes.ATTR_TYPE_AUDIO }
+  getLocationType(): number { return fieldTypes.ATTR_TYPE_LOCATION }
 
-  isAudioAttribute(attr: IAttributeDbEntity): boolean {
-    return attr.type === attributeTypes.ATTR_TYPE_AUDIO
+  isAudioField(attr: IFieldDbEntity): boolean {
+    return attr.type === fieldTypes.ATTR_TYPE_AUDIO
   }
 
-  getItemValue(item: IItemDbEntity, attr: IAttributeDbEntity, tryFormatted: boolean): any {
+  getItemValue(item: IItemDbEntity, attr: IFieldDbEntity, tryFormatted: boolean): any {
     const tableEntry = item.dataTable.find(
-      entry => entry.attrLocalId === attr.localId
+      entry => entry.fieldLocalId === attr.localId
     );
     if (tableEntry && tableEntry.sVal != null) {
-      const helper = AttributeManager.getHelper(attr.type);
+      const helper = FieldManager.getHelper(attr.type);
       const deserializedValue = TypedStringSerializer.deserialize(
         tableEntry.sVal
       );
       if (helper && tryFormatted === true) {
-        const formatted = helper.formatAttributeValue(attr, deserializedValue);
+        const formatted = helper.formatFieldValue(attr, deserializedValue);
         return formatted;
       } else { return deserializedValue; }
     } else { return null; }
@@ -277,7 +277,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   }
 
   getTrackerColumns(tracker: ITrackerDbEntity): any[] {
-    const temp = tracker.attributes.map((attribute) => attribute.localId)
+    const temp = tracker.fields.map((field) => field.localId)
     return temp.concat('timestamp')
   }
 
@@ -289,13 +289,13 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     }
   }
 
-  onCellValueClicked(tracker: ITrackerDbEntity, attribute: IAttributeDbEntity, item: IItemDbEntity) {
+  onCellValueClicked(tracker: ITrackerDbEntity, field: IFieldDbEntity, item: IItemDbEntity) {
     this._internalSubscriptions.add(
-      this.dialog.open(UpdateItemCellValueDialogComponent, { data: { info: { tracker: tracker, attribute: attribute, item: item } } }).afterClosed().subscribe(
+      this.dialog.open(UpdateItemCellValueDialogComponent, { data: { info: { tracker: tracker, field: field, item: item } } }).afterClosed().subscribe(
         result => {
           if (result && result.value) {
             this._internalSubscriptions.add(
-              this.api.selectedExperimentService.pipe(flatMap(expService => expService.trackingDataService.setItemColumnValue(attribute, item, result.value))).subscribe(
+              this.api.selectedExperimentService.pipe(flatMap(expService => expService.trackingDataService.setItemColumnValue(field, item, result.value))).subscribe(
                 updateResult => {
                 }
               )
@@ -307,9 +307,9 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
   }
 
   onTimestampClicked(tracker: ITrackerDbEntity, item: IItemDbEntity) {
-    const attribute: IAttributeDbEntity = { name: "Logged At", type: 1 };
+    const field: IFieldDbEntity = { name: "Logged At", type: 1 };
     this._internalSubscriptions.add(
-      this.dialog.open(UpdateItemCellValueDialogComponent, { data: { info: { tracker: tracker, attribute: attribute, item: item } } }).afterClosed().subscribe(
+      this.dialog.open(UpdateItemCellValueDialogComponent, { data: { info: { tracker: tracker, field: field, item: item } } }).afterClosed().subscribe(
         result => {
           if (result && result.value) {
             this._internalSubscriptions.add(
@@ -345,7 +345,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
               const workbook = XLSX.utils.book_new()
               pack.data.trackers.forEach(
                 trackerScheme => {
-                  const injectedAttrNames = trackerScheme.attributes.map(attr => attr.name)
+                  const injectedAttrNames = trackerScheme.fields.map(attr => attr.name)
                   const itemRows: Array<Array<any>> = [
                     commonColumns.concat(injectedAttrNames).concat(["logged at", "captured"]).concat(this.metadataColumns.map(c => this.styleMetadataKeyString(c)))
                   ]
@@ -355,8 +355,8 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                       const participant = this.participants.find(p => p._id === tracker.user)
                       result.items.filter(i => i.tracker === tracker._id).forEach(
                         item => {
-                          const values = trackerScheme.attributes.map(attrScheme => {
-                            const attr = tracker.attributes.find(a => (a.flags || {}).injectionId === attrScheme.flags.injectionId)
+                          const values = trackerScheme.fields.map(attrScheme => {
+                            const attr = tracker.fields.find(a => (a.flags || {}).injectionId === attrScheme.flags.injectionId)
                             return this.getItemValue(item, attr, true)
                           })
 
@@ -396,11 +396,11 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
                 trackers.forEach(tracker => {
                   const itemRows: Array<Array<any>> = [
-                    commonColumns.concat(tracker.attributes.map(attr => attr.name)).concat(["logged at", "captured"]).concat(this.metadataColumns.map(c => this.styleMetadataKeyString(c)))
+                    commonColumns.concat(tracker.fields.map(attr => attr.name)).concat(["logged at", "captured"]).concat(this.metadataColumns.map(c => this.styleMetadataKeyString(c)))
                   ]
                   result.items.filter(i => i.tracker === tracker._id).forEach(
                     item => {
-                      const values = tracker.attributes.map(attr => {
+                      const values = tracker.fields.map(attr => {
                         return this.getItemValue(item, attr, true)
                       })
                       itemRows.push(

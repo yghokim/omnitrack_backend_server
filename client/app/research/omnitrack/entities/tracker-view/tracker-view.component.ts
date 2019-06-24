@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Output, EventEmitter, ChangeDetectionStrategy, Input } from '@angular/core';
-import { ITrackerDbEntity, ITriggerDbEntity, IAttributeDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
-import { getTrackerColorString, getAttributeIconName } from '../../omnitrack-helper';
+import { ITrackerDbEntity, ITriggerDbEntity, IFieldDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
+import { getTrackerColorString, getFieldIconName } from '../../omnitrack-helper';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { TrackingPlanService } from '../../tracking-plan.service';
@@ -44,8 +44,8 @@ export class TrackerViewComponent implements OnInit {
     this.trackerChange.emit()
   }
 
-  getAttributeIconName(attr: IAttributeDbEntity): string {
-    return getAttributeIconName(attr)
+  getFieldIconName(attr: IFieldDbEntity): string {
+    return getFieldIconName(attr)
   }
 
 }

@@ -8,7 +8,7 @@ const otItemSchema = new mongoose.Schema({
   timestamp: {type: Number, index: true, required: true},
   timezone: {type: String, required: false},
   deviceId: String,
-  dataTable: [{_id: false, attrLocalId: String, sVal: String}],
+  dataTable: [{_id: false, fieldLocalId: String, sVal: String}],
   removed: {type: Boolean, index: true, default: false},
   metadata: mongoose.Schema.Types.Mixed,
   userUpdatedAt: Number

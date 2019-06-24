@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ITrackerDbEntity, ITriggerDbEntity, IAttributeDbEntity } from '../../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, ITriggerDbEntity, IFieldDbEntity } from '../../../../omnitrack/core/db-entity-types';
 import { TrackingPlanManagerImpl } from '../../../../omnitrack/core/tracking-plan-helper';
 import { TrackingPlan } from '../../../../omnitrack/core/tracking-plan';
 import { DependencyLevel, OmniTrackFlagGraph } from '../../../../omnitrack/core/functionality-locks/omnitrack-dependency-graph';
@@ -36,7 +36,7 @@ export class TrackingPlanService {
     return this.currentImpl.getTrackerOfReminder(trigger)
   }
 
-  getTrackerOfField(field: IAttributeDbEntity): ITrackerDbEntity {
+  getTrackerOfField(field: IFieldDbEntity): ITrackerDbEntity {
     return this.currentImpl.getTrackerOfField(field)
   }
 
