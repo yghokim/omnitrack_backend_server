@@ -2,7 +2,7 @@ $code-editor-footer-height: 45px;
 .code-editor-container {
   position: absolute;
   bottom: $code-editor-footer-height;
-  top: 64px;
+  top: 0;
   left: 0;
   right: 0;
   .code-editor {
