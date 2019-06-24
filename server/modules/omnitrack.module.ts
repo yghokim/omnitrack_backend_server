@@ -49,7 +49,7 @@ export default class OmniTrackModule {
       const planManager = new TrackingPlanManagerImpl(pack)
 
       pack.trackers.forEach(tracker => {
-        tracker.attributes.forEach(attr => {
+        tracker.fields.forEach(attr => {
           attr.lockedProperties = planManager.generateFlagGraph(DependencyLevel.Field, attr).getCascadedFlagObject(DependencyLevel.Field)
         })
 
@@ -71,17 +71,17 @@ export default class OmniTrackModule {
       const deviceLocalId = -1
       let currentNanoStamp = 0
       const trackerIdTable = {}
-      const attributeIdTable = {}
-      const attributeLocalIdTable = {}
+      const fieldIdTable = {}
+      const fieldLocalIdTable = {}
       const triggerIdTable = {}
 
       const currentDate = new Date()
 
       pack.trackers.forEach(tracker => {
         trackerIdTable[tracker._id] = IdGenerator.generateObjectId()
-        tracker.attributes.forEach(attribute => {
-          attributeIdTable[attribute._id] = IdGenerator.generateObjectId()
-        attributeLocalIdTable[attribute.localId] = IdGenerator.generateAttributeLocalId(deviceLocalId, Date.now(), (++currentNanoStamp) % 1000)
+        tracker.fields.forEach(field => {
+          fieldIdTable[field._id] = IdGenerator.generateObjectId()
+        fieldLocalIdTable[field.localId] = IdGenerator.generateFieldLocalId(deviceLocalId, Date.now(), (++currentNanoStamp) % 1000)
         })
       })
 
@@ -94,10 +94,10 @@ export default class OmniTrackModule {
         tracker.userCreatedAt = currentDate.getTime()
         tracker.user = userId
         tracker._id = trackerIdTable[tracker._id]
-        tracker.attributes.forEach(attr => {
+        tracker.fields.forEach(attr => {
           attr.flags = merge(attr.flags, creationFlags, true)
-          attr._id = attributeIdTable[attr._id]
-          attr.localId = attributeLocalIdTable[attr.localId]
+          attr._id = fieldIdTable[attr._id]
+          attr.localId = fieldLocalIdTable[attr.localId]
           attr.trackerId = tracker._id
 
           // TODO deal with connection
@@ -129,14 +129,14 @@ export default class OmniTrackModule {
               trigger.script = trigger.script.replace(id, triggerIdTable[id])
             }
           }
-          for (const id in attributeIdTable) {
-            if (attributeIdTable.hasOwnProperty(id)) {
-              trigger.script = trigger.script.replace(id, attributeIdTable[id])
+          for (const id in fieldIdTable) {
+            if (fieldIdTable.hasOwnProperty(id)) {
+              trigger.script = trigger.script.replace(id, fieldIdTable[id])
             }
           }
-          for (const id in attributeLocalIdTable) {
-            if (attributeLocalIdTable.hasOwnProperty(id)) {
-              trigger.script = trigger.script.replace(id, attributeLocalIdTable[id])
+          for (const id in fieldLocalIdTable) {
+            if (fieldLocalIdTable.hasOwnProperty(id)) {
+              trigger.script = trigger.script.replace(id, fieldLocalIdTable[id])
             }
           }
         }

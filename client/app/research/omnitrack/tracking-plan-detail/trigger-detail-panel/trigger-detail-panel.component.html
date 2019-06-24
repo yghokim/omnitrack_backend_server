@@ -7,7 +7,7 @@
 
   <div class="form-group">
     <app-selection-property-view title="Condition Type" [(propertyValue)]="trigger.conditionType"
-      [stringList]="['Time-based', 'Data-driven']" [direction]="vertical"></app-selection-property-view>
+      [stringList]="['Time-based', 'Data-driven']" [direction]="'vertical'"></app-selection-property-view>
   </div>
 
   <div class="form-group">
@@ -27,7 +27,7 @@
         <app-selection-property-view title="Time Condition"
           [stringList]="['At Specific Time', 'Repeat Interval', 'Random Sampling']"
           [propertyValue]="trigger.condition.cType" (propertyValueChange)="onTimeConditionTypeChanged($event)"
-          [direction]="vertical"></app-selection-property-view>
+          [direction]="'vertical'"></app-selection-property-view>
       </div>
 
       <ng-container [ngSwitch]="trigger.condition.cType">

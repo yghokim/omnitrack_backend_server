@@ -39,10 +39,10 @@
 
   <div class="subheader">Fields</div>
   <div class="no-padding" cdkDropList (cdkDropListDropped)="onFieldDragDrop($event)" cdkDropListLockAxis='y'
-    *ngIf="tracker.attributes && tracker.attributes.length > 0">
+    *ngIf="tracker.fields && tracker.fields.length > 0">
     <div cdkDrag *ngFor="let fieldId of fieldIds" class="draggable-element" style="background: white">
       <app-selectable-menu-item [title]="getFieldById(fieldId).name" [showRemoveButton]="true" [showDragHandle]="true"
-        [iconPath]="'/assets/omnitrack/field_icons_small/icon_small_' + getAttributeIconName(getFieldById(fieldId)) + '.svg'"
+        [iconPath]="'/assets/omnitrack/field_icons_small/icon_small_' + getFieldIconName(getFieldById(fieldId)) + '.svg'"
         [selected]="selectedEntity === getFieldById(fieldId)" (onClick)="onFieldClicked(getFieldById(fieldId))"
         (onRemoveClick)="onRemoveFieldClicked(getFieldById(fieldId))"></app-selectable-menu-item>
     </div>

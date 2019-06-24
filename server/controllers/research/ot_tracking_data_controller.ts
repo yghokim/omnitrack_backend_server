@@ -154,16 +154,16 @@ export default class TrackingDataCtrl {
     )
   }
 
-  updateAttributeOfTrackerOfExperiment = (req, res) => {
+  updateFieldOfTrackerOfExperiment = (req, res) => {
     
     const researcherId = req.researcher.uid
     const experimentId = req.body.experimentId
     const trackerId = req.body.trackerId
-    const attributeLocalId = req.body.attributeLocalId
+    const fieldLocalId = req.body.fieldLocalId
 
     const update = {}
     for(const key of Object.keys(req.body.update)){
-      update["attributes.$." + key] = req.body.update[key]
+      update["fields.$." + key] = req.body.update[key]
     }
 
     experimentCtrl.checkResearcherPermitted(researcherId, experimentId).then(
@@ -174,7 +174,7 @@ export default class TrackingDataCtrl {
           OTTracker.findOneAndUpdate({
             _id: trackerId, 
             "flags.experiment": experimentId, 
-            "attributes.localId": attributeLocalId},
+            "fields.localId": fieldLocalId},
             update, 
             {new: true})
             .lean()

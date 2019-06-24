@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { IAttributeDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
-import AttributeManager from '../../../../../../omnitrack/core/attributes/attribute.manager';
-import AttributeHelper from '../../../../../../omnitrack/core/attributes/attribute.helper';
+import { IFieldDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
+import FieldManager from '../../../../../../omnitrack/core/fields/field.manager';
+import FieldHelper from '../../../../../../omnitrack/core/fields/field.helper';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
@@ -11,7 +11,7 @@ export class PresetFormat {
     public iconName: string,
     public label: string,
     public description: string,
-    public generator?: (field: IAttributeDbEntity) => void) { }
+    public generator?: (field: IFieldDbEntity) => void) { }
 }
 
 export interface FieldPresetDialogData {

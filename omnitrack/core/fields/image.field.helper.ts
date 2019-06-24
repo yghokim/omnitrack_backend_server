@@ -1,18 +1,18 @@
-import AttributeHelper from "./attribute.helper";
+import FieldHelper from "./field.helper";
 import PropertyHelper from "../properties/property.helper.base";
-import { IAttributeDbEntity } from "../db-entity-types";
-import attributeTypes from "./attribute-types";
+import { IFieldDbEntity } from "../db-entity-types";
+import fieldTypes from "./field-types";
 import TypedStringSerializer from "../typed_string_serializer";
-import AttributeIconTypes from "./attribute-icon-types";
+import FieldIconTypes from "./field-icon-types";
 import { ServerFile } from "../datatypes/field_datatypes";
 
-export class ImageAttributeHelper extends AttributeHelper{
+export class ImageFieldHelper extends FieldHelper{
     typeName: string = "Image";    
     typeNameForSerialization: string = TypedStringSerializer.TYPENAME_SERVERFILE; 
     propertyKeys: string[] = []
 
     constructor(){
-        super(attributeTypes.ATTR_TYPE_IMAGE)
+        super(fieldTypes.ATTR_TYPE_IMAGE)
     }
 
     getPropertyName(propertyKey: string): string{
@@ -22,11 +22,11 @@ export class ImageAttributeHelper extends AttributeHelper{
     getPropertyHelper<T>(propertyKey: string): PropertyHelper<T> {
         return null
     }
-    getSmallIconType(attribute: IAttributeDbEntity): string {
-        return AttributeIconTypes.ATTR_ICON_SMALL_IMAGE
+    getSmallIconType(field: IFieldDbEntity): string {
+        return FieldIconTypes.ATTR_ICON_SMALL_IMAGE
     }
 
-    formatAttributeValue(attr: IAttributeDbEntity, value: any): string {
+    formatFieldValue(attr: IFieldDbEntity, value: any): string {
         const imageFile = value as ServerFile
         return imageFile.mimeType
     }

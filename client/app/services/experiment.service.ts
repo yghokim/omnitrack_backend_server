@@ -611,13 +611,13 @@ export class ExperimentService {
   }
 
 
-  updateAttributeOfTracker(trackerId: string, attributeLocalId: string, update: any): Observable<{ updated: ITrackerDbEntity }> {
+  updateFieldOfTracker(trackerId: string, fieldLocalId: string, update: any): Observable<{ updated: ITrackerDbEntity }> {
     return this.http.post<{ updated: ITrackerDbEntity }>(
-      '/api/research/tracking/update/attribute',
+      '/api/research/tracking/update/field',
       {
         experimentId: this.experimentId,
         trackerId: trackerId,
-        attributeLocalId: attributeLocalId,
+        fieldLocalId: fieldLocalId,
         update: update
       },
       this.researchApi.authorizedOptions

@@ -1,16 +1,16 @@
-import AttributeHelper from "./attribute.helper";
+import FieldHelper from "./field.helper";
 import PropertyHelperManager from "../properties/property.helper.manager";
 import { EPropertyType } from "../properties/property.types";
 import PropertyHelper from "../properties/property.helper.base";
-import { IAttributeDbEntity } from "../db-entity-types";
+import { IFieldDbEntity } from "../db-entity-types";
 import { Fraction, TimeSpan } from "../datatypes/field_datatypes";
-import attributeTypes from "./attribute-types";
+import fieldTypes from "./field-types";
 import * as moment from 'moment-timezone';
 import TypedStringSerializer from '../typed_string_serializer';
-import AttributeIconTypes from "./attribute-icon-types";
+import FieldIconTypes from "./field-icon-types";
 import { DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE, FallbackPolicyResolver } from "./fallback-policies";
 
-export class TimeSpanAttributeHelper extends AttributeHelper {
+export class TimeSpanFieldHelper extends FieldHelper {
   static readonly PROPERTY_GRANULARITY = "granularity"
   static readonly PROPERTY_TYPE = "type"
 
@@ -26,23 +26,23 @@ export class TimeSpanAttributeHelper extends AttributeHelper {
   get typeName(): string { return "Time Range" }
   get typeNameForSerialization(): string { return TypedStringSerializer.TYPENAME_TIMESPAN }
 
-  formatAttributeValue(attr: IAttributeDbEntity, value: any): string {
+  formatFieldValue(attr: IFieldDbEntity, value: any): string {
     if(value instanceof TimeSpan)
     {
-      const granularity = this.getParsedPropertyValue<number>(attr, TimeSpanAttributeHelper.PROPERTY_GRANULARITY)
+      const granularity = this.getParsedPropertyValue<number>(attr, TimeSpanFieldHelper.PROPERTY_GRANULARITY)
       const timezoneName = moment().tz(value.timezone).format("z")
       const fromMoment = moment(value.from).tz(value.timezone)
       const toMoment = moment(value.from + value.duration).tz(value.timezone)
       
       switch(granularity){
-        case TimeSpanAttributeHelper.GRANULARITY_DAY:
-          const format = TimeSpanAttributeHelper.TIMEFORMAT_YEARDATE
+        case TimeSpanFieldHelper.GRANULARITY_DAY:
+          const format = TimeSpanFieldHelper.TIMEFORMAT_YEARDATE
           return fromMoment.format(format) + " ~ " + toMoment.format(format) + " " + timezoneName
-        case TimeSpanAttributeHelper.GRANULARITY_MINUTE:
-          const fromTimePart = fromMoment.format(TimeSpanAttributeHelper.TIMEFORMAT_TIME)
-          const fromDatePart = fromMoment.format(TimeSpanAttributeHelper.TIMEFORMAT_DATE)
-          const toTimePart = toMoment.format(TimeSpanAttributeHelper.TIMEFORMAT_TIME)
-          const toDatePart = toMoment.format(TimeSpanAttributeHelper.TIMEFORMAT_DATE)
+        case TimeSpanFieldHelper.GRANULARITY_MINUTE:
+          const fromTimePart = fromMoment.format(TimeSpanFieldHelper.TIMEFORMAT_TIME)
+          const fromDatePart = fromMoment.format(TimeSpanFieldHelper.TIMEFORMAT_DATE)
+          const toTimePart = toMoment.format(TimeSpanFieldHelper.TIMEFORMAT_TIME)
+          const toDatePart = toMoment.format(TimeSpanFieldHelper.TIMEFORMAT_DATE)
           if(fromDatePart === toDatePart)
           {
             return fromTimePart + " ~ " + toTimePart + " (" + toDatePart + ") " + timezoneName
@@ -55,52 +55,52 @@ export class TimeSpanAttributeHelper extends AttributeHelper {
   }
 
   constructor() {
-    super(attributeTypes.ATTR_TYPE_TIMESPAN)
+    super(fieldTypes.ATTR_TYPE_TIMESPAN)
   }
 
-  propertyKeys: string[] = [TimeSpanAttributeHelper.PROPERTY_GRANULARITY];
+  propertyKeys: string[] = [TimeSpanFieldHelper.PROPERTY_GRANULARITY];
 
   getPropertyName(propertyKey: string): string{
     switch(propertyKey){
-      case TimeSpanAttributeHelper.PROPERTY_GRANULARITY: return "Granularity"
+      case TimeSpanFieldHelper.PROPERTY_GRANULARITY: return "Granularity"
     }
   }
 
   getPropertyHelper<T>(propertyKey: string): PropertyHelper<T> {
     switch (propertyKey) {
-      case TimeSpanAttributeHelper.PROPERTY_GRANULARITY:
+      case TimeSpanFieldHelper.PROPERTY_GRANULARITY:
       return PropertyHelperManager.getHelper(EPropertyType.Selection)
     }
   }
 
   getPropertyConfig(propertyKey: string): any {
     switch (propertyKey) {
-      case TimeSpanAttributeHelper.PROPERTY_GRANULARITY:
+      case TimeSpanFieldHelper.PROPERTY_GRANULARITY:
         return {
           list: [
-            { id: TimeSpanAttributeHelper.GRANULARITY_MINUTE, name: "Minute" },
-            { id: TimeSpanAttributeHelper.GRANULARITY_DAY, name: "Day" }]
+            { id: TimeSpanFieldHelper.GRANULARITY_MINUTE, name: "Minute" },
+            { id: TimeSpanFieldHelper.GRANULARITY_DAY, name: "Day" }]
         }
     }
   }
 
   getPropertyDefaultValue(propertyKey: string): any{
     switch (propertyKey) {
-      case TimeSpanAttributeHelper.PROPERTY_GRANULARITY:
-        return TimeSpanAttributeHelper.GRANULARITY_DAY
+      case TimeSpanFieldHelper.PROPERTY_GRANULARITY:
+        return TimeSpanFieldHelper.GRANULARITY_DAY
     }
   }
   
   
-  getSmallIconType(attribute: IAttributeDbEntity): string {
-    return AttributeIconTypes.ATTR_ICON_SMALL_TIMER
+  getSmallIconType(field: IFieldDbEntity): string {
+    return FieldIconTypes.ATTR_ICON_SMALL_TIMER
   }  
 
   makeSupportedFallbackPolicies(){
     const s = super.makeSupportedFallbackPolicies()
     s.push([DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE, new FallbackPolicyResolver("Present")])
 
-    s.push([TimeSpanAttributeHelper.FALLBACK_POLICY_CONNECT_PREVIOUS, new FallbackPolicyResolver("Start from the end of the previous item")])
+    s.push([TimeSpanFieldHelper.FALLBACK_POLICY_CONNECT_PREVIOUS, new FallbackPolicyResolver("Start from the end of the previous item")])
 
     return s
   }

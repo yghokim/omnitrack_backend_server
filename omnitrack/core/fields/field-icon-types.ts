@@ -1,4 +1,4 @@
-export default class AttributeIconTypes {
+export default class FieldIconTypes {
 
     static readonly ATTR_ICON_SMALL_SHORTTEXT = "shorttext"
 

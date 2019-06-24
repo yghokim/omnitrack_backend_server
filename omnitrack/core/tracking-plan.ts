@@ -1,14 +1,14 @@
 import { OmniTrackFlagGraph, DependencyLevel } from './functionality-locks/omnitrack-dependency-graph';
-import { ITrackerDbEntity, ITriggerDbEntity, IAttributeDbEntity } from './db-entity-types';
+import { ITrackerDbEntity, ITriggerDbEntity, IFieldDbEntity } from './db-entity-types';
 import { TriggerConstants } from "./trigger/trigger-constants";
 import { TRACKER_COLOR_PALETTE } from "./design/palette";
 import * as color from 'color';
-import AttributeManager from "./attributes/attribute.manager";
+import FieldManager from "./fields/field.manager";
 import { TimeCondition, DataDrivenCondition } from './trigger/trigger-condition';
 import { LoggingTriggerAction, ReminderTriggerAction } from './trigger/trigger-action';
 import * as deepEqual from 'deep-equal';
 import { deepclone } from '../../shared_lib/utils';
-import { DEFAULT_VALUE_POLICY_NULL } from './attributes/fallback-policies';
+import { DEFAULT_VALUE_POLICY_NULL } from './fields/fallback-policies';
 
 const randomstring = require('random-string');
 /**
@@ -33,8 +33,8 @@ export class TrackingPlan {
 
     this.trackers.forEach(tracker => {
       tracker.lockedProperties = OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Tracker)
-      tracker.attributes.forEach(attribute => {
-        attribute.lockedProperties = OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Field)
+      tracker.fields.forEach(field => {
+        field.lockedProperties = OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Field)
       })
     })
 
@@ -60,8 +60,8 @@ export class TrackingPlan {
         if (tracker.flags) {
           this.injectedIdsCache.push(tracker.flags.injectedId)
         }
-        if (tracker.attributes) {
-          tracker.attributes.forEach(attr => {
+        if (tracker.fields) {
+          tracker.fields.forEach(attr => {
             if (attr.flags) {
               this.injectedIdsCache.push(attr.flags.injectedId)
             }
@@ -111,10 +111,10 @@ export class TrackingPlan {
       if (this.trackers[i].removed === true) {
         this.trackers.splice(i, 1)
       } else {
-        for (let j = this.trackers[i].attributes.length - 1; j >= 0; --j) {
-          const attr = this.trackers[i].attributes[j]
+        for (let j = this.trackers[i].fields.length - 1; j >= 0; --j) {
+          const attr = this.trackers[i].fields[j]
           if (attr.isInTrashcan === true) {
-            this.trackers[i].attributes.splice(j, 1)
+            this.trackers[i].fields.splice(j, 1)
           }
         }
       }
@@ -133,11 +133,11 @@ export class TrackingPlan {
     let trackerCount = 0
     const triggerIdTable = {}
     let triggerCount = 0
-    const attributeIdTable = {}
-    let attributeCount = 0
-    const attributeLocalIdTable = {}
+    const fieldIdTable = {}
+    let fieldCount = 0
+    const fieldLocalIdTable = {}
 
-    // anonymise trackers and attributes
+    // anonymise trackers and fields
     this.trackers.forEach(tracker => {
       if (!tracker.flags) {
         tracker.flags = { injected: true }
@@ -150,25 +150,25 @@ export class TrackingPlan {
 
       trackerIdTable[tracker._id] = trackerPlaceHolder
       tracker._id = trackerPlaceHolder
-      tracker.attributes.forEach(attribute => {
-        if (!attribute.flags) {
-          attribute.flags = { injected: true }
+      tracker.fields.forEach(field => {
+        if (!field.flags) {
+          field.flags = { injected: true }
         }
-        attribute.flags.injectionId = TrackingPlan.generateNewInjectionId(generatedInjectionIds)
+        field.flags.injectionId = TrackingPlan.generateNewInjectionId(generatedInjectionIds)
 
-        const attrPlaceHolder = this.generatePlaceholder("attribute", attribute.flags.injectionId)
-        const attrLocalIdPlaceHolder = this.generatePlaceholder("attribute_local", attribute.flags.injectionId)
-        attributeIdTable[attribute._id] = attrPlaceHolder
-        attributeLocalIdTable[attribute.localId] = attrLocalIdPlaceHolder
-        attributeCount++
+        const fieldPlaceHolder = this.generatePlaceholder("field", field.flags.injectionId)
+        const fieldLocalIdPlaceHolder = this.generatePlaceholder("field_local", field.flags.injectionId)
+        fieldIdTable[field._id] = fieldPlaceHolder
+        fieldLocalIdTable[field.localId] = fieldLocalIdPlaceHolder
+        fieldCount++
 
-        attribute._id = attrPlaceHolder
-        attribute.localId = attrLocalIdPlaceHolder
-        attribute.trackerId = trackerIdTable[attribute.trackerId]
+        field._id = fieldPlaceHolder
+        field.localId = fieldLocalIdPlaceHolder
+        field.trackerId = trackerIdTable[field.trackerId]
       })
     })
 
-    // anonymise triggers and associated trackers and attributes
+    // anonymise triggers and associated trackers and fields
     this.triggers.forEach(trigger => {
       if (!trigger.flags) {
         trigger.flags = { injected: true }
@@ -199,14 +199,14 @@ export class TrackingPlan {
             trigger.script = trigger.script.replace(id, triggerIdTable[id])
           }
         }
-        for (const id in attributeIdTable) {
-          if (attributeIdTable.hasOwnProperty(id)) {
-            trigger.script = trigger.script.replace(id, attributeIdTable[id])
+        for (const id in fieldIdTable) {
+          if (fieldIdTable.hasOwnProperty(id)) {
+            trigger.script = trigger.script.replace(id, fieldIdTable[id])
           }
         }
-        for (const id in attributeLocalIdTable) {
-          if (attributeLocalIdTable.hasOwnProperty(id)) {
-            trigger.script = trigger.script.replace(id, attributeLocalIdTable[id])
+        for (const id in fieldLocalIdTable) {
+          if (fieldLocalIdTable.hasOwnProperty(id)) {
+            trigger.script = trigger.script.replace(id, fieldLocalIdTable[id])
           }
         }
       }
@@ -220,7 +220,7 @@ export class TrackingPlan {
       _id: id,
       name: name,
       position: this.trackers.length,
-      attributes: new Array(),
+      fields: new Array(),
       user: null,
       color: color(TRACKER_COLOR_PALETTE[this.trackers.length % TRACKER_COLOR_PALETTE.length]).rgbNumber() + 0xff000000,
       remove: false,
@@ -260,14 +260,14 @@ export class TrackingPlan {
     } else { return false }
   }
 
-  public appendNewField(tracker: ITrackerDbEntity, type: number, name: string = "New Field"): IAttributeDbEntity {
+  public appendNewField(tracker: ITrackerDbEntity, type: number, name: string = "New Field"): IFieldDbEntity {
     const injectionId = TrackingPlan.generateNewInjectionId(this.injectedIds)
-    const attrPlaceHolder = this.generatePlaceholder("attribute", injectionId)
-    const attrLocalIdPlaceHolder = this.generatePlaceholder("attribute_local", injectionId)
+    const fieldPlaceHolder = this.generatePlaceholder("field", injectionId)
+    const fieldLocalIdPlaceHolder = this.generatePlaceholder("field_local", injectionId)
     
-    const attribute = {
-      _id: attrPlaceHolder,
-      localId: attrLocalIdPlaceHolder,
+    const field = {
+      _id: fieldPlaceHolder,
+      localId: fieldLocalIdPlaceHolder,
       name: name,
       required: false,
       trackerId: tracker._id,
@@ -278,19 +278,23 @@ export class TrackingPlan {
         injectionId: injectionId
       },
       lockedProperties: OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Field)
-    } as IAttributeDbEntity
+    } as IFieldDbEntity
 
-    AttributeManager.getHelper(type).initialize(attribute)
-    tracker.attributes.push(attribute)
-    return attribute
+    FieldManager.getHelper(type).initialize(field)
+
+    if(!tracker.fields){
+      tracker.fields = []
+    }
+    tracker.fields.push(field)
+    return field
   }
 
-  public removeField(field: IAttributeDbEntity): boolean {
+  public removeField(field: IFieldDbEntity): boolean {
     const tracker = this.trackers.find(t => t._id === field.trackerId)
     if (tracker != null) {
-      const fieldIndex = tracker.attributes.findIndex(f => f._id === field._id)
+      const fieldIndex = tracker.fields.findIndex(f => f._id === field._id)
       if (fieldIndex !== -1) {
-        tracker.attributes.splice(fieldIndex, 1)
+        tracker.fields.splice(fieldIndex, 1)
         this.injectedIdsCache = null
 
         return true

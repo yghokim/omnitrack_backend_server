@@ -64,7 +64,7 @@ export interface IUserChildDbEntity extends IMongooseDbEntity {
   user: string
 }
 
-export interface IAttributeDbEntity {
+export interface IFieldDbEntity {
   name?: string,
   _id?: string,
   localId?: string,
@@ -88,7 +88,7 @@ export interface ITrackerDbEntity extends IUserChildDbEntity {
   color?: number,
   isBookmarked?: boolean,
   position?: number,
-  attributes?: Array<IAttributeDbEntity>,
+  fields?: Array<IFieldDbEntity>,
   lockedProperties?: any,
   flags?: any,
   redirectUrl?: string,
@@ -123,7 +123,7 @@ export interface IItemDbEntity extends IUserChildDbEntity {
   timestamp: number,
   timezone: string,
   deviceId: string,
-  dataTable: [{ attrLocalId: string, sVal: string }],
+  dataTable: [{ fieldLocalId: string, sVal: string }],
   removed: boolean,
   metadata?: IItemMetadata,
   userUpdatedAt: number

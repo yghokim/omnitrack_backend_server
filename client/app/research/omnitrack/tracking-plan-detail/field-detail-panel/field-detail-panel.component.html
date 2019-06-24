@@ -22,29 +22,29 @@
   <div class="form-group" *ngFor="let propertyKey of getPropertyKeys()"
     [ngSwitch]="getPropertyHelper(propertyKey).type">
     <app-boolean-property-view *ngSwitchCase="'Boolean'" [title]="getPropertyName(propertyKey)"
-      [propertyValue]="attributeHelper.getParsedPropertyValue(field, propertyKey)"
-      (propertyValueChange)="attributeHelper.setPropertyValue(field, propertyKey, $event)"></app-boolean-property-view>
+      [propertyValue]="fieldHelper.getParsedPropertyValue(field, propertyKey)"
+      (propertyValueChange)="fieldHelper.setPropertyValue(field, propertyKey, $event)"></app-boolean-property-view>
 
     <app-selection-property-view *ngSwitchCase="'Selection'" [title]="getPropertyName(propertyKey)"
-      [propertyValue]="attributeHelper.getParsedPropertyValue(field, propertyKey)"
-      (propertyValueChange)="attributeHelper.setPropertyValue(field, propertyKey, $event)"
-      [configuration]="attributeHelper.getPropertyConfig(propertyKey)"></app-selection-property-view>
+      [propertyValue]="fieldHelper.getParsedPropertyValue(field, propertyKey)"
+      (propertyValueChange)="fieldHelper.setPropertyValue(field, propertyKey, $event)"
+      [configuration]="fieldHelper.getPropertyConfig(propertyKey)"></app-selection-property-view>
 
     <app-rating-options-property-view *ngSwitchCase="'RatingOptions'" [title]="getPropertyName(propertyKey)"
-      [propertyValue]="attributeHelper.getParsedPropertyValue(field, propertyKey)"
-      (propertyValueChange)="attributeHelper.setPropertyValue(field, propertyKey, $event)">
+      [propertyValue]="fieldHelper.getParsedPropertyValue(field, propertyKey)"
+      (propertyValueChange)="fieldHelper.setPropertyValue(field, propertyKey, $event)">
     </app-rating-options-property-view>
 
     <app-number-style-property-view *ngSwitchCase="'NumberStyle'" [title]="getPropertyName(propertyKey)"
-      [propertyValue]="attributeHelper.getParsedPropertyValue(field, propertyKey)"
-      (propertyValueChange)="attributeHelper.setPropertyValue(field, propertyKey, $event)">
+      [propertyValue]="fieldHelper.getParsedPropertyValue(field, propertyKey)"
+      (propertyValueChange)="fieldHelper.setPropertyValue(field, propertyKey, $event)">
     </app-number-style-property-view>
 
     
     <app-entry-list-property-view *ngSwitchCase="'ChoiceEntryList'" [title]="getPropertyName(propertyKey)"
-      [propertyValue]="attributeHelper.getParsedPropertyValue(field, propertyKey)"
-      (propertyValueChange)="attributeHelper.setPropertyValue(field, propertyKey, $event)"
-      [configuration]="attributeHelper.getPropertyConfig(propertyKey)"></app-entry-list-property-view>
+      [propertyValue]="fieldHelper.getParsedPropertyValue(field, propertyKey)"
+      (propertyValueChange)="fieldHelper.setPropertyValue(field, propertyKey, $event)"
+      [configuration]="fieldHelper.getPropertyConfig(propertyKey)"></app-entry-list-property-view>
   </div>
   <hr class="no-margin">
   <div class="form-group">

@@ -1,20 +1,20 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
-import { ITrackerDbEntity, IAttributeDbEntity, ITriggerDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, IFieldDbEntity, ITriggerDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
 import { TrackingPlanService } from '../../tracking-plan.service';
-import { getAttributeIconName, makeShortenConditionString, getTrackerColorString } from '../../omnitrack-helper';
+import { getFieldIconName, makeShortenConditionString, getTrackerColorString } from '../../omnitrack-helper';
 import { TRACKER_COLOR_PALETTE } from '../../../../../../omnitrack/core/design/palette';
 import * as color from 'color';
 import * as deepEqual from 'deep-equal';
 import { PresetFormat, FieldPresetPickerComponent, FieldPresetDialogData } from '../field-preset-picker/field-preset-picker.component';
-import AttributeManager from '../../../../../../omnitrack/core/attributes/attribute.manager';
-import attributeTypes from '../../../../../../omnitrack/core/attributes/attribute-types';
+import FieldManager from '../../../../../../omnitrack/core/fields/field.manager';
+import fieldTypes from '../../../../../../omnitrack/core/fields/field-types';
 import { Subscription } from 'rxjs';
 import { MatDialog, MatBottomSheet } from '@angular/material';
-import { RatingAttributeHelper } from '../../../../../../omnitrack/core/attributes/rating.attribute.helper';
+import { RatingFieldHelper } from '../../../../../../omnitrack/core/fields/rating.field.helper';
 import { RatingOptions } from '../../../../../../omnitrack/core/datatypes/rating_options';
-import { TimePointAttributeHelper } from '../../../../../../omnitrack/core/attributes/time-point.attribute.helper';
-import { TimeSpanAttributeHelper } from '../../../../../../omnitrack/core/attributes/time-span.attribute.helper';
-import { ChoiceAttributeHelper } from '../../../../../../omnitrack/core/attributes/choice.attribute.helper';
+import { TimePointFieldHelper } from '../../../../../../omnitrack/core/fields/time-point.field.helper';
+import { TimeSpanFieldHelper } from '../../../../../../omnitrack/core/fields/time-span.field.helper';
+import { ChoiceFieldHelper } from '../../../../../../omnitrack/core/fields/choice.field.helper';
 import { YesNoDialogComponent } from '../../../../dialogs/yes-no-dialog/yes-no-dialog.component';
 import { TriggerConstants } from '../../../../../../omnitrack/core/trigger/trigger-constants';
 import { TextInputDialogComponent } from '../../../../dialogs/text-input-dialog/text-input-dialog.component';
@@ -32,43 +32,43 @@ import { TrackerColorPickerComponent } from './tracker-color-picker/tracker-colo
 export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
 
   static FIELD_PRESETS: Array<PresetFormat> = [
-    new PresetFormat(attributeTypes.ATTR_TYPE_SHORT_TEXT, "field_icon_shorttext", "Short Text", "A single-line text input"),
-    new PresetFormat(attributeTypes.ATTR_TYPE_LONG_TEXT, "field_icon_longtext", "Long Text", "A multi-line text input"),
-    new PresetFormat(attributeTypes.ATTR_TYPE_NUMBER, "field_icon_number", "Number", "A real number input"),
-    new PresetFormat(attributeTypes.ATTR_TYPE_RATING, "field_icon_rating", "Stars", "A star rating widget"),
-    new PresetFormat(attributeTypes.ATTR_TYPE_RATING, "field_icon_likert", "Likert Scale", "A Likert-scale slider", (attr) => {
+    new PresetFormat(fieldTypes.ATTR_TYPE_SHORT_TEXT, "field_icon_shorttext", "Short Text", "A single-line text input"),
+    new PresetFormat(fieldTypes.ATTR_TYPE_LONG_TEXT, "field_icon_longtext", "Long Text", "A multi-line text input"),
+    new PresetFormat(fieldTypes.ATTR_TYPE_NUMBER, "field_icon_number", "Number", "A real number input"),
+    new PresetFormat(fieldTypes.ATTR_TYPE_RATING, "field_icon_rating", "Stars", "A star rating widget"),
+    new PresetFormat(fieldTypes.ATTR_TYPE_RATING, "field_icon_likert", "Likert Scale", "A Likert-scale slider", (attr) => {
       const options = new RatingOptions()
       options.type = RatingOptions.TYPE_LIKERT
-      AttributeManager.getHelper(attributeTypes.ATTR_TYPE_RATING).setPropertyValue(attr, RatingAttributeHelper.PROPERTY_KEY_OPTIONS,
+      FieldManager.getHelper(fieldTypes.ATTR_TYPE_RATING).setPropertyValue(attr, RatingFieldHelper.PROPERTY_KEY_OPTIONS,
         options
       )
     }),
-    new PresetFormat(attributeTypes.ATTR_TYPE_TIME, "field_icon_time_hour", "Time", "A specific time point", (attr) => {
-      AttributeManager.getHelper(attributeTypes.ATTR_TYPE_TIME)
-        .setPropertyValue(attr, TimePointAttributeHelper.PROPERTY_GRANULARITY, TimePointAttributeHelper.GRANULARITY_MINUTE)
+    new PresetFormat(fieldTypes.ATTR_TYPE_TIME, "field_icon_time_hour", "Time", "A specific time point", (attr) => {
+      FieldManager.getHelper(fieldTypes.ATTR_TYPE_TIME)
+        .setPropertyValue(attr, TimePointFieldHelper.PROPERTY_GRANULARITY, TimePointFieldHelper.GRANULARITY_MINUTE)
     }),
-    new PresetFormat(attributeTypes.ATTR_TYPE_TIME, "field_icon_time_date", "Date", "A specific date", (attr) => {
-      AttributeManager.getHelper(attributeTypes.ATTR_TYPE_TIME)
-        .setPropertyValue(attr, TimePointAttributeHelper.PROPERTY_GRANULARITY, TimePointAttributeHelper.GRANULARITY_DAY)
+    new PresetFormat(fieldTypes.ATTR_TYPE_TIME, "field_icon_time_date", "Date", "A specific date", (attr) => {
+      FieldManager.getHelper(fieldTypes.ATTR_TYPE_TIME)
+        .setPropertyValue(attr, TimePointFieldHelper.PROPERTY_GRANULARITY, TimePointFieldHelper.GRANULARITY_DAY)
     }),
-    new PresetFormat(attributeTypes.ATTR_TYPE_TIMESPAN, "field_icon_timer", "Time Range", "Ranged time points", (attr) => {
-      AttributeManager.getHelper(attributeTypes.ATTR_TYPE_TIMESPAN)
-        .setPropertyValue(attr, TimeSpanAttributeHelper.PROPERTY_GRANULARITY, TimePointAttributeHelper.GRANULARITY_MINUTE)
+    new PresetFormat(fieldTypes.ATTR_TYPE_TIMESPAN, "field_icon_timer", "Time Range", "Ranged time points", (attr) => {
+      FieldManager.getHelper(fieldTypes.ATTR_TYPE_TIMESPAN)
+        .setPropertyValue(attr, TimeSpanFieldHelper.PROPERTY_GRANULARITY, TimePointFieldHelper.GRANULARITY_MINUTE)
     }),
-    new PresetFormat(attributeTypes.ATTR_TYPE_TIMESPAN, "field_icon_time_range_date", "Date Range", "Ranged dates", (attr) => {
-      AttributeManager.getHelper(attributeTypes.ATTR_TYPE_TIMESPAN)
-        .setPropertyValue(attr, TimeSpanAttributeHelper.PROPERTY_GRANULARITY, TimePointAttributeHelper.GRANULARITY_DAY)
+    new PresetFormat(fieldTypes.ATTR_TYPE_TIMESPAN, "field_icon_time_range_date", "Date Range", "Ranged dates", (attr) => {
+      FieldManager.getHelper(fieldTypes.ATTR_TYPE_TIMESPAN)
+        .setPropertyValue(attr, TimeSpanFieldHelper.PROPERTY_GRANULARITY, TimePointFieldHelper.GRANULARITY_DAY)
     }),
-    new PresetFormat(attributeTypes.ATTR_TYPE_LOCATION, "field_icon_location", "Location", "Location on map"),
-    new PresetFormat(attributeTypes.ATTR_TYPE_IMAGE, "field_icon_image", "Image", "Image"),
-    new PresetFormat(attributeTypes.ATTR_TYPE_AUDIO, "field_icon_audio", "Audio Record", "Audio record"),
-    new PresetFormat(attributeTypes.ATTR_TYPE_CHOICE, "field_icon_singlechoice", "Single Choice", "Single choice input with radio buttons", (attr) => {
-      AttributeManager.getHelper(attributeTypes.ATTR_TYPE_CHOICE)
-        .setPropertyValue(attr, ChoiceAttributeHelper.PROPERTY_MULTISELECTION, false)
+    new PresetFormat(fieldTypes.ATTR_TYPE_LOCATION, "field_icon_location", "Location", "Location on map"),
+    new PresetFormat(fieldTypes.ATTR_TYPE_IMAGE, "field_icon_image", "Image", "Image"),
+    new PresetFormat(fieldTypes.ATTR_TYPE_AUDIO, "field_icon_audio", "Audio Record", "Audio record"),
+    new PresetFormat(fieldTypes.ATTR_TYPE_CHOICE, "field_icon_singlechoice", "Single Choice", "Single choice input with radio buttons", (attr) => {
+      FieldManager.getHelper(fieldTypes.ATTR_TYPE_CHOICE)
+        .setPropertyValue(attr, ChoiceFieldHelper.PROPERTY_MULTISELECTION, false)
     }),
-    new PresetFormat(attributeTypes.ATTR_TYPE_CHOICE, "field_icon_multiplechoice", "Multiple Choice", "Multiple choice input with checkboxes", (attr) => {
-      AttributeManager.getHelper(attributeTypes.ATTR_TYPE_CHOICE)
-        .setPropertyValue(attr, ChoiceAttributeHelper.PROPERTY_MULTISELECTION, true)
+    new PresetFormat(fieldTypes.ATTR_TYPE_CHOICE, "field_icon_multiplechoice", "Multiple Choice", "Multiple choice input with checkboxes", (attr) => {
+      FieldManager.getHelper(fieldTypes.ATTR_TYPE_CHOICE)
+        .setPropertyValue(attr, ChoiceFieldHelper.PROPERTY_MULTISELECTION, true)
     }),
   ]
 
@@ -82,7 +82,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
       if (this.selectedEntity != null) {
         switch (this.selectedType) {
           case "field":
-            const newInstance = tracker.attributes.find(a => a._id === this.selectedEntity._id)
+            const newInstance = tracker.fields.find(a => a._id === this.selectedEntity._id)
             if (newInstance != null) {
               this.selectedEntity = newInstance
             } else {
@@ -110,13 +110,13 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
   }
 
   get fieldIds(): Array<string> {
-    if (this._tracker && this._tracker.attributes) {
-      return this._tracker.attributes.map(a => a._id)
+    if (this._tracker && this._tracker.fields) {
+      return this._tracker.fields.map(a => a._id)
     } else { return [] }
   }
 
   set fieldIds(newSet: Array<string>) {
-    this._tracker.attributes.sort((a, b) => {
+    this._tracker.fields.sort((a, b) => {
       const aIndex = newSet.indexOf(a._id)
       const bIndex = newSet.indexOf(b._id)
       if (aIndex < bIndex) {
@@ -127,8 +127,8 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
     })
   }
 
-  getFieldById(fieldId: string): IAttributeDbEntity {
-    return this._tracker.attributes.find(a => a._id === fieldId)
+  getFieldById(fieldId: string): IFieldDbEntity {
+    return this._tracker.fields.find(a => a._id === fieldId)
   }
 
   get tracker(): ITrackerDbEntity {
@@ -136,7 +136,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
   }
 
   selectedType: string
-  selectedEntity: ITriggerDbEntity | IAttributeDbEntity = null
+  selectedEntity: ITriggerDbEntity | IFieldDbEntity = null
 
   constructor(private planService: TrackingPlanService, private matDialog: MatDialog, private matBottomSheet: MatBottomSheet, private detector: ChangeDetectorRef) {
   }
@@ -168,7 +168,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
     this.detector.markForCheck()
   }
 
-  onFieldClicked(field: IAttributeDbEntity) {
+  onFieldClicked(field: IFieldDbEntity) {
     this.selectedEntity = field
     this.selectedType = 'field'
   }
@@ -186,8 +186,8 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
     return makeShortenConditionString(reminder)
   }
 
-  getAttributeIconName(attr: IAttributeDbEntity): string {
-    return getAttributeIconName(attr)
+  getFieldIconName(attr: IFieldDbEntity): string {
+    return getFieldIconName(attr)
   }
 
   getTrackerColorPalette(): Array<string> {
@@ -234,7 +234,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
     )
   }
 
-  onRemoveFieldClicked(field: IAttributeDbEntity) {
+  onRemoveFieldClicked(field: IFieldDbEntity) {
     this._internalSubscriptions.add(
       this.matDialog.open(YesNoDialogComponent, {
         data: {

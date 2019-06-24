@@ -1,6 +1,6 @@
 import { trigger, transition, style, animate } from "@angular/animations";
-import { IAttributeDbEntity, ITrackerDbEntity, ITriggerDbEntity } from '../../../../omnitrack/core/db-entity-types';
-import AttributeManager from "../../../../omnitrack/core/attributes/attribute.manager";
+import { IFieldDbEntity, ITrackerDbEntity, ITriggerDbEntity } from '../../../../omnitrack/core/db-entity-types';
+import FieldManager from "../../../../omnitrack/core/fields/field.manager";
 import { TriggerConstants } from "../../../../omnitrack/core/trigger/trigger-constants";
 import * as moment from "moment";
 
@@ -16,8 +16,8 @@ export function getTrackerColorString(tracker: ITrackerDbEntity): string {
 }
 
 
-export function getAttributeIconName(attr: IAttributeDbEntity): string {
-  const helper = AttributeManager.getHelper(attr.type)
+export function getFieldIconName(attr: IFieldDbEntity): string {
+  const helper = FieldManager.getHelper(attr.type)
   if (helper != null) {
     return helper.getSmallIconType(attr)
   } else { return null }

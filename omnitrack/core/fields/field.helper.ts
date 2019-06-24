@@ -1,8 +1,8 @@
 import PropertyHelper from "../properties/property.helper.base";
-import { IAttributeDbEntity } from '../db-entity-types';
+import { IFieldDbEntity } from '../db-entity-types';
 import { FallbackPolicyResolver, DEFAULT_VALUE_POLICY_NULL, NullValueResolver, DEFAULT_VALUE_POLICY_FILL_WITH_LAST_ITEM, PreviousValueResolver } from "./fallback-policies";
 
-export default abstract class AttributeHelper {
+export default abstract class FieldHelper {
 
   constructor(readonly type: number) {
 
@@ -18,10 +18,10 @@ export default abstract class AttributeHelper {
 
   abstract getPropertyHelper<T>(propertyKey: string): PropertyHelper<T>
 
-  getParsedPropertyValue<T>(attribute: IAttributeDbEntity, propertyKey: string): T {
+  getParsedPropertyValue<T>(field: IFieldDbEntity, propertyKey: string): T {
     const propHelper = this.getPropertyHelper<T>(propertyKey)
     if (propHelper) {
-      const propertyEntry = attribute.properties.find(p => p.key === propertyKey)
+      const propertyEntry = field.properties.find(p => p.key === propertyKey)
       if(propertyEntry != null)
       {
         return propHelper.deserializePropertyValue(propertyEntry.sVal)
@@ -41,19 +41,19 @@ export default abstract class AttributeHelper {
     return null
   }
 
-  setPropertyValue<T>(attribute: IAttributeDbEntity, propertyKey: string, value: T){
+  setPropertyValue<T>(field: IFieldDbEntity, propertyKey: string, value: T){
     const propHelper = this.getPropertyHelper<T>(propertyKey)
     if (propHelper) {
       const sVal = propHelper.serializePropertyValue(value)
-      if(attribute.properties){
-        const match = attribute.properties.find(p => p.key === propertyKey)
+      if(field.properties){
+        const match = field.properties.find(p => p.key === propertyKey)
         if(match){
           match.sVal = sVal
         }else{
-          attribute.properties.push({key: propertyKey, sVal: sVal})
+          field.properties.push({key: propertyKey, sVal: sVal})
         }
       }else{
-        attribute.properties = [{key: propertyKey, sVal: sVal}]
+        field.properties = [{key: propertyKey, sVal: sVal}]
       }
 
     } else {
@@ -61,17 +61,17 @@ export default abstract class AttributeHelper {
     }
   }
 
-  initialize(attribute: IAttributeDbEntity){
+  initialize(field: IFieldDbEntity){
     this.propertyKeys.forEach(key => {
-      this.setPropertyValue(attribute, key, this.getPropertyDefaultValue(key))
+      this.setPropertyValue(field, key, this.getPropertyDefaultValue(key))
     })
   }
 
   abstract getPropertyName(propertyKey: string): string
 
-  abstract getSmallIconType(attribute: IAttributeDbEntity): string
+  abstract getSmallIconType(field: IFieldDbEntity): string
 
-  abstract formatAttributeValue(attr: IAttributeDbEntity, value: any): string
+  abstract formatFieldValue(attr: IFieldDbEntity, value: any): string
 
   makeSupportedFallbackPolicies(): Array<[string, FallbackPolicyResolver]>{
     return [

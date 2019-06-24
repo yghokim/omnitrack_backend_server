@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { IAttributeDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
-import AttributeManager from '../../../../../../omnitrack/core/attributes/attribute.manager';
-import AttributeHelper from '../../../../../../omnitrack/core/attributes/attribute.helper';
+import { IFieldDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
+import FieldManager from '../../../../../../omnitrack/core/fields/field.manager';
+import FieldHelper from '../../../../../../omnitrack/core/fields/field.helper';
 import PropertyHelper from '../../../../../../omnitrack/core/properties/property.helper.base';
 
 @Component({
@@ -12,21 +12,21 @@ import PropertyHelper from '../../../../../../omnitrack/core/properties/property
 })
 export class FieldDetailPanelComponent implements OnInit {
 
-  private _field: IAttributeDbEntity = null
+  private _field: IFieldDbEntity = null
   @Input('field')
-  set setField(field: IAttributeDbEntity) {
+  set setField(field: IFieldDbEntity) {
     if (this._field !== field) {
       this._field = field
       this.onNewFieldSet(field)
     }
   }
 
-  get field(): IAttributeDbEntity{
+  get field(): IFieldDbEntity{
     return this._field
   }
 
-  get attributeHelper(): AttributeHelper{
-    return AttributeManager.getHelper(this.field.type)
+  get fieldHelper(): FieldHelper{
+    return FieldManager.getHelper(this.field.type)
   }
 
   constructor() { }
@@ -34,29 +34,29 @@ export class FieldDetailPanelComponent implements OnInit {
   ngOnInit() {
   }
 
-  private onNewFieldSet(newField: IAttributeDbEntity){
+  private onNewFieldSet(newField: IFieldDbEntity){
 
   }
 
   getTypeInfos(){
-    return AttributeManager.getTypeInfos()
+    return FieldManager.getTypeInfos()
   }
 
   getPropertyKeys(): Array<string>{
-    return  this.attributeHelper.propertyKeys
+    return  this.fieldHelper.propertyKeys
   }
 
   getPropertyHelper(propertyKey: string): PropertyHelper<any>{
-    return this.attributeHelper.getPropertyHelper(propertyKey)
+    return this.fieldHelper.getPropertyHelper(propertyKey)
   }
 
   getPropertyName(propertyKey: string): string{
-    return this.attributeHelper.getPropertyName(propertyKey)
+    return this.fieldHelper.getPropertyName(propertyKey)
   }
 
   getFallbackPolicyEntries(): Array<{id: string, name: string}>{
     const array = []
-    this.attributeHelper.supportedFallbackPolicyKeys.forEach(
+    this.fieldHelper.supportedFallbackPolicyKeys.forEach(
       (value, key) => {
           array.push({id: key, name: value.label})
       })

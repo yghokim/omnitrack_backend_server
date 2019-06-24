@@ -1,13 +1,13 @@
-import AttributeHelper from "./attribute.helper";
+import FieldHelper from "./field.helper";
 import PropertyHelperManager from "../properties/property.helper.manager";
 import { EPropertyType } from "../properties/property.types";
 import PropertyHelper from "../properties/property.helper.base";
-import { IAttributeDbEntity } from "../db-entity-types";
+import { IFieldDbEntity } from "../db-entity-types";
 import { Fraction } from "../datatypes/field_datatypes";
-import attributeTypes from "./attribute-types";
+import fieldTypes from "./field-types";
 import { RatingOptions } from "../datatypes/rating_options";
 import TypedStringSerializer from '../typed_string_serializer';
-import AttributeIconTypes from "./attribute-icon-types";
+import FieldIconTypes from "./field-icon-types";
 import { FallbackPolicyResolver, DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE } from "./fallback-policies";
 
 
@@ -17,16 +17,16 @@ class MiddleValueFallbackPolicyResolver extends FallbackPolicyResolver{
   }
 }
 
-export class RatingAttributeHelper extends AttributeHelper {
+export class RatingFieldHelper extends FieldHelper {
 
   get typeName(): string { return "Rating" }
 
   get typeNameForSerialization(): string{ return TypedStringSerializer.TYPENAME_FRACTION}
 
-  formatAttributeValue(attr: IAttributeDbEntity, value: any): string {
+  formatFieldValue(attr: IFieldDbEntity, value: any): string {
     if(value instanceof Fraction)
     {
-      const ratingOptions = this.getParsedPropertyValue<RatingOptions>(attr, RatingAttributeHelper.PROPERTY_KEY_OPTIONS)
+      const ratingOptions = this.getParsedPropertyValue<RatingOptions>(attr, RatingFieldHelper.PROPERTY_KEY_OPTIONS)
       
       return (value.upper/value.under).toFixed(2)
     }
@@ -36,36 +36,36 @@ export class RatingAttributeHelper extends AttributeHelper {
   }
 
   constructor() {
-    super(attributeTypes.ATTR_TYPE_RATING)
+    super(fieldTypes.ATTR_TYPE_RATING)
   }
 
   static readonly PROPERTY_KEY_OPTIONS = "options"
 
-  propertyKeys: string[] = [RatingAttributeHelper.PROPERTY_KEY_OPTIONS];
+  propertyKeys: string[] = [RatingFieldHelper.PROPERTY_KEY_OPTIONS];
 
   getPropertyName(propertyKey: string): string{
     switch (propertyKey) {
-      case RatingAttributeHelper.PROPERTY_KEY_OPTIONS:
+      case RatingFieldHelper.PROPERTY_KEY_OPTIONS:
           return "Rating Options"
     }
   }
 
   getPropertyDefaultValue(propertyKey: string): any{
     switch (propertyKey) {
-      case RatingAttributeHelper.PROPERTY_KEY_OPTIONS:
+      case RatingFieldHelper.PROPERTY_KEY_OPTIONS:
           return new RatingOptions()
     }
   }
   
   getPropertyHelper<T>(propertyKey: string): PropertyHelper<T> {
     switch (propertyKey) {
-      case RatingAttributeHelper.PROPERTY_KEY_OPTIONS:
+      case RatingFieldHelper.PROPERTY_KEY_OPTIONS:
       return PropertyHelperManager.getHelper(EPropertyType.RatingOptions)
     }
   }
 
-  getSmallIconType(attribute: IAttributeDbEntity): string {
-    return AttributeIconTypes.ATTR_ICON_SMALL_STAR
+  getSmallIconType(field: IFieldDbEntity): string {
+    return FieldIconTypes.ATTR_ICON_SMALL_STAR
   }
 
   makeSupportedFallbackPolicies(){

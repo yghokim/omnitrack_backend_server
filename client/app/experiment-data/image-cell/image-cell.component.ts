@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Inject } from '@angular/core';
-import { ITrackerDbEntity, IAttributeDbEntity } from '../../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, IFieldDbEntity } from '../../../../omnitrack/core/db-entity-types';
 import { ResearchApiService } from '../../services/research-api.service';
 import { Subscription } from 'rxjs';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
@@ -21,9 +21,9 @@ export class ImageCellComponent implements OnInit {
   }
 
   @Input("mediaInfo")
-  set _mediaInfo(info: {trackerId: string, attributeLocalId: string, itemId: string }){
+  set _mediaInfo(info: {trackerId: string, fieldLocalId: string, itemId: string }){
     this._internalSubscriptions.add(
-      this.api.getMedia(info.trackerId, info.attributeLocalId, info.itemId, "original").subscribe(response => {
+      this.api.getMedia(info.trackerId, info.fieldLocalId, info.itemId, "original").subscribe(response => {
         this.createImageFromBlob(response);
       }, err => {
       })
