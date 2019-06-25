@@ -6,7 +6,7 @@ import { SocketService } from './socket.service';
 import { Observable, Subscription, BehaviorSubject } from 'rxjs';
 import { combineLatest, map, tap } from 'rxjs/operators';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
-import { ITrackerDbEntity, IItemDbEntity, ITriggerDbEntity, IAttributeDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, IItemDbEntity, ITriggerDbEntity, IFieldDbEntity } from '../../../omnitrack/core/db-entity-types';
 
 export class TrackingDataService implements OnInit, OnDestroy {
 
@@ -166,8 +166,8 @@ export class TrackingDataService implements OnInit, OnDestroy {
     })))
   }
 
-  setItemColumnValue(attribute: IAttributeDbEntity, item: IItemDbEntity, newSerializedValue: string): Observable<{ success: boolean, error?: any, changedItem?: IItemDbEntity }> {
-    return this.http.post<{ success: boolean, error?: any, changedItem?: IItemDbEntity }>("/api/research/tracking/update/item_column", { attrLocalId: attribute.localId, itemQuery: { _id: item._id }, serializedValue: newSerializedValue },
+  setItemColumnValue(field: IFieldDbEntity, item: IItemDbEntity, newSerializedValue: string): Observable<{ success: boolean, error?: any, changedItem?: IItemDbEntity }> {
+    return this.http.post<{ success: boolean, error?: any, changedItem?: IItemDbEntity }>("/api/research/tracking/update/item_column", { fieldLocalId: field.localId, itemQuery: { _id: item._id }, serializedValue: newSerializedValue },
       this.api.authorizedOptions).pipe(
         tap(result => {
           console.log(result)

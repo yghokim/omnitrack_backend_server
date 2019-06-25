@@ -5,7 +5,7 @@
       "position": 0,
       "name": "Coffee",
       "color": -567979,
-      "attributes": [{
+      "fields": [{
           "_id": "%{ATTRIBUTE_0}%",
           "localId": "%{ATTRIBUTE_LOCAL_0}%",
           "type": 1,
@@ -13,7 +13,7 @@
           "name": "Drank at",
           "isRequired": true,
           "position": 0,
-          "fallbackPolicy": 1,
+          "fallbackPolicy": "intrinsic",
           "fallbackPreset": null,
           "connection": null,
           "properties": [{
@@ -35,7 +35,7 @@
           "name": "Caffeine",
           "isRequired": false,
           "position": 1,
-          "fallbackPolicy": 1,
+          "fallbackPolicy": "intrinsic",
           "fallbackPreset": null,
           "connection": null,
           "properties": [{
@@ -63,7 +63,7 @@
       "position": 1,
       "name": "Daily Diary",
       "color": -21735,
-      "attributes": [{
+      "fields": [{
           "_id": "%{ATTRIBUTE_2}%",
           "localId": "%{ATTRIBUTE_LOCAL_2}%",
           "type": 1,
@@ -71,7 +71,7 @@
           "name": "Date",
           "isRequired": true,
           "position": 0,
-          "fallbackPolicy": 1,
+          "fallbackPolicy": "intrinsic",
           "fallbackPreset": null,
           "connection": null,
           "properties": [{
@@ -93,7 +93,7 @@
           "name": "Moods",
           "isRequired": false,
           "position": 1,
-          "fallbackPolicy": 0,
+          "fallbackPolicy": "null",
           "fallbackPreset": null,
           "connection": null,
           "properties": [{
@@ -120,7 +120,7 @@
           "name": "Note",
           "isRequired": false,
           "position": 2,
-          "fallbackPolicy": 0,
+          "fallbackPolicy": "null",
           "fallbackPreset": null,
           "connection": null,
           "properties": [],
@@ -141,34 +141,5 @@
     }
   ],
   "triggers": [],
-  "serviceCodes": [],
-  "placeHolderDict": {
-    "user": "%{OWNER_0}%",
-    "trackers": [
-      "%{TRACKER_0}%",
-      "%{TRACKER_1}%"
-    ],
-    "triggers": [],
-    "attributes": [{
-        "id": "%{ATTRIBUTE_0}%",
-        "localId": "%{ATTRIBUTE_LOCAL_0}%"
-      },
-      {
-        "id": "%{ATTRIBUTE_1}%",
-        "localId": "%{ATTRIBUTE_LOCAL_1}%"
-      },
-      {
-        "id": "%{ATTRIBUTE_2}%",
-        "localId": "%{ATTRIBUTE_LOCAL_2}%"
-      },
-      {
-        "id": "%{ATTRIBUTE_3}%",
-        "localId": "%{ATTRIBUTE_LOCAL_3}%"
-      },
-      {
-        "id": "%{ATTRIBUTE_4}%",
-        "localId": "%{ATTRIBUTE_LOCAL_4}%"
-      }
-    ]
-  }
+  "serviceCodes": []
 }

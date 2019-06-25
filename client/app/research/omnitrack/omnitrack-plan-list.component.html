@@ -24,6 +24,10 @@
           </div>
           <div class="flex-element">
             <button mat-icon-button class="text-color-darkgray" (click)="onEditPlanClicked(package.key)">
+              <mat-icon class="material-icons">edit</mat-icon>
+            </button>
+
+            <button mat-icon-button class="text-color-darkgray" (click)="onEditCodeClicked(package.key)">
               <mat-icon class="material-icons">code</mat-icon>
             </button>
             <button mat-icon-button class="text-color-darkgray" (click)="onRemovePlanClicked(package.key)">

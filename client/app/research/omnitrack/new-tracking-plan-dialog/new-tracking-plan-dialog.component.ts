@@ -3,6 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ResearchApiService } from '../../../services/research-api.service';
+import { TrackingPlan } from '../../../../../omnitrack/core/tracking-plan';
 
 @Component({
   selector: 'app-new-tracking-plan-dialog',
@@ -11,18 +12,30 @@ import { ResearchApiService } from '../../../services/research-api.service';
 export class NewTrackingPlanDialogComponent implements OnInit, OnDestroy {
 
   trackingPlanName: string
-  _trackingPlan: any
+  _trackingPlan: TrackingPlan
+
+  private _selectedCreationType: string = 'empty'
+  public get selectedCreationType(): string{
+    return this._selectedCreationType
+  }
+
+  public set selectedCreationType(type: string){
+    this._selectedCreationType = type
+    if(type === 'empty'){
+      this.trackingPlan = new TrackingPlan([], []).toJson()
+    }
+  }
 
   public selectedLoadType: string = 'file'
 
   public shareCode: string = null
   public loadingSharedTrackingPlan: boolean = false
 
-  get trackingPlan(): any {
+  get trackingPlan(): TrackingPlan {
     return this._trackingPlan
   }
 
-  set trackingPlan(value: any) {
+  set trackingPlan(value: TrackingPlan) {
     if (this._trackingPlan !== value) {
       this._trackingPlan = value
       this.trackingPlanJsonString = value != null ? JSON.stringify(value, null, 2) : null
@@ -34,7 +47,7 @@ export class NewTrackingPlanDialogComponent implements OnInit, OnDestroy {
   private readonly internalSubscription = new Subscription()
   private readonly trackingPlanJsonStringSubject: BehaviorSubject<string> = new BehaviorSubject(null)
   set trackingPlanJsonString(jsonString: string) {
-    this.trackingPlanJsonStringSubject.next(jsonString.toString())
+    this.trackingPlanJsonStringSubject.next(jsonString != null? jsonString.toString() : null)
   }
 
   get trackingPlanJsonString(): string {
@@ -54,6 +67,7 @@ export class NewTrackingPlanDialogComponent implements OnInit, OnDestroy {
         distinctUntilChanged()
       ).subscribe(
         text => {
+          console.log(text)
           try {
             this.trackingPlan = JSON.parse(text)
           } catch (err) {
@@ -62,6 +76,8 @@ export class NewTrackingPlanDialogComponent implements OnInit, OnDestroy {
         }
       )
     )
+
+    this.selectedCreationType = 'empty'
   }
 
   ngOnDestroy(): void {

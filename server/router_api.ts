@@ -92,9 +92,9 @@ export class ClientApiRouter extends RouterWrapper {
 
     this.router.route("/admin/user/migrate").get(adminCtrl.migrateUserTrackingData)
 
-    this.router.route("/admin/tracker/attribute/property/get/:trackerId/:attributeLocalId/:propertyKey").get(adminCtrl.getAttributePropertyValue)
+    this.router.route("/admin/tracker/field/property/get/:trackerId/:fieldLocalId/:propertyKey").get(adminCtrl.getFieldPropertyValue)
 
-    this.router.route("/admin/tracker/attribute/property/set/:propertyKey").get(adminCtrl.setAttributePropertySerializedValue)
+    this.router.route("/admin/tracker/field/property/set/:propertyKey").get(adminCtrl.setFieldPropertySerializedValue)
 
     this.router.post('/usage_logs/batch/insert', certifiedDeviceCheckMiddleware, otUsageLogCtrl.insertMany)
 
@@ -193,8 +193,8 @@ export class ClientApiRouter extends RouterWrapper {
     this.router.route('/media/all').get(storageCtrl.getAll)
 
     // binary
-    this.router.post('/upload/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier', appSignedInMiddleware, storageCtrl.uploadItemMedia)
-    this.router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', appSignedInMiddleware, storageCtrl.downloadItemMedia)
+    this.router.post('/upload/item_media/:trackerId/:itemId/:fieldLocalId/:fileIdentifier', appSignedInMiddleware, storageCtrl.uploadItemMedia)
+    this.router.get('/files/item_media/:trackerId/:itemId/:fieldLocalId/:fileIdentifier/:processingType?', appSignedInMiddleware, storageCtrl.downloadItemMedia)
 
     // this.router.post("/research/invitation/reject", assertSignedInMiddleware, researchCtrl.rejectExperimentInvitation)
 

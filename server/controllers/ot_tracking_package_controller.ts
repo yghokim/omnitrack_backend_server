@@ -1,4 +1,4 @@
-import PredefinedPackage from '../../omnitrack/core/tracking-plan';
+import { TrackingPlan } from '../../omnitrack/core/tracking-plan';
 import OTTracker from '../models/ot_tracker';
 import OTTrigger from '../models/ot_trigger';
 import OTTrackingPackage from '../models/ot_temporary_tracking_package';
@@ -13,14 +13,14 @@ export default class OTTrackingPackageCtrl {
     } else { return base.lean() }
   }
   
-  extractTrackingPackage(trackerIds: Array<string>, triggerIds: Array<string>, ownerId: string = null): Promise<PredefinedPackage> {
+  extractTrackingPackage(trackerIds: Array<string>, triggerIds: Array<string>, ownerId: string = null): Promise<TrackingPlan> {
 
     return Promise.all(
       [this.makeQuery(OTTracker, trackerIds, ownerId),
       this.makeQuery(OTTrigger, triggerIds, ownerId)]
     ).then(result => result.map(arr => arr.map(elm => ModelConverter.convertDbToClientFormat(elm, { excludeTimestamps: true })))
     ).then(result => {
-      return new PredefinedPackage(
+      return new TrackingPlan(
         result[0],
         result[1]
       )

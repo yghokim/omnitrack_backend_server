@@ -1,0 +1,30 @@
+@import '../../../../../../styles.scss';
+
+.dow-element {
+  width: 1.6rem;
+  height: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+
+  .dow-label {
+    align-self: center;
+    z-index: 2;
+    font-size: 0.8rem;
+    font-weight: bold;
+    pointer-events: none;
+    &.checked{
+      color: white;
+    }
+  }
+
+  .dow-panel {
+    border-radius: 50%;
+    background: $color_accent_light;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+}

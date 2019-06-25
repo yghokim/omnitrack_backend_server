@@ -365,7 +365,7 @@ export class BinaryXmlParser {
       namespaceURI: null,
       nodeType: NodeType.ELEMENT_NODE,
       nodeName: null,
-      attributes: [],
+      fields: [],
       childNodes: []
     };
     line = this.readU32();
@@ -383,7 +383,7 @@ export class BinaryXmlParser {
     classIndex = this.readU16();
     styleIndex = this.readU16();
     for (i = 0, ref1 = attrCount; 0 <= ref1 ? i < ref1 : i > ref1; 0 <= ref1 ? i++ : i--) {
-      node.attributes.push(this.readXmlAttribute());
+      node.fields.push(this.readXmlField());
     }
     if (this.document) {
       this.parent.childNodes.push(node);
@@ -395,7 +395,7 @@ export class BinaryXmlParser {
     return node;
   };
   
-  readXmlAttribute() {
+  readXmlField() {
     var attr, nameRef, nsRef, valueRef;
     attr = {
       namespaceURI: null,

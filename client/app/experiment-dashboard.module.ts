@@ -16,9 +16,6 @@ import { ExperimentSettingsComponent } from "./experiment-settings/experiment-se
 import { ExperimentConsentComponent } from "./experiment-consent/experiment-consent.component";
 import { ExperimentConsentEditorComponent } from "./experiment-consent-editor/experiment-consent-editor.component";
 import { DemographicEditorComponent } from "./experiment-consent/demographic-editor/demographic-editor.component";
-import { ExperimentOmniTrackComponent } from "./experiment-omnitrack/experiment-omnitrack.component";
-import { OmniTrackPlanListComponent } from "./research/omnitrack/omnitrack-plan-list.component";
-import { TrackingPlanCodeEditorComponent } from "./research/omnitrack/tracking-plan-code-editor/tracking-plan-code-editor.component";
 import { CommonModule } from "@angular/common";
 import { SharedModule } from "./shared/shared.module";
 import { ResearchDashboardComponent } from "./research-dashboard/research-dashboard.component";
@@ -28,8 +25,6 @@ import { ResearchSharedModule } from './research-shared.module';
 import { NewInvitationDialogComponent } from "./experiment-invitations/new-invitation-dialog/new-invitation-dialog.component";
 import { ChooseInvitationDialogComponent } from "./dialogs/choose-invitation-dialog/choose-invitation-dialog.component";
 import { EditExperimentGroupDialogComponent } from "./experiment-groups/edit-experiment-group-dialog/edit-experiment-group-dialog.component";
-import { LockConfigurationSheetComponent } from "./research/omnitrack/entities/lock-flag-button/lock-configuration-sheet/lock-configuration-sheet.component";
-import { NewTrackingPlanDialogComponent } from "./research/omnitrack/new-tracking-plan-dialog/new-tracking-plan-dialog.component";
 import { ParticipantExcludedDaysConfigDialogComponent } from "./dialogs/participant-excluded-days-config-dialog/participant-excluded-days-config-dialog.component";
 import { UpdateItemCellValueDialogComponent } from "./dialogs/update-item-cell-value-dialog/update-item-cell-value-dialog.component";
 import { LocationCellComponent } from "./experiment-data/location-cell/location-cell.component";
@@ -38,9 +33,6 @@ import { ImageCellComponent } from "./experiment-data/image-cell/image-cell.comp
 import { EngagementComponent } from "./research/visualization/engagement/engagement.component";
 import { TrackingDataSynchronizerWidgetComponent } from "./research/tracking-data-synchronizer-widget/tracking-data-synchronizer-widget.component";
 import { ExperimentDataSummaryComponent } from "./research/visualization/experiment-data-summary/experiment-data-summary.component";
-import { TrackerViewComponent } from "./research/omnitrack/entities/tracker-view/tracker-view.component";
-import { TriggerViewComponent } from "./research/omnitrack/entities/trigger-view/trigger-view.component";
-import { LockFlagButtonComponent } from "./research/omnitrack/entities/lock-flag-button/lock-flag-button.component";
 import { TrackerTreeViewComponent } from "./research/omnitrack/entities/tracker-tree-view/tracker-tree-view.component";
 import { TriggerTreeViewComponent } from "./research/omnitrack/entities/trigger-tree-view/trigger-tree-view.component";
 import { ItemFieldInputComponent } from "./components/item-field-input/item-field-input.component";
@@ -52,7 +44,6 @@ import { TableCellValueComponent } from "./components/table-cell-value/table-cel
 import { TreeViewElementComponent } from "./components/tree-view-element/tree-view-element.component";
 import { ResearcherSearchComponent } from "./experiment-settings/researcher-search/researcher-search.component";
 import { CreateUserAccountDialogComponent } from './experiment-participants/create-user-account-dialog/create-user-account-dialog.component';
-import { TrackingPlanListElementComponent } from './research/omnitrack/tracking-plan-list-element/tracking-plan-list-element.component';
 
 const routes: Routes = [
   {
@@ -142,26 +133,8 @@ const routes: Routes = [
         }
       },
       {
-        path: "omnitrack",
-        component: ExperimentOmniTrackComponent,
-        data: { title: "OmniTrack" },
-        children: [
-          { path: "", redirectTo: "plans", pathMatch: "full" },
-          {
-            path: "plans",
-            component: OmniTrackPlanListComponent,
-            data: { title: "Tracking Plans" }
-          },
-          {
-            path: "plans/:planKey",
-            component: TrackingPlanCodeEditorComponent,
-            data: {
-              title: "Edit Tracking Plan Code",
-              backTitle: "Plan List",
-              backNavigationUrl: "./omnitrack/plans"
-            }
-          }
-        ]
+        path: 'omnitrack',
+        loadChildren: './tracking-plan.module#TrackingPlanModule'
       }
     ]
   }
@@ -169,7 +142,7 @@ const routes: Routes = [
 
 @NgModule({
   imports: [
-    CommonModule, 
+    CommonModule,
     SharedModule,
     ResearchSharedModule,
     RouterModule.forChild(routes),
@@ -184,7 +157,6 @@ const routes: Routes = [
     ClientUsageComponent,
     ExperimentParticipantsComponent,
     ExperimentGroupsComponent,
-    ExperimentOmniTrackComponent,
     ExperimentInvitationsComponent,
     ExperimentSettingsComponent,
     ExperimentDataComponent,
@@ -192,56 +164,46 @@ const routes: Routes = [
     ComposeMessageComponent,
     ExperimentTrackingEntityStatusComponent,
     ExperimentClientSettingsComponent,
-    OmniTrackPlanListComponent,
     ExperimentConsentComponent,
     ExperimentConsentEditorComponent,
     DemographicEditorComponent,
-    TrackingPlanCodeEditorComponent,
-    LockConfigurationSheetComponent,
 
     ResearcherSearchComponent,
-    
+
     NewInvitationDialogComponent,
     ChooseInvitationDialogComponent,
     EditExperimentGroupDialogComponent,
-    NewTrackingPlanDialogComponent,
     ParticipantExcludedDaysConfigDialogComponent,
     UpdateItemCellValueDialogComponent,
 
     EngagementComponent,
     TrackingDataSynchronizerWidgetComponent,
     ExperimentDataSummaryComponent,
-    TrackerViewComponent,
-    TriggerViewComponent,
-    LockFlagButtonComponent,
     TrackerTreeViewComponent,
     TriggerTreeViewComponent,
 
     TreeViewElementComponent,
-    
+
     ItemFieldInputComponent,
     GeneralItemFieldInputComponent,
     TimePointFieldInputComponent,
     TextFieldInputComponent,
     ChoiceFieldInputComponent,
-      
+
     TableCellValueComponent,
-  
+
     LocationCellComponent,
     MinuteSecondsPipe,
     AudioCellComponent,
     ImageCellComponent,
     CreateUserAccountDialogComponent,
-    TrackingPlanListElementComponent
   ],
   entryComponents: [
     NewInvitationDialogComponent,
     ChooseInvitationDialogComponent,
     EditExperimentGroupDialogComponent,
-    NewTrackingPlanDialogComponent,
     ParticipantExcludedDaysConfigDialogComponent,
     UpdateItemCellValueDialogComponent,
-    LockConfigurationSheetComponent,
     CreateUserAccountDialogComponent
   ]
 })

@@ -64,13 +64,13 @@ export interface IUserChildDbEntity extends IMongooseDbEntity {
   user: string
 }
 
-export interface IAttributeDbEntity {
+export interface IFieldDbEntity {
   name?: string,
   _id?: string,
   localId?: string,
   trackerId?: string,
   connection?: any,
-  fallbackPolicy?: number,
+  fallbackPolicy?: string,
   fallbackPreset?: string,
   type?: number,
   isRequired?: boolean,
@@ -85,15 +85,15 @@ export interface IAttributeDbEntity {
 
 export interface ITrackerDbEntity extends IUserChildDbEntity {
   name?: string,
-  color?: Number,
-  isBookmarked?: Boolean,
-  position?: Number,
-  attributes?: [IAttributeDbEntity],
+  color?: number,
+  isBookmarked?: boolean,
+  position?: number,
+  fields?: Array<IFieldDbEntity>,
   lockedProperties?: any,
   flags?: any,
   redirectUrl?: string,
-  userCreatedAt?: Number,
-  userUpdatedAt?: Number,
+  userCreatedAt?: number,
+  userUpdatedAt?: number,
   removed?: boolean
 }
 
@@ -123,7 +123,7 @@ export interface IItemDbEntity extends IUserChildDbEntity {
   timestamp: number,
   timezone: string,
   deviceId: string,
-  dataTable: [{ attrLocalId: string, sVal: string }],
+  dataTable: [{ fieldLocalId: string, sVal: string }],
   removed: boolean,
   metadata?: IItemMetadata,
   userUpdatedAt: number

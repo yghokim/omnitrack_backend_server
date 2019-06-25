@@ -22,7 +22,8 @@ import { PlatformVersionCheckService } from '../services/platform-version-check.
   styleUrls: ['./research-dashboard.component.scss'],
   animations: [
     trigger('ySlide', [
-      state('false', style({ transform: "translate(0, -100%)" })),
+      state('false', style({ height: 0 })),
+      state('true', style({height: '*' })),
       transition("true => false", animate('700ms ease-in'))
     ])
   ]

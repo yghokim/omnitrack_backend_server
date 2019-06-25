@@ -1,0 +1,17 @@
+.property-view-container-horizontal{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  & > label{
+    margin-bottom: 0;
+    margin-right: 1rem;
+  }
+
+  & > .form-control{
+    max-width: 60%;
+  }
+}
+
+.property-view-container-vertical{
+
+}

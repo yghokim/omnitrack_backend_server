@@ -1,12 +1,21 @@
-.attribute-list {
-  .list-group-item {
+$item-ver-padding: 0.3rem;
+$item-hor-padding: 0.25rem;
+
+.field-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin: (-$item-ver-padding) (-$item-hor-padding);
+
+  .field-item {
+    margin: $item-ver-padding $item-hor-padding;
     padding: 0.4rem 0.5rem;
-    padding-right: 0.25rem;
     color: gray;
     background: #f8f8f8;
+    border-radius: 0.25rem;
   }
 
-  .attribute-type-icon {
+  .field-type-icon {
     padding: 6px;
     & > img {
       width: 16px;

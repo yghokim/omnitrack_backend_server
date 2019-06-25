@@ -196,14 +196,14 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.post('/experiments/:experimentId/test/trigger_ping', tokenApprovedAuth, experimentCtrl.sendTriggerPingTest)
     
-    this.router.get('/files/item_media/:trackerId/:itemId/:attrLocalId/:fileIdentifier/:processingType?', tokenApprovedAuth, this.storageCtrl.downloadItemMedia)
+    this.router.get('/files/item_media/:trackerId/:itemId/:fieldLocalId/:fileIdentifier/:processingType?', tokenApprovedAuth, this.storageCtrl.downloadItemMedia)
 
     // data manipulation
     this.router.post("/tracking/update/item_column", tokenApprovedAuth, itemCtrl.postItemValue)
     this.router.post("/tracking/update/item_timestamp", tokenApprovedAuth, itemCtrl.postItemTimestamp)
     this.router.post('/tracking/update/trigger', tokenApprovedAuth, trackingDataCtrl.updateTriggerOfExperiment)
     this.router.post('/tracking/update/tracker', tokenApprovedAuth, trackingDataCtrl.updateTrackerOfExperiment)
-    this.router.post('/tracking/update/attribute', tokenApprovedAuth, trackingDataCtrl.updateAttributeOfTrackerOfExperiment)
+    this.router.post('/tracking/update/field', tokenApprovedAuth, trackingDataCtrl.updateFieldOfTrackerOfExperiment)
     
 
     this.router.get("/users/all", tokenApprovedAuth, experimentCtrl.getUsersWithPariticipantInformation)

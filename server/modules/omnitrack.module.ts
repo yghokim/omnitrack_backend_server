@@ -4,7 +4,7 @@ import { ModelConverter } from '../../omnitrack/core/model_converter'
 import ServerModule from './server.module';
 import CommandModule from './command.module';
 import PushModule from './push.module';
-import PredefinedPackage from '../../omnitrack/core/tracking-plan'
+import { TrackingPlan } from '../../omnitrack/core/tracking-plan'
 import OTTracker from '../models/ot_tracker'
 import OTTrigger from '../models/ot_trigger'
 import IdGenerator from '../../omnitrack/core/id_generator'
@@ -13,7 +13,7 @@ import { merge } from '../../shared_lib/utils';
 import SocketModule from './socket.module';
 import { TrackingPlanManagerImpl } from '../../omnitrack/core/tracking-plan-helper';
 import { DependencyLevel } from '../../omnitrack/core/functionality-locks/omnitrack-dependency-graph';
-import { TriggerConstants } from '../../omnitrack/core/trigger-constants';
+import { TriggerConstants } from '../../omnitrack/core/trigger/trigger-constants';
 
 export default class OmniTrackModule {
 
@@ -42,14 +42,14 @@ export default class OmniTrackModule {
     )
   }
 
-  injectPackage(userId: string, predefinedPackage: PredefinedPackage, creationFlags?: any): Promise<void> {
+  injectPackage(userId: string, TrackingPlan: TrackingPlan, creationFlags?: any): Promise<void> {
     return new Promise((resolve, reject) => {
-      const pack: PredefinedPackage = JSON.parse(JSON.stringify(predefinedPackage))
+      const pack: TrackingPlan = JSON.parse(JSON.stringify(TrackingPlan))
 
       const planManager = new TrackingPlanManagerImpl(pack)
 
       pack.trackers.forEach(tracker => {
-        tracker.attributes.forEach(attr => {
+        tracker.fields.forEach(attr => {
           attr.lockedProperties = planManager.generateFlagGraph(DependencyLevel.Field, attr).getCascadedFlagObject(DependencyLevel.Field)
         })
 
@@ -71,21 +71,22 @@ export default class OmniTrackModule {
       const deviceLocalId = -1
       let currentNanoStamp = 0
       const trackerIdTable = {}
-      const attributeIdTable = {}
-      const attributeLocalIdTable = {}
+      const fieldIdTable = {}
+      const fieldLocalIdTable = {}
       const triggerIdTable = {}
 
       const currentDate = new Date()
 
-      pack.placeHolderDict.trackers.forEach(trackerPlaceHolder => {
-        trackerIdTable[trackerPlaceHolder] = IdGenerator.generateObjectId()
+      pack.trackers.forEach(tracker => {
+        trackerIdTable[tracker._id] = IdGenerator.generateObjectId()
+        tracker.fields.forEach(field => {
+          fieldIdTable[field._id] = IdGenerator.generateObjectId()
+        fieldLocalIdTable[field.localId] = IdGenerator.generateFieldLocalId(deviceLocalId, Date.now(), (++currentNanoStamp) % 1000)
+        })
       })
-      pack.placeHolderDict.triggers.forEach(triggerPlaceHolder => {
-        triggerIdTable[triggerPlaceHolder] = IdGenerator.generateObjectId()
-      })
-      pack.placeHolderDict.attributes.forEach(attrPlaceHolder => {
-        attributeIdTable[attrPlaceHolder.id] = IdGenerator.generateObjectId()
-        attributeLocalIdTable[attrPlaceHolder.localId] = IdGenerator.generateAttributeLocalId(deviceLocalId, Date.now(), (++currentNanoStamp) % 1000)
+
+      pack.triggers.forEach(trigger => {
+        triggerIdTable[trigger._id] = IdGenerator.generateObjectId()
       })
 
       pack.trackers.forEach(tracker => {
@@ -93,10 +94,10 @@ export default class OmniTrackModule {
         tracker.userCreatedAt = currentDate.getTime()
         tracker.user = userId
         tracker._id = trackerIdTable[tracker._id]
-        tracker.attributes.forEach(attr => {
+        tracker.fields.forEach(attr => {
           attr.flags = merge(attr.flags, creationFlags, true)
-          attr._id = attributeIdTable[attr._id]
-          attr.localId = attributeLocalIdTable[attr.localId]
+          attr._id = fieldIdTable[attr._id]
+          attr.localId = fieldLocalIdTable[attr.localId]
           attr.trackerId = tracker._id
 
           // TODO deal with connection
@@ -128,14 +129,14 @@ export default class OmniTrackModule {
               trigger.script = trigger.script.replace(id, triggerIdTable[id])
             }
           }
-          for (const id in attributeIdTable) {
-            if (attributeIdTable.hasOwnProperty(id)) {
-              trigger.script = trigger.script.replace(id, attributeIdTable[id])
+          for (const id in fieldIdTable) {
+            if (fieldIdTable.hasOwnProperty(id)) {
+              trigger.script = trigger.script.replace(id, fieldIdTable[id])
             }
           }
-          for (const id in attributeLocalIdTable) {
-            if (attributeLocalIdTable.hasOwnProperty(id)) {
-              trigger.script = trigger.script.replace(id, attributeLocalIdTable[id])
+          for (const id in fieldLocalIdTable) {
+            if (fieldLocalIdTable.hasOwnProperty(id)) {
+              trigger.script = trigger.script.replace(id, fieldLocalIdTable[id])
             }
           }
         }

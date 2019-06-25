@@ -22,10 +22,10 @@ export default class OTItemCtrl extends UserBelongingCtrl {
       res.status(404).send({ error: err })
     })
   }
-  // dataTable: [{_id: false, attrLocalId: String, sVal: String}],
-  setItemValue(itemQuery: any, attrLocalId: string, serializedValue: string): Promise<{ success: boolean, error?: any, changedItem?: IItemDbEntity }> {
+  // dataTable: [{_id: false, fieldLocalId: String, sVal: String}],
+  setItemValue(itemQuery: any, fieldLocalId: string, serializedValue: string): Promise<{ success: boolean, error?: any, changedItem?: IItemDbEntity }> {
     const itemQueryCopy = deepclone(itemQuery)
-    itemQueryCopy["dataTable.attrLocalId"] = attrLocalId
+    itemQueryCopy["dataTable.fieldLocalId"] = fieldLocalId
     return OTItem.findOneAndUpdate(itemQueryCopy, { $set: { "dataTable.$.sVal": serializedValue } }, { new: true }).then(
       updatedItem => {
         if (updatedItem) {
@@ -42,11 +42,11 @@ export default class OTItemCtrl extends UserBelongingCtrl {
   }
 
   postItemValue = (req, res) => {
-    const attrLocalId = req.body.attrLocalId
+    const fieldLocalId = req.body.fieldLocalId
     const itemQuery = req.body.itemQuery
     const serializedValue = req.body.serializedValue
 
-    if (!attrLocalId || !itemQuery || !serializedValue) {
+    if (!fieldLocalId || !itemQuery || !serializedValue) {
       res.status(404).send({ success: false, error: "IllegalParameters" })
       return
     }
@@ -57,7 +57,7 @@ export default class OTItemCtrl extends UserBelongingCtrl {
       itemQuery["user"] = req.user.uid
     }
 
-    this.setItemValue(itemQuery, attrLocalId, serializedValue).then(
+    this.setItemValue(itemQuery, fieldLocalId, serializedValue).then(
       result => {
         console.log(result)
         res.status(200).send(result)

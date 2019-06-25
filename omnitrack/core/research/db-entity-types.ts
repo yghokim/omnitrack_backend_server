@@ -1,5 +1,6 @@
 import { IMongooseDbEntity } from "../db-entity-types";
 import { VisualizationConfigs } from "./configs";
+import { TrackingPlan } from "../tracking-plan";
 
 export interface IExperimentGroupDbEntity extends IMongooseDbEntity {
   name: string,
@@ -9,7 +10,7 @@ export interface IExperimentGroupDbEntity extends IMongooseDbEntity {
 export interface IExperimentTrackingPlanDbEntity {
   key: string,
   name: string,
-  data: any
+  data: TrackingPlan
 }
 
 export interface IExperimentDbEntity extends IMongooseDbEntity {

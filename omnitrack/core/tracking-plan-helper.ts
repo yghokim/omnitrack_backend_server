@@ -1,18 +1,14 @@
-import { ITrackerDbEntity, ITriggerDbEntity, IAttributeDbEntity } from "./db-entity-types";
-import { TriggerConstants } from "./trigger-constants";
+import { ITrackerDbEntity, ITriggerDbEntity, IFieldDbEntity } from "./db-entity-types";
+import { TriggerConstants } from "./trigger/trigger-constants";
 import { DependencyLevel, OmniTrackFlagGraph } from "./functionality-locks/omnitrack-dependency-graph";
 import { merge, deepclone } from "../../shared_lib/utils";
+import { TrackingPlan } from "./tracking-plan";
 
-export interface TrackingPlanData {
-  app: {lockedProperties: any},
-  trackers: Array<ITrackerDbEntity>,
-  triggers: Array<ITriggerDbEntity>
-}
 
 export class TrackingPlanManagerImpl {
 
   constructor(
-    public currentPlan: TrackingPlanData
+    public currentPlan: TrackingPlan
   ) { }
 
   generateFlagGraph(level: DependencyLevel, model: any): OmniTrackFlagGraph {
@@ -58,11 +54,10 @@ export class TrackingPlanManagerImpl {
   filterLoggingTriggers(): Array<ITriggerDbEntity> {
     if (this.currentPlan != null) {
       return this.currentPlan.triggers.filter(t => t.actionType === TriggerConstants.ACTION_TYPE_LOG)
-    } else return null
+    } else return []
   }
 
   getRemindersOf(tracker: ITrackerDbEntity): Array<ITriggerDbEntity> {
-    console.log(this.currentPlan.triggers)
     return this.currentPlan.triggers.filter(t => t.actionType === TriggerConstants.ACTION_TYPE_REMIND && t.trackers.indexOf(tracker._id) !== -1)
   }
 
@@ -71,7 +66,7 @@ export class TrackingPlanManagerImpl {
     return this.getTracker(trackerId)
   }
 
-  getTrackerOfField(field: IAttributeDbEntity): ITrackerDbEntity {
+  getTrackerOfField(field: IFieldDbEntity): ITrackerDbEntity {
     return this.getTracker(field.trackerId)
   }
 

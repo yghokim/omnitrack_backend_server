@@ -24,47 +24,14 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatListModule } from '@angular/material/list';
-import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatStepperModule} from '@angular/material/stepper';
 import { MatNativeDateModule } from '@angular/material';
 import {MatBottomSheetModule} from '@angular/material/bottom-sheet';
-
+import {MatRippleModule} from '@angular/material/core'; 
 
 @NgModule({
-  imports: [
-    CommonModule,
-    MatSidenavModule,
-    MatDialogModule,
-    MatTabsModule,
-    MatCheckboxModule,
-    MatRadioModule,
-    MatMenuModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatInputModule,
-    MatIconModule,
-    MatDividerModule,
-    MatTooltipModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatSnackBarModule,
-    MatProgressBarModule,
-    MatProgressSpinnerModule,
-    MatAutocompleteModule,
-    MatChipsModule,
-    MatGridListModule,
-    MatCardModule,
-    MatSlideToggleModule,
-    MatTableModule,
-    MatSortModule,
-    MatExpansionModule,
-    MatListModule,
-    MatStepperModule,
-    MatBottomSheetModule
-  ],
   exports: [
     MatDialogModule,
-    MatSidenavModule,
     MatTabsModule,
     MatCheckboxModule,
     MatRadioModule,
@@ -89,7 +56,8 @@ import {MatBottomSheetModule} from '@angular/material/bottom-sheet';
     MatExpansionModule,
     MatListModule,
     MatStepperModule,
-    MatBottomSheetModule
+    MatBottomSheetModule,
+    MatRippleModule
   ],
   providers: [
     MatIconRegistry]

@@ -16,6 +16,7 @@ import { clientBuildCtrl } from './ot_client_build_controller';
 import { userCtrl } from '../ot_user_controller';
 import C from '../../server_consts';
 import { IUserDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { generateNewPackageKey } from '../../models/ot_experiment';
 
 
 export default class OTExperimentCtrl {
@@ -503,7 +504,7 @@ export default class OTExperimentCtrl {
     const name = req.body.name
     const experimentId = req.params.experimentId
     const researcherId = req.researcher.uid
-    const packageKey = req.body.packageKey
+    let packageKey = req.body.packageKey
 
     const query = this.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId)
     let update
@@ -520,9 +521,11 @@ export default class OTExperimentCtrl {
       }
     } else {
       // insert
+      packageKey = generateNewPackageKey()
       update = {
         $push: {
           trackingPlans: {
+            key: packageKey,
             name: name,
             data: packageJson
           }
@@ -530,12 +533,12 @@ export default class OTExperimentCtrl {
       }
     }
 
-    OTExperiment.findOneAndUpdate(query, update, { new: true }).then(doc => {
+    OTExperiment.findOneAndUpdate(query, update, { new: true }).lean().then(doc => {
       if (doc) {
-        res.status(200).send(true)
+        res.status(200).send({success: true, packageKey: packageKey})
         app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, { model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_EDITED })
       } else {
-        res.status(200).send(false)
+        res.status(200).send({success: false, packageKey: null})
       }
     }).catch(err => {
       console.log(err)

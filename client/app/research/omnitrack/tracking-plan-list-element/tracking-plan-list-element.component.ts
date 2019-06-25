@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { TrackingPlanService } from '../tracking-plan.service';
-import { TrackingPlanData } from '../../../../../omnitrack/core/tracking-plan-helper';
+import { TrackingPlan } from '../../../../../omnitrack/core/tracking-plan';
 
 
 
@@ -12,9 +12,9 @@ import { TrackingPlanData } from '../../../../../omnitrack/core/tracking-plan-he
 })
 export class TrackingPlanListElementComponent implements OnInit {
 
-  public plan: TrackingPlanData
+  public plan: TrackingPlan
 
-  @Input("plan") set _plan(newPlan: TrackingPlanData) {
+  @Input("plan") set _plan(newPlan: TrackingPlan) {
     this.plan = newPlan
     this.trackingPlanManager.currentPlan = newPlan
   }

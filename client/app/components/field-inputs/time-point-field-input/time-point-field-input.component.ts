@@ -18,7 +18,7 @@ export class TimePointFieldInputComponent extends BaseItemFieldInputComponent im
   currentZone: String;
   timezones: Array<String>;
  
-  protected onNewValue(attributeType: number, serializedValue?: string, deserializedValue?: any) {
+  protected onNewValue(fieldType: number, serializedValue?: string, deserializedValue?: any) {
     if(deserializedValue){
     this.moment = (deserializedValue as TimePoint).toMoment();
     this.currentZone = this.moment.tz();

@@ -1,12 +1,12 @@
 import * as mongoose from 'mongoose';
 
-const otAttributeSchema = new mongoose.Schema({
+const otFieldSchema = new mongoose.Schema({
   _id: String, // this object id is not used as an index in server. it is only used in client.
   name: String,
   localId: String,
   trackerId: String,
   connection: mongoose.Schema.Types.Mixed,
-  fallbackPolicy: Number,
+  fallbackPolicy: String,
   fallbackPreset: String,
   type: Number,
   isRequired: Boolean,
@@ -26,7 +26,7 @@ const otTrackerSchema = new mongoose.Schema({
   user: {type: String, ref: 'OTUser'},
   isBookmarked: {type: Boolean, default: false},
   position: Number,
-  attributes: {type: [otAttributeSchema], default: []},
+  fields: {type: [otFieldSchema], default: []},
   lockedProperties: {type: mongoose.Schema.Types.Mixed, default: {}},
   flags: {type: mongoose.Schema.Types.Mixed, default: {}},
   redirectUrl: {type: String, default: null},
@@ -38,5 +38,7 @@ const otTrackerSchema = new mongoose.Schema({
 const OTTracker = mongoose.model('OTTracker', otTrackerSchema);
 
 OTTracker.collection.createIndex({"flags.experiment": 1})
+OTTracker.collection.createIndex({"flags.injectedId": 1})
+
 
 export default OTTracker;

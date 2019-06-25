@@ -10,7 +10,7 @@ const fs = require("fs-extra");
 
 export default class BinaryStorageCtrl {
 
-  private makeUserItemMediaStorage(userId: String, trackerId: String, itemId: String, attrLocalId: String, fileIdentifier: String): StorageEngine {
+  private makeUserItemMediaStorage(userId: String, trackerId: String, itemId: String, fieldLocalId: String, fileIdentifier: String): StorageEngine {
     return multer.diskStorage({
       destination: function (req, file, cb) {
         fs.ensureDir("storage/temp/media").then(() => {
@@ -20,8 +20,8 @@ export default class BinaryStorageCtrl {
         })
       },
       filename: function (req, file, cb) {
-        const tempName = userId + "_" + trackerId + itemId + attrLocalId + "_" + Date.now() + '.' + mime.getExtension(file.mimetype)
-        const finalNameBase = attrLocalId + "_" + fileIdentifier + "_" + Date.now()
+        const tempName = userId + "_" + trackerId + itemId + fieldLocalId + "_" + Date.now() + '.' + mime.getExtension(file.mimetype)
+        const finalNameBase = fieldLocalId + "_" + fileIdentifier + "_" + Date.now()
         file["finalName"] = finalNameBase + '.' + mime.getExtension(file.mimetype)
         file["finalNameBase"] = finalNameBase
         cb(null, tempName)
@@ -42,11 +42,11 @@ export default class BinaryStorageCtrl {
   uploadItemMedia = (req, res: Response) => {
     const userId = req.user.uid
     const trackerId = req.params.trackerId
-    const attrLocalId = req.params.attrLocalId
+    const fieldLocalId = req.params.fieldLocalId
     const itemId = req.params.itemId
     const fileIdentifier = req.params.fileIdentifier
 
-    const upload = multer({ storage: this.makeUserItemMediaStorage(userId, trackerId, itemId, attrLocalId, fileIdentifier) })
+    const upload = multer({ storage: this.makeUserItemMediaStorage(userId, trackerId, itemId, fieldLocalId, fileIdentifier) })
       .single("file")
     upload(req, res, multerError => {
       if (multerError != null) {
@@ -60,7 +60,7 @@ export default class BinaryStorageCtrl {
             const newMedia = {
               user: userId,
               tracker: trackerId,
-              attrLocalId: attrLocalId,
+              fieldLocalId: fieldLocalId,
               item: itemId,
               fileIdentifier: fileIdentifier,
               mimeType: req.file.mimetype,
@@ -74,7 +74,7 @@ export default class BinaryStorageCtrl {
             OTItemMedia.findOne({
               tracker: trackerId,
               user: userId,
-              attrLocalId: attrLocalId,
+              fieldLocalId: fieldLocalId,
               item: itemId,
               fileIdentifier: fileIdentifier
             }).then(oldDoc => {
@@ -127,14 +127,14 @@ export default class BinaryStorageCtrl {
   downloadItemMedia = (req: any, res: Response) => {
     if (req.user || req.researcher) {
       const trackerId = req.params.trackerId
-      const attrLocalId = req.params.attrLocalId
+      const fieldLocalId = req.params.fieldLocalId
       const itemId = req.params.itemId
       const fileIdentifier = req.params.fileIdentifier
       const processingType = req.params.processingType || "original"
 
       OTItemMedia.findOne({
         tracker: trackerId,
-        attrLocalId: attrLocalId,
+        fieldLocalId: fieldLocalId,
         item: itemId,
         fileIdentifier: fileIdentifier
       }).lean().then(media => {

@@ -11,7 +11,7 @@
       "_id": "%{TRACKER_1}%",
       "lockedProperties": { "delete": true },
       "flags": { "injected": true, "injectionId": "Ab0ksQyh" },
-      "attributes": [
+      "fields": [
         {
           "isHidden": false,
           "isInTrashcan": false,
@@ -30,7 +30,7 @@
           "name": "어떤 시각을 입력하시겠습니까?",
           "isRequired": true,
           "position": 0,
-          "fallbackPolicy": 3,
+          "fallbackPolicy": "last",
           "fallbackPreset": null,
           "connection": null,
           "lockedProperties": { "delete": true, "edit": true, "visibility": true },
@@ -47,7 +47,7 @@
           "name": "시작 혹은 끝 시각",
           "isRequired": true,
           "position": 0,
-          "fallbackPolicy": 1,
+          "fallbackPolicy": "intrinsic",
           "fallbackPreset": null,
           "connection": null,
           "lockedProperties": { "delete": true, "visibility": true },
@@ -74,7 +74,7 @@
           "name": "소요시간 (분)",
           "isRequired": true,
           "position": 0,
-          "fallbackPolicy": 1,
+          "fallbackPolicy": "intrinsic",
           "fallbackPreset": null,
           "connection": null,
           "lockedProperties": { "delete": true, "visibility": true },
@@ -99,7 +99,7 @@
           "name": "한 일",
           "isRequired": true,
           "position": 0,
-          "fallbackPolicy": 0,
+          "fallbackPolicy": "null",
           "fallbackPreset": null,
           "connection": null,
           "lockedProperties": { "delete": true, "visibility": true },
@@ -123,7 +123,7 @@
           "name": "생산성",
           "isRequired": true,
           "position": 0,
-          "fallbackPolicy": 0,
+          "fallbackPolicy": "null",
           "fallbackPreset": null,
           "connection": null,
           "lockedProperties": { "delete": true, "edit": true, "visibility": true },
@@ -140,7 +140,7 @@
           "name": "생산성 판단 근거",
           "isRequired": true,
           "position": 0,
-          "fallbackPolicy": 0,
+          "fallbackPolicy": "null",
           "fallbackPreset": null,
           "connection": null,
           "lockedProperties": { "delete": true, "visibility": true },
@@ -165,7 +165,7 @@
           "name": "일한 장소",
           "isRequired": false,
           "position": 0,
-          "fallbackPolicy": 1,
+          "fallbackPolicy": "intrinsic",
           "fallbackPreset": null,
           "connection": null,
           "flags": { "injected": true, "injectionId": "ztoRgnIY" }
@@ -189,7 +189,7 @@
           "name": "사용한 디지털 기기",
           "isRequired": false,
           "position": 0,
-          "fallbackPolicy": 0,
+          "fallbackPolicy": "null",
           "fallbackPreset": null,
           "connection": null,
           "lockedProperties": { "delete": true, "visibility": true },
@@ -206,7 +206,7 @@
           "name": "컨텍스트",
           "isRequired": false,
           "position": 0,
-          "fallbackPolicy": 0,
+          "fallbackPolicy": "null",
           "fallbackPreset": null,
           "connection": null,
           "flags": { "injected": true, "injectionId": "YNtFn97k" }
@@ -228,7 +228,7 @@
           "name": "행복도",
           "isRequired": false,
           "position": 0,
-          "fallbackPolicy": 0,
+          "fallbackPolicy": "null",
           "fallbackPreset": null,
           "connection": null,
           "flags": { "injected": true, "injectionId": "BuzCGUEt" }
@@ -238,7 +238,7 @@
 
     {
       "isBookmarked": true,
-      "attributes": [
+      "fields": [
         {
           "isHidden": false,
           "isInTrashcan": false,
@@ -250,7 +250,7 @@
           "name": "날짜",
           "isRequired": true,
           "position": 0,
-          "fallbackPolicy": 1,
+          "fallbackPolicy": "intrinsic",
           "fallbackPreset": null,
           "connection": null,
           "lockedProperties": {
@@ -271,7 +271,7 @@
           "name": "생산성 로그가 없었던 이유",
           "isRequired": true,
           "position": 1,
-          "fallbackPolicy": 0,
+          "fallbackPolicy": "null",
           "fallbackPreset": null,
           "connection": null,
           "lockedProperties": {
@@ -324,24 +324,5 @@
       "flags": { "injected": true, "injectionId": "dITer8IU" }
     }
   ],
-  "serviceCodes": [],
-  "placeHolderDict": {
-    "user": "%{OWNER_0}%",
-    "trackers": ["%{TRACKER_0}%", "%{TRACKER_1}%"],
-    "triggers": ["%{TRIGGER_0}%"],
-    "attributes": [
-      { "id": "%{ATTRIBUTE_0}%", "localId": "%{ATTRIBUTE_LOCAL_0}%" },
-      { "id": "%{ATTRIBUTE_1}%", "localId": "%{ATTRIBUTE_LOCAL_1}%" },
-      { "id": "%{ATTRIBUTE_2}%", "localId": "%{ATTRIBUTE_LOCAL_2}%" },
-      { "id": "%{ATTRIBUTE_3}%", "localId": "%{ATTRIBUTE_LOCAL_3}%" },
-      { "id": "%{ATTRIBUTE_4}%", "localId": "%{ATTRIBUTE_LOCAL_4}%" },
-      { "id": "%{ATTRIBUTE_5}%", "localId": "%{ATTRIBUTE_LOCAL_5}%" },
-      { "id": "%{ATTRIBUTE_6}%", "localId": "%{ATTRIBUTE_LOCAL_6}%" },
-      { "id": "%{ATTRIBUTE_7}%", "localId": "%{ATTRIBUTE_LOCAL_7}%" },
-      { "id": "%{ATTRIBUTE_8}%", "localId": "%{ATTRIBUTE_LOCAL_8}%" },
-      { "id": "%{ATTRIBUTE_9}%", "localId": "%{ATTRIBUTE_LOCAL_9}%" },
-      { "id": "%{ATTRIBUTE_10}%", "localId": "%{ATTRIBUTE_LOCAL_10}%" },
-      { "id": "%{ATTRIBUTE_11}%", "localId": "%{ATTRIBUTE_LOCAL_11}%" }
-    ]
-  }
+  "serviceCodes": []
 }

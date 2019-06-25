@@ -1,0 +1,90 @@
+<ng-container *ngIf="currentPlanData!=null">
+  <div class="code-editor-container">
+    <div class="main-panel-container">
+      <div class="menu-panel">
+        <div class="form-group">
+          <label for="planNameInput" class="small">Plan
+            Name{{currentPlanData.name !== originalPlanData.name? '*' : ''}}</label>
+          <input id="planNameInput" type="text" class="form-control" [(ngModel)]="currentPlanData.name">
+        </div>
+
+        <div class="form-group no-padding-top flex-container flex-align-items-center flex-stretch">
+          <label class="small no-margin">Permissions</label>
+          <app-lock-flag-button [model]="currentPlanData.data.app" (flagChange)="onAppFlagsChanged($event)"
+            lockType="app"></app-lock-flag-button>
+        </div>
+
+        <div class="subheader">
+          Trackers
+        </div>
+
+        <div *ngIf="currentPlanData.data && currentPlanData.data.trackers && currentPlanData.data.trackers.length > 0"
+          cdkDropList
+          cdkDropListLockAxis="y"
+          (cdkDropListDropped)="onTrackerDragDrop($event)"
+          class="no-padding"
+          >
+          <div cdkDrag class="draggable-element" *ngFor="let trackerId of sortedTrackerIds"
+            style="background: white">
+              <app-selectable-menu-item
+              [title]="trackerById(trackerId).name"
+              [showRemoveButton]="true"
+              [showDragHandle]="true"
+              [color]="getTrackerColorString(trackerById(trackerId))" 
+              [selected]="selectedEntity && selectedEntity._id === trackerId"
+              (onClick)="onTrackerClicked(trackerById(trackerId))"
+              (onRemoveClick)="onRemoveTrackerClicked(trackerById(trackerId))"
+              ></app-selectable-menu-item>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <button mat-button class="add-button mat-button-small" color="accent"
+            (click)="onAddTrackerClicked()">
+            <span class="material-icons">add</span>
+            <span>Add New Tracker</span>
+          </button>
+        </div>
+
+        <div class="subheader">Triggers</div>
+
+        <ng-container
+          *ngIf="currentPlanData.data && planService.filterLoggingTriggers().length > 0">
+          <app-selectable-menu-item *ngFor="let trigger of planService.filterLoggingTriggers(); trackBy: trackByObj" 
+            [title]="trigger.alias? trigger.alias : getTriggerTitle(trigger)"
+            [subtitle]="trigger.alias? getTriggerTitle(trigger) : null"
+            [showRemoveButton]="true"
+            [selected]="selectedEntity === trigger"
+            (onClick)="onTriggerClicked(trigger)"
+            (onRemoveClick)="onRemoveTriggerClicked(trigger)"></app-selectable-menu-item>
+        </ng-container>
+
+        <div class="form-group">
+            <button mat-button class="add-button mat-button-small" color="accent"
+              (click)="onAddTriggerClicked()">
+              <span class="material-icons">add</span>
+              <span>Add New Trigger</span>
+            </button>
+          </div>
+
+      </div>
+      <app-tracker-detail-panel *ngIf="selectedType === 'tracker'" [tracker]="selectedEntity">
+      </app-tracker-detail-panel>
+      <app-trigger-detail-panel *ngIf="selectedType === 'trigger'" [trigger]="selectedEntity">
+      </app-trigger-detail-panel>
+
+
+
+      <div class="preview-panel">
+
+      </div>
+    </div>
+  </div>
+  <div class="code-editor-footer flex-container flex-align-items-center">
+    <div class="flex-filler"></div>
+    <!--
+    <button mat-button color="accent" [disabled]="isChanged()===false" (click)="onDiscardChangesClicked()">Dicard
+      Changes</button>-->
+    <button mat-button color="primary" (click)="onSaveClicked()" [disabled]="isChanged()===false">Save Changes</button>
+  </div>
+</ng-container>
