@@ -13,7 +13,7 @@
           "name": "Drank at",
           "isRequired": true,
           "position": 0,
-          "fallbackPolicy": 1,
+          "fallbackPolicy": "intrinsic",
           "fallbackPreset": null,
           "connection": null,
           "properties": [{
@@ -35,7 +35,7 @@
           "name": "Caffeine",
           "isRequired": false,
           "position": 1,
-          "fallbackPolicy": 1,
+          "fallbackPolicy": "intrinsic",
           "fallbackPreset": null,
           "connection": null,
           "properties": [{
@@ -71,7 +71,7 @@
           "name": "Date",
           "isRequired": true,
           "position": 0,
-          "fallbackPolicy": 1,
+          "fallbackPolicy": "intrinsic",
           "fallbackPreset": null,
           "connection": null,
           "properties": [{
@@ -93,7 +93,7 @@
           "name": "Moods",
           "isRequired": false,
           "position": 1,
-          "fallbackPolicy": 0,
+          "fallbackPolicy": "null",
           "fallbackPreset": null,
           "connection": null,
           "properties": [{
@@ -120,7 +120,7 @@
           "name": "Note",
           "isRequired": false,
           "position": 2,
-          "fallbackPolicy": 0,
+          "fallbackPolicy": "null",
           "fallbackPreset": null,
           "connection": null,
           "properties": [],
