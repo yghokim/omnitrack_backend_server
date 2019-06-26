@@ -132,10 +132,12 @@
         {
           "isHidden": false,
           "isInTrashcan": false,
-          "properties": [],
+          "properties": [
+            { "key": "type", "sVal": "1" }
+          ],
           "_id": "%{ATTRIBUTE_6}%",
           "localId": "%{ATTRIBUTE_LOCAL_6}%",
-          "type": 4,
+          "type": 3,
           "trackerId": "%{TRACKER_1}%",
           "name": "생산성 판단 근거",
           "isRequired": true,
@@ -263,10 +265,10 @@
         {
           "isHidden": false,
           "isInTrashcan": false,
-          "properties": [],
+          "properties": [{"key": "type", "sVal": "1"}],
           "_id": "%{ATTRIBUTE_1}%",
           "localId": "%{ATTRIBUTE_LOCAL_1}%",
-          "type": 4,
+          "type": 3,
           "trackerId": "%{TRACKER_0}%",
           "name": "생산성 로그가 없었던 이유",
           "isRequired": true,

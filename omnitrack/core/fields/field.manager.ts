@@ -6,8 +6,7 @@ import { ChoiceFieldHelper } from './choice.field.helper';
 import { TimeSpanFieldHelper } from "./time-span.field.helper";
 import { TimePointFieldHelper } from "./time-point.field.helper";
 import { LocationFieldHelper } from './location.field.helper';
-import { ShortTextFieldHelper } from "./shortext.field.helper";
-import { LongTextFieldHelper } from "./longtext.field.helper";
+import { TextFieldHelper } from "./text.field.helper";
 import { AudioRecordFieldHelper } from "./audiorecord.field.helper";
 import { ImageFieldHelper } from "./image.field.helper";
 
@@ -18,11 +17,8 @@ export default class FieldManager {
   static getTypeInfos(): Array<{ id: number, name: string }> {
     return [
       {
-        id: fieldTypes.ATTR_TYPE_SHORT_TEXT,
-        name: "Short Text"
-      },{
-        id: fieldTypes.ATTR_TYPE_LONG_TEXT,
-        name: "Long Text"
+        id: fieldTypes.ATTR_TYPE_TEXT,
+        name: "Text"
       },{
         id: fieldTypes.ATTR_TYPE_RATING,
         name: "Rating"
@@ -57,11 +53,8 @@ export default class FieldManager {
       return helper
     } else {
       switch (type) {
-        case fieldTypes.ATTR_TYPE_SHORT_TEXT:
-          FieldManager.dict[type.toString()] = new ShortTextFieldHelper()
-          break;
-        case fieldTypes.ATTR_TYPE_LONG_TEXT:
-          FieldManager.dict[type.toString()] = new LongTextFieldHelper()
+        case fieldTypes.ATTR_TYPE_TEXT:
+          FieldManager.dict[type.toString()] = new TextFieldHelper()
           break;
         case fieldTypes.ATTR_TYPE_RATING:
           FieldManager.dict[type.toString()] = new RatingFieldHelper()

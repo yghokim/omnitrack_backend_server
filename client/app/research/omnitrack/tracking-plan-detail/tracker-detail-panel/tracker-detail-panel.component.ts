@@ -21,6 +21,7 @@ import { TextInputDialogComponent } from '../../../../dialogs/text-input-dialog/
 import * as isUrl from 'is-url';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { TrackerColorPickerComponent } from './tracker-color-picker/tracker-color-picker.component';
+import { TextFieldHelper } from '../../../../../../omnitrack/core/fields/text.field.helper';
 
 @Component({
   selector: 'app-tracker-detail-panel',
@@ -32,8 +33,14 @@ import { TrackerColorPickerComponent } from './tracker-color-picker/tracker-colo
 export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
 
   static FIELD_PRESETS: Array<PresetFormat> = [
-    new PresetFormat(fieldTypes.ATTR_TYPE_SHORT_TEXT, "field_icon_shorttext", "Short Text", "A single-line text input"),
-    new PresetFormat(fieldTypes.ATTR_TYPE_LONG_TEXT, "field_icon_longtext", "Long Text", "A multi-line text input"),
+    new PresetFormat(fieldTypes.ATTR_TYPE_TEXT, "field_icon_shorttext", "Short Text", "A single-line text input", (attr)=>{
+      FieldManager.getHelper(fieldTypes.ATTR_TYPE_TEXT)
+        .setPropertyValue(attr, TextFieldHelper.PROPERTY_KEY_INPUT_TYPE, TextFieldHelper.INPUT_TYPE_SHORT)
+    }),
+    new PresetFormat(fieldTypes.ATTR_TYPE_TEXT, "field_icon_longtext", "Long Text", "A multi-line text input",  (attr)=>{
+      FieldManager.getHelper(fieldTypes.ATTR_TYPE_TEXT)
+        .setPropertyValue(attr, TextFieldHelper.PROPERTY_KEY_INPUT_TYPE, TextFieldHelper.INPUT_TYPE_LONG)
+    }),
     new PresetFormat(fieldTypes.ATTR_TYPE_NUMBER, "field_icon_number", "Number", "A real number input"),
     new PresetFormat(fieldTypes.ATTR_TYPE_RATING, "field_icon_rating", "Stars", "A star rating widget"),
     new PresetFormat(fieldTypes.ATTR_TYPE_RATING, "field_icon_likert", "Likert Scale", "A Likert-scale slider", (attr) => {
