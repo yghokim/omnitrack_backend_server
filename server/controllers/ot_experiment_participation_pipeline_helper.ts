@@ -4,6 +4,7 @@ import app from "../app";
 import OTInvitation from "../models/ot_invitation";
 import OTExperiment from "../models/ot_experiment";
 import { AInvitation } from "../../omnitrack/core/research/invitation";
+import { OmniTrackFlagGraph, DependencyLevel } from "../../omnitrack/core/functionality-locks/omnitrack-dependency-graph";
 
 export function selfAssignParticipantToExperiment(user: IUserDbEntity, invitationCode: string, experimentId: string, demographic: any): Promise<IJoinedExperimentInfo> {
   return findInvitation(invitationCode, experimentId)
@@ -73,6 +74,8 @@ function processExperimentAndUser(user: IUserDbEntity, experimentId: string, gro
       if (trackingPackage) {
         if (trackingPackage.data.app && trackingPackage.data.app.lockedProperties) {
           user.appFlags = trackingPackage.data.app.lockedProperties
+        }else{
+          user.appFlags = OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.App)
         }
 
         //inject tracking package
