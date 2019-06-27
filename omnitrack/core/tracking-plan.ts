@@ -16,7 +16,7 @@ const randomstring = require('random-string');
  */
 export class TrackingPlan {
 
-  static isEqual(a: TrackingPlan, b: TrackingPlan): boolean{
+  static isEqual(a: TrackingPlan, b: TrackingPlan): boolean {
     return deepEqual(a.toJson(), b.toJson())
   }
 
@@ -87,6 +87,7 @@ export class TrackingPlan {
 
   static fromJson(json: any): TrackingPlan {
     const plan = new TrackingPlan([], [])
+    plan.app = json.app || { lockedProperties: null }
     plan.trackers = json.trackers || []
     plan.triggers = json.triggers || []
     plan.serviceCodes = json.serviceCodes || []
@@ -231,8 +232,6 @@ export class TrackingPlan {
       lockedProperties: OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.Tracker)
     } as ITrackerDbEntity
 
-    console.log(tracker)
-
     this.trackers.push(tracker)
 
     return tracker
@@ -246,7 +245,7 @@ export class TrackingPlan {
       triggers.forEach(trigger => {
         const trackerIndexInTrigger = trigger.trackers.indexOf(tracker._id)
         if (trackerIndexInTrigger !== -1) {
-          if(trigger.actionType === TriggerConstants.ACTION_TYPE_REMIND){
+          if (trigger.actionType === TriggerConstants.ACTION_TYPE_REMIND) {
             //reminder
             this.removeTrigger(trigger)
           }
@@ -264,7 +263,7 @@ export class TrackingPlan {
     const injectionId = TrackingPlan.generateNewInjectionId(this.injectedIds)
     const fieldPlaceHolder = this.generatePlaceholder("field", injectionId)
     const fieldLocalIdPlaceHolder = this.generatePlaceholder("field_local", injectionId)
-    
+
     const field = {
       _id: fieldPlaceHolder,
       localId: fieldLocalIdPlaceHolder,
@@ -282,7 +281,7 @@ export class TrackingPlan {
 
     FieldManager.getHelper(type).initialize(field)
 
-    if(!tracker.fields){
+    if (!tracker.fields) {
       tracker.fields = []
     }
     tracker.fields.push(field)
@@ -355,8 +354,9 @@ export class TrackingPlan {
     return TrackingPlan.PLACEHOLDER_PREFIX + text.toUpperCase() + "_" + injectedId + TrackingPlan.PLACEHOLDER_SUFFIX
   }
 
-  public toJson(): any{
+  public toJson(): any {
     return {
+      app: deepclone(this.app),
       triggers: deepclone(this.triggers),
       trackers: deepclone(this.trackers),
       serviceCodes: this.serviceCodes

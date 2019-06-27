@@ -157,6 +157,7 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
         lockedProperties: flags
       }
     }
+    this.changeDetector.markForCheck()
   }
 
   /*
