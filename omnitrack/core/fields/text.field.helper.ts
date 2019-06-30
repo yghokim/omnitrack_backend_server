@@ -36,6 +36,13 @@ export class TextFieldHelper extends FieldHelper {
         return PropertyHelperManager.getHelper(EPropertyType.Selection)
     }
   }
+  
+  getPropertyType(propertyKey: string): EPropertyType {
+    switch (propertyKey) {
+      case TextFieldHelper.PROPERTY_KEY_INPUT_TYPE:
+        return EPropertyType.Selection
+    }
+  }
 
   getPropertyDefaultValue(propertyKey: string): any {
     switch (propertyKey) {

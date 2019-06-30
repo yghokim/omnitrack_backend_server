@@ -12,7 +12,7 @@ const otFieldSchema = new mongoose.Schema({
   isRequired: Boolean,
   isHidden: {type: Boolean, default: false},
   isInTrashcan: {type: Boolean, default: false},
-  properties: [{_id: false, key: String, sVal: String}],
+  properties: {type: mongoose.Schema.Types.Mixed, default: {}},
   userCreatedAt: Number,
   userUpdatedAt: Number,
   lockedProperties: {type: mongoose.Schema.Types.Mixed, default: {}},

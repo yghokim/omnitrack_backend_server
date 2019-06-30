@@ -72,6 +72,13 @@ export class TimeSpanFieldHelper extends FieldHelper {
       return PropertyHelperManager.getHelper(EPropertyType.Selection)
     }
   }
+  
+  getPropertyType(propertyKey: string): EPropertyType {
+    switch (propertyKey) {
+      case TimeSpanFieldHelper.PROPERTY_GRANULARITY:
+      return EPropertyType.Selection
+    }
+  }
 
   getPropertyConfig(propertyKey: string): any {
     switch (propertyKey) {

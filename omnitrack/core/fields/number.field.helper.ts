@@ -45,6 +45,13 @@ export class NumberFieldHelper extends FieldHelper {
     }
   }
 
+  getPropertyType(propertyKey: string): EPropertyType {
+    switch (propertyKey) {
+      case NumberFieldHelper.PROPERTY_KEY_NUMBER_STYLE:
+        return EPropertyType.NumberStyle
+    }
+  }
+
   getSmallIconType(field: IFieldDbEntity): string {
     return FieldIconTypes.ATTR_ICON_SMALL_NUMBER
   }

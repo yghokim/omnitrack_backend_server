@@ -1,7 +1,10 @@
 import { EPropertyType } from "./property.types";
 
-export default abstract class PropertyHelper<T> {
-  abstract type: EPropertyType
-  abstract deserializePropertyValue(serialized: string): T
-  abstract serializePropertyValue(propertyValue: T): string
+export default class PropertyHelper<T> {
+  parsePropertyValue(json: any): T{
+    return json as T
+  }
+  convertPropertyValueToPureJson(propertyValue: T): any{
+    return propertyValue
+  }
 }

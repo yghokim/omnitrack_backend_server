@@ -72,12 +72,6 @@ function processExperimentAndUser(user: IUserDbEntity, experimentId: string, gro
       } as IJoinedExperimentInfo
 
       if (trackingPackage) {
-        if (trackingPackage.data.app && trackingPackage.data.app.lockedProperties) {
-          user.appFlags = trackingPackage.data.app.lockedProperties
-        }else{
-          user.appFlags = OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.App)
-        }
-
         //inject tracking package
         return app.omnitrackModule().injectPackage(user._id, trackingPackage.data,
           { injected: true, experiment: experiment._id }).then(res => {
