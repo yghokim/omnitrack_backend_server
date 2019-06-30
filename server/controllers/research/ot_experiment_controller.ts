@@ -17,7 +17,7 @@ import { userCtrl } from '../ot_user_controller';
 import C from '../../server_consts';
 import { IUserDbEntity } from '../../../omnitrack/core/db-entity-types';
 import { generateNewPackageKey } from '../../models/ot_experiment';
-
+import { IExperimentGroupDbEntity, IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 
 export default class OTExperimentCtrl {
 
@@ -583,6 +583,22 @@ export default class OTExperimentCtrl {
       console.log(err)
       res.status(500).send(err)
     })
+  }
+
+  async findGroupsWithPlan(experimentId: string, planKey: string): Promise<Array<IExperimentGroupDbEntity>>{
+    const experiment = await OTExperiment.findById(experimentId).lean() as IExperimentDbEntity
+    if(experiment){
+      return experiment.groups.filter(g => g.trackingPlanKey === planKey)
+    }else throw {error : C.ERROR_CODE_ILLEGAL_ARTUMENTS}
+  }
+
+  async findParticipantsWithPlan(experimentId: string, planKey: string): Promise<Array<IUserDbEntity>>{
+    const groupsWithPlan = await this.findGroupsWithPlan(experimentId, planKey)
+    if(groupsWithPlan.length > 0){
+      return OTUser.find({experiment: experimentId, group: {$in: groupsWithPlan}}, USER_PROJECTION_EXCLUDE_CREDENTIAL).lean()
+    }else{
+      return []
+    }
   }
 
   upsertExperimentGroup = (req, res) => {

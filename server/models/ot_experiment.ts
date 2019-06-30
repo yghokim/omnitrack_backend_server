@@ -35,7 +35,7 @@ const otExperimentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   maxExperimentalDay: { type: Number, default: Number.MAX_SAFE_INTEGER },
   finishDate: {type: Date, default: null},
-  groups: { type: [otExperimentGroupSchema], default: [{ _id: uuid.v1(), name: "Default", participants: [] }] },
+  groups: { type: [otExperimentGroupSchema], default: [{ _id: uuid.v1(), name: "Default", trackingPlanKey: null }] },
   manager: { type: String, ref: 'OTResearcher', required: true },
   visualizationConfigs: { type: mongoose.Schema.Types.Mixed, default: () => new VisualizationConfigs() },
   trackingPlans: { type: [otExperimentTrackingPlanSchema], default: [] },

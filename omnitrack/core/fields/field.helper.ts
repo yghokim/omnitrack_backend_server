@@ -67,6 +67,16 @@ export default abstract class FieldHelper {
     })
   }
 
+  mergeFieldProperties(source: IFieldDbEntity, dest: IFieldDbEntity, writeTo: IFieldDbEntity = dest){
+    this.propertyKeys.forEach(key => {
+      this.setPropertyValue(writeTo, key, this.mergeFieldPropertyValue(source, dest, key, this.getParsedPropertyValue(source, key), this.getParsedPropertyValue(dest, key)))
+    })
+  }
+
+  mergeFieldPropertyValue(source: IFieldDbEntity, dest: IFieldDbEntity, propertyKey: string, sourceValue: any, destValue: any): any{
+    return sourceValue
+  }
+
   abstract getPropertyName(propertyKey: string): string
 
   abstract getSmallIconType(field: IFieldDbEntity): string

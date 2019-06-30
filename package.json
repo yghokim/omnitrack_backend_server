@@ -50,6 +50,7 @@
     "android-versions": "^1.4.0",
     "angular-notifier": "^4.1.1",
     "app-metadata": "^0.1.26",
+    "array-object-merge": "^1.1.1",
     "bcryptjs": "^2.4.3",
     "bestzip": "^2.1.4",
     "bigdecimal": "^0.6.1",
