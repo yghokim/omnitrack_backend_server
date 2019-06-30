@@ -76,7 +76,7 @@ export interface IFieldDbEntity {
   isRequired?: boolean,
   isHidden?: boolean,
   isInTrashcan?: boolean,
-  properties?: [{ key: string, sVal: string }],
+  properties?: any,
   userCreatedAt?: number,
   userUpdatedAt?: number,
   lockedProperties?: any,

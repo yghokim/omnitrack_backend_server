@@ -16,10 +16,9 @@
           "fallbackPolicy": "intrinsic",
           "fallbackPreset": null,
           "connection": null,
-          "properties": [{
-            "key": "granularity",
-            "sVal": "1"
-          }],
+          "properties": {
+            "granularity": 1
+          },
           "isInTrashcan": false,
           "isHidden": false,
           "flags": {
@@ -38,10 +37,8 @@
           "fallbackPolicy": "intrinsic",
           "fallbackPreset": null,
           "connection": null,
-          "properties": [{
-            "key": "options",
-            "sVal": "{\"type\":1,\"stars\":5,\"left\":1,\"right\":3,\"leftLabel\":\"very mild\",\"midLabel\":\"\",\"rightLabel\":\"very strong\",\"fractional\":true}"
-          }],
+          "properties": { "options": {"type":1,"stars":5,"left":1,"right":3,"leftLabel":"very mild","midLabel":"","rightLabel":"very strong","fractional":true}
+          },
           "isInTrashcan": false,
           "isHidden": false,
           "flags": {
@@ -96,15 +93,10 @@
           "fallbackPolicy": "null",
           "fallbackPreset": null,
           "connection": null,
-          "properties": [{
-              "key": "multiSelection",
-              "sVal": "true"
-            },
-            {
-              "key": "entries",
-              "sVal": "{\"seed\":5,\"entries\":[{\"id\":0,\"val\":\"Happy\"},{\"id\":1,\"val\":\"Sad\"},{\"id\":2,\"val\":\"Pleasant\"},{\"id\":3,\"val\":\"Lonely\"},{\"id\":4,\"val\":\"Depressed\"}]}"
-            }
-          ],
+          "properties": {
+            "multiSelection": true,
+            "entries": {"seed":5,"entries":[{"id":0,"val":"Happy"},{"id":1,"val":"Sad"},{"id":2,"val":"Pleasant"},{"id":3,"val":"Lonely"},{"id":4,"val":"Depressed"}]}
+          },
           "isInTrashcan": false,
           "isHidden": false,
           "flags": {

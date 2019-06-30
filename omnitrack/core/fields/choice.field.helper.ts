@@ -76,6 +76,17 @@ export class ChoiceFieldHelper extends FieldHelper {
     }
   }
 
+  getPropertyType(propertyKey: string): EPropertyType {
+    switch (propertyKey) {
+      case ChoiceFieldHelper.PROPERTY_MULTISELECTION:
+        return EPropertyType.Boolean
+      case ChoiceFieldHelper.PROPERTY_ENTRIES:
+        return EPropertyType.ChoiceEntryList
+      case ChoiceFieldHelper.PROPERTY_ALLOW_APPENDING_FROM_VIEW:
+        return EPropertyType.Boolean
+    }
+  }
+
   getChoiceEntryList(field: IFieldDbEntity): UniqueStringEntryList {
     return this.getParsedPropertyValue<UniqueStringEntryList>(field, ChoiceFieldHelper.PROPERTY_ENTRIES)
   }

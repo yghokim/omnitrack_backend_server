@@ -61,6 +61,13 @@ export class TimePointFieldHelper extends FieldHelper {
     }
   }
 
+  getPropertyType(propertyKey: string): EPropertyType {
+    switch (propertyKey) {
+      case TimePointFieldHelper.PROPERTY_GRANULARITY:
+        return EPropertyType.Selection
+    }
+  }
+
   getPropertyConfig(propertyKey: string): any {
     switch (propertyKey) {
       case TimePointFieldHelper.PROPERTY_GRANULARITY:

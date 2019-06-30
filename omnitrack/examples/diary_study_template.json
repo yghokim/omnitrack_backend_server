@@ -15,14 +15,10 @@
         {
           "isHidden": false,
           "isInTrashcan": false,
-          "properties": [
-            { "key": "multiSelection", "sVal": "false" },
-            {
-              "key": "entries",
-              "sVal":
-                "{\"seed\":2,\"entries\":[{\"id\":0,\"val\":\"시작 시각\"},{\"id\":1,\"val\":\"끝낸 시각\"}]}"
-            }
-          ],
+          "properties": {
+            "multiSelection": false,
+            "entries": {"seed":2,"entries":[{"id":0,"val":"시작 시각"},{"id":1,"val":"끝낸 시각"}]}
+          },
           "_id": "%{ATTRIBUTE_2}%",
           "localId": "%{ATTRIBUTE_LOCAL_2}%",
           "type": 6,
@@ -39,7 +35,7 @@
         {
           "isHidden": false,
           "isInTrashcan": false,
-          "properties": [{ "key": "granularity", "sVal": "1" }],
+          "properties": {"granularity": 1},
           "_id": "%{ATTRIBUTE_3}%",
           "localId": "%{ATTRIBUTE_LOCAL_3}%",
           "type": 1,
@@ -56,17 +52,10 @@
         {
           "isHidden": false,
           "isInTrashcan": false,
-          "properties": [
-            {
-              "key": "style",
-              "sVal":
-                "{\"unitPosition\":2,\"unit\":\"분\",\"pluralize\":false,\"fraction\":0,\"comma\":3}"
-            },
-            {
-              "key": "buttonUnit",
-              "sVal": "30"
-            }
-          ],
+          "properties": {
+            "style": {"unitPosition":2,"unit":"분","pluralize":false,"fraction":0,"comma":3},
+            "buttonUnit": 30
+          },
           "_id": "%{ATTRIBUTE_4}%",
           "localId": "%{ATTRIBUTE_LOCAL_4}%",
           "type": 0,
@@ -83,15 +72,11 @@
         {
           "isHidden": false,
           "isInTrashcan": false,
-          "properties": [
-            { "key": "multiSelection", "sVal": "true" },
-            { "key": "allowAppendingFromView", "sVal": "true" },
-            {
-              "key": "entries",
-              "sVal":
-                "{\"seed\":1,\"entries\":[{\"id\":0,\"val\":\"서류처리\"}, {\"id\":1,\"val\":\"이메일 쓰기\"}]}"
-            }
-          ],
+          "properties": {
+            "multiSelection": true,
+            "allowAppendingFromView": true,
+            "entries": {"seed":1,"entries":[{"id":0,"val":"서류처리"}, {"id":1,"val":"이메일 쓰기"}]}
+          },
           "_id": "%{ATTRIBUTE_7}%",
           "localId": "%{ATTRIBUTE_LOCAL_7}%",
           "type": 6,
@@ -108,14 +93,10 @@
         {
           "isHidden": false,
           "isInTrashcan": false,
-          "properties": [
-            { "key": "multiSelection", "sVal": "false" },
-            {
-              "key": "entries",
-              "sVal":
-                "{\"seed\":2,\"entries\":[{\"id\":0,\"val\":\"보통\"},{\"id\":1,\"val\":\"생산적\"},{\"id\":2,\"val\":\"매우 생산적\"}]}"
-            }
-          ],
+          "properties": {
+            "multiSelection": false,
+            "entries": {"seed":2,"entries":[{"id":0,"val":"보통"},{"id":1,"val":"생산적"},{"id":2,"val":"매우 생산적"}]}
+          },
           "_id": "%{ATTRIBUTE_5}%",
           "localId": "%{ATTRIBUTE_LOCAL_5}%",
           "type": 6,
@@ -132,9 +113,9 @@
         {
           "isHidden": false,
           "isInTrashcan": false,
-          "properties": [
-            { "key": "type", "sVal": "1" }
-          ],
+          "properties": {
+            "type": 1
+          },
           "_id": "%{ATTRIBUTE_6}%",
           "localId": "%{ATTRIBUTE_LOCAL_6}%",
           "type": 3,
@@ -151,15 +132,11 @@
         {
           "isHidden": false,
           "isInTrashcan": false,
-          "properties": [
-            { "key": "multiSelection", "sVal": "false" },
-            { "key": "allowAppendingFromView", "sVal": "true" },
-            {
-              "key": "entries",
-              "sVal":
-                "{\"seed\":2,\"entries\":[{\"id\":0,\"val\":\"사무실\"},{\"id\":1,\"val\":\"집\"},{\"id\":2,\"val\":\"카페\"}]}"
-            }
-          ],
+          "properties": {
+            "multiSelection": false,
+            "allowAppendingFromView": true,
+            "entries": {"seed":2,"entries":[{"id":0,"val":"사무실"},{"id":1,"val":"집"},{"id":2,"val":"카페"}]}
+          },
           "_id": "%{ATTRIBUTE_8}%",
           "localId": "%{ATTRIBUTE_LOCAL_8}%",
           "type": 6,
@@ -175,15 +152,11 @@
         {
           "isHidden": false,
           "isInTrashcan": false,
-          "properties": [
-            { "key": "multiSelection", "sVal": "true" },
-            { "key": "allowAppendingFromView", "sVal": "true" },
-            {
-              "key": "entries",
-              "sVal":
-                "{\"seed\":3,\"entries\":[{\"id\":0,\"val\":\"데스크탑\"},{\"id\":1,\"val\":\"스마트폰\"},{\"id\":2,\"val\":\"노트북\"},{\"id\":3,\"val\":\"태블릿\"}]}"
-            }
-          ],
+          "properties": {
+            "multiSelection": true,
+            "allowAppendingFromView": true,
+            "entries": {"seed":3,"entries":[{"id":0,"val":"데스크탑"},{"id":1,"val":"스마트폰"},{"id":2,"val":"노트북"},{"id":3,"val":"태블릿"}]}
+          },
           "_id": "%{ATTRIBUTE_9}%",
           "localId": "%{ATTRIBUTE_LOCAL_9}%",
           "type": 6,
@@ -200,7 +173,7 @@
         {
           "isHidden": false,
           "isInTrashcan": false,
-          "properties": [],
+          "properties": {},
           "_id": "%{ATTRIBUTE_10}%",
           "localId": "%{ATTRIBUTE_LOCAL_10}%",
           "type": 8,
@@ -216,13 +189,9 @@
         {
           "isHidden": false,
           "isInTrashcan": false,
-          "properties": [
-            {
-              "key": "options",
-              "sVal":
-                "{\"type\":1,\"stars\":5,\"left\":-2,\"right\":2,\"leftLabel\":\"매우 불행했다\",\"midLabel\":\"그저 그랬다\",\"rightLabel\":\"매우 행복했다\",\"fractional\":true}"
-            }
-          ],
+          "properties": {
+            "options": {"type":1,"stars":5,"left":-2,"right":2,"leftLabel":"매우 불행했다","midLabel":"그저 그랬다","rightLabel":"매우 행복했다","fractional":true}
+          },
           "_id": "%{ATTRIBUTE_11}%",
           "localId": "%{ATTRIBUTE_LOCAL_11}%",
           "type": 7,
@@ -244,7 +213,7 @@
         {
           "isHidden": false,
           "isInTrashcan": false,
-          "properties": [{ "key": "granularity", "sVal": "0" }],
+          "properties": { "granularity": 0 },
           "_id": "%{ATTRIBUTE_0}%",
           "localId": "%{ATTRIBUTE_LOCAL_0}%",
           "type": 1,
@@ -265,7 +234,7 @@
         {
           "isHidden": false,
           "isInTrashcan": false,
-          "properties": [{"key": "type", "sVal": "1"}],
+          "properties": {"type": 1},
           "_id": "%{ATTRIBUTE_1}%",
           "localId": "%{ATTRIBUTE_LOCAL_1}%",
           "type": 3,

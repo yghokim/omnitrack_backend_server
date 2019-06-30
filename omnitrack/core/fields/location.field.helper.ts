@@ -6,6 +6,7 @@ import TypedStringSerializer from '../typed_string_serializer';
 import { LatLng } from "../datatypes/field_datatypes";
 import FieldIconTypes from "./field-icon-types";
 import { DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE, FallbackPolicyResolver } from "./fallback-policies";
+import { EPropertyType } from "../properties/property.types";
 
 export class LocationFieldHelper extends FieldHelper {
   get typeName(): string{return "Location"}
@@ -30,6 +31,10 @@ export class LocationFieldHelper extends FieldHelper {
   getPropertyHelper<T>(propertyKey: string): PropertyHelper<T> {
     return null
   }
+  getPropertyType(propertyKey: string): EPropertyType {
+    return null
+  }
+  
 
   getSmallIconType(field: IFieldDbEntity): string {
     return FieldIconTypes.ATTR_ICON_SMALL_LOCATION

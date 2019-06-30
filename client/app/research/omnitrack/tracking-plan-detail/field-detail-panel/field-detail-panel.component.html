@@ -20,7 +20,7 @@
   </div>
   <hr class="no-margin">
   <div class="form-group" *ngFor="let propertyKey of getPropertyKeys()"
-    [ngSwitch]="getPropertyHelper(propertyKey).type">
+    [ngSwitch]="getPropertyType(propertyKey)">
     <app-boolean-property-view *ngSwitchCase="'Boolean'" [title]="getPropertyName(propertyKey)"
       [propertyValue]="fieldHelper.getParsedPropertyValue(field, propertyKey)"
       (propertyValueChange)="fieldHelper.setPropertyValue(field, propertyKey, $event)"></app-boolean-property-view>

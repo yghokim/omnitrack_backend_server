@@ -5,6 +5,7 @@ import fieldTypes from "./field-types";
 import TypedStringSerializer from "../typed_string_serializer";
 import FieldIconTypes from "./field-icon-types";
 import { ServerFile } from "../datatypes/field_datatypes";
+import { EPropertyType } from "../properties/property.types";
 
 export class AudioRecordFieldHelper extends FieldHelper{
     typeName: string = "Audio Record";    
@@ -18,6 +19,11 @@ export class AudioRecordFieldHelper extends FieldHelper{
     getPropertyHelper<T>(propertyKey: string): PropertyHelper<T> {
         return null
     }
+    
+    getPropertyType(propertyKey: string): EPropertyType {
+      return null
+    }
+
     getSmallIconType(field: IFieldDbEntity): string {
         return FieldIconTypes.ATTR_ICON_SMALL_AUDIO
     }

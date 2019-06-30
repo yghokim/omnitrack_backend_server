@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { IFieldDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
 import FieldManager from '../../../../../../omnitrack/core/fields/field.manager';
 import FieldHelper from '../../../../../../omnitrack/core/fields/field.helper';
-import PropertyHelper from '../../../../../../omnitrack/core/properties/property.helper.base';
+import { EPropertyType } from '../../../../../../omnitrack/core/properties/property.types';
 
 @Component({
   selector: 'app-field-detail-panel',
@@ -46,8 +46,8 @@ export class FieldDetailPanelComponent implements OnInit {
     return  this.fieldHelper.propertyKeys
   }
 
-  getPropertyHelper(propertyKey: string): PropertyHelper<any>{
-    return this.fieldHelper.getPropertyHelper(propertyKey)
+  getPropertyType(propertyKey: string): EPropertyType{
+    return this.fieldHelper.getPropertyType(propertyKey)
   }
 
   getPropertyName(propertyKey: string): string{

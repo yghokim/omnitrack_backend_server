@@ -17,7 +17,9 @@ export class EntryListPropertyViewComponent extends PropertyViewBase<UniqueStrin
 
   private _internalSubscriptions = new Subscription()
 
-  idList: Array<number>
+  get idList(): Array<number>{
+    return this.propertyValue.entries.map(e => e.id)
+  }
 
   constructor(private matDialog: MatDialog, private changeDetector: ChangeDetectorRef) {
     super()
@@ -25,10 +27,6 @@ export class EntryListPropertyViewComponent extends PropertyViewBase<UniqueStrin
 
   ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
-  }
-
-  protected onSetPropertyValue(value: UniqueStringEntryList) {
-    this.idList = value.entries.map(e => e.id)
   }
 
   drop(event: CdkDragDrop<any[]>) {

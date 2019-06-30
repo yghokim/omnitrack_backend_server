@@ -1,11 +1,8 @@
 import { EPropertyType } from "./property.types";
 import PropertyHelper from "./property.helper.base";
-import RatingOptionsPropertyHelper from "./rating_options.property.helper";
-import NumberStylePropertyHelper from "./number_style.property.helper";
-import NumberPropertyHelper from './number.property.helper';
-import ChoiceEntryListPropertyHelper from "./choice-entry-list.property.helper";
-import BooleanPropertyHelper from "./boolean.property.helper";
-import SelectionPropertyHelper from './selection.property.helper';
+import { RatingOptions } from "../datatypes/rating_options";
+import { NumberStyle } from "../datatypes/number_style";
+import { UniqueStringEntryList } from "../datatypes/unique-string-entry-list";
 
 export default class PropertyHelperManager {
   private static dict = {}
@@ -17,22 +14,22 @@ export default class PropertyHelperManager {
     } else {
       switch (type) {
         case EPropertyType.RatingOptions:
-          PropertyHelperManager.dict[type] = new RatingOptionsPropertyHelper()
+          PropertyHelperManager.dict[type] = new PropertyHelper<RatingOptions>()
           break;
         case EPropertyType.NumberStyle:
-          PropertyHelperManager.dict[type] = new NumberStylePropertyHelper()
+          PropertyHelperManager.dict[type] = new PropertyHelper<NumberStyle>()
           break;
         case EPropertyType.ChoiceEntryList:
-          PropertyHelperManager.dict[type] = new ChoiceEntryListPropertyHelper()
+          PropertyHelperManager.dict[type] = new PropertyHelper<UniqueStringEntryList>()
           break;
         case EPropertyType.Boolean:
-          PropertyHelperManager.dict[type] = new BooleanPropertyHelper()
+          PropertyHelperManager.dict[type] = new PropertyHelper<boolean>()
           break;
         case EPropertyType.Selection:
-          PropertyHelperManager.dict[type] = new SelectionPropertyHelper()
+          PropertyHelperManager.dict[type] = new PropertyHelper<number>()
           break;
         case EPropertyType.Number:
-          PropertyHelperManager.dict[type] = new NumberPropertyHelper()
+          PropertyHelperManager.dict[type] = new PropertyHelper<number>()
           break;
       }
       return PropertyHelperManager.dict[type]

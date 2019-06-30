@@ -64,6 +64,13 @@ export class RatingFieldHelper extends FieldHelper {
     }
   }
 
+  getPropertyType(propertyKey: string): EPropertyType {
+    switch (propertyKey) {
+      case RatingFieldHelper.PROPERTY_KEY_OPTIONS:
+      return EPropertyType.RatingOptions
+    }
+  }
+
   getSmallIconType(field: IFieldDbEntity): string {
     return FieldIconTypes.ATTR_ICON_SMALL_STAR
   }
