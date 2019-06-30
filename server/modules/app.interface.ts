@@ -1,5 +1,4 @@
 import PushModule from "./push.module";
-import CommandModule from "./command.module";
 import ServerModule from "./server.module";
 import OmniTrackModule from "./omnitrack.module";
 import { Application } from "express-serve-static-core";
@@ -7,7 +6,6 @@ import SocketModule from "./socket.module";
 
 export default interface AppInterface {
   pushModule(): PushModule
-  commandModule(): CommandModule
   serverModule(): ServerModule
   omnitrackModule(): OmniTrackModule
 }
@@ -18,9 +16,6 @@ export class AppWrapper implements AppInterface {
 
   pushModule(): PushModule {
     return this.omnitrackModule().pushModule
-  }
-  commandModule(): CommandModule {
-    return this.omnitrackModule().commandModule
   }
   serverModule(): ServerModule {
     return this.omnitrackModule().serverModule

@@ -4,9 +4,7 @@ import OTTriggerCtrl from './controllers/ot_trigger_controller';
 import { userCtrl } from './controllers/ot_user_controller';
 import { itemCtrl } from './controllers/ot_item_controller';
 import otUsageLogCtrl from './controllers/ot_usage_log_controller';
-import OTResearchCtrl from './controllers/research/ot_research_controller';
 import OTUser from './models/ot_user';
-import AdminCtrl from './controllers/admin_controller';
 import BinaryStorageCtrl from './controllers/binary_storage_controller';
 import { experimentCtrl } from './controllers/research/ot_experiment_controller';
 import { clientBinaryCtrl } from './controllers/research/ot_client_binary_controller';
@@ -27,7 +25,6 @@ export class ClientApiRouter extends RouterWrapper {
     const triggerCtrl = new OTTriggerCtrl();
     const syncCtrl = new OTSyncCtrl(trackerCtrl, triggerCtrl, itemCtrl)
     const storageCtrl = new BinaryStorageCtrl()
-    const adminCtrl = new AdminCtrl()
 
     const certifiedDeviceCheckMiddleware = (req: Request, res, next) => {
       const fingerPrint = req.get("OTFingerPrint")
@@ -83,19 +80,7 @@ export class ClientApiRouter extends RouterWrapper {
 
     // admin
     this.router.route('/admin/package/extract').get(trackingPackageCtrl.getExtractedTrackingPackageJson)
-    this.router.route('/admin/package/inject/:userId/:packageName?').get(adminCtrl.injectPackageToUser)
-
-    this.router.route('/admin/trigger/attach_tracker/:triggerId').get(adminCtrl.attachTrackerToTrigger)
-    this.router.route('/admin/trigger/set_switch/:triggerId/:isOn').get(adminCtrl.setTriggerSwitch)
-    this.router.route('/admin/tracker/remove/:trackerId').get(adminCtrl.removeTracker)
-    this.router.route('/admin/user/remove/:userId').get(adminCtrl.removeUser)
-
-    this.router.route("/admin/user/migrate").get(adminCtrl.migrateUserTrackingData)
-
-    this.router.route("/admin/tracker/field/property/get/:trackerId/:fieldLocalId/:propertyKey").get(adminCtrl.getFieldPropertyValue)
-
-    this.router.route("/admin/tracker/field/property/set/:propertyKey").get(adminCtrl.setFieldPropertySerializedValue)
-
+    
     this.router.post('/usage_logs/batch/insert', certifiedDeviceCheckMiddleware, otUsageLogCtrl.insertMany)
 
     // batch

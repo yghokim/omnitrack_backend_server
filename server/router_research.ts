@@ -1,6 +1,5 @@
 import { IEnvironment } from './env';
 import { OTResearchAuthCtrl } from './controllers/research/ot_research_auth_controller';
-import AdminCtrl from "./controllers/admin_controller";
 import OTResearchCtrl from './controllers/research/ot_research_controller';
 import { experimentCtrl } from './controllers/research/ot_experiment_controller';
 import { messageCtrl } from './controllers/research/ot_message_controller';
@@ -26,7 +25,6 @@ import { Request } from 'express';
 export class ResearchRouter extends RouterWrapper {
 
   private readonly researchCtrl = new OTResearchCtrl()
-  private readonly adminCtrl = new AdminCtrl()
   private readonly storageCtrl = new BinaryStorageCtrl()
   private readonly usageLogCtrl = new OTUsageLogCtrl()
   private readonly researchAuthCtrl = new OTResearchAuthCtrl()

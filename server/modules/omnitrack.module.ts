@@ -2,7 +2,6 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { ModelConverter } from '../../omnitrack/core/model_converter'
 import ServerModule from './server.module';
-import CommandModule from './command.module';
 import PushModule from './push.module';
 import { TrackingPlan } from '../../omnitrack/core/tracking-plan'
 import OTTracker from '../models/ot_tracker'
@@ -23,13 +22,11 @@ import FieldManager from '../../omnitrack/core/fields/field.manager';
 export default class OmniTrackModule {
 
   public readonly serverModule: ServerModule
-  public readonly commandModule: CommandModule
   public readonly pushModule: PushModule
   public readonly socketModule: SocketModule
 
   constructor(app: any) {
     this.serverModule = new ServerModule()
-    this.commandModule = new CommandModule()
     this.pushModule = new PushModule()
     this.socketModule = new SocketModule(app.get("io"))
   }
