@@ -6,17 +6,18 @@
   </div>
 
   <div class="form-group">
-    <app-selection-property-view title="Condition Type" [(propertyValue)]="trigger.conditionType"
+    <app-selection-property-view title="Condition Type" [(propertyValue)]="triggerConditionType"
       [stringList]="['Time-based', 'Data-driven']" [direction]="'vertical'"></app-selection-property-view>
   </div>
 
   <div class="form-group">
-    <app-text-property-view title="Alias" [(propertyValue)]="trigger.alias" placeholder="Not shown to participants"></app-text-property-view>
+    <app-text-property-view title="Alias" [(propertyValue)]="trigger.alias" placeholder="Not shown to participants">
+    </app-text-property-view>
   </div>
 
   <div class="form-group">
-      <app-boolean-property-view title="Switch" [(propertyValue)]="trigger.isOn"></app-boolean-property-view>
-    </div>
+    <app-boolean-property-view title="Switch" [(propertyValue)]="trigger.isOn"></app-boolean-property-view>
+  </div>
 
   <hr class="no-margin">
 
@@ -119,7 +120,20 @@
     </ng-container>
     <ng-container *ngSwitchCase="1">
       <!--Data driven condition-->
-
+      <div class="form-group">
+        <label class="small">Measure to watch</label>
+        <app-measure-factory-selector [(selectedFactory)]="attachedMeasureFactory"
+          [factories]="attachableMeasureFactories"></app-measure-factory-selector>
+      </div>
+      <div class="form-group">
+        <app-number-property-view title="Threshold" [(propertyValue)]="trigger.condition.threshold">
+        </app-number-property-view>
+      </div>
+      <div class="form-group">
+        <app-selection-property-view title="Comparison Method" [(propertyValue)]="trigger.condition.comparison"
+          [list]="[{'id': 'exceed', 'name':'Exceeds the threshold'}, {'id':'drop', 'name' : 'Drops below the threshold'}]">
+        </app-selection-property-view>
+      </div>
     </ng-container>
   </ng-container>
 
@@ -156,26 +170,29 @@
     <ng-container *ngSwitchCase="1">
       <!--Logging Trigger-->
       <div class="form-group">
-        <app-boolean-property-view title="Send notification on logging" [(propertyValue)]="trigger.action.notify"></app-boolean-property-view>
+        <app-boolean-property-view title="Send notification on logging" [(propertyValue)]="trigger.action.notify">
+        </app-boolean-property-view>
       </div>
       <div class="form-group">
         <div class="flex-container flex-align-items-center flex-stretch">
           <label class="small no-margin">Assigned Trackers</label>
-          <button mat-stroked-button class="mat-button-small" color="accent" (click)="onAssignNewTrackerClicked()" *ngIf="getAssignableTrackers().length > 0">Add</button>
+          <button mat-stroked-button class="mat-button-small" color="accent" (click)="onAssignNewTrackerClicked()"
+            *ngIf="getAssignableTrackers().length > 0">Add</button>
         </div>
         <div class="assigned-trackers">
-          <div class="small text-color-warn" *ngIf="trigger.trackers==null || trigger.trackers.length === 0">No trackers assigned.</div>
+          <div class="small text-color-warn" *ngIf="trigger.trackers==null || trigger.trackers.length === 0">No trackers
+            assigned.</div>
           <div class="tracker-list" *ngIf="trigger.trackers && trigger.trackers.length > 0">
             <div class="tracker-element-wrapper" *ngFor="let trackerId of trigger.trackers">
-                <div class="tracker-element" (click)="onTrackerRemoveClicked(trackerId)">
-                    <div class="name">
-                      {{getTrackerById(trackerId).name}}
-                    </div>
-                    <div class="flex-filler"></div>
-                    <button mat-icon-button class="tiny text-color-darkgray">
-                      <mat-icon class="material-icons">clear</mat-icon>
-                    </button>
-                  </div>
+              <div class="tracker-element" (click)="onTrackerRemoveClicked(trackerId)">
+                <div class="name">
+                  {{getTrackerById(trackerId).name}}
+                </div>
+                <div class="flex-filler"></div>
+                <button mat-icon-button class="tiny text-color-darkgray">
+                  <mat-icon class="material-icons">clear</mat-icon>
+                </button>
+              </div>
             </div>
           </div>
         </div>

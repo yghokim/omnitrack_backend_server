@@ -1,13 +1,17 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ITriggerDbEntity, ITrackerDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
 import { TriggerConstants } from '../../../../../../omnitrack/core/trigger/trigger-constants';
-import { TimeCondition } from '../../../../../../omnitrack/core/trigger/trigger-condition';
+import { TimeCondition, DataDrivenCondition } from '../../../../../../omnitrack/core/trigger/trigger-condition';
 import { merge } from '../../../../../../shared_lib/utils';
 import * as moment from 'moment';
 import { Subscription } from 'rxjs';
 import { TrackingPlanService } from '../../tracking-plan.service';
 import { MatBottomSheet } from '@angular/material';
 import { TrackerPickerComponent } from '../tracker-picker/tracker-picker.component';
+import { AMeasureFactory, IFactoryMeasure } from '../../../../../../omnitrack/core/value-connection/measure-factory';
+import { MeasureFactoryManager } from '../../../../../../omnitrack/core/value-connection/measure-factory.manager';
+import { ServiceManager } from '../../../../../../omnitrack/core/external-services/external-service.manager';
+import TypedStringSerializer from '../../../../../../omnitrack/core/typed_string_serializer';
 
 @Component({
   selector: 'app-trigger-detail-panel',
@@ -58,6 +62,26 @@ export class TriggerDetailPanelComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this._internalSubscriptions.unsubscribe()
+  }
+
+  get triggerConditionType(): number {
+    return this.trigger.conditionType
+  }
+
+  set triggerConditionType(type: number) {
+    if (this.trigger.conditionType != type && type != null) {
+      this.trigger.conditionType = type
+      let defaultCondition
+      switch (type) {
+        case TriggerConstants.CONDITION_TYPE_TIME:
+          defaultCondition = new TimeCondition()
+          break;
+        case TriggerConstants.CONDITION_TYPE_DATA:
+          defaultCondition = new DataDrivenCondition()
+          break;
+      }
+      this.trigger.condition = merge(defaultCondition, this.trigger.condition, true, true)
+    }
   }
 
   onTimeConditionTypeChanged(cType: number) {
@@ -136,11 +160,36 @@ export class TriggerDetailPanelComponent implements OnInit, OnDestroy {
     this.trigger.condition.iSec = original.hour * 3600 + original.minute * 60 + original.second
   }
 
+  get attachableMeasureFactories(): Array<AMeasureFactory> {
+    return ServiceManager.measureFactories.filter(f => f.isDemandingUserInput !== true && TypedStringSerializer.isNumeric(f.dataTypeName))
+  }
+
+  get attachedMeasureFactory(): AMeasureFactory {
+    if (this.trigger.condition.measure && this.trigger.condition.measure.code) {
+      return MeasureFactoryManager.getMeasureFactoryByCode(this.trigger.condition.measure.code)
+    } else return null
+  }
+
+  set attachedMeasureFactory(factory: AMeasureFactory) {
+    if (factory) {
+      if (this.trigger.condition.measure) {
+        this.trigger.condition.measure.code = factory.code
+      } else {
+        this.trigger.condition.measure = {
+          code: factory.code,
+          args: null
+        } as IFactoryMeasure
+      }
+    } else {
+      this.trigger.condition.measure = null
+    }
+  }
+
   getTrackerById(id: string): ITrackerDbEntity {
     return this.planService.getTracker(id)
   }
 
-  getAssignableTrackers(): Array<ITrackerDbEntity>{
+  getAssignableTrackers(): Array<ITrackerDbEntity> {
     return this.planService.currentPlan.trackers.filter(t =>
       this.trigger.trackers != null ? (this.trigger.trackers.indexOf(t._id) === -1) : true)
   }

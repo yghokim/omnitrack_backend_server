@@ -3,10 +3,11 @@
     <label class="small">Attached Measure Factory</label>
     <app-measure-factory-selector [factories]="getAttachableFactories()" [(selectedFactory)]="selectedFactory"></app-measure-factory-selector>
   </div>
-  <div class="form-group" *ngIf="getTimeQueryPresets() != null && getTimeQueryPresets().length > 0">
+  <div class="form-group" *ngIf="selectedFactory && selectedFactory.isRangedQueryAvailable === true && getTimeQueryPresets() != null && getTimeQueryPresets().length > 0">
     <app-selection-property-view title="Time Query" [stringList]="getTimeQueryPresetNames()" 
     [propertyValue] = "getTimeQueryPresets().indexOf(selectedTimeQuery)"
     (propertyValueChange)="selectedTimeQuery = getTimeQueryPresets()[$event]"></app-selection-property-view>
+    <div class='description description-timequery' *ngIf="selectedTimeQuery">{{selectedTimeQuery.description}}</div>
   </div>
 
   <div class="form-group" *ngIf="connection">

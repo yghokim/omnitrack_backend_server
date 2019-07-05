@@ -52,7 +52,7 @@
     </div>
     <div class="menu-body connection-info" [class.selected]="isConnectionSelected===true"
       (click)="onConnectionClicked()">
-      <span *ngIf="field.connection == null">No connection</span>
+      <span class="no-connection-indicator" [class.text-color-accented] = "isConnectionSelected!==true" *ngIf="field.connection == null">Click to create connection</span>
       <ng-container *ngIf="field.connection != null">
         <div class="connection-link-icon material-icons" [class.text-color-pointed] = "isConnectionSelected!==true">link</div>
         <div class="connection-info-body">
