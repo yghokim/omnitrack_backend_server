@@ -36,6 +36,10 @@ import { FieldPresetPickerComponent } from "./research/omnitrack/tracking-plan-d
 import { TrackerPickerComponent } from "./research/omnitrack/tracking-plan-detail/tracker-picker/tracker-picker.component";
 import { TrackerColorPickerComponent } from "./research/omnitrack/tracking-plan-detail/tracker-detail-panel/tracker-color-picker/tracker-color-picker.component";
 import { ChangeCheckGuard } from "./services/change-check.guard";
+import { ConnectionDetailPanelComponent } from "./research/omnitrack/tracking-plan-detail/connection-detail-panel/connection-detail-panel.component";
+import { MeasureFactorySelectorComponent } from "./research/omnitrack/tracking-plan-detail/measure-factory-selector/measure-factory-selector.component";
+import { FactoryListComponent } from "./research/omnitrack/tracking-plan-detail/measure-factory-selector/factory-list.component";
+
 
 const routes: Routes = [
   {
@@ -107,14 +111,18 @@ const routes: Routes = [
     HourRangePickerComponent,
     FieldPresetPickerComponent,
     TrackerPickerComponent,
-    TrackerColorPickerComponent
+    TrackerColorPickerComponent,
+    ConnectionDetailPanelComponent,
+    MeasureFactorySelectorComponent,
+    FactoryListComponent
   ],
   entryComponents: [
     LockConfigurationSheetComponent,
     NewTrackingPlanDialogComponent,
     FieldPresetPickerComponent,
     TrackerPickerComponent,
-    TrackerColorPickerComponent
+    TrackerColorPickerComponent,
+    FactoryListComponent
   ]
 })
 export class TrackingPlanModule {}

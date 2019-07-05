@@ -102,4 +102,12 @@ export default class TypedStringSerializer {
 
     return stringBuilder
   }
+
+  static isNumeric(typeCode: String): Boolean {
+    return typeCode === TypedStringSerializer.TYPENAME_LONG ||
+            typeCode === TypedStringSerializer.TYPENAME_BIGDECIMAL ||
+            typeCode === TypedStringSerializer.TYPENAME_DOUBLE ||
+            typeCode === TypedStringSerializer.TYPENAME_FLOAT ||
+            typeCode === TypedStringSerializer.TYPENAME_INT
+  }
 }

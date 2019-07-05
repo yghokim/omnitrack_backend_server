@@ -1,4 +1,5 @@
 import { isString } from "../../shared_lib/utils";
+import { OTConnection } from "./value-connection/value-connection";
 
 export function getIdPopulateCompat(obj: any, variableName: string = "_id"): string {
   if (obj == null) {
@@ -69,7 +70,7 @@ export interface IFieldDbEntity {
   _id?: string,
   localId?: string,
   trackerId?: string,
-  connection?: any,
+  connection?: OTConnection,
   fallbackPolicy?: string,
   fallbackPreset?: string,
   type?: number,

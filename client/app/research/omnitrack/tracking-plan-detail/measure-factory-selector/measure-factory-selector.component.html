@@ -1,0 +1,11 @@
+<div class="btn btn-light btn-sm button-select" (click)="onButtonClicked()">
+  <div class="factory-info" *ngIf="selectedFactory != null">
+    <div class="factory-category">
+      {{selectedFactory.categoryName}}
+    </div>
+    <div class="factory-name">
+      {{selectedFactory.name}}
+    </div>
+  </div>
+  <span *ngIf="selectedFactory==null" class="text-color-accented">Select Factory</span>
+</div>
