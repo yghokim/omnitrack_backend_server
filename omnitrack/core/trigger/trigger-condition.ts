@@ -1,10 +1,11 @@
 import attrType from '../fields/field-types';
 import { TriggerConstants } from "./trigger-constants";
-import { OTTimeQuery } from '../value-connection/value-connection'
+import { OTTimeQuery, TIMEQUERY_PRESETS } from '../value-connection/value-connection'
 import { IFactoryMeasure, OTItemMetadataMeasureFactory, OTTimePointMetadataMeasureFactory } from "../value-connection/measure-factory";
 import TypedStringSerializer from '../typed_string_serializer';
 import { IFieldDbEntity } from '../db-entity-types';
 import { TrackingPlan } from '../tracking-plan';
+import { deepclone } from '../../../shared_lib/utils';
 
 export enum DataComparison {
   Exceed = "exceed",
@@ -35,7 +36,7 @@ export class TimeCondition {
 export class DataDrivenCondition {
   measure: IFactoryMeasure = null
   comparison = DataComparison.Exceed
-  query: OTTimeQuery = null
+  query: OTTimeQuery = deepclone(TIMEQUERY_PRESETS[0].query)
   threshold = 0
 }
 

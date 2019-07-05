@@ -3,6 +3,8 @@ import { IFieldDbEntity, ITrackerDbEntity, ITriggerDbEntity } from '../../../../
 import FieldManager from "../../../../omnitrack/core/fields/field.manager";
 import { TriggerConstants } from "../../../../omnitrack/core/trigger/trigger-constants";
 import * as moment from "moment";
+import { ServiceManager } from "../../../../omnitrack/core/external-services/external-service.manager";
+import { DataComparison } from "../../../../omnitrack/core/trigger/trigger-condition";
 
 export function getTrackerColorString(tracker: ITrackerDbEntity): string {
   const colorInt = tracker.color
@@ -36,7 +38,22 @@ export function makeShortenConditionString(trigger: ITriggerDbEntity): string {
       }
       break;
     case TriggerConstants.CONDITION_TYPE_DATA:
-      return "Data-driven"
+      if (trigger.condition.measure && trigger.condition.measure.code) {
+        const factory = ServiceManager.getFactoryByCode(trigger.condition.measure.code)
+        if (factory != null) {
+          let comparisonSymbol
+          switch (trigger.condition.comparison as DataComparison) {
+            case DataComparison.Exceed:
+              comparisonSymbol = ">"
+              break;
+            case DataComparison.Drop:
+              comparisonSymbol = "<"
+              break;
+          }
+          return factory.name + " (" + factory.categoryName + ") " + comparisonSymbol + " " + trigger.condition.threshold
+        }
+      } else return "Data-driven"
+      break;
   }
 }
 

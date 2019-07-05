@@ -2,15 +2,13 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 
   .connection-link-icon{
     margin-right: 0.5rem;
   }
 
-  .factory-info{
-    
-  }
-  
   .query-info{
     font-size: 0.75rem;
   }
