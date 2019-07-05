@@ -1,5 +1,4 @@
 <div class="menu-panel">
-
   <div class="form-group">
     <label class="small" for="fieldName">Field Name</label>
     <input type="text" class="form-control" id="fieldName" [(ngModel)]="field.name">
@@ -19,8 +18,7 @@
     <app-boolean-property-view title="Required" [(propertyValue)]="field.isRequired"></app-boolean-property-view>
   </div>
   <hr class="no-margin">
-  <div class="form-group" *ngFor="let propertyKey of getPropertyKeys()"
-    [ngSwitch]="getPropertyType(propertyKey)">
+  <div class="form-group" *ngFor="let propertyKey of getPropertyKeys()" [ngSwitch]="getPropertyType(propertyKey)">
     <app-boolean-property-view *ngSwitchCase="'Boolean'" [title]="getPropertyName(propertyKey)"
       [propertyValue]="fieldHelper.getParsedPropertyValue(field, propertyKey)"
       (propertyValueChange)="fieldHelper.setPropertyValue(field, propertyKey, $event)"></app-boolean-property-view>
@@ -40,14 +38,41 @@
       (propertyValueChange)="fieldHelper.setPropertyValue(field, propertyKey, $event)">
     </app-number-style-property-view>
 
-    
+
     <app-entry-list-property-view *ngSwitchCase="'ChoiceEntryList'" [title]="getPropertyName(propertyKey)"
       [propertyValue]="fieldHelper.getParsedPropertyValue(field, propertyKey)"
       (propertyValueChange)="fieldHelper.setPropertyValue(field, propertyKey, $event)"
       [configuration]="fieldHelper.getPropertyConfig(propertyKey)"></app-entry-list-property-view>
   </div>
   <hr class="no-margin">
+
+  <ng-container *ngIf="isMeasureFactoryAttachable()===true">
+    <div class="form-group no-padding-bottom">
+      <label class="small no-padding-bottom">Value Connection</label>
+    </div>
+    <div class="menu-body connection-info" [class.selected]="isConnectionSelected===true"
+      (click)="onConnectionClicked()">
+      <span *ngIf="field.connection == null">No connection</span>
+      <ng-container *ngIf="field.connection != null">
+        <div class="connection-link-icon material-icons" [class.text-color-pointed] = "isConnectionSelected!==true">link</div>
+        <div class="connection-info-body">
+          <div class="factory-info" *ngIf="field.connection.measure && getFactoryByCode(field.connection.measure.code)">
+            <b>{{getFactoryByCode(field.connection.measure.code).categoryName}}</b> |
+            {{getFactoryByCode(field.connection.measure.code).name}}</div>
+          <div class="query-info" *ngIf="field.connection.query">
+            {{convertQueryToPreset(field.connection.query).name}}
+          </div>
+        </div>
+      </ng-container>
+    </div>
+    <hr class="no-margin">
+  </ng-container>
+
   <div class="form-group">
-    <app-selection-property-view title="Default value" direction="vertical" [list]="getFallbackPolicyEntries()" [(propertyValue)]="field.fallbackPolicy"></app-selection-property-view>
+    <app-selection-property-view title="Default value" direction="vertical" [list]="getFallbackPolicyEntries()"
+      [(propertyValue)]="field.fallbackPolicy"></app-selection-property-view>
   </div>
 </div>
+
+<app-connection-detail-panel *ngIf="isConnectionSelected === true && isMeasureFactoryAttachable()===true"
+  [(connection)]="field.connection" [field]="field"></app-connection-detail-panel>

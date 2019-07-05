@@ -11,6 +11,8 @@
   <div class="title" *ngIf="title">{{title}}</div>
   <div class="subtitle" *ngIf="subtitle && subtitle.length > 0">{{subtitle}}</div>
   </div>
+
+  <ng-content select="[afterTitle]"></ng-content>
   
   <div *ngIf="showRemoveButton === true" class="flex-filler"></div>
   <button *ngIf="showRemoveButton === true" mat-icon-button class="text-color-gray mat-button-small" (click)="onRemoveClicked($event)"><mat-icon class="material-icons">delete</mat-icon></button>

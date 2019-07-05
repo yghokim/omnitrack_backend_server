@@ -1,0 +1,17 @@
+.connection-info{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .connection-link-icon{
+    margin-right: 0.5rem;
+  }
+
+  .factory-info{
+    
+  }
+  
+  .query-info{
+    font-size: 0.75rem;
+  }
+}

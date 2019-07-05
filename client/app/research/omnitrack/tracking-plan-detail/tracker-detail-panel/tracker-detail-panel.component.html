@@ -44,7 +44,9 @@
       <app-selectable-menu-item [title]="getFieldById(fieldId).name" [showRemoveButton]="true" [showDragHandle]="true"
         [iconPath]="'/assets/omnitrack/field_icons_small/icon_small_' + getFieldIconName(getFieldById(fieldId)) + '.svg'"
         [selected]="selectedEntity === getFieldById(fieldId)" (onClick)="onFieldClicked(getFieldById(fieldId))"
-        (onRemoveClick)="onRemoveFieldClicked(getFieldById(fieldId))"></app-selectable-menu-item>
+        (onRemoveClick)="onRemoveFieldClicked(getFieldById(fieldId))">
+        <span *ngIf="getFieldById(fieldId).connection" class="field-with-connection-indicator material-icons" [class.text-color-pointed]="selectedEntity !== getFieldById(fieldId)" afterTitle>link</span>
+      </app-selectable-menu-item>
     </div>
   </div>
 

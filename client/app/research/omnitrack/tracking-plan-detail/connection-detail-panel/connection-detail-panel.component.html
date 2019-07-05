@@ -1,0 +1,15 @@
+<div class="menu-panel">
+  <div class="form-group">
+    <label class="small">Attached Measure Factory</label>
+    <app-measure-factory-selector [factories]="getAttachableFactories()" [(selectedFactory)]="selectedFactory"></app-measure-factory-selector>
+  </div>
+  <div class="form-group" *ngIf="getTimeQueryPresets() != null && getTimeQueryPresets().length > 0">
+    <app-selection-property-view title="Time Query" [stringList]="getTimeQueryPresetNames()" 
+    [propertyValue] = "getTimeQueryPresets().indexOf(selectedTimeQuery)"
+    (propertyValueChange)="selectedTimeQuery = getTimeQueryPresets()[$event]"></app-selection-property-view>
+  </div>
+
+  <div class="form-group" *ngIf="connection">
+    <button type="button" class="btn btn-sm btn-danger fill-width" (click)="onRemoveConnectionClicked()">Remove Connection</button>
+  </div>
+</div>
