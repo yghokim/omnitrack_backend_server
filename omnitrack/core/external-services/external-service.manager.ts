@@ -1,6 +1,9 @@
 import { OTExternalService, OTServiceMeasureFactory } from './external-service';
 import { FitbitService } from './services/fitbit.service';
+import { GoogleFitService } from './services/google-fit.service';
 import { AMeasureFactory } from '../value-connection/measure-factory';
+import { MisfitService } from './services/misfit.service';
+import { RescueTimeService } from './services/rescue-time.service';
 
 class OTExternalServiceManager {
 
@@ -9,7 +12,10 @@ class OTExternalServiceManager {
 
   constructor() {
     this.services = [
-      new FitbitService()
+      new GoogleFitService(),
+      new FitbitService(),
+      new MisfitService(),
+      new RescueTimeService()
     ]
 
     this.factories = []
