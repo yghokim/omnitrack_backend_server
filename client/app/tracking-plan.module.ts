@@ -42,6 +42,15 @@ import { FactoryListComponent } from "./research/omnitrack/tracking-plan-detail/
 import { TrackerPreviewPanelComponent } from "./research/omnitrack/tracking-plan-detail/tracker-preview-panel/tracker-preview-panel.component";
 import { Ng2PanZoomModule } from 'ng2-panzoom';
 import { PreviewTrackerComponent } from './research/omnitrack/tracking-plan-detail/tracker-preview-panel/preview-tracker/preview-tracker.component';
+import { TimeFieldMobileInputComponent } from './research/omnitrack/field-inputs/time/time-field-mobile-input/time-field-mobile-input.component';
+import { LocationFieldMobileInputComponent } from './research/omnitrack/field-inputs/location/location-field-mobile-input/location-field-mobile-input.component';
+import { ChoiceFieldMobileInputComponent } from './research/omnitrack/field-inputs/choice/choice-field-mobile-input/choice-field-mobile-input.component';
+import { TextFieldMobileInputComponent } from './research/omnitrack/field-inputs/text/text-field-mobile-input/text-field-mobile-input.component';
+import { RatingFieldMobileInputComponent } from './research/omnitrack/field-inputs/rating/rating-field-mobile-input/rating-field-mobile-input.component';
+import { ImageFieldMobileInputComponent } from './research/omnitrack/field-inputs/image/image-field-mobile-input/image-field-mobile-input.component';
+import { AudioFieldMobileInputComponent } from './research/omnitrack/field-inputs/audio/audio-field-mobile-input/audio-field-mobile-input.component';
+import { TimeSpanFieldMobileInputComponent } from './research/omnitrack/field-inputs/timespan/timespan-field-mobile-input/timespan-field-mobile-input.component';
+import { NumberFieldMobileInputComponent } from './research/omnitrack/field-inputs/number/number-field-mobile-input/number-field-mobile-input.component';
 
 const routes: Routes = [
   {
@@ -80,13 +89,13 @@ const routes: Routes = [
 
 @NgModule({
   imports: [
-    CommonModule, 
+    CommonModule,
     SharedModule,
     RouterModule.forChild(routes),
     MonacoEditorModule.forRoot(),
     Ng2PanZoomModule
   ],
-    
+
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   declarations: [
     ExperimentOmniTrackComponent,
@@ -119,7 +128,16 @@ const routes: Routes = [
     MeasureFactorySelectorComponent,
     FactoryListComponent,
     TrackerPreviewPanelComponent,
-    PreviewTrackerComponent
+    PreviewTrackerComponent,
+    TimeFieldMobileInputComponent,
+    LocationFieldMobileInputComponent,
+    ChoiceFieldMobileInputComponent,
+    TextFieldMobileInputComponent,
+    RatingFieldMobileInputComponent,
+    ImageFieldMobileInputComponent,
+    AudioFieldMobileInputComponent,
+    TimeSpanFieldMobileInputComponent,
+    NumberFieldMobileInputComponent
   ],
   entryComponents: [
     LockConfigurationSheetComponent,

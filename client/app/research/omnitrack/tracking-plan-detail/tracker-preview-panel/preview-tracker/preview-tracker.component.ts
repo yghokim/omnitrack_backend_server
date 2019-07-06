@@ -1,6 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ITrackerDbEntity } from '../../../../../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, IFieldDbEntity } from '../../../../../../../omnitrack/core/db-entity-types';
 import { getTrackerColorString } from '../../../omnitrack-helper';
+import * as color from 'color';
+import { AMeasureFactory } from '../../../../../../../omnitrack/core/value-connection/measure-factory';
+import { MeasureFactoryManager } from '../../../../../../../omnitrack/core/value-connection/measure-factory.manager';
 
 @Component({
   selector: 'app-preview-tracker',
@@ -21,7 +24,12 @@ export class PreviewTrackerComponent implements OnInit {
   }
 
   getTrackerColorString(): string{
-    return getTrackerColorString(this.tracker)
+    const c = color(getTrackerColorString(this.tracker))
+    return c.darken(0.2).desaturate(0.3)
+  }
+
+  getAttachedFactory(field: IFieldDbEntity): AMeasureFactory{
+    return MeasureFactoryManager.getMeasureFactoryByCode(field.connection.measure.code)
   }
 
 }
