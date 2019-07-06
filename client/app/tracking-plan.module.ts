@@ -39,7 +39,9 @@ import { ChangeCheckGuard } from "./services/change-check.guard";
 import { ConnectionDetailPanelComponent } from "./research/omnitrack/tracking-plan-detail/connection-detail-panel/connection-detail-panel.component";
 import { MeasureFactorySelectorComponent } from "./research/omnitrack/tracking-plan-detail/measure-factory-selector/measure-factory-selector.component";
 import { FactoryListComponent } from "./research/omnitrack/tracking-plan-detail/measure-factory-selector/factory-list.component";
-
+import { TrackerPreviewPanelComponent } from "./research/omnitrack/tracking-plan-detail/tracker-preview-panel/tracker-preview-panel.component";
+import { Ng2PanZoomModule } from 'ng2-panzoom';
+import { PreviewTrackerComponent } from './research/omnitrack/tracking-plan-detail/tracker-preview-panel/preview-tracker/preview-tracker.component';
 
 const routes: Routes = [
   {
@@ -82,6 +84,7 @@ const routes: Routes = [
     SharedModule,
     RouterModule.forChild(routes),
     MonacoEditorModule.forRoot(),
+    Ng2PanZoomModule
   ],
     
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -114,7 +117,9 @@ const routes: Routes = [
     TrackerColorPickerComponent,
     ConnectionDetailPanelComponent,
     MeasureFactorySelectorComponent,
-    FactoryListComponent
+    FactoryListComponent,
+    TrackerPreviewPanelComponent,
+    PreviewTrackerComponent
   ],
   entryComponents: [
     LockConfigurationSheetComponent,

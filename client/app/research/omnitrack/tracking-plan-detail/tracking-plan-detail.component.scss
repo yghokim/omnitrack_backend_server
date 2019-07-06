@@ -9,16 +9,6 @@
     bottom: 0;
   }
 
-  .preview-panel {
-    background-size: 2rem 2rem;
-    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.25) 1px, rgb(245, 245, 245) 1px);
-    flex: 1;
-
-    -moz-box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.2);
-    -webkit-box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.2);
-    box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.2);
-  }
-
   .form-group {
     margin-bottom: 0;
   }
