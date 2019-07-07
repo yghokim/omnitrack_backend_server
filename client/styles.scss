@@ -36,6 +36,7 @@ $candy-app-theme: mat-light-theme($candy-app-primary, $candy-app-accent, $candy-
   }
 }
 
+$color_primary: #a63e63;
 $color_accent: #ff814f;
 $color_accent_light: #ff9870;
 $color_pointed: #2cbbbb;
@@ -68,7 +69,7 @@ $visualization_heatmap_color_overflow: #173958;
 }
 
 @mixin main-gradient {
-  @include horizontal-gradient(#a63e63, #e96d6d)
+  @include horizontal-gradient($color_primary, #e96d6d)
 }
 
 @mixin pointed-gradient {

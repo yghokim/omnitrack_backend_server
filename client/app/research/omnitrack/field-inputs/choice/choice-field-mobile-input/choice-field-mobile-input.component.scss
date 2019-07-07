@@ -1,0 +1,63 @@
+@import "../../../../../../styles.scss";
+
+.entry-row {
+  display: flex;
+  align-items: center;
+  .check-indicator {
+    margin-right: 0.5rem;
+    display: flex;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1px solid #b4b4b4;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+
+    &.checkbox {
+      border-radius: 20%;
+
+      .check-element {
+        display: none;
+      }
+    }
+
+    .check-element {
+      display: block;
+      background: $color_accent;
+      width: 100%;
+      height: 100%;
+      border: 3px solid white;
+      border-radius: 50%;
+    }
+  }
+
+  .value {
+    flex: 1;
+    font-weight: bold;
+    color: #757575;
+    font-size: 0.85rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  &:last-child {
+    .value {
+      border: none;
+    }
+  }
+}
+
+.append-new-entry-button {
+  margin-top: 0.5rem;
+  color: #a0a0a0;
+  font-size: 0.75rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  mat-icon {
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+  }
+}

@@ -23,9 +23,9 @@ export default abstract class FieldHelper {
   getParsedPropertyValue<T>(field: IFieldDbEntity, propertyKey: string): T {
     const propHelper = this.getPropertyHelper<T>(propertyKey)
     if (propHelper) {
-      if(field.properties && field.properties[propertyKey]){
+      if (field.properties && field.properties[propertyKey]) {
         return propHelper.parsePropertyValue(field.properties[propertyKey])
-      }else return this.getPropertyDefaultValue(propertyKey)
+      } else return this.getPropertyDefaultValue(propertyKey)
     } else {
       throw new Error("Property helper is not implemented for " + this.type)
     }

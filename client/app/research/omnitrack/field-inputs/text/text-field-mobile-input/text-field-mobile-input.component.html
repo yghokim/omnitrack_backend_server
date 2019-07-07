@@ -1,3 +1,10 @@
-<p>
-  text-field-mobile-input works!
-</p>
+<ng-container [ngSwitch]="getInputType()">
+  <input *ngSwitchCase="0" class="form-control shorttext" type="text" placeholder="Insert here"/>
+  <div *ngSwitchCase="1">
+    <div class="long-text-row">
+        Insert here
+    </div>
+    <div class="long-text-row"></div>
+    <div class="long-text-row"></div>
+  </div>
+</ng-container>

@@ -1,0 +1,21 @@
+$longtext-border-color: #ddd;
+
+.long-text-row {
+  border-top: 1px solid $longtext-border-color;
+  color: #cdcdcd;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  height: 2rem;
+  display: block;
+
+  &:last-of-type {
+    border-bottom: 1px solid $longtext-border-color;
+  }
+}
+
+.shorttext{
+  background: #f3f3f3;
+  border: 0;
+  border-bottom: 2px solid #75757545;
+  border-radius: 0;
+}

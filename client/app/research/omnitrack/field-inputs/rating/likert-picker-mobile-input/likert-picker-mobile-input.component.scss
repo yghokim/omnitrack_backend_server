@@ -1,0 +1,83 @@
+@import "../../../../../../styles.scss";
+
+$point-radius: 0.5rem;
+$ui_color: #a0a0a0;
+
+.likert-scale {
+  justify-content: space-between;
+  position: relative;
+  padding-bottom: 1.5rem;
+  padding-top: 2.6rem;
+
+  .selected-point-container {
+    left: $point-radius * 0.5;
+    right: $point-radius * 0.5;
+    position: absolute;
+
+    .scale-line {
+      position: absolute;
+      border-bottom: 1px solid $ui_color;
+      left: 0;
+      right: 0;
+      top: $point-radius * 0.5;
+    }
+
+    .selected-point {
+      position: absolute;
+      width: 2 * $point-radius;
+      height: 2 * $point-radius;
+      background: $color_primary;
+      z-index: 500;
+      border-radius: 50%;
+      transform: translate(-50%, -25%);
+    }
+
+    .selected-label {
+      position: absolute;
+      transform: translate(-50%, -150%);
+      padding: 0.1rem 0.35rem;
+      background: $color_primary;
+      color: white;
+      border-radius: 0.25rem;
+    }
+  }
+
+  .scale-point {
+    display: block;
+    width: 0.5rem;
+    height: 0.5rem;
+    background: $ui_color;
+    border-radius: 50%;
+    position: relative;
+
+    .scale-score {
+      position: absolute;
+      width: 3rem;
+      left: -1.5rem + ($point-radius * 0.5);
+      top: 0.8rem;
+      text-align: center;
+      color: $ui_color;
+      font-size: 0.8rem;
+    }
+  }
+}
+
+.label-container {
+  display: flex;
+
+  .scale-label {
+    flex: 1;
+    font-size: 0.6rem;
+    font-weight: bold;
+    color: #575757;
+    text-align: center;
+
+    &.left {
+      text-align: left;
+    }
+
+    &.right {
+      text-align: right;
+    }
+  }
+}

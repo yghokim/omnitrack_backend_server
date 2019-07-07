@@ -51,6 +51,8 @@ import { ImageFieldMobileInputComponent } from './research/omnitrack/field-input
 import { AudioFieldMobileInputComponent } from './research/omnitrack/field-inputs/audio/audio-field-mobile-input/audio-field-mobile-input.component';
 import { TimeSpanFieldMobileInputComponent } from './research/omnitrack/field-inputs/timespan/timespan-field-mobile-input/timespan-field-mobile-input.component';
 import { NumberFieldMobileInputComponent } from './research/omnitrack/field-inputs/number/number-field-mobile-input/number-field-mobile-input.component';
+import { StarPickerMobileInputComponent } from './research/omnitrack/field-inputs/rating/star-picker-mobile-input/star-picker-mobile-input.component';
+import { LikertPickerMobileInputComponent } from './research/omnitrack/field-inputs/rating/likert-picker-mobile-input/likert-picker-mobile-input.component';
 
 const routes: Routes = [
   {
@@ -137,7 +139,9 @@ const routes: Routes = [
     ImageFieldMobileInputComponent,
     AudioFieldMobileInputComponent,
     TimeSpanFieldMobileInputComponent,
-    NumberFieldMobileInputComponent
+    NumberFieldMobileInputComponent,
+    StarPickerMobileInputComponent,
+    LikertPickerMobileInputComponent
   ],
   entryComponents: [
     LockConfigurationSheetComponent,

@@ -95,6 +95,10 @@ export class ChoiceFieldHelper extends FieldHelper {
     return this.getParsedPropertyValue<boolean>(field, ChoiceFieldHelper.PROPERTY_MULTISELECTION)
   }
 
+  getAllowAppendNewEntry(field: IFieldDbEntity): boolean{
+    return this.getParsedPropertyValue<boolean>(field, ChoiceFieldHelper.PROPERTY_ALLOW_APPENDING_FROM_VIEW)
+  }
+
 
   getSmallIconType(field: IFieldDbEntity): string {
     if (this.getAllowMultiSelection(field) == true) {
