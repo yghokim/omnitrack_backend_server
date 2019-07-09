@@ -1,3 +1,37 @@
-<p>
-  time-span-field-mobile-input works!
-</p>
+<div class="flex-container">
+  <div class="left-column">
+    <div class="point"></div>
+    <div class="mid">
+      <div class="ball"></div>
+      <div class="ball"></div>
+      <div class="ball"></div>
+      <div class="ball"></div>
+      <div class="ball"></div>
+    </div>
+    <div class="point"></div>
+  </div>
+  <div class="timespan-main-body">
+    <button class="btn btn-light date-button">
+      {{current.format(dateButtonFormat)}}
+    </button>
+
+    <div class="middle-row flex-container flex-align-items-center">
+      <div class="diff-indicator">Same time</div>
+      <div class="flex-filler"></div>
+      <button class="button-overwrite" mat-icon-button>
+        <mat-icon class="material-icons">arrow_upward</mat-icon>
+      </button>
+      <button class="button-overwrite" mat-icon-button>
+        <mat-icon class="material-icons">arrow_downward</mat-icon>
+      </button>
+
+    </div>
+
+    <button class="btn btn-light date-button">
+      {{current.format(dateButtonFormat)}}
+    </button>
+  </div>
+</div>
+<div class="timespan-footer">
+  <button class="btn btn-sm btn-light" *ngFor="let buttonInfo of footerButtonInfos">{{buttonInfo}}</button>
+</div>

@@ -1,3 +1,17 @@
-<p>
-  time-field-mobile-input works!
-</p>
+<div *ngIf="showDateButton===true" class="date-button btn btn-light">{{current.format('LL')}}</div>
+<div class="dial-list">
+  <ng-container *ngFor="let dialValue of dialValues; let index = index">
+    <div class='dial'>
+      <button class="btn btn-light">
+        <mat-icon class="material-icons">keyboard_arrow_up</mat-icon>
+      </button>
+      <div class="dial-value">{{dialValue}}</div>
+      <button class="btn btn-light">
+        <mat-icon class="material-icons">keyboard_arrow_down</mat-icon>
+      </button>
+    </div>
+    <div class="separator" *ngIf="index !== dialValues.length-1">
+      :
+    </div>
+  </ng-container>
+</div>
