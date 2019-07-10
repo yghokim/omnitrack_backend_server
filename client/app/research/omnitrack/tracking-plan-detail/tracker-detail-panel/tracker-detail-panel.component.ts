@@ -22,22 +22,35 @@ import * as isUrl from 'is-url';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { TrackerColorPickerComponent } from './tracker-color-picker/tracker-color-picker.component';
 import { TextFieldHelper } from '../../../../../../omnitrack/core/fields/text.field.helper';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-tracker-detail-panel',
   templateUrl: './tracker-detail-panel.component.html',
   styleUrls: ['./tracker-detail-panel.component.scss', '../tracking-plan-detail.component.scss'],
   host: { class: 'sidepanel-container' },
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('showHideTrigger', [
+      transition(':enter', [
+        style({ width: 0, overflowX: 'hidden' }),
+        animate('0.5s ease-in-out', style({ width: '*'})),
+      ]),
+      transition(':leave', [
+        style({overflowX: 'hidden'}),
+        animate('0.5s ease-in-out', style({ width: 0 }))
+      ])
+    ]),
+  ]
 })
 export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
 
   static FIELD_PRESETS: Array<PresetFormat> = [
-    new PresetFormat(fieldTypes.ATTR_TYPE_TEXT, "field_icon_shorttext", "Short Text", "A single-line text input", (attr)=>{
+    new PresetFormat(fieldTypes.ATTR_TYPE_TEXT, "field_icon_shorttext", "Short Text", "A single-line text input", (attr) => {
       FieldManager.getHelper(fieldTypes.ATTR_TYPE_TEXT)
         .setPropertyValue(attr, TextFieldHelper.PROPERTY_KEY_INPUT_TYPE, TextFieldHelper.INPUT_TYPE_SHORT)
     }),
-    new PresetFormat(fieldTypes.ATTR_TYPE_TEXT, "field_icon_longtext", "Long Text", "A multi-line text input",  (attr)=>{
+    new PresetFormat(fieldTypes.ATTR_TYPE_TEXT, "field_icon_longtext", "Long Text", "A multi-line text input", (attr) => {
       FieldManager.getHelper(fieldTypes.ATTR_TYPE_TEXT)
         .setPropertyValue(attr, TextFieldHelper.PROPERTY_KEY_INPUT_TYPE, TextFieldHelper.INPUT_TYPE_LONG)
     }),
@@ -160,7 +173,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
       this.matDialog
         .open(TrackerColorPickerComponent, { data: this.tracker.color })
         .afterClosed().subscribe(pickedColor => {
-          if(pickedColor){
+          if (pickedColor) {
             this.tracker.color = color(pickedColor).rgbNumber() + 0xff000000
             this.detector.markForCheck()
           }
@@ -176,13 +189,23 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
   }
 
   onFieldClicked(field: IFieldDbEntity) {
-    this.selectedEntity = field
-    this.selectedType = 'field'
+    if (this.selectedEntity && this.selectedEntity._id === field._id) {
+      this.selectedEntity = null
+      this.selectedType = null
+    } else {
+      this.selectedEntity = field
+      this.selectedType = 'field'
+    }
   }
 
   onReminderClicked(reminder: ITriggerDbEntity) {
-    this.selectedEntity = reminder
-    this.selectedType = 'reminder'
+    if (this.selectedEntity && this.selectedEntity._id === reminder._id) {
+      this.selectedEntity = null
+      this.selectedType = null
+    } else {
+      this.selectedEntity = reminder
+      this.selectedType = 'reminder'
+    }
   }
 
   getReminders(): Array<ITriggerDbEntity> {
@@ -216,7 +239,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
     this.tracker.color = color(colorString).rgbNumber() + 0xff000000
   }
 
-  getTrackerColorString(): string{
+  getTrackerColorString(): string {
     return getTrackerColorString(this.tracker)
   }
 

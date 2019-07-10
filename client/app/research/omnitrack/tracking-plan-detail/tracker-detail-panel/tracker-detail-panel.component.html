@@ -71,8 +71,8 @@
     </button>
   </div>
 </div>
-<app-field-detail-panel *ngIf="selectedEntity && selectedType==='field'" [field]="selectedEntity">
+<app-field-detail-panel *ngIf="selectedEntity && selectedType==='field'" @showHideTrigger [field]="selectedEntity">
 </app-field-detail-panel>
 
-<app-trigger-detail-panel *ngIf="selectedEntity && selectedType==='reminder'" [trigger]="selectedEntity">
+<app-trigger-detail-panel *ngIf="selectedEntity && selectedType==='reminder'" @showHideTrigger [trigger]="selectedEntity">
 </app-trigger-detail-panel>

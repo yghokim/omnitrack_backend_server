@@ -16,13 +16,26 @@ import { YesNoDialogComponent } from '../../../dialogs/yes-no-dialog/yes-no-dial
 import { TriggerConstants } from '../../../../../omnitrack/core/trigger/trigger-constants';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { ChangeCheckComponent } from '../../../components/change-check.component';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-tracking-plan-detail',
   templateUrl: './tracking-plan-detail.component.html',
   styleUrls: ['./tracking-plan-detail.component.scss', '../../../code-editor.scss'],
   providers: [TrackingPlanService],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('showHideTrigger', [
+      transition(':enter', [
+        style({ width: 0, overflowX: 'hidden' }),
+        animate('0.5s ease-in-out', style({ width: '*'})),
+      ]),
+      transition(':leave', [
+        style({overflowX: 'hidden'}),
+        animate('0.5s ease-in-out', style({ width: 0 }))
+      ])
+    ]),
+  ]
 })
 export class TrackingPlanDetailComponent extends ChangeCheckComponent implements OnInit, OnDestroy {
   
@@ -132,13 +145,21 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
   }
 
   onTrackerClicked(tracker: ITrackerDbEntity) {
+    if(this.selectedEntity && this.selectedEntity._id === tracker._id){
+      this.unselect()
+    }else{
     this.selectedEntity = tracker
     this.selectedType = 'tracker'
+    }
   }
 
   onTriggerClicked(trigger: ITriggerDbEntity) {
+    if(this.selectedEntity && this.selectedEntity._id === trigger._id){
+      this.unselect()
+    }else {
     this.selectedEntity = trigger
     this.selectedType = 'trigger'
+    }
   }
 
   isChanged(): boolean {

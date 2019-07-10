@@ -68,12 +68,16 @@
           </div>
 
       </div>
-      <app-tracker-detail-panel *ngIf="selectedType === 'tracker'" [tracker]="selectedEntity">
+
+
+      <app-tracker-detail-panel *ngIf="selectedType === 'tracker'" @showHideTrigger [tracker]="selectedEntity">
       </app-tracker-detail-panel>
-      <app-trigger-detail-panel *ngIf="selectedType === 'trigger'" [trigger]="selectedEntity">
+      <app-trigger-detail-panel *ngIf="selectedType === 'trigger'" @showHideTrigger [trigger]="selectedEntity">
       </app-trigger-detail-panel>
 
+
       <app-tracker-preview-panel></app-tracker-preview-panel>
+      
     </div>
   </div>
   <div class="code-editor-footer flex-container flex-align-items-center">

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FieldMobileInputComponentBase } from '../../field-mobile-input-base.component';
-import { LocationFieldHelper } from 'omnitrack/core/fields/location.field.helper';
+import { LocationFieldHelper } from '../../../../../../../omnitrack/core/fields/location.field.helper';
 
 @Component({
   selector: 'app-location-field-mobile-input',
