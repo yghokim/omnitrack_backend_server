@@ -36,6 +36,7 @@ $candy-app-theme: mat-light-theme($candy-app-primary, $candy-app-accent, $candy-
   }
 }
 
+$color_primary: #a63e63;
 $color_accent: #ff814f;
 $color_accent_light: #ff9870;
 $color_pointed: #2cbbbb;
@@ -68,7 +69,7 @@ $visualization_heatmap_color_overflow: #173958;
 }
 
 @mixin main-gradient {
-  @include horizontal-gradient(#a63e63, #e96d6d)
+  @include horizontal-gradient($color_primary, #e96d6d)
 }
 
 @mixin pointed-gradient {
@@ -271,7 +272,7 @@ a.no-text-effect {
   color: #ea5656 !important;
 }
 
-.text-color-pointed{
+.text-color-pointed {
   color: $color_pointed;
 }
 
@@ -308,6 +309,37 @@ a.no-text-effect {
   color: #757575;
 }
 
+.stick-to-left{
+  position: absolute;
+  left: 0;
+}
+
+.stick-to-right{
+  position: absolute;
+  right: 0;
+}
+
+.stick-to-top{
+  position: absolute;
+  top: 0;
+}
+
+.stick-to-bottom{
+  position: absolute;
+  bottom: 0;
+}
+
+.round-raised-button-white {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #fafafa;
+  border-radius: 50%;
+  color: gray;
+  background: white;
+  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.2);
+}
+
 .page-info-message {
   text-align: center;
   font-size: 0.9rem;
@@ -323,6 +355,10 @@ a.no-text-effect {
 
 .text-color-accented {
   color: $color_accent;
+}
+
+.text-color-primary{
+  color: $color_primary;
 }
 
 .tabbar-header-right-container-absolute {
@@ -579,8 +615,9 @@ a.no-text-effect {
 
   .btn-link {
     color: $color_accent;
-    &:hover{
-      color:$color_accent_light;
+
+    &:hover {
+      color: $color_accent_light;
     }
   }
 }
@@ -826,7 +863,7 @@ button.table-cell-clickable-text {
   text-align: left !important;
 }
 
-.a-color-picker{
+.a-color-picker {
   box-shadow: none !important;
 }
 
@@ -873,7 +910,7 @@ mat-dialog-container .dialog {
     }
   }
 
-  &.dialog-mid-min{
+  &.dialog-mid-min {
     min-width: 500px;
 
     @media screen and (max-width: 575px) {
@@ -1309,7 +1346,7 @@ $duration: 1.4s;
   font-size: 100% !important;
 }
 
-.font-size-dot85{
+.font-size-dot85 {
   font-size: 0.85rem;
 }
 

@@ -1,0 +1,15 @@
+<div class="entry-list">
+  <div class="entry-row" *ngFor="let entry of getFieldHelper().getChoiceEntryList(field).entries; let index=index">
+    <div class="check-indicator" [class.checkbox]="getFieldHelper().getAllowMultiSelection(field)===true">
+      <!--
+    <div class="check-element"></div>-->
+    </div>
+    <div class="value">
+      {{entry.val}}
+    </div>
+  </div>
+</div>
+<div class="append-new-entry-button" *ngIf="getFieldHelper().getAllowAppendNewEntry(field)===true">
+  <mat-icon class="material-icons">add_circle</mat-icon>
+  <span class="button-label">Add New Entry</span>
+</div>

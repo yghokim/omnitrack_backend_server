@@ -1,0 +1,5 @@
+<mat-grid-list [cols]="numStars" rows = "1" rowHeight="1:1">
+  <mat-grid-tile class="star" *ngFor="let star of numStarsArray; let starIndex = index">
+    <img [src]="'/assets/omnitrack/ratings/rating_star_' + getStartModeAt(starIndex) + '.png'"/>
+  </mat-grid-tile>
+</mat-grid-list>

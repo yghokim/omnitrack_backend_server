@@ -1,0 +1,24 @@
+@import "../../../../../../styles.scss";
+
+.input-area {
+  flex: 1;
+  border-bottom: 1px solid #bbb;
+
+  .digit {
+    font-size: 2rem;
+    color: $color_primary;
+    font-style: italic;
+    font-weight: 100;
+  }
+
+  .unit{
+    margin-left: 0.25rem;
+    color: #757575;
+  }
+}
+
+.button {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-left: 0.75rem;
+}

@@ -1,0 +1,50 @@
+@import '../../../../../../styles.scss';
+
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-button {
+  margin-bottom: 1rem;
+  background: transparent;
+  border: 1px solid #d0d0d0;
+  color: #757575;
+  font-size: 0.9rem;
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+}
+
+.dial-list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .dial {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    button {
+      padding: 0.3rem 0.25rem 0rem 0.25rem;
+      color: $color_dark_gray;
+    }
+
+    .dial-value {
+      text-align: center;
+      color: $color_primary;
+      font-size: 1.1rem;
+      padding-top: 0.3rem;
+      padding-bottom: 0.3rem;
+      font-weight: 100;
+    }
+  }
+
+  .separator {
+    color: #757575;
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin-left: 0.3rem;
+    margin-right: 0.3rem;
+  }
+}

@@ -1,0 +1,31 @@
+<div class="card">
+  <div class="card-header appbar" [style.background-color]="getTrackerColorString()">
+    {{tracker.name}}
+  </div>
+  <div class="field-frame" *ngFor="let field of tracker.fields" [ngSwitch]="field.type">
+
+    <div class="field-header">
+      <div class="field-validation-indicator"></div>
+      <div class="field-required-indicator text-color-accented" *ngIf="field.isRequired === true">*</div>
+      <div class="field-name">{{field.name}}</div>
+    </div>
+
+    <div class="input-form-container">
+      <app-number-field-mobile-input *ngSwitchCase="0" [field]="field"></app-number-field-mobile-input>
+      <app-time-field-mobile-input *ngSwitchCase="1" [field]="field"></app-time-field-mobile-input>
+      <app-timespan-field-mobile-input *ngSwitchCase="2" [field]="field"></app-timespan-field-mobile-input>
+      <app-text-field-mobile-input *ngSwitchCase="3" [field]="field"></app-text-field-mobile-input>
+      <app-location-field-mobile-input *ngSwitchCase="5" [field]="field"></app-location-field-mobile-input>
+      <app-choice-field-mobile-input *ngSwitchCase="6" [field]="field"></app-choice-field-mobile-input>
+      <app-rating-field-mobile-input *ngSwitchCase="7" [field]="field"></app-rating-field-mobile-input>
+      <app-image-field-mobile-input *ngSwitchCase="8" [field]="field"></app-image-field-mobile-input>
+      <app-audio-field-mobile-input *ngSwitchCase="9" [field]="field"></app-audio-field-mobile-input>
+    </div>
+
+    <div class="connection-indicator" *ngIf="field.connection">
+      <mat-icon class="material-icons link-indicator">link</mat-icon>
+      <div class="link-info"><b>{{getAttachedFactory(field).categoryName}}</b> | {{getAttachedFactory(field).name}}
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+<pan-zoom [config]="panzoomConfig">
+  <div style="position: relative;">
+    <div class="tracker-list flex-container">
+      <app-preview-tracker *ngFor="let tracker of plan.trackers" [tracker]="tracker"></app-preview-tracker>
+    </div>
+  </div>
+</pan-zoom>
+
+<div class='card command-panel right-top flex-container flex-align-items-center'>
+  <button mat-icon-button (click)="panzoomApi.resetView()">
+    <mat-icon class="material-icons">aspect_ratio</mat-icon>
+  </button>
+</div>

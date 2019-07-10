@@ -1,0 +1,52 @@
+.map {
+  position: relative;
+  overflow: hidden;
+
+  .dummy-map {
+    width: 100%;
+  }
+
+  .map-border {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    border: 5px solid rgba(255, 255, 255, 0.75);
+  }
+
+  .map-button {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 10%;
+    margin: 0.25rem;
+
+    &.with-text{
+      width: initial;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+    }
+
+    mat-icon {
+      font-size: 1.25rem;
+    }
+  }
+
+}
+
+.address {
+  padding: 0.3rem 0.5rem;
+  background: #f0f0f0;
+  margin-bottom: 0.75rem;
+
+  mat-icon {
+    font-size: 1.25rem;
+    color: #999;
+    margin-right: 0.25rem;
+  }
+
+  span {
+    font-size: 0.75rem;
+    color: #757575;
+  }
+}

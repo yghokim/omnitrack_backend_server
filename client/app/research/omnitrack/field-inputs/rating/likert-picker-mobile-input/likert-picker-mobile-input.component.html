@@ -1,0 +1,15 @@
+<div class="likert-scale flex-container">
+  <div class="scale-point" *ngFor="let p of numPointsArray; let pointIndex = index">
+    <div class="scale-score">{{leftScore + pointIndex}}</div>
+  </div>
+  <div class="selected-point-container">
+    <div class="scale-line"></div>
+    <div class="selected-point" *ngIf="score" [style.left]="(score*100)+'%'"></div>
+    <div class="selected-label" *ngIf="score" [style.left]="(score*100)+'%'">{{leftScore + score*(rightScore-leftScore)}}</div>
+  </div>
+</div>
+<div class="label-container">
+  <div class="scale-label left">{{leftLabel}}</div>
+  <div class="scale-label" *ngIf="midLabel && midLabel.length > 0">{{midLabel}}</div>
+  <div class="scale-label right">{{rightLabel}}</div>
+</div>

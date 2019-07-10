@@ -1,0 +1,87 @@
+@import '../../../../../../styles.scss';
+
+:host {
+  width: 340px;
+  margin-left: 1.5rem;
+  margin-right: 1.5rem;
+  margin-top: 3rem;
+}
+
+.card {
+  background: #e7e7e7;
+  box-shadow: 0px 3px 40px rgba(0, 0, 0, 0.3);
+}
+
+.card-header.appbar {
+  color: white;
+  font-weight: bold;
+  text-shadow: 0px -1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.field-frame {
+  margin-bottom: 6px;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.08);
+  background: white;
+  padding-bottom: 1rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .field-header {
+    display: flex;
+    align-items: center;
+    padding-right: 0.5rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+
+    .field-validation-indicator {
+      display: block;
+      background: #9ced38;
+      width: 0.6rem;
+      height: 0.6rem;
+      border-radius: 50%;
+      margin-right: 0.75rem;
+      margin-left: 1rem;
+    }
+
+    .field-required-indicator {
+      font-weight: bold;
+      transform: translate(0, -20%);
+      font-size: 1rem;
+      margin-right: 0.1rem;
+    }
+
+    .field-name {
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #1a3b65;
+    }
+  }
+
+  .input-form-container{
+    padding-left: 2.2rem;
+    padding-right: 1rem;
+    padding-bottom: 0.5rem;
+    pointer-events: none;
+  }
+
+  .connection-indicator {
+    display: flex;
+    align-items: center;
+    padding-top: 0.5rem;
+    padding-bottom: 0.25rem;
+
+    .link-indicator {
+      margin-left: 2.2rem;
+      font-size: 1rem;
+      color: $color_dark_gray;
+    }
+
+    .link-info{
+      font-size: 0.7rem;
+      margin-left: 0.5rem;
+      color: $color_pointed;
+    }
+  }
+}
