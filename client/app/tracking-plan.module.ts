@@ -40,7 +40,6 @@ import { ConnectionDetailPanelComponent } from "./research/omnitrack/tracking-pl
 import { MeasureFactorySelectorComponent } from "./research/omnitrack/tracking-plan-detail/measure-factory-selector/measure-factory-selector.component";
 import { FactoryListComponent } from "./research/omnitrack/tracking-plan-detail/measure-factory-selector/factory-list.component";
 import { TrackerPreviewPanelComponent } from "./research/omnitrack/tracking-plan-detail/tracker-preview-panel/tracker-preview-panel.component";
-import { Ng2PanZoomModule } from 'ng2-panzoom';
 import { PreviewTrackerComponent } from './research/omnitrack/tracking-plan-detail/tracker-preview-panel/preview-tracker/preview-tracker.component';
 import { TimeFieldMobileInputComponent } from './research/omnitrack/field-inputs/time/time-field-mobile-input/time-field-mobile-input.component';
 import { LocationFieldMobileInputComponent } from './research/omnitrack/field-inputs/location/location-field-mobile-input/location-field-mobile-input.component';
@@ -53,6 +52,7 @@ import { TimeSpanFieldMobileInputComponent } from './research/omnitrack/field-in
 import { NumberFieldMobileInputComponent } from './research/omnitrack/field-inputs/number/number-field-mobile-input/number-field-mobile-input.component';
 import { StarPickerMobileInputComponent } from './research/omnitrack/field-inputs/rating/star-picker-mobile-input/star-picker-mobile-input.component';
 import { LikertPickerMobileInputComponent } from './research/omnitrack/field-inputs/rating/likert-picker-mobile-input/likert-picker-mobile-input.component';
+import { AngularResizedEventModule } from 'angular-resize-event';
 
 const routes: Routes = [
   {
@@ -95,7 +95,7 @@ const routes: Routes = [
     SharedModule,
     RouterModule.forChild(routes),
     MonacoEditorModule.forRoot(),
-    Ng2PanZoomModule
+    AngularResizedEventModule
   ],
 
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

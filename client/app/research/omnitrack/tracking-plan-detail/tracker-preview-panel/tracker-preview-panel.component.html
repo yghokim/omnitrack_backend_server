@@ -1,13 +1,30 @@
-<pan-zoom [config]="panzoomConfig">
-  <div style="position: relative;">
-    <div class="tracker-list flex-container">
-      <app-preview-tracker *ngFor="let tracker of plan.trackers" [tracker]="tracker"></app-preview-tracker>
+<div class="viewport" (resized)="onViewPortResized($event)">
+  <div class="viewport-content"
+    [style.transform]="'scale(' + scale + ')'"
+    [style.left]="centerBiasX()"
+    [style.top]="centerBiasY()"
+
+    [style.paddingLeft]="horizontalPaddingSize + 'px'"
+    [style.paddingRight]="horizontalPaddingSize + 'px'"
+    [style.paddingTop]="verticalPaddingSize + 'px'"
+    [style.paddingBottom]="verticalPaddingSize + 'px'"
+    >
+    <div class="content" (resized)='onContentResized($event)'>
+      <div class="tracker-list flex-container">
+        <app-preview-tracker *ngFor="let tracker of plan.trackers" [tracker]="tracker"></app-preview-tracker>
+      </div>
     </div>
   </div>
-</pan-zoom>
+</div>
 
 <div class='card command-panel right-top flex-container flex-align-items-center'>
-  <button mat-icon-button (click)="panzoomApi.resetView()">
+  <button mat-icon-button (click)="fitView()">
     <mat-icon class="material-icons">aspect_ratio</mat-icon>
+  </button>
+  <button mat-icon-button (click)="zoomIn()">
+    <mat-icon class="material-icons">add</mat-icon>
+  </button>
+  <button mat-icon-button (click)="zoomOut()">
+    <mat-icon class="material-icons">remove</mat-icon>
   </button>
 </div>
