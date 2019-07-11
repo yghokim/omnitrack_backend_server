@@ -1,14 +1,8 @@
-<div class="viewport" (resized)="onViewPortResized($event)">
-  <div class="viewport-content"
-    [style.transform]="'scale(' + scale + ')'"
-    [style.left]="centerBiasX()"
-    [style.top]="centerBiasY()"
-
-    [style.paddingLeft]="horizontalPaddingSize + 'px'"
-    [style.paddingRight]="horizontalPaddingSize + 'px'"
-    [style.paddingTop]="verticalPaddingSize + 'px'"
-    [style.paddingBottom]="verticalPaddingSize + 'px'"
-    >
+<div class="viewport" #viewPort (resized)="onViewPortResized($event)">
+  <div class="viewport-content" (mousedown)="onMouseDownInViewPort($event)" (mousemove)="onMouseMoveInViewPort($event)"
+    [style.transform]="makeTransform()" [style.paddingLeft]="horizontalPaddingSize + 'px'"
+    [style.paddingRight]="horizontalPaddingSize + 'px'" [style.paddingTop]="verticalPaddingSize + 'px'"
+    [style.paddingBottom]="verticalPaddingSize + 'px'">
     <div class="content" (resized)='onContentResized($event)'>
       <div class="tracker-list flex-container">
         <app-preview-tracker *ngFor="let tracker of plan.trackers" [tracker]="tracker"></app-preview-tracker>
@@ -22,9 +16,12 @@
     <mat-icon class="material-icons">aspect_ratio</mat-icon>
   </button>
   <button mat-icon-button (click)="zoomIn()">
-    <mat-icon class="material-icons">add</mat-icon>
+    <mat-icon class="material-icons">zoom_in</mat-icon>
   </button>
   <button mat-icon-button (click)="zoomOut()">
-    <mat-icon class="material-icons">remove</mat-icon>
+    <mat-icon class="material-icons">zoom_out</mat-icon>
   </button>
+  <div class="scale-field flex-container flex-align-items-center">
+    <input class="form-control form-control-sm" type="text" [value]="scalePercent" (change)="scalePercent = $event.target.value">%
+  </div>
 </div>
