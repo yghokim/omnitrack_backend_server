@@ -53,6 +53,7 @@ import { NumberFieldMobileInputComponent } from './research/omnitrack/field-inpu
 import { StarPickerMobileInputComponent } from './research/omnitrack/field-inputs/rating/star-picker-mobile-input/star-picker-mobile-input.component';
 import { LikertPickerMobileInputComponent } from './research/omnitrack/field-inputs/rating/likert-picker-mobile-input/likert-picker-mobile-input.component';
 import { AngularResizedEventModule } from 'angular-resize-event';
+import { PreviewTriggerComponent } from './research/omnitrack/tracking-plan-detail/tracker-preview-panel/preview-trigger/preview-trigger.component';
 
 const routes: Routes = [
   {
@@ -141,7 +142,8 @@ const routes: Routes = [
     TimeSpanFieldMobileInputComponent,
     NumberFieldMobileInputComponent,
     StarPickerMobileInputComponent,
-    LikertPickerMobileInputComponent
+    LikertPickerMobileInputComponent,
+    PreviewTriggerComponent
   ],
   entryComponents: [
     LockConfigurationSheetComponent,

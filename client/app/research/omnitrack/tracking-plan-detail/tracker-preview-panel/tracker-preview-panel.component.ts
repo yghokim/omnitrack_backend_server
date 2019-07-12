@@ -1,16 +1,19 @@
-import { Component, OnDestroy, OnInit, ElementRef, ViewChild, HostListener } from '@angular/core';
+import { Component, OnDestroy, OnInit, ElementRef, ViewChild, HostListener, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
 import { TrackingPlan } from '../../../../../../omnitrack/core/tracking-plan';
 import { TrackingPlanService } from '../../tracking-plan.service';
 import { Subscription } from 'rxjs';
 import { ResizedEvent } from 'angular-resize-event';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
+import { ITriggerDbEntity } from 'omnitrack/core/db-entity-types';
+import { PreviewTriggerComponent } from './preview-trigger/preview-trigger.component';
+import { PreviewTrackerComponent } from './preview-tracker/preview-tracker.component';
 
 @Component({
   selector: 'app-tracker-preview-panel',
   templateUrl: './tracker-preview-panel.component.html',
   styleUrls: ['./tracker-preview-panel.component.scss']
 })
-export class TrackerPreviewPanelComponent implements OnInit, OnDestroy {
+export class TrackerPreviewPanelComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private _internalSubscriptions = new Subscription()
 
@@ -29,6 +32,10 @@ export class TrackerPreviewPanelComponent implements OnInit, OnDestroy {
   public scale: number = 0.5
 
   readonly maxScale = 3
+
+  @ViewChildren(PreviewTriggerComponent) triggerComponents: QueryList<PreviewTriggerComponent>
+  @ViewChildren(PreviewTrackerComponent) trackerComponents: QueryList<PreviewTrackerComponent>
+  
 
   get scalePercent(): number{
     return (Math.round(this.scale * 10000)/100)
@@ -59,7 +66,6 @@ export class TrackerPreviewPanelComponent implements OnInit, OnDestroy {
   }
 
   onContentResized(event: ResizedEvent) {
-
     this.contentWidth = event.newWidth
     this.contentHeight = event.newHeight
     this.scale = Math.max(this.minimumZoomLevel(), this.scale)
@@ -164,10 +170,17 @@ export class TrackerPreviewPanelComponent implements OnInit, OnDestroy {
     return Math.min(max, Math.max(value, min))
   }
 
-  //scroll
-  //scrollLeft: 212
-  //scrollLeftMax: 212
-  //scrollTop: 200
-  //scrollTopMax: 1920
+  getSortedTriggers(): Array<ITriggerDbEntity>{
+    if(this.plan && this.plan.triggers){
+      const triggerList = this.plan.triggers.slice(0)
+      return triggerList
+    }else{
+      return null
+    }
+  }
+
+  ngAfterViewInit(){
+    console.log(this.trackerComponents)
+  }
 
 }

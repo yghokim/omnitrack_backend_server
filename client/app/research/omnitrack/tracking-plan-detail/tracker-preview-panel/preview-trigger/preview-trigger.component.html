@@ -1,0 +1,19 @@
+<div class="card" (resized)="onCardResized($event)">
+  <div class="card-header">
+    {{typeName}}
+  </div>
+  <div class="card-body">
+    Bla Bla 
+  </div>
+
+  <div class="card-footer flex-container flex-align-items-center">
+    <div class="connector flex-container flex-align-items-center">
+      <div class="connector-point" #connector_main></div>
+      <div class="connector-name">{{mainConnectorName}}</div>
+    </div>
+    <div class="connector flex-container flex-align-items-center">
+        <div class="connector-point" #connector_script></div>
+        <div class="connector-name">watches in script</div>
+      </div>
+  </div>
+</div>
