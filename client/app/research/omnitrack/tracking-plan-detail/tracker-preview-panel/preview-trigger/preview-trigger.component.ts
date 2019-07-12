@@ -77,13 +77,13 @@ export class PreviewTriggerComponent implements OnInit {
     
     this._connectorPoints = [
       {
-        x: mainConnectorPointLeft + this.mainConnectorPointRef.nativeElement.clientWidth*.5,
-        y: mainConnectorPointTop + this.mainConnectorPointRef.nativeElement.clientHeight*.5,
+        x: mainConnectorPointLeft + this.mainConnectorPointRef.nativeElement.offsetWidth*.5,
+        y: mainConnectorPointTop + this.mainConnectorPointRef.nativeElement.offsetHeight*.5,
         type: EConnectorType.Main
       },
       {
-        x: scriptConnectorPointLeft + this.scriptConnectorPointRef.nativeElement.clientWidth*.5,
-        y: scriptConnectorPointTop + this.scriptConnectorPointRef.nativeElement.clientHeight*.5,
+        x: scriptConnectorPointLeft + this.scriptConnectorPointRef.nativeElement.offsetWidth*.5,
+        y: scriptConnectorPointTop + this.scriptConnectorPointRef.nativeElement.offsetHeight*.5,
         type: EConnectorType.Script
       },
     ]
@@ -94,9 +94,6 @@ export class PreviewTriggerComponent implements OnInit {
     })
 
     this.onConnectorPositionChanged.emit(this._connectorPoints)
-
-    console.log(this._connectorPoints)
-
   }
 }
 

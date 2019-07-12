@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ElementRef } from '@angular/core';
 import { ITrackerDbEntity, IFieldDbEntity } from '../../../../../../../omnitrack/core/db-entity-types';
 import { getTrackerColorString } from '../../../omnitrack-helper';
 import * as color from 'color';
@@ -15,8 +15,12 @@ export class PreviewTrackerComponent implements OnInit {
   @Input()
   tracker: ITrackerDbEntity
 
-  constructor() {
+  get elementBound(): {x: number, y: number, width: number, height: number}{
+    return {x: this.elementRef.nativeElement.offsetLeft, y: this.elementRef.nativeElement.offsetTop, width: this.elementRef.nativeElement.clientWidth, height: this.elementRef.nativeElement.clientHeight}
+  }
 
+  constructor(private elementRef: ElementRef) {
+    
   }
 
   ngOnInit() {

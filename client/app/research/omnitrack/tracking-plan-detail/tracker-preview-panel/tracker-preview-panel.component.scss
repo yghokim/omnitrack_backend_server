@@ -50,3 +50,14 @@
   left: 0;
   top: 0;
 }
+
+.tracker-list, .trigger-list{
+  align-items: start;
+}
+
+.tracker-list{
+  margin-top: 40px;
+  &:first-child{
+    margin-top: 0;
+  }
+}
