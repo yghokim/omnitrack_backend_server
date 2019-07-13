@@ -1,8 +1,11 @@
+@import '../../../../../../styles.scss';
+
 :host {
   width: 340px;
   margin-left: 1.5rem;
   margin-right: 1.5rem;
   margin-top: 3rem;
+  @include no-text-highlight();
 
   &>.card {
     border-radius: 0 0 0.5rem 0.5rem;
@@ -14,6 +17,12 @@
       padding-bottom: 0.5rem;
       font-weight: bold;
       font-size: 0.9rem;
+      border-radius: 0;
+    }
+
+    .card-body {
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
     }
 
     .card-footer {
@@ -26,14 +35,131 @@
 
 .connector {
   margin-right: 2rem;
-  &:last-child{
+
+  &:last-child {
     margin-right: 0;
   }
+
   .connector-point {
     width: 1.25rem;
     height: 1.25rem;
     border: 2px solid #bdbdbd;
     border-radius: 50%;
     margin-right: 0.5rem;
+  }
+}
+
+.dow-container {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #adadad;
+  margin-bottom: 0.3rem;
+}
+
+.trigger-display-big {
+  color: $color_primary;
+  font-weight: 100;
+  font-size: 2rem;
+}
+
+.script-indicator {
+  .symbol-plus {
+    margin-left: 0.5rem;
+    color: $color_dark_gray;
+  }
+
+  .symbol-script {
+    @include horizontal-gradient(#F37F8F, #F68E5F);
+    margin-left: 0.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+
+    mat-icon {
+      font-size: 14px;
+      color: white;
+    }
+  }
+
+  .label-script {
+    margin-left: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: initial;
+  }
+}
+
+.alarm-condition-info {
+  display: flex;
+  align-items: baseline;
+
+  .alarm-digit {
+    color: $color_primary;
+    font-weight: 100;
+    font-size: 2rem;
+  }
+
+  .alarm-ampm {
+    text-transform: uppercase;
+    margin-left: 0.3rem;
+    color: $color_light_gray;
+  }
+}
+
+.sampling-condition-info {
+  display: flex;
+  align-items: center;
+
+  .sampling-text {
+    font-size: 0.8rem;
+    margin-left: 0.3rem;
+    color: $color_light_gray;
+    align-self: end;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.interval-duration {
+  display: flex;
+  align-items: baseline;
+
+  .unit {
+    margin-left: 0.25rem;
+    color: $color_light_gray;
+    font-size: 0.8rem;
+    margin-right: 0.25rem;
+  }
+}
+
+.measure-info {
+  color: $color_pointed;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.threshold-info {
+  margin-top: 0.5rem;
+  img.comparison {
+    width: 2rem;
+    opacity: 0.7;
+    margin-right: 0.5rem;
+  }
+}
+
+.sub-indicator {
+  margin-left: 1.5rem;
+
+  .title {
+    color: $color_pointed;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .content {
+    color: $color_light_gray;
+    font-size: 0.7rem;
   }
 }

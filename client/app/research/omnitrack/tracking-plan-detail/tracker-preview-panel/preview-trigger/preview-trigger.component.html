@@ -1,9 +1,71 @@
 <div class="card" (resized)="onCardResized($event)">
-  <div class="card-header">
-    {{typeName}}
+  <div class="card-header flex-container flex-align-items-center flex-stretch">
+    <span>{{typeName}}</span>
+    <div *ngIf="trigger.checkScript===true && trigger.script != null"
+      class="script-indicator flex-container flex-align-items-center">
+      <div class="symbol-script">
+        <mat-icon class="material-icons">polymer</mat-icon>
+      </div>
+      <div class="label-script">Scripted Logic</div>
+    </div>
   </div>
-  <div class="card-body">
-    Bla Bla 
+  <div class="card-body" [ngSwitch]="trigger.conditionType">
+    <div class="flex-container" *ngSwitchCase="0" [ngSwitch]="trigger.condition.cType">
+      <!--Time-->
+      <div *ngSwitchCase="0" class="alarm-condition-info">
+        <!--alarm-->
+        <div class="trigger-display-big">{{getAlarmTime()}}</div>
+        <div class="alarm-ampm">{{getAlarmAmPm()}}</div>
+      </div>
+      <div *ngSwitchCase="1" class="flex-container flex-align-items-center">
+        <!--interval-->
+        <div class="interval-duration">
+          <ng-container *ngIf="getIntervalBreakdown().hour > 0">
+            <div class="time-digit trigger-display-big">{{getIntervalBreakdown().hour}}</div>
+            <div class="unit">hr</div>
+          </ng-container>
+          <ng-container *ngIf="getIntervalBreakdown().minute > 0">
+            <div class="time-digit trigger-display-big">{{getIntervalBreakdown().minute}}</div>
+            <div class="unit">min</div>
+          </ng-container>
+          <ng-container *ngIf="getIntervalBreakdown().second > 0">
+            <div class="time-digit trigger-display-big">{{getIntervalBreakdown().second}}</div>
+            <div class="unit">sec</div>
+          </ng-container>
+        </div>
+        <div class="sub-indicator">
+          <div class="title">Repeat Within</div>
+          <div class="content">{{getIntervalRangeText()}}</div>
+        </div>
+
+      </div>
+      <div class="sampling-condition-info" *ngSwitchCase="2">
+        <!--sampling-->
+        <div class="trigger-display-big">{{trigger.condition.esmCount}}</div>
+        <div class="sampling-text">times/day</div>
+
+        <div class="sub-indicator">
+          <div class="title">Sampling Range</div>
+          <div class="content">{{getSamplingRangeText()}}</div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngSwitchCase="1">
+      <!--Data-->
+      <div class="measure-info" *ngIf="getMeasureFactory() != null"><b>{{getMeasureFactory().name}}</b> | {{getMeasureFactory().categoryName}}</div>
+
+      <div class="measure-info text-color-warn" *ngIf="getMeasureFactory() == null">
+        No Measure Attached
+      </div>
+
+      <div class="threshold-info flex-container flex-align-items-center">
+        <img class="comparison" src="/assets/omnitrack/icon_threshold_up.svg">
+        <div class="threshold trigger-display-big">{{trigger.condition.threshold}}</div>
+      </div>
+    </ng-container>
+    <div class="dow-container" *ngIf="trigger.condition.repeat===true">
+      {{getDaysOfWeekString()}}
+    </div>
   </div>
 
   <div class="card-footer flex-container flex-align-items-center">
@@ -12,8 +74,8 @@
       <div class="connector-name">{{mainConnectorName}}</div>
     </div>
     <div class="connector flex-container flex-align-items-center">
-        <div class="connector-point" #connector_script></div>
-        <div class="connector-name">watches in script</div>
-      </div>
+      <div class="connector-point" #connector_script></div>
+      <div class="connector-name">watches in script</div>
+    </div>
   </div>
 </div>

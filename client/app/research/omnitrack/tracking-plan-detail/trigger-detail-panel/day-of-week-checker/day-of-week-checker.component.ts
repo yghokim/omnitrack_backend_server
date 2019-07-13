@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { TriggerConstants } from '../../../../../../../omnitrack/core/trigger/trigger-constants';
 
 @Component({
   selector: 'app-day-of-week-checker',
@@ -20,26 +21,10 @@ import { trigger, transition, style, animate } from '@angular/animations';
 export class DayOfWeekCheckerComponent implements OnInit {
 
   static DOW_NAME = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-  static FLAG_SUNDAY = 0b1000000
-  static FLAG_MONDAY = 0b0100000
-  static FLAG_TUESDAY = 0b0010000
-  static FLAG_WEDNESDAY = 0b0001000
-  static FLAG_THURSDAY = 0b0000100
-  static FLAG_FRIDAY = 0b0000010
-  static FLAG_SATURDAY = 0b0000001
-  static FLAGS = [
-    DayOfWeekCheckerComponent.FLAG_SUNDAY,
-    DayOfWeekCheckerComponent.FLAG_MONDAY,
-    DayOfWeekCheckerComponent.FLAG_TUESDAY,
-    DayOfWeekCheckerComponent.FLAG_WEDNESDAY,
-    DayOfWeekCheckerComponent.FLAG_THURSDAY,
-    DayOfWeekCheckerComponent.FLAG_FRIDAY,
-    DayOfWeekCheckerComponent.FLAG_SATURDAY
-  ]
 
   @Input()
   set checkedDaysInteger(integer: number) {
-    this.checkedDays = DayOfWeekCheckerComponent.FLAGS.map(
+    this.checkedDays = TriggerConstants.FLAGS.map(
       flag => {
         return (integer & flag) !== 0
       }

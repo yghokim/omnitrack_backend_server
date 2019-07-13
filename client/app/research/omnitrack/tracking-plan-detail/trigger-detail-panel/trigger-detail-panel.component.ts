@@ -2,7 +2,7 @@ import { Component, OnInit, Input, ViewChild, ElementRef, OnDestroy, ChangeDetec
 import { ITriggerDbEntity, ITrackerDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
 import { TriggerConstants } from '../../../../../../omnitrack/core/trigger/trigger-constants';
 import { TimeCondition, DataDrivenCondition } from '../../../../../../omnitrack/core/trigger/trigger-condition';
-import { merge } from '../../../../../../shared_lib/utils';
+import { merge, getNearestTimeUnitValue } from '../../../../../../shared_lib/utils';
 import * as moment from 'moment';
 import { Subscription } from 'rxjs';
 import { TrackingPlanService } from '../../tracking-plan.service';
@@ -24,14 +24,14 @@ export class TriggerDetailPanelComponent implements OnInit, OnDestroy {
   private _internalSubscriptions = new Subscription()
 
   get esmIntervalDigit(): number {
-    return this.getNearestTimeUnitValue(this.trigger.condition.esmIntervalSec).digit
+    return getNearestTimeUnitValue(this.trigger.condition.esmIntervalSec).digit
   }
   set esmIntervalDigit(digit: number) {
     this.trigger.condition.esmIntervalSec = this.convertToSeconds(digit, this.esmIntervalUnit)
   }
 
   get esmIntervalUnit(): string {
-    return this.getNearestTimeUnitValue(this.trigger.condition.esmIntervalSec).unit
+    return getNearestTimeUnitValue(this.trigger.condition.esmIntervalSec).unit
   }
   set esmIntervalUnit(unit: string) {
     this.trigger.condition.esmIntervalSec = this.convertToSeconds(this.esmIntervalDigit, unit)
@@ -86,6 +86,9 @@ export class TriggerDetailPanelComponent implements OnInit, OnDestroy {
 
   onTimeConditionTypeChanged(cType: number) {
     this.trigger.condition.cType = cType
+    if(cType === TriggerConstants.TIME_CONDITION_SAMPLING){
+      this.trigger.condition.repeat = true
+    }
     this.trigger.condition = merge(new TimeCondition(), this.trigger.condition, true, true)
   }
 
@@ -95,25 +98,6 @@ export class TriggerDetailPanelComponent implements OnInit, OnDestroy {
 
   getEndDate(): Date {
     return new Date(this.trigger.condition.endAt)
-  }
-
-  getNearestTimeUnitValue(seconds: number): { unit: string, digit: number } {
-    if (seconds % 3600 === 0) {
-      return {
-        digit: seconds / 3600,
-        unit: 'hour'
-      }
-    } else if (seconds % 60 === 0) {
-      return {
-        digit: seconds / 60,
-        unit: 'minute'
-      }
-    } else {
-      return {
-        digit: seconds,
-        unit: 'second'
-      }
-    }
   }
 
   convertToSeconds(digit: number, unit: string): number {
