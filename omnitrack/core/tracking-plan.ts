@@ -350,6 +350,12 @@ export class TrackingPlan {
     } else { return false }
   }
 
+  public getTrackerById(id: string): ITrackerDbEntity{
+    if(this.trackers && this.trackers.length > 0){
+      return this.trackers.find(t => t._id === id)
+    }else return null
+  }
+
   private generatePlaceholder(text: string, injectedId: string) {
     return TrackingPlan.PLACEHOLDER_PREFIX + text.toUpperCase() + "_" + injectedId + TrackingPlan.PLACEHOLDER_SUFFIX
   }

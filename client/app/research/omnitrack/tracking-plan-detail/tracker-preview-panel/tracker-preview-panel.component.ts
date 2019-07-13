@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ElementRef, ViewChild, HostListener, ViewChildren, QueryList, AfterViewInit, AfterContentChecked, Renderer2 } from '@angular/core';
+import { Component, OnDestroy, OnInit, ElementRef, ViewChild, HostListener, ViewChildren, QueryList, AfterViewInit, AfterContentChecked, Renderer2, ChangeDetectorRef } from '@angular/core';
 import { TrackingPlan } from '../../../../../../omnitrack/core/tracking-plan';
 import { TrackingPlanService } from '../../tracking-plan.service';
 import { Subscription } from 'rxjs';
@@ -8,6 +8,8 @@ import { ITriggerDbEntity, ITrackerDbEntity } from '../../../../../../omnitrack/
 import { PreviewTriggerComponent, EConnectorType } from './preview-trigger/preview-trigger.component';
 import { PreviewTrackerComponent } from './preview-tracker/preview-tracker.component';
 import { TriggerConstants } from '../../../../../../omnitrack/core/trigger/trigger-constants';
+import { sortBy } from '../../../../../../shared_lib/utils';
+import * as d3 from 'd3';
 
 export interface ConnectionLineInfo {
   type: EConnectorType,
@@ -67,6 +69,12 @@ export class TrackerPreviewPanelComponent implements OnInit, OnDestroy {
 
   constructor(private planService: TrackingPlanService, private sanitizer: DomSanitizer, private renderer: Renderer2) {
     this.plan = planService.currentPlan
+
+    this._internalSubscriptions.add(
+      planService.onNewPlanSet.subscribe(newPlan => {
+        this.plan = planService.currentPlan
+      })
+    )
   }
 
   ngOnInit(): void {
@@ -191,6 +199,18 @@ export class TrackerPreviewPanelComponent implements OnInit, OnDestroy {
   getSortedTriggers(): Array<ITriggerDbEntity> {
     if (this.plan && this.plan.triggers) {
       const triggerList = this.plan.triggers.slice(0)
+
+      //first, sort by the earliest index of tracker
+      triggerList.sort(sortBy((trigger: ITriggerDbEntity)=>
+        d3.max(
+        trigger.trackers.map(trackerId => 
+          this.plan.getTrackerById(trackerId).position)), true))
+          
+
+      //finally, sort by type
+      triggerList.sort(sortBy((trigger: ITriggerDbEntity)=>
+        trigger.actionType))
+
       return triggerList
     } else {
       return null

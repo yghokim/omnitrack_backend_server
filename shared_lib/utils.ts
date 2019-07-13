@@ -329,6 +329,23 @@ export function getNearestTimeUnitValue(seconds: number): { unit: string, digit:
   }
 }
 
-export function ifelse(predicate: ()=>any): any{
+export function ifelse(predicate: () => any): any {
   return predicate()
+}
+
+export function sortBy<T>(func: (elm: T) => number, reverse = false): (a: T, b: T) => number {
+  return (a: T, b: T) => {
+    const aScore = func(a)
+    const bScore = func(b)
+    let comparison
+    if (aScore > bScore) {
+      comparison = 1
+    } else if (aScore < bScore) {
+      comparison = -1
+    } else comparison = 0
+
+    if(reverse === true){
+    return -comparison
+    }else return comparison
+  }
 }

@@ -3,12 +3,16 @@ import { ITrackerDbEntity, ITriggerDbEntity, IFieldDbEntity } from '../../../../
 import { TrackingPlanManagerImpl } from '../../../../omnitrack/core/tracking-plan-helper';
 import { TrackingPlan } from '../../../../omnitrack/core/tracking-plan';
 import { DependencyLevel, OmniTrackFlagGraph } from '../../../../omnitrack/core/functionality-locks/omnitrack-dependency-graph';
+import { Subject } from 'rxjs';
 
 @Injectable()
 export class TrackingPlanService {
 
+  public readonly onNewPlanSet = new Subject<TrackingPlan>()
+
   public set currentPlan(plan: TrackingPlan) {
     this.currentImpl = new TrackingPlanManagerImpl(plan)
+    this.onNewPlanSet.next(plan)
   }
 
   public get currentPlan(): TrackingPlan{

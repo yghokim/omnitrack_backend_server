@@ -1,4 +1,4 @@
-<div class="card" (resized)="onCardResized($event)">
+<div class="card" (resized)="refreshConnectorPoints()">
   <div class="card-header flex-container flex-align-items-center flex-stretch">
     <span>{{typeName}}</span>
     <div *ngIf="trigger.checkScript===true && trigger.script != null"

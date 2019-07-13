@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, Output, EventEmitter, AfterContentChecked } from '@angular/core';
 import { ITriggerDbEntity } from '../../../../../../../omnitrack/core/db-entity-types';
 import { TriggerConstants } from '../../../../../../../omnitrack/core/trigger/trigger-constants';
 import { ResizedEvent } from 'angular-resize-event';
@@ -22,7 +22,8 @@ export interface ConnectorPoint {
   templateUrl: './preview-trigger.component.html',
   styleUrls: ['./preview-trigger.component.scss']
 })
-export class PreviewTriggerComponent implements OnInit {
+export class PreviewTriggerComponent implements OnInit, AfterContentChecked {
+
 
   @Input()
   trigger: ITriggerDbEntity
@@ -47,6 +48,10 @@ export class PreviewTriggerComponent implements OnInit {
   ngOnInit() {
   }
 
+  ngAfterContentChecked() {
+    this.refreshConnectorPoints()
+  }
+
   get typeName(): string {
     if (this.trigger) {
       switch (this.trigger.actionType) {
@@ -69,7 +74,7 @@ export class PreviewTriggerComponent implements OnInit {
     } else return null
   }
 
-  onCardResized(event: ResizedEvent) {
+  refreshConnectorPoints() {
 
     const triggerPositionX = this.elementRef.nativeElement.offsetLeft
     const triggerPositionY = this.elementRef.nativeElement.offsetTop
@@ -102,9 +107,9 @@ export class PreviewTriggerComponent implements OnInit {
 
   //trigger display
   getDaysOfWeekString(): string {
-    if(this.trigger.condition.dow === 0b1111111){
+    if (this.trigger.condition.dow === 0b1111111) {
       return "Everyday"
-    }else return TriggerConstants.FLAGS.map(
+    } else return TriggerConstants.FLAGS.map(
       (flag, index) => {
         const checked = (this.trigger.condition.dow & flag) !== 0
         if (checked === true) {
@@ -142,17 +147,17 @@ export class PreviewTriggerComponent implements OnInit {
     if (this.trigger.condition.iStartHr === this.trigger.condition.iEndHr || this.trigger.condition.iRanged === false) {
       return "Whole day"
     } else {
-      const from = ifelse(()=>{
-        if(this.trigger.condition.iStartHr === 24){
+      const from = ifelse(() => {
+        if (this.trigger.condition.iStartHr === 24) {
           return "24:00"
-        }else return moment().hour(this.trigger.condition.iStartHr).format("HH:00 a")
-      }) 
+        } else return moment().hour(this.trigger.condition.iStartHr).format("HH:00 a")
+      })
 
-      const to = ifelse(()=>{
-        if(this.trigger.condition.iEndHr === 24){
+      const to = ifelse(() => {
+        if (this.trigger.condition.iEndHr === 24) {
           return "24:00"
-        }else return moment().hour(this.trigger.condition.EndHr).format("HH:00 a")
-      }) 
+        } else return moment().hour(this.trigger.condition.EndHr).format("HH:00 a")
+      })
 
       if (this.trigger.condition.iStartHr > this.trigger.condition.iEndHr) {
         return from + " - " + to + " next day"
@@ -169,11 +174,11 @@ export class PreviewTriggerComponent implements OnInit {
     return { hour: hour, minute: minute, second: second }
   }
 
-  getMeasureFactory(): AMeasureFactory{
-    if (this.trigger.condition.measure){
+  getMeasureFactory(): AMeasureFactory {
+    if (this.trigger.condition.measure) {
       const measureFactory = MeasureFactoryManager.getMeasureFactoryByCode(this.trigger.condition.measure.code)
       return measureFactory
-    }else return null
+    } else return null
   }
 }
 
