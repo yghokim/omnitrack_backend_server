@@ -54,6 +54,7 @@ import { StarPickerMobileInputComponent } from './research/omnitrack/field-input
 import { LikertPickerMobileInputComponent } from './research/omnitrack/field-inputs/rating/likert-picker-mobile-input/likert-picker-mobile-input.component';
 import { AngularResizedEventModule } from 'angular-resize-event';
 import { PreviewTriggerComponent } from './research/omnitrack/tracking-plan-detail/tracker-preview-panel/preview-trigger/preview-trigger.component';
+import { DomChangeDirective } from './directives/dom-change.directive';
 
 const routes: Routes = [
   {
@@ -143,7 +144,8 @@ const routes: Routes = [
     NumberFieldMobileInputComponent,
     StarPickerMobileInputComponent,
     LikertPickerMobileInputComponent,
-    PreviewTriggerComponent
+    PreviewTriggerComponent,
+    DomChangeDirective
   ],
   entryComponents: [
     LockConfigurationSheetComponent,

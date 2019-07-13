@@ -181,6 +181,9 @@ export class TrackerPreviewPanelComponent implements OnInit, OnDestroy {
     }
   }
 
+  onContentDomChanged(){
+  }
+
   clamp(value, min, max): number {
     return Math.min(max, Math.max(value, min))
   }
@@ -199,9 +202,9 @@ export class TrackerPreviewPanelComponent implements OnInit, OnDestroy {
       const trackerList = this.plan.trackers.slice(0)
       trackerList.sort((a, b)=>{
         if(a.position > b.position){
-          return 1
-        }else if(a.position < b.position){
           return -1
+        }else if(a.position < b.position){
+          return 1
         }else return 0
       })
       return trackerList
