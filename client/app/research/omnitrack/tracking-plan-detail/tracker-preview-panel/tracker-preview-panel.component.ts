@@ -10,6 +10,7 @@ import { PreviewTrackerComponent } from './preview-tracker/preview-tracker.compo
 import { TriggerConstants } from '../../../../../../omnitrack/core/trigger/trigger-constants';
 import { sortBy } from '../../../../../../shared_lib/utils';
 import * as d3 from 'd3';
+import { PlanBrushAndLinkingService } from '../../plan-brush-and-linking.service';
 
 export interface ConnectionLineInfo {
   type: EConnectorType,
@@ -44,6 +45,8 @@ export class TrackerPreviewPanelComponent implements OnInit, OnDestroy {
 
   readonly maxScale = 3
 
+  public isPanningMode = false
+
   @ViewChildren(PreviewTriggerComponent) triggerComponents: QueryList<PreviewTriggerComponent>
   @ViewChildren(PreviewTrackerComponent) trackerComponents: QueryList<PreviewTrackerComponent>
 
@@ -67,7 +70,7 @@ export class TrackerPreviewPanelComponent implements OnInit, OnDestroy {
   @ViewChild("viewPort")
   viewPortRef: ElementRef
 
-  constructor(private planService: TrackingPlanService, private sanitizer: DomSanitizer, private renderer: Renderer2) {
+  constructor(private planService: TrackingPlanService, private sanitizer: DomSanitizer, private renderer: Renderer2, public brushAndLinking: PlanBrushAndLinkingService) {
     this.plan = planService.currentPlan
 
     this._internalSubscriptions.add(
@@ -151,13 +154,18 @@ export class TrackerPreviewPanelComponent implements OnInit, OnDestroy {
 
 
   onMouseDownInViewPort(event: MouseEvent) {
-    this.viewPortMouseDownX = event.clientX
-    this.viewPortMouseDownY = event.clientY
 
-    this.viewPortMouseDownScrollLeft = this.viewPortRef.nativeElement.scrollLeft
-    this.viewPortMouseDownScrollTop = this.viewPortRef.nativeElement.scrollTop
-    
-    this.disposeGlobalMouseMoveEvent = this.renderer.listen('window', 'mousemove', (event) => {this.onMouseMoveInViewPort(event)})
+    if (this.brushAndLinking.currentHoveringObject == null) {
+
+      this.viewPortMouseDownX = event.clientX
+      this.viewPortMouseDownY = event.clientY
+
+      this.viewPortMouseDownScrollLeft = this.viewPortRef.nativeElement.scrollLeft
+      this.viewPortMouseDownScrollTop = this.viewPortRef.nativeElement.scrollTop
+
+      this.disposeGlobalMouseMoveEvent = this.renderer.listen('window', 'mousemove', (event) => { this.onMouseMoveInViewPort(event) })
+    }
+
   }
 
   @HostListener('mouseup', ['$event'])
@@ -168,7 +176,7 @@ export class TrackerPreviewPanelComponent implements OnInit, OnDestroy {
     this.viewPortMouseDownScrollLeft = null
     this.viewPortMouseDownScrollTop = null
 
-    if(this.disposeGlobalMouseMoveEvent){
+    if (this.disposeGlobalMouseMoveEvent) {
       this.disposeGlobalMouseMoveEvent()
       this.disposeGlobalMouseMoveEvent = null
     }
@@ -189,7 +197,7 @@ export class TrackerPreviewPanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  onContentDomChanged(){
+  onContentDomChanged() {
   }
 
   clamp(value, min, max): number {
@@ -201,14 +209,14 @@ export class TrackerPreviewPanelComponent implements OnInit, OnDestroy {
       const triggerList = this.plan.triggers.slice(0)
 
       //first, sort by the earliest index of tracker
-      triggerList.sort(sortBy((trigger: ITriggerDbEntity)=>
+      triggerList.sort(sortBy((trigger: ITriggerDbEntity) =>
         d3.max(
-        trigger.trackers.map(trackerId => 
-          this.plan.getTrackerById(trackerId).position)), true))
-          
+          trigger.trackers.map(trackerId =>
+            this.plan.getTrackerById(trackerId).position)), true))
+
 
       //finally, sort by type
-      triggerList.sort(sortBy((trigger: ITriggerDbEntity)=>
+      triggerList.sort(sortBy((trigger: ITriggerDbEntity) =>
         trigger.actionType))
 
       return triggerList
@@ -220,12 +228,12 @@ export class TrackerPreviewPanelComponent implements OnInit, OnDestroy {
   getSortedTrackers(): Array<ITrackerDbEntity> {
     if (this.plan && this.plan.trackers) {
       const trackerList = this.plan.trackers.slice(0)
-      trackerList.sort((a, b)=>{
-        if(a.position > b.position){
+      trackerList.sort((a, b) => {
+        if (a.position > b.position) {
           return -1
-        }else if(a.position < b.position){
+        } else if (a.position < b.position) {
           return 1
-        }else return 0
+        } else return 0
       })
       return trackerList
     } else {

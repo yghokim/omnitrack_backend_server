@@ -23,6 +23,7 @@ import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { TrackerColorPickerComponent } from './tracker-color-picker/tracker-color-picker.component';
 import { TextFieldHelper } from '../../../../../../omnitrack/core/fields/text.field.helper';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { PlanBrushAndLinkingService } from '../../plan-brush-and-linking.service';
 
 @Component({
   selector: 'app-tracker-detail-panel',
@@ -158,7 +159,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
   selectedType: string
   selectedEntity: ITriggerDbEntity | IFieldDbEntity = null
 
-  constructor(private planService: TrackingPlanService, private matDialog: MatDialog, private matBottomSheet: MatBottomSheet, private detector: ChangeDetectorRef) {
+  constructor(private planService: TrackingPlanService, private matDialog: MatDialog, private matBottomSheet: MatBottomSheet, private detector: ChangeDetectorRef, public brushAndLinking: PlanBrushAndLinkingService) {
   }
 
   ngOnInit() {

@@ -13,7 +13,10 @@
   height: 100%;
   overflow: auto;
   position: relative;
-  cursor: move;
+  
+  &.panning{
+    cursor: move;
+  }
 
   .viewport-content {
     position: absolute;

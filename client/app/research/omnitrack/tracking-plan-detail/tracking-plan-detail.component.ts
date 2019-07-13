@@ -17,28 +17,29 @@ import { TriggerConstants } from '../../../../../omnitrack/core/trigger/trigger-
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { ChangeCheckComponent } from '../../../components/change-check.component';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { PlanBrushAndLinkingService, BrushAndLinkingObjectType, BrushAndLinkingEvent } from '../plan-brush-and-linking.service';
 
 @Component({
   selector: 'app-tracking-plan-detail',
   templateUrl: './tracking-plan-detail.component.html',
   styleUrls: ['./tracking-plan-detail.component.scss', '../../../code-editor.scss'],
-  providers: [TrackingPlanService],
+  providers: [TrackingPlanService, PlanBrushAndLinkingService],
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     trigger('showHideTrigger', [
       transition(':enter', [
         style({ width: 0, overflowX: 'hidden' }),
-        animate('0.5s ease-in-out', style({ width: '*'})),
+        animate('0.5s ease-in-out', style({ width: '*' })),
       ]),
       transition(':leave', [
-        style({overflowX: 'hidden'}),
+        style({ overflowX: 'hidden' }),
         animate('0.5s ease-in-out', style({ width: 0 }))
       ])
     ]),
   ]
 })
 export class TrackingPlanDetailComponent extends ChangeCheckComponent implements OnInit, OnDestroy {
-  
+
   private _internalSubscriptions = new Subscription()
   originalPlanData: IExperimentTrackingPlanDbEntity = null
   currentPlanData: IExperimentTrackingPlanDbEntity = null
@@ -46,13 +47,16 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
   public selectedType: string = null
   public selectedEntity: ITrackerDbEntity | ITriggerDbEntity = null
 
+  public currentHoveringInfo: BrushAndLinkingEvent = null
+
   constructor(
     private api: ResearchApiService,
     public planService: TrackingPlanService,
     private activatedRoute: ActivatedRoute,
     private changeDetector: ChangeDetectorRef,
     private notificationService: NotificationService,
-    private matDialog: MatDialog
+    private matDialog: MatDialog,
+    public brushAndLinking: PlanBrushAndLinkingService
   ) {
     super()
   }
@@ -83,9 +87,9 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
                 break;
             }
 
-            if(newInstance != null){
+            if (newInstance != null) {
               this.selectedEntity = newInstance
-            }else{
+            } else {
               this.unselect()
             }
           }
@@ -145,20 +149,20 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
   }
 
   onTrackerClicked(tracker: ITrackerDbEntity) {
-    if(this.selectedEntity && this.selectedEntity._id === tracker._id){
+    if (this.selectedEntity && this.selectedEntity._id === tracker._id) {
       this.unselect()
-    }else{
-    this.selectedEntity = tracker
-    this.selectedType = 'tracker'
+    } else {
+      this.selectedEntity = tracker
+      this.selectedType = 'tracker'
     }
   }
 
   onTriggerClicked(trigger: ITriggerDbEntity) {
-    if(this.selectedEntity && this.selectedEntity._id === trigger._id){
+    if (this.selectedEntity && this.selectedEntity._id === trigger._id) {
       this.unselect()
-    }else {
-    this.selectedEntity = trigger
-    this.selectedType = 'trigger'
+    } else {
+      this.selectedEntity = trigger
+      this.selectedType = 'trigger'
     }
   }
 
@@ -271,5 +275,23 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
           }
         })
     )
+  }
+
+  checkEventRelatedToTracker(event: BrushAndLinkingEvent, tracker: ITrackerDbEntity): boolean {
+    if (event && event.obj && event.source !== 'menu') {
+      switch (event.objectType) {
+        case BrushAndLinkingObjectType.Tracker:
+          return event.obj._id === tracker._id
+        case BrushAndLinkingObjectType.Field:
+          return event.obj.trackerId === tracker._id
+        case BrushAndLinkingObjectType.Trigger:
+          if(event.obj.actionType === TriggerConstants.ACTION_TYPE_REMIND){
+            return event.obj.trackers.indexOf(tracker._id) !== -1
+          }else return false
+
+      }
+    } else {
+      return false
+    }
   }
 }

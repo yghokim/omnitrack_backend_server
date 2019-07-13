@@ -1,11 +1,12 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, Output, EventEmitter, AfterContentChecked } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, Output, EventEmitter, AfterContentChecked, HostListener } from '@angular/core';
 import { ITriggerDbEntity } from '../../../../../../../omnitrack/core/db-entity-types';
 import { TriggerConstants } from '../../../../../../../omnitrack/core/trigger/trigger-constants';
-import { ResizedEvent } from 'angular-resize-event';
 import * as moment from 'moment';
 import { ifelse } from '../../../../../../../shared_lib/utils';
 import { MeasureFactoryManager } from '../../../../../../../omnitrack/core/value-connection/measure-factory.manager';
 import { AMeasureFactory } from '../../../../../../../omnitrack/core/value-connection/measure-factory';
+import { trigger, transition, style, animate } from '@angular/animations';
+import { PlanBrushAndLinkingService } from '../../../plan-brush-and-linking.service';
 
 export enum EConnectorType {
   Main, Script
@@ -20,10 +21,25 @@ export interface ConnectorPoint {
 @Component({
   selector: 'app-preview-trigger',
   templateUrl: './preview-trigger.component.html',
-  styleUrls: ['./preview-trigger.component.scss']
+  styleUrls: ['./preview-trigger.component.scss'],
+  animations: [
+    trigger("hoverTrigger", [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('0.25s', style({ opacity: 1 })),
+      ]),
+      transition(':leave', [
+        animate('0.2s', style({ opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class PreviewTriggerComponent implements OnInit, AfterContentChecked {
 
+  isHovering = false
+
+  @Input()
+  highlight = false
 
   @Input()
   trigger: ITriggerDbEntity
@@ -43,13 +59,23 @@ export class PreviewTriggerComponent implements OnInit, AfterContentChecked {
   @ViewChild("connector_script")
   scriptConnectorPointRef: ElementRef
 
-  constructor(private elementRef: ElementRef) { }
+  constructor(private elementRef: ElementRef, private brushAndLinking: PlanBrushAndLinkingService) { }
 
   ngOnInit() {
   }
 
   ngAfterContentChecked() {
     this.refreshConnectorPoints()
+  }
+
+  onMouseEnter() {
+    this.isHovering = true
+    this.brushAndLinking.onHoverTrigger(this.trigger, "preview")
+  }
+
+  onMouseLeave() {
+    this.isHovering = false
+    this.brushAndLinking.onLeaveObject()
   }
 
   get typeName(): string {

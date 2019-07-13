@@ -62,7 +62,11 @@
     [title]="reminder.alias? reminder.alias : getReminderTitle(reminder)"
     [subtitle]="reminder.alias? getReminderTitle(reminder) : null" [showRemoveButton]="true"
     (onClick)="onReminderClicked(reminder)" (onRemoveClick)="onRemoveReminderClicked(reminder)"
-    [selected]="selectedEntity === reminder">
+    [selected]="selectedEntity === reminder"
+    [highlight]="(brushAndLinking.currentHoveringInfo | async) != null && (brushAndLinking.currentHoveringInfo | async).obj._id === reminder._id && (brushAndLinking.currentHoveringInfo | async).source !== 'menu'"
+    (onMouseEnter)="brushAndLinking.onHoverTrigger(reminder, 'menu')"
+    (onMouseLeave)="brushAndLinking.onLeaveObject()"
+    >
   </app-selectable-menu-item>
   <div class="form-group">
     <button mat-button class="add-button mat-button-small" color="accent" (click)="onAddReminderClicked()">
