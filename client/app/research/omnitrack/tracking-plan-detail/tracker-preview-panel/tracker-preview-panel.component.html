@@ -1,3 +1,4 @@
+<div class="shadow-layer"></div>
 <div class="viewport" #viewPort (resized)="onViewPortResized($event)"
   [class.panning]="(brushAndLinking.currentHoveringInfo | async) == null">
   <div class="viewport-content" (mousedown)="onMouseDownInViewPort($event)"

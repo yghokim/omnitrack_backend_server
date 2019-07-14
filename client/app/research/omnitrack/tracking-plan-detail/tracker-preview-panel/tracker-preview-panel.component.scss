@@ -3,10 +3,20 @@
   flex: 1;
   background-size: 2rem 2rem;
   background-image: radial-gradient(circle, rgba(0, 0, 0, 0.25) 1px, rgb(245, 245, 245) 1px);
+}
 
-  -moz-box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.2);
-  -webkit-box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.2);
+.shadow-layer{
+  z-index: 5000;
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+
+  -moz-box-shadow: inset 6px 0 25px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: inset 6px 0 25px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 6px 0 25px rgba(0, 0, 0, 0.2);
 }
 
 .viewport {

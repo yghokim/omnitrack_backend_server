@@ -61,7 +61,7 @@
       </div>
 
       <div class="threshold-info flex-container flex-align-items-center">
-        <img class="comparison" src="/assets/omnitrack/icon_threshold_up.svg">
+        <img class="comparison" [attr.src]="'/assets/omnitrack/icon_threshold_' + (trigger.condition.comparison === 'exceed'? 'up' : 'down') + '.svg'">
         <div class="threshold trigger-display-big">{{trigger.condition.threshold}}</div>
       </div>
     </ng-container>
