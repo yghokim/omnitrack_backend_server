@@ -48,6 +48,6 @@
     <mat-icon class="material-icons">zoom_out</mat-icon>
   </button>
   <div class="scale-field flex-container flex-align-items-center">
-    <input class="form-control form-control-sm" type="text" [value]="scalePercent" (change)="scalePercent = $event.target.value">%
+    <input class="form-control form-control-sm" type="text" [value]="scalePercent" (focus)="$event.target.setSelectionRange(0, $event.target.value.length); $event.target.select()" (change)="scalePercent = $event.target.value">%
   </div>
 </div>
