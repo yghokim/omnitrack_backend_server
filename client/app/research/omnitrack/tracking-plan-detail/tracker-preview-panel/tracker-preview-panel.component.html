@@ -7,11 +7,17 @@
     <div class="content" (resized)='onContentResized($event)'>
 
       <div class="trigger-list flex-container" *ngIf="getSortedTriggers() != null && getSortedTriggers().length > 0" (domChange)="onContentDomChanged()">
-        <app-preview-trigger *ngFor="let trigger of getSortedTriggers(); trackBy: trackByObjectId" [trigger]="trigger" [highlight]="(brushAndLinking.currentHoveringInfo | async) != null && (brushAndLinking.currentHoveringInfo | async).obj._id === trigger._id" (onMouseEnter)="brushAndLinking.onHoverTrigger(trigger)" (onMouseLeave)="brushAndLinking.onLeaveObject()"></app-preview-trigger>
+        <app-preview-trigger *ngFor="let trigger of getSortedTriggers(); trackBy: trackByObjectId" [trigger]="trigger" [highlight]="(brushAndLinking.checkHoverOnId(trigger._id) | async) === true" (onMouseEnter)="brushAndLinking.onHoverTrigger(trigger)" (onMouseLeave)="brushAndLinking.onLeaveObject()"></app-preview-trigger>
       </div>
 
       <div class="tracker-list flex-container" *ngIf="getSortedTrackers() != null && getSortedTrackers().length > 0" (domChange)="onContentDomChanged()">
-        <app-preview-tracker *ngFor="let tracker of getSortedTrackers(); trackBy: trackByObjectId" [tracker]="tracker"></app-preview-tracker>
+        <app-preview-tracker *ngFor="let tracker of getSortedTrackers(); trackBy: trackByObjectId" [tracker]="tracker" 
+        (onHeaderMouseEnter)="brushAndLinking.onHoverTracker(tracker)" (onHeaderMouseLeave)="brushAndLinking.onLeaveObject()"
+        (onFieldMouseEnter)="brushAndLinking.onHoverField($event)"
+        (onFieldMouseLeave)="brushAndLinking.onLeaveObject()"
+        [highlight]="(brushAndLinking.checkHoverOnId(tracker._id) | async) === true"
+        [highlightedFieldId]="brushAndLinking.checkHoveringFieldIdOfTracker(tracker._id) | async"
+        ></app-preview-tracker>
       </div>
 
       <svg class="decorator-canvas" [attr.width]="contentWidth + 'px'" [attr.height]="contentHeight + 'px'">

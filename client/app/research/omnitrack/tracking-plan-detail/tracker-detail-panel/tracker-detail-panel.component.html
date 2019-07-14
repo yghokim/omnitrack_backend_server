@@ -44,7 +44,11 @@
       <app-selectable-menu-item [title]="getFieldById(fieldId).name" [showRemoveButton]="true" [showDragHandle]="true"
         [iconPath]="'/assets/omnitrack/field_icons_small/icon_small_' + getFieldIconName(getFieldById(fieldId)) + '.svg'"
         [selected]="selectedEntity === getFieldById(fieldId)" (onClick)="onFieldClicked(getFieldById(fieldId))"
-        (onRemoveClick)="onRemoveFieldClicked(getFieldById(fieldId))">
+        (onRemoveClick)="onRemoveFieldClicked(getFieldById(fieldId))"
+        (onMouseEnter)="brushAndLinking.onHoverField(getFieldById(fieldId), 'menu')"
+        (onMouseLeave)="brushAndLinking.onLeaveObject()"
+        [highlight]="(brushAndLinking.checkHoverOnId(fieldId) | async) === true"
+        >
         <span *ngIf="getFieldById(fieldId).connection" class="field-with-connection-indicator material-icons" [class.text-color-pointed]="selectedEntity !== getFieldById(fieldId)" afterTitle>link</span>
       </app-selectable-menu-item>
     </div>
@@ -63,7 +67,7 @@
     [subtitle]="reminder.alias? getReminderTitle(reminder) : null" [showRemoveButton]="true"
     (onClick)="onReminderClicked(reminder)" (onRemoveClick)="onRemoveReminderClicked(reminder)"
     [selected]="selectedEntity === reminder"
-    [highlight]="(brushAndLinking.currentHoveringInfo | async) != null && (brushAndLinking.currentHoveringInfo | async).obj._id === reminder._id && (brushAndLinking.currentHoveringInfo | async).source !== 'menu'"
+    [highlight]="(brushAndLinking.checkHoverOnId(reminder._id) | async)===true && (brushAndLinking.currentHoveringInfo | async).source !== 'menu'"
     (onMouseEnter)="brushAndLinking.onHoverTrigger(reminder, 'menu')"
     (onMouseLeave)="brushAndLinking.onLeaveObject()"
     >

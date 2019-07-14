@@ -27,14 +27,27 @@ export class PreviewTrackerComponent implements OnInit {
   @Input()
   tracker: ITrackerDbEntity
 
+  @Input()
+  highlight = false
+
+  @Input()
+  highlightedFieldId: string = null
+
   @Output()
   onHeaderMouseEnter = new EventEmitter<void>()
 
   @Output()
   onHeaderMouseLeave = new EventEmitter<void>()
 
+  @Output()
+  onFieldMouseEnter = new EventEmitter<IFieldDbEntity>()
+  
+  @Output()
+  onFieldMouseLeave = new EventEmitter<string>()
+  
   isHeaderHovering = false
 
+  currentHoveringFieldId: string = null
 
   get elementBound(): {x: number, y: number, width: number, height: number}{
     return {x: this.elementRef.nativeElement.offsetLeft, y: this.elementRef.nativeElement.offsetTop, width: this.elementRef.nativeElement.clientWidth, height: this.elementRef.nativeElement.clientHeight}
@@ -65,6 +78,16 @@ export class PreviewTrackerComponent implements OnInit {
   onHeaderMouseLeaved(){
     this.isHeaderHovering = false
     this.onHeaderMouseLeave.emit()
+  }
+
+  onFieldMouseEntered(field:IFieldDbEntity){
+    this.currentHoveringFieldId = field._id
+    this.onFieldMouseEnter.emit(field)
+  }
+
+  onFieldMouseLeaved(field: IFieldDbEntity){
+    this.currentHoveringFieldId = null
+    this.onFieldMouseLeave.emit(field._id)
   }
 
 }
