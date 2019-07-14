@@ -2,7 +2,13 @@
 [class.selected]="selected===true"
 [class.has-button]="showRemoveButton === true"
 [class.has-drag-handle] = "showDragHandle === true"
-(click)="onClicked()">
+(click)="onClicked()"
+(mouseenter) = "onMouseEntered()"
+(mouseleave) = "onMouseLeaved()"
+
+>
+  <div class="highlight-indicator" *ngIf="highlight===true && isHovering !== true" @highlightTrigger></div>
+
   <mat-icon *ngIf="showDragHandle === true" class="material-icons drag-handle">drag_indicator</mat-icon>
   <span class="icon" *ngIf="iconPath"><img [src]="iconPath"></span>
 

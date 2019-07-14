@@ -2,6 +2,18 @@
   padding: 0.75rem 1rem;
   font-size: 0.85rem;
   cursor: pointer;
+  position: relative;
+
+  .highlight-indicator {
+    position: absolute;
+    z-index: 5000;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    border: 3px solid orange;
+    pointer-events: none;
+  }
 
   .text {
     padding-top: 0.25rem;

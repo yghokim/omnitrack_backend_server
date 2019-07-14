@@ -43,9 +43,13 @@
     <div cdkDrag *ngFor="let fieldId of fieldIds" class="draggable-element" style="background: white">
       <app-selectable-menu-item [title]="getFieldById(fieldId).name" [showRemoveButton]="true" [showDragHandle]="true"
         [iconPath]="'/assets/omnitrack/field_icons_small/icon_small_' + getFieldIconName(getFieldById(fieldId)) + '.svg'"
-        [selected]="selectedEntity === getFieldById(fieldId)" (onClick)="onFieldClicked(getFieldById(fieldId))"
-        (onRemoveClick)="onRemoveFieldClicked(getFieldById(fieldId))">
-        <span *ngIf="getFieldById(fieldId).connection" class="field-with-connection-indicator material-icons" [class.text-color-pointed]="selectedEntity !== getFieldById(fieldId)" afterTitle>link</span>
+        [selected]="(planService.isIdSelectedInNav(fieldId) | async) === true" (onClick)="onFieldClicked(getFieldById(fieldId))"
+        (onRemoveClick)="onRemoveFieldClicked(getFieldById(fieldId))"
+        (onMouseEnter)="brushAndLinking.onHoverField(getFieldById(fieldId), 'menu')"
+        (onMouseLeave)="brushAndLinking.onLeaveObject()"
+        [highlight]="(brushAndLinking.checkHoverOnId(fieldId) | async) === true"
+        >
+        <span *ngIf="getFieldById(fieldId).connection" class="field-with-connection-indicator material-icons" [class.text-color-pointed]="(planService.isIdSelectedInNav(trackerId) | async) !== true" afterTitle>link</span>
       </app-selectable-menu-item>
     </div>
   </div>
@@ -62,7 +66,11 @@
     [title]="reminder.alias? reminder.alias : getReminderTitle(reminder)"
     [subtitle]="reminder.alias? getReminderTitle(reminder) : null" [showRemoveButton]="true"
     (onClick)="onReminderClicked(reminder)" (onRemoveClick)="onRemoveReminderClicked(reminder)"
-    [selected]="selectedEntity === reminder">
+    [selected]="(planService.isIdSelectedInNav(reminder._id) | async) === true"
+    [highlight]="(brushAndLinking.checkHoverOnId(reminder._id) | async)===true && (brushAndLinking.currentHoveringInfo | async).source !== 'menu'"
+    (onMouseEnter)="brushAndLinking.onHoverTrigger(reminder, 'menu')"
+    (onMouseLeave)="brushAndLinking.onLeaveObject()"
+    >
   </app-selectable-menu-item>
   <div class="form-group">
     <button mat-button class="add-button mat-button-small" color="accent" (click)="onAddReminderClicked()">
@@ -71,8 +79,8 @@
     </button>
   </div>
 </div>
-<app-field-detail-panel *ngIf="selectedEntity && selectedType==='field'" [field]="selectedEntity">
+<app-field-detail-panel *ngIf="planService.getSelectedEntityIdWithType('field') | async" @showHideTrigger [field]="planService.getField(planService.getSelectedEntityIdWithType('field') | async)">
 </app-field-detail-panel>
 
-<app-trigger-detail-panel *ngIf="selectedEntity && selectedType==='reminder'" [trigger]="selectedEntity">
+<app-trigger-detail-panel *ngIf="planService.getSelectedEntityIdWithType('reminder') | async" @showHideTrigger [trigger]="planService.getTrigger(planService.getSelectedEntityIdWithType('reminder') | async)">
 </app-trigger-detail-panel>

@@ -10,12 +10,30 @@
 .card {
   background: #e7e7e7;
   box-shadow: 0px 3px 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+
+  .hover-indicator {
+    position: absolute;
+    z-index: 5000;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    border: 3px solid orange;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+
 }
 
 .card-header.appbar {
   color: white;
   font-weight: bold;
   text-shadow: 0px -1px 1px rgba(0, 0, 0, 0.3);
+  @include no-text-highlight();
 }
 
 .field-frame {
@@ -23,6 +41,7 @@
   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.08);
   background: white;
   padding-bottom: 1rem;
+  position: relative;
 
   &:last-child {
     margin-bottom: 0;
@@ -34,6 +53,8 @@
     padding-right: 0.5rem;
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
+    pointer-events: none;
+    @include no-text-highlight();
 
     .field-validation-indicator {
       display: block;
@@ -64,6 +85,7 @@
     padding-right: 1rem;
     padding-bottom: 0.5rem;
     pointer-events: none;
+    @include no-text-highlight();
   }
 
   .connection-indicator {
@@ -71,6 +93,8 @@
     align-items: center;
     padding-top: 0.5rem;
     padding-bottom: 0.25rem;
+    pointer-events: none;
+    @include no-text-highlight();
 
     .link-indicator {
       margin-left: 2.2rem;

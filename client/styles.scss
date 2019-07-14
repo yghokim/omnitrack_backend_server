@@ -42,6 +42,7 @@ $color_accent_light: #ff9870;
 $color_pointed: #2cbbbb;
 $color_pointed_darker: #20acac;
 $color_dark_gray: #575757;
+$color_light_gray: #757575;
 $color_light_pane: #fafafa;
 $visualization_encoded_color: #109ed7;
 $visualization_encoded_color_thicker: #077baa;
@@ -89,6 +90,14 @@ $visualization_heatmap_color_overflow: #173958;
   &>* {
     flex: 1;
   }
+}
+
+@mixin no-text-highlight {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: -moz-none;
+  -o-user-select: none;
+  user-select: none;
 }
 
 .cdk-drag-preview {
@@ -309,22 +318,22 @@ a.no-text-effect {
   color: #757575;
 }
 
-.stick-to-left{
+.stick-to-left {
   position: absolute;
   left: 0;
 }
 
-.stick-to-right{
+.stick-to-right {
   position: absolute;
   right: 0;
 }
 
-.stick-to-top{
+.stick-to-top {
   position: absolute;
   top: 0;
 }
 
-.stick-to-bottom{
+.stick-to-bottom {
   position: absolute;
   bottom: 0;
 }
@@ -357,7 +366,7 @@ a.no-text-effect {
   color: $color_accent;
 }
 
-.text-color-primary{
+.text-color-primary {
   color: $color_primary;
 }
 

@@ -309,3 +309,43 @@ export function selectKeys(obj: any, clone: boolean, ...keys: string[]): any {
   }
   return out
 }
+
+export function getNearestTimeUnitValue(seconds: number): { unit: string, digit: number } {
+  if (seconds % 3600 === 0) {
+    return {
+      digit: seconds / 3600,
+      unit: 'hour'
+    }
+  } else if (seconds % 60 === 0) {
+    return {
+      digit: seconds / 60,
+      unit: 'minute'
+    }
+  } else {
+    return {
+      digit: seconds,
+      unit: 'second'
+    }
+  }
+}
+
+export function ifelse(predicate: () => any): any {
+  return predicate()
+}
+
+export function sortBy<T>(func: (elm: T) => number, reverse = false): (a: T, b: T) => number {
+  return (a: T, b: T) => {
+    const aScore = func(a)
+    const bScore = func(b)
+    let comparison
+    if (aScore > bScore) {
+      comparison = 1
+    } else if (aScore < bScore) {
+      comparison = -1
+    } else comparison = 0
+
+    if(reverse === true){
+    return -comparison
+    }else return comparison
+  }
+}
