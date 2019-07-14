@@ -47,6 +47,12 @@ export class PreviewTriggerComponent implements OnInit, AfterContentChecked {
   @Output()
   onConnectorPositionChanged = new EventEmitter<Array<ConnectorPoint>>()
 
+  @Output()
+  onMouseEnter = new EventEmitter<void>()
+
+  @Output()
+  onMouseLeave = new EventEmitter<void>()
+
   private _connectorPoints: Array<ConnectorPoint>
 
   get connectorPoints(): Array<ConnectorPoint> {
@@ -59,7 +65,7 @@ export class PreviewTriggerComponent implements OnInit, AfterContentChecked {
   @ViewChild("connector_script")
   scriptConnectorPointRef: ElementRef
 
-  constructor(private elementRef: ElementRef, private brushAndLinking: PlanBrushAndLinkingService) { }
+  constructor(private elementRef: ElementRef) { }
 
   ngOnInit() {
   }
@@ -68,14 +74,14 @@ export class PreviewTriggerComponent implements OnInit, AfterContentChecked {
     this.refreshConnectorPoints()
   }
 
-  onMouseEnter() {
+  onMouseEntered() {
     this.isHovering = true
-    this.brushAndLinking.onHoverTrigger(this.trigger, "preview")
+    this.onMouseEnter.emit()
   }
 
-  onMouseLeave() {
+  onMouseLeaved() {
     this.isHovering = false
-    this.brushAndLinking.onLeaveObject()
+    this.onMouseLeave.emit()
   }
 
   get typeName(): string {
@@ -86,7 +92,7 @@ export class PreviewTriggerComponent implements OnInit, AfterContentChecked {
         case TriggerConstants.ACTION_TYPE_REMIND:
           return "Reminder"
       }
-    } else return null
+    } else { return null }
   }
 
   get mainConnectorName(): string {
@@ -97,7 +103,7 @@ export class PreviewTriggerComponent implements OnInit, AfterContentChecked {
         case TriggerConstants.ACTION_TYPE_REMIND:
           return "reminds"
       }
-    } else return null
+    } else { return null }
   }
 
   refreshConnectorPoints() {
@@ -131,11 +137,11 @@ export class PreviewTriggerComponent implements OnInit, AfterContentChecked {
     this.onConnectorPositionChanged.emit(this._connectorPoints)
   }
 
-  //trigger display
+  // trigger display
   getDaysOfWeekString(): string {
     if (this.trigger.condition.dow === 0b1111111) {
       return "Everyday"
-    } else return TriggerConstants.FLAGS.map(
+    } else { return TriggerConstants.FLAGS.map(
       (flag, index) => {
         const checked = (this.trigger.condition.dow & flag) !== 0
         if (checked === true) {
@@ -145,6 +151,7 @@ export class PreviewTriggerComponent implements OnInit, AfterContentChecked {
         }
       }
     ).filter(d => d != null).join(", ")
+    }
   }
 
   getAlarmTime(): string {
@@ -160,11 +167,11 @@ export class PreviewTriggerComponent implements OnInit, AfterContentChecked {
       return "Whole day"
     } else {
       const from = moment().hour(this.trigger.condition.esmStartHr).format("HH:00 a")
-      let to = moment().hour(this.trigger.condition.esmEndHr).format("HH:00 a")
+      const to = moment().hour(this.trigger.condition.esmEndHr).format("HH:00 a")
 
       if (this.trigger.condition.esmStartHr > this.trigger.condition.esmEndHr) {
         return from + " - " + to + " next day"
-      } else return from + " - " + to
+      } else { return from + " - " + to }
 
     }
   }
@@ -176,18 +183,18 @@ export class PreviewTriggerComponent implements OnInit, AfterContentChecked {
       const from = ifelse(() => {
         if (this.trigger.condition.iStartHr === 24) {
           return "24:00"
-        } else return moment().hour(this.trigger.condition.iStartHr).format("HH:00 a")
+        } else { return moment().hour(this.trigger.condition.iStartHr).format("HH:00 a") }
       })
 
       const to = ifelse(() => {
         if (this.trigger.condition.iEndHr === 24) {
           return "24:00"
-        } else return moment().hour(this.trigger.condition.EndHr).format("HH:00 a")
+        } else { return moment().hour(this.trigger.condition.EndHr).format("HH:00 a") }
       })
 
       if (this.trigger.condition.iStartHr > this.trigger.condition.iEndHr) {
         return from + " - " + to + " next day"
-      } else return from + " - " + to
+      } else { return from + " - " + to }
 
     }
   }
@@ -204,7 +211,7 @@ export class PreviewTriggerComponent implements OnInit, AfterContentChecked {
     if (this.trigger.condition.measure) {
       const measureFactory = MeasureFactoryManager.getMeasureFactoryByCode(this.trigger.condition.measure.code)
       return measureFactory
-    } else return null
+    } else { return null }
   }
 }
 

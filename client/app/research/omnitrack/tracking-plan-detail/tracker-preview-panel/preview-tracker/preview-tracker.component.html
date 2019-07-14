@@ -1,5 +1,6 @@
 <div class="card">
-  <div class="card-header appbar" [style.background-color]="getTrackerColorString()">
+  <div class="card hover-indicator" *ngIf="isHeaderHovering === true" @hoverTrigger></div>
+  <div class="card-header appbar" [style.background-color]="getTrackerColorString()" (mouseenter)="onHeaderMouseEntered()" (mouseleave)="onHeaderMouseLeaved()">
     {{tracker.name}}
   </div>
   <div class="field-frame" *ngFor="let field of tracker.fields" [ngSwitch]="field.type">

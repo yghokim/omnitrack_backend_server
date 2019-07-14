@@ -1,4 +1,4 @@
-<div class="card" (resized)="refreshConnectorPoints()" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
+<div class="card" (resized)="refreshConnectorPoints()" (mouseenter)="onMouseEntered()" (mouseleave)="onMouseLeaved()">
   <div class="hover-indicator" *ngIf="isHovering===true || highlight === true" @hoverTrigger></div>
 
   <div class="card-header flex-container flex-align-items-center flex-stretch">
