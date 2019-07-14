@@ -35,10 +35,10 @@ import { PlanBrushAndLinkingService } from '../../plan-brush-and-linking.service
     trigger('showHideTrigger', [
       transition(':enter', [
         style({ width: 0, overflowX: 'hidden' }),
-        animate('0.5s ease-in-out', style({ width: '*'})),
+        animate('0.5s ease-in-out', style({ width: '*' })),
       ]),
       transition(':leave', [
-        style({overflowX: 'hidden'}),
+        style({ overflowX: 'hidden' }),
         animate('0.5s ease-in-out', style({ width: 0 }))
       ])
     ]),
@@ -99,7 +99,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
 
   @Input()
   set tracker(tracker: ITrackerDbEntity) {
-    if (this._tracker && this._tracker._id === tracker._id) {
+    /*if (this._tracker && this._tracker._id === tracker._id) {
       if (this.selectedEntity != null) {
         switch (this.selectedType) {
           case "field":
@@ -125,7 +125,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
     } else {
       this.selectedEntity = null
       this.selectedType = null
-    }
+    }*/
 
     this._tracker = tracker
   }
@@ -156,10 +156,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
     return this._tracker
   }
 
-  selectedType: string
-  selectedEntity: ITriggerDbEntity | IFieldDbEntity = null
-
-  constructor(private planService: TrackingPlanService, private matDialog: MatDialog, private matBottomSheet: MatBottomSheet, private detector: ChangeDetectorRef, public brushAndLinking: PlanBrushAndLinkingService) {
+  constructor(public planService: TrackingPlanService, private matDialog: MatDialog, private matBottomSheet: MatBottomSheet, private detector: ChangeDetectorRef, public brushAndLinking: PlanBrushAndLinkingService) {
   }
 
   ngOnInit() {
@@ -190,22 +187,18 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
   }
 
   onFieldClicked(field: IFieldDbEntity) {
-    if (this.selectedEntity && this.selectedEntity._id === field._id) {
-      this.selectedEntity = null
-      this.selectedType = null
+    if (this.planService.isIdSelectedInNavSync(field._id) === true) {
+      this.planService.unselectElement(field._id)
     } else {
-      this.selectedEntity = field
-      this.selectedType = 'field'
+      this.planService.selectField(field)
     }
   }
 
   onReminderClicked(reminder: ITriggerDbEntity) {
-    if (this.selectedEntity && this.selectedEntity._id === reminder._id) {
-      this.selectedEntity = null
-      this.selectedType = null
+    if (this.planService.isIdSelectedInNavSync(reminder._id) === true) {
+      this.planService.unselectElement(reminder._id)
     } else {
-      this.selectedEntity = reminder
-      this.selectedType = 'reminder'
+      this.planService.selectReminder(reminder)
     }
   }
 
@@ -257,8 +250,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
           if (selectedPreset.generator) {
             selectedPreset.generator(newField)
           }
-          this.selectedEntity = newField
-          this.selectedType = "field"
+          this.planService.selectField(newField)
           this.detector.markForCheck()
         }
       })
@@ -275,10 +267,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
       }).afterClosed().subscribe(ok => {
         if (ok === true) {
           if (this.planService.currentPlan.removeField(field) === true) {
-            if (this.selectedEntity && this.selectedEntity._id === field._id) {
-              this.selectedEntity = null
-              this.selectedType = null
-            }
+            this.planService.unselectElement(field._id)
             this.detector.markForCheck()
           }
         }
@@ -289,8 +278,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
   onAddReminderClicked() {
     const newReminder = this.planService.currentPlan.appendNewTrigger(TriggerConstants.ACTION_TYPE_REMIND, TriggerConstants.CONDITION_TYPE_TIME)
     newReminder.trackers = [this.tracker._id]
-    this.selectedEntity = newReminder
-    this.selectedType = "reminder"
+    this.planService.selectReminder(newReminder)
     this.detector.markForCheck()
   }
 
@@ -305,10 +293,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
         }).afterClosed().subscribe((result) => {
           if (result === true) {
             if (this.planService.currentPlan.removeTrigger(reminder)) {
-              if (this.selectedEntity._id === reminder._id) {
-                this.selectedEntity = null
-                this.selectedType = null
-              }
+              this.planService.unselectElement(reminder._id)
               this.detector.markForCheck()
             }
           }

@@ -17,7 +17,7 @@ import { TriggerConstants } from '../../../../../omnitrack/core/trigger/trigger-
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { ChangeCheckComponent } from '../../../components/change-check.component';
 import { trigger, transition, style, animate } from '@angular/animations';
-import { PlanBrushAndLinkingService, BrushAndLinkingObjectType, BrushAndLinkingEvent } from '../plan-brush-and-linking.service';
+import { PlanBrushAndLinkingService, InteractivePlanObjectType, BrushAndLinkingEvent } from '../plan-brush-and-linking.service';
 
 @Component({
   selector: 'app-tracking-plan-detail',
@@ -43,9 +43,6 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
   private _internalSubscriptions = new Subscription()
   originalPlanData: IExperimentTrackingPlanDbEntity = null
   currentPlanData: IExperimentTrackingPlanDbEntity = null
-
-  public selectedType: string = null
-  public selectedEntity: ITrackerDbEntity | ITriggerDbEntity = null
 
   public currentHoveringInfo: BrushAndLinkingEvent = null
 
@@ -74,7 +71,7 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
           this.currentPlanData = deepclone(plan)
           this.currentPlanData.data = TrackingPlan.fromJson(this.currentPlanData.data)
           this.planService.currentPlan = this.currentPlanData.data
-
+          /*
           if (this.selectedEntity != null) {
             const selectedId = this.selectedEntity._id
             let newInstance
@@ -92,7 +89,7 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
             } else {
               this.unselect()
             }
-          }
+          }*/
 
           this.changeDetector.markForCheck()
         }, err => {
@@ -100,6 +97,61 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
         })
       )
     }
+
+    /*
+    this._internalSubscriptions.add(
+      this.brushAndLinking.objectClickEvent.subscribe(event => {
+        switch (event.objectType) {
+          case InteractivePlanObjectType.Trigger:
+            switch (event.obj.actionType) {
+              case TriggerConstants.ACTION_TYPE_REMIND:
+                this.selectedType = 'tracker'
+                this.selectedEntity = event.obj.trackers[0]
+                break;
+              case TriggerConstants.ACTION_TYPE_LOG:
+                this.selectedType = 'trigger'
+                this.selectedEntity = event.obj
+                break;
+            }
+            break;
+
+          case InteractivePlanObjectType.Tracker:
+            this.selectedType = 'tracker'
+            this.selectedEntity = event.obj
+            break;
+
+          case InteractivePlanObjectType.Field:
+              this.selectedType = 'tracker'
+              this.selectedEntity = event.obj.trackerId
+            break;
+        }
+      })
+    )*/
+
+    this._internalSubscriptions.add(
+      this.brushAndLinking.objectClickEvent.subscribe(event => {
+        switch (event.objectType) {
+          case InteractivePlanObjectType.Trigger:
+            switch (event.obj.actionType) {
+              case TriggerConstants.ACTION_TYPE_REMIND:
+                this.planService.selectReminder(event.obj)
+                break;
+              case TriggerConstants.ACTION_TYPE_LOG:
+                this.planService.selectLoggingTrigger(event.obj)
+                break;
+            }
+            break;
+
+          case InteractivePlanObjectType.Tracker:
+            this.planService.selectTracker(event.obj)
+            break;
+
+          case InteractivePlanObjectType.Field:
+            this.planService.selectField(event.obj)
+            break;
+        }
+      })
+    )
   }
 
   get sortedTrackerIds(): Array<string> {
@@ -140,8 +192,7 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
   }
 
   unselect() {
-    this.selectedEntity = null
-    this.selectedType = null
+    this.planService.unselectAll()
   }
 
   getTriggerTitle(trigger: ITriggerDbEntity): string {
@@ -149,20 +200,18 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
   }
 
   onTrackerClicked(tracker: ITrackerDbEntity) {
-    if (this.selectedEntity && this.selectedEntity._id === tracker._id) {
+    if (this.planService.isIdSelectedInNavSync(tracker._id) === true) {
       this.unselect()
     } else {
-      this.selectedEntity = tracker
-      this.selectedType = 'tracker'
+      this.planService.selectTracker(tracker)
     }
   }
 
   onTriggerClicked(trigger: ITriggerDbEntity) {
-    if (this.selectedEntity && this.selectedEntity._id === trigger._id) {
+    if (this.planService.isIdSelectedInNavSync(trigger._id) === true) {
       this.unselect()
     } else {
-      this.selectedEntity = trigger
-      this.selectedType = 'trigger'
+      this.planService.selectLoggingTrigger(trigger)
     }
   }
 
@@ -224,8 +273,8 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
   }
 
   onAddTrackerClicked() {
-    this.selectedEntity = this.currentPlanData.data.appendNewTracker();
-    this.selectedType = 'tracker'
+    const newTracker = this.currentPlanData.data.appendNewTracker();
+    this.planService.selectTracker(newTracker)
     this.changeDetector.markForCheck()
   }
 
@@ -240,7 +289,7 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
         }).afterClosed().subscribe((result) => {
           if (result === true) {
             if (this.currentPlanData.data.removeTracker(tracker)) {
-              if (this.selectedEntity && this.selectedEntity._id === tracker._id) {
+              if (this.planService.isIdSelectedInNavSync(tracker._id) === true) {
                 this.unselect()
               }
               this.changeDetector.markForCheck()
@@ -251,8 +300,8 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
   }
 
   onAddTriggerClicked() {
-    this.selectedEntity = this.currentPlanData.data.appendNewTrigger(TriggerConstants.ACTION_TYPE_LOG, TriggerConstants.CONDITION_TYPE_TIME)
-    this.selectedType = 'trigger'
+    const newTrigger = this.currentPlanData.data.appendNewTrigger(TriggerConstants.ACTION_TYPE_LOG, TriggerConstants.CONDITION_TYPE_TIME)
+    this.planService.selectLoggingTrigger(newTrigger)
     this.changeDetector.markForCheck()
   }
 
@@ -267,7 +316,7 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
         }).afterClosed().subscribe((result) => {
           if (result === true) {
             if (this.currentPlanData.data.removeTrigger(trigger)) {
-              if (this.selectedEntity && this.selectedEntity._id === trigger._id) {
+              if (this.planService.isIdSelectedInNavSync(trigger._id) === true) {
                 this.unselect()
               }
               this.changeDetector.markForCheck()
@@ -280,14 +329,14 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
   checkEventRelatedToTracker(event: BrushAndLinkingEvent, tracker: ITrackerDbEntity): boolean {
     if (event && event.obj && event.source !== 'menu') {
       switch (event.objectType) {
-        case BrushAndLinkingObjectType.Tracker:
+        case InteractivePlanObjectType.Tracker:
           return event.obj._id === tracker._id
-        case BrushAndLinkingObjectType.Field:
+        case InteractivePlanObjectType.Field:
           return event.obj.trackerId === tracker._id
-        case BrushAndLinkingObjectType.Trigger:
-          if(event.obj.actionType === TriggerConstants.ACTION_TYPE_REMIND){
+        case InteractivePlanObjectType.Trigger:
+          if (event.obj.actionType === TriggerConstants.ACTION_TYPE_REMIND) {
             return event.obj.trackers.indexOf(tracker._id) !== -1
-          }else return false
+          } else return false
 
       }
     } else {

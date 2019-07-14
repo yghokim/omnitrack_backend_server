@@ -23,7 +23,7 @@
           <div cdkDrag class="draggable-element" *ngFor="let trackerId of sortedTrackerIds" style="background: white">
             <app-selectable-menu-item [title]="trackerById(trackerId).name" [showRemoveButton]="true"
               [showDragHandle]="true" [color]="getTrackerColorString(trackerById(trackerId))"
-              [selected]="selectedEntity && selectedEntity._id === trackerId"
+              [selected]="(planService.isIdSelectedInNav(trackerId) | async)"
               [highlight]="checkEventRelatedToTracker(brushAndLinking.currentHoveringInfo | async, trackerById(trackerId))"
               (onClick)="onTrackerClicked(trackerById(trackerId))"
               (onRemoveClick)="onRemoveTrackerClicked(trackerById(trackerId))"
@@ -45,7 +45,7 @@
           <app-selectable-menu-item *ngFor="let trigger of planService.filterLoggingTriggers(); trackBy: trackByObj"
             [title]="trigger.alias? trigger.alias : getTriggerTitle(trigger)"
             [subtitle]="trigger.alias? getTriggerTitle(trigger) : null" [showRemoveButton]="true"
-            [selected]="selectedEntity === trigger" (onClick)="onTriggerClicked(trigger)"
+            [selected]="(planService.isIdSelectedInNav(trigger._id) | async) === true" (onClick)="onTriggerClicked(trigger)"
             (onRemoveClick)="onRemoveTriggerClicked(trigger)"
             [highlight]="(brushAndLinking.currentHoveringInfo | async) != null && (brushAndLinking.currentHoveringInfo | async).obj._id === trigger._id && (brushAndLinking.currentHoveringInfo | async).source !=='menu'"
             (onMouseEnter)="brushAndLinking.onHoverTrigger(trigger, 'menu')"
@@ -62,9 +62,9 @@
       </div>
 
 
-      <app-tracker-detail-panel *ngIf="selectedType === 'tracker'" @showHideTrigger [tracker]="selectedEntity">
+      <app-tracker-detail-panel *ngIf="planService.getSelectedEntityIdWithType('tracker') | async" @showHideTrigger [tracker]="planService.getTracker(planService.getSelectedEntityIdWithType('tracker') | async)">
       </app-tracker-detail-panel>
-      <app-trigger-detail-panel *ngIf="selectedType === 'trigger'" @showHideTrigger [trigger]="selectedEntity">
+      <app-trigger-detail-panel *ngIf="planService.getSelectedEntityIdWithType('trigger') | async" @showHideTrigger [trigger]="planService.getTrigger(planService.getSelectedEntityIdWithType('trigger') | async)">
       </app-trigger-detail-panel>
 
 

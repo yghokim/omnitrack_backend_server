@@ -40,17 +40,23 @@ export class PreviewTrackerComponent implements OnInit {
   onHeaderMouseLeave = new EventEmitter<void>()
 
   @Output()
+  onHeaderClick = new EventEmitter<void>()
+
+  @Output()
+  onFieldClick = new EventEmitter<IFieldDbEntity>()
+
+  @Output()
   onFieldMouseEnter = new EventEmitter<IFieldDbEntity>()
-  
+
   @Output()
   onFieldMouseLeave = new EventEmitter<string>()
-  
+
   isHeaderHovering = false
 
   currentHoveringFieldId: string = null
 
-  get elementBound(): {x: number, y: number, width: number, height: number}{
-    return {x: this.elementRef.nativeElement.offsetLeft, y: this.elementRef.nativeElement.offsetTop, width: this.elementRef.nativeElement.clientWidth, height: this.elementRef.nativeElement.clientHeight}
+  get elementBound(): { x: number, y: number, width: number, height: number } {
+    return { x: this.elementRef.nativeElement.offsetLeft, y: this.elementRef.nativeElement.offsetTop, width: this.elementRef.nativeElement.clientWidth, height: this.elementRef.nativeElement.clientHeight }
   }
 
   constructor(private elementRef: ElementRef) {
@@ -61,33 +67,38 @@ export class PreviewTrackerComponent implements OnInit {
 
   }
 
-  getTrackerColorString(): string{
+  getTrackerColorString(): string {
     const c = color(getTrackerColorString(this.tracker))
     return c.darken(0.2).desaturate(0.3)
   }
 
-  getAttachedFactory(field: IFieldDbEntity): AMeasureFactory{
+  getAttachedFactory(field: IFieldDbEntity): AMeasureFactory {
     return MeasureFactoryManager.getMeasureFactoryByCode(field.connection.measure.code)
   }
 
-  onHeaderMouseEntered(){
+  onHeaderMouseEntered() {
     this.isHeaderHovering = true
     this.onHeaderMouseEnter.emit()
   }
 
-  onHeaderMouseLeaved(){
+  onHeaderMouseLeaved() {
     this.isHeaderHovering = false
     this.onHeaderMouseLeave.emit()
   }
 
-  onFieldMouseEntered(field:IFieldDbEntity){
+  onHeaderClicked() { this.onHeaderClick.emit() }
+
+  onFieldMouseEntered(field: IFieldDbEntity) {
     this.currentHoveringFieldId = field._id
     this.onFieldMouseEnter.emit(field)
   }
 
-  onFieldMouseLeaved(field: IFieldDbEntity){
+  onFieldMouseLeaved(field: IFieldDbEntity) {
     this.currentHoveringFieldId = null
     this.onFieldMouseLeave.emit(field._id)
   }
 
+  onFieldClicked(field: IFieldDbEntity){
+    this.onFieldClick.emit(field)
+  }
 }

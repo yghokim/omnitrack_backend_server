@@ -7,7 +7,9 @@
     <div class="content" (resized)='onContentResized($event)'>
 
       <div class="trigger-list flex-container" *ngIf="getSortedTriggers() != null && getSortedTriggers().length > 0" (domChange)="onContentDomChanged()">
-        <app-preview-trigger *ngFor="let trigger of getSortedTriggers(); trackBy: trackByObjectId" [trigger]="trigger" [highlight]="(brushAndLinking.checkHoverOnId(trigger._id) | async) === true" (onMouseEnter)="brushAndLinking.onHoverTrigger(trigger)" (onMouseLeave)="brushAndLinking.onLeaveObject()"></app-preview-trigger>
+        <app-preview-trigger *ngFor="let trigger of getSortedTriggers(); trackBy: trackByObjectId" [trigger]="trigger" [highlight]="(brushAndLinking.checkHoverOnId(trigger._id) | async) === true" (onMouseEnter)="brushAndLinking.onHoverTrigger(trigger)" (onMouseLeave)="brushAndLinking.onLeaveObject()"
+        (click)="brushAndLinking.onActivateTrigger(trigger, 'preview')"
+        ></app-preview-trigger>
       </div>
 
       <div class="tracker-list flex-container" *ngIf="getSortedTrackers() != null && getSortedTrackers().length > 0" (domChange)="onContentDomChanged()">
@@ -17,6 +19,8 @@
         (onFieldMouseLeave)="brushAndLinking.onLeaveObject()"
         [highlight]="(brushAndLinking.checkHoverOnId(tracker._id) | async) === true"
         [highlightedFieldId]="brushAndLinking.checkHoveringFieldIdOfTracker(tracker._id) | async"
+        (onHeaderClick)="brushAndLinking.onActivateTracker(tracker, 'preview')"
+        (onFieldClick)="brushAndLinking.onActivateField($event, 'preview')"
         ></app-preview-tracker>
       </div>
 
