@@ -26,7 +26,7 @@ export default class ServerConstants {
   static readonly PUSH_DATA_TYPE_TEXT_MESSAGE = "text_message"
 
   static readonly ERROR_CODE_UNCERTIFIED_Client = "ClientNotCertified"
-  static readonly ERROR_CODE_ILLEGAL_ARTUMENTS = "IllegalArguments"
+  static readonly ERROR_CODE_ILLEGAL_ARGUMENTS = "IllegalArguments"
   static readonly ERROR_CODE_WRONG_CREDENTIAL = "CredentialWrong"
   static readonly ERROR_CODE_ILLEGAL_INVITATION_CODE = "IllegalInvitationCode"
   static readonly ERROR_CODE_USER_ALREADY_EXISTS = "UserAlreadyExists"

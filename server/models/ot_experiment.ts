@@ -53,6 +53,15 @@ const otExperimentSchema = new mongoose.Schema({
 
 const OTExperiment = mongoose.model('OTExperiment', otExperimentSchema);
 
+
+
+otExperimentSchema.virtual('invitations', {
+  ref: 'OTInvitation',
+  localField: '_id',
+  foreignField: 'experiment',
+  justOne: false
+})
+
 otExperimentSchema.virtual('clientBuildConfigs', {
   ref: 'OTExperimentClientBuildConfig',
   localField: '_id',

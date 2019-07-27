@@ -24,7 +24,7 @@ export default class OTResearchCtrl {
       const experiment = new OTExperiment({
         name: info.name,
         manager: researcherId
-      })
+      } as any)
 
       switch (info.key) {
         case "productivity_diary":

@@ -16,6 +16,7 @@ import { SocketConstants, ClientBuildStatus, EClientBuildStatus } from '../../om
 import { experimentCtrl } from '../controllers/research/ot_experiment_controller';
 import OTTracker from '../models/ot_tracker';
 import OTItem from '../models/ot_item';
+import { DeepPartial } from 'mongoose';
 
 export default class ServerModule {
 
@@ -106,7 +107,7 @@ export default class ServerModule {
         config: job.attrs.data.configId,
         configHash: job.attrs.data.configHash,
         jobId: job.attrs._id
-      }).save().then(
+      } as any).save().then(
         saved => {
           console.log("saved new build action: ")
           console.log(saved)

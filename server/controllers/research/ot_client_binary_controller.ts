@@ -162,7 +162,7 @@ export default class OTBinaryCtrl {
                     needsConfirm: experimentId ? true : false,
                     changelog: changelog
                   }
-                  return new OTClientBinary(model).save().then(saved => {
+                  return new OTClientBinary(model as any).save().then(saved => {
                     console.log(saved)
                     return this.extractSignature(filePath)
                   }).then(print => {

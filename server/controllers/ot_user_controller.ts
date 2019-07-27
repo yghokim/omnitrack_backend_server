@@ -21,7 +21,6 @@ import './ot_experiment_participation_pipeline_helper';
 import { selfAssignParticipantToExperiment, researcherAssignParticipantToExperiment } from './ot_experiment_participation_pipeline_helper';
 import OTItemMedia from '../models/ot_item_media';
 import moment = require('moment');
-import OTExperiment from 'models/ot_experiment';
 
 export class OTUserCtrl extends OTAuthCtrlBase {
 
@@ -203,7 +202,7 @@ export class OTUserCtrl extends OTAuthCtrlBase {
                 }
               } else {
                 res.status(500).send({
-                  error: C.ERROR_CODE_ILLEGAL_ARTUMENTS
+                  error: C.ERROR_CODE_ILLEGAL_ARGUMENTS
                 })
               }
             }
@@ -268,7 +267,7 @@ export class OTUserCtrl extends OTAuthCtrlBase {
 
   postReport = (req, res) => {
     const reportData = req.body
-    const newReport = new OTUserReport({ _id: mongoose.Types.ObjectId(), data: reportData })
+    const newReport = new OTUserReport({ _id: mongoose.Types.ObjectId(), data: reportData } as any)
     if (reportData.anonymous === true) {
       console.log("received the anonymized report")
     } else {

@@ -21,8 +21,6 @@ export class NewInvitationDialogComponent implements OnInit {
 
   public invitationCode: string = null
 
-  //isPublic = false
-
   constructor(
     private dialogRef: MatDialogRef<NewInvitationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) private data: any) {

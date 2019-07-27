@@ -122,7 +122,7 @@ export default class OTExperimentCtrl {
   }
 
   private _createExperimentByInfo(name: string, managerId: string): Promise<Document> {
-    const newExperiment = new OTExperiment({ name: name, manager: managerId })
+    const newExperiment = new OTExperiment({ name: name, manager: managerId } as any)
     return newExperiment.save()
   }
 
@@ -589,7 +589,7 @@ export default class OTExperimentCtrl {
     const experiment = await OTExperiment.findById(experimentId).lean() as IExperimentDbEntity
     if(experiment){
       return experiment.groups.filter(g => g.trackingPlanKey === planKey)
-    }else throw {error : C.ERROR_CODE_ILLEGAL_ARTUMENTS}
+    }else throw {error : C.ERROR_CODE_ILLEGAL_ARGUMENTS}
   }
 
   async findParticipantsWithPlan(experimentId: string, planKey: string): Promise<Array<IUserDbEntity>>{

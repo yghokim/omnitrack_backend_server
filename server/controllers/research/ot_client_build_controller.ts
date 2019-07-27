@@ -383,7 +383,7 @@ export default class OTClientBuildCtrl {
           experiment: experimentId,
           researcherMode: experimentId != null ? false : true,
           platform: platform
-        })
+        } as any)
 
         console.log(newModel.toJSON())
 

@@ -100,7 +100,7 @@ export default class BinaryStorageCtrl {
                 )
               } else {
                 // insert new one
-                return new OTItemMedia(newMedia).save().then(newDoc => ({ overwritten: false, _id: newDoc._id }))
+                return new OTItemMedia(newMedia as any).save().then(newDoc => ({ overwritten: false, _id: newDoc._id }))
               }
             }).then(result => {
               return req.app.get("omnitrack").serverModule.agenda
