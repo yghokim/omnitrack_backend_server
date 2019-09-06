@@ -16,7 +16,6 @@ import { SocketConstants, ClientBuildStatus, EClientBuildStatus } from '../../om
 import { experimentCtrl } from '../controllers/research/ot_experiment_controller';
 import OTTracker from '../models/ot_tracker';
 import OTItem from '../models/ot_item';
-import { DeepPartial } from 'mongoose';
 
 export default class ServerModule {
 
@@ -47,7 +46,7 @@ export default class ServerModule {
       OTTracker.collection.updateMany({}, {'$rename': {"attributes": "fields"}}).then(updated => {
         console.log("renamed tracker attributes to fields.")
       })
-      
+
       OTItem.find({}).then(items => {
         return Promise.all(items.map(item => {
           (item as any).dataTable.forEach( entry => {
