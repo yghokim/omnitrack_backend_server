@@ -1,0 +1,79 @@
+$date-button-height: 2.5rem;
+$point-diameter: 1.1rem;
+$ball-diameter: 0.3rem;
+
+.left-column {
+  width: 2rem;
+  display: flex;
+  flex-direction: column;
+
+  padding-top: ($date-button-height*.5) - ($point-diameter*.5);
+  padding-bottom: ($date-button-height*.5) - ($point-diameter*.5);
+
+  .point {
+    width: $point-diameter;
+    height: $point-diameter;
+    border: 3px solid #afafaf;
+    border-radius: 50%;
+  }
+
+  .mid {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    padding-left: ($point-diameter*.5) - ($ball-diameter*.5);
+
+    .ball {
+      width: $ball-diameter;
+      height: $ball-diameter;
+      background: #afafaf;
+      border-radius: 50%;
+    }
+  }
+}
+
+.timespan-main-body {
+  flex: 1;
+
+  .diff-indicator {
+    color: #a0a0a0;
+    font-size: 0.75rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .date-button {
+    width: 100%;
+    height: $date-button-height;
+    font-size: 0.9rem;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
+    background: white;
+    color: #757575;
+  }
+
+  .middle-row {
+    .button-overwrite {
+      color: #757575;
+      background: #fafafa;
+      transform: scale(0.8);
+    }
+  }
+}
+
+.timespan-footer{
+  padding-left: 2em;
+  display: flex;
+  padding-top: 1rem;
+
+  button{
+    flex: 1;
+    padding: 0.25rem 0rem;
+    margin-right: 0.75rem;
+    color: #757575;
+
+    &:last-child{
+      margin-right: 0;
+    }
+  }
+}

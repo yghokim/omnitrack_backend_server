@@ -10,7 +10,9 @@ const otResearcherSchema = new mongoose.Schema({
   password_reset_token: { type: String },
   reset_token_expires: Date,
   account_approved: Boolean, // null: not approved yet, false: declined by admin
-}, { timestamps: true, toJSON: { virtuals: true } });
+}, { 
+  timestamps: true,
+  toJSON: { virtuals: true } });
 
 otResearcherSchema.virtual('managingExperiments', {
   ref: 'OTExperiment',

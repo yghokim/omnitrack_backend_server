@@ -5,7 +5,7 @@
   <div class="card" *ngIf="messageList != null">
     <mat-tab-group class="tab-group" (selectedTabChange)="onTabChanged($event)">
       <mat-tab label="Messages">
-        <mat-table class="table-data" [dataSource]="messageDataSource" matSort>
+        <mat-table class="table-data" [dataSource]="messageDataSource" [trackBy]="trackByMessage" matSort>
 
           <ng-container matColumnDef="type">
             <mat-header-cell *matHeaderCellDef mat-sort-header> Type </mat-header-cell>

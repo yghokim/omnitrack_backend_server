@@ -54,6 +54,7 @@ export class TextInputDialogComponent implements OnInit, OnDestroy {
               this.dialogRef.close(this.textValue)
             },
             err => {
+              console.log(err)
               this.submitErrorMessage = err.error
             }
           )

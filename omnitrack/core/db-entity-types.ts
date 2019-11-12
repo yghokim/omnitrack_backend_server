@@ -1,7 +1,10 @@
 import { isString } from "../../shared_lib/utils";
+import { OTConnection } from "./value-connection/value-connection";
 
 export function getIdPopulateCompat(obj: any, variableName: string = "_id"): string {
-  if (isString(obj) === true) {
+  if (obj == null) {
+    return null
+  } else if (isString(obj) === true) {
     return obj.toString()
   } else {
     return obj[variableName]
@@ -24,13 +27,29 @@ export interface IUserDbEntity extends IMongooseDbEntity {
   name: string,
   nameUpdatedAt?: Date,
   picture?: string,
-  email?: string,
-  accountCreationTime?: Date,
-  accountLastSignInTime?: Date,
-  activatedRoles?: Array<{ role: string, isConsentApproved: boolean, information: any }>,
+  username: string,
+  email: string,
+  participationInfo: {
+    alias?: string,
+    groupId?: string,
+    excludedDays?: Array<number>,
+    invitation: string | any,
+    approvedAt?: Date,
+    dropped?: boolean,
+    droppedReason?: string,
+    droppedBy?: string | any,
+    droppedAt?: Date,
+    experimentRange?: { from: Date, to?: Date }
+    demographic?: any
+  },
   deviceLocalKeySeed?: number,
   devices?: Array<IClientDevice>,
-  participantIdentities? : Array<IParticipantDbEntity>
+
+  appFlags: any,
+
+  lastSyncTimestamp?: number
+  lastSessionTimestamp?: number
+  lastTimestampsUpdated?: boolean
 }
 
 export interface IClientDevice {
@@ -46,19 +65,19 @@ export interface IUserChildDbEntity extends IMongooseDbEntity {
   user: string
 }
 
-export interface IAttributeDbEntity {
+export interface IFieldDbEntity {
   name?: string,
-  objectId?: string,
+  _id?: string,
   localId?: string,
   trackerId?: string,
-  connection?: any,
-  fallbackPolicy?: number,
+  connection?: OTConnection,
+  fallbackPolicy?: string,
   fallbackPreset?: string,
   type?: number,
   isRequired?: boolean,
   isHidden?: boolean,
   isInTrashcan?: boolean,
-  properties?: [{ key: string, sVal: string }],
+  properties?: any,
   userCreatedAt?: number,
   userUpdatedAt?: number,
   lockedProperties?: any,
@@ -67,15 +86,15 @@ export interface IAttributeDbEntity {
 
 export interface ITrackerDbEntity extends IUserChildDbEntity {
   name?: string,
-  color?: Number,
-  isBookmarked?: Boolean,
-  position?: Number,
-  attributes?: [IAttributeDbEntity],
+  color?: number,
+  isBookmarked?: boolean,
+  position?: number,
+  fields?: Array<IFieldDbEntity>,
   lockedProperties?: any,
   flags?: any,
   redirectUrl?: string,
-  userCreatedAt?: Number,
-  userUpdateAt?: Number,
+  userCreatedAt?: number,
+  userUpdatedAt?: number,
   removed?: boolean
 }
 
@@ -105,13 +124,13 @@ export interface IItemDbEntity extends IUserChildDbEntity {
   timestamp: number,
   timezone: string,
   deviceId: string,
-  dataTable: [{ attrLocalId: string, sVal: string }],
+  dataTable: [{ fieldLocalId: string, sVal: string }],
   removed: boolean,
   metadata?: IItemMetadata,
   userUpdatedAt: number
 }
 
-export interface IItemMetadata{
+export interface IItemMetadata {
   pingIndex?: number,
   pivotDate?: string,//YYYY-MM-DD
   conditionType?: string,
@@ -136,23 +155,4 @@ export interface ISessionUsageLog extends IUsageLogDbEntity {
   startedAt: number,
   endedAt: number,
   duration: number
-}
-
-export interface IParticipantDbEntity extends IUserChildDbEntity {
-  alias?: string
-  user: string | any
-  experiment?: any
-  groupId?: string
-  excludedDays?: Array<number>
-  invitation?: any
-  approvedAt?: Date
-  dropped?: boolean
-  droppedReason?: string
-  droppedBy?: string | any
-  droppedAt?: Date
-  demographic?: any
-  experimentRange?: { from?: Date, to?: Date }
-  lastSyncTimestamp?: number
-  lastSessionTimestamp?: number
-  lastTimestampsUpdated?: boolean
 }

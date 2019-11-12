@@ -40,7 +40,8 @@
       <div class="flex-container flex-align-items-center flex-stretch">
         <div class="header-left">
           <span>Certified Client Signatures</span>
-          <div class="description">Manage signature keys of certified client apps that are connectable to this server.</div>
+          <div class="description">Manage signature keys of certified client apps that are connectable to this server.
+          </div>
         </div>
         <button mat-raised-button color="primary" (click)="onEditSignatureClicked(null)">Add</button>
       </div>
@@ -48,15 +49,17 @@
     <app-labeled-loading-indicator *ngIf="isLoadingSignatures===true">
       <span message>Loading signatures...</span>
     </app-labeled-loading-indicator>
-    <div class="card-footer small" *ngIf="isLoadingSignatures !== true && (!clientSignatures || clientSignatures.length == 0)">
+    <div class="card-footer small"
+      *ngIf="isLoadingSignatures !== true && (!clientSignatures || clientSignatures.length == 0)">
       No client signatures.
     </div>
 
-    <table *ngIf="isLoadingSignatures !== true && clientSignatures && clientSignatures.length > 0" class="table table-data">
+    <table *ngIf="isLoadingSignatures !== true && clientSignatures && clientSignatures.length > 0"
+      class="table table-data">
       <thead>
         <th>Fingerprint</th>
         <th>Package</th>
-        <th>Experiments</th>
+        <th>Experiment</th>
         <th>Alias</th>
         <th></th>
       </thead>
@@ -65,12 +68,10 @@
           <td class="cell-fingerprint">{{signature.key}}</td>
           <td>{{signature.package}}</td>
           <td>
-            <ng-container *ngIf="signature.experiments && signature.experiments.length > 0">
-              <div *ngFor="let experiment of signature.experiments">
-                {{experiment.name}}
-              </div>
+            <ng-container *ngIf="signature.experiment">
+              {{signature.experiment.name}}
             </ng-container>
-            <span *ngIf="!signature.experiments || signature.experiments.length === 0" class="text-color-lightgray">Unspecified</span>
+            <span *ngIf="signature.experiment == null" class="text-color-lightgray">Unspecified</span>
           </td>
           <td>{{signature.alias}}</td>
           <td class="button-cell">
@@ -122,9 +123,12 @@
             </span>
           </td>
           <td *ngIf="researcher._id !== myId" class="button-cell right-padding text-right">
-            <button class="button-approval-action btn btn-primary btn-sm" *ngIf="researcher.account_approved !== true" (click)="onSetResearcherApprovedStatus(researcher._id, true)">Approve</button>
-            <button class="button-approval-action btn btn-danger btn-sm" *ngIf="researcher.account_approved === true" (click)="onSetResearcherApprovedStatus(researcher._id, false)">Drop</button>
-            <button class="button-approval-action btn btn-danger btn-sm" *ngIf="researcher.account_approved == null" (click)="onSetResearcherApprovedStatus(researcher._id, false)">Decline</button>
+            <button class="button-approval-action btn btn-primary btn-sm" *ngIf="researcher.account_approved !== true"
+              (click)="onSetResearcherApprovedStatus(researcher._id, true)">Approve</button>
+            <button class="button-approval-action btn btn-danger btn-sm" *ngIf="researcher.account_approved === true"
+              (click)="onSetResearcherApprovedStatus(researcher._id, false)">Drop</button>
+            <button class="button-approval-action btn btn-danger btn-sm" *ngIf="researcher.account_approved == null"
+              (click)="onSetResearcherApprovedStatus(researcher._id, false)">Decline</button>
 
           </td>
         </tr>

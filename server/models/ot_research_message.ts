@@ -4,7 +4,7 @@ const otResearchMessageSchema = new mongoose.Schema({
   label: String,
   type: {type: String, enum: ["push", "email"], default: "push", required: true},
   receiverRule: mongoose.Schema.Types.Mixed,
-  receivers: {type: [{type: String, ref: "OTParticipant"}]},
+  receivers: {type: [{type: String, ref: "OTUser"}]},
   experiment: {type: String, ref: "OTExperiment", default: undefined},
   from: {type: String, ref: "OTResearcher"},
   messageTitle: String,

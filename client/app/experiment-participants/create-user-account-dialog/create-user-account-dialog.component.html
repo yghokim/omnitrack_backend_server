@@ -1,0 +1,82 @@
+<div class="dialog dialog-mid">
+  <div class="card-header">Create User Account</div>
+  <div class="card-body">
+    <app-labeled-loading-indicator class="loading-indicator" *ngIf="isProcessing===true" [fitParent]="true">
+      <span message>Creating User Account...</span>
+    </app-labeled-loading-indicator>
+
+    <form class="main-form" [formGroup]="userAccountForm">
+      <div class="form-group">
+        <label for="usernameForm">Username (Required)</label>
+        <input id="usernameForm" formControlName="username" class="form-control" type="email"
+          placeholder="Used for sign in" [ngClass]="getValidationClass('username')">
+        <ng-container *ngIf="hasSubmitted === true && username.errors">
+          <div class="error-message" *ngIf="username.errors.required">
+            This field is required.
+          </div>
+          <div class="error-message" *ngIf="username.errors.minlength || username.errors.maxlength">
+            Username must be between 3 and 50 letters.
+          </div>
+          <div class="error-message" *ngIf="username.errors.noDuplicate == true">
+            The same username already exists.
+          </div>
+        </ng-container>
+      </div>
+      <div class="form-group">
+        <label for="emailForm">E-mail (Required)</label>
+        <input id="emailForm" formControlName="email" class="form-control" type="email"
+          placeholder="E-mail address" [ngClass]="getValidationClass('email')">
+          <div class="small text-color-gray top-padding-dot5em left-padding-dot5em right-padding-dot5em">
+            Used for sending reset password links. Because this field does not have to be unique among participants, you can generate the account using a dummy placeholder address and instruct participants to change it after signing in.
+          </div>
+        <ng-container *ngIf="hasSubmitted === true && email.errors">
+          <div class="error-message" *ngIf="email.errors.required">
+            This field is required.
+          </div>
+          <div class="error-message" *ngIf="email.errors.email === true">
+            Not a valid e-mail address.
+          </div>
+        </ng-container>
+      </div>
+      <div class="form-group">
+        <label for="passwordForm">Password (Required)</label>
+        <input id="passwordForm" formControlName="password" class="form-control" type="password" placeholder="Password"
+          [ngClass]="getValidationClass('password')">
+        <ng-container *ngIf="hasSubmitted === true && password.errors">
+          <div class="error-message" *ngIf="password.errors.required">
+            This field is required.
+          </div>
+          <div class="error-message" *ngIf="password.errors.minlength">
+            Password must be longer than 3 letters.
+          </div>
+        </ng-container>
+      </div>
+
+      <mat-form-field>
+        <label for="groupForm">Group (Required)</label>
+        <mat-select formContronName="groupId" [value]="groupId.value" [ngClass]="getValidationClass('groupId')">
+          <mat-option *ngFor="let group of getGroups()" [value]="group._id">
+            {{group.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="form-group">
+        <label for="aliasForm">Participant Alias (Only shown to researchers)</label>
+        <input id="aliasForm" formControlName="alias" class="form-control" type="email"
+          placeholder="Automatically assigned if not set" [ngClass]="getValidationClass('alias')">
+        <ng-container *ngIf="hasSubmitted === true && alias.errors">
+          <div class="error-message" *ngIf="alias.errors.noDuplicate == true">
+            The same alias already exists.
+          </div>
+        </ng-container>
+      </div>
+
+    </form>
+    <hr>
+    <div class="text-right">
+      <button mat-button color="accent" (click)="onNoClick()">Cancel</button>
+      <button mat-raised-button color="primary" (click)="onYesClick()">Add User</button>
+    </div>
+  </div>
+</div>

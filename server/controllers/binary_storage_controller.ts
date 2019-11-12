@@ -1,16 +1,14 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import * as multer from "multer";
 import * as mime from "mime";
 import { StorageEngine } from "multer";
-import * as path from "path";
 import OTItemMedia from '../models/ot_item_media';
-import * as app from '../app';
 import C from '../server_consts'
 const fs = require("fs-extra");
 
 export default class BinaryStorageCtrl {
 
-  private makeUserItemMediaStorage(userId: String, trackerId: String, itemId: String, attrLocalId: String, fileIdentifier: String): StorageEngine {
+  private makeUserItemMediaStorage(userId: String, trackerId: String, itemId: String, fieldLocalId: String, fileIdentifier: String): StorageEngine {
     return multer.diskStorage({
       destination: function (req, file, cb) {
         fs.ensureDir("storage/temp/media").then(() => {
@@ -20,8 +18,8 @@ export default class BinaryStorageCtrl {
         })
       },
       filename: function (req, file, cb) {
-        const tempName = userId + "_" + trackerId + itemId + attrLocalId + "_" + Date.now() + '.' + mime.getExtension(file.mimetype)
-        const finalNameBase = attrLocalId + "_" + fileIdentifier + "_" + Date.now()
+        const tempName = userId + "_" + trackerId + itemId + fieldLocalId + "_" + Date.now() + '.' + mime.getExtension(file.mimetype)
+        const finalNameBase = fieldLocalId + "_" + fileIdentifier + "_" + Date.now()
         file["finalName"] = finalNameBase + '.' + mime.getExtension(file.mimetype)
         file["finalNameBase"] = finalNameBase
         cb(null, tempName)
@@ -39,14 +37,14 @@ export default class BinaryStorageCtrl {
     })
   }
 
-  uploadItemMedia = (req: Request, res: Response) => {
-    const userId = res.locals.user.uid
+  uploadItemMedia = (req, res: Response) => {
+    const userId = req.user.uid
     const trackerId = req.params.trackerId
-    const attrLocalId = req.params.attrLocalId
+    const fieldLocalId = req.params.fieldLocalId
     const itemId = req.params.itemId
     const fileIdentifier = req.params.fileIdentifier
 
-    const upload = multer({ storage: this.makeUserItemMediaStorage(userId, trackerId, itemId, attrLocalId, fileIdentifier) })
+    const upload = multer({ storage: this.makeUserItemMediaStorage(userId, trackerId, itemId, fieldLocalId, fileIdentifier) })
       .single("file")
     upload(req, res, multerError => {
       if (multerError != null) {
@@ -60,7 +58,7 @@ export default class BinaryStorageCtrl {
             const newMedia = {
               user: userId,
               tracker: trackerId,
-              attrLocalId: attrLocalId,
+              fieldLocalId: fieldLocalId,
               item: itemId,
               fileIdentifier: fileIdentifier,
               mimeType: req.file.mimetype,
@@ -74,7 +72,7 @@ export default class BinaryStorageCtrl {
             OTItemMedia.findOne({
               tracker: trackerId,
               user: userId,
-              attrLocalId: attrLocalId,
+              fieldLocalId: fieldLocalId,
               item: itemId,
               fileIdentifier: fileIdentifier
             }).then(oldDoc => {
@@ -82,30 +80,30 @@ export default class BinaryStorageCtrl {
                 // update current and change file
                 const removalPromises = []
                 removalPromises.push(fs.remove(prefix + oldDoc["originalFileName"])
-                  .then(() => true).catch(fileRemovalError => false))
+                  .then(() => true).catch(() => false))
                 if (oldDoc["processedFileNames"]) {
                   for (const type in oldDoc["processedFileNames"]) {
                     if (oldDoc["processedFileNames"].hasOwnProperty(type)) {
                       removalPromises.push(
-                        fs.remove(prefix + oldDoc["processedFileNames"][type]).then(() => true).catch(fileRemoveError => false)
+                        fs.remove(prefix + oldDoc["processedFileNames"][type]).then(() => true).catch(() => false)
                       )
                     }
                   }
                 }
 
                 return Promise.all(removalPromises).then(
-                  result => {
+                  () => {
                     return oldDoc.update(newMedia).then(() => ({ overwritten: true, _id: oldDoc._id }))
                   }
                 )
               } else {
                 // insert new one
-                return new OTItemMedia(newMedia).save().then(newDoc => ({ overwritten: false, _id: newDoc._id }))
+                return new OTItemMedia(newMedia as any).save().then(newDoc => ({ overwritten: false, _id: newDoc._id }))
               }
             }).then(result => {
               return req.app.get("omnitrack").serverModule.agenda
                 .now(C.TASK_POSTPROCESS_ITEM_MEDIA, { mediaDbId: result._id })
-                .then(job => {
+                .then(() => {
                   console.log("successed postprocessing media.")
                   return result
                 }).catch(processErr => {
@@ -125,19 +123,19 @@ export default class BinaryStorageCtrl {
   }
 
   downloadItemMedia = (req: any, res: Response) => {
-    if (res.locals.user || req.researcher) {
+    if (req.user || req.researcher) {
       const trackerId = req.params.trackerId
-      const attrLocalId = req.params.attrLocalId
+      const fieldLocalId = req.params.fieldLocalId
       const itemId = req.params.itemId
       const fileIdentifier = req.params.fileIdentifier
       const processingType = req.params.processingType || "original"
 
       OTItemMedia.findOne({
         tracker: trackerId,
-        attrLocalId: attrLocalId,
+        fieldLocalId: fieldLocalId,
         item: itemId,
         fileIdentifier: fileIdentifier
-      }).lean().then(media => {
+      }).lean<any>().then((media: any) => {
         if (media) {
           console.log("found media")
           let fileName: string = media.originalFileName

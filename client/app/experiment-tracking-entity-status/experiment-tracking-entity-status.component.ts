@@ -11,13 +11,13 @@ import { tap, flatMap, combineLatest } from "rxjs/operators";
 import { NotificationService } from "../services/notification.service";
 import { aliasCompareFunc, deepclone } from "../../../shared_lib/utils";
 import {
-  IParticipantDbEntity,
+  IUserDbEntity,
   ITrackerDbEntity,
   ITriggerDbEntity,
   getIdPopulateCompat,
-  IAttributeDbEntity
+  IFieldDbEntity
 } from "../../../omnitrack/core/db-entity-types";
-import { TriggerConstants } from "../../../omnitrack/core/trigger-constants";
+import { TriggerConstants } from "../../../omnitrack/core/trigger/trigger-constants";
 import * as deepEqual from 'deep-equal';
 import { MatDialog } from "@angular/material";
 import { YesNoDialogComponent } from '../dialogs/yes-no-dialog/yes-no-dialog.component';
@@ -49,13 +49,13 @@ export class ExperimentTrackingEntityStatusComponent
   private trackers: Array<ITrackerDbEntity> = [];
   private triggers: Array<ITriggerDbEntity> = [];
 
-  public participants: Array<IParticipantDbEntity>;
+  public participants: Array<IUserDbEntity>;
   public selectedParticipantId: String;
 
   public participantTrackers: Array<ITrackerDbEntity> = [];
   public participantTriggers: Array<ITriggerDbEntity> = [];
 
-  public selectedEntityType: string; //"tracker" | "trigger" | "attribute" | "triggerCondition" | "triggerAction"
+  public selectedEntityType: string; //"tracker" | "trigger" | "field" | "triggerCondition" | "triggerAction"
   public selectedEntityId: string;
   public selectedEntityParentId: string;
   public selectedEntityOriginalObj: any;
@@ -78,13 +78,13 @@ export class ExperimentTrackingEntityStatusComponent
     this._internalSubscriptions.add(
       this.api.selectedExperimentService
         .pipe(
-          flatMap(service => service.getParticipants())
+          flatMap(service => service.getActiveParticipants())
         )
         .subscribe(participants => {
           /*
           participants.sort((a,b)=>{return new Date(a.experimentRange.from).getTime() - new Date(b.experimentRange.from).getTime()})*/
           const sortFunc = aliasCompareFunc(false);
-          participants.sort((a, b) => sortFunc(a.alias, b.alias));
+          participants.sort((a, b) => sortFunc(a.participationInfo.alias, b.participationInfo.alias));
           this.participants = participants;
           if (this.participants.length > 0) {
             this.onSelectedParticipantIdChanged(this.participants[0]._id);
@@ -104,7 +104,7 @@ export class ExperimentTrackingEntityStatusComponent
       this._currentSelectionSubscription.unsubscribe();
   }
 
-  public onSelectedParticipantIdChanged(participantId: String) {
+  public onSelectedParticipantIdChanged(participantId: string) {
     if(this._currentSelectionSubscription)
       this._currentSelectionSubscription.unsubscribe();
 
@@ -113,23 +113,16 @@ export class ExperimentTrackingEntityStatusComponent
     this.selectedParticipantId = participantId;
     this.loadingParticipantInfo = true;
     this.detector.markForCheck();
-
-    const userId = getIdPopulateCompat(
-      this.participants.find(p => p._id === participantId).user,
-      "_id"
-    );
-    if (userId != null) {
-      this._currentSelectionSubscription = this.api.selectedExperimentService
-          .pipe(
-            flatMap(expService => expService.getEntitiesOfUserInExperiment(userId))
-          )
-          .subscribe(result => {
-            this.participantTrackers = result.trackers;
-            this.participantTriggers = result.triggers;
-            this.loadingParticipantInfo = false;
-            this.detector.markForCheck();
-          })
-    }
+    this._currentSelectionSubscription = this.api.selectedExperimentService
+    .pipe(
+      flatMap(expService => expService.getEntitiesOfUserInExperiment(participantId))
+    )
+    .subscribe(result => {
+      this.participantTrackers = result.trackers;
+      this.participantTriggers = result.triggers;
+      this.loadingParticipantInfo = false;
+      this.detector.markForCheck();
+    })
   }
 
   public onElementSelected(parent: any, ev: { type: string; obj: {obj: any, parentId?: string} }) {
@@ -142,8 +135,8 @@ export class ExperimentTrackingEntityStatusComponent
         this.cleanTrackerObj(obj);
         this.selectedEntityId = ev.obj.obj._id;
         break;
-      case "attribute":
-        this.cleanAttributeObj(obj);
+      case "field":
+        this.cleanFieldObj(obj);
         this.selectedEntityId = ev.obj.obj.localId;
         break;
       case "trigger":
@@ -196,13 +189,13 @@ export class ExperimentTrackingEntityStatusComponent
     delete obj._id;
     delete obj.user;
     delete obj.removed;
-    delete obj.attributes;
+    delete obj.fields;
   }
 
-  private cleanAttributeObj(obj: IAttributeDbEntity) {
+  private cleanFieldObj(obj: IFieldDbEntity) {
     this.cleanObjBase(obj);
     delete obj.localId;
-    delete obj.objectId;
+    delete obj._id;
     delete obj.trackerId;
   }
 
@@ -283,7 +276,7 @@ export class ExperimentTrackingEntityStatusComponent
       update = {condition: JSON.parse(this.selectedEntityCode)}
       queryId = this.selectedEntityParentId
       break;
-      case 'attribute':
+      case 'field':
       update = JSON.parse(this.selectedEntityCode)
       queryId = this.selectedEntityParentId
       break;
@@ -327,11 +320,11 @@ export class ExperimentTrackingEntityStatusComponent
             )
         )
         break;
-        case 'attribute':
+        case 'field':
         this._internalSubscriptions.add(
           this.api.selectedExperimentService
             .pipe(
-              flatMap(expService => expService.updateAttributeOfTracker(queryId, this.selectedEntityId, update)),
+              flatMap(expService => expService.updateFieldOfTracker(queryId, this.selectedEntityId, update)),
               tap(result => {
                 this.handleUpdatedElement(result.updated, "_id", this.participantTrackers)
               })

@@ -1,13 +1,13 @@
 import { IAndroidBuildConfig, ANDROID_PACKAGE_NAME_REGEX, IClientBuildConfigBase } from "./db-entity-types";
 
-export function validateBuildConfig(config: IClientBuildConfigBase<any>, firebaseProjectId: string): Array<{ key: string, error?: any, message: string }> {
+export function validateBuildConfig(config: IClientBuildConfigBase<any>): Array<{ key: string, error?: any, message: string }> {
   switch (config.platform) {
     case "Android":
-      return validateAndroidBuildConfig(config, firebaseProjectId)
+      return validateAndroidBuildConfig(config)
   }
 }
 
-export function validateAndroidBuildConfig(config: IAndroidBuildConfig, firebaseProjectId: string): Array<{ key: string, error?: any, message: string }> {
+export function validateAndroidBuildConfig(config: IAndroidBuildConfig): Array<{ key: string, error?: any, message: string }> {
 
   const errors = new Array<{ key: string, error?: any, message: string }>()
 

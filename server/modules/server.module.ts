@@ -1,8 +1,5 @@
 
-import OTParticipant from '../models/ot_participant';
 import OTItemMedia from '../models/ot_item_media';
-import OTClientBinary from '../models/ot_client_binary';
-import OTClientSignature from '../models/ot_client_signature';
 import OTClientBuildAction from '../models/ot_client_build_action';
 import * as path from 'path';
 import * as Agenda from 'agenda';
@@ -17,6 +14,8 @@ import { Job } from 'agenda';
 import appWrapper from '../app';
 import { SocketConstants, ClientBuildStatus, EClientBuildStatus } from '../../omnitrack/core/research/socket';
 import { experimentCtrl } from '../controllers/research/ot_experiment_controller';
+import OTTracker from '../models/ot_tracker';
+import OTItem from '../models/ot_item';
 
 export default class ServerModule {
 
@@ -36,21 +35,29 @@ export default class ServerModule {
   bootstrap() {
     console.log("bootstrapping a server module...")
     try {
-      /*
-      OTParticipant.find({}, {select: "_id experiment invitation user"}).populate("user").populate("experiment").populate("invitation").then(
-        participants => {
-          const removeIds = participants.filter( p => !p["experiment"] || !p["invitation"] || !p["user"]).map(p => p._id)
-          OTParticipant.remove({_id: {$in: removeIds}}).then(result => {
-            console.log(result["n"] + " dangling participants were removed.")
-          })
-        }
-      )*/
 
       //handle super users
       OTResearcher.updateMany({ email: { $in: env.super_users }, account_approved: { $ne: true } }, { account_approved: true }).then((updated) => {
         console.log(updated.nModified + " researchers became new superuser.")
       }).catch(err => {
         console.log(err)
+      })
+
+      OTTracker.collection.updateMany({}, {'$rename': {"attributes": "fields"}}).then(updated => {
+        console.log("renamed tracker attributes to fields.")
+      })
+
+      OTItem.find({}).then(items => {
+        return Promise.all(items.map(item => {
+          (item as any).dataTable.forEach( entry => {
+            entry.fieldLocalId = entry.attrLocalId
+            delete entry.attrLocalId
+          })
+          item.markModified("dataTable")
+          return item.save()
+        }))
+      }).then(updated => {
+        console.log("renamed item entry attrLocalId to fieldLocalId.")
       })
 
     } catch (err) {
@@ -99,7 +106,7 @@ export default class ServerModule {
         config: job.attrs.data.configId,
         configHash: job.attrs.data.configHash,
         jobId: job.attrs._id
-      }).save().then(
+      } as any).save().then(
         saved => {
           console.log("saved new build action: ")
           console.log(saved)
@@ -260,7 +267,11 @@ export default class ServerModule {
   }
 
   makeItemMediaFileDirectoryPath(userId: string, trackerId: string, itemId: string): string {
-    return "storage/uploads/users/" + userId + "/" + trackerId + "/" + itemId
+    return this.makeUserMediaDirectoryPath(userId) + "/" + trackerId + "/" + itemId
+  }
+
+  makeUserMediaDirectoryPath(userId: string): string {
+    return "storage/uploads/users/" + userId
   }
 
   private defineDataMessagePushAgenda() {
@@ -281,7 +292,7 @@ export default class ServerModule {
   }
 
   registerMessageDataPush(userId: string | string[], messageData: MessageData, options: PushOptions = { excludeDeviceIds: [] }) {
-    console.log("send synchronization push - " + userId)
+    console.log("send data message push - " + userId)
     this.agenda.now(C.TASK_PUSH_DATA, { userId: userId, messagePayload: messageData.toMessagingPayloadJson(), options: options }).then(job => {
       console.log("sent push messages successfully.")
     }).catch(err => {
@@ -309,7 +320,7 @@ export default class ServerModule {
           return OTClientBuildAction.find({ jobId: { $in: jobs.map(job => job.attrs._id) } }, {
             _id: 1,
             pids: 1
-          }).lean().then(actions => {
+          }).lean<any>().then(actions => {
             console.log("actions:", actions)
             if (actions.length > 0) {
               const pids = []
@@ -355,7 +366,7 @@ export default class ServerModule {
       return OTClientBuildAction.find(actionQuery, {
         _id: 1,
         pids: 1
-      }).lean().then(actions => {
+      }).lean<any>().then(actions => {
         console.log("actions:", actions)
         if (actions.length > 0) {
           const pids = []

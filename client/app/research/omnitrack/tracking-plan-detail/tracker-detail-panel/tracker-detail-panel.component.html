@@ -1,0 +1,86 @@
+<div class="menu-panel">
+  <div class="form-group">
+    <label class="small" for="trackerName">Tracker Name</label>
+    <input type="text" class="form-control" id="trackerName" [(ngModel)]="tracker.name">
+  </div>
+
+  <div class="form-group no-padding-top flex-container flex-align-items-center flex-stretch">
+    <label class="small no-margin">Permissions</label>
+    <app-lock-flag-button [model]="tracker" lockType="tracker"></app-lock-flag-button>
+  </div>
+
+  <div class="form-group flex-container flex-align-items-center flex-stretch">
+    <label class="small no-margin">Color</label>
+    <!--
+    <div class="color-palette-picker">
+      <div class="color-button" *ngFor="let color of getTrackerColorPalette()" (click)="onColorButtonClicked(color)">
+        <div class="color-element" [style.background]="color" [class.selected]="getCurrentColorIndex() === color">
+          <mat-icon *ngIf="getCurrentColorIndex() === color" class="material-icons">done</mat-icon>
+        </div>
+      </div>
+    </div>-->
+    <button class="btn btn-light color-button" [style.background]="getTrackerColorString()"
+      (click)="onColorClicked()"></button>
+  </div>
+  <div class="form-group">
+    <app-boolean-property-view title="On Shortcut" [(propertyValue)]="tracker.isBookmarked"></app-boolean-property-view>
+  </div>
+
+  <div class="form-group flex-container flex-align-items-center">
+    <label class="small no-margin">Redirect To</label>
+    <div class="flex-filler"></div>
+    <button
+      class="button-redirection small-button-with-icon-and-text btn btn-sm btn-light flex-container flex-align-items-center"
+      matTooltipPosition="above" (click)="onRedirectUrlButtonClicked()">
+      <span class="material-icons text-color-gray">public</span>
+      <span class="info">{{getRedirectUrlHostName()? getRedirectUrlHostName() : 'No Redirection'}}</span>
+    </button>
+  </div>
+
+  <div class="subheader">Fields</div>
+  <div class="no-padding" cdkDropList (cdkDropListDropped)="onFieldDragDrop($event)" cdkDropListLockAxis='y'
+    *ngIf="tracker.fields && tracker.fields.length > 0">
+    <div cdkDrag *ngFor="let fieldId of fieldIds" class="draggable-element" style="background: white">
+      <app-selectable-menu-item [title]="getFieldById(fieldId).name" [showRemoveButton]="true" [showDragHandle]="true"
+        [iconPath]="'/assets/omnitrack/field_icons_small/icon_small_' + getFieldIconName(getFieldById(fieldId)) + '.svg'"
+        [selected]="(planService.isIdSelectedInNav(fieldId) | async) === true" (onClick)="onFieldClicked(getFieldById(fieldId))"
+        (onRemoveClick)="onRemoveFieldClicked(getFieldById(fieldId))"
+        (onMouseEnter)="brushAndLinking.onHoverField(getFieldById(fieldId), 'menu')"
+        (onMouseLeave)="brushAndLinking.onLeaveObject()"
+        [highlight]="(brushAndLinking.checkHoverOnId(fieldId) | async) === true"
+        >
+        <span *ngIf="getFieldById(fieldId).connection" class="field-with-connection-indicator material-icons" [class.text-color-pointed]="(planService.isIdSelectedInNav(trackerId) | async) !== true" afterTitle>link</span>
+      </app-selectable-menu-item>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <button mat-button class="add-button mat-button-small" color="accent" (click)="onAddFieldClicked()">
+      <span class="material-icons">add</span>
+      <span>Add New Field</span>
+    </button>
+  </div>
+
+  <div class="subheader">Reminders</div>
+  <app-selectable-menu-item *ngFor="let reminder of getReminders()"
+    [title]="reminder.alias? reminder.alias : getReminderTitle(reminder)"
+    [subtitle]="reminder.alias? getReminderTitle(reminder) : null" [showRemoveButton]="true"
+    (onClick)="onReminderClicked(reminder)" (onRemoveClick)="onRemoveReminderClicked(reminder)"
+    [selected]="(planService.isIdSelectedInNav(reminder._id) | async) === true"
+    [highlight]="(brushAndLinking.checkHoverOnId(reminder._id) | async)===true && (brushAndLinking.currentHoveringInfo | async).source !== 'menu'"
+    (onMouseEnter)="brushAndLinking.onHoverTrigger(reminder, 'menu')"
+    (onMouseLeave)="brushAndLinking.onLeaveObject()"
+    >
+  </app-selectable-menu-item>
+  <div class="form-group">
+    <button mat-button class="add-button mat-button-small" color="accent" (click)="onAddReminderClicked()">
+      <span class="material-icons">add</span>
+      <span>Add New Reminder</span>
+    </button>
+  </div>
+</div>
+<app-field-detail-panel *ngIf="planService.getSelectedEntityIdWithType('field') | async" @showHideTrigger [field]="planService.getField(planService.getSelectedEntityIdWithType('field') | async)">
+</app-field-detail-panel>
+
+<app-trigger-detail-panel *ngIf="planService.getSelectedEntityIdWithType('reminder') | async" @showHideTrigger [trigger]="planService.getTrigger(planService.getSelectedEntityIdWithType('reminder') | async)">
+</app-trigger-detail-panel>

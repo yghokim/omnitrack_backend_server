@@ -1,11 +1,10 @@
-import { IParticipantDbEntity } from "../../../omnitrack/core/db-entity-types";
-import OTParticipant from "../../models/ot_participant";
+import OTUser from "../../models/ot_user";
 import app from '../../app';
 
 export default class OTParticipantCtrl {
 
   setExcludedDays(participantId: string, dates: Array<Date>): Promise<{ success: boolean, error?: any, changedParticipant?: any }> {
-    return OTParticipant.findByIdAndUpdate(participantId, { excludedDays: dates }, { new: true }).lean().then(
+    return OTUser.findByIdAndUpdate(participantId, { "participationInfo.excludedDays": dates }, { new: true }).lean<any>().then(
       changedParticipant => {
         if (changedParticipant) {
           return { success: true, changedParticipant: changedParticipant }
@@ -30,8 +29,8 @@ export default class OTParticipantCtrl {
 
     const participantId = req.params.participantId
     const experimentId = req.body.experimentId
-    OTParticipant.findById(participantId, {user: 1, experiment: 1}).lean().then(participant => {
-      return app.pushModule().sendDataPayloadMessageToUser(participant.user, app.pushModule().makeFullSyncMessageData(experimentId).toMessagingPayloadJson())
+    OTUser.findById(participantId, {_id: 1, experiment: 1}).lean<any>().then(participant => {
+      return app.pushModule().sendDataPayloadMessageToUser(participant._id, app.pushModule().makeFullSyncMessageData(experimentId).toMessagingPayloadJson())
     }).then(
       result => {
         res.status(200).send(result)

@@ -11,8 +11,8 @@ import { ExperimentPermissions } from '../../../omnitrack/core/research/experime
 import { VisualizationConfigs } from '../../../omnitrack/core/research/configs';
 import { TrackingDataService } from './tracking-data.service';
 import { IResearchMessage } from '../../../omnitrack/core/research/messaging';
-import { IParticipantDbEntity, IUsageLogDbEntity, getIdPopulateCompat, ITriggerDbEntity, ITrackerDbEntity } from '../../../omnitrack/core/db-entity-types';
-import { IExperimentDbEntity, IResearcherDbEntity, IExperimentTrackingPackgeDbEntity, IExperimentGroupDbEntity } from '../../../omnitrack/core/research/db-entity-types';
+import { IUserDbEntity, IUsageLogDbEntity, getIdPopulateCompat, ITriggerDbEntity, ITrackerDbEntity } from '../../../omnitrack/core/db-entity-types';
+import { IExperimentDbEntity, IResearcherDbEntity, IExperimentTrackingPlanDbEntity, IExperimentGroupDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import * as moment from 'moment';
 
 export class ExperimentService {
@@ -20,7 +20,7 @@ export class ExperimentService {
   private readonly experimentInfo = new BehaviorSubject<IExperimentDbEntity>(null)
   private readonly managerInfo = new BehaviorSubject<IResearcherDbEntity>(null)
   private readonly invitationList = new BehaviorSubject<Array<any>>(null)
-  private readonly participantList = new BehaviorSubject<Array<IParticipantDbEntity>>(null)
+  private readonly participantList = new BehaviorSubject<Array<IUserDbEntity>>(null)
   private readonly messageList = new BehaviorSubject<Array<IResearchMessage>>(null)
 
   private readonly _internalSubscriptions = new Subscription()
@@ -82,13 +82,12 @@ export class ExperimentService {
                           break;
                       }
                       break;
-                    case SocketConstants.MODEL_PARTICIPANT:
+                    case SocketConstants.MODEL_USER:
                       this.loadParticipantList()
                       this.loadInvitationList()
                       this.researchApi.loadUserPool()
                       switch (datum.event) {
                         case SocketConstants.EVENT_APPROVED:
-                          console.log("new participant entered to the experiment.")
                           this.notificationService.pushSnackBarMessage({
                             message: "A user started participating in the experiment."
                           })
@@ -167,18 +166,18 @@ export class ExperimentService {
     this.notificationService.registerGlobalBusyTag("experimentList")
     this._internalSubscriptions.add(
       this.http.get<IExperimentDbEntity>('/api/research/experiments/' + this.experimentId, this.researchApi.authorizedOptions).subscribe(
-          experimentInfo => {
-            if(experimentInfo){
-              this.experimentInfo.next(this.processExperimentInfo(experimentInfo))
-            }else this.experimentInfo.next(null)
-          },
-          err => {
-            console.error(err)
-          },
-          () => {
-            this.notificationService.unregisterGlobalBusyTag("experimentList")
-          }
-        )
+        experimentInfo => {
+          if (experimentInfo) {
+            this.experimentInfo.next(this.processExperimentInfo(experimentInfo))
+          } else this.experimentInfo.next(null)
+        },
+        err => {
+          console.error(err)
+        },
+        () => {
+          this.notificationService.unregisterGlobalBusyTag("experimentList")
+        }
+      )
     )
   }
 
@@ -223,7 +222,7 @@ export class ExperimentService {
   loadParticipantList() {
     this.notificationService.registerGlobalBusyTag("participantList")
     this._internalSubscriptions.add(
-      this.http.get<Array<IParticipantDbEntity>>("/api/research/experiments/" + this.experimentId + '/participants', this.researchApi.authorizedOptions).subscribe(
+      this.http.get<Array<IUserDbEntity>>("/api/research/experiments/" + this.experimentId + '/participants', this.researchApi.authorizedOptions).subscribe(
         list => {
           this.participantList.next(list)
         },
@@ -248,8 +247,15 @@ export class ExperimentService {
     return this.invitationList.pipe(filter(res => res != null))
   }
 
-  getParticipants(): Observable<Array<IParticipantDbEntity>> {
+  getParticipants(): Observable<Array<IUserDbEntity>> {
     return this.participantList.pipe(filter(res => res != null))
+  }
+
+  getActiveParticipants(): Observable<Array<IUserDbEntity>> {
+    return this.participantList.pipe(
+      filter(res => res != null),
+      map(participants => participants.filter(p => p.participationInfo.dropped === false))
+    )
   }
 
   getMessageList(): Observable<Array<IResearchMessage>> {
@@ -329,7 +335,7 @@ export class ExperimentService {
       .pipe(
         tap(removed => {
           if (removed === true && this.participantList.getValue() != null) {
-            const newList = this.participantList.getValue().splice(0)
+            const newList = this.participantList.getValue().slice(0)
             const index = newList.findIndex(p => p._id === participantId)
             if (index !== -1) {
               newList.splice(index, 1)
@@ -342,11 +348,47 @@ export class ExperimentService {
 
   dropParticipant(participantId: string): Observable<any> {
     return this.http.post<any>("/api/research/participants/" + participantId + "/drop", {}, this.researchApi.authorizedOptions)
-      .pipe(map(res => res.success))
+      .pipe(
+        map(res => res.success),
+        tap(success => {
+          if (success === true) {
+            const newList = this.participantList.getValue().slice(0)
+            newList.find(p => p._id === participantId).participationInfo.dropped = true
+            this.participantList.next(newList)
+          }
+        })
+      )
   }
 
   changeParticipantAlias(participantId, alias): Observable<boolean> {
     return this.http.post<boolean>("/api/research/participants/" + participantId + "/alias", { alias: alias }, this.researchApi.authorizedOptions)
+      .pipe(
+        tap(result => {
+          if (result === true) {
+            const newList = this.participantList.getValue().slice(0)
+            newList.find(p => p._id === participantId).participationInfo.alias = alias
+            this.participantList.next(newList)
+          }
+        })
+      )
+  }
+
+  createParticipantAccount(username: string, email: string, password: string, groupId: string, alias?: string): Observable<string> {
+    return this.http.post<string>("/api/research/experiments/" + this.experimentId + "/participants/create", {
+      username: username,
+      password: password,
+      email: email,
+      groupId: groupId,
+      alias: alias
+    }, this.researchApi.authorizedOptions)
+  }
+
+  generateParticipantPasswordResetLink(userId: string): Observable<string> {
+    return this.http.post<any>("/api/research/participants/" + userId + "/issue_reset_password", { userId: userId }, this.researchApi.authorizedOptions).pipe(
+      map(passwordResetToken => {
+        return window.location.protocol + "//" + window.location.host + "/user/reset_password?token=" + passwordResetToken.reset_token
+      })
+    )
   }
 
   updateParticipant(participantId, update): Observable<any> {
@@ -364,15 +406,15 @@ export class ExperimentService {
     )
   }
 
-  sendClientFullSyncMessages(participantId: string): Observable<any>{
+  sendClientFullSyncMessages(participantId: string): Observable<any> {
     return this.http.post("/api/research/participants/" + participantId + "/ping_full_sync", {
       experimentId: this.experimentId
     }, this.researchApi.authorizedOptions)
   }
 
-  getTrackingPlans(): Observable<Array<IExperimentTrackingPackgeDbEntity>> {
+  getTrackingPlans(): Observable<Array<IExperimentTrackingPlanDbEntity>> {
     return this.experimentInfo.pipe(map(exp => {
-      return exp.trackingPackages
+      return exp.trackingPlans
     }))
   }
 
@@ -397,7 +439,8 @@ export class ExperimentService {
     return this.participantList.pipe(
       filter(participants => participants != null),
       map(participants => {
-        return participants.filter(p => p.groupId === groupId).length
+        return participants.filter(p =>
+          p.participationInfo.groupId === groupId && p.participationInfo.dropped === false).length
       })
     )
   }
@@ -439,27 +482,24 @@ export class ExperimentService {
     }))
   }
 
-  updateLatestTimestampsOfParticipants(selectUserIds?:Array<string>): Observable<void>{
-    return this.http.get<Array<{_id: string, logs: Array<{_id:{user:string, name: string}, lastTimestamp: string}>}>>("/api/research/experiments/" + this.experimentId + "/session/summary", this.researchApi.makeAuthorizedRequestOptions({
+  updateLatestTimestampsOfParticipants(selectUserIds?: Array<string>): Observable<void> {
+    return this.http.get<Array<{ _id: string, logs: Array<{ _id: { user: string, name: string }, lastTimestamp: string }> }>>("/api/research/experiments/" + this.experimentId + "/session/summary", this.researchApi.makeAuthorizedRequestOptions({
       userIds: selectUserIds,
     })).pipe(map(result => {
-      console.log("session summary:")
-      console.log(result)
       result.forEach(row => {
-        console.log(this.participantList.value)
-        const participant = this.participantList.value.find(p=>p.user._id === row._id)
-        if(participant){
+        const participant = this.participantList.value.find(p => p._id === row._id)
+        if (participant) {
           row.logs.forEach(
             log => {
-                switch(log._id.name){
-                  case "session":
+              switch (log._id.name) {
+                case "session":
                   participant.lastSessionTimestamp = moment(log.lastTimestamp).valueOf()
                   break;
-                  case "data_sync":
+                case "data_sync":
                   participant.lastSyncTimestamp = moment(log.lastTimestamp).valueOf()
                   break;
-                }
-                participant.lastTimestampsUpdated = true
+              }
+              participant.lastTimestampsUpdated = true
             }
           )
         }
@@ -493,13 +533,13 @@ export class ExperimentService {
     )
   }
 
-  addTrackingPlanJson(planJson: any, name: string): Observable<boolean> {
-    return this.http.post<boolean>("api/research/experiments/" + this.experimentId + "/packages/update", {
+  addTrackingPlanJson(planJson: any, name: string): Observable<{success: boolean, packageKey: string}> {
+    return this.http.post<{success: boolean, packageKey: string}>("api/research/experiments/" + this.experimentId + "/packages/update", {
       packageJson: planJson,
       name: name
     }, this.researchApi.authorizedOptions).pipe(
-      tap(changed => {
-        if (changed === true) {
+      tap(result => {
+        if (result.success === true) {
           this.loadExperimentInfo()
         }
       })
@@ -507,11 +547,13 @@ export class ExperimentService {
   }
 
   updateTrackingPlanJson(packageKey: string, packageJson: any, name: string): Observable<boolean> {
-    return this.http.post<boolean>("api/research/experiments/" + this.experimentId + "/packages/update", {
+    return this.http.post<{success: boolean, packageKey: string}>("api/research/experiments/" + this.experimentId + "/packages/update", {
       packageJson: packageJson,
       name: name,
       packageKey: packageKey
-    }, this.researchApi.authorizedOptions).pipe(tap(changed => {
+    }, this.researchApi.authorizedOptions).pipe(
+      map(result => result.success),
+      tap(changed => {
       if (changed === true) {
         this.loadExperimentInfo()
       }
@@ -525,7 +567,7 @@ export class ExperimentService {
   upsertExperimentGroup(values: {
     _id?: string,
     name?: string,
-    trackingPackageKey?: string
+    trackingPlanKey?: string
   }): Observable<IExperimentGroupDbEntity> {
     return this.http.post<IExperimentGroupDbEntity>("api/research/experiments/" + this.experimentId + "/groups/upsert", values, this.researchApi.authorizedOptions)
   }
@@ -534,17 +576,18 @@ export class ExperimentService {
     return this.http.delete("api/research/experiments/" + this.experimentId + "/groups/" + groupId, this.researchApi.authorizedOptions)
   }
 
-  getEntitiesOfUserInExperiment(userId: string): Observable<{trackers: Array<ITrackerDbEntity>, triggers: Array<ITriggerDbEntity>}>{
+  getEntitiesOfUserInExperiment(userId: string): Observable<{ trackers: Array<ITrackerDbEntity>, triggers: Array<ITriggerDbEntity> }> {
     return this.http.get<{
-      trackers: Array<ITrackerDbEntity>, 
-      triggers: Array<ITriggerDbEntity>}>(
+      trackers: Array<ITrackerDbEntity>,
+      triggers: Array<ITriggerDbEntity>
+    }>(
       "/api/research/experiments/" + this.experimentId + "/entities/user/" + userId,
       this.researchApi.authorizedOptions
     )
   }
-  
-  updateTrigger(triggerId: string, update: any): Observable<{updated: ITriggerDbEntity}>{
-    return this.http.post<{updated: ITriggerDbEntity}>(
+
+  updateTrigger(triggerId: string, update: any): Observable<{ updated: ITriggerDbEntity }> {
+    return this.http.post<{ updated: ITriggerDbEntity }>(
       '/api/research/tracking/update/trigger',
       {
         experimentId: this.experimentId,
@@ -555,8 +598,8 @@ export class ExperimentService {
     )
   }
 
-  updateTracker(trackerId: string, update: any): Observable<{updated: ITrackerDbEntity}>{
-    return this.http.post<{updated: ITrackerDbEntity}>(
+  updateTracker(trackerId: string, update: any): Observable<{ updated: ITrackerDbEntity }> {
+    return this.http.post<{ updated: ITrackerDbEntity }>(
       '/api/research/tracking/update/tracker',
       {
         experimentId: this.experimentId,
@@ -567,21 +610,21 @@ export class ExperimentService {
     )
   }
 
-  
-  updateAttributeOfTracker(trackerId: string, attributeLocalId: string, update: any): Observable<{updated: ITrackerDbEntity}>{
-    return this.http.post<{updated: ITrackerDbEntity}>(
-      '/api/research/tracking/update/attribute',
+
+  updateFieldOfTracker(trackerId: string, fieldLocalId: string, update: any): Observable<{ updated: ITrackerDbEntity }> {
+    return this.http.post<{ updated: ITrackerDbEntity }>(
+      '/api/research/tracking/update/field',
       {
         experimentId: this.experimentId,
         trackerId: trackerId,
-        attributeLocalId: attributeLocalId,
+        fieldLocalId: fieldLocalId,
         update: update
       },
       this.researchApi.authorizedOptions
     )
   }
 
-  sendTestPingOfTrigger(triggerId: string): Observable<boolean>{
-    return this.http.post<boolean>('/api/research/experiments/' + this.experimentId + '/test/trigger_ping', {triggerId: triggerId}, this.researchApi.authorizedOptions)
+  sendTestPingOfTrigger(triggerId: string): Observable<boolean> {
+    return this.http.post<boolean>('/api/research/experiments/' + this.experimentId + '/test/trigger_ping', { triggerId: triggerId }, this.researchApi.authorizedOptions)
   }
 }

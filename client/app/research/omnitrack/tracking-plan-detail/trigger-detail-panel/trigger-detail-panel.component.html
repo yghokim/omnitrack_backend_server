@@ -1,0 +1,202 @@
+<div class="menu-panel">
+
+  <div class="form-group flex-container flex-align-items-center flex-stretch no-padding-bottom">
+    <label class="small no-margin">Permissions</label>
+    <app-lock-flag-button [model]="trigger" [lockType]="entityType"></app-lock-flag-button>
+  </div>
+
+  <div class="form-group">
+    <app-selection-property-view title="Condition Type" [(propertyValue)]="triggerConditionType"
+      [stringList]="['Time-based', 'Data-driven']" [direction]="'vertical'"></app-selection-property-view>
+  </div>
+
+  <div class="form-group">
+    <app-text-property-view title="Alias" [(propertyValue)]="trigger.alias" placeholder="Not shown to participants">
+    </app-text-property-view>
+  </div>
+
+  <div class="form-group">
+    <app-boolean-property-view title="Switch" [(propertyValue)]="trigger.isOn"></app-boolean-property-view>
+  </div>
+
+  <hr class="no-margin">
+
+  <ng-container [ngSwitch]="trigger.conditionType">
+    <ng-container *ngSwitchCase="0">
+      <!--Time condition-->
+      <div class="form-group">
+        <app-selection-property-view title="Time Condition"
+          [stringList]="['At Specific Time', 'Repeat Interval', 'Random Sampling']"
+          [propertyValue]="trigger.condition.cType" (propertyValueChange)="onTimeConditionTypeChanged($event)"
+          [direction]="'vertical'"></app-selection-property-view>
+      </div>
+
+      <ng-container [ngSwitch]="trigger.condition.cType">
+        <ng-container *ngSwitchCase="0">
+          <!--Alarm-->
+          <div class="form-group no-padding-top no-padding-bottom">
+            <label class="small no-margin">Alarm Time (24-hr format)</label>
+            <ngb-timepicker [ngModel]="{hour: trigger.condition.aHr, minute: trigger.condition.aMin}"
+              (ngModelChange)="trigger.condition.aHr = $event.hour; trigger.condition.aMin = $event.minute">
+            </ngb-timepicker>
+          </div>
+        </ng-container>
+        <ng-container *ngSwitchCase="1">
+          <!--Interval-->
+          <div class="form-group">
+            <label class="small">Interval Duration</label>
+            <div class="interval-duration-picker">
+              <div class="digit-picker">
+                <label>Hr</label>
+                <input type=number class="form-control" placeholder="hr" [(ngModel)]="intervalDurationHour">
+              </div>
+              <div class="digit-picker">
+                <label>Min</label>
+                <input type=number class="form-control" placeholder="min" [(ngModel)]="intervalDurationMinute">
+              </div>
+              <div class="digit-picker">
+                <label>Sec</label>
+                <input type=number class="form-control" placeholder="sec" [(ngModel)]="intervalDurationSecond">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <mat-checkbox [(ngModel)]="trigger.condition.iRanged">Use Time Range</mat-checkbox>
+            <app-hour-range-picker *ngIf="trigger.condition.iRanged === true" [(from)]="trigger.condition.iStartHr"
+              [(to)]="trigger.condition.iEndHr"></app-hour-range-picker>
+          </div>
+
+        </ng-container>
+        <ng-container *ngSwitchCase="2">
+          <!--Sampling-->
+          <div class="form-group">
+            <app-number-property-view title="Count per Day" [(propertyValue)]="trigger.condition.esmCount" min=1
+              max="145"></app-number-property-view>
+          </div>
+          <div class="form-group">
+            <label class="small">Minimum Interval Guaranteed</label>
+            <div class="flex-container flex-align-items-center">
+              <input class="form-control" style="margin-right: 0.5rem; width: 50%" type="number"
+                [(ngModel)]="esmIntervalDigit">
+              <select class="form-control flex-filler" [(ngModel)]="esmIntervalUnit">
+                <option value="second">Second</option>
+                <option value="minute">Minute</option>
+                <option value="hour">Hour</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <mat-checkbox [(ngModel)]="trigger.condition.esmRanged">Sample within a Specific Period
+              Date</mat-checkbox>
+            <app-hour-range-picker *ngIf="trigger.condition.esmRanged === true" [(from)]="trigger.condition.esmStartHr"
+              [(to)]="trigger.condition.esmEndHr"></app-hour-range-picker>
+          </div>
+        </ng-container>
+
+      </ng-container>
+
+      <div class="child-pane">
+        <div class="form-group" *ngIf="trigger.condition.cType !== 2">
+          <app-boolean-property-view title="Repeat" [(propertyValue)]="trigger.condition.repeat">
+          </app-boolean-property-view>
+        </div>
+        <div class="form-group" *ngIf="trigger.condition.repeat===true || trigger.condition.cType ===2">
+          <app-day-of-week-checker [(checkedDaysInteger)]="trigger.condition.dow"></app-day-of-week-checker>
+        </div>
+        <div class="top-padding-1em flex-container flex-align-items-center flex-stretch">
+          <mat-checkbox [checked]="trigger.condition.endAt != null"
+            (change)="trigger.condition.endAt = ($event.checked === true)? getNextDay().getTime() : null">Set Finish
+            Date</mat-checkbox>
+          <button type="button" *ngIf="trigger.condition.endAt != null" class="btn btn-sm btn-outline-dark"
+            (click)="conditionEndDatePicker.open()">{{trigger.condition.endAt  | date: 'yyyy-MM-dd'}}</button>
+          <mat-form-field style="display: none">
+            <input matInput [matDatepicker]="conditionEndDatePicker" placeholder="Choose a date" [min]="getNextDay()"
+              [value]="getEndDate()" (dateChange)="trigger.condition.endAt = $event.value.getTime()">
+            <mat-datepicker touchUi="true" #conditionEndDatePicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </div>
+
+    </ng-container>
+    <ng-container *ngSwitchCase="1">
+      <!--Data driven condition-->
+      <div class="form-group">
+        <label class="small">Measure to watch</label>
+        <app-measure-factory-selector [(selectedFactory)]="attachedMeasureFactory"
+          [factories]="attachableMeasureFactories"></app-measure-factory-selector>
+      </div>
+      <div class="form-group">
+        <app-number-property-view title="Threshold" [(propertyValue)]="trigger.condition.threshold">
+        </app-number-property-view>
+      </div>
+      <div class="form-group">
+        <app-selection-property-view title="Comparison Method" [direction]="'vertical'" [(propertyValue)]="trigger.condition.comparison"
+          [list]="[{'id': 'exceed', 'name':'Exceeds the threshold'}, {'id':'drop', 'name' : 'Drops below the threshold'}]">
+        </app-selection-property-view>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <hr class="no-margin">
+
+  <div class="form-group">
+    <app-boolean-property-view title="Use Validation Script" [(propertyValue)]="trigger.checkScript">
+    </app-boolean-property-view>
+
+    <textarea *ngIf="trigger.checkScript === true" class="form-control top-margin-1em" [(ngModel)]="trigger.script"
+      [disabled]="trigger.checkScript === false" style="font-family: 'Courier New', Courier, monospace"></textarea>
+  </div>
+
+  <hr class="no-margin">
+  <ng-container [ngSwitch]="trigger.actionType">
+    <ng-container *ngSwitchCase="0">
+      <!--Reminder-->
+      <div class="form-group">
+        <app-text-property-view title="Notification Message" [(propertyValue)]="trigger.action.message"
+          placeholder="Use Default Message">
+        </app-text-property-view>
+      </div>
+      <div class="form-group">
+        <app-boolean-property-view title="Expire When Delayed" [propertyValue]="trigger.action.durationSeconds > 0"
+          (propertyValueChange)="trigger.action.durationSeconds = $event === true ? 300 : 0">
+        </app-boolean-property-view>
+      </div>
+      <div class="form-group" *ngIf="trigger.action.durationSeconds > 0">
+        <app-number-property-view title="Expiry Duration (sec)" [(propertyValue)]="trigger.action.durationSeconds">
+        </app-number-property-view>
+      </div>
+
+    </ng-container>
+    <ng-container *ngSwitchCase="1">
+      <!--Logging Trigger-->
+      <div class="form-group">
+        <app-boolean-property-view title="Send notification on logging" [(propertyValue)]="trigger.action.notify">
+        </app-boolean-property-view>
+      </div>
+      <div class="form-group">
+        <div class="flex-container flex-align-items-center flex-stretch">
+          <label class="small no-margin">Assigned Trackers</label>
+          <button mat-stroked-button class="mat-button-small" color="accent" (click)="onAssignNewTrackerClicked()"
+            *ngIf="getAssignableTrackers().length > 0">Add</button>
+        </div>
+        <div class="assigned-trackers">
+          <div class="small text-color-warn" *ngIf="trigger.trackers==null || trigger.trackers.length === 0">No trackers
+            assigned.</div>
+          <div class="tracker-list" *ngIf="trigger.trackers && trigger.trackers.length > 0">
+            <div class="tracker-element-wrapper" *ngFor="let trackerId of trigger.trackers">
+              <div class="tracker-element" (click)="onTrackerRemoveClicked(trackerId)">
+                <div class="name">
+                  {{getTrackerById(trackerId).name}}
+                </div>
+                <div class="flex-filler"></div>
+                <button mat-icon-button class="tiny text-color-darkgray">
+                  <mat-icon class="material-icons">clear</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+</div>

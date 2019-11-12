@@ -3,15 +3,14 @@ import * as mongoose from 'mongoose';
 const otInvitationSchema = new mongoose.Schema({
   code: { type: String, required: true, index: true },
   experiment: { type: String, ref: 'OTExperiment' },
-  isPublic: { type: Boolean, default: false },
   groupMechanism: mongoose.Schema.Types.Mixed
 }, { timestamps: true, toObject: { virtuals: true }, toJSON: { virtuals: true } });
 
 
 otInvitationSchema.virtual('participants', {
-  ref: 'OTParticipant',
+  ref: 'OTUser',
   localField: '_id',
-  foreignField: 'invitation',
+  foreignField: 'participationInfo.invitation',
   justOne: false
 })
 

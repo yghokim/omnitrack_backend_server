@@ -1,0 +1,24 @@
+<div class="flex-container flex-align-items-center">
+  <div class="dial-container">
+    <button mat-icon-button color="accent" (click)="onUp('from')">
+      <mat-icon class="material-icons">keyboard_arrow_up</mat-icon>
+    </button>
+    <div class="form-control">{{formatHour(from)}}</div>
+    <button mat-icon-button color="accent" (click)="onDown('from')">
+      <mat-icon class="material-icons">keyboard_arrow_down</mat-icon>
+    </button>
+  </div>
+
+  <div class="separator">
+    -
+  </div>
+  <div class="dial-container">
+    <button mat-icon-button color="accent" (click)="onUp('to')">
+      <mat-icon class="material-icons">keyboard_arrow_up</mat-icon>
+    </button>
+    <div class="form-control">{{formatHour(to)}}</div>
+    <button mat-icon-button color="accent" (click)="onDown('to')">
+      <mat-icon class="material-icons">keyboard_arrow_down</mat-icon>
+    </button>
+  </div>
+</div>

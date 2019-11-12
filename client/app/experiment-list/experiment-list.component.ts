@@ -11,7 +11,7 @@ import { map, tap } from 'rxjs/operators';
 import { IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 import { getIdPopulateCompat } from '../../../omnitrack/core/db-entity-types';
 import * as moment from 'moment';
-import { trigger, state, style, transition, animate } from '@angular/animations';
+import { trigger, state, style, transition, animate, stagger, query } from '@angular/animations';
 
 @Component({
   selector: 'app-experiment-list',
@@ -29,6 +29,19 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
       })),
       transition('* => hover', [animate('250ms ease-out')]),
       transition('hover => *', [animate('150ms ease-out')])
+    ]),
+    trigger('enterLeaveTrigger', [
+      transition('* => *', [
+        query(':enter', [
+          style({ opacity: 0, transform: 'scale(0.5,0.5)' }),
+          stagger(50, [
+            animate('0.5s ease-out', style({ opacity: 1, transform: '*' }))
+          ]),
+        ])
+      ]),
+      transition(':leave', [
+        animate('0.3s ease-out', style({ opacity: 0, transform: 'translate(0,100%)' }))
+      ])
     ])
   ],
   changeDetection: ChangeDetectionStrategy.OnPush

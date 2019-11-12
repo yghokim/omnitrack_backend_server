@@ -1,0 +1,12 @@
+<div class="dialog dialog-mid">
+  <ul class="list-group">
+    <div class="list-group-item list-group-item-action" *ngFor="let factory of factories" (click)="onFactoryClicked(factory)">
+      <div class="factory-category">
+        {{factory.categoryName}}
+      </div>
+      <div class="factory-name">
+        {{factory.name}}
+      </div>
+    </div>
+  </ul>
+</div>

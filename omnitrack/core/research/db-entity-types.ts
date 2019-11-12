@@ -1,15 +1,16 @@
 import { IMongooseDbEntity } from "../db-entity-types";
 import { VisualizationConfigs } from "./configs";
+import { TrackingPlan } from "../tracking-plan";
 
 export interface IExperimentGroupDbEntity extends IMongooseDbEntity {
   name: string,
-  trackingPackageKey?: string
+  trackingPlanKey?: string
 }
 
-export interface IExperimentTrackingPackgeDbEntity {
+export interface IExperimentTrackingPlanDbEntity {
   key: string,
   name: string,
-  data: any
+  data: TrackingPlan
 }
 
 export interface IExperimentDbEntity extends IMongooseDbEntity {
@@ -22,7 +23,7 @@ export interface IExperimentDbEntity extends IMongooseDbEntity {
   consent: string,
   demographicFormSchema: any,
   receiveConsentInApp: boolean,
-  trackingPackages: Array<IExperimentTrackingPackgeDbEntity>,
+  trackingPlans: Array<IExperimentTrackingPlanDbEntity>,
   experimenters: Array<{ researcher: string | IResearcherDbEntity, permissions: any }>,
   clientBuildConfigs?: Array<any>
 }
@@ -34,12 +35,6 @@ export interface IClientBuildConfigBase<T> extends IMongooseDbEntity {
   packageName: string,
   appName: string,
   iconPath: string,
-  disableExternalEntities: boolean,
-  showTutorials: boolean,
-  disableTrackerCreation: boolean,
-  disableTriggerCreation: boolean,
-  hideTriggersTab: boolean,
-  hideServicesTab: boolean,
   credentials: T, // dictionary
   researcherMode: boolean,
   apiKeys: Array<{ key: string, value: any }>,
@@ -81,7 +76,8 @@ export interface IClientBuildAction extends IMongooseDbEntity {
 export interface IClientSignatureDbEntity extends IMongooseDbEntity {
   key: string,
   package: string,
-  alias: string
+  alias: string,
+  experiment?: string | IExperimentDbEntity
 }
 
 export interface IResearcherDbEntity extends IMongooseDbEntity {

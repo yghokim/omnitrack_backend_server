@@ -1,0 +1,8 @@
+<div class="flex-container flex-align-items-center flex-stretch">
+  <div class="dow-element" *ngFor="let day of checkedDays; trackBy: trackByIndex; let index = index" (click)="onCheckedChanged(index)">
+    <div class="dow-panel" *ngIf="day===true" @dowShowHide></div>
+    <div class="dow-label" [class.checked]="day===true">
+      {{getDowName(index)}}
+    </div>
+  </div>
+</div>

@@ -19,7 +19,6 @@ import { DailyAverageComponent } from './experiment-overview/client-usage/daily-
 import { UpdateClientSignatureDialogComponent } from './server-settings/update-client-signature-dialog/update-client-signature-dialog.component';
 import { UsersPerDayComponent } from './server-status-overview/users-per-day/users-per-day.component';
 import { DevicesPerDayComponent } from './server-status-overview/devices-per-day/devices-per-day.component';
-import { ServerUserListComponent } from './server-status-overview/server-user-list/server-user-list.component';
 import { SignatureValidationCompleteDialogComponent } from './experiment-client-settings/platform-config-panel/signature-validation-complete-dialog/signature-validation-complete-dialog.component';
 import { CreateNewJavaKeystoreDialogComponent } from './experiment-client-settings/platform-config-panel/create-new-java-keystore-dialog/create-new-java-keystore-dialog.component';
 import { CommonModule } from '@angular/common';
@@ -83,7 +82,6 @@ const routes: Routes = [
     ResearcherAccountSettingsComponent,
     ServerSettingsComponent,
     ServerStatusOverviewComponent,
-    ServerUserListComponent,
 
     StatAnalyticsComponent,
     DailyAverageComponent,

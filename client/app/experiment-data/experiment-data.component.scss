@@ -1,5 +1,5 @@
 .table-container{
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 
 .cell-value-clickable {
@@ -23,14 +23,6 @@
   background: #6aafbd;
   font-weight: bold;
   color: white;
-}
-
-.badge-metadata {
-  background: #a0a0a0;
-  color: white;
-  text-transform: uppercase;
-  font-size: 0.5rem;
-  font-weight: bold;
 }
 
 .badge-enum{

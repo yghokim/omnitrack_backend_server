@@ -231,8 +231,7 @@ export class EngagementComponent implements OnInit, OnDestroy{
 
           return {
             participantId: participantData.participant._id.toString(),
-            email: participantData.participant.user.email,
-            alias: participantData.participant.alias,
+            alias: participantData.participant.participationInfo.alias,
             daysSinceStart: participantData.daySequence.length,
             noLogDayIndices: noLogDayIndices,
             trackingDataList: trackingDataList
@@ -278,7 +277,6 @@ export interface TrackerRow {
 
 export interface ParticipantRow {
   participantId: string, alias: string, daysSinceStart: number,
-  email: string,
   noLogDayIndices: Array<number>, trackingDataList: Array<TrackerRow>
 }
 

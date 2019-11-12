@@ -1,0 +1,48 @@
+$record_button_diameter: 3rem;
+$record_button_border: 0.1rem;
+$record_button_insider_gap: 0.3rem;
+
+:host {
+  display: flex;
+}
+
+.equalizer {
+  flex: 1;
+
+  .progress_bar {
+    background: #f0f0f0;
+    height: 3rem;
+    position: relative;
+
+    .centerline {
+      position: absolute;
+      border-bottom: 1px solid #6f6f6f30;
+      left: 0;
+      right: 0;
+      top: 50%;
+    }
+  }
+
+  .time_label {
+    font-size: 0.75rem;
+    color: #757575;
+  }
+}
+
+.record_button {
+  width: $record_button_diameter;
+  height: $record_button_diameter;
+  border-radius: 50%;
+  border: $record_button_border solid #a7a7a7;
+  transform: scale(1.2);
+  margin-left: 0.8rem;
+  margin-right: 0.3rem;
+
+  .insider{
+    width: $record_button_diameter - ($record_button_insider_gap * 2);
+    height: $record_button_diameter - ($record_button_insider_gap * 2);
+    background: #ff6868;
+    border-radius: 50%;
+    transform: translate($record_button_insider_gap - ($record_button_border*.5), $record_button_insider_gap - ($record_button_border*.5));
+  }
+}

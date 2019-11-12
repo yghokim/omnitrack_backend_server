@@ -5,7 +5,7 @@ import { TrackingDataService } from "./tracking-data.service";
 import * as moment from "moment-timezone";
 import { diffDaysBetweenTwoMoments } from "../../../shared_lib/utils";
 import { ResearchApiService } from "./research-api.service";
-import { ITrackerDbEntity, IItemDbEntity, IParticipantDbEntity } from "../../../omnitrack/core/db-entity-types";
+import { ITrackerDbEntity, IItemDbEntity, IUserDbEntity } from "../../../omnitrack/core/db-entity-types";
 import { getExperimentDateSequenceOfParticipant } from "../../../omnitrack/experiment-utils";
 
 const dayStartArg = { hour: 0, minute: 0, second: 0, millisecond: 0 };
@@ -48,7 +48,7 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
 
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(flatMap(service => 
-        service.getParticipants().pipe(
+        service.getActiveParticipants().pipe(
           combineLatest(service.getExperiment(), (participants, experiment)=>({experiment: experiment, participants: participants}))
         ))).subscribe(
         project => {
@@ -57,7 +57,7 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
           let earliestExperimentStart: number = null
 
           participants.forEach(participant => {
-            const experimentRangeStart = new Date(participant.experimentRange.from).getTime()
+            const experimentRangeStart = new Date(participant.participationInfo.experimentRange.from).getTime()
             if (!earliestExperimentStart) { earliestExperimentStart = experimentRangeStart } else {
               earliestExperimentStart = Math.min(earliestExperimentStart, experimentRangeStart)
             }
@@ -79,20 +79,20 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
 
     this._internalSubscriptions.add(
       this.makeScopeAndParticipantsObservable(true).pipe(flatMap(project => {
-        const userIds = project.participants.map(p => p.user._id)
+        const userIds = project.participants.map(p => p._id)
         return project.trackingDataService.getTrackersOfUser(userIds)
           .pipe(combineLatest(project.trackingDataService.getItemsOfUser(userIds), (trackers, items) => {
             // make data
             const today = moment().startOf("day")
             let earliestExperimentStart: number = null
             const data = project.participants.map(participant => {
-              const experimentRangeStart = new Date(participant.experimentRange.from).getTime()
+              const experimentRangeStart = new Date(participant.participationInfo.experimentRange.from).getTime()
               if (!earliestExperimentStart) { earliestExperimentStart = experimentRangeStart } else {
                 earliestExperimentStart = Math.min(earliestExperimentStart, experimentRangeStart)
               }
 
               const daySequenceOfParticipant = getExperimentDateSequenceOfParticipant(participant, today.toDate(), project.scope.includeWeekends)
-              const trackingDataList = trackers.filter(tracker => tracker.user === participant.user._id).map(tracker => {
+              const trackingDataList = trackers.filter(tracker => tracker.user === participant._id).map(tracker => {
                 const decodedItems = items.filter(item => item.tracker === tracker._id).map(item => {
                   const timestampMoment = moment(item.timestamp)
                   const day = daySequenceOfParticipant.findIndex(d => moment(d).isSame(timestampMoment, 'day'))
@@ -200,14 +200,14 @@ export class ResearchVisualizationQueryConfigurationService implements OnDestroy
     return this._scopeSubject.pipe(filter(range => range != null));
   }
 
-  public makeScopeAndParticipantsObservable(applyFilter: boolean): Observable<{ trackingDataService: TrackingDataService, scope: Scope, participants: Array<IParticipantDbEntity> }> {
+  public makeScopeAndParticipantsObservable(applyFilter: boolean): Observable<{ trackingDataService: TrackingDataService, scope: Scope, participants: Array<IUserDbEntity> }> {
     return this.api.selectedExperimentService.pipe(
       map(service => service.trackingDataService),
       tap(service => {
         service.registerConsumer("queryConfigService")
       }),
       combineLatest(this.scopeSubject, this.filteredParticipantIds,
-        this.api.selectedExperimentService.pipe(flatMap(service => service.getParticipants())), (service, scope, filteredParticipantIds, participants) => {
+        this.api.selectedExperimentService.pipe(flatMap(service => service.getActiveParticipants())), (service, scope, filteredParticipantIds, participants) => {
           return { trackingDataService: service, scope: scope, participants: participants.filter(p => filteredParticipantIds.includes(p._id) === false) }
         }
       ))
@@ -254,7 +254,7 @@ export interface FilteredExperimentDataset {
   earliestExperimentStart: number,
   includesWeekends: boolean,
   data: Array<{
-    participant: IParticipantDbEntity,
+    participant: IUserDbEntity,
     daySequence: Array<Date>,
     trackingData: Array<{
       tracker: ITrackerDbEntity,

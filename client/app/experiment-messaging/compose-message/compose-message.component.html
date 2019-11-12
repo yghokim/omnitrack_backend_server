@@ -57,7 +57,7 @@
 
         <mat-form-field class="flex-element-fill" *ngIf="mountedMessage.receiverRule.type === 'SpecificUsers'">
           <mat-select placeholder="Choose Participants..." multiple [(value)] = "selectedParticipantUserIds" (selectionChange)="onParticipantSelected($event)">
-            <mat-option *ngFor="let participant of participants" [value]="participant.user._id">{{participant.alias}} ({{participant.user.email | anonymizeEmail}})</mat-option>
+            <mat-option *ngFor="let participant of participants" [value]="participant._id">{{participant.participationInfo.alias}}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>

@@ -2,15 +2,18 @@
 
   <app-help-widget message="What happens if I modify the plans after the study started?">
     <span tooltipHtmlContent>
-      Tracking plan is a <b>schema</b>, not the actual instance of the entities that reside in the participants' accounts. Modifying the packages will <b>NOT</b> affect the participants who already started the experiment. 
+      Tracking plan is a <b>schema</b>, not the actual instance of the entities that reside in the participants'
+      accounts. Modifying the packages will <b>NOT</b> affect the participants who already started the experiment.
     </span>
   </app-help-widget>
-  
+
   <div class="flex-container flex-stretch container-vertical-padding">
     <small *ngIf="packages && packages.length > 1" class="flex-element info-text">{{packages.length}} Plans</small>
     <small *ngIf="packages && packages.length  == 1" class="flex-element info-text">{{packages.length}} Plan</small>
-    <small *ngIf="!packages || packages.length === 0" class="flex-element info-text">No tracking plans defined for the experiment.</small>
-    <button mat-button color="primary" class="flex-element" (click)="onAddNewPackageClicked()">+ Add New Tracking Plan</button>
+    <small *ngIf="!packages || packages.length === 0" class="flex-element info-text">No tracking plans defined for the
+      experiment.</small>
+    <button mat-button color="primary" class="flex-element" (click)="onAddNewPackageClicked()">+ Add New Tracking
+      Plan</button>
   </div>
   <div class="package-list">
     <div class="card omnitrack-card" *ngFor="let package of packages; trackBy: trackByPackage">
@@ -21,6 +24,10 @@
           </div>
           <div class="flex-element">
             <button mat-icon-button class="text-color-darkgray" (click)="onEditPlanClicked(package.key)">
+              <mat-icon class="material-icons">edit</mat-icon>
+            </button>
+
+            <button mat-icon-button class="text-color-darkgray" (click)="onEditCodeClicked(package.key)">
               <mat-icon class="material-icons">code</mat-icon>
             </button>
             <button mat-icon-button class="text-color-darkgray" (click)="onRemovePlanClicked(package.key)">
@@ -29,21 +36,10 @@
           </div>
         </div>
       </div>
-      <div class="flex-container entity-list-container-container">
-        <div class="card-body entity-list-container tracker-list-container" *ngIf="package.data.trackers && package.data.trackers.length > 0">
-          <h6>Trackers</h6>
-          <div class="tracker-list">
-            <app-tracker-view *ngFor="let tracker of package.data.trackers; trackBy: trackByEntity" [tracker]="tracker" [reminders]="getRemindersOf(tracker, package.data.triggers)" (trackerChange)="onPlanEdited(package.key, package)"></app-tracker-view>
-          </div>
-        </div>
-        <div class="card-body entity-list-container trigger-list-container" *ngIf="package.data.triggers && filterLoggingTriggers(package.data.triggers).length > 0">
-          <h6>Triggers</h6>
-          <div class="trigger-list">
-            <app-trigger-view *ngFor="let trigger of filterLoggingTriggers(package.data.triggers); trackBy: trackByEntity" [trigger]="trigger"
-              [trackingPackage]="package" (flagChange)="onPlanEdited(package.key, package)"></app-trigger-view>
-          </div>
-        </div>
-      </div>
+
+      <app-tracking-plan-list-element [plan]="package.data" (change)="onPlanEdited(package.key, package.data)">
+      </app-tracking-plan-list-element>
+
     </div>
   </div>
 </div>

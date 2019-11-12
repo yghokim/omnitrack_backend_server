@@ -1,0 +1,13 @@
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  background: repeating-linear-gradient(135deg, #fefefe, #fefefe 5px, #e0e0e0 6px, #e0e0e0 1px);
+}
+
+button {
+  width: 3rem;
+  height: 3rem;
+}

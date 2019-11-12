@@ -53,6 +53,7 @@ export interface IEnvironment {
   mongodb_test_uri?: string;
   mongodb_agenda_uri?: string;
   mongodb_agenda_test_uri?: string;
+  frontend_host: string;
   jwt_secret?: string;
   use_mailer?: boolean;
   force_private_ip?: boolean;

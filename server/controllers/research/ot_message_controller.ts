@@ -6,7 +6,6 @@ import { experimentCtrl } from './ot_experiment_controller';
 import app from '../../app';
 import env from '../../env';
 import { SocketConstants } from '../../../omnitrack/core/research/socket';
-import OTParticipant from '../../models/ot_participant';
 import { TextMessageData } from '../../modules/push.module';
 
 export default class OTResearchMessageCtrl {
@@ -14,33 +13,25 @@ export default class OTResearchMessageCtrl {
   private mailer: any
 
   constructor() {
-    if (env && env.use_mailer === true && env.mailer.api_key) {
+    if (env && env.mailer && env.mailer.api_key) {
       console.log("use mailer.")
-      this.mailer = require('sib-api-v3-sdk');
-      this.mailer.ApiClient.instance.authentications['api-key'].apiKey = env.mailer.api_key
+      this.mailer = require('@sendgrid/mail');
+      this.mailer.setApiKey(env.mailer.api_key);
 
-      const api = new this.mailer.AccountApi()
-      api.getAccount().then(account => {
-        console.log("your Sendinblue account information:")
-        console.log(account)
-      }).catch(err => {
-        console.log("error while loading the Sendinblue account:")
-        console.log(err)
-      })
+      console.log(this.mailer)
     }
   }
 
-  private sendEmailTo(messageTitle: string, messageBody: string, emails: Array<string>): Promise<Array<{ email: string, success: boolean, data: any }>> {
-    const emailApi = new this.mailer.SMTPApi()
+  public sendEmailTo(messageTitle: string, messageBody: string, emails: Array<string>): Promise<Array<{ email: string, success: boolean, data: any }>> {
     return Promise.all(emails.map(email => {
-      const emailBody = new this.mailer.SendSmtpEmail()
-      emailBody.sender = { email: env.mailer.sender_email, name: env.mailer.sender_name }
-      emailBody.subject = messageTitle
-      emailBody.htmlContent = messageBody
-      emailBody.to = [{ email: email }]
-      console.log(emailBody)
+      const emailBody: any = {
+        from: { email: env.mailer.sender_email, name: env.mailer.sender_name },
+        to: email,
+        subject: messageTitle,
+        html: messageBody
+      }
 
-      return emailApi.sendTransacEmail(emailBody).then(data => {
+      return this.mailer.send(emailBody).then(data => {
         console.log(data)
         return { success: true, email: email, data: data }
       }).catch(err => {
@@ -89,16 +80,15 @@ export default class OTResearchMessageCtrl {
                 return app.pushModule().sendDataMessageToUser(receiverUserIds, new TextMessageData(casted.messageTitle, casted.messageBody)).then(
                   result => {
                     console.log(result)
-                    return OTParticipant.find(participantQuery, { _id: 1 }).then(participants => {
-                      savedMessage["receivers"] = participants.map(p => p._id)
-                      savedMessage["sentAt"] = new Date()
-                      return savedMessage.save().then(saved => {
-                        return onSuccess()
-                      })
+                    savedMessage["receivers"] = receiverUserIds
+                    savedMessage["sentAt"] = new Date()
+                    return savedMessage.save().then(saved => {
+                      return onSuccess()
                     })
                   }
                 )
 
+                /*
               case "email":
                 return OTParticipant.find(participantQuery, { _id: 1, user: 1 }).populate({ path: "user", select: "_id email" }).then(participants => {
                   if (participants && participants.length > 0) {
@@ -113,7 +103,7 @@ export default class OTResearchMessageCtrl {
                         })
                       })
                   } else { return null }
-                })
+                })*/
             }
           }
         } else { return onSuccess() }

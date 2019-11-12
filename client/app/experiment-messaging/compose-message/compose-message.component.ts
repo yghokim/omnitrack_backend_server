@@ -10,7 +10,7 @@ import { BehaviorSubject, Subscription } from "rxjs";
 import { flatMap } from "rxjs/operators";
 import { Router, ActivatedRoute } from "@angular/router";
 import * as moment from "moment-timezone";
-import { IParticipantDbEntity } from "../../../../omnitrack/core/db-entity-types";
+import { IUserDbEntity } from "../../../../omnitrack/core/db-entity-types";
 declare var $: any;
 
 @Component({
@@ -58,7 +58,7 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
 
   public mountedMessage: IResearchMessage;
 
-  public participants: Array<IParticipantDbEntity>;
+  public participants: Array<IUserDbEntity>;
 
   deliveryDate: Date = new Date();
   deliveryTime = "12:00";
@@ -88,7 +88,7 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
     private api: ResearchApiService,
     private router: Router,
     private activatedRoute: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit() {
     const m = moment()
@@ -103,9 +103,9 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
 
     this._internalSubscriptions.add(
       this.api.selectedExperimentService
-        .pipe(flatMap(service => service.getParticipants()))
+        .pipe(flatMap(service => service.getActiveParticipants()))
         .subscribe(participants => {
-          this.participants = participants;
+          this.participants = participants
         })
     );
   }
@@ -209,5 +209,5 @@ export class ComposeMessageComponent implements OnInit, OnDestroy {
     return str == null || str.trim().length === 0;
   }
 
-  onParticipantSelected(event) {}
+  onParticipantSelected(event) { }
 }

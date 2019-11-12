@@ -1,0 +1,5 @@
+<ng-container [ngSwitch]="options.type">
+  <app-star-picker-mobile-input *ngSwitchCase="0" [numStars]="options.stars" [score]="isFallbackHalf===true? 0.5 : 0" [allowMidpoint]="options.fractional===true"></app-star-picker-mobile-input>
+
+  <app-likert-picker-mobile-input *ngSwitchCase="1" [leftScore]="options.left" [rightScore]="options.right" [leftLabel]="options.leftLabel" [midLabel]="options.midLabel" [rightLabel]="options.rightLabel" [fractional]="options.fractional" [score]="isFallbackHalf===true? 0.5: null"></app-likert-picker-mobile-input>
+</ng-container>

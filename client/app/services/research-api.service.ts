@@ -344,9 +344,9 @@ export class ResearchApiService extends ServiceBase {
     return this.http.post<boolean>("api/research/clients/" + binaryId + "/publish", {}, this.authorizedOptions)
   }
 
-  getMedia(trackerId: string, attributeLocalId: string, itemId: string, processingType: string /*"original" | "thumb" | "thumb_retina" */): Observable<Blob> {
-    // :trackerId/:itemId/:attrLocalId/:fileIdentifier
-    return this.http.get<Blob>("api/research/files/item_media/" + trackerId + "/" + itemId + "/" + attributeLocalId + "/" + "0" + "/" + processingType, this.makeAuthorizedRequestOptions(null, 'blob'))
+  getMedia(trackerId: string, fieldLocalId: string, itemId: string, processingType: string /*"original" | "thumb" | "thumb_retina" */): Observable<Blob> {
+    // :trackerId/:itemId/:fieldLocalId/:fileIdentifier
+    return this.http.get<Blob>("api/research/files/item_media/" + trackerId + "/" + itemId + "/" + fieldLocalId + "/" + "0" + "/" + processingType, this.makeAuthorizedRequestOptions(null, 'blob'))
   }
 
   // tslint:disable-next-line:no-shadowed-variable
@@ -374,8 +374,8 @@ export class ResearchApiService extends ServiceBase {
     return this.http.delete<boolean>("/api/research/signatures/" + id, this.authorizedOptions)
   }
 
-  upsertClientSignature(id: string = null, key: string, packageName: string, alias: string): Observable<boolean> {
-    return this.http.post<boolean>("/api/research/signatures/update", { _id: id, key: key, package: packageName, alias: alias }, this.authorizedOptions)
+  upsertClientSignature(id: string = null, key: string, packageName: string, alias: string, experimentId?: string): Observable<boolean> {
+    return this.http.post<boolean>("/api/research/signatures/update", { _id: id, key: key, package: packageName, alias: alias, experiment: experimentId }, this.authorizedOptions)
   }
 
   loadInstantShareTrackingPlan(code: string): Observable<any> {

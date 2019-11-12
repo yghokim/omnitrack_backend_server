@@ -44,6 +44,10 @@ export class ExperimentMessagingComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.unsubscribe()
   }
 
+  trackByMessage(message: IResearchMessage): string{
+    return message._id
+  }
+
   getDraftList(): Array<IResearchMessage> {
     if (this.messageList)
       return this.messageList.filter(m => m.isDraft === true)

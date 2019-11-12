@@ -25,6 +25,18 @@ export default class ServerConstants {
 
   static readonly PUSH_DATA_TYPE_TEXT_MESSAGE = "text_message"
 
+  static readonly ERROR_CODE_UNCERTIFIED_Client = "ClientNotCertified"
+  static readonly ERROR_CODE_ILLEGAL_ARGUMENTS = "IllegalArguments"
+  static readonly ERROR_CODE_WRONG_CREDENTIAL = "CredentialWrong"
+  static readonly ERROR_CODE_ILLEGAL_INVITATION_CODE = "IllegalInvitationCode"
+  static readonly ERROR_CODE_USER_ALREADY_EXISTS = "UserAlreadyExists"
+  static readonly ERROR_CODE_USERNAME_NOT_MATCH_RESEARCHER = "UsernameNotMatchResearcher"
+  static readonly ERROR_CODE_ACCOUNT_NOT_EXISTS = "AccountNotExists"
+
+  static readonly ERROR_CODE_INTERNAL_ERROR="InternalError"
+
+  static readonly ERROR_CODE_TOKEN_EXPIRED = "TokenExpired"
+  
 
   static getSyncTypeFromModel(model: any) {
     switch (model) {

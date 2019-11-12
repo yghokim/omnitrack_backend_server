@@ -1,5 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { getIdPopulateCompat } from '../../../../omnitrack/core/db-entity-types';
+import { IExperimentDbEntity } from '../../../../omnitrack/core/research/db-entity-types';
 
 @Component({
   selector: 'app-update-client-signature-dialog',
@@ -12,12 +14,16 @@ export class UpdateClientSignatureDialogComponent implements OnInit {
   key: string
   package: string
   alias: string = "Android-Debug"
+  experimentId: string
 
   original: {
     key: string,
     package: string,
-    alias: string
+    alias: string,
+    experimentId: string
   }
+
+  experiments: Array<IExperimentDbEntity>
 
   constructor(private dialogRef: MatDialogRef<UpdateClientSignatureDialogComponent>,
     @Inject(MAT_DIALOG_DATA) private data: any) {
@@ -26,12 +32,15 @@ export class UpdateClientSignatureDialogComponent implements OnInit {
     this.original = {
       key: data.key,
       package: data.package,
-      alias: data.alias
+      alias: data.alias,
+      experimentId: getIdPopulateCompat(data.experiment, "_id") || "none"
     }
 
     this.key = data.key
     this.package = data.package
     this.alias = data.alias
+    this.experimentId = getIdPopulateCompat(data.experiment, "_id") || "none"
+    this.experiments = data.experiments
   }
 
   ngOnInit() {
@@ -41,19 +50,25 @@ export class UpdateClientSignatureDialogComponent implements OnInit {
     this.dialogRef.close(null)
   }
 
-  onYesClick(){
+  onYesClick() {
+    console.log("experimentId: ", this.experimentId)
     this.dialogRef.close({
       key: this.key,
       package: this.package,
-      alias: this.alias
+      alias: this.alias,
+      experiment: this.experimentId == "none" ? null : this.experimentId
     })
   }
 
-  isValid(): boolean{
-    const valid = this.key!=null && this.key.length > 0 && this.key.length < 1000
-     && this.package!=null && this.package.length > 0 && this.package.length < 100
-     && this.alias!=null && this.alias.length > 0 && this.alias.length < 30 && (this.original.key !== this.key || this.original.package!==this.package || this.original.alias !== this.alias)
-     return valid
+  onExperimentSelectionChanged(event) {
+    console.log(event)
+  }
+
+  isValid(): boolean {
+    const valid = this.key != null && this.key.length > 0 && this.key.length < 1000
+      && this.package != null && this.package.length > 0 && this.package.length < 100
+      && this.alias != null && this.alias.length > 0 && this.alias.length < 30 && (this.original.key !== this.key || this.original.package !== this.package || this.original.alias !== this.alias || this.original.experimentId !== this.experimentId)
+    return valid
   }
 
 }

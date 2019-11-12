@@ -1,4 +1,4 @@
-import PredefinedPackage from '../../omnitrack/core/predefined_package';
+import { TrackingPlan } from '../../omnitrack/core/tracking-plan';
 import OTTracker from '../models/ot_tracker';
 import OTTrigger from '../models/ot_trigger';
 import OTTrackingPackage from '../models/ot_temporary_tracking_package';
@@ -12,14 +12,15 @@ export default class OTTrackingPackageCtrl {
       return base.where("user", ownerId).lean()
     } else { return base.lean() }
   }
-  extractTrackingPackage(trackerIds: Array<string>, triggerIds: Array<string>, ownerId: string = null): Promise<PredefinedPackage> {
+
+  extractTrackingPackage(trackerIds: Array<string>, triggerIds: Array<string>, ownerId: string = null): Promise<TrackingPlan> {
 
     return Promise.all(
       [this.makeQuery(OTTracker, trackerIds, ownerId),
       this.makeQuery(OTTrigger, triggerIds, ownerId)]
     ).then(result => result.map(arr => arr.map(elm => ModelConverter.convertDbToClientFormat(elm, { excludeTimestamps: true })))
     ).then(result => {
-      return new PredefinedPackage(
+      return new TrackingPlan(
         result[0],
         result[1]
       )
@@ -30,8 +31,8 @@ export default class OTTrackingPackageCtrl {
     const trackerIds: Array<string> = req.query["trackerIds"] || []
     const triggerIds: Array<string> = req.query["triggerIds"] || []
     let userId = null
-    if (res.locals.user) {
-      userId = res.locals.user.uid
+    if (req.user) {
+      userId = req.user.uid
     }
 
     if (trackerIds.length === 0 && triggerIds.length === 0) {
@@ -50,7 +51,7 @@ export default class OTTrackingPackageCtrl {
   }
 
   postTrackingPackageToGlobalList = (req, res) => {
-    const userId = res.locals.user.uid
+    const userId = req.user.uid
     const data = isString(req.body.data) === true ? JSON.parse(req.body.data) : req.body.data
     const logic = (isFirst: boolean) => {
       let accessKey = require('randomstring').generate({ length: 4, charset: 'numeric' })
@@ -84,7 +85,7 @@ export default class OTTrackingPackageCtrl {
   }
 
   getTrackingPackageSimpleInfos = (req, res) => {
-    OTTrackingPackage.find({}, "_id name description uploader updatedAt", { multi: true }).lean().populate("uploader", "email").then(list => {
+    OTTrackingPackage.find({}, "_id name description uploader updatedAt", { multi: true }).lean<any>().populate("uploader", "email").then(list => {
       res.status(200).send(list)
     }).catch(err => {
       console.log(err)

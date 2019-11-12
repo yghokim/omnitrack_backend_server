@@ -32,7 +32,6 @@
         (mouseleave)="selectedRowIndex = -1">
         <td>{{invitation.code}}</td>
         <td>{{invitation.createdAt | date: 'MMM dd, yyyy'}}</td>
-        <!--<td><app-table-cell-value [value]="invitation.isPublic"></app-table-cell-value></td>-->
         <td><span *ngIf="invitation.participants">{{invitation.participants.length}}</span></td>
         <td>{{getNumActiveParticipants(invitation)}}</td>
         <td>{{getInvitationType(invitation)}}</td>

@@ -111,7 +111,7 @@ export default class OTClientBuildCtrl {
   _getClientBuildConfigs(experimentId: string): Promise<Array<IClientBuildConfigBase<any>>> {
 
     return OTClientBuildConfigModel.find(experimentId != null ? { experiment: experimentId } : { researcherMode: true })
-      .lean().then(documents => {
+      .lean<any>().then(documents => {
         return documents.map(d => d)
       })
   }
@@ -287,7 +287,7 @@ export default class OTClientBuildCtrl {
       if (payloadBuildConfig) {
         return Promise.resolve(payloadBuildConfig)
       } else {
-        return OTClientBuildConfigModel.findById(configId).select({ _id: 1, credentials: 1, experiment: 1, researcherMode: 1 }).lean().then(doc => doc as IAndroidBuildConfig)
+        return OTClientBuildConfigModel.findById(configId).select({ _id: 1, credentials: 1, experiment: 1, researcherMode: 1 }).lean<any>().then(doc => doc as IAndroidBuildConfig)
       }
     }).then(buildConfig => {
       const keystoreFileLocation = path.join(this._makeExperimentConfigDirectoryPath(this.getExperimentIdFromConfig(buildConfig), true), "androidKeystore.jks")
@@ -336,7 +336,7 @@ export default class OTClientBuildCtrl {
       }
       return OTClientBuildConfigModel.findByIdAndUpdate(configId, {
         "credentials.keystoreValidated": false
-      }, { upsert: false }).lean().then(res => {
+      }, { upsert: false }).lean<any>().then(res => {
         throw err
       })
     }).then(signature => {
@@ -345,7 +345,7 @@ export default class OTClientBuildCtrl {
       }
       return OTClientBuildConfigModel.findByIdAndUpdate(configId, {
         "credentials.keystoreValidated": true
-      }, { upsert: false }).lean().then(res => signature)
+      }, { upsert: false }).lean<any>().then(res => signature)
     })
 
 
@@ -363,7 +363,7 @@ export default class OTClientBuildCtrl {
         return OTExperiment.findById(experimentId).select({
           name: 1,
           manager: 1
-        }).populate("manager", { email: 1 }).lean().then(doc => {
+        }).populate("manager", { email: 1 }).lean<any>().then(doc => {
           const expName = doc.name
           const managerEmail = doc.manager.email
           const emailParts = managerEmail.split('@')
@@ -383,18 +383,9 @@ export default class OTClientBuildCtrl {
           experiment: experimentId,
           researcherMode: experimentId != null ? false : true,
           platform: platform
-        })
+        } as any)
 
         console.log(newModel.toJSON())
-
-        if (experimentId != null) {
-          //experiment mode
-          newModel["disableExternalEntities"] = true
-        }
-        else {
-          //researcher mode
-          newModel["disableExternalEntities"] = false
-        }
 
         switch (platform.toLowerCase()) {
           case "android":
@@ -409,7 +400,7 @@ export default class OTClientBuildCtrl {
               experiment: null,
               platform: platform,
               researcherMode: true
-            }, { apiKeys: 1 }).lean().then(masterConfig => {
+            }, { apiKeys: 1 }).lean<any>().then(masterConfig => {
               if (masterConfig != null) {
                 newModel["apiKeys"] = masterConfig.apiKeys
               }
@@ -613,21 +604,6 @@ export default class OTClientBuildCtrl {
       if (buildConfig.appName) { sourceConfigJson.overrideAppName = buildConfig.appName }
       if (buildConfig.packageName) { sourceConfigJson.overridePackageName = buildConfig.packageName }
 
-      const keys = [
-        'disableExternalEntities',
-        'disableTrackerCreation',
-        'disableTriggerCreation',
-        'showTutorials',
-        'hideServicesTab',
-        'hideTriggersTab'
-      ]
-
-      keys.forEach(key => {
-        if (buildConfig[key] != null) {
-          sourceConfigJson[key] = buildConfig[key]
-        }
-      })
-
       sourceConfigJson.signing = {
         // releaseKeystoreLocation: "$rootDir/" + path.join(path.relative(sourceFolderPath, this._makeExperimentConfigDirectoryPath(experimentId, true)), "androidKeystore.jks") + "\"",
         "releaseKeystoreLocation": path.join(this._makeExperimentConfigDirectoryPath(experimentId, true), "androidKeystore.jks"),
@@ -733,7 +709,7 @@ export default class OTClientBuildCtrl {
   _prepareSourceCode(configId: string): Promise<{ buildConfig: IClientBuildConfigBase<any>, sourceFolderPath: string }> {
     return OTClientBuildConfigModel.findOne({
       _id: configId
-    }).lean().then(buildConfig =>
+    }).lean<any>().then(buildConfig =>
       this.prepareSourceCodeInFolder(buildConfig)
         .then(result => {
           // Platform-dependent logics=======================================================
@@ -813,7 +789,7 @@ export default class OTClientBuildCtrl {
   }
 
   _cancelBuild(configId: string): Promise<boolean> {
-    return OTClientBuildConfigModel.findOne({ _id: configId }, "_id experiment researcherMode platform").lean().then(
+    return OTClientBuildConfigModel.findOne({ _id: configId }, "_id experiment researcherMode platform").lean<any>().then(
       old => {
         if (old != null) {
           return appWrapper.serverModule().cancelAllBuildJobsOfPlatform(old.experiment, old.platform).then(numCanceled => {
@@ -832,7 +808,7 @@ export default class OTClientBuildCtrl {
       query.researcherMode = true
     }
 
-    return OTClientBuildAction.find(query).lean().then(
+    return OTClientBuildAction.find(query).lean<any>().then(
       actions => {
         return actions.map(a => this._makeClientBuildStatus(a))
       }
@@ -905,7 +881,7 @@ export default class OTClientBuildCtrl {
           },
           update,
           { new: true }
-        ).lean().then(
+        ).lean<any>().then(
           newDoc => {
             res.status(200).send(newDoc)
           }
@@ -920,7 +896,7 @@ export default class OTClientBuildCtrl {
   }
 
   startBuild = (req, res) => {
-    OTClientBuildConfigModel.findOne({ _id: req.body.configId }).lean().then(buildConfig => {
+    OTClientBuildConfigModel.findOne({ _id: req.body.configId }).lean<any>().then(buildConfig => {
       if (buildConfig) {
         const hash = this._makeConfigHash(buildConfig)
         if (req.body.force === true) {

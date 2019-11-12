@@ -1,25 +1,27 @@
 import * as mongoose from 'mongoose';
 import * as uuid from 'uuid';
 import { ExperimentPermissions } from '../../omnitrack/core/research/experiment'
-import { ExperimentDashboardConfigs, TrackingItemListTableConfig, VisualizationConfigs } from '../../omnitrack/core/research/configs';
-
-const randomstring = require('randomstring');
+import { VisualizationConfigs } from '../../omnitrack/core/research/configs';
 
 function generateNewExperimentId(): string {
-  return "ot-exp-" + randomstring.generate({ length: 8, charset: 'numeric' })
+  return "ot-exp-" + require('randomstring').generate({ length: 8, charset: 'numeric' })
+}
+
+export function generateNewPackageKey(): string{
+  return 'ot-package-' + require('randomstring').generate({ length: 8, charset: 'numeric' })
 }
 
 const otExperimentGroupSchema = new mongoose.Schema(
   {
     _id: { type: String, default: uuid.v1, required: true },
     name: { type: String, required: true },
-    trackingPackageKey: { type: String, default: null }
+    trackingPlanKey: { type: String, default: null }
   }
 )
 
-const otExperimentInjectionPackageSchema = new mongoose.Schema(
+const otExperimentTrackingPlanSchema = new mongoose.Schema(
   {
-    key: { type: String, required: true, default: () => mongoose.Types.ObjectId().toString() },
+    key: { type: String, required: true, default: () => generateNewPackageKey() },
     name: { type: String, required: true },
     data: { type: mongoose.Schema.Types.Mixed, required: true, default: {} },
     updatedAt: Date
@@ -33,10 +35,10 @@ const otExperimentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   maxExperimentalDay: { type: Number, default: Number.MAX_SAFE_INTEGER },
   finishDate: {type: Date, default: null},
-  groups: { type: [otExperimentGroupSchema], default: [{ _id: uuid.v1(), name: "Default", participants: [] }] },
+  groups: { type: [otExperimentGroupSchema], default: [{ _id: uuid.v1(), name: "Default", trackingPlanKey: null }] },
   manager: { type: String, ref: 'OTResearcher', required: true },
   visualizationConfigs: { type: mongoose.Schema.Types.Mixed, default: () => new VisualizationConfigs() },
-  trackingPackages: { type: [otExperimentInjectionPackageSchema], default: [] },
+  trackingPlans: { type: [otExperimentTrackingPlanSchema], default: [] },
   consent: { type: String, default: null },
   receiveConsentInApp: { type: Boolean, default: true },
   demographicFormSchema: {type: mongoose.Schema.Types.Mixed, default: null},
@@ -50,6 +52,15 @@ const otExperimentSchema = new mongoose.Schema({
 }, { timestamps: true, toJSON: { virtuals: true } });
 
 const OTExperiment = mongoose.model('OTExperiment', otExperimentSchema);
+
+
+
+otExperimentSchema.virtual('invitations', {
+  ref: 'OTInvitation',
+  localField: '_id',
+  foreignField: 'experiment',
+  justOne: false
+})
 
 otExperimentSchema.virtual('clientBuildConfigs', {
   ref: 'OTExperimentClientBuildConfig',

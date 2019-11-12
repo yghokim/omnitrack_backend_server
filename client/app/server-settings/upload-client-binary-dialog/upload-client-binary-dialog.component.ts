@@ -6,7 +6,6 @@ import { ClientBinaryUtil } from '../../../../omnitrack/core/client_binary_utils
 import { IPackageMetadata, OperatingSystem } from 'app-metadata';
 import { FileSystemFileEntry } from 'ngx-file-drop/src/lib/ngx-drop/dom.types';
 import { BinaryXmlParser } from './binary-xml-parser';
-const Unzip = require('isomorphic-unzip');
 var Buffer = require('buffer/').Buffer
 
 @Component({
@@ -54,6 +53,7 @@ export class UploadClientBinaryDialogComponent implements OnInit {
       entry.file(file => {
         this.loadedFile = file
         this.loadedFileName = file.name
+        const Unzip = require('isomorphic-unzip');
         const unzip = new Unzip(file)
         unzip.getEntries((err, entries) => {
           if (err) {
@@ -102,10 +102,10 @@ export class UploadClientBinaryDialogComponent implements OnInit {
                 originalFileName: file.name,
                 displayName: "",
                 name: "",
-                version: obj.attributes.find(attr=>attr.name === "versionName").value,
-                buildVersion: obj.attributes.find(attr=>attr.name === "versionCode").typedValue.value.toString(),
-                uniqueIdentifier: obj.attributes.find(attr=>attr.name === "package").value,
-                minimumOsVersion: sdkNode.attributes.find(attr=>attr.nodeName==="minSdkVersion").typedValue.value.toString(),
+                version: obj.fields.find(attr=>attr.name === "versionName").value,
+                buildVersion: obj.fields.find(attr=>attr.name === "versionCode").typedValue.value.toString(),
+                uniqueIdentifier: obj.fields.find(attr=>attr.name === "package").value,
+                minimumOsVersion: sdkNode.fields.find(attr=>attr.nodeName==="minSdkVersion").typedValue.value.toString(),
                 executableName: "",
                 deviceFamily: "android",
                 languages: [],

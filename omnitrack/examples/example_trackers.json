@@ -5,21 +5,20 @@
       "position": 0,
       "name": "Coffee",
       "color": -567979,
-      "attributes": [{
-          "objectId": "%{ATTRIBUTE_0}%",
+      "fields": [{
+          "_id": "%{ATTRIBUTE_0}%",
           "localId": "%{ATTRIBUTE_LOCAL_0}%",
           "type": 1,
           "trackerId": "%{TRACKER_0}%",
           "name": "Drank at",
           "isRequired": true,
           "position": 0,
-          "fallbackPolicy": 1,
+          "fallbackPolicy": "intrinsic",
           "fallbackPreset": null,
           "connection": null,
-          "properties": [{
-            "key": "granularity",
-            "sVal": "1"
-          }],
+          "properties": {
+            "granularity": 1
+          },
           "isInTrashcan": false,
           "isHidden": false,
           "flags": {
@@ -28,20 +27,18 @@
           }
         },
         {
-          "objectId": "%{ATTRIBUTE_1}%",
+          "_id": "%{ATTRIBUTE_1}%",
           "localId": "%{ATTRIBUTE_LOCAL_1}%",
           "type": 7,
           "trackerId": "%{TRACKER_0}%",
           "name": "Caffeine",
           "isRequired": false,
           "position": 1,
-          "fallbackPolicy": 1,
+          "fallbackPolicy": "intrinsic",
           "fallbackPreset": null,
           "connection": null,
-          "properties": [{
-            "key": "options",
-            "sVal": "{\"type\":1,\"stars\":5,\"left\":1,\"right\":3,\"leftLabel\":\"very mild\",\"midLabel\":\"\",\"rightLabel\":\"very strong\",\"fractional\":true}"
-          }],
+          "properties": { "options": {"type":1,"stars":5,"left":1,"right":3,"leftLabel":"very mild","midLabel":"","rightLabel":"very strong","fractional":true}
+          },
           "isInTrashcan": false,
           "isHidden": false,
           "flags": {
@@ -51,7 +48,7 @@
         }
       ],
       "isBookmarked": true,
-      "objectId": "%{TRACKER_0}%",
+      "_id": "%{TRACKER_0}%",
       "flags": {
         "injected": true,
         "injectionId": "k91xbY6X"
@@ -63,15 +60,15 @@
       "position": 1,
       "name": "Daily Diary",
       "color": -21735,
-      "attributes": [{
-          "objectId": "%{ATTRIBUTE_2}%",
+      "fields": [{
+          "_id": "%{ATTRIBUTE_2}%",
           "localId": "%{ATTRIBUTE_LOCAL_2}%",
           "type": 1,
           "trackerId": "%{TRACKER_1}%",
           "name": "Date",
           "isRequired": true,
           "position": 0,
-          "fallbackPolicy": 1,
+          "fallbackPolicy": "intrinsic",
           "fallbackPreset": null,
           "connection": null,
           "properties": [{
@@ -86,25 +83,20 @@
           }
         },
         {
-          "objectId": "%{ATTRIBUTE_3}%",
+          "_id": "%{ATTRIBUTE_3}%",
           "localId": "%{ATTRIBUTE_LOCAL_3}%",
           "type": 6,
           "trackerId": "%{TRACKER_1}%",
           "name": "Moods",
           "isRequired": false,
           "position": 1,
-          "fallbackPolicy": 0,
+          "fallbackPolicy": "null",
           "fallbackPreset": null,
           "connection": null,
-          "properties": [{
-              "key": "multiSelection",
-              "sVal": "true"
-            },
-            {
-              "key": "entries",
-              "sVal": "{\"seed\":5,\"entries\":[{\"id\":0,\"val\":\"Happy\"},{\"id\":1,\"val\":\"Sad\"},{\"id\":2,\"val\":\"Pleasant\"},{\"id\":3,\"val\":\"Lonely\"},{\"id\":4,\"val\":\"Depressed\"}]}"
-            }
-          ],
+          "properties": {
+            "multiSelection": true,
+            "entries": {"seed":5,"entries":[{"id":0,"val":"Happy"},{"id":1,"val":"Sad"},{"id":2,"val":"Pleasant"},{"id":3,"val":"Lonely"},{"id":4,"val":"Depressed"}]}
+          },
           "isInTrashcan": false,
           "isHidden": false,
           "flags": {
@@ -113,17 +105,17 @@
           }
         },
         {
-          "objectId": "%{ATTRIBUTE_4}%",
+          "_id": "%{ATTRIBUTE_4}%",
           "localId": "%{ATTRIBUTE_LOCAL_4}%",
-          "type": 4,
+          "type": 3,
           "trackerId": "%{TRACKER_1}%",
           "name": "Note",
           "isRequired": false,
           "position": 2,
-          "fallbackPolicy": 0,
+          "fallbackPolicy": "null",
           "fallbackPreset": null,
           "connection": null,
-          "properties": [],
+          "properties": [{"key": "type", "sVal": "1"}],
           "isInTrashcan": false,
           "isHidden": false,
           "flags": {
@@ -133,7 +125,7 @@
         }
       ],
       "isBookmarked": false,
-      "objectId": "%{TRACKER_1}%",
+      "_id": "%{TRACKER_1}%",
       "flags": {
         "injected": true,
         "injectionId": "fJmrnCRU"
@@ -141,34 +133,5 @@
     }
   ],
   "triggers": [],
-  "serviceCodes": [],
-  "placeHolderDict": {
-    "user": "%{OWNER_0}%",
-    "trackers": [
-      "%{TRACKER_0}%",
-      "%{TRACKER_1}%"
-    ],
-    "triggers": [],
-    "attributes": [{
-        "id": "%{ATTRIBUTE_0}%",
-        "localId": "%{ATTRIBUTE_LOCAL_0}%"
-      },
-      {
-        "id": "%{ATTRIBUTE_1}%",
-        "localId": "%{ATTRIBUTE_LOCAL_1}%"
-      },
-      {
-        "id": "%{ATTRIBUTE_2}%",
-        "localId": "%{ATTRIBUTE_LOCAL_2}%"
-      },
-      {
-        "id": "%{ATTRIBUTE_3}%",
-        "localId": "%{ATTRIBUTE_LOCAL_3}%"
-      },
-      {
-        "id": "%{ATTRIBUTE_4}%",
-        "localId": "%{ATTRIBUTE_LOCAL_4}%"
-      }
-    ]
-  }
+  "serviceCodes": []
 }

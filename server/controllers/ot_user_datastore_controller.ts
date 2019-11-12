@@ -18,7 +18,7 @@ export class OTUserDataStoreController {
   private readonly hashConvertFunc = (key, entry) => ({ key: key, value: entry.value, updatedAt: entry.updatedAt } as IDataStoreEntryWithKey)
 
   getDataStoreOfUser(userId: string): Promise<Array<IDataStoreEntryWithKey>> {
-    return OTUser.findById(userId, { dataStore: true }).lean().then(user => {
+    return OTUser.findById(userId, { dataStore: true }).lean<any>().then(user => {
       if (user) {
         const obj = user["dataStore"]
         if (obj) {
@@ -53,7 +53,7 @@ export class OTUserDataStoreController {
     const setter = {}
     setter[nestedKey] = { value: value, updatedAt: timestamp }
 
-    return OTUser.findOneAndUpdate(query, setter, { new: true, select: "dataStore" }).lean().then(user => {
+    return OTUser.findOneAndUpdate(query, setter, { new: true, select: "dataStore" }).lean<any>().then(user => {
       if (user) {
         if (user.dataStore[key]) {
           return {

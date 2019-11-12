@@ -36,11 +36,14 @@ $candy-app-theme: mat-light-theme($candy-app-primary, $candy-app-accent, $candy-
   }
 }
 
+$color_primary: #a63e63;
 $color_accent: #ff814f;
 $color_accent_light: #ff9870;
 $color_pointed: #2cbbbb;
 $color_pointed_darker: #20acac;
 $color_dark_gray: #575757;
+$color_light_gray: #757575;
+$color_light_pane: #fafafa;
 $visualization_encoded_color: #109ed7;
 $visualization_encoded_color_thicker: #077baa;
 $visualization_heatmap_color_lightest: #cceb77;
@@ -67,7 +70,7 @@ $visualization_heatmap_color_overflow: #173958;
 }
 
 @mixin main-gradient {
-  @include horizontal-gradient(#a63e63, #e96d6d)
+  @include horizontal-gradient($color_primary, #e96d6d)
 }
 
 @mixin pointed-gradient {
@@ -87,6 +90,37 @@ $visualization_heatmap_color_overflow: #173958;
   &>* {
     flex: 1;
   }
+}
+
+@mixin no-text-highlight {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: -moz-none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+    0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.example-box:last-child {
+  border: none;
+}
+
+.dragable-element.cdk-drop-list-dragging .dragable-element:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 nouislider {
@@ -191,16 +225,29 @@ html {
   /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fcf7ea', endColorstr='#cedbd4', GradientType=1);
   /* IE6-9 fallback on horizontal gradient */
+  background-attachment: fixed;
 }
 
 body {
   font-family: Roboto, "Open Sans", "Segoe UI", "Helvetica Neue", Arial, "Noto Sans KR", "Malgun Gothic", sans-serif;
   background: initial;
+  background-repeat: no-repeat;
 }
 
 a.no-text-effect {
   text-decoration: initial;
   color: inherit;
+}
+
+.bottom-sheet-mid-width {
+  min-width: 520px !important;
+}
+
+.error-message {
+  font-size: 80%;
+  color: #ea5656;
+  ;
+  margin-top: 0.5rem;
 }
 
 .badge-lg {
@@ -228,6 +275,14 @@ a.no-text-effect {
 
 .text-color-lightgray {
   color: #b5b5b5;
+}
+
+.text-color-warn {
+  color: #ea5656 !important;
+}
+
+.text-color-pointed {
+  color: $color_pointed;
 }
 
 .mat-slide-toggle-content {
@@ -263,6 +318,37 @@ a.no-text-effect {
   color: #757575;
 }
 
+.stick-to-left {
+  position: absolute;
+  left: 0;
+}
+
+.stick-to-right {
+  position: absolute;
+  right: 0;
+}
+
+.stick-to-top {
+  position: absolute;
+  top: 0;
+}
+
+.stick-to-bottom {
+  position: absolute;
+  bottom: 0;
+}
+
+.round-raised-button-white {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #fafafa;
+  border-radius: 50%;
+  color: gray;
+  background: white;
+  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.2);
+}
+
 .page-info-message {
   text-align: center;
   font-size: 0.9rem;
@@ -278,6 +364,10 @@ a.no-text-effect {
 
 .text-color-accented {
   color: $color_accent;
+}
+
+.text-color-primary {
+  color: $color_primary;
 }
 
 .tabbar-header-right-container-absolute {
@@ -396,6 +486,10 @@ a.no-text-effect {
   &>.flex-align-self-start {
     align-self: flex-start;
   }
+
+  &.flex-direction-column {
+    flex-direction: column;
+  }
 }
 
 .flex-filler {
@@ -459,8 +553,12 @@ a.no-text-effect {
   align-items: center;
 }
 
-.flex-container.flex-justify-content-end{
+.flex-container.flex-justify-content-end {
   justify-content: flex-end;
+}
+
+.flex-container.flex-justify-content-start {
+  justify-content: flex-start;
 }
 
 .flex-container.flex-align-items-end {
@@ -473,6 +571,10 @@ a.no-text-effect {
 
 .flex-align-self-center {
   align-self: center;
+}
+
+.flex-container.flex-vertical {
+  flex-direction: column;
 }
 
 .flex-container.flex-stretch {
@@ -492,7 +594,7 @@ a.no-text-effect {
   }
 }
 
-.background-warn{
+.background-warn {
   background: #ff00001a;
 }
 
@@ -509,12 +611,24 @@ a.no-text-effect {
   }
 }
 
-.text-color-green{
+.text-color-green {
   color: #75cc83;
 }
 
 .text-color-danger {
   color: #e65a56;
+}
+
+.ngb-tp-input-container {
+  flex: 1 !important;
+
+  .btn-link {
+    color: $color_accent;
+
+    &:hover {
+      color: $color_accent_light;
+    }
+  }
 }
 
 .btn.btn-danger {
@@ -602,10 +716,31 @@ label.small.horizontal {
   margin-top: 1.5em;
 }
 
+.top-padding-1em {
+  padding-top: 1em;
+}
+
+.top-padding-dot5em {
+  padding-top: 0.5em;
+}
+
+.left-padding-dot5em {
+  padding-left: 0.5em;
+}
+
+.right-padding-dot5em {
+  padding-right: 0.5em;
+}
+
+
 .mat-button-small {
   font-size: 0.75rem;
   padding: 0.2rem 0.3rem !important;
   line-height: initial !important;
+
+  .material-icons {
+    font-size: 18px !important;
+  }
 }
 
 small.info-text {
@@ -733,6 +868,14 @@ button.table-cell-clickable-text {
   text-align: center;
 }
 
+.text-align-left {
+  text-align: left !important;
+}
+
+.a-color-picker {
+  box-shadow: none !important;
+}
+
 mat-dialog-container .dialog {
   margin: -24px;
 }
@@ -749,6 +892,14 @@ mat-dialog-container .dialog {
 
   &>.card-body {
     padding: 1.0rem;
+
+    .text-right>button {
+      margin-left: 0.5rem;
+
+      &:first-child {
+        margin-left: 0;
+      }
+    }
   }
 
   p {
@@ -762,6 +913,14 @@ mat-dialog-container .dialog {
 
   &.dialog-mid {
     width: 500px;
+
+    @media screen and (max-width: 575px) {
+      min-width: initial;
+    }
+  }
+
+  &.dialog-mid-min {
+    min-width: 500px;
 
     @media screen and (max-width: 575px) {
       min-width: initial;
@@ -973,6 +1132,14 @@ thead.singleline {
   .badge {
     font-size: 1.0em;
     font-weight: 400;
+  }
+
+  .badge-metadata {
+    background: #a0a0a0;
+    color: white;
+    text-transform: uppercase;
+    font-size: 0.5rem;
+    font-weight: bold;
   }
 
   thead,
@@ -1188,6 +1355,10 @@ $duration: 1.4s;
   font-size: 100% !important;
 }
 
+.font-size-dot85 {
+  font-size: 0.85rem;
+}
+
 .mat-step-icon {
   color: white !important;
   font-weight: 600;
@@ -1202,8 +1373,9 @@ $duration: 1.4s;
 }
 
 .mat-vertical-content {
-  p {
-    font-size: 10pt;
+
+  p,
+  ol {
     color: #575757;
   }
 }

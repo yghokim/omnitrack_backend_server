@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from "@angular/core";
 import { Subscription } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
+import { isNullOrBlank } from "../../../../shared_lib/utils";
 
 @Component({
   selector: "app-installation-wizard",
@@ -14,12 +15,15 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
   superUsersComplete = false;
   jwtTokenComplete = false;
   firebaseCertComplete = false;
+  mailerComplete = false;
 
   isInstallationCompletable = false;
 
   isSubmittingFirebaseCert = false;
   isSubmittingJwtToken = false;
   isSubmittingSuperUsers = false;
+  isSubmittingMailer = false;
+
   isLoadingServerStatus = true;
 
   currentStepIndex = 0;
@@ -42,6 +46,11 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
 
   public newInputSuperUser = null;
   public isNewInputSuperUserValid = true;
+
+  mailerApiKey: string = null
+  mailerSenderEmailExample: string = "support@[YOUR_INSTITUTION_ADDRESS]"
+  mailerSenderEmail: string = "support@[YOUR_INSTITUTION_ADDRESS]"
+  isMailerSenderEmailValid: boolean = null
 
   emailValidator = (email: string) => {
     const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -81,6 +90,8 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
     this.superUsersComplete = result.flags.super_users || false;
     this.firebaseCertComplete = result.flags.firebase_cert || false;
     this.jwtTokenComplete = result.flags.jwt_secret || false;
+    this.mailerComplete = result.flags.mailer || false;
+
     this.isInstallationCompletable = result.completable;
     this.jumpToTheFirstAvailableStep();
   }
@@ -89,7 +100,8 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
     const flags = [
       this.superUsersComplete,
       this.jwtTokenComplete,
-      this.firebaseCertComplete
+      this.firebaseCertComplete,
+      this.mailerComplete
     ];
 
     console.log(this);
@@ -188,6 +200,10 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
     );
   }
 
+  isMailerValid(): boolean {
+    return isNullOrBlank(this.mailerApiKey) == false && isNullOrBlank(this.mailerSenderEmail) == false
+  }
+
   submitFirebaseCert() {
     this.internalSubscriptions.add(
       this.http
@@ -231,6 +247,29 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
     );
   }
 
+  submitMailer(){
+    this.isSubmittingMailer = true
+    this.isMailerSenderEmailValid = this.emailValidator(this.mailerSenderEmail)
+    this.internalSubscriptions.add(
+      this.http
+        .post("/api/installation/set/mailer", {
+          value: {
+            api_key: this.mailerApiKey,
+            sender_email: this.mailerSenderEmail 
+          }
+        })
+        .subscribe((result : any) => {
+          this.mailerComplete = result.success;
+          this.isInstallationCompletable = result.completable;
+          this.jumpToTheFirstAvailableStep();
+        }, err => {
+          console.error(err)
+        }, () => {
+          this.isSubmittingMailer = false
+        })
+    );
+  }
+
   startOver() {
     this.internalSubscriptions.add(
       this.http
@@ -245,7 +284,7 @@ export class InstallationWizardComponent implements OnInit, OnDestroy {
     this.isLoadingServerStatus = true;
     this.internalSubscriptions.add(
       this.http
-        .post("/api/installation/set/complete_installation", { value: true })
+        .post("/api/installation/set/complete_installation", { value: true, host: window.location.protocol + "//" + window.location.host })
         .subscribe(
           success => {
             if (success === true) {

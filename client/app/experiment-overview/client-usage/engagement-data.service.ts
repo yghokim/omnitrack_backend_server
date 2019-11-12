@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { DayElement, DayData } from './daily-average/daily-average.component';
 import * as d3 from 'd3';
 import { getExperimentDateSequenceOfParticipant } from '../../../../omnitrack/experiment-utils';
-import { IParticipantDbEntity } from '../../../../omnitrack/core/db-entity-types';
+import { IUserDbEntity } from '../../../../omnitrack/core/db-entity-types';
 import * as moment from 'moment';
 import { Observable, of } from 'rxjs';
 
@@ -14,17 +14,17 @@ export class EngagementDataService implements OnDestroy {
   private dailyData: Array<DayData> = []
   private relativeDailyData: Array<DayData> = []
   private includeWeekends = true
-  private participants: Array<IParticipantDbEntity>
+  private participants: Array<IUserDbEntity>
   private dayScope: Array<number> = []
 
-  initialize(start: moment.Moment, end: moment.Moment, participants: Array<IParticipantDbEntity>): Observable<void>{
+  initialize(start: moment.Moment, end: moment.Moment, participants: Array<IUserDbEntity>): Observable<void>{
     return of()
   }
 
   ngOnDestroy(): void {
   }
 
-  setEngageLog(engageLog: Array<any>, participants: Array<IParticipantDbEntity>, includeWeekends: boolean, dayScope: Array<number>) {
+  setEngageLog(engageLog: Array<any>, participants: Array<IUserDbEntity>, includeWeekends: boolean, dayScope: Array<number>) {
     this.engageLog = engageLog;
     this.participants = participants;
     this.dayScope = dayScope;
@@ -46,7 +46,7 @@ export class EngagementDataService implements OnDestroy {
         const relativeUserData: DayElement = { date: date, user: user.user, engagements: [] }
         let participant;
         if (this.participants) {
-          participant = this.participants.find(x => x.user._id === user.user)
+          participant = this.participants.find(x => x._id === user.user)
           if (participant) {
             const temp = getExperimentDateSequenceOfParticipant(participant, this.dates[this.dates.length - 1], includeWeekends)
             for (const engagement of user.engagements) {

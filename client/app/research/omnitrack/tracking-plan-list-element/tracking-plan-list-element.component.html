@@ -1,0 +1,24 @@
+ <!--<div class="card-body entity-list-container app-settings-container">
+ <div class="flex-container flex-align-items-center">
+    <h6>App Settings</h6>
+    <div class="flex-filler"></div>
+    <app-lock-flag-button [model]="plan.app" lockType="app" (flagChange)="onAppLevelFlagChanged($event)">
+    </app-lock-flag-button>
+  </div>
+</div>-->
+<div class="card-body entity-list-container tracker-list-container" *ngIf="plan.trackers && plan.trackers.length > 0">
+   <h6>Trackers</h6>
+   <div class="tracker-list">
+     <app-tracker-view *ngFor="let tracker of plan.trackers; trackBy: trackByEntity" [tracker]="tracker"
+       (trackerChange)="emitChange()">
+     </app-tracker-view>
+   </div>
+ </div>
+ <div class="card-body entity-list-container trigger-list-container"
+   *ngIf="plan.triggers && trackingPlanManager.filterLoggingTriggers().length > 0">
+   <h6>Triggers</h6>
+   <div class="trigger-list">
+     <app-trigger-view *ngFor="let trigger of trackingPlanManager.filterLoggingTriggers(); trackBy: trackByEntity"
+       [trigger]="trigger" (flagChange)="emitChange()"></app-trigger-view>
+   </div>
+ </div>

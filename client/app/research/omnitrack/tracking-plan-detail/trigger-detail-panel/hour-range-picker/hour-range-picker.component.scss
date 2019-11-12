@@ -1,0 +1,19 @@
+.dial-container {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+
+  input[type=text] {
+    width: 100%;
+  }
+  .form-control {
+    text-align: center;
+  }
+}
+
+
+
+.separator {
+  padding: 0.5rem;
+}

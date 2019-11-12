@@ -1,0 +1,26 @@
+<div class="menu-body flex-container flex-align-items-center" 
+[class.selected]="selected===true"
+[class.has-button]="showRemoveButton === true"
+[class.has-drag-handle] = "showDragHandle === true"
+(click)="onClicked()"
+(mouseenter) = "onMouseEntered()"
+(mouseleave) = "onMouseLeaved()"
+
+>
+  <div class="highlight-indicator" *ngIf="highlight===true && isHovering !== true" @highlightTrigger></div>
+
+  <mat-icon *ngIf="showDragHandle === true" class="material-icons drag-handle">drag_indicator</mat-icon>
+  <span class="icon" *ngIf="iconPath"><img [src]="iconPath"></span>
+
+  <div class="color" [style.background]="color" *ngIf="color"></div>
+  <div class="text">
+  <div class="title" *ngIf="title">{{title}}</div>
+  <div class="subtitle" *ngIf="subtitle && subtitle.length > 0">{{subtitle}}</div>
+  </div>
+
+  <ng-content select="[afterTitle]"></ng-content>
+  
+  <div *ngIf="showRemoveButton === true" class="flex-filler"></div>
+  <button *ngIf="showRemoveButton === true" mat-icon-button class="text-color-gray mat-button-small" (click)="onRemoveClicked($event)"><mat-icon class="material-icons">delete</mat-icon></button>
+
+</div>

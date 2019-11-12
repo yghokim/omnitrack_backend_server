@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BaseItemFieldInputComponent } from '../base-item-field-input.component';
-import AttributeManager from '../../../../../omnitrack/core/attributes/attribute.manager';
-import { ChoiceAttributeHelper } from '../../../../../omnitrack/core/attributes/choice.attribute.helper';
-import { UniqueStringEntryList } from '../../../../../omnitrack/core/datatypes/unique-string-entry-list';
-import { forEach } from '@angular/router/src/utils/collection';
+import FieldManager from '../../../../../omnitrack/core/fields/field.manager';
+import { ChoiceFieldHelper } from '../../../../../omnitrack/core/fields/choice.field.helper';
 import { MatCheckboxChange } from '@angular/material';
 
 @Component({
@@ -20,12 +18,12 @@ export class ChoiceFieldInputComponent extends BaseItemFieldInputComponent imple
   radioSelect: number;
 
 
-  protected onNewValue(attributeType: number, serializedValue?: string, deserializedValue?: any) {
-    const helper: ChoiceAttributeHelper = AttributeManager.getHelper(attributeType) as any
-    const helpEntries = helper.getChoiceEntryList(this.attribute)
-    const allowMultiSelection = helper.getAllowMultiSelection(this.attribute)
+  protected onNewValue(fieldType: number, serializedValue?: string, deserializedValue?: any) {
+    const helper: ChoiceFieldHelper = FieldManager.getHelper(fieldType) as any
+    const helpEntries = helper.getChoiceEntryList(this.field)
+    const allowMultiSelection = helper.getAllowMultiSelection(this.field)
     this.entries = helpEntries.entries;
-    this.isMultiSelection = helper.getAllowMultiSelection(this.attribute);
+    this.isMultiSelection = helper.getAllowMultiSelection(this.field);
     this.updateCheckBoxes(this._deserializedValue);
     this.radioSelect = this._deserializedValue;
   }

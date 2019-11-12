@@ -42,6 +42,12 @@ const routes: Routes = [
     loadChildren: "./research-dashboard.module#ResearchDashboardModule"
   },
 
+  {
+    path: "user",
+    canLoad: [CheckInstallationGuard],
+    loadChildren: "./user-client.module#UserClientModule"
+  },
+
   { path: "notfound", component: NotFoundComponent },
   { path: "backend_not_respond", component: BackendNotRespondComponent},
   { path: "**", redirectTo: "/notfound" }
