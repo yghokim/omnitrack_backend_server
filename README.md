@@ -3,7 +3,7 @@
 
 **This project is a part of _OmniTrack For Research_** (https://github.com/OmniTrack/omnitrack_for_research)
 
-For more information, Refer to the documentation of OmniTrack For Research. (https://github.com/OmniTrack/omnitrack_for_research_kit)
+For more information, Refer to the documentation of OmniTrack For Research. (https://github.com/OmniTrack/omnitrack_for_research)
 
 <img src="https://github.com/OmniTrack/omnitrack_for_research/blob/master/resources/omnitrack_for_research_logo.svg" width=400>
 
@@ -11,9 +11,9 @@ For more information, Refer to the documentation of OmniTrack For Research. (htt
 
 ## Author
 
-#### Young-Ho Kim (yhkim@hcil.snu.ac.kr)
+#### Young-Ho Kim (yghokim@umd.edu)
 http://younghokim.net
-Seoul National University
+University of Maryland
 
 ----
 
