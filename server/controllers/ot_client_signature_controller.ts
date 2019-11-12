@@ -4,7 +4,7 @@ export default class OTClientSignatureCtrl {
 
   matchSignature(clientSignature: string, pkg: string, experimentId?: string): Promise<boolean> {
     const query = { key: clientSignature, package: pkg, experiment: experimentId }
-    return OTClientSignature.countDocuments(query).lean().then(count => count > 0).catch(err => false)
+    return OTClientSignature.countDocuments(query).lean<any>().then(count => count > 0).catch(err => false)
   }
 
   /**
@@ -13,12 +13,12 @@ export default class OTClientSignatureCtrl {
   upsertSignature(_id: string = null, key: string, packageName: string, alias: string, experimentId: string = null, notify: boolean = true): Promise<boolean> {
     return OTClientSignature.findOneAndUpdate(_id ? { _id: _id } : { key: key, package: packageName, experiment: experimentId }, {
       key: key, package: packageName, experiment: experimentId, alias: alias
-    }, {upsert: true}).lean().then(result => true)
+    }, {upsert: true}).lean<any>().then(result => true)
   }
 
   // admin only apis
   getSignatures = (req, res) => {
-    OTClientSignature.find({}).populate("experiment", { name: 1 }).lean().then(
+    OTClientSignature.find({}).populate("experiment", { name: 1 }).lean<any>().then(
       signatures => {
         res.status(200).send(signatures)
       }

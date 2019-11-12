@@ -12,7 +12,7 @@ export default class OTTrackingPackageCtrl {
       return base.where("user", ownerId).lean()
     } else { return base.lean() }
   }
-  
+
   extractTrackingPackage(trackerIds: Array<string>, triggerIds: Array<string>, ownerId: string = null): Promise<TrackingPlan> {
 
     return Promise.all(
@@ -85,7 +85,7 @@ export default class OTTrackingPackageCtrl {
   }
 
   getTrackingPackageSimpleInfos = (req, res) => {
-    OTTrackingPackage.find({}, "_id name description uploader updatedAt", { multi: true }).lean().populate("uploader", "email").then(list => {
+    OTTrackingPackage.find({}, "_id name description uploader updatedAt", { multi: true }).lean<any>().populate("uploader", "email").then(list => {
       res.status(200).send(list)
     }).catch(err => {
       console.log(err)

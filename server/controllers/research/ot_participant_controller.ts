@@ -4,7 +4,7 @@ import app from '../../app';
 export default class OTParticipantCtrl {
 
   setExcludedDays(participantId: string, dates: Array<Date>): Promise<{ success: boolean, error?: any, changedParticipant?: any }> {
-    return OTUser.findByIdAndUpdate(participantId, { "participationInfo.excludedDays": dates }, { new: true }).lean().then(
+    return OTUser.findByIdAndUpdate(participantId, { "participationInfo.excludedDays": dates }, { new: true }).lean<any>().then(
       changedParticipant => {
         if (changedParticipant) {
           return { success: true, changedParticipant: changedParticipant }
@@ -29,7 +29,7 @@ export default class OTParticipantCtrl {
 
     const participantId = req.params.participantId
     const experimentId = req.body.experimentId
-    OTUser.findById(participantId, {_id: 1, experiment: 1}).lean().then(participant => {
+    OTUser.findById(participantId, {_id: 1, experiment: 1}).lean<any>().then(participant => {
       return app.pushModule().sendDataPayloadMessageToUser(participant._id, app.pushModule().makeFullSyncMessageData(experimentId).toMessagingPayloadJson())
     }).then(
       result => {

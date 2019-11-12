@@ -320,7 +320,7 @@ export default class ServerModule {
           return OTClientBuildAction.find({ jobId: { $in: jobs.map(job => job.attrs._id) } }, {
             _id: 1,
             pids: 1
-          }).lean().then(actions => {
+          }).lean<any>().then(actions => {
             console.log("actions:", actions)
             if (actions.length > 0) {
               const pids = []
@@ -366,7 +366,7 @@ export default class ServerModule {
       return OTClientBuildAction.find(actionQuery, {
         _id: 1,
         pids: 1
-      }).lean().then(actions => {
+      }).lean<any>().then(actions => {
         console.log("actions:", actions)
         if (actions.length > 0) {
           const pids = []

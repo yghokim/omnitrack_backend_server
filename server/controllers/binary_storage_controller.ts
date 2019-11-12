@@ -1,10 +1,8 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import * as multer from "multer";
 import * as mime from "mime";
 import { StorageEngine } from "multer";
-import * as path from "path";
 import OTItemMedia from '../models/ot_item_media';
-import * as app from '../app';
 import C from '../server_consts'
 const fs = require("fs-extra");
 
@@ -82,19 +80,19 @@ export default class BinaryStorageCtrl {
                 // update current and change file
                 const removalPromises = []
                 removalPromises.push(fs.remove(prefix + oldDoc["originalFileName"])
-                  .then(() => true).catch(fileRemovalError => false))
+                  .then(() => true).catch(() => false))
                 if (oldDoc["processedFileNames"]) {
                   for (const type in oldDoc["processedFileNames"]) {
                     if (oldDoc["processedFileNames"].hasOwnProperty(type)) {
                       removalPromises.push(
-                        fs.remove(prefix + oldDoc["processedFileNames"][type]).then(() => true).catch(fileRemoveError => false)
+                        fs.remove(prefix + oldDoc["processedFileNames"][type]).then(() => true).catch(() => false)
                       )
                     }
                   }
                 }
 
                 return Promise.all(removalPromises).then(
-                  result => {
+                  () => {
                     return oldDoc.update(newMedia).then(() => ({ overwritten: true, _id: oldDoc._id }))
                   }
                 )
@@ -105,7 +103,7 @@ export default class BinaryStorageCtrl {
             }).then(result => {
               return req.app.get("omnitrack").serverModule.agenda
                 .now(C.TASK_POSTPROCESS_ITEM_MEDIA, { mediaDbId: result._id })
-                .then(job => {
+                .then(() => {
                   console.log("successed postprocessing media.")
                   return result
                 }).catch(processErr => {
@@ -137,7 +135,7 @@ export default class BinaryStorageCtrl {
         fieldLocalId: fieldLocalId,
         item: itemId,
         fileIdentifier: fileIdentifier
-      }).lean().then(media => {
+      }).lean<any>().then((media: any) => {
         if (media) {
           console.log("found media")
           let fileName: string = media.originalFileName

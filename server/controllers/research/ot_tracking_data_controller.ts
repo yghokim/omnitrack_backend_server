@@ -26,16 +26,16 @@ export default class TrackingDataCtrl {
       participantQuery["_id"] = makeArrayLikeQueryCondition(userId)
     }
 
-    return OTUser.find(participantQuery, { _id: 1 }).lean().then(
+    return OTUser.find(participantQuery, { _id: 1 }).lean<any>().then(
       participants => {
         if (participants.length > 0) {
           const condition = { "user": { $in: participants.map(p => p._id) } }
           if (options.excludeRemoved === true) {
             condition["removed"] = { $ne: true }
           }
-          
+
           return (model as any).find(condition).lean()
-        }else return []
+        } else { return [] }
       })
   }
 
@@ -63,21 +63,21 @@ export default class TrackingDataCtrl {
     }
   }
 
-  private _getEntitiesOfUserInExperiment(experimentId: string, researcherId: string, userId: string): Promise<{trackers: Array<ITrackerDbEntity>, triggers: Array<ITriggerDbEntity>}>{
+  private _getEntitiesOfUserInExperiment(experimentId: string, researcherId: string, userId: string): Promise<{trackers: Array<ITrackerDbEntity>, triggers: Array<ITriggerDbEntity>}> {
     return experimentCtrl.checkResearcherPermitted(researcherId, experimentId).then(
-      permitted=>{
-        if(permitted === true){          
+      permitted => {
+        if (permitted === true) {
           return Promise.all(
             [OTTracker, OTTrigger].map(m => this._getModelsOfExperiment(m, experimentId, userId, {excludeExternals: true, excludeRemoved: false}))
           ).then(result => ({trackers: result[0], triggers: result[1]}))
-        }else{
+        } else {
           throw Error("NotPermitted")
         }
       }
     )
   }
 
-  getEntitiesOfUserInExperiment = (req, res)=>{
+  getEntitiesOfUserInExperiment = (req, res) => {
     const researcherId = req.researcher.uid
     const experimentId = req.params.experimentId
     const userId = req.params.userId
@@ -85,31 +85,31 @@ export default class TrackingDataCtrl {
       result => {
         res.status(200).send(result)
       }
-    ).catch(ex=>{
+    ).catch(ex => {
       console.error(ex)
       res.status(500).send(ex)
     })
   }
 
-  updateTriggerOfExperiment = (req, res)=>{
+  updateTriggerOfExperiment = (req, res) => {
     const researcherId = req.researcher.uid
     const experimentId = req.body.experimentId
     const triggerId = req.body.triggerId
     experimentCtrl.checkResearcherPermitted(researcherId, experimentId).then(
-      permitted=>{
-        if(permitted===false){
-          res.status(500).send({error:"NotPermitted"})
-        }else{
+      permitted => {
+        if (permitted === false) {
+          res.status(500).send({error: "NotPermitted"})
+        } else {
           OTTrigger.findOneAndUpdate({_id: triggerId, "flags.experiment": experimentId}, req.body.update, {new: true})
-            .lean()
+            .lean<any>()
             .then(trigger => {
-              if(trigger!=null){
+              if (trigger != null) {
                 app.pushModule().sendSyncDataMessageToUser(trigger.user, [C.SYNC_TYPE_TRIGGER]).then(
-                  pushResult=>{
+                  pushResult => {
                     res.status(200).send({updated: trigger})
                   }
                 )
-              }else{
+              } else {
                 res.status(404).send({error: "NoSuchTrigger"})
               }
             })
@@ -128,20 +128,20 @@ export default class TrackingDataCtrl {
     const trackerId = req.body.trackerId
 
     experimentCtrl.checkResearcherPermitted(researcherId, experimentId).then(
-      permitted=>{
-        if(permitted===false){
-          res.status(500).send({error:"NotPermitted"})
-        }else{
+      permitted => {
+        if (permitted === false) {
+          res.status(500).send({error: "NotPermitted"})
+        } else {
           OTTracker.findOneAndUpdate({_id: trackerId, "flags.experiment": experimentId}, req.body.update, {new: true})
-            .lean()
+            .lean<any>()
             .then(tracker => {
-              if(tracker!=null){
+              if (tracker != null) {
                 app.pushModule().sendSyncDataMessageToUser(tracker.user, [C.SYNC_TYPE_TRACKER]).then(
-                  pushResult=>{
+                  pushResult => {
                     res.status(200).send({updated: tracker})
                   }
                 )
-              }else{
+              } else {
                 res.status(404).send({error: "NoSuchTracker"})
               }
             })
@@ -155,37 +155,37 @@ export default class TrackingDataCtrl {
   }
 
   updateFieldOfTrackerOfExperiment = (req, res) => {
-    
+
     const researcherId = req.researcher.uid
     const experimentId = req.body.experimentId
     const trackerId = req.body.trackerId
     const fieldLocalId = req.body.fieldLocalId
 
     const update = {}
-    for(const key of Object.keys(req.body.update)){
+    for (const key of Object.keys(req.body.update)) {
       update["fields.$." + key] = req.body.update[key]
     }
 
     experimentCtrl.checkResearcherPermitted(researcherId, experimentId).then(
-      permitted=>{
-        if(permitted===false){
-          res.status(500).send({error:"NotPermitted"})
-        }else{
+      permitted => {
+        if (permitted === false) {
+          res.status(500).send({error: "NotPermitted"})
+        } else {
           OTTracker.findOneAndUpdate({
-            _id: trackerId, 
-            "flags.experiment": experimentId, 
+            _id: trackerId,
+            "flags.experiment": experimentId,
             "fields.localId": fieldLocalId},
-            update, 
+            update,
             {new: true})
-            .lean()
+            .lean<any>()
             .then(tracker => {
-              if(tracker!=null){
+              if (tracker != null) {
                 app.pushModule().sendSyncDataMessageToUser(tracker.user, [C.SYNC_TYPE_TRACKER]).then(
-                  pushResult=>{
+                  pushResult => {
                     res.status(200).send({updated: tracker})
                   }
                 )
-              }else{
+              } else {
                 res.status(404).send({error: "NoSuchTracker"})
               }
             })

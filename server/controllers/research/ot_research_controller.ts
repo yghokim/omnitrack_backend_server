@@ -70,9 +70,9 @@ export default class OTResearchCtrl {
   getExampleExperimentList = (req, res) => {
     res.status(200).send(this.exampleExperimentInformations)
   }
-  
+
   getResearchers = (req, res) => {
-    OTResearcher.find({}, { _id: 1, email: 1, alias: 1, account_approved: 1, createdAt: 1 }).lean().then(researchers => {
+    OTResearcher.find({}, { _id: 1, email: 1, alias: 1, account_approved: 1, createdAt: 1 }).lean<any>().then(researchers => {
       res.status(200).send(researchers || [])
     }).catch(err => {
       console.log(err)
@@ -108,7 +108,7 @@ export default class OTResearchCtrl {
 
     console.log("search researchers with term " + searchTerm)
 
-    return OTResearcher.find(condition, { _id: 1, email: 1, alias: 1 }, { multi: true }).lean().catch(err => {
+    return OTResearcher.find(condition, { _id: 1, email: 1, alias: 1 }, { multi: true }).lean<any>().catch(err => {
       console.log(err)
       return []
     })

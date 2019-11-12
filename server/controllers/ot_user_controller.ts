@@ -21,6 +21,7 @@ import './ot_experiment_participation_pipeline_helper';
 import { selfAssignParticipantToExperiment, researcherAssignParticipantToExperiment } from './ot_experiment_participation_pipeline_helper';
 import OTItemMedia from '../models/ot_item_media';
 import moment = require('moment');
+import { IResearcherDbEntity } from '../../omnitrack/core/research/db-entity-types';
 
 export class OTUserCtrl extends OTAuthCtrlBase {
 
@@ -72,8 +73,8 @@ export class OTUserCtrl extends OTAuthCtrlBase {
             } else { throw { error: C.ERROR_CODE_ILLEGAL_INVITATION_CODE } }
           })
         } else {
-          //inserted an experimentId, but not invidation code
-          //two cases, where the researcher created the account / or the user inserted wrong invitation code.
+          // inserted an experimentId, but not invidation code
+          // two cases, where the researcher created the account / or the user inserted wrong invitation code.
           if (request["researcher"]) {
             return researcherAssignParticipantToExperiment(user, experimentId, request.body.groupId, overrideAlias, demographic).then(joinedExperimentInfo => {
               return user
@@ -83,17 +84,18 @@ export class OTUserCtrl extends OTAuthCtrlBase {
           }
         }
       } else {
-        //no experimentId. check email account.
+        // no experimentId. check email account.
         return OTResearcher.findOne({
           email: user.email,
           account_approved: true
-        }, { _id: 1, alias: 1 }).lean().then(researcher => {
+        }, { _id: 1, alias: 1 }).lean<IResearcherDbEntity>().then(researcher => {
           if (researcher != null) {
-            //found matching researcher.
+            // found matching researcher.
             console.log("A researcher " + researcher.alias + " was signed in as a master app user.")
             return user
-          } else throw {
+          } else { throw {
             error: C.ERROR_CODE_USERNAME_NOT_MATCH_RESEARCHER
+          }
           }
         })
       }
@@ -116,7 +118,7 @@ export class OTUserCtrl extends OTAuthCtrlBase {
     return super.onAfterRegisterNewUserInstance(user, request)
   }
 
-  protected processRegisterResult(user: IUserDbEntity, request: Request): Promise<{ user: any, resultPayload?: any }> {
+  protected processRegisterResult(user: IUserDbEntity, request: Request): Promise<{ user: IUserDbEntity, resultPayload?: any }> {
     let resultPayload = null
     if (request.body.deviceInfo) {
       const device = user.devices.find(device => device.deviceId === request.body.deviceInfo.deviceId)
@@ -148,7 +150,7 @@ export class OTUserCtrl extends OTAuthCtrlBase {
       _id: uid,
       experiment: experimentId,
       "participationInfo.dropped": false
-    }, { _id: 1 }).lean().then(user => {
+    }, { _id: 1 }).lean<any>().then(user => {
       return user != null
     })
   }
@@ -168,8 +170,8 @@ export class OTUserCtrl extends OTAuthCtrlBase {
 
   getAppFlags = (req, res) => {
     const userId = req.user.uid
-    //check researcher
-    OTUser.findById(userId, { appFlags: 1 }).lean().then(user => {
+    // check researcher
+    OTUser.findById(userId, { appFlags: 1 }).lean<IUserDbEntity>().then(user => {
       if (user) {
         res.status(200).send(user.appFlags)
       } else {
@@ -184,10 +186,10 @@ export class OTUserCtrl extends OTAuthCtrlBase {
   getAppFlags = (req, res) => {
     const userId = req.user.uid
     //check researcher
-    OTUser.findById(userId, { username: 1, "participationInfo.groupId": 1, experiment: 1 }).lean().then(user => {
+    OTUser.findById(userId, { username: 1, "participationInfo.groupId": 1, experiment: 1 }).lean<any>().then(user => {
       if (user) {
         if (user.experiment) {
-          OTExperiment.findOne({ _id: user.experiment, "groups._id": user.participationInfo.groupId }, { trackingPlans: 1, groups: 1 }).lean().then(
+          OTExperiment.findOne({ _id: user.experiment, "groups._id": user.participationInfo.groupId }, { trackingPlans: 1, groups: 1 }).lean<any>().then(
             experiment => {
               if (experiment) {
                 if (experiment.trackingPlans && experiment.trackingPlans.length > 0) {
@@ -295,7 +297,7 @@ export class OTUserCtrl extends OTAuthCtrlBase {
         { nameUpdatedAt: { $exists: false } },
         { nameUpdatedAt: { $lt: timestamp } }
       ]
-    }, { name: name, nameUpdatedAt: Date.now() }, { new: true, select: { name: true, nameUpdatedAt: true } }).lean().then(user => {
+    }, { name: name, nameUpdatedAt: Date.now() }, { new: true, select: { name: true, nameUpdatedAt: true } }).lean<any>().then(user => {
       if (user) {
         res.json(<InformationUpdateResult>{ success: true, finalValue: user["name"], payloads: new Map([["updatedAt", user["nameUpdatedAt"].getTime().toString()]]) })
       } else {
@@ -309,7 +311,7 @@ export class OTUserCtrl extends OTAuthCtrlBase {
 
   getDevices = (req, res) => {
     const userId = req.user.uid
-    OTUser.findOne({ _id: userId }, { projection: { devices: true } }).lean().then(
+    OTUser.findOne({ _id: userId }, { projection: { devices: true } }).lean<any>().then(
       result => {
         if (result == null) {
           res.json([])
@@ -426,7 +428,7 @@ export class OTUserCtrl extends OTAuthCtrlBase {
           const format = require('string-format')
           const mailFormat = "<h3>Reset your Password?</h3> <p>If you requested a password reset for <b>{username}</b> in <b>{appName}</b>, visit the link below. If you didn't make this request, ignore this email.</p> {resetUrl}"
 
-          return OTUser.findOne(userQuery, { email: 1 }).lean().then(user => {
+          return OTUser.findOne(userQuery, { email: 1 }).lean<IUserDbEntity>().then(user => {
             console.log("send a password reset mail to user : ", user)
             return messageCtrl.sendEmailTo("Password Reset Request", format(mailFormat, {
               appName: appName,
@@ -443,13 +445,13 @@ export class OTUserCtrl extends OTAuthCtrlBase {
         })
       }).catch(err => {
         console.error(err)
-        if(err.error === C.ERROR_CODE_ACCOUNT_NOT_EXISTS){
+        if (err.error === C.ERROR_CODE_ACCOUNT_NOT_EXISTS) {
           res.status(200).send({
             success: false,
             email: null,
             error: err.error
           })
-        }else res.status(500).send(err)
+        } else { res.status(500).send(err) }
       })
   }
 
@@ -494,7 +496,7 @@ export class OTUserCtrl extends OTAuthCtrlBase {
                 }
               })
           } else {
-            //token expired.
+            // token expired.
             user["reset_token_expires"] = null
             user["password_reset_token"] = null
             user.save().then(() => {

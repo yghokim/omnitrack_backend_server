@@ -19,8 +19,6 @@ import { RouterWrapper } from './server_utils';
 import { trackingPackageCtrl } from './controllers/ot_tracking_package_controller';
 import { clientBuildCtrl } from './controllers/research/ot_client_build_controller';
 import OTShortUrl from './models/ot_short_url';
-import { getFirebaseProjectId } from './app';
-import { Request } from 'express';
 
 export class ResearchRouter extends RouterWrapper {
 
@@ -29,7 +27,7 @@ export class ResearchRouter extends RouterWrapper {
   private readonly usageLogCtrl = new OTUsageLogCtrl()
   private readonly researchAuthCtrl = new OTResearchAuthCtrl()
 
-  constructor(private env: IEnvironment) {
+  constructor(env: IEnvironment) {
     super()
 
     const tokenApprovedAuth = this.researchAuthCtrl.makeTokenAuthMiddleware((researcher) => {
@@ -68,7 +66,7 @@ export class ResearchRouter extends RouterWrapper {
         OTShortUrl.findOneAndUpdate({
           longUrl: req.body.longUrl
         }, {}, { upsert: true, setDefaultsOnInsert: true, new: true })
-          .lean().then(doc => {
+          .lean<any>().then(doc => {
             res.status(200).send(doc.shortId)
           })
       } else {
@@ -127,7 +125,7 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.get('/package/temporary/:code', tokenApprovedAuth, trackingPackageCtrl.getTemporaryTrackingPackageWithCode)
     //===============================================
-  
+
 
     this.router.post('/experiments/:experimentId/groups/upsert', tokenApprovedAuth, experimentCtrl.upsertExperimentGroup)
     this.router.delete('/experiments/:experimentId/groups/:groupId', tokenApprovedAuth, experimentCtrl.removeExperimentGroup)
@@ -140,7 +138,7 @@ export class ResearchRouter extends RouterWrapper {
         clientBuildCtrl.initializeDefaultPlatformConfig)
     this.router.post('/build/configs/update/:experimentId?', tokenApprovedAuth,
       clientBuildCtrl.updateClientBuildConfigs)
-      
+
     this.router.get("/build/configs/:configId/validate_signature", tokenApprovedAuth, clientBuildCtrl.validateJavaKeystore)
 
 
@@ -161,7 +159,7 @@ export class ResearchRouter extends RouterWrapper {
     this.router.post('/participants/:participantId/delete', tokenApprovedAuth, userCtrl.deleteAccount)
 
     this.router.post('/participants/:participantId/alias', tokenApprovedAuth, experimentCtrl.changeParticipantAlias)
-    
+
     this.router.post('/participants/:participantId/issue_reset_password', tokenApprovedAuth, userCtrl.issuePasswordResetToken)
 
     this.router.get("/researchers/search", tokenApprovedAuth, this.researchCtrl.searchResearchers)
@@ -193,7 +191,7 @@ export class ResearchRouter extends RouterWrapper {
     this.router.get('/experiments/:experimentId/entities/user/:userId', tokenApprovedAuth, trackingDataCtrl.getEntitiesOfUserInExperiment)
 
     this.router.post('/experiments/:experimentId/test/trigger_ping', tokenApprovedAuth, experimentCtrl.sendTriggerPingTest)
-    
+
     this.router.get('/files/item_media/:trackerId/:itemId/:fieldLocalId/:fileIdentifier/:processingType?', tokenApprovedAuth, this.storageCtrl.downloadItemMedia)
 
     // data manipulation
@@ -202,7 +200,7 @@ export class ResearchRouter extends RouterWrapper {
     this.router.post('/tracking/update/trigger', tokenApprovedAuth, trackingDataCtrl.updateTriggerOfExperiment)
     this.router.post('/tracking/update/tracker', tokenApprovedAuth, trackingDataCtrl.updateTrackerOfExperiment)
     this.router.post('/tracking/update/field', tokenApprovedAuth, trackingDataCtrl.updateFieldOfTrackerOfExperiment)
-    
+
 
     this.router.get("/users/all", tokenApprovedAuth, experimentCtrl.getUsersWithPariticipantInformation)
 

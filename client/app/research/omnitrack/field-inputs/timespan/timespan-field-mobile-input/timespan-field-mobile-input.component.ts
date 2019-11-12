@@ -29,7 +29,7 @@ export class TimeSpanFieldMobileInputComponent extends FieldMobileInputComponent
         this.footerButtonInfos = ["+ 1 day", "+ 1 week", "To now"]
         break;
       case TimeSpanFieldHelper.GRANULARITY_MINUTE:
-        this.dateButtonFormat = 'hh:mm A, MMM d, YYYY'
+        this.dateButtonFormat = 'hh:mm A, MMM D, YYYY'
         this.footerButtonInfos = ["+ 30 mins", "+ 1 hour", "To now"]
         break;
     }

@@ -1,4 +1,4 @@
-import { IUsageLogDbEntity } from '../../omnitrack/core/db-entity-types';
+import { IUsageLogDbEntity, IUserDbEntity } from '../../omnitrack/core/db-entity-types';
 import OTUser, { USER_PROJECTION_EXCLUDE_CREDENTIAL } from '../models/ot_user';
 import OTUsageLog from '../models/ot_usage_log';
 import { makeArrayLikeQueryCondition } from '../server_utils';
@@ -16,7 +16,7 @@ export class OTUsageLogCtrl {
   _getErrorLogs(filterBase: any): Promise<Array<IUsageLogDbEntity>> {
     const filter = deepclone(filterBase)
     filter.name = "exception"
-    return OTUsageLog.find(filter).populate("user", { email: 1 }).sort({ timestamp: -1 }).lean().then(docs => docs)
+    return OTUsageLog.find(filter).populate("user", { email: 1 }).sort({ timestamp: -1 }).lean<any>().then(docs => docs as Array<IUsageLogDbEntity>)
   }
 
 
@@ -127,7 +127,7 @@ export class OTUsageLogCtrl {
     let userIdsPromise: Promise<string | Array<string>>
     if (req.query.experiment) {
       // filter with experiment
-      userIdsPromise = OTUser.find({ experiment: req.query.experiment }, USER_PROJECTION_EXCLUDE_CREDENTIAL).select("_id").lean().then(users => {
+      userIdsPromise = OTUser.find({ experiment: req.query.experiment }, USER_PROJECTION_EXCLUDE_CREDENTIAL).select("_id").lean<Array<IUserDbEntity>>().then(users => {
         const userIds = users.map(u => u._id)
         if (req.query.userIds) {
           if (req.query.userIds instanceof Array) {

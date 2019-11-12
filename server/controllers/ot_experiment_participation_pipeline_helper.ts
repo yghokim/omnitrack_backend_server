@@ -24,9 +24,8 @@ function findInvitation(invitationCode: string, experimentId: string): Promise<a
       { "experiment.finishDate": { $gt: new Date() } },
       { "experiment.finishDate": null }
     ]
-  }, { _id: 1, experiment: 1, groupMechanism: 1 }).lean().then(doc => {
-    if (doc) { return doc }
-    else {
+  }, { _id: 1, experiment: 1, groupMechanism: 1 }).lean<any>().then(doc => {
+    if (doc) { return doc } else {
       throw { error: "IllegalInvitationCodeOrClosedExperiment" }
     }
   })
@@ -44,8 +43,8 @@ function processExperimentAndUser(user: IUserDbEntity, experimentId: string, gro
     _id: experimentId,
     "groups._id": groupId,
   }, { $inc: { participantNumberSeed: alias ? 0 : 1 } }, { new: true, select: { _id: 1, name: 1, participantNumberSeed: 1, groups: 1, trackingPlans: 1 } })
-    .lean()
-    .then(experiment => {
+    .lean<any>()
+    .then((experiment: any) => {
       let trackingPackage
       const group = experiment.groups.find(g => g._id === groupId)
       if (group.trackingPlanKey) {
@@ -72,13 +71,13 @@ function processExperimentAndUser(user: IUserDbEntity, experimentId: string, gro
       } as IJoinedExperimentInfo
 
       if (trackingPackage) {
-        //inject tracking package
+        // inject tracking package
         return app.omnitrackModule().injectPackage(user._id, trackingPackage.data,
           { injected: true, experiment: experiment._id }).then(res => {
             return joinedExperimentInfo
           })
       } else {
-        //not inject tracking package
+        // not inject tracking package
         return joinedExperimentInfo
       }
     })

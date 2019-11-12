@@ -90,7 +90,7 @@ export default class OTBinaryCtrl {
   }
 
   _getLatestVersionInfoForExperiment(experimentId: string, platform: string): Promise<{ versionName: string, versionCode: number }> {
-    return OTClientBinary.findOne({ experiment: experimentId, platform: platform }, {}, { sort: { versionCode: -1 } }).lean().then(
+    return OTClientBinary.findOne({ experiment: experimentId, platform: platform }, {}, { sort: { versionCode: -1 } }).lean<any>().then(
       binary => {
         if (binary) {
           return {
@@ -265,7 +265,7 @@ export default class OTBinaryCtrl {
 
   downloadClientBinary = (req, res) => {
 
-    OTClientBinary.findOne({ experiment: (req.query.experimentId === "null" || !req.query.experimentId) ? null : req.query.experimentId, platform: req.query.platform, version: req.query.version }, {}, { sort: { "updatedAt": -1 } }).lean().then(
+    OTClientBinary.findOne({ experiment: (req.query.experimentId === "null" || !req.query.experimentId) ? null : req.query.experimentId, platform: req.query.platform, version: req.query.version }, {}, { sort: { "updatedAt": -1 } }).lean<any>().then(
       binary => {
         if (binary) {
           const filePath = this.makeClientFilePath(binary["platform"], binary["fileName"])
@@ -303,7 +303,7 @@ export default class OTBinaryCtrl {
 
   getLatestVersionInfo = (req, res) => {
     const overrideHostAddress = req.query.host
-    OTClientBinary.find({ experiment: (req.query.experimentId === "null" || !req.query.experimentId) ? null : req.query.experimentId, needsConfirm: { $ne: true }, platform: req.query.platform }).lean().then(
+    OTClientBinary.find({ experiment: (req.query.experimentId === "null" || !req.query.experimentId) ? null : req.query.experimentId, needsConfirm: { $ne: true }, platform: req.query.platform }).lean<any>().then(
       binaries => {
         if (binaries && binaries.length > 0) {
           binaries.sort((binary1: any, binary2: any) => {

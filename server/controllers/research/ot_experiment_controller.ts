@@ -23,7 +23,7 @@ export default class OTExperimentCtrl {
 
   checkResearcherPermitted(researcherId: string, experimentId: string): Promise<boolean> {
     return OTExperiment.findOne(this.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId), { _id: 1 })
-      .lean().then(exp => exp != null)
+      .lean<any>().then(exp => exp != null)
   }
 
   makeExperimentAndCorrespondingResearcherQuery(experimentId: string, researcherId: string): any {
@@ -38,7 +38,7 @@ export default class OTExperimentCtrl {
   }
 
   getResearcherInfosOfExperiment(experimentId: string): Promise<Array<{ isManager: boolean, id: string }>> {
-    return OTExperiment.findById(experimentId, { _id: 1, experimenters: 1, manager: 1 }).lean().then(
+    return OTExperiment.findById(experimentId, { _id: 1, experimenters: 1, manager: 1 }).lean<any>().then(
       experiment => {
         if (experiment) {
           const result = []
@@ -103,7 +103,7 @@ export default class OTExperimentCtrl {
       $pull: {
         "experimenters": { researcher: collaboratorId }
       }
-    }).lean().then(
+    }).lean<any>().then(
       result => result != null
     )
   }
@@ -163,7 +163,7 @@ export default class OTExperimentCtrl {
    */
   public matchInvitationWithExperiment(invitationCode: string, experimentId: string): Promise<boolean> {
     console.log("match invitation code", invitationCode, "and the experiment", experimentId)
-    return OTInvitation.findOne({ code: invitationCode, experiment: experimentId }).lean().then(
+    return OTInvitation.findOne({ code: invitationCode, experiment: experimentId }).lean<any>().then(
       invit => {
         if (invit) {
           return true
@@ -188,7 +188,7 @@ export default class OTExperimentCtrl {
 
   getParticipants = (req, res) => {
     const experimentId = req.params.experimentId
-    OTUser.find({ experiment: experimentId }, USER_PROJECTION_EXCLUDE_CREDENTIAL).lean()
+    OTUser.find({ experiment: experimentId }, USER_PROJECTION_EXCLUDE_CREDENTIAL).lean<any>()
       .then(
         participants => {
           res.status(200).send(participants)
@@ -435,7 +435,7 @@ export default class OTExperimentCtrl {
   getInvitations = (req, res) => {
     const researcherId = req.researcher.uid
     const experimentId = req.params.experimentId
-    OTInvitation.find({ experiment: experimentId }).populate({ path: "participants", select: "_id dropped" }).lean().then(list => {
+    OTInvitation.find({ experiment: experimentId }).populate({ path: "participants", select: "_id dropped" }).lean<any>().then(list => {
       res.status(200).json(list)
     })
       .catch(err => {
@@ -533,7 +533,7 @@ export default class OTExperimentCtrl {
       }
     }
 
-    OTExperiment.findOneAndUpdate(query, update, { new: true }).lean().then(doc => {
+    OTExperiment.findOneAndUpdate(query, update, { new: true }).lean<any>().then(doc => {
       if (doc) {
         res.status(200).send({success: true, packageKey: packageKey})
         app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, { model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_EDITED })
@@ -586,7 +586,7 @@ export default class OTExperimentCtrl {
   }
 
   async findGroupsWithPlan(experimentId: string, planKey: string): Promise<Array<IExperimentGroupDbEntity>>{
-    const experiment = await OTExperiment.findById(experimentId).lean() as IExperimentDbEntity
+    const experiment = await OTExperiment.findById(experimentId).lean<any>() as IExperimentDbEntity
     if(experiment){
       return experiment.groups.filter(g => g.trackingPlanKey === planKey)
     }else throw {error : C.ERROR_CODE_ILLEGAL_ARGUMENTS}
@@ -595,7 +595,7 @@ export default class OTExperimentCtrl {
   async findParticipantsWithPlan(experimentId: string, planKey: string): Promise<Array<IUserDbEntity>>{
     const groupsWithPlan = await this.findGroupsWithPlan(experimentId, planKey)
     if(groupsWithPlan.length > 0){
-      return OTUser.find({experiment: experimentId, group: {$in: groupsWithPlan}}, USER_PROJECTION_EXCLUDE_CREDENTIAL).lean()
+      return OTUser.find({experiment: experimentId, group: {$in: groupsWithPlan}}, USER_PROJECTION_EXCLUDE_CREDENTIAL).lean<any>()
     }else{
       return []
     }
@@ -629,7 +629,7 @@ export default class OTExperimentCtrl {
       }, { new: true, select: "groups" })
     }
 
-    mongooseQuery.lean().then(found => {
+    mongooseQuery.lean<any>().then(found => {
       console.log(found)
       if (found) {
         if (req.body._id) {
@@ -704,7 +704,7 @@ export default class OTExperimentCtrl {
         OTTrigger.findOne({
           _id: triggerId,
           "flags.experiment": experimentId
-        }, { _id: 1, user: 1 }).lean().then(
+        }, { _id: 1, user: 1 }).lean<any>().then(
           trigger => {
             if (trigger) {
               app.pushModule().sendDataMessageToUser
@@ -731,7 +731,7 @@ export default class OTExperimentCtrl {
   changeParticipantAlias = (req, res) => {
     const participantId = req.params.participantId
     const alias = req.body.alias
-    OTUser.findById(participantId, { experiment: 1 }).lean().then(participant => {
+    OTUser.findById(participantId, { experiment: 1 }).lean<any>().then(participant => {
       if (participant != null) {
         return OTUser.findOne({ _id: { $ne: participantId }, "participationInfo.alias": alias, experiment: participant.experiment }).then(doc => {
           if (doc) {
@@ -774,7 +774,7 @@ export default class OTExperimentCtrl {
           select: '_id name'
         }
       }
-    }).lean().then(list => {
+    }).lean<any>().then(list => {
       res.status(200).send(list)
     }).catch(err => {
       console.log(err)
@@ -791,7 +791,7 @@ export default class OTExperimentCtrl {
         consent: 1,
         receiveConsentInApp: 1,
         demographicFormSchema: 1
-      }).lean().then(
+      }).lean<any>().then(
         exp => {
           if (exp) {
             res.status(200).send(exp)
@@ -857,7 +857,7 @@ export default class OTExperimentCtrl {
 
   private handleParticipantDropout(search: any, multiple: boolean, remove: boolean, reason?: string, researcherId?: string): Promise<Array<IUserDbEntity>> {
     if (multiple === true) {
-      return OTUser.find(search, USER_PROJECTION_EXCLUDE_CREDENTIAL).populate({ path: "experiment", select: "_id name" }).lean().then(docs => {
+      return OTUser.find(search, USER_PROJECTION_EXCLUDE_CREDENTIAL).populate({ path: "experiment", select: "_id name" }).lean<any>().then(docs => {
         if (remove === true) {
           return OTUser.deleteMany(search).then(removeRes => docs)
         } else {

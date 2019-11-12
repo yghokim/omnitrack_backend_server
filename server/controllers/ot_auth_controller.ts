@@ -158,7 +158,7 @@ export abstract class OTAuthCtrlBase {
 
   refreshToken = (req, res) => {
     if (req[this.decodedPropertyName] != null) {
-      this.model.findById(req[this.decodedPropertyName].uid).lean().then(
+      this.model.findById(req[this.decodedPropertyName].uid).lean<any>().then(
         user => {
           if (user != null) {
             res.status(200).send(this.generateJWTToken(user))
@@ -199,7 +199,7 @@ export abstract class OTAuthCtrlBase {
       res.status(401).send({ error: C.ERROR_CODE_WRONG_CREDENTIAL });
     } else {
       this.model.findOne(this.makeUserIndexQueryObj(req))
-        .lean()
+        .lean<any>()
         .then(user => {
           if (user != null) {
             throw {error:C.ERROR_CODE_USER_ALREADY_EXISTS}
@@ -254,7 +254,7 @@ export abstract class OTAuthCtrlBase {
   ): Promise<string> {
     if (Object.keys(query).length > 0 && Object.keys(update).length > 0) {
       return this.model.findOneAndUpdate(query, update, { new: true })
-        .lean().then(user => {
+        .lean<any>().then(user => {
           if (user) {
             console.log(user);
             console.log("updated user information. return updated token");

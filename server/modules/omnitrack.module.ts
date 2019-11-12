@@ -57,8 +57,8 @@ export default class OmniTrackModule {
 
     await OTUser.updateOne({ _id: userId }, { appFlags: appFlags })
 
-    const userTrackers: Array<ITrackerDbEntity> = await OTTracker.find({ user: userId, "flags.injected": true }).lean()
-    const userTriggers: Array<ITriggerDbEntity> = await OTTrigger.find({ user: userId, "flags.injected": true }).lean()
+    const userTrackers: Array<ITrackerDbEntity> = await OTTracker.find({ user: userId, "flags.injected": true }).lean<any>()
+    const userTriggers: Array<ITriggerDbEntity> = await OTTrigger.find({ user: userId, "flags.injected": true }).lean<any>()
 
 
     //find user trackers to remove

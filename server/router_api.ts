@@ -55,7 +55,7 @@ export class ClientApiRouter extends RouterWrapper {
       const packageName = req.get("OTPackageName")
       const experimentId = req.get('OTExperiment')
 
-      OTUser.findOne({ _id: req.user.uid, "devices.deviceId": deviceId }).lean().then(
+      OTUser.findOne({ _id: req.user.uid, "devices.deviceId": deviceId }).lean<any>().then(
         user => {
           if (user != null) {
             console.log("received an authorized call from device: " + deviceId)
@@ -80,7 +80,7 @@ export class ClientApiRouter extends RouterWrapper {
 
     // admin
     this.router.route('/admin/package/extract').get(trackingPackageCtrl.getExtractedTrackingPackageJson)
-    
+
     this.router.post('/usage_logs/batch/insert', certifiedDeviceCheckMiddleware, otUsageLogCtrl.insertMany)
 
     // batch

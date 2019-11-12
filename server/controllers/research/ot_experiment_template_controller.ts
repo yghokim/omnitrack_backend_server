@@ -6,7 +6,7 @@ import { AInvitation } from "../../../omnitrack/core/research/invitation";
 
 export default class OTExperimentTemplateCtrl {
   extractTemplate(experimentId: string): Promise<ExperimentTemplate> {
-    return OTExperiment.findById(experimentId).populate("invitations").lean().then(experiment => {
+    return OTExperiment.findById(experimentId).populate("invitations").lean<any>().then(experiment => {
       if (experiment) {
         const template = {} as ExperimentTemplate
 
