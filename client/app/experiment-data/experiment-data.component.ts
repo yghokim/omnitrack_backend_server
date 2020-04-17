@@ -226,7 +226,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
       const value = item.metadata[metadataKey]
       if (value != null) {
         switch (this.getMetadataCellType(metadataKey)) {
-          case CellValueType.DATE: return new TimePoint(value, item.timezone).toMoment().format("YYYY-MM-DD") 
+          case CellValueType.DATE: return new TimePoint(value, item.timezone).toMoment().format("YYYY-MM-DD")
           case CellValueType.DATETIME_MINUTES: return new TimePoint(value, item.timezone).toMoment().format("kk:mm (MMM DD YYYY)") + " " + moment.tz(item.timezone).format("z")
           case CellValueType.DATETIME_SECONDS: return new TimePoint(value, item.timezone).toMoment().format("kk:mm:ss (MMM DD YYYY)") + " " + moment.tz(item.timezone).format("z")
           default: return value
@@ -330,18 +330,20 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(
         flatMap(service => service.getTrackingPlans().pipe(
-          flatMap(packages =>
+          flatMap(plans =>
             zip(
               service.trackingDataService.trackers,
               service.trackingDataService.items,
-              (trackers, items) => ({ packages: packages, trackers: trackers, items: items })
+              service.getExperiment(),
+              (trackers, items, experiment) => ({ experiment, plans, trackers, items })
             )
           )
         )),
         map(result => {
-          const commonColumns = ["item_id", "participant_alias"]
-          const packageFiles = result.packages.map(
+          const commonColumns = ["item_id", "participant_alias", "group"]
+          const planFiles = result.plans.map(
             pack => {
+              //make table per plan
               const workbook = XLSX.utils.book_new()
               pack.data.trackers.forEach(
                 trackerScheme => {
@@ -353,15 +355,16 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
                   trackers.forEach(
                     tracker => {
                       const participant = this.participants.find(p => p._id === tracker.user)
+                      const group = result.experiment.groups.find(g => g._id === participant.participationInfo.groupId)
                       result.items.filter(i => i.tracker === tracker._id).forEach(
                         item => {
                           const values = trackerScheme.fields.map(attrScheme => {
                             const attr = tracker.fields.find(a => (a.flags || {}).injectionId === attrScheme.flags.injectionId)
-                            return this.getItemValue(item, attr, true)
+                            return attr != null ? this.getItemValue(item, attr, true) : null
                           })
 
                           itemRows.push(
-                            [item._id, participant.participationInfo.alias]
+                            [item._id, participant.participationInfo.alias, group != null ? group._id : null]
                               .concat(values)
                               .concat([new TimePoint(item.timestamp, item.timezone).toMoment().format(), this.getItemSourceText(item.source)]
                                 .concat(this.metadataColumns.map(m => this.getMetadataValue(item, m)))
@@ -429,7 +432,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
             }
           )
 
-          return packageFiles.concat(participantCustomTrackerFiles)
+          return planFiles.concat(participantCustomTrackerFiles)
         })
       ).subscribe(
         blobInfos => {
