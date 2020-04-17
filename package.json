@@ -17,7 +17,7 @@
     "prod": "concurrently \"mongod\" \"ng build --aot --prod && tsc -p server && node dist/backend/server/app.js\"",
     "backend-pm2": "npm run predev && pm2 delete omnitrack-backend ; pm2 start backend-pm2.config.js --env=production",
     "backend-forever": "npm run predev && forever start forever.json",
-    "dev-frontend": "ng serve --proxy-config proxy.conf.json --open",
+    "dev-frontend": "ng serve --host 0.0.0.0 --proxy-config proxy.conf.json --open",
     "dev-backend": "concurrently \"tsc -w -p server\" \"nodemon dist/backend/server/app.js\"",
     "test": "ng test",
     "testbe": "tsc -p server && node_modules/.bin/mocha dist/backend/server/test",
