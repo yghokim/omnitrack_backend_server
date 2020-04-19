@@ -82,7 +82,7 @@ export default class OTSyncCtrl {
 
           if (controller == null) {
             return Promise.resolve({ type: entry.type, rows: [] })
-          } else { return controller.applyClientChanges(userId, entry.rows.map(str => JSON.parse(str))).then(result => ({ type: entry.type, rows: result })) }
+          } else { return controller.applyClientChanges(userId, entry.rows.map(str => JSON.parse(str)).filter(row => row.user === userId)).then(result => ({ type: entry.type, rows: result })) }
         }
       )
       ).then(results => {
@@ -90,7 +90,7 @@ export default class OTSyncCtrl {
         console.log(results)
         const changedTypes = results.filter(r => r.rows.length > 0).map(r => r.type)
 
-        //send sync notification to devices
+        // Send sync notification to devices
         app.pushModule().sendSyncDataMessageToUser(userId, changedTypes, { excludeDeviceIds: [req.get("OTDeviceId")] })
           .then().catch()
 
