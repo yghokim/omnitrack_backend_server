@@ -1,0 +1,15 @@
+<div class="dialog dialog-mid">
+  <div class="card-header">New Validation Rule</div>
+  <div class="card-body">
+    <select class="form-control" [(ngModel)]="validator.type">
+      <option *ngFor="let spec of supportedValidatorSpecs" [ngValue]="spec.type">
+        {{spec.name}} ({{spec.description}})
+      </option>
+    </select>
+  </div>
+  <div class="card-body text-right">
+      <button type="button" mat-button color="accent" (click)="onNoClick()">Cancel</button>
+      <button type="button" mat-raised-button color="primary" (click)="onYesClick()" >Add</button>
+  </div>
+
+  </div>

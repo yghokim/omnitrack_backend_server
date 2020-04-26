@@ -65,6 +65,11 @@ export interface IUserChildDbEntity extends IMongooseDbEntity {
   user: string
 }
 
+export interface IFieldValidationDbEntity {
+  type: string,
+  params?: Array<any>
+}
+
 export interface IFieldDbEntity {
   name?: string,
   _id?: string,
@@ -78,6 +83,7 @@ export interface IFieldDbEntity {
   isHidden?: boolean,
   isInTrashcan?: boolean,
   properties?: any,
+  validators?: Array<IFieldValidationDbEntity>
   userCreatedAt?: number,
   userUpdatedAt?: number,
   lockedProperties?: any,

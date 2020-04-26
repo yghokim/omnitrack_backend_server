@@ -68,6 +68,13 @@
     <hr class="no-margin">
   </ng-container>
 
+  <div class="form-group" *ngIf="getSupportedValidatorSpecs().length > 0">
+    <app-validation-config-view title="Validation" direction="vertical" [supportedValidatorSpecs]="getSupportedValidatorSpecs()"
+      [(propertyValue)]="field.validators"></app-validation-config-view>
+  </div>
+
+  <hr class="no-margin">
+
   <div class="form-group">
     <app-selection-property-view title="Default value" direction="vertical" [list]="getFallbackPolicyEntries()"
       [(propertyValue)]="field.fallbackPolicy"></app-selection-property-view>

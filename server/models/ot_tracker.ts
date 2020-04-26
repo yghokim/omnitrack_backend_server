@@ -1,5 +1,6 @@
 import * as mongoose from 'mongoose';
 
+
 const otFieldSchema = new mongoose.Schema({
   _id: String, // this object id is not used as an index in server. it is only used in client.
   name: String,
@@ -13,6 +14,7 @@ const otFieldSchema = new mongoose.Schema({
   isHidden: {type: Boolean, default: false},
   isInTrashcan: {type: Boolean, default: false},
   properties: {type: mongoose.Schema.Types.Mixed, default: {}},
+  validators: {type: [{_id: false, type: String, params: {type: [mongoose.Schema.Types.Mixed], default: null}}], defualt: []},
   userCreatedAt: Number,
   userUpdatedAt: Number,
   lockedProperties: {type: mongoose.Schema.Types.Mixed, default: {}},

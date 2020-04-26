@@ -55,6 +55,8 @@ import { LikertPickerMobileInputComponent } from './research/omnitrack/field-inp
 import { AngularResizedEventModule } from 'angular-resize-event';
 import { PreviewTriggerComponent } from './research/omnitrack/tracking-plan-detail/tracker-preview-panel/preview-trigger/preview-trigger.component';
 import { DomChangeDirective } from './directives/dom-change.directive';
+import { ValidationConfigViewComponent } from './research/omnitrack/tracking-plan-detail/field-detail-panel/validation/validation-config-view/validation-config-view.component';
+import { NewValidationRuleDialogComponent } from './research/omnitrack/tracking-plan-detail/field-detail-panel/validation/new-validation-rule-dialog/new-validation-rule-dialog.component';
 
 const routes: Routes = [
   {
@@ -145,7 +147,9 @@ const routes: Routes = [
     StarPickerMobileInputComponent,
     LikertPickerMobileInputComponent,
     PreviewTriggerComponent,
-    DomChangeDirective
+    DomChangeDirective,
+    ValidationConfigViewComponent,
+    NewValidationRuleDialogComponent
   ],
   entryComponents: [
     LockConfigurationSheetComponent,
@@ -153,7 +157,8 @@ const routes: Routes = [
     FieldPresetPickerComponent,
     TrackerPickerComponent,
     TrackerColorPickerComponent,
-    FactoryListComponent
+    FactoryListComponent,
+    NewValidationRuleDialogComponent
   ]
 })
 export class TrackingPlanModule {}

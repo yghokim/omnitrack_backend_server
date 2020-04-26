@@ -2,6 +2,7 @@ import PropertyHelper from "../properties/property.helper.base";
 import { IFieldDbEntity } from '../db-entity-types';
 import { FallbackPolicyResolver, DEFAULT_VALUE_POLICY_NULL, NullValueResolver, DEFAULT_VALUE_POLICY_FILL_WITH_LAST_ITEM, PreviousValueResolver } from "./fallback-policies";
 import { EPropertyType } from "../properties/property.types";
+import { ValidatorType } from "./validators/validation-helper";
 
 export default abstract class FieldHelper {
 
@@ -38,6 +39,8 @@ export default abstract class FieldHelper {
   getPropertyConfig(propertyKey: string): any {
     return null
   }
+
+  getSupportedValidators(): Array<ValidatorType> { return [] }
 
   setPropertyValue<T>(field: IFieldDbEntity, propertyKey: string, value: T) {
     const propHelper = this.getPropertyHelper<T>(propertyKey)

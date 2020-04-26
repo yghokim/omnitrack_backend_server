@@ -7,6 +7,7 @@ import { MeasureFactoryManager } from '../../../../../../omnitrack/core/value-co
 import { TrackingPlanService } from '../../tracking-plan.service';
 import { AMeasureFactory } from '../../../../../../omnitrack/core/value-connection/measure-factory';
 import { TimeQueryPreset, OTTimeQuery, TIMEQUERY_PRESETS } from '../../../../../../omnitrack/core/value-connection/value-connection';
+import { getValidatorSpec, ValidatorSpec } from '../../../../../../omnitrack/core/fields/validators/validation-helper';
 import * as deepEqual from 'deep-equal';
 
 @Component({
@@ -41,7 +42,7 @@ export class FieldDetailPanelComponent implements OnInit, OnDestroy {
   ngOnInit() {
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.isConnectionSelected = false
   }
 
@@ -74,20 +75,24 @@ export class FieldDetailPanelComponent implements OnInit, OnDestroy {
     return array
   }
 
+  getSupportedValidatorSpecs(): Array<ValidatorSpec> {
+    return this.fieldHelper.getSupportedValidators().map(type => getValidatorSpec(type))
+  }
+
   isMeasureFactoryAttachable(): boolean {
     return MeasureFactoryManager
       .getAttachableMeasureFactories(this.field, this.planService.currentPlan).length > 0
   }
 
-  getFactoryByCode(code: string): AMeasureFactory{
+  getFactoryByCode(code: string): AMeasureFactory {
     return MeasureFactoryManager.getMeasureFactoryByCode(code)
   }
 
-  convertQueryToPreset(query: OTTimeQuery): TimeQueryPreset{
+  convertQueryToPreset(query: OTTimeQuery): TimeQueryPreset {
     return TIMEQUERY_PRESETS.find(p => deepEqual(p.query, query))
   }
 
-  onConnectionClicked(){
+  onConnectionClicked() {
     this.isConnectionSelected = !this.isConnectionSelected
   }
 }

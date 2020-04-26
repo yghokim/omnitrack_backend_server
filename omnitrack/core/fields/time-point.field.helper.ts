@@ -10,10 +10,23 @@ import { TimeSpanFieldHelper } from './time-span.field.helper';
 import TypedStringSerializer from '../typed_string_serializer';
 import FieldIconTypes from "./field-icon-types";
 import { DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE, FallbackPolicyResolver } from "./fallback-policies";
+import { ValidatorType } from "./validators/validation-helper";
 
 export class TimePointFieldHelper extends FieldHelper {
   get typeName(): string { return "Time Point" }
   get typeNameForSerialization(): string { return TypedStringSerializer.TYPENAME_TIMEPOINT }
+
+  constructor() {
+    super(fieldTypes.ATTR_TYPE_TIMESPAN)
+  }
+
+  static readonly PROPERTY_GRANULARITY = "granularity"
+
+  static readonly GRANULARITY_DAY = 0
+  static readonly GRANULARITY_MINUTE = 1
+  static readonly GRANULARITY_SECOND = 2
+
+  propertyKeys: string[] = [TimePointFieldHelper.PROPERTY_GRANULARITY];
 
   formatFieldValue(attr: IFieldDbEntity, value: any): string {
     if (value instanceof TimePoint) {
@@ -30,29 +43,21 @@ export class TimePointFieldHelper extends FieldHelper {
 
       return value.toMoment().format(format)
         + " " + moment().tz(value.timezone).format("z")
-    }
-    else {
+    } else {
       return value.toString()
     }
   }
 
-  constructor() {
-    super(fieldTypes.ATTR_TYPE_TIMESPAN)
+
+  getSupportedValidators(): Array<ValidatorType> {
+    return [ValidatorType.SameDayTimeInputValidator]
   }
-
-  static readonly PROPERTY_GRANULARITY = "granularity"
-
-  static readonly GRANULARITY_DAY = 0
-  static readonly GRANULARITY_MINUTE = 1
-  static readonly GRANULARITY_SECOND = 2
 
   getPropertyName(propertyKey: string): string {
     switch (propertyKey) {
       case TimePointFieldHelper.PROPERTY_GRANULARITY: return "Granularity"
     }
   }
-
-  propertyKeys: string[] = [TimePointFieldHelper.PROPERTY_GRANULARITY];
 
   getPropertyHelper<T>(propertyKey: string): PropertyHelper<T> {
     switch (propertyKey) {
@@ -79,8 +84,8 @@ export class TimePointFieldHelper extends FieldHelper {
         }
     }
   }
-  
-  getPropertyDefaultValue(propertyKey: string): any{
+
+  getPropertyDefaultValue(propertyKey: string): any {
     switch (propertyKey) {
       case TimePointFieldHelper.PROPERTY_GRANULARITY:
         return TimePointFieldHelper.GRANULARITY_DAY
@@ -91,7 +96,7 @@ export class TimePointFieldHelper extends FieldHelper {
     return FieldIconTypes.ATTR_ICON_SMALL_TIME
   }
 
-  makeSupportedFallbackPolicies(){
+  makeSupportedFallbackPolicies() {
     const s = super.makeSupportedFallbackPolicies()
     s.push([DEFAULT_VALUE_POLICY_FILL_WITH_INTRINSIC_VALUE, new FallbackPolicyResolver("Present")])
     return s

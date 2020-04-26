@@ -52,7 +52,7 @@ export function makeShortenConditionString(trigger: ITriggerDbEntity): string {
           }
           return factory.name + " (" + factory.categoryName + ") " + comparisonSymbol + " " + trigger.condition.threshold
         }
-      } else return "Data-driven"
+      } else { return "Data-driven" }
       break;
   }
 }

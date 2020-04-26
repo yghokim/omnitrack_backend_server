@@ -1,0 +1,24 @@
+<div class="property-view-container-vertical">
+  <div><label class="small">Validation Rules</label></div>
+
+  <div *ngIf="propertyValue != null && propertyValue.length > 0" cdkDropList class="entry-list" cdkDropListLockAxis="y" (cdkDropListDropped)="drop($event)">
+    <div class="draggable-element entry-row" *ngFor="let entry of propertyValue; let index = index" cdkDrag>
+      <mat-icon class="material-icons draghandle">drag_indicator</mat-icon>
+      <span>{{ getValidationSpec(entry.type).name }}</span>
+
+      <div class="flex-filler"></div>
+      <button mat-icon-button class="tiny edit-button" *ngIf="entry.params != null" (click)="onEditClicked(index)">
+        <mat-icon class="material-icons">edit</mat-icon>
+      </button>
+      <button mat-icon-button class="tiny" (click)="onRemoveClicked(index)">
+        <mat-icon class="material-icons">clear</mat-icon>
+      </button>
+    </div>
+  </div>
+
+
+  <button mat-button class="mat-button-small" color="accent" (click)="onAddClicked()">
+    <mat-icon class="material-icons">add</mat-icon><span>Add New Rule</span>
+  </button>
+
+</div>
