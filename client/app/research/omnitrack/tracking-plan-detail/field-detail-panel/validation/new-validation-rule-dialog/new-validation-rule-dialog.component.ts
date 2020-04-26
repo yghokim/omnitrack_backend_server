@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ValidatorSpec, getValidatorSpec } from '../../../../../../../../omnitrack/core/fields/validators/validation-helper';
-import { IFieldValidationDbEntity } from 'omnitrack/core/db-entity-types';
+import { IFieldValidationDbEntity } from '../../../../../../../../omnitrack/core/db-entity-types';
 
 @Component({
   selector: 'app-new-validation-rule-dialog',
