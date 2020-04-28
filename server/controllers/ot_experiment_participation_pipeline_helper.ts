@@ -72,7 +72,7 @@ function processExperimentAndUser(user: IUserDbEntity, experimentId: string, gro
 
       if (trackingPackage) {
         // inject tracking package
-        return app.omnitrackModule().injectPackage(user._id, trackingPackage.data,
+        return app.omnitrackModule().injectPackage(user, trackingPackage.data,
           { injected: true, experiment: experiment._id }).then(res => {
             return joinedExperimentInfo
           })

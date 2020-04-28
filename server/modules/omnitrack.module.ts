@@ -14,7 +14,7 @@ import { TrackingPlanManagerImpl } from '../../omnitrack/core/tracking-plan-help
 import { DependencyLevel, OmniTrackFlagGraph } from '../../omnitrack/core/functionality-locks/omnitrack-dependency-graph';
 import { TriggerConstants } from '../../omnitrack/core/trigger/trigger-constants';
 import OTUser from '../models/ot_user';
-import { ITrackerDbEntity, ITriggerDbEntity, IFieldDbEntity } from '../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, ITriggerDbEntity, IFieldDbEntity, IUserDbEntity } from '../../omnitrack/core/db-entity-types';
 import OTItem from '../models/ot_item';
 import OTItemMedia from '../models/ot_item_media';
 import FieldManager from '../../omnitrack/core/fields/field.manager';
@@ -36,29 +36,21 @@ export default class OmniTrackModule {
     this.socketModule.bootstrap()
   }
 
-  injectFirstUserExamples(userId: string): Promise<void> {
-    return fs.readJson(path.resolve(__dirname, "../../../../omnitrack/examples/example_trackers.json")).then(
-      pack => {
-        return this.injectPackage(userId, pack, { tag: "example", injected: true })
-      }
-    )
-  }
-
-  async injectPackage(userId: string, TrackingPlan: TrackingPlan, creationFlags?: any): Promise<void> {
-    const pack: TrackingPlan = JSON.parse(JSON.stringify(TrackingPlan))
+  async injectPackage(user: IUserDbEntity, trackingPlan: TrackingPlan, creationFlags?: any): Promise<void> {
+    const pack: TrackingPlan = JSON.parse(JSON.stringify(trackingPlan))
     const planManager = new TrackingPlanManagerImpl(pack)
 
     let appFlags
-    if (pack.app && pack.app.lockedProperties) {
+    if (pack.app != null && pack.app.lockedProperties != null) {
       appFlags = pack.app.lockedProperties
     } else {
       appFlags = OmniTrackFlagGraph.generateFlagWithDefault(DependencyLevel.App)
     }
 
-    await OTUser.updateOne({ _id: userId }, { appFlags: appFlags })
+    user.appFlags = appFlags
 
-    const userTrackers: Array<ITrackerDbEntity> = await OTTracker.find({ user: userId, "flags.injected": true }).lean<any>()
-    const userTriggers: Array<ITriggerDbEntity> = await OTTrigger.find({ user: userId, "flags.injected": true }).lean<any>()
+    const userTrackers: Array<ITrackerDbEntity> = await OTTracker.find({ user: user._id, "flags.injected": true }).lean<any>()
+    const userTriggers: Array<ITriggerDbEntity> = await OTTrigger.find({ user: user._id, "flags.injected": true }).lean<any>()
 
 
     //find user trackers to remove
@@ -130,7 +122,7 @@ export default class OmniTrackModule {
       tracker.flags = merge(tracker.flags, creationFlags, true)
 
       if (!matchedUserTracker) {
-        tracker.user = userId
+        tracker.user = user._id
         tracker._id = trackerIdTable[tracker._id]
         tracker.userCreatedAt = currentDate.getTime()
         tracker.userUpdatedAt = currentDate.getTime()
@@ -190,7 +182,7 @@ export default class OmniTrackModule {
         trigger.createdAt = currentDate
         trigger.updatedAt = currentDate
         trigger.userCreatedAt = currentDate.getTime()
-        trigger.user = userId
+        trigger.user = user._id
       }
 
       trigger.flags = merge(trigger.flags, creationFlags, true)
@@ -254,7 +246,7 @@ export default class OmniTrackModule {
     try {
       const results = await Promise.all(promises)
       console.log("all trackers and triggers was injected to user database.")
-      this.serverModule.registerMessageDataPush(userId, this.pushModule.makeSyncMessageFromTypes(syncTypes))
+      this.serverModule.registerMessageDataPush(user._id, this.pushModule.makeSyncMessageFromTypes(syncTypes))
       return
     } catch (err) {
       console.error(err)
