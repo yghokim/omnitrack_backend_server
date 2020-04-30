@@ -82,7 +82,7 @@ export default class OTSyncCtrl {
 
           if (controller == null) {
             return Promise.resolve({ type: entry.type, rows: [] })
-          } else { return controller.applyClientChanges(userId, entry.rows.map(str => JSON.parse(str)).filter(row => row.user === userId)).then(result => ({ type: entry.type, rows: result })) }
+          } else { return controller.applyClientChanges(userId, entry.rows.map(str => JSON.parse(str))).then(result => ({ type: entry.type, rows: result })) }
         }
       )
       ).then(results => {
