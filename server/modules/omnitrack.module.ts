@@ -194,22 +194,22 @@ export default class OmniTrackModule {
       if (trigger.script != null) {
         for (const id in trackerIdTable) {
           if (trackerIdTable.hasOwnProperty(id)) {
-            trigger.script = trigger.script.replace(id, trackerIdTable[id])
+            trigger.script = trigger.script.replace(new RegExp(id, 'g'), trackerIdTable[id])
           }
         }
         for (const id in triggerIdTable) {
           if (triggerIdTable.hasOwnProperty(id)) {
-            trigger.script = trigger.script.replace(id, triggerIdTable[id])
+            trigger.script = trigger.script.replace(new RegExp(id, 'g'), triggerIdTable[id])
           }
         }
         for (const id in fieldIdTable) {
           if (fieldIdTable.hasOwnProperty(id)) {
-            trigger.script = trigger.script.replace(id, fieldIdTable[id])
+            trigger.script = trigger.script.replace(new RegExp(id, 'g'), fieldIdTable[id])
           }
         }
         for (const id in fieldLocalIdTable) {
           if (fieldLocalIdTable.hasOwnProperty(id)) {
-            trigger.script = trigger.script.replace(id, fieldLocalIdTable[id])
+            trigger.script = trigger.script.replace(new RegExp(id, 'g'), fieldLocalIdTable[id])
           }
         }
       }
