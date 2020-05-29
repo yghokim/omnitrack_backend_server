@@ -43,23 +43,6 @@ export default class ServerModule {
         console.log(err)
       })
 
-      OTTracker.collection.updateMany({}, {'$rename': {"attributes": "fields"}}).then(updated => {
-        console.log("renamed tracker attributes to fields.")
-      })
-
-      OTItem.find({}).then(items => {
-        return Promise.all(items.map(item => {
-          (item as any).dataTable.forEach( entry => {
-            entry.fieldLocalId = entry.attrLocalId
-            delete entry.attrLocalId
-          })
-          item.markModified("dataTable")
-          return item.save()
-        }))
-      }).then(updated => {
-        console.log("renamed item entry attrLocalId to fieldLocalId.")
-      })
-
     } catch (err) {
 
     }
