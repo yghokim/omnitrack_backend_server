@@ -22,7 +22,9 @@ const otFieldSchema = new mongoose.Schema({
 
 const otDescriptionPanelSchema = new mongoose.Schema({
   _id: { type: String, required: true },
-  descriptionContent: { type: String, default: "No content", required: true }
+  content: { type: String, default: "No content", required: true },
+  trackerId: { type: String, required: true },
+  flags: { type: Object, default: {} },
 }, { timestamps: false, _id: false })
 
 const otTrackerSchema = new mongoose.Schema({

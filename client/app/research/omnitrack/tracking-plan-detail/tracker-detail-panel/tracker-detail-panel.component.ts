@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
-import { ITrackerDbEntity, IFieldDbEntity, ITriggerDbEntity, TrackerLayoutElementType } from '../../../../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, IFieldDbEntity, ITriggerDbEntity, TrackerLayoutElementType, IDescriptionPanelDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
 import { TrackingPlanService } from '../../tracking-plan.service';
 import { getFieldIconName, makeShortenConditionString, getTrackerColorString } from '../../omnitrack-helper';
 import { TRACKER_COLOR_PALETTE } from '../../../../../../omnitrack/core/design/palette';
@@ -99,34 +99,6 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
 
   @Input()
   set tracker(tracker: ITrackerDbEntity) {
-    /*if (this._tracker && this._tracker._id === tracker._id) {
-      if (this.selectedEntity != null) {
-        switch (this.selectedType) {
-          case "field":
-            const newInstance = tracker.fields.find(a => a._id === this.selectedEntity._id)
-            if (newInstance != null) {
-              this.selectedEntity = newInstance
-            } else {
-              this.selectedEntity = null
-              this.selectedType = null
-            }
-            break;
-          case "reminder":
-            const newReminderInstance = this.getReminders().find(r => r._id === this.selectedEntity._id)
-            if (newReminderInstance != null) {
-              this.selectedEntity = newReminderInstance
-            } else {
-              this.selectedEntity = null
-              this.selectedType = null
-            }
-            break;
-        }
-      }
-    } else {
-      this.selectedEntity = null
-      this.selectedType = null
-    }*/
-
     this._tracker = tracker
   }
 
@@ -150,6 +122,10 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
 
   getFieldById(fieldId: string): IFieldDbEntity {
     return this._tracker.fields.find(a => a._id === fieldId)
+  }
+
+  getPanelById(panelId: string): IDescriptionPanelDbEntity{
+    return this._tracker.descriptionPanels.find(a => a._id === panelId)
   }
 
   get tracker(): ITrackerDbEntity {
@@ -191,6 +167,14 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
       this.planService.unselectElement(field._id)
     } else {
       this.planService.selectField(field)
+    }
+  }
+
+  onDescriptionPanelClicked(panel: IDescriptionPanelDbEntity){
+    if (this.planService.isIdSelectedInNavSync(panel._id) === true) {
+      this.planService.unselectElement(panel._id)
+    } else {
+      this.planService.selectDescriptionPanel(panel)
     }
   }
 
@@ -257,10 +241,6 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
     )
   }
 
-  onAddTextPanelClicked() {
-
-  }
-
   onRemoveFieldClicked(field: IFieldDbEntity) {
     this._internalSubscriptions.add(
       this.matDialog.open(YesNoDialogComponent, {
@@ -272,6 +252,32 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
         if (ok === true) {
           if (this.planService.currentPlan.removeField(field) === true) {
             this.planService.unselectElement(field._id)
+            this.detector.markForCheck()
+          }
+        }
+      })
+    )
+  }
+
+
+
+  onAddDescriptionPanelClicked() {
+    const newPanel = this.planService.currentPlan.appendNewDescriptionPanel(this.tracker)
+    this.planService.selectDescriptionPanel(newPanel)
+    this.detector.markForCheck()
+  }
+
+  onRemoveDescriptionPanelClicked(panel: IDescriptionPanelDbEntity) {
+    this._internalSubscriptions.add(
+      this.matDialog.open(YesNoDialogComponent, {
+        data: {
+          title: "Remove Description",
+          message: "Do you want to remove this description?"
+        }
+      }).afterClosed().subscribe(ok => {
+        if (ok === true) {
+          if (this.planService.currentPlan.removeDescriptionPanel(panel) === true) {
+            this.planService.unselectElement(panel._id)
             this.detector.markForCheck()
           }
         }

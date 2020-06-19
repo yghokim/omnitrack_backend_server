@@ -1,10 +1,11 @@
 import { Component, OnInit, Input, ElementRef, Output, EventEmitter } from '@angular/core';
-import { ITrackerDbEntity, IFieldDbEntity } from '../../../../../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, IFieldDbEntity, IDescriptionPanelDbEntity } from '../../../../../../../omnitrack/core/db-entity-types';
 import { getTrackerColorString } from '../../../omnitrack-helper';
 import * as color from 'color';
 import { AMeasureFactory } from '../../../../../../../omnitrack/core/value-connection/measure-factory';
 import { MeasureFactoryManager } from '../../../../../../../omnitrack/core/value-connection/measure-factory.manager';
 import { trigger, transition, style, animate } from '@angular/animations';
+import * as marked from 'marked';
 
 @Component({
   selector: 'app-preview-tracker',
@@ -33,6 +34,9 @@ export class PreviewTrackerComponent implements OnInit {
   @Input()
   highlightedFieldId: string = null
 
+  @Input()
+  highlightedDescriptionPanelId: string = null
+
   @Output()
   onHeaderMouseEnter = new EventEmitter<void>()
 
@@ -51,9 +55,22 @@ export class PreviewTrackerComponent implements OnInit {
   @Output()
   onFieldMouseLeave = new EventEmitter<string>()
 
+
+  @Output()
+  onDescriptionPanelClick = new EventEmitter<IDescriptionPanelDbEntity>()
+
+  @Output()
+  onDescriptionPanelMouseEnter = new EventEmitter<IDescriptionPanelDbEntity>()
+
+  @Output()
+  onDescriptionPanelMouseLeave = new EventEmitter<string>()
+
+
   isHeaderHovering = false
 
   currentHoveringFieldId: string = null
+
+  currentHoveringDescriptionPanelId: string = null
 
   get elementBound(): { x: number, y: number, width: number, height: number } {
     return { x: this.elementRef.nativeElement.offsetLeft, y: this.elementRef.nativeElement.offsetTop, width: this.elementRef.nativeElement.clientWidth, height: this.elementRef.nativeElement.clientHeight }
@@ -102,7 +119,30 @@ export class PreviewTrackerComponent implements OnInit {
     this.onFieldClick.emit(field)
   }
 
+
+  onDescriptionPanelMouseEntered(panel: IDescriptionPanelDbEntity) {
+    this.currentHoveringDescriptionPanelId = panel._id
+    this.onFieldMouseEnter.emit(panel)
+  }
+
+  onDescriptionPanelMouseLeaved(panel: IDescriptionPanelDbEntity) {
+    this.currentHoveringDescriptionPanelId = null
+    this.onFieldMouseLeave.emit(panel._id)
+  }
+
+  onDescriptionPanelClicked(panel: IDescriptionPanelDbEntity){
+    this.onDescriptionPanelClick.emit(panel)
+  }
+
   getFieldById(id: string): IFieldDbEntity{
     return this.tracker.fields.find(f => f._id === id)
+  }
+
+  getDescriptionPanelById(id: string): IDescriptionPanelDbEntity{
+    return this.tracker.descriptionPanels.find(f => f._id === id)
+  }
+
+  transformMarkdownToHtml(markdown: string): string {
+    return marked(markdown)
   }
 }

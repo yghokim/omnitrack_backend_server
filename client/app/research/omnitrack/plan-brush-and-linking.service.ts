@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, Subject } from "rxjs";
-import { ITrackerDbEntity, ITriggerDbEntity, IFieldDbEntity } from "../../../../omnitrack/core/db-entity-types";
+import { ITrackerDbEntity, ITriggerDbEntity, IFieldDbEntity, IDescriptionPanelDbEntity } from "../../../../omnitrack/core/db-entity-types";
 import { map } from "rxjs/operators";
 
 export enum InteractivePlanObjectType {
-  Tracker, Field, Trigger
+  Tracker, Field, DescriptionPanel, Trigger
 }
 
 export interface BrushAndLinkingEvent {
@@ -50,6 +50,18 @@ export class PlanBrushAndLinkingService {
     )
   }
 
+  checkHoveringDescriptionPanelIdOfTracker(trackerId: string): Observable<boolean> {
+    return this.currentHoveringInfo.pipe(
+      map(event => {
+        if (event && event.obj) {
+          if (event.objectType === InteractivePlanObjectType.DescriptionPanel && event.obj.trackerId === trackerId) {
+            return event.obj._id
+          } else return null
+        } else return null
+      })
+    )
+  }
+
   onHoverTrigger(trigger: ITriggerDbEntity, source: string) {
     this.currentHoveringObjectSubject.next({ obj: trigger, objectType: InteractivePlanObjectType.Trigger, source: source })
   }
@@ -78,6 +90,15 @@ export class PlanBrushAndLinkingService {
     })
   }
 
+
+  onActivateDescriptionPanel(panel: IDescriptionPanelDbEntity, source: string) {
+    this.objectClickEvent.next({
+      obj: panel,
+      objectType: InteractivePlanObjectType.DescriptionPanel,
+      source: source
+    })
+  }
+
   onHoverTracker(tracker: ITrackerDbEntity, source: string) {
     this.currentHoveringObjectSubject.next({
       obj: tracker,
@@ -90,6 +111,14 @@ export class PlanBrushAndLinkingService {
     this.currentHoveringObjectSubject.next({
       obj: field,
       objectType: InteractivePlanObjectType.Field,
+      source: source
+    })
+  }
+
+  onHoverDescriptionPanel(panel: IDescriptionPanelDbEntity, source: string){
+    this.currentHoveringObjectSubject.next({
+      obj: panel,
+      objectType: InteractivePlanObjectType.DescriptionPanel,
       source: source
     })
   }

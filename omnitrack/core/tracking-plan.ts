@@ -1,5 +1,5 @@
 import { OmniTrackFlagGraph, DependencyLevel } from './functionality-locks/omnitrack-dependency-graph';
-import { ITrackerDbEntity, ITriggerDbEntity, IFieldDbEntity } from './db-entity-types';
+import { ITrackerDbEntity, ITriggerDbEntity, IFieldDbEntity, IDescriptionPanelDbEntity } from './db-entity-types';
 import { TriggerConstants } from "./trigger/trigger-constants";
 import { TRACKER_COLOR_PALETTE } from "./design/palette";
 import * as color from 'color';
@@ -303,10 +303,60 @@ export class TrackingPlan {
 
     tracker.layout.push({
       type: 'field',
-      reference: field.localId
+      reference: field._id
     })
 
     return field
+  }
+
+  public appendNewDescriptionPanel(tracker: ITrackerDbEntity): IDescriptionPanelDbEntity{
+    const injectionId = TrackingPlan.generateNewInjectionId(this.injectedIds)
+    const elementPlaceHolder = this.generatePlaceholder("desc_panel", injectionId)
+
+    const descPanel = {
+      _id: elementPlaceHolder,
+      content: undefined,
+      trackerId: tracker._id,
+      flags: {
+        injected: true,
+        injectionId: injectionId
+      }
+    } as IDescriptionPanelDbEntity
+
+    if(!tracker.descriptionPanels){
+      tracker.descriptionPanels = []
+    }
+    tracker.descriptionPanels.push(descPanel)
+    if(!tracker.layout){
+      tracker.layout = []
+    }
+
+    tracker.layout.push({
+      type: 'desc',
+      reference: descPanel._id
+    })
+
+    return descPanel
+  }
+
+  public removeDescriptionPanel(panel: IDescriptionPanelDbEntity): boolean {
+    const tracker = this.trackers.find(t => t._id === panel.trackerId)
+    if (tracker != null) {
+      const panelIndex = tracker.descriptionPanels.findIndex(f => f._id === panel._id)
+      if (panelIndex !== -1) {
+        tracker.descriptionPanels.splice(panelIndex, 1)
+        this.injectedIdsCache = null
+
+        if (tracker.layout) {
+          const layoutIndex = tracker.layout.findIndex(l => l.reference === panel._id)
+          if (layoutIndex !== -1) {
+            tracker.layout.splice(layoutIndex, 1)
+          }
+        }
+
+        return true
+      } else { return false }
+    } else { return false }
   }
 
   public removeField(field: IFieldDbEntity): boolean {
@@ -318,7 +368,7 @@ export class TrackingPlan {
         this.injectedIdsCache = null
 
         if (tracker.layout) {
-          const layoutIndex = tracker.layout.findIndex(l => l.reference === field.localId)
+          const layoutIndex = tracker.layout.findIndex(l => l.reference === field._id)
           if (layoutIndex !== -1) {
             tracker.layout.splice(layoutIndex, 1)
           }

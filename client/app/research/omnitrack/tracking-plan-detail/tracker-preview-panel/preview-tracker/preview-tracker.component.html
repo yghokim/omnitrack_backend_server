@@ -9,9 +9,8 @@
 
     <ng-container *ngSwitchCase="'field'">
       <ng-container *ngIf="getFieldById(layoutElm.reference) as field">
-        <div class="field-frame" [ngSwitch]="field.type"
-          (mouseenter)="onFieldMouseEntered(field)" (mouseleave)="onFieldMouseLeaved(field)"
-          (click)="onFieldClicked(field)">
+        <div class="field-frame" [ngSwitch]="field.type" (mouseenter)="onFieldMouseEntered(field)"
+          (mouseleave)="onFieldMouseLeaved(field)" (click)="onFieldClicked(field)">
 
           <div class="hover-indicator" *ngIf="highlightedFieldId === field._id || currentHoveringFieldId === field._id"
             @hoverTrigger></div>
@@ -45,6 +44,21 @@
     </ng-container>
 
 
+
+    <ng-container *ngSwitchCase="'desc'">
+      <ng-container *ngIf="getDescriptionPanelById(layoutElm.reference) as descriptionPanel">
+        <div class="field-frame" (mouseenter)="onDescriptionPanelMouseEntered(descriptionPanel)"
+          (mouseleave)="onDescriptionPanelMouseLeaved(descriptionPanel)"
+          (click)="onDescriptionPanelClicked(descriptionPanel)">
+
+          <div class="hover-indicator"
+            *ngIf="highlightedDescriptionPanelId === descriptionPanel._id || currentHoveringDescriptionPanelId === descriptionPanel._id"
+            @hoverTrigger></div>
+
+          <div class="markdown-view-content" [innerHtml]="transformMarkdownToHtml(descriptionPanel.content)"></div>
+        </div>
+      </ng-container>
+    </ng-container>
   </ng-container>
 
 

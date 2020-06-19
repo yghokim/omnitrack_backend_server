@@ -150,6 +150,10 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
           case InteractivePlanObjectType.Field:
             this.planService.selectField(event.obj)
             break;
+
+          case InteractivePlanObjectType.DescriptionPanel:
+            this.planService.selectDescriptionPanel(event.obj)
+            break;
         }
       })
     )

@@ -43,6 +43,14 @@
   padding-bottom: 1rem;
   position: relative;
 
+  .markdown-view-content{
+    pointer-events: none;
+    padding: 1rem;
+    padding-bottom: 0;
+    color: $color_dark_gray;
+    @include no-text-highlight();
+  }
+
   &:last-child {
     margin-bottom: 0;
   }

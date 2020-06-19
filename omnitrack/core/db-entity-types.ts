@@ -92,7 +92,9 @@ export interface IFieldDbEntity {
 
 export interface IDescriptionPanelDbEntity {
   _id?: string,
-  descriptionContent: string
+  content: string,
+  trackerId: string,
+  flags?: any,
 }
 
 export interface TrackerLayoutElementType { type: "field" | "desc", reference: string }

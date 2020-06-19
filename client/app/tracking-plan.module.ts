@@ -57,6 +57,7 @@ import { PreviewTriggerComponent } from './research/omnitrack/tracking-plan-deta
 import { DomChangeDirective } from './directives/dom-change.directive';
 import { ValidationConfigViewComponent } from './research/omnitrack/tracking-plan-detail/field-detail-panel/validation/validation-config-view/validation-config-view.component';
 import { NewValidationRuleDialogComponent } from './research/omnitrack/tracking-plan-detail/field-detail-panel/validation/new-validation-rule-dialog/new-validation-rule-dialog.component';
+import { DescriptionPanelDetailPanelComponent } from "./research/omnitrack/tracking-plan-detail/description-panel-detail-panel/description-panel-detail-panel.component";
 
 const routes: Routes = [
   {
@@ -117,6 +118,7 @@ const routes: Routes = [
     SelectableMenuItemComponent,
     TrackerDetailPanelComponent,
     FieldDetailPanelComponent,
+    DescriptionPanelDetailPanelComponent,
     TriggerDetailPanelComponent,
     BooleanPropertyViewComponent,
     SelectionPropertyViewComponent,
