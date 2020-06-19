@@ -91,7 +91,7 @@ export interface IFieldDbEntity {
 }
 
 export interface IDescriptionPanelDbEntity {
-  localId?: string,
+  _id?: string,
   descriptionContent: string
 }
 

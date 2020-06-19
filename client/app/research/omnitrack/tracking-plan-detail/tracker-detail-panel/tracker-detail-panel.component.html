@@ -44,11 +44,11 @@
       <ng-container [ngSwitch]="layoutElm.type">
         <app-selectable-menu-item *ngSwitchCase="'field'" [title]="getFieldById(layoutElm.reference).name" [showRemoveButton]="true" [showDragHandle]="true"
         [iconPath]="'/assets/omnitrack/field_icons_small/icon_small_' + getFieldIconName(getFieldById(layoutElm.reference)) + '.svg'"
-        [selected]="(planService.isIdSelectedInNav(getFieldById(layoutElm.reference)._id) | async) === true" (onClick)="onFieldClicked(getFieldById(layoutElm.reference))"
+        [selected]="(planService.isIdSelectedInNav(layoutElm.reference) | async) === true" (onClick)="onFieldClicked(getFieldById(layoutElm.reference))"
         (onRemoveClick)="onRemoveFieldClicked(getFieldById(layoutElm.reference))"
         (onMouseEnter)="brushAndLinking.onHoverField(getFieldById(layoutElm.reference), 'menu')"
         (onMouseLeave)="brushAndLinking.onLeaveObject()"
-        [highlight]="(brushAndLinking.checkHoverOnId(getFieldById(layoutElm.reference)._id) | async) === true"
+        [highlight]="(brushAndLinking.checkHoverOnId(layoutElm.reference) | async) === true"
         >
         <span *ngIf="getFieldById(layoutElm.reference).connection" class="field-with-connection-indicator material-icons" [class.text-color-pointed]="(planService.isIdSelectedInNav(trackerId) | async) !== true" afterTitle>link</span>
       </app-selectable-menu-item>

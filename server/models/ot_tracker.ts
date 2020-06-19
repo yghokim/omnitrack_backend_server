@@ -21,7 +21,7 @@ const otFieldSchema = new mongoose.Schema({
 }, { _id: false });
 
 const otDescriptionPanelSchema = new mongoose.Schema({
-  localId: String,
+  _id: { type: String, required: true },
   descriptionContent: { type: String, default: "No content", required: true }
 }, { timestamps: false, _id: false })
 
@@ -42,7 +42,7 @@ const otTrackerSchema = new mongoose.Schema({
           type: String,
           enum: ["field", "desc"], required: true
         },
-        reference: {
+        reference: { //_id of the elements
           type: String,
           required: true
         }

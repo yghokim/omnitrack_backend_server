@@ -102,7 +102,7 @@ export class PreviewTrackerComponent implements OnInit {
     this.onFieldClick.emit(field)
   }
 
-  getFieldByLocalId(localId: string): IFieldDbEntity{
-    return this.tracker.fields.find(f => f.localId === localId)
+  getFieldById(id: string): IFieldDbEntity{
+    return this.tracker.fields.find(f => f._id === id)
   }
 }

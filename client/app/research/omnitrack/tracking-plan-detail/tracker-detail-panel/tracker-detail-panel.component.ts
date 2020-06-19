@@ -149,7 +149,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
   }
 
   getFieldById(fieldId: string): IFieldDbEntity {
-    return this._tracker.fields.find(a => a._id === fieldId || a.localId === fieldId)
+    return this._tracker.fields.find(a => a._id === fieldId)
   }
 
   get tracker(): ITrackerDbEntity {

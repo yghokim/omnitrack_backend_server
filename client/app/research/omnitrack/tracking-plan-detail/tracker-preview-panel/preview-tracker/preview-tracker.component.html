@@ -8,7 +8,7 @@
   <ng-container *ngFor="let layoutElm of tracker.layout" [ngSwitch]="layoutElm.type">
 
     <ng-container *ngSwitchCase="'field'">
-      <ng-container *ngIf="getFieldByLocalId(layoutElm.reference) as field">
+      <ng-container *ngIf="getFieldById(layoutElm.reference) as field">
         <div class="field-frame" [ngSwitch]="field.type"
           (mouseenter)="onFieldMouseEntered(field)" (mouseleave)="onFieldMouseLeaved(field)"
           (click)="onFieldClicked(field)">
