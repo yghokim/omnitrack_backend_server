@@ -91,7 +91,18 @@ export class TrackingPlan {
     plan.trackers = json.trackers || []
     plan.triggers = json.triggers || []
     plan.serviceCodes = json.serviceCodes || []
+
     return plan
+  }
+
+  static migrate(plan: TrackingPlan) {
+
+    plan.trackers.forEach(t => {
+      if (t.layout == null) {
+        //if no layout, migrate to new version
+        t.layout = t.fields.map(f => ({ type: 'field', reference: f.localId }))
+      }
+    })
   }
 
   static generateNewInjectionId(currentPool: Array<string>): string {
@@ -285,6 +296,16 @@ export class TrackingPlan {
       tracker.fields = []
     }
     tracker.fields.push(field)
+
+    if (!tracker.layout) {
+      tracker.layout = []
+    }
+
+    tracker.layout.push({
+      type: 'field',
+      reference: field.localId
+    })
+
     return field
   }
 
@@ -295,6 +316,13 @@ export class TrackingPlan {
       if (fieldIndex !== -1) {
         tracker.fields.splice(fieldIndex, 1)
         this.injectedIdsCache = null
+
+        if (tracker.layout) {
+          const layoutIndex = tracker.layout.findIndex(l => l.reference === field.localId)
+          if (layoutIndex !== -1) {
+            tracker.layout.splice(layoutIndex, 1)
+          }
+        }
 
         return true
       } else { return false }
@@ -350,10 +378,10 @@ export class TrackingPlan {
     } else { return false }
   }
 
-  public getTrackerById(id: string): ITrackerDbEntity{
-    if(this.trackers && this.trackers.length > 0){
+  public getTrackerById(id: string): ITrackerDbEntity {
+    if (this.trackers && this.trackers.length > 0) {
       return this.trackers.find(t => t._id === id)
-    }else return null
+    } else return null
   }
 
   private generatePlaceholder(text: string, injectedId: string) {

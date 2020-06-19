@@ -37,27 +37,34 @@
     </button>
   </div>
 
-  <div class="subheader">Fields</div>
+  <div class="subheader">Layout</div>
   <div class="no-padding" cdkDropList (cdkDropListDropped)="onFieldDragDrop($event)" cdkDropListLockAxis='y'
-    *ngIf="tracker.fields && tracker.fields.length > 0">
-    <div cdkDrag *ngFor="let fieldId of fieldIds" class="draggable-element" style="background: white">
-      <app-selectable-menu-item [title]="getFieldById(fieldId).name" [showRemoveButton]="true" [showDragHandle]="true"
-        [iconPath]="'/assets/omnitrack/field_icons_small/icon_small_' + getFieldIconName(getFieldById(fieldId)) + '.svg'"
-        [selected]="(planService.isIdSelectedInNav(fieldId) | async) === true" (onClick)="onFieldClicked(getFieldById(fieldId))"
-        (onRemoveClick)="onRemoveFieldClicked(getFieldById(fieldId))"
-        (onMouseEnter)="brushAndLinking.onHoverField(getFieldById(fieldId), 'menu')"
+    *ngIf="tracker.layout && tracker.layout.length > 0">
+    <div cdkDrag *ngFor="let layoutElm of trackerLayout" class="draggable-element" style="background: white">
+      <ng-container [ngSwitch]="layoutElm.type">
+        <app-selectable-menu-item *ngSwitchCase="'field'" [title]="getFieldById(layoutElm.reference).name" [showRemoveButton]="true" [showDragHandle]="true"
+        [iconPath]="'/assets/omnitrack/field_icons_small/icon_small_' + getFieldIconName(getFieldById(layoutElm.reference)) + '.svg'"
+        [selected]="(planService.isIdSelectedInNav(getFieldById(layoutElm.reference)._id) | async) === true" (onClick)="onFieldClicked(getFieldById(layoutElm.reference))"
+        (onRemoveClick)="onRemoveFieldClicked(getFieldById(layoutElm.reference))"
+        (onMouseEnter)="brushAndLinking.onHoverField(getFieldById(layoutElm.reference), 'menu')"
         (onMouseLeave)="brushAndLinking.onLeaveObject()"
-        [highlight]="(brushAndLinking.checkHoverOnId(fieldId) | async) === true"
+        [highlight]="(brushAndLinking.checkHoverOnId(getFieldById(layoutElm.reference)._id) | async) === true"
         >
-        <span *ngIf="getFieldById(fieldId).connection" class="field-with-connection-indicator material-icons" [class.text-color-pointed]="(planService.isIdSelectedInNav(trackerId) | async) !== true" afterTitle>link</span>
+        <span *ngIf="getFieldById(layoutElm.reference).connection" class="field-with-connection-indicator material-icons" [class.text-color-pointed]="(planService.isIdSelectedInNav(trackerId) | async) !== true" afterTitle>link</span>
       </app-selectable-menu-item>
+      </ng-container>
     </div>
   </div>
 
-  <div class="form-group">
+  <div class="form-group flex-container flex-align-items-center">
     <button mat-button class="add-button mat-button-small" color="accent" (click)="onAddFieldClicked()">
       <span class="material-icons">add</span>
       <span>Add New Field</span>
+    </button>
+    <div class="flex-filler"></div>
+    <button mat-button class="add-button mat-button-small" color="accent" (click)="onAddTextPanelClicked()">
+      <span class="material-icons">add</span>
+      <span>Add Text Panel</span>
     </button>
   </div>
 

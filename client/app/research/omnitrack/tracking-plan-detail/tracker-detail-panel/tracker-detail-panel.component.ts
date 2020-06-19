@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
-import { ITrackerDbEntity, IFieldDbEntity, ITriggerDbEntity } from '../../../../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, IFieldDbEntity, ITriggerDbEntity, TrackerLayoutElementType } from '../../../../../../omnitrack/core/db-entity-types';
 import { TrackingPlanService } from '../../tracking-plan.service';
 import { getFieldIconName, makeShortenConditionString, getTrackerColorString } from '../../omnitrack-helper';
 import { TRACKER_COLOR_PALETTE } from '../../../../../../omnitrack/core/design/palette';
@@ -130,16 +130,16 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
     this._tracker = tracker
   }
 
-  get fieldIds(): Array<string> {
-    if (this._tracker && this._tracker.fields) {
-      return this._tracker.fields.map(a => a._id)
+  get trackerLayout(): Array<TrackerLayoutElementType> {
+    if (this._tracker && this._tracker.layout) {
+      return this._tracker.layout
     } else { return [] }
   }
 
-  set fieldIds(newSet: Array<string>) {
-    this._tracker.fields.sort((a, b) => {
-      const aIndex = newSet.indexOf(a._id)
-      const bIndex = newSet.indexOf(b._id)
+  set trackerLayout(newSet: Array<TrackerLayoutElementType>) {
+    this._tracker.layout.sort((a, b) => {
+      const aIndex = newSet.findIndex(e => e.reference === a.reference)
+      const bIndex = newSet.findIndex(e => e.reference === b.reference)
       if (aIndex < bIndex) {
         return -1
       } else if (aIndex > bIndex) {
@@ -149,7 +149,7 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
   }
 
   getFieldById(fieldId: string): IFieldDbEntity {
-    return this._tracker.fields.find(a => a._id === fieldId)
+    return this._tracker.fields.find(a => a._id === fieldId || a.localId === fieldId)
   }
 
   get tracker(): ITrackerDbEntity {
@@ -180,9 +180,9 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
   }
 
   onFieldDragDrop(event: any) {
-    const fieldIds = this.fieldIds
-    moveItemInArray(fieldIds, event.previousIndex, event.currentIndex);
-    this.fieldIds = fieldIds
+    const layout = this.trackerLayout
+    moveItemInArray(layout, event.previousIndex, event.currentIndex);
+    this.trackerLayout = layout
     this.detector.markForCheck()
   }
 
@@ -255,6 +255,10 @@ export class TrackerDetailPanelComponent implements OnInit, OnDestroy {
         }
       })
     )
+  }
+
+  onAddTextPanelClicked() {
+
   }
 
   onRemoveFieldClicked(field: IFieldDbEntity) {
