@@ -100,7 +100,7 @@ export class TrackingPlan {
     plan.trackers.forEach(t => {
       if (t.layout == null) {
         //if no layout, migrate to new version
-        t.layout = t.fields.map(f => ({ type: 'field', reference: f._id }))
+        t.layout = t.fields.map(f => ({ type: "field", reference: f._id } as any))
       }
     })
   }

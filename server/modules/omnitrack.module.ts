@@ -14,7 +14,7 @@ import { TrackingPlanManagerImpl } from '../../omnitrack/core/tracking-plan-help
 import { DependencyLevel, OmniTrackFlagGraph } from '../../omnitrack/core/functionality-locks/omnitrack-dependency-graph';
 import { TriggerConstants } from '../../omnitrack/core/trigger/trigger-constants';
 import OTUser from '../models/ot_user';
-import { ITrackerDbEntity, ITriggerDbEntity, IFieldDbEntity, IUserDbEntity } from '../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, ITriggerDbEntity, IFieldDbEntity, IUserDbEntity, IDescriptionPanelDbEntity } from '../../omnitrack/core/db-entity-types';
 import OTItem from '../models/ot_item';
 import OTItemMedia from '../models/ot_item_media';
 import FieldManager from '../../omnitrack/core/fields/field.manager';
@@ -70,11 +70,11 @@ export default class OmniTrackModule {
       await OTItemMedia.deleteMany(memberTrackerQuery)
     }
 
-    if(userTriggersToRemove.length > 0){
+    if (userTriggersToRemove.length > 0) {
       await OTTrigger.deleteMany({ _id: { $in: userTriggersToRemove.map(t => t._id) } })
     }
 
-    if(userTrackersToRemove.length > 0){
+    if (userTrackersToRemove.length > 0) {
       await OTTrigger.updateMany({}, { $pull: { trackers: { $in: userTrackersToRemove.map(t => t._id) } } })
     }
 
@@ -102,6 +102,7 @@ export default class OmniTrackModule {
     let currentNanoStamp = 0
     const trackerIdTable = {}
     const fieldIdTable = {}
+    const descriptionPanelIdTable = {}
     const fieldLocalIdTable = {}
     const triggerIdTable = {}
 
@@ -159,6 +160,39 @@ export default class OmniTrackModule {
         field.userCreatedAt = currentDate.getTime()
         field.userUpdatedAt = currentDate.getTime()
       })
+
+      if (tracker.descriptionPanels != null) {
+        tracker.descriptionPanels.forEach(panel => {
+
+          let matchedUserDescriptionPanel: IDescriptionPanelDbEntity = null
+          if (matchedUserTracker != null && matchedUserTracker.descriptionPanels != null) {
+            matchedUserDescriptionPanel = matchedUserTracker.descriptionPanels.find(f => f.flags.injectedId === panel.flags.injectedId)
+          }
+
+          if (matchedUserDescriptionPanel != null) {
+            descriptionPanelIdTable[panel._id] = matchedUserDescriptionPanel._id
+          } else {
+            descriptionPanelIdTable[panel._id] = IdGenerator.generateObjectId()
+          }
+
+          panel.flags = merge(panel.flags, creationFlags, true)
+          panel._id = descriptionPanelIdTable[panel._id]
+          panel.trackerId = tracker._id
+        })
+      }
+
+      if (tracker.layout != null) {
+        tracker.layout.forEach(elm => {
+          switch (elm.type) {
+            case "desc":
+              elm.reference = descriptionPanelIdTable[elm.reference]
+              break;
+            case "field":
+              elm.reference = fieldIdTable[elm.reference]
+              break;
+          }
+        })
+      }
 
       //make db command
       if (matchedUserTracker == null) {
