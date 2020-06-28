@@ -20,6 +20,13 @@ const otFieldSchema = new mongoose.Schema({
   flags: { type: Object, default: {} },
 }, { _id: false });
 
+const otDescriptionPanelSchema = new mongoose.Schema({
+  _id: { type: String, required: true },
+  content: { type: String, default: "No content", required: true },
+  trackerId: { type: String, required: true },
+  flags: { type: Object, default: {} },
+}, { timestamps: false, _id: false })
+
 const otTrackerSchema = new mongoose.Schema({
   _id: { type: String },
   name: String,
@@ -28,6 +35,23 @@ const otTrackerSchema = new mongoose.Schema({
   isBookmarked: { type: Boolean, default: false },
   position: Number,
   fields: { type: [otFieldSchema], default: [] },
+  descriptionPanels: { type: [otDescriptionPanelSchema], default: [] },
+
+  layout: {
+    type: [
+      {
+        type: {
+          type: String,
+          enum: ["field", "desc"], required: true
+        },
+        reference: { //_id of the elements
+          type: String,
+          required: true
+        }
+      }
+    ], default: undefined
+  },
+
   lockedProperties: { type: mongoose.Schema.Types.Mixed, default: {} },
   flags: { type: mongoose.Schema.Types.Mixed, default: {} },
   redirectUrl: { type: String, default: null },

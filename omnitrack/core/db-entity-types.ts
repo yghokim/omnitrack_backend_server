@@ -90,12 +90,23 @@ export interface IFieldDbEntity {
   flags?: any,
 }
 
+export interface IDescriptionPanelDbEntity {
+  _id?: string,
+  content: string,
+  trackerId: string,
+  flags?: any,
+}
+
+export interface TrackerLayoutElementType { type: "field" | "desc", reference: string }
+
 export interface ITrackerDbEntity extends IUserChildDbEntity {
   name?: string,
   color?: number,
   isBookmarked?: boolean,
   position?: number,
   fields?: Array<IFieldDbEntity>,
+  descriptionPanels?: Array<IDescriptionPanelDbEntity>,
+  layout?: Array<TrackerLayoutElementType>,
   lockedProperties?: any,
   flags?: any,
   redirectUrl?: string,

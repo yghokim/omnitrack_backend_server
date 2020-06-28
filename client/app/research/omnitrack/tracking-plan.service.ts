@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ITrackerDbEntity, ITriggerDbEntity, IFieldDbEntity } from '../../../../omnitrack/core/db-entity-types';
+import { ITrackerDbEntity, ITriggerDbEntity, IFieldDbEntity, IDescriptionPanelDbEntity } from '../../../../omnitrack/core/db-entity-types';
 import { TrackingPlanManagerImpl } from '../../../../omnitrack/core/tracking-plan-helper';
 import { TrackingPlan } from '../../../../omnitrack/core/tracking-plan';
 import { DependencyLevel, OmniTrackFlagGraph } from '../../../../omnitrack/core/functionality-locks/omnitrack-dependency-graph';
@@ -78,11 +78,24 @@ export class TrackingPlanService {
     return this.currentImpl.getTracker(id)
   }
 
+  getDescriptionPanel(id: string): IDescriptionPanelDbEntity {
+    for (let tracker of this.currentPlan.trackers) {
+      if (tracker.descriptionPanels) {
+        for (let panel of tracker.descriptionPanels) {
+          if (panel._id === id) {
+            return panel
+          }
+        }
+      } else continue
+    }
+    return null
+  }
+
   getField(id: string): IFieldDbEntity {
     for (let tracker of this.currentPlan.trackers) {
       if (tracker.fields) {
         for (let field of tracker.fields) {
-          if(field._id === id){
+          if (field._id === id) {
             return field
           }
         }
@@ -121,6 +134,19 @@ export class TrackingPlanService {
       {
         id: field._id,
         entityType: 'field'
+      }
+    ])
+  }
+
+  selectDescriptionPanel(panel: IDescriptionPanelDbEntity) {
+    this.navigationTree.next([
+      {
+        id: panel.trackerId,
+        entityType: 'tracker'
+      },
+      {
+        id: panel._id,
+        entityType: 'descriptionPanel'
       }
     ])
   }

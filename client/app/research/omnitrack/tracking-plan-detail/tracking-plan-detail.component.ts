@@ -70,6 +70,7 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
           this.originalPlanData.data = TrackingPlan.fromJson(this.originalPlanData.data)
           this.currentPlanData = deepclone(plan)
           this.currentPlanData.data = TrackingPlan.fromJson(this.currentPlanData.data)
+          TrackingPlan.migrate(this.currentPlanData.data)
           this.planService.currentPlan = this.currentPlanData.data
           /*
           if (this.selectedEntity != null) {
@@ -148,6 +149,10 @@ export class TrackingPlanDetailComponent extends ChangeCheckComponent implements
 
           case InteractivePlanObjectType.Field:
             this.planService.selectField(event.obj)
+            break;
+
+          case InteractivePlanObjectType.DescriptionPanel:
+            this.planService.selectDescriptionPanel(event.obj)
             break;
         }
       })
