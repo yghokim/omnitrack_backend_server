@@ -158,7 +158,7 @@
       </div>
       <div class="form-group">
         <app-boolean-property-view title="Expire When Delayed" [propertyValue]="trigger.action.durationSeconds > 0"
-          (propertyValueChange)="trigger.action.durationSeconds = $event === true ? 300 : 0">
+          (propertyValueChange)="trigger.action.durationSeconds = $event === true ? (trigger.action.durationSeconds == null ? 300 : trigger.action.durationSeconds) : null">
         </app-boolean-property-view>
       </div>
       <div class="form-group" *ngIf="trigger.action.durationSeconds > 0">
