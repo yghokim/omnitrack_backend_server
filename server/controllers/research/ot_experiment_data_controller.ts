@@ -172,13 +172,14 @@ export class OTExperimentDataCtrl {
                             fieldLocalId: attr.localId,
                             item: item._id
                           }).lean<any>()
+                          if (media) {
+                            const mediaFilePath = req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(media.user, tracker._id, item._id) + "/" + media.originalFileName
+                            const mediaTempDirectoryPath = (participant.participationInfo.alias || participant._id) + "/" + snakeCase(tracker.name) + "/" + itemOrder
+                            const mediaTempFileName = fileName + path.extname(media.originalFileName)
 
-                          const mediaFilePath = req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(media.user, tracker._id, item._id) + "/" + media.originalFileName
-                          const mediaTempDirectoryPath = (participant.participationInfo.alias || participant._id) + "/" + snakeCase(tracker.name) + "/" + itemOrder
-                          const mediaTempFileName = fileName + path.extname(media.originalFileName)
-
-                          await fs.ensureDir(mediaTempDirectoryPath)
-                          await fs.copy(mediaFilePath, path.join(tmpDirPath, mediaTempDirectoryPath, mediaTempFileName))
+                            await fs.ensureDir(mediaTempDirectoryPath)
+                            await fs.copy(mediaFilePath, path.join(tmpDirPath, mediaTempDirectoryPath, mediaTempFileName))
+                          }
                         }
                       }
                     }
@@ -225,6 +226,7 @@ export class OTExperimentDataCtrl {
           res.status(404).send("No such experiment")
         }
       } catch (ex) {
+        console.error(ex)
         res.status(500).send(ex)
       }
 
