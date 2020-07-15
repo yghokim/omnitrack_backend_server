@@ -5,10 +5,10 @@ import { OTAuthCtrlBase, JwtTokenSchemaBase } from "../ot_auth_controller";
 
 export class OTResearchAuthCtrl extends OTAuthCtrlBase {
 
-  constructor(){
+  constructor() {
     super(OTResearcher, 'researcher', 'email', ["alias"])
   }
-  
+
   protected modifyJWTSchema(user: any, tokenSchema: JwtTokenSchemaBase): void {
     const schema = tokenSchema as any
     schema.alias = user.alias
@@ -16,8 +16,8 @@ export class OTResearchAuthCtrl extends OTAuthCtrlBase {
     schema.previlage = (env.super_users as Array<string> || []).indexOf(user.email) !== -1 ? ResearcherPrevilages.SUPERUSER : ResearcherPrevilages.NORMAL
   }
 
-  protected modifyNewAccountSchema(schema: any, request: any){
+  protected modifyNewAccountSchema(schema: any, request: any) {
     schema.alias = request.body.alias,
-    schema.account_approved = env.super_users.indexOf(schema.email) !== -1 ? true : null
+      schema.account_approved = env.super_users.indexOf(schema.email) !== -1 ? true : null
   }
 }

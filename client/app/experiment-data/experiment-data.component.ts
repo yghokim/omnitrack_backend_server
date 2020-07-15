@@ -327,6 +327,14 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
   onExportClicked() {
     this.notificationService.pushSnackBarMessage({ message: "Start packing captured items.." })
+
+    this._internalSubscriptions.add(
+      this.api.selectedExperimentService.pipe(flatMap(service => service.downloadExperimentData())).subscribe(data => {
+        FileSaver.saveAs(data, this.api.getSelectedExperimentId() + "_experiment-tracking-data.zip")
+      })
+    )
+
+    return
     this._internalSubscriptions.add(
       this.api.selectedExperimentService.pipe(
         flatMap(service => service.getTrackingPlans().pipe(

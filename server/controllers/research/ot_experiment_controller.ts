@@ -17,7 +17,7 @@ import { userCtrl } from '../ot_user_controller';
 import C from '../../server_consts';
 import { IUserDbEntity } from '../../../omnitrack/core/db-entity-types';
 import { generateNewPackageKey } from '../../models/ot_experiment';
-import { IExperimentGroupDbEntity, IExperimentDbEntity } from '../../../omnitrack/core/research/db-entity-types';
+import { IExperimentGroupDbEntity, IExperimentDbEntity, IExperimentTrackingPlanDbEntity } from '../../../omnitrack/core/research/db-entity-types';
 
 export default class OTExperimentCtrl {
 
@@ -423,13 +423,13 @@ export default class OTExperimentCtrl {
       _id: req.params.experimentId,
       manager: req.researcher.uid
     }, {
-        finishDate: req.body.date
-      }, { new: true })).lean().then(experiment => {
-        res.status(200).send(experiment)
-      }).catch(err => {
-        console.error(err)
-        res.status(500).send(err)
-      })
+      finishDate: req.body.date
+    }, { new: true })).lean().then(experiment => {
+      res.status(200).send(experiment)
+    }).catch(err => {
+      console.error(err)
+      res.status(500).send(err)
+    })
   }
 
   getInvitations = (req, res) => {
@@ -535,10 +535,10 @@ export default class OTExperimentCtrl {
 
     OTExperiment.findOneAndUpdate(query, update, { new: true }).lean<any>().then(doc => {
       if (doc) {
-        res.status(200).send({success: true, packageKey: packageKey})
+        res.status(200).send({ success: true, packageKey: packageKey })
         app.socketModule().sendUpdateNotificationToExperimentSubscribers(experimentId, { model: SocketConstants.MODEL_EXPERIMENT, event: SocketConstants.EVENT_EDITED })
       } else {
-        res.status(200).send({success: false, packageKey: null})
+        res.status(200).send({ success: false, packageKey: null })
       }
     }).catch(err => {
       console.log(err)
@@ -585,18 +585,18 @@ export default class OTExperimentCtrl {
     })
   }
 
-  async findGroupsWithPlan(experimentId: string, planKey: string): Promise<Array<IExperimentGroupDbEntity>>{
+  async findGroupsWithPlan(experimentId: string, planKey: string): Promise<Array<IExperimentGroupDbEntity>> {
     const experiment = await OTExperiment.findById(experimentId).lean<any>() as IExperimentDbEntity
-    if(experiment){
+    if (experiment) {
       return experiment.groups.filter(g => g.trackingPlanKey === planKey)
-    }else throw {error : C.ERROR_CODE_ILLEGAL_ARGUMENTS}
+    } else throw { error: C.ERROR_CODE_ILLEGAL_ARGUMENTS }
   }
 
-  async findParticipantsWithPlan(experimentId: string, planKey: string): Promise<Array<IUserDbEntity>>{
+  async findParticipantsWithPlan(experimentId: string, planKey: string): Promise<Array<IUserDbEntity>> {
     const groupsWithPlan = await this.findGroupsWithPlan(experimentId, planKey)
-    if(groupsWithPlan.length > 0){
-      return OTUser.find({experiment: experimentId, group: {$in: groupsWithPlan}}, USER_PROJECTION_EXCLUDE_CREDENTIAL).lean<any>()
-    }else{
+    if (groupsWithPlan.length > 0) {
+      return OTUser.find({ experiment: experimentId, group: { $in: groupsWithPlan } }, USER_PROJECTION_EXCLUDE_CREDENTIAL).lean<any>()
+    } else {
       return []
     }
   }
@@ -788,18 +788,18 @@ export default class OTExperimentCtrl {
     OTExperiment.findOne({
       _id: experimentId
     }, {
-        consent: 1,
-        receiveConsentInApp: 1,
-        demographicFormSchema: 1
-      }).lean<any>().then(
-        exp => {
-          if (exp) {
-            res.status(200).send(exp)
-          } else {
-            res.status(404).send("No such experiment.")
-          }
+      consent: 1,
+      receiveConsentInApp: 1,
+      demographicFormSchema: 1
+    }).lean<any>().then(
+      exp => {
+        if (exp) {
+          res.status(200).send(exp)
+        } else {
+          res.status(404).send("No such experiment.")
         }
-      )
+      }
+    )
   }
 
   sendNotificationMessageToUser = (req, res) => {

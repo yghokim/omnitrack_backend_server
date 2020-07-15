@@ -627,4 +627,10 @@ export class ExperimentService {
   sendTestPingOfTrigger(triggerId: string): Observable<boolean> {
     return this.http.post<boolean>('/api/research/experiments/' + this.experimentId + '/test/trigger_ping', { triggerId: triggerId }, this.researchApi.authorizedOptions)
   }
+
+
+  //---------
+  downloadExperimentData(): Observable<Blob>{
+    return this.http.get<Blob>('/api/research/experiments/' + this.experimentId + '/export', this.researchApi.makeAuthorizedRequestOptions(null, 'blob'))
+  }
 }

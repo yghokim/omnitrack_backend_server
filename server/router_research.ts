@@ -19,6 +19,7 @@ import { RouterWrapper } from './server_utils';
 import { trackingPackageCtrl } from './controllers/ot_tracking_package_controller';
 import { clientBuildCtrl } from './controllers/research/ot_client_build_controller';
 import OTShortUrl from './models/ot_short_url';
+import { experimentDataCtrl } from './controllers/research/ot_experiment_data_controller';
 
 export class ResearchRouter extends RouterWrapper {
 
@@ -90,6 +91,8 @@ export class ResearchRouter extends RouterWrapper {
 
     this.router.delete('/experiments/:experimentId', tokenApprovedAuth, experimentCtrl.removeExperiment)
     this.router.post('/experiments/:experimentId/delete', tokenApprovedAuth, experimentCtrl.removeExperiment)
+
+    this.router.get('/experiments/:experimentId/export', tokenApprovedAuth, experimentDataCtrl.getExperimentDataPacked)
 
 
     this.router.post("/experiments/:experimentId/collaborators/new", tokenApprovedAuth, experimentCtrl.addCollaborator)
