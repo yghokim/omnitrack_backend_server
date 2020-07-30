@@ -94,6 +94,8 @@ export class OTExperimentDataCtrl {
         const experiment = await OTExperiment.findOne(experimentCtrl.makeExperimentAndCorrespondingResearcherQuery(experimentId, researcherId), { "trackingPlans": 1, "groups": 1 }).lean()
         if (experiment != null) {
 
+          console.log("start packing experiment data and media files into an archive.")
+
           var tmp = require('tmp-promise');
           const tmpDir = await tmp.dir()
           const tmpDirPath = tmpDir.path
@@ -102,6 +104,7 @@ export class OTExperimentDataCtrl {
           const planSheets = new Array<XLSX.WorkBook>()
 
           for (const plan of plans) {
+            console.log("start gathering plan " + plan.name + "...")
             //make table per plan
             const commonColumns = ["item_id", "item_order", "participant_alias", "group"]
 
@@ -109,6 +112,7 @@ export class OTExperimentDataCtrl {
 
             for (const trackerSchema of plan.data.trackers) {
               // Per tracker plan
+              console.log("gather data for tracker " + trackerSchema.name)
 
               const injectedAttrNames = trackerSchema.fields.map(attr => attr.name)
               const metadataColumns = []
@@ -137,9 +141,13 @@ export class OTExperimentDataCtrl {
               for (const tracker of trackers) {
                 const participant = await OTUser.findOne({ "_id": tracker.user }, USER_PROJECTION_EXCLUDE_CREDENTIAL).lean<IUserDbEntity>()
                 if (participant != null) {
+
+                  console.log("gather data for participant " + participant.participationInfo.alias + "...")
+
                   const group = experiment["groups"].find(group => group._id === participant.participationInfo.groupId)
                   const items = await OTItem.find({ "tracker": tracker._id }).lean<Array<IItemDbEntity>>()
 
+                  console.log("Start gathering " + items.length + " items..." )
                   //find metadataColumns
                   for (const item of items) {
                     const values = trackerSchema.fields.map(attrScheme => {
@@ -184,12 +192,17 @@ export class OTExperimentDataCtrl {
                       }
                     }
 
+                    console.log("Done item " + item._id)
                   }
+
+                  console.log("End gathering data for participant " + participant.participationInfo.alias)
                 }
               }
 
               const sheet = XLSX.utils.aoa_to_sheet(itemRows)
               XLSX.utils.book_append_sheet(workbook, sheet, trackerSchema.name)
+
+              console.log("End gathering data for tracker " + trackerSchema.name)
             }
 
             await XLSX.writeFile(workbook, path.join(tmpDirPath, "data_" + plan.name + ".xlsx"), {
