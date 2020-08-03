@@ -147,7 +147,7 @@ export class OTExperimentDataCtrl {
                   const group = experiment["groups"].find(group => group._id === participant.participationInfo.groupId)
                   const items = await OTItem.find({ "tracker": tracker._id }).lean<Array<IItemDbEntity>>()
 
-                  console.log("Start gathering " + items.length + " items..." )
+                  console.log("Start gathering " + items.length + " items...")
                   //find metadataColumns
                   for (const item of items) {
                     const values = trackerSchema.fields.map(attrScheme => {
@@ -187,12 +187,17 @@ export class OTExperimentDataCtrl {
 
                             await fs.ensureDir(mediaTempDirectoryPath)
                             await fs.copy(mediaFilePath, path.join(tmpDirPath, mediaTempDirectoryPath, mediaTempFileName))
+                            console.log("copied media file")
+                          } else {
+                            console.log("media DB entry does not exist - check the original path: ", req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(participant, tracker._id, item._id))
                           }
+                        } else {
+                          console.log("media item value does not exist.")
                         }
                       }
                     }
 
-                    console.log("Done item " + item._id)
+                    console.log("Done item " + "(" + itemOrder + ") " + item._id)
                   }
 
                   console.log("End gathering data for participant " + participant.participationInfo.alias)
