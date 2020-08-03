@@ -189,7 +189,7 @@ export class OTExperimentDataCtrl {
                             await fs.copy(mediaFilePath, path.join(tmpDirPath, mediaTempDirectoryPath, mediaTempFileName))
                             console.log("copied media file")
                           } else {
-                            console.log("media DB entry does not exist - check the original path: ", req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(participant, tracker._id, item._id))
+                            console.log("media DB entry does not exist - check the original path: ", req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(participant._id, tracker._id, item._id))
                           }
                         } else {
                           console.log("media item value does not exist.")
