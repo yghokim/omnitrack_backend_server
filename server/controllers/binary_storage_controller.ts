@@ -150,14 +150,21 @@ export default class BinaryStorageCtrl {
             }
           }
 
-          res.download(req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(media.user, trackerId, itemId) + "/" + fileName, fileName,
-            (err2) => {
-              if (err2 == null) {
-                console.log("item media download complete")
-              } else {
-                console.log(err2)
-              }
-            })
+          const filePath = req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(media.user, trackerId, itemId) + "/" + fileName
+          if (fs.existsSync(filePath) === true) {
+            res.download(filePath, fileName,
+              (err2) => {
+                if (err2 == null) {
+                  console.log("item media download complete")
+                } else {
+                  console.log(err2)
+                }
+              })
+          } else {
+            console.error("Media entry exists, but no file at " + filePath)
+            res.status(404).send({ message: "no media file." })
+          }
+
         } else {
           res.status(404).send({ message: "no media." })
         }

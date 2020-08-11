@@ -15,17 +15,29 @@ export class ImageCellComponent implements OnInit {
   private _internalSubscriptions = new Subscription();
   public imageToShow: any;
 
+  public isLoadingFile = true
+  public isFileError = false
+
   constructor(private api: ResearchApiService, public dialog: MatDialog) { }
 
   ngOnInit() {
   }
 
   @Input("mediaInfo")
-  set _mediaInfo(info: {trackerId: string, fieldLocalId: string, itemId: string }){
+  set _mediaInfo(info: { trackerId: string, fieldLocalId: string, itemId: string }) {
+    this.isLoadingFile = true
+    this.isFileError = false
     this._internalSubscriptions.add(
       this.api.getMedia(info.trackerId, info.fieldLocalId, info.itemId, "original").subscribe(response => {
+        this.isLoadingFile = false
+        this.isFileError = false
         this.createImageFromBlob(response);
       }, err => {
+        console.error(err)
+        this.isFileError = true
+        this.isLoadingFile = false
+      }, () => {
+        this.isLoadingFile = false
       })
     )
   }
@@ -33,11 +45,11 @@ export class ImageCellComponent implements OnInit {
   createImageFromBlob(image: Blob) {
     let reader = new FileReader();
     reader.addEventListener("load", () => {
-       this.imageToShow = reader.result;
+      this.imageToShow = reader.result;
     }, false);
 
     if (image) {
-       reader.readAsDataURL(image);
+      reader.readAsDataURL(image);
     }
   }
 
@@ -45,7 +57,7 @@ export class ImageCellComponent implements OnInit {
     let dialogRef = this.dialog.open(ImageViewDialog, {
       width: 'auto',
       height: '100%',
-      data: {image: this.imageToShow }
+      data: { image: this.imageToShow }
     });
   }
 

@@ -1,22 +1,39 @@
+<div *ngIf="isLoadingFile === true">
+  Loading...
+</div>
+
 <audio #audio1>
   <source *ngIf="audioSource" [src]="sanitizer.bypassSecurityTrustUrl(audioSource)" type='audio/mpeg'>
   Your browser does not support the audio element.
 </audio>
-<div class="slider">
-  <input #slider type="range" [value]="currentTime.value" (input)="audioElement.currentTime=$event.target.value"
-    [max]="audioDuration" /><br>
-  <div class="time-container">
-    <span class="times">{{currentTime | async | minuteSeconds}}</span>
-    <span class="times">{{audioDuration | minuteSeconds}}</span>
-  </div>
-</div>
-<div class="buttons">
-  <button class="btn-play" mat-icon-button (click)="playAudio()">
-    <mat-icon class="material-icons" *ngIf="isPlaying === false">play_arrow</mat-icon>
-    <mat-icon class="material-icons" *ngIf="isPlaying">stop</mat-icon>
-  </button>
 
-  <button class="btn-save" mat-icon-button (click)="downloadAudio()">
-    <mat-icon class="material-icons">save_alt</mat-icon>
-  </button>
-</div>
+<ng-container *ngIf="isLoadingFile === false">
+
+  <ng-container *ngIf="isFileError === false">
+
+    <div class="slider">
+      <input #slider type="range" [value]="currentTime.value" (input)="audioElement.currentTime=$event.target.value"
+        [max]="audioDuration" /><br>
+      <div class="time-container">
+        <span class="times">{{currentTime | async | minuteSeconds}}</span>
+        <span class="times">{{audioDuration | minuteSeconds}}</span>
+      </div>
+    </div>
+    <div class="buttons">
+      <button class="btn-play" mat-icon-button (click)="playAudio()">
+        <mat-icon class="material-icons" *ngIf="isPlaying === false">play_arrow</mat-icon>
+        <mat-icon class="material-icons" *ngIf="isPlaying">stop</mat-icon>
+      </button>
+
+      <button class="btn-save" mat-icon-button (click)="downloadAudio()">
+        <mat-icon class="material-icons">save_alt</mat-icon>
+      </button>
+    </div>
+  </ng-container>
+
+
+  <div class="text-color-warn" *ngIf="isFileError === true">
+    Audio file missing
+  </div>
+
+</ng-container>

@@ -1,2 +1,17 @@
- <img *ngIf="imageToShow" class="img-thumbnail" [src]="imageToShow" (click)="openImage()">
+<div *ngIf="isLoadingFile === true">
+  Loading...
+</div>
 
+
+
+<ng-container *ngIf="isLoadingFile === false">
+
+  <ng-container *ngIf="isFileError === false">
+    <img *ngIf="imageToShow" class="img-thumbnail" [src]="imageToShow" (click)="openImage()">
+  </ng-container>
+
+  <div class="text-color-warn" *ngIf="isFileError === true">
+    Image file missing
+  </div>
+
+</ng-container>
