@@ -100,7 +100,8 @@ export default class BinaryStorageCtrl {
                 // insert new one
                 return new OTItemMedia(newMedia as any).save().then(newDoc => ({ overwritten: false, _id: newDoc._id }))
               }
-            }).then(result => {
+            })
+            /*.then(result => {
               return req.app.get("omnitrack").serverModule.agenda
                 .now(C.TASK_POSTPROCESS_ITEM_MEDIA, { mediaDbId: result._id })
                 .then(() => {
@@ -110,7 +111,7 @@ export default class BinaryStorageCtrl {
                   console.error(processErr)
                   return result
                 })
-            }).then(result => {
+            })*/.then(result => {
               res.status(200).send({ result: "success", overwritten: result.overwritten })
             })
           })
