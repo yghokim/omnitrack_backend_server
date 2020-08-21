@@ -51,8 +51,7 @@ function processExperimentAndUser(user: IUserDbEntity, experimentId: string, gro
         trackingPackage = (experiment.trackingPlans || []).find(p => p.key === group.trackingPlanKey)
       }
 
-      user.name =
-        user.participationInfo.groupId = groupId
+      user.participationInfo.groupId = groupId
       user.participationInfo.alias = alias || "P" + experiment["participantNumberSeed"]
       user.participationInfo.invitation = invitationId
       user.participationInfo.dropped = false

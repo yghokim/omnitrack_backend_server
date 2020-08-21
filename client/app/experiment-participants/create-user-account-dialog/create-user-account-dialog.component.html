@@ -54,7 +54,7 @@
 
       <mat-form-field>
         <label for="groupForm">Group (Required)</label>
-        <mat-select formContronName="groupId" [value]="groupId.value" [ngClass]="getValidationClass('groupId')">
+        <mat-select formControlName="groupId" [value]="groupId.value" [ngClass]="getValidationClass('groupId')">
           <mat-option *ngFor="let group of getGroups()" [value]="group._id">
             {{group.name}}
           </mat-option>
