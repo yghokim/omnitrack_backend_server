@@ -182,9 +182,9 @@ export class OTExperimentDataCtrl {
                         console.log("there is a big difference between the last session duration and whole timespan - ", wholeTimespan, sessionDuration)
 
                         console.log("All sessions around it:")
-                        const candidtateSessions = itemTrackSessionLogs.filter(l => l.content.isFinishing === false && l.timestamp >= (item.metadata.screenAccessedAt - 2000) && l.timestamp <= (item.timestamp + 2000))
+                        const candidtateSessions = itemTrackSessionLogs.filter(l => l.content.isFinishing === false && l.content.finishedAt >= (item.metadata.screenAccessedAt + l.content.elapsed - 1000) && l.finishedAt <= (item.timestamp+1000))
                         candidtateSessions.forEach(s => {
-                          console.log("saved:", s.content.item_saved, "elapsed: ", s.content.elapsed, "fihishedAt:", s.content.finishedAt, "difference in time: ", item.timestamp - s.content.finishedAt)
+                          console.log("elapsed: ", s.content.elapsed, "fihishedAt:", s.content.finishedAt, "difference in time: ", item.timestamp - s.content.finishedAt)
                         })
 
                         const firstCandidateSession = itemTrackSessionLogs.find(l => l.content.item_saved === false && ((l.content.timestamp - l.content.elapsed) - item.metadata.screenAccessedAt) < 1000)
