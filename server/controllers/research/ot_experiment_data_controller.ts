@@ -14,6 +14,8 @@ import OTItemMedia from '../../models/ot_item_media';
 const snakeCase = require('snake-case');
 import * as path from 'path';
 import * as fs from 'fs-extra';
+import OTUsageLog from '../../models/ot_usage_log';
+import * as d3 from 'd3';
 
 enum CellValueType {
   DATETIME_SECONDS = "seconds",
@@ -135,7 +137,7 @@ export class OTExperimentDataCtrl {
               }
 
               const itemRows: Array<Array<any>> = [
-                commonColumns.concat(injectedAttrNames).concat(["logged at", "captured"]).concat(metadataColumns.map(c => this.styleMetadataKeyString(c)))
+                commonColumns.concat(injectedAttrNames).concat(["logged at", "captured", "est_session_duration"]).concat(metadataColumns.map(c => this.styleMetadataKeyString(c)))
               ]
 
               for (const tracker of trackers) {
@@ -146,6 +148,7 @@ export class OTExperimentDataCtrl {
 
                   const group = experiment["groups"].find(group => group._id === participant.participationInfo.groupId)
                   const items = await OTItem.find({ "tracker": tracker._id }).lean<Array<IItemDbEntity>>()
+                  const itemTrackSessionLogs: Array<any> = await OTUsageLog.find({ "content.session": "kr.ac.snu.hcil.omnitrack.ui.pages.items.NewItemActivity", "content.item_saved": true, "experiment": experimentId, "user": participant._id }).lean()
 
                   console.log("Start gathering " + items.length + " items...")
                   //find metadataColumns
@@ -157,10 +160,30 @@ export class OTExperimentDataCtrl {
 
                     const itemOrder = items.indexOf(item)
 
+                    //calculate session duration
+
+                    const closeSessions = itemTrackSessionLogs.filter(l => Math.abs(l.content.finishedAt - item.timestamp) < 1000)
+                    let sessionDuration = null;
+                    if (closeSessions.length > 1) {
+                      console.log("Multiple close sessions : ", closeSessions.length)
+                      sessionDuration = d3.sum(closeSessions, s => s.content.elapsed)
+                    } else if (closeSessions.length === 1) {
+                      sessionDuration = d3.sum(closeSessions, s => s.content.elapsed)
+                    } else {
+                      //no session
+                      console.log("No close sessions.")
+                    }
+
+                    //==========================
+
                     itemRows.push(
                       [item._id, itemOrder, participant.participationInfo.alias, group != null ? group.name : null]
                         .concat(values)
-                        .concat([new TimePoint(item.timestamp, item.timezone).toMoment().format(), this.getItemSourceText(item.source)]
+                        .concat([
+                          new TimePoint(item.timestamp, item.timezone).toMoment().format(),
+                          this.getItemSourceText(item.source),
+                          sessionDuration
+                        ]
                           .concat(metadataColumns.map(m => this.getMetadataValue(item, m)))
                         )
                     )
@@ -252,6 +275,61 @@ export class OTExperimentDataCtrl {
       res.status(404).send("experiment id or researcher id were not submitted.")
     }
   }
+
+
+  getExperimentItemSessionDurations = async (req, res) => {
+    const experimentId = req.params.experimentId
+    const experiment = await OTExperiment.findOne({ _id: experimentId }, { "trackingPlans": 1, "groups": 1 }).lean()
+
+    if (experiment != null) {
+      const plans: Array<IExperimentTrackingPlanDbEntity> = experiment["trackingPlans"]
+      const planSheets = new Array<XLSX.WorkBook>()
+
+      for (const plan of plans) {
+
+        for (const trackerSchema of plan.data.trackers) {
+          // Per tracker plan
+
+          const trackers = await OTTracker.find({ "flags.injectionId": trackerSchema.flags.injectionId }).lean<any>()
+
+          for (const tracker of trackers) {
+
+            const participant = await OTUser.findOne({ "_id": tracker.user }, USER_PROJECTION_EXCLUDE_CREDENTIAL).lean<IUserDbEntity>()
+            if (participant != null) {
+
+              const group = experiment["groups"].find(group => group._id === participant.participationInfo.groupId)
+              const items = await OTItem.find({ "tracker": tracker._id }, { timestamp: 1 }).lean<Array<IItemDbEntity>>()
+
+              const itemTrackSessionLogs: Array<any> = await OTUsageLog.find({ "content.session": "kr.ac.snu.hcil.omnitrack.ui.pages.items.NewItemActivity", "content.item_saved": true, "experiment": experimentId, "user": participant._id }).lean()
+
+              const itemsWithMatchedSessions = items.map(item => {
+
+                const closeSessions = itemTrackSessionLogs.filter(l => Math.abs(l.content.finishedAt - item.timestamp) < 1000)
+                if (closeSessions.length > 1) {
+                  console.log("Multiple close sessions : ", closeSessions.length)
+                  return { itemTimestamp: item.timestamp, sessions: closeSessions.map(s => ({ duration: s.content.elapsed, finishedAt: s.content.finishedAt })) }
+                } else if (closeSessions.length === 1) {
+                  return { itemTimestamp: item.timestamp, sessions: closeSessions.map(s => ({ duration: s.content.elapsed, finishedAt: s.content.finishedAt })) }
+                } else {
+                  //no session
+                  console.log("No close sessions.")
+                  return { itemTimestamp: item.timestamp, sessions: closeSessions.map(s => ({ duration: s.content.elapsed, finishedAt: s.content.finishedAt })) }
+                }
+              })
+
+              console.log(participant.participationInfo.alias)
+              console.log(itemsWithMatchedSessions)
+            }
+
+          }
+        }
+      }
+    } else {
+      res.status(404).send("No such experiment.")
+    }
+
+  }
+
 }
 
 const experimentDataCtrl = new OTExperimentDataCtrl()
