@@ -188,7 +188,7 @@ export class OTExperimentDataCtrl {
                           new TimePoint(item.timestamp, item.timezone).toMoment().format(),
                           this.getItemSourceText(item.source),
                           sessionDuration,
-                          item.timestamp - item.metadata?.screenAccessedAt
+                          item.timestamp - item.metadata.screenAccessedAt
                         ]
                           .concat(metadataColumns.map(m => this.getMetadataValue(item, m)))
                         )
