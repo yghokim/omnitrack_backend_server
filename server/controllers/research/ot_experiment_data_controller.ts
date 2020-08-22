@@ -180,6 +180,13 @@ export class OTExperimentDataCtrl {
 
                       if (wholeTimespan - sessionDuration > 5000) {
                         console.log("there is a big difference between the last session duration and whole timespan - ", wholeTimespan, sessionDuration)
+
+                        console.log("All sessions around it:")
+                        const candidtateSessions = itemTrackSessionLogs.filter(l => l.content.isFinishing === false && l.timestamp >= (item.metadata.screenAccessedAt - 2000) && l.timestamp <= (item.timestamp + 2000))
+                        candidtateSessions.forEach(s => {
+                          console.log("saved:", s.content.item_saved, "elapsed: ", s.content.elapsed, "fihishedAt:", s.content.finishedAt, "difference in time: ", item.timestamp - s.content.finishedAt)
+                        })
+
                         const firstCandidateSession = itemTrackSessionLogs.find(l => l.content.item_saved === false && ((l.content.timestamp - l.content.elapsed) - item.metadata.screenAccessedAt) < 1000)
                         if (firstCandidateSession != null) {
                           console.log("found the first candidate session. add the duration - ", firstCandidateSession.content.elapsed)
@@ -226,30 +233,32 @@ export class OTExperimentDataCtrl {
 
                       const helper = FieldManager.getHelper(attr.type);
 
-                      if (helper.typeNameForSerialization === TypedStringSerializer.TYPENAME_SERVERFILE) {
-                        //media file
-                        const fileName = attr != null ? this.getItemValue(item, attr, true) : null
-                        if (fileName != null) {
-                          //file exists
-                          const media = await OTItemMedia.findOne({
-                            tracker: tracker._id,
-                            fieldLocalId: attr.localId,
-                            item: item._id
-                          }).lean<any>()
-                          if (media && includeFiles === true) {
 
-                            const mediaFilePath = req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(media.user, tracker._id, item._id) + "/" + media.originalFileName
-                            const mediaTempDirectoryPath = (participant.participationInfo.alias || participant._id) + "/" + snakeCase(tracker.name) + "/" + itemOrder
-                            const mediaTempFileName = fileName + path.extname(media.originalFileName)
+                      if (includeFiles === true) {
+                        if (helper.typeNameForSerialization === TypedStringSerializer.TYPENAME_SERVERFILE) {
+                          //media file
+                          const fileName = attr != null ? this.getItemValue(item, attr, true) : null
+                          if (fileName != null) {
+                            //file exists
+                            const media = await OTItemMedia.findOne({
+                              tracker: tracker._id,
+                              fieldLocalId: attr.localId,
+                              item: item._id
+                            }).lean<any>()
+                            if (media) {
+                              const mediaFilePath = req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(media.user, tracker._id, item._id) + "/" + media.originalFileName
+                              const mediaTempDirectoryPath = (participant.participationInfo.alias || participant._id) + "/" + snakeCase(tracker.name) + "/" + itemOrder
+                              const mediaTempFileName = fileName + path.extname(media.originalFileName)
 
-                            await fs.ensureDir(mediaTempDirectoryPath)
-                            await fs.copy(mediaFilePath, path.join(tmpDirPath, mediaTempDirectoryPath, mediaTempFileName))
-                            console.log("copied media file")
+                              await fs.ensureDir(mediaTempDirectoryPath)
+                              await fs.copy(mediaFilePath, path.join(tmpDirPath, mediaTempDirectoryPath, mediaTempFileName))
+                              console.log("copied media file")
+                            } else {
+                              console.log("media DB entry does not exist - check the original path: ", req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(participant._id, tracker._id, item._id))
+                            }
                           } else {
-                            console.log("media DB entry does not exist - check the original path: ", req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(participant._id, tracker._id, item._id))
+                            console.log("media item value does not exist.")
                           }
-                        } else {
-                          console.log("media item value does not exist.")
                         }
                       }
                     }
