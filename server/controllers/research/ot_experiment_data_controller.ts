@@ -139,7 +139,7 @@ export class OTExperimentDataCtrl {
               }
 
               const itemRows: Array<Array<any>> = [
-                commonColumns.concat(injectedAttrNames).concat(["logged at", "captured", "est_session_duration"]).concat(metadataColumns.map(c => this.styleMetadataKeyString(c)))
+                commonColumns.concat(injectedAttrNames).concat(["logged at", "captured", "est_session_duration", "est_session_duration_whole"]).concat(metadataColumns.map(c => this.styleMetadataKeyString(c)))
               ]
 
               for (const tracker of trackers) {
@@ -150,7 +150,7 @@ export class OTExperimentDataCtrl {
 
                   const group = experiment["groups"].find(group => group._id === participant.participationInfo.groupId)
                   const items = await OTItem.find({ "tracker": tracker._id }).lean<Array<IItemDbEntity>>()
-                  const itemTrackSessionLogs: Array<any> = await OTUsageLog.find({ "content.session": "kr.ac.snu.hcil.omnitrack.ui.pages.items.NewItemActivity", "content.item_saved": true, "experiment": experimentId, "user": participant._id }).lean()
+                  const itemTrackSessionLogs: Array<any> = await OTUsageLog.find({ "content.session": "kr.ac.snu.hcil.omnitrack.ui.pages.items.NewItemActivity", "content.item_saved": true, "experiment": experimentId, "user": participant._id, "content.elapsed": { $ne: true } }).lean()
 
                   console.log("Start gathering " + items.length + " items...")
                   //find metadataColumns
@@ -169,14 +169,14 @@ export class OTExperimentDataCtrl {
                     if (closeSessions.length > 1) {
                       console.log("Multiple close sessions : ", closeSessions.length)
                       console.log("---")
-                      console.log(closeSessions.forEach(s => console.log(s.content.elapsed, "difference: ", s.content.finishedAt - item.timestamp )))
+                      console.log(closeSessions.forEach(s => console.log(s.content.elapsed, "difference: ", s.content.finishedAt - item.timestamp)))
                       console.log("---")
-                      sessionDuration = d3.sum(closeSessions, s => s.content.elapsed)
+                      sessionDuration = closeSessions[0].content.elapsed
                     } else if (closeSessions.length === 1) {
                       sessionDuration = d3.sum(closeSessions, s => s.content.elapsed)
                     } else {
                       //no session
-                      console.log("No close sessions.")
+                      console.log("No close sessions")
                     }
 
                     //==========================
@@ -187,7 +187,8 @@ export class OTExperimentDataCtrl {
                         .concat([
                           new TimePoint(item.timestamp, item.timezone).toMoment().format(),
                           this.getItemSourceText(item.source),
-                          sessionDuration
+                          sessionDuration,
+                          item.timestamp - item.metadata?.screenAccessedAt
                         ]
                           .concat(metadataColumns.map(m => this.getMetadataValue(item, m)))
                         )
