@@ -90,7 +90,7 @@ export class OTExperimentDataCtrl {
     const experimentId = req.params.experimentId
     const researcherId = req.researcher.uid
 
-    const includeFiles = req.body.includeFiles || false
+    const includeFiles = req.body.includeFiles || true
 
     if (experimentId != null && researcherId != null) {
       try {
@@ -139,7 +139,7 @@ export class OTExperimentDataCtrl {
               }
 
               const itemRows: Array<Array<any>> = [
-                commonColumns.concat(injectedAttrNames).concat(["logged at", "captured", "est_session_duration", "est_session_duration_whole", "candidate_durations"]).concat(metadataColumns.map(c => this.styleMetadataKeyString(c)))
+                commonColumns.concat(injectedAttrNames).concat(["logged at", "captured" /*, "est_session_duration", "est_session_duration_whole", "candidate_durations"*/]).concat(metadataColumns.map(c => this.styleMetadataKeyString(c)))
               ]
 
               for (const tracker of trackers) {
@@ -220,9 +220,9 @@ export class OTExperimentDataCtrl {
                         .concat([
                           new TimePoint(item.timestamp, item.timezone).toMoment().format(),
                           this.getItemSourceText(item.source),
-                          sessionDuration,
-                          item.timestamp - item.metadata.screenAccessedAt,
-                          candidateSessionDurationText
+                          //sessionDuration,
+                          //item.timestamp - item.metadata.screenAccessedAt,
+                          //candidateSessionDurationText
                         ]
                           .concat(metadataColumns.map(m => this.getMetadataValue(item, m)))
                         )
