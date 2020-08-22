@@ -139,7 +139,7 @@ export class OTExperimentDataCtrl {
               }
 
               const itemRows: Array<Array<any>> = [
-                commonColumns.concat(injectedAttrNames).concat(["logged at", "captured", "est_session_duration", "est_session_duration_whole"]).concat(metadataColumns.map(c => this.styleMetadataKeyString(c)))
+                commonColumns.concat(injectedAttrNames).concat(["logged at", "captured", "est_session_duration", "est_session_duration_whole", "candidate_durations"]).concat(metadataColumns.map(c => this.styleMetadataKeyString(c)))
               ]
 
               for (const tracker of trackers) {
@@ -173,6 +173,8 @@ export class OTExperimentDataCtrl {
 
                     const wholeTimespan = item.timestamp - item.metadata.screenAccessedAt
 
+                    let candidateSessionDurationText: string = ""
+
                     const closeSessions = itemTrackSessionLogs.filter(l => l.content.item_saved === true && Math.abs(l.content.finishedAt - item.timestamp) < 2000)
                     let sessionDuration = null;
                     if (closeSessions.length > 0) {
@@ -182,31 +184,28 @@ export class OTExperimentDataCtrl {
                         console.log("there is a big difference between the last session duration and whole timespan - ", wholeTimespan, sessionDuration)
 
                         console.log("All sessions around it:")
-                        const candidtateSessions = itemTrackSessionLogs.filter(l => l.content.isFinishing === false && l.content.finishedAt >= (item.metadata.screenAccessedAt + l.content.elapsed - 1000) && l.finishedAt <= (item.timestamp+1000))
+                        const candidtateSessions = itemTrackSessionLogs.filter(l => l.content.isFinishing === false && l.timestamp >= (item.metadata.screenAccessedAt - 2000) && l.timestamp <= (item.timestamp + 2000))
                         candidtateSessions.forEach(s => {
-                          console.log("elapsed: ", s.content.elapsed, "fihishedAt:", s.content.finishedAt, "difference in time: ", item.timestamp - s.content.finishedAt)
+                          console.log("saved:", s.content.item_saved, "elapsed: ", s.content.elapsed, "fihishedAt:", s.content.finishedAt, "difference in time: ", item.timestamp - s.content.finishedAt)
+
                         })
 
-                        const firstCandidateSession = itemTrackSessionLogs.find(l => l.content.item_saved === false && ((l.content.timestamp - l.content.elapsed) - item.metadata.screenAccessedAt) < 1000)
-                        if (firstCandidateSession != null) {
-                          console.log("found the first candidate session. add the duration - ", firstCandidateSession.content.elapsed)
-                          sessionDuration += firstCandidateSession.content.elapsed
-                        } else {
-                          console.log("Failed to find the first candidate session.")
-                        }
+                        candidateSessionDurationText = candidtateSessions.map(s => s.content.elapsed).join(" ")
                       }
                     } else {
                       //no session
                       console.log("No close sessions")
                       if (wholeTimespan - sessionDuration > 5000) {
                         console.log("there is a big difference between the last session duration and whole timespan - ", wholeTimespan, sessionDuration)
-                        const firstCandidateSession = itemTrackSessionLogs.find(l => l.content.item_saved === false && ((l.content.timestamp - l.content.elapsed) - item.metadata.screenAccessedAt) < 1000)
-                        if (firstCandidateSession != null) {
-                          console.log("found the first candidate session. add the duration - ", firstCandidateSession.content.elapsed)
-                          sessionDuration += firstCandidateSession.content.elapsed
-                        } else {
-                          console.log("Failed to find the first candidate session.")
-                        }
+
+
+                        console.log("All sessions around it:")
+                        const candidtateSessions = itemTrackSessionLogs.filter(l => l.content.isFinishing === false && l.timestamp >= (item.metadata.screenAccessedAt - 2000) && l.timestamp <= (item.timestamp + 2000))
+                        candidtateSessions.forEach(s => {
+                          console.log("saved:", s.content.item_saved, "elapsed: ", s.content.elapsed, "fihishedAt:", s.content.finishedAt, "difference in time: ", item.timestamp - s.content.finishedAt)
+                        })
+
+                        candidateSessionDurationText = candidtateSessions.map(s => s.content.elapsed).join(" ")
                       }
                     }
 
@@ -222,7 +221,8 @@ export class OTExperimentDataCtrl {
                           new TimePoint(item.timestamp, item.timezone).toMoment().format(),
                           this.getItemSourceText(item.source),
                           sessionDuration,
-                          item.timestamp - item.metadata.screenAccessedAt
+                          item.timestamp - item.metadata.screenAccessedAt,
+                          candidateSessionDurationText
                         ]
                           .concat(metadataColumns.map(m => this.getMetadataValue(item, m)))
                         )
