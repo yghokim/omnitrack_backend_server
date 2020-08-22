@@ -150,8 +150,13 @@ export class OTExperimentDataCtrl {
 
                   const group = experiment["groups"].find(group => group._id === participant.participationInfo.groupId)
                   const items = await OTItem.find({ "tracker": tracker._id }).lean<Array<IItemDbEntity>>()
-                  const itemTrackSessionLogs: Array<any> = (await OTUsageLog.find({ "content.session": "kr.ac.snu.hcil.omnitrack.ui.pages.items.NewItemActivity", "experiment": experimentId, "user": participant._id, "content.elapsed": { $ne: true } }).lean() as Array<any>)
-                    .filter(l => itemTrackSessionLogs.find(log => log.timestamp === l.timestamp) == null)
+                  const itemTrackSessionLogsOriginal: Array<any> = (await OTUsageLog.find({ "content.session": "kr.ac.snu.hcil.omnitrack.ui.pages.items.NewItemActivity", "experiment": experimentId, "user": participant._id, "content.elapsed": { $ne: true } }).lean() as Array<any>)
+                  const itemTrackSessionLogs: Array<any> = []
+                  itemTrackSessionLogsOriginal.forEach(l => {
+                    if (itemTrackSessionLogs.find(log => log._id !== l._id && log.timestamp === l.timestamp) == null) {
+                      itemTrackSessionLogs.push(l)
+                    }
+                  })
 
 
                   console.log("Start gathering " + items.length + " items...")
