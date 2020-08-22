@@ -90,6 +90,8 @@ export class OTExperimentDataCtrl {
     const experimentId = req.params.experimentId
     const researcherId = req.researcher.uid
 
+    const includeFiles = req.body.includeFiles || false
+
     if (experimentId != null && researcherId != null) {
       try {
 
@@ -162,10 +164,13 @@ export class OTExperimentDataCtrl {
 
                     //calculate session duration
 
-                    const closeSessions = itemTrackSessionLogs.filter(l => Math.abs(l.content.finishedAt - item.timestamp) < 1000)
+                    const closeSessions = itemTrackSessionLogs.filter(l => Math.abs(l.content.finishedAt - item.timestamp) < 2000)
                     let sessionDuration = null;
                     if (closeSessions.length > 1) {
                       console.log("Multiple close sessions : ", closeSessions.length)
+                      console.log("---")
+                      console.log(closeSessions.forEach(s => console.log(s.content.elapsed, "difference: ", s.content.finishedAt - item.timestamp )))
+                      console.log("---")
                       sessionDuration = d3.sum(closeSessions, s => s.content.elapsed)
                     } else if (closeSessions.length === 1) {
                       sessionDuration = d3.sum(closeSessions, s => s.content.elapsed)
@@ -203,7 +208,8 @@ export class OTExperimentDataCtrl {
                             fieldLocalId: attr.localId,
                             item: item._id
                           }).lean<any>()
-                          if (media) {
+                          if (media && includeFiles === true) {
+
                             const mediaFilePath = req.app.get("omnitrack").serverModule.makeItemMediaFileDirectoryPath(media.user, tracker._id, item._id) + "/" + media.originalFileName
                             const mediaTempDirectoryPath = (participant.participationInfo.alias || participant._id) + "/" + snakeCase(tracker.name) + "/" + itemOrder
                             const mediaTempFileName = fileName + path.extname(media.originalFileName)
