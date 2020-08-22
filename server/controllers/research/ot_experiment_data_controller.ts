@@ -150,7 +150,9 @@ export class OTExperimentDataCtrl {
 
                   const group = experiment["groups"].find(group => group._id === participant.participationInfo.groupId)
                   const items = await OTItem.find({ "tracker": tracker._id }).lean<Array<IItemDbEntity>>()
-                  const itemTrackSessionLogs: Array<any> = await OTUsageLog.find({ "content.session": "kr.ac.snu.hcil.omnitrack.ui.pages.items.NewItemActivity", "content.item_saved": true, "experiment": experimentId, "user": participant._id, "content.elapsed": { $ne: true } }).lean()
+                  const itemTrackSessionLogs: Array<any> = (await OTUsageLog.find({ "content.session": "kr.ac.snu.hcil.omnitrack.ui.pages.items.NewItemActivity", "experiment": experimentId, "user": participant._id, "content.elapsed": { $ne: true } }).lean() as Array<any>)
+                    .filter(l => itemTrackSessionLogs.find(log => log.timestamp === l.timestamp) == null)
+
 
                   console.log("Start gathering " + items.length + " items...")
                   //find metadataColumns
@@ -164,20 +166,40 @@ export class OTExperimentDataCtrl {
 
                     //calculate session duration
 
-                    const closeSessions = itemTrackSessionLogs.filter(l => Math.abs(l.content.finishedAt - item.timestamp) < 2000)
+                    const wholeTimespan = item.timestamp - item.metadata.screenAccessedAt
+
+                    const closeSessions = itemTrackSessionLogs.filter(l => l.content.item_saved === true && Math.abs(l.content.finishedAt - item.timestamp) < 2000)
                     let sessionDuration = null;
-                    if (closeSessions.length > 1) {
-                      console.log("Multiple close sessions : ", closeSessions.length)
-                      console.log("---")
-                      console.log(closeSessions.forEach(s => console.log(s.content.elapsed, "difference: ", s.content.finishedAt - item.timestamp)))
-                      console.log("---")
+                    if (closeSessions.length > 0) {
                       sessionDuration = closeSessions[0].content.elapsed
-                    } else if (closeSessions.length === 1) {
-                      sessionDuration = d3.sum(closeSessions, s => s.content.elapsed)
+
+                      if (wholeTimespan - sessionDuration > 5000) {
+                        console.log("there is a big difference between the last session duration and whole timespan - ", wholeTimespan, sessionDuration)
+                        const firstCandidateSession = itemTrackSessionLogs.find(l => l.content.item_saved === false && ((l.content.timestamp - l.content.elapsed) - item.metadata.screenAccessedAt) < 1000)
+                        if (firstCandidateSession != null) {
+                          console.log("found the first candidate session. add the duration - ", firstCandidateSession.content.elapsed)
+                          sessionDuration += firstCandidateSession.content.elapsed
+                        } else {
+                          console.log("Failed to find the first candidate session.")
+                        }
+                      }
                     } else {
                       //no session
                       console.log("No close sessions")
+                      if (wholeTimespan - sessionDuration > 5000) {
+                        console.log("there is a big difference between the last session duration and whole timespan - ", wholeTimespan, sessionDuration)
+                        const firstCandidateSession = itemTrackSessionLogs.find(l => l.content.item_saved === false && ((l.content.timestamp - l.content.elapsed) - item.metadata.screenAccessedAt) < 1000)
+                        if (firstCandidateSession != null) {
+                          console.log("found the first candidate session. add the duration - ", firstCandidateSession.content.elapsed)
+                          sessionDuration += firstCandidateSession.content.elapsed
+                        } else {
+                          console.log("Failed to find the first candidate session.")
+                        }
+                      }
                     }
+
+                    //find prior false save sessions
+
 
                     //==========================
 
