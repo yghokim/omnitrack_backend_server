@@ -14,6 +14,9 @@
           <div class="error-message" *ngIf="username.errors.required">
             This field is required.
           </div>
+          <div class="error-message" *ngIf="username.errors.pattern">
+            Username must contain only lower case letters and numbers.
+          </div>
           <div class="error-message" *ngIf="username.errors.minlength || username.errors.maxlength">
             Username must be between 3 and 50 letters.
           </div>

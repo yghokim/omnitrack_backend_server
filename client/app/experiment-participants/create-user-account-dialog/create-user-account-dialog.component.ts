@@ -54,7 +54,7 @@ export class CreateUserAccountDialogComponent implements OnInit, OnDestroy {
 
   password = new FormControl("", [Validators.required, Validators.minLength(4)])
 
-  username = new FormControl("", [Validators.required, Validators.minLength(3), Validators.maxLength(50), noDuplicateValidator(this.data.participants.map(p => p.username))])
+  username = new FormControl("", [Validators.required, Validators.minLength(3), Validators.pattern('^[a-z0-9]+$'), Validators.maxLength(50), noDuplicateValidator(this.data.participants.map(p => p.username))])
 
   email = new FormControl("changeme@email.com", [Validators.required, Validators.email])
 
