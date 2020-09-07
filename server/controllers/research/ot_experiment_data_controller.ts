@@ -271,7 +271,7 @@ export class OTExperimentDataCtrl {
               }
 
               const sheet = XLSX.utils.aoa_to_sheet(itemRows)
-              XLSX.utils.book_append_sheet(workbook, sheet, trackerSchema.name)
+              XLSX.utils.book_append_sheet(workbook, sheet, trackerSchema.name.substr(0, 31))
 
               console.log("End gathering data for tracker " + trackerSchema.name)
             }

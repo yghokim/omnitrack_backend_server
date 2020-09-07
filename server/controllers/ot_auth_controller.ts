@@ -40,7 +40,7 @@ export abstract class OTAuthCtrlBase {
 
   protected generateJWTToken(user, iat?: Date): string {
     const expiry = new Date();
-    expiry.setDate(expiry.getDate() + 7);
+    expiry.setDate(expiry.getDate() + 365);
 
     const token = {
       uid: user._id,
