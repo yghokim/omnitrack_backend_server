@@ -71,7 +71,9 @@ export class OTExperimentDataCtrl {
           case CellValueType.DATE: return new TimePoint(value, item.timezone).toMoment().format("YYYY-MM-DD")
           case CellValueType.DATETIME_MINUTES: return new TimePoint(value, item.timezone).toMoment().format("kk:mm (MMM DD YYYY)") + " " + moment.tz(item.timezone).format("z")
           case CellValueType.DATETIME_SECONDS: return new TimePoint(value, item.timezone).toMoment().format("kk:mm:ss (MMM DD YYYY)") + " " + moment.tz(item.timezone).format("z")
-          default: return value
+          default: if(typeof value == 'object'){
+            return JSON.stringify(value)
+          }else return value
         }
       } else return null
     } else return null
