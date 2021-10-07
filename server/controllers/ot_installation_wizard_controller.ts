@@ -29,7 +29,7 @@ export default class OTInstallationWizardCtrl {
   }
 
   isMailerSet(): boolean {
-    return env != null && env["mailer"] != null && env["mailer"].api_key != null && env.mailer.sender_email != null
+    return env != null && (env["use_mailer"] == false || env["mailer"] != null && env["mailer"].api_key != null && env.mailer.sender_email != null)
   }
 
   isCriticalConditionMet(): boolean {
