@@ -88,7 +88,7 @@
     "jsonform": "^2.1.5",
     "jsonwebtoken": "^8.5.1",
     "jszip": "^3.2.2",
-    "marked": "^0.7.0",
+    "marked": "^4.0.10",
     "material-design-icons-iconfont": "^5.0.1",
     "md5": "^2.2.1",
     "md5-file": "^4.0.0",
